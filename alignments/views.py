@@ -1,0 +1,78 @@
+from django.shortcuts import render
+from django.http import HttpResponse
+from alignments.models import *
+from django.urls import reverse_lazy
+from django.views.generic import ListView
+import re
+
+def sql_alignment_query(aln_id):
+	alnposition = AlnData.objects.raw('SELECT * FROM SEREB.Aln_Data\
+		INNER JOIN SEREB.Alignment ON SEREB.Aln_Data.aln_id = SEREB.Alignment.Aln_id\
+		INNER JOIN SEREB.Residues ON SEREB.Aln_Data.res_id = SEREB.Residues.resi_id\
+		INNER JOIN SEREB.Polymer_Data ON SEREB.Residues.PolData_id = SEREB.Polymer_Data.PData_id\
+		INNER JOIN SEREB.Species ON SEREB.Polymer_Data.strain_id = SEREB.Species.strain_id\
+		WHERE SEREB.Alignment.aln_id = '+str(aln_id)+'')
+	alnpos=[]
+	fastastring,max_aln_length = build_alignment(alnposition)
+
+	return fastastring,max_aln_length
+
+def build_alignment(rawMYSQLresult):
+	'''
+	In here add a way to do the phase; we iterate over resis, so all we need to check is what phase the ones from PYRFU are.
+	'''
+	nogap_tupaln={}
+	all_alnpositions=[]
+	for row in rawMYSQLresult:
+		all_alnpositions.append(row.aln_pos)
+		if row.strain in nogap_tupaln:
+			nogap_tupaln[row.strain].append((row.unModResName, row.aln_pos))
+		else:
+			nogap_tupaln[row.strain]=[]
+			nogap_tupaln[row.strain].append((row.unModResName, row.aln_pos))
+	fasta_string=''
+	for strain in nogap_tupaln:
+		strain1 = re.sub(' ','_',strain)
+		fasta_string+='\n>'+strain1+'\n'
+		mem = 1
+		for index, resi_pos in enumerate(nogap_tupaln[strain], start=1):
+			if mem == resi_pos[1]:
+				mem = mem+1
+			elif mem < resi_pos[1]:
+				diff = resi_pos[1]-mem
+				for i in range(0,diff):
+					mem = mem+1
+					fasta_string+='-'
+				mem = mem+1
+			else:
+				raise ValueError("This shouldn't be possible!")
+			fasta_string+=resi_pos[0]
+			if index == len(nogap_tupaln[strain]):
+				if resi_pos[1] < max(all_alnpositions):
+					diff = max(all_alnpositions)-resi_pos[1]
+					for index2,i in enumerate(range(0,diff), start=1):
+						fasta_string+='-'
+						if index2 == diff:
+							fasta_string+='\n'
+				else:
+					fasta_string+='\n'
+	literal_string = re.sub(r'\n\n','\n',fasta_string)
+	return literal_string.lstrip().encode('unicode-escape').decode('ascii'),max(all_alnpositions)
+
+def index(request):
+	some_Alignments = Alignment.objects.all()
+	context = {'some_Alignments': some_Alignments}
+	return render(request, 'alignments/index.html', context)
+
+def detail(request, align_name):
+	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
+	fastastring,max_aln_length = sql_alignment_query(align_id)
+	#print(fastastring)
+	context = {'fastastring': fastastring, 'aln_name':str(Alignment.objects.filter(aln_id = align_id)[0].name)}
+	return render(request, 'alignments/detail.html', context)
+
+def rRNA(request, name):
+	align_id = Alignment.objects.filter(name = name)[0].aln_id
+	fastastring,max_aln_length = sql_alignment_query(align_id)
+	context = {'fastastring': fastastring, 'aln_name':str(Alignment.objects.filter(aln_id = align_id)[0].name)}
+	return render(request, 'alignments/rRNA.html', context)
