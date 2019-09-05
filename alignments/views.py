@@ -5,6 +5,9 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView
 import re
 
+def example():
+	pass
+
 def sql_alignment_query(aln_id):
 	alnposition = AlnData.objects.raw('SELECT * FROM SEREB.Aln_Data\
 		INNER JOIN SEREB.Alignment ON SEREB.Aln_Data.aln_id = SEREB.Alignment.Aln_id\
