@@ -1,4 +1,15 @@
 <select onchange="location = this.value;">
+	<option value="">Select a superkingdom</option>
+	<!-- {% for aln in some_Alignments %}
+		{%if 'LSU' not in aln.name%}
+			<option value="{% url 'alignments:detail' aln.name %}">{{ aln.name }}</option>
+		{% endif %}
+	{% endfor %} -->
+</select>
+
+<p>OR</p>
+
+<select onchange="location = this.value;">
 	<option value="">Select an alignment</option>
 	{% for aln in some_Alignments %}
 		{%if 'LSU' not in aln.name%}
@@ -10,7 +21,7 @@
 <p>OR</p>
 
 <select onchange="location = this.value;">
-	<option value="">Select a rRNA alignment</option>
+	<option value="">Select an rRNA alignment</option>
 	{% for aln in some_Alignments %}
 		{%if 'LSU' in aln.name%}
 			<option value="{% url 'alignments:rRNA' aln.name %}">{{ aln.name }}</option>
