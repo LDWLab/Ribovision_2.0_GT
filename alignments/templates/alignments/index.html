@@ -1,5 +1,5 @@
 <select onchange="location = this.value;">
-	<option value="">Select a alignment</option>
+	<option value="">Select an alignment</option>
 	{% for aln in some_Alignments %}
 		{%if 'LSU' not in aln.name%}
 			<option value="{% url 'alignments:detail' aln.name %}">{{ aln.name }}</option>
