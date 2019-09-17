@@ -1,10 +1,10 @@
-<select onchange="location = this.value;">
+<select onchange=";">
 	<option value="">Select a superkingdom</option>
-	<!-- {% for aln in some_Alignments %}
+	{% for aln in superKingdomAlignments %}
 		{%if 'LSU' not in aln.name%}
 			<option value="{% url 'alignments:detail' aln.name %}">{{ aln.name }}</option>
 		{% endif %}
-	{% endfor %} -->
+	{% endfor %}
 </select>
 
 <p>OR</p>

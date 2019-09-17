@@ -61,7 +61,11 @@ def build_alignment(rawMYSQLresult):
 
 def index(request):
 	some_Alignments = Alignment.objects.all()
-	context = {'some_Alignments': some_Alignments}
+	superKingdomAlignments = Alignment.objects.all()
+	context = {
+		'some_Alignments': some_Alignments,
+		'superKingdomAlignments': superKingdomAlignments
+	}
 	return render(request, 'alignments/index.html', context)
 
 def detail(request, align_name):
