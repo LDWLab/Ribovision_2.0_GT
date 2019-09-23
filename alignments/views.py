@@ -61,7 +61,7 @@ def build_alignment(rawMYSQLresult):
 
 def index(request):
 	some_Alignments = Alignment.objects.all()
-	superKingdoms = Taxgroups.objects.all()
+	superKingdoms = Taxgroups.objects.raw('SELECT * FROM SEREB.TaxGroups.grouplevel = "superkingdom"')
 	context = {
 		'some_Alignments': some_Alignments,
 		'superKingdoms': superKingdoms
