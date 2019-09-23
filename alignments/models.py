@@ -40,6 +40,16 @@ class AlnData(models.Model):
         managed = False
         db_table = 'Aln_Data'
 
+class TaxGroups(models.Model):
+    taxgroup_id = models.AutoFiled(db_column='taxgroup_id', primary_key=True)
+    groupLevel = models.CharField()
+    groupName = models.CharField()
+    parent = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'TaxGroups'
+
 
 class AlnDomains(models.Model):
     dom_taxid = models.ForeignKey('Taxgroups', models.DO_NOTHING, db_column='dom_taxid')
