@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from alignments.models import *
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView
-from .forms import TaxgroupForm
+# from .forms import TaxgroupForm
 import re
 
 def sql_alignment_query(aln_id):
@@ -89,10 +89,10 @@ class TaxgroupListView(ListView):
 
 class TaxgroupCreateView(CreateView):
 	model = Taxgroups
-	form_class = TaxgroupForm
+	# form_class = TaxgroupForm
 	success_url = reverse_lazy('taxgroup_changelist')
 
 class TaxgroupUpdateView(UpdateView):
 	model = Taxgroups
-	form_class = TaxgroupForm
+	# form_class = TaxgroupForm
 	success_url = reverse_lazy('taxgroup_changelist')
