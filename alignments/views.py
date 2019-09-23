@@ -1,4 +1,4 @@
-from django.shortcuts import render
+rom django.shortcuts import render
 from django.http import HttpResponse
 from alignments.models import *
 from django.urls import reverse_lazy
