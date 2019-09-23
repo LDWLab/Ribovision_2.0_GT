@@ -83,20 +83,20 @@ def rRNA(request, name):
 	context = {'fastastring': fastastring, 'aln_name':str(Alignment.objects.filter(aln_id = align_id)[0].name)}
 	return render(request, 'alignments/rRNA.html', context)
 
-class TaxgroupsListView(ListView):
-	model = Taxgroups
-	context_object_name = 'taxgroups'
+# class TaxgroupsListView(ListView):
+# 	model = Taxgroups
+# 	context_object_name = 'taxgroups'
 
-class TaxgroupsCreateView(CreateView):
-	model = Taxgroups
-	form_class = TaxgroupsForm
-	success_url = reverse_lazy('taxgroups_changelist')
+# class TaxgroupsCreateView(CreateView):
+# 	model = Taxgroups
+# 	form_class = TaxgroupsForm
+# 	success_url = reverse_lazy('taxgroups_changelist')
 
-class TaxgroupsUpdateView(UpdateView):
-	model = Taxgroups
-	form_class = Taxgroups
-	success_url = reverse_lazy('taxgroups_changelist')
+# class TaxgroupsUpdateView(UpdateView):
+# 	model = Taxgroups
+# 	form_class = Taxgroups
+# 	success_url = reverse_lazy('taxgroups_changelist')
 
-def load_phyla(request):
-	superkingdom_id = request.GET.get('superkingdom')
-	phyla = Taxgroups.objects.filter(parent=superkingdom_id).order_by('groupName')
+# def load_phyla(request):
+# 	superkingdom_id = request.GET.get('superkingdom')
+# 	phyla = Taxgroups.objects.filter(parent=superkingdom_id).order_by('groupName')
