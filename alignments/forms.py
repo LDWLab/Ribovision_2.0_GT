@@ -2,8 +2,6 @@ from django import forms
 from .models import Taxgroups
 
 class TaxgroupForm(forms.ModelForm):
-
-    
     class Meta:
         model = Taxgroups
         fields = ('superkingdom', 'phyla', 'alignment')
