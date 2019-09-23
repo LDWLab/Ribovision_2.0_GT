@@ -81,3 +81,17 @@ def rRNA(request, name):
 	fastastring,max_aln_length = sql_alignment_query(align_id)
 	context = {'fastastring': fastastring, 'aln_name':str(Alignment.objects.filter(aln_id = align_id)[0].name)}
 	return render(request, 'alignments/rRNA.html', context)
+
+class TaxgroupListView(ListView):
+	model = Taxgroups
+	context_object_name = 'taxgroups'
+
+class TaxgroupCreateView(CreateView):
+	model = Taxgroups
+	fields = ('superkingdom', 'phyla', 'alignment')
+	success_url = reverse_lazy('taxgroup_changelist')
+
+class TaxgroupUpdateView(UpdateView):
+	model = Taxgroups
+	fields = ('superkingdom', 'phyla', 'alignment')
+	success_url = reverse_lazy('taxgroup_changelist')
