@@ -93,5 +93,6 @@ class TaxgroupCreateView(CreateView):
 
 class TaxgroupUpdateView(UpdateView):
 	model = Taxgroups
+	
 	fields = ('superkingdom', 'phyla', 'alignment')
 	success_url = reverse_lazy('taxgroup_changelist')
