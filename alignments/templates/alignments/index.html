@@ -1,4 +1,10 @@
 <select onchange="location = this.value;">
+	<option value="">Select a superkingdom</option>
+	{% for aln in superKingdoms %}
+	{% endfor %}
+</select>
+
+<select onchange="location = this.value;">
 	<option value="">Select an alignment</option>
 	{% for aln in some_Alignments %}
 		{%if 'LSU' not in aln.name%}
