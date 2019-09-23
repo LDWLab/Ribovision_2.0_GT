@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from alignments.models import *
 from django.urls import reverse_lazy
-from django.views.generic import ListView
+from django.views.generic import ListView, CreateView, UpdateView
 import re
 
 def sql_alignment_query(aln_id):
@@ -82,16 +82,16 @@ def rRNA(request, name):
 	context = {'fastastring': fastastring, 'aln_name':str(Alignment.objects.filter(aln_id = align_id)[0].name)}
 	return render(request, 'alignments/rRNA.html', context)
 
-# class TaxgroupListView(ListView):
-# 	model = Taxgroups
-# 	context_object_name = 'taxgroups'
+class TaxgroupListView(ListView):
+	model = Taxgroups
+	context_object_name = 'taxgroups'
 
-# class TaxgroupCreateView(CreateView):
-# 	model = Taxgroups
-# 	fields = ('superkingdom', 'phyla', 'alignment')
-# 	success_url = reverse_lazy('taxgroup_changelist')
+class TaxgroupCreateView(CreateView):
+	model = Taxgroups
+	fields = ('superkingdom', 'phyla', 'alignment')
+	success_url = reverse_lazy('taxgroup_changelist')
 
-# class PersonUpdateView(UpdateView):
-# 	model = Taxgroups
-# 	fields = ('superkingdom', 'phyla', 'alignment')
-# 	success_url = reverse_lazy('taxgroup_changelist')
+class PersonUpdateView(UpdateView):
+	model = Taxgroups
+	fields = ('superkingdom', 'phyla', 'alignment')
+	success_url = reverse_lazy('taxgroup_changelist')
