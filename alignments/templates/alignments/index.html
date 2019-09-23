@@ -11,7 +11,7 @@
 	<option value="">Select an alignment</option>
 	{% for foo in some_Alignments %}
 		{%if 'LSU' not in foo.name%}
-			<option value="{% url 'alignments:detail' aln.name %}">{{ foo.name }}</option>
+			<option value="{% url 'alignments:detail' foo.name %}">{{ foo.name }}</option>
 		{% endif %}
 	{% endfor %}
 </select>
