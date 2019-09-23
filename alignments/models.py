@@ -40,6 +40,7 @@ class AlnData(models.Model):
         managed = False
         db_table = 'Aln_Data'
 
+
 class AlnDomains(models.Model):
     dom_taxid = models.ForeignKey('Taxgroups', models.DO_NOTHING, db_column='dom_taxid')
     aln = models.ForeignKey(Alignment, models.DO_NOTHING)
