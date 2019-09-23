@@ -61,7 +61,7 @@ def build_alignment(rawMYSQLresult):
 
 def index(request):
 	some_Alignments = Alignment.objects.all()
-	superKingdoms = Taxgroups.objects.all()
+	superKingdoms = Taxgroups.objects.raw('SELECT * FROM SEREB.TaxGroups where SEREB.TaxGroups.groupLevel = "superkingdom";')
 	context = {
 		'some_Alignments': some_Alignments,
 		'superKingdoms': superKingdoms
@@ -79,4 +79,3 @@ def rRNA(request, name):
 	align_id = Alignment.objects.filter(name = name)[0].aln_id
 	fastastring,max_aln_length = sql_alignment_query(align_id)
 	context = {'fastastring': fastastring, 'aln_name':str(Alignment.objects.filter(aln_id = align_id)[0].name)}
-	return render(request, 'alignments/rRNA.html', context)
