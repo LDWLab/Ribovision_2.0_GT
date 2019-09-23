@@ -9,9 +9,9 @@
 
 <select onchange="location = this.value;">
 	<option value="">Select an alignment</option>
-	{% for foo in some_Alignments %}
-		{%if 'LSU' not in foo.name%}
-			<option value="{% url 'alignments:detail' foo.name %}">{{ foo.name }}</option>
+	{% for aln in some_Alignments %}
+		{%if 'LSU' not in aln.name%}
+			<option value="{% url 'alignments:detail' aln.name %}">{{ aln.name }}</option>
 		{% endif %}
 	{% endfor %}
 </select>
