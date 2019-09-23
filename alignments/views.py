@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from alignments.models import *
 from django.urls import reverse_lazy
 from django.views.generic import ListView
-from .forms import TaxgroupsForm
+# from .forms import TaxgroupsForm
 import re
 
 def sql_alignment_query(aln_id):
