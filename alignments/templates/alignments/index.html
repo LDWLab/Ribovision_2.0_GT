@@ -1,9 +1,7 @@
 <select onchange=";">
 	<option value="">Select a superkingdom</option>
 	{% for aln in superKingdoms %}
-		{%if 'LSU' not in aln.name%}
-			<option value="{% url 'alignments:detail' aln.name %}">{{ aln.name }}</option>
-		{% endif %}
+		<option value="">{{ aln.name }}</option>
 	{% endfor %}
 </select>
 
