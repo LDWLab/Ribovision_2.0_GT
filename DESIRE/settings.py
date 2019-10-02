@@ -25,7 +25,7 @@ SECRET_KEY = '7*kcidzx=ndm(@1#bf9p0#$nhpa-*1a%2s+-cei^2n^x)p1k1_'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['130.207.36.75']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -77,11 +77,11 @@ WSGI_APPLICATION = 'DESIRE.wsgi.application'
 DATABASES = {
     'default': {
         'NAME': 'SEREB',
-        'ENGINE': 'django.db.backends.mysql',
-        'USER': 'django_web',             #Write username here
-        'PASSWORD': 'rv3_dsire_DJNG',         #And password here
-        'HOST': '/var/lib/mysql/mysql.sock',
-        'PORT': '',
+        'ENGINE': 'mysql.connector.django',
+        'USER': 'ppenev',             #Write username here
+        'PASSWORD': 'eb1e1e^^',         #And password here
+        'HOST': '130.207.36.75',
+        'PORT': '3306',
         'OPTIONS': {
           'autocommit': True,
         },
