@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from alignments.models import *
 from django.urls import reverse_lazy
-from django.views.generic import ListView
+from django.views.generic import ListView, CreateView, UpdateView
 import re
 
 def sql_alignment_query(aln_id):
@@ -61,10 +61,11 @@ def build_alignment(rawMYSQLresult):
 
 def index(request):
 	some_Alignments = Alignment.objects.all()
-	superKingdomAlignments = Alignment.objects.all()
+	superKingdoms = Taxgroups.objects.raw('SELECT * FROM SEREB.TaxGroups WHERE\
+		 SEREB.TaxGroups.groupLevel = "superkingdom";')
 	context = {
 		'some_Alignments': some_Alignments,
-		'superKingdomAlignments': superKingdomAlignments
+		'superKingdoms': superKingdoms
 	}
 	return render(request, 'alignments/index.html', context)
 
@@ -80,3 +81,17 @@ def rRNA(request, name):
 	fastastring,max_aln_length = sql_alignment_query(align_id)
 	context = {'fastastring': fastastring, 'aln_name':str(Alignment.objects.filter(aln_id = align_id)[0].name)}
 	return render(request, 'alignments/rRNA.html', context)
+
+class TaxgroupListView(ListView):
+	model = Taxgroups
+	context_object_name = 'taxgroups'
+
+class TaxgroupCreateView(CreateView):
+	model = Taxgroups
+	fields = ('superkingdom', 'phyla', 'alignment')
+	success_url = reverse_lazy('taxgroup_changelist')
+
+class TaxgroupUpdateView(UpdateView):
+	model = Taxgroups
+	fields = ('superkingdom', 'phyla', 'alignment')
+	success_url = reverse_lazy('taxgroup_changelist')
