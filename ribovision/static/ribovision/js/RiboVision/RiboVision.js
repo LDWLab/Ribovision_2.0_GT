@@ -25,7 +25,7 @@ based on:
 
 // for documentation see apollo.chemistry.gatech.edu/RiboVision/Documentation
 //This doesn't exist and this probably won't be the final license.
-
+load static;
 /////////////////////////// Global Variable Declaration ///////////////////////
 // Main Variables
 var rvDataSets = [];
