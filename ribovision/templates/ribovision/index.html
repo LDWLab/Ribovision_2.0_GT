@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <meta name="generator" content="HTML Tidy for HTML5 (experimental) for Windows https://github.com/w3c/tidy-html5/tree/c63cc39" />
+  <meta name="google-site-verification" content="10iJqK4viLfNp2x38snMWWUr777nlEsmMH8y0bprnpk" />
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <title>RiboVision: Ribosome Visualization Suite.</title>
+  {% include "header.html" %}
+</head>
+
+<body>
+{% include "ngl_include.html" %}
+  <div id="menu" class="ui-widget-content">
+    <div id="SiteInfo" class="ui-widget-content">
+      <h3 class="ui-widget-header2"><a href="./Documentation/index.html" target="_blank" style="color:#FFF">RiboVision Manual</a></h3>
+
+      <div id="MainLogoDiv">
+        <a href="http://pubs.rsc.org/is/content/articlelanding/2014/fd/c3fd00126a#!divAbstract" target="_blank"><img src="static/images/RiboVisionLogo.png" id="MainLogo" class="ComboLogo" title=
+        "RiboVision Manual" alt="RiboVision Logo" />
+		 <!-- <a href="http://astrobiology.nasa.gov/nai/"
+			target="_blank"><img src="static/images/NASALogo.png" class="ComboLogo" title="NASA Astrobiology Institute (NAI)" alt=
+			"NASA Logo" /></a>
+			 <a href="https://www.nsf.gov/"
+			target="_blank"><img src="static/images/NSF_logo.png" class="ComboLogo" title="National Science Foundation (NSF)" alt=
+			"NSF Logo" /></a> -->
+		Welcome, <a id="loginbutton" href="#" target="_blank">Guest User<?php echo $logged_in_user ?>.</a>
+		</br>
+		</br>
+		<a href="https://ww2.chemistry.gatech.edu/~lw26/" target="_blank">The Williams Lab @ GaTech.</a>
+      </div>
+    </div>
+
+    <div id="MainMenu" class="ui-widget-content">
+      <h3 class="ui-widget-header2">Select</h3>
+
+      <div id="SideBarAccordian">
+        <h3><a href="#">Species/Subunit</a></h3>
+
+        <div id="SpeciesDiv" style="padding:0.1em">
+          <!--
+                                        Molecule Position:
+                                        <div id="SubUnitNumberToggle">
+                                                <input id="LoadSubunit1" type="radio" name="LoadSubunit" value="on" /><label for="LoadSubunit1">1st</label>
+                                                <input id="LoadSubunit2" type="radio" name="LoadSubunit" value="off" /><label for="LoadSubunit2">2nd</label>
+                                        </div>
+                                        Built-In Structures:
+                                        <ul id="speciesList" style="font-size:0.9em">
+                        <li class="ui-menu-item ios-menu-back-link" role="menu">No Molecule</li>
+                    </ul>//-->
+          Built-In Structures: <select id="speciesList" multiple="multiple">
+            </select>
+
+          <div id="ImportStrutureFileDiv" style="padding:0.1em">
+            Custom Structures: Import Structure: <input type="file" id="importstructurefile" name="importstructurefile[]" accept=
+            "text/csv" /> <output id="structurefilelist"></output><br />
+          </div>
+
+          <div id="ptModToggle">
+            <br />
+            <br />
+            Post-transcriptional Modifications:<br />
+            <input id="ptON" type="radio" name="ptmod" value="on" /><label for="ptON">On</label> <input id="ptOFF" type="radio"
+            name="ptmod" value="off" /><label for="ptOFF">Off</label>
+          </div>
+        </div>
+
+        <h3><a href="#">Select</a></h3>
+
+        <div id="SelectionDiv" style="padding:0.1em">
+          Nucleotides: e.g. 5S:(1-10)<br />
+          <input id="commandline" type="text" onkeydown=
+          "if (event.keyCode == 13) document.getElementById(&#39;commandSelect&#39;).click();" /><br />
+          <input id="commandSelect" name="selebutton" type="button" onclick="JavaScript:commandSelect();" value=
+          "Apply Selection 2D" /><br />
+          <input id="select3d" name="selebutton" type="button" onclick="JavaScript:commandSelect();updateModel();" value=
+          "Apply Selection 3D" /><br />
+          <input id="clearselection" name="selebutton" type="button" onclick="JavaScript:clearSelection();" value=
+          "Clear Selection" /><br />
+          <br />
+          Select domains or helices:<br />
+          <select id="selectByDomainHelix" name="SelectByDomainHelix" multiple="multiple">
+            </select><br />
+        </div>
+
+        <h3><a href="#">Nucleotide Data</a></h3>
+
+        <div id="StructDataDiv" style="padding:0.1em">
+          <span id="StructDataLabel"><a class="ManualLink" href="./Documentation/StructuralData.html" target=
+          "_blank">Help?</a></span><br />
+          <br />
+
+          <div id="StructDataBubbles"></div>
+        </div>
+
+        <h3><a href="#">Phylogeny Data</a></h3>
+
+        <div id="AlnDiv" style="padding:0.1em">
+          <span id="AlnLabel"><a class="ManualLink" href="./Documentation/AlignmentData.html" target=
+          "_blank">Help?</a></span><br />
+          <br />
+
+          <div id="AlnBubbles"></div>
+        </div>
+
+        <h3><a href="#">Protein Contacts</a></h3>
+
+        <div id="ProtDiv" style="padding:0.1em">
+          <span id="ProtLabel"><a class="ManualLink" href="./Documentation/ProteinData.html" target="_blank">Help?</a></span><br />
+          <br />
+          <select id="ProtList" multiple="multiple">
+            </select><br />
+          <br />
+
+          <div id="ProteinBubbles"></div>
+        </div>
+
+        <h3><a href="#">Inter-Nucleotide Contacts</a></h3>
+
+        <div id="InteractDataDiv" style="padding:0.1em">
+          <span id="InteractionLabel"><a class="ManualLink" href="./Documentation/InteractionData.html" target=
+          "_blank">Help?</a></span><br />
+          <br />
+
+          <div id="primaryInteractData">
+            Interaction Type:<br />
+            <select id="PrimaryInteractionList" multiple="multiple" onchange="JavaScript:refreshBasePairs(value);">
+              </select>
+          </div>
+
+          <div id="secondaryInteractData" style="margin-top:10px">
+            Interaction Sub-Type:<br />
+            <select id="SecondaryInteractionList" multiple="multiple">
+              </select>
+          </div>
+
+          <p class="DataDescription"></p>
+        </div>
+
+        <h3><a href="#">Import</a></h3>
+
+        <div id="ImportDataFileDiv" style="padding:0.1em">
+          <span id="ImportDataLabel"><a class="ManualLink" href="./Documentation/UserDataSyntax.html" target=
+          "_blank">Help?</a></span><br />
+          <br />
+          <a id="TemplateLink" href="#" target="_blank">Download Data Template</a><br />
+          <br />
+          Import Data: <input type="file" id="importdatafile" name="files[]" accept="text/csv" /> <output id="list"></output><br />
+
+          <div id="CustomDataBubbles"></div>
+
+          <p class="DataDescription"></p>
+        </div>
+      </div>
+    </div>
+
+    <div id="MiniLayer" class="ui-widget-content">
+      <h3 class="ui-widget-header2">Display</h3>
+
+      <h3 id="MiniLayerLabel" class="ui-widget-header3">2D Layers</h3><input type="button" id="MiniOpenLayerBtn" title=
+      "Open Layer Manager" value="Edit Layers" style="margin: auto;" /><br />
+    </div>
+
+    <div id="LinkSection" class="ui-widget-content">
+      <h3 class="ui-widget-header3">3D Panel</h3>
+    </div>
+
+    <div id="ExportData" class="ui-widget-content">
+      <h3 class="ui-widget-header2">Save</h3><input id="SaveEverythingBtn" type="button" value="Save Manager" title=
+      "Save your figures, sequences, data, and session." />
+    </div>
+  </div>
+
+  <div id="LogoDiv" class="ui-widget-content">
+    <!-- <a href="http://cool.gatech.edu/" target="_blank"> -->
+    <img src="static/images/cool_logo.png" title=
+    "Center for the Origin Of Life (COOL)" alt="COOL Logo" />
+    <!-- </a> -->
+  </div>
+
+  <div id="navigator" style="z-index:999; width:65px">
+    <div id="compassImgs"><img class="compass" src="static/images/compass/navigator1_01.png" alt="R" onclick="JavaScript:resetView()" />
+    <img title="Pan up" class="compass" src="static/images/compass/navigator1_02.png" alt="U" onclick="JavaScript:pan(0,-20)" />
+    <img class="compass" src="static/images/compass/navigator1_03.png" alt="C" onclick="JavaScript:resetView()" /> <img title="Pan left"
+    class="compass" src="static/images/compass/navigator1_04.png" alt="L" onclick="JavaScript:pan(-20,0)" /> <img title="Return to center"
+    class="compass" src="static/images/compass/navigator1_05.png" alt="R" onclick="JavaScript:resetView()" /> <img title="Pan right"
+    class="compass" src="static/images/compass/navigator1_06.png" alt="R" onclick="JavaScript:pan(20,0)" /> <img class="compass" src=
+    "static/images/compass/navigator1_07.png" alt="R" onclick="JavaScript:resetView()" /> <img title="Pan down" class="compass" src=
+    "static/images/compass/navigator1_08.png" alt="D" onclick="JavaScript:pan(0,20)" /> <img class="compass" src=
+    "static/images/compass/navigator1_09.png" alt="R" onclick="JavaScript:resetView()" /></div>
+
+    <div id="slider"></div>
+  </div>
+
+  <div id="canvasDiv" oncontextmenu="return false" class="ui-widget-content">
+    <span id="canvaslabel" class="PanelLabels">2D Panel</span> <canvas id="HighlightLayer_0" style="z-index:998; width:100%">Your
+    browser does not support Canvas and can not use this site. We recommend Firefox. Internet Explorer users need to be at least on
+    version 9, which requires Windows Vista or higher. Internet Explorer 10 (Windows 7 or higher) is needed for all features to
+    work. Check out <a href="http://caniuse.com/#feat=canvas" target="_blank">this nice table of browser support.</a>. Also, in
+    order to use Custom Data Feature, <a href="http://caniuse.com/#feat=filereader" target="_blank">check out this
+    table.</a></canvas>
+
+    <p id="nocanvas"></p>
+  </div>
+
+  <div id="topMenu" class="ui-widget-content">
+    <div id="NavLineDiv"></div><span class="PanelLabels">1D Panel</span>
+  </div>
+
+  <div id="the3DpanelDiv" class="ui-widget-content">
+    <span class="PanelLabels">3D Panel</span>
+  </div>
+
+  <div id="toolBar">
+    <button id="openLayerBtn" class="toolBarBtn" title="Open Layer Manager"></button><br />
+    <button id="openSelectionBtn" class="toolBarBtn" title="Open Selection Manager"></button><br />
+    <button id="openColorBtn" class="toolBarBtn" title="Open Color Picker"></button><br />
+    <button id="SelectionMode" class="toolBarBtn" title="No function yet"></button><br />
+    <button id="Extra3Dmenus" class="toolBarBtn" title="Additional 3D Panel Options"></button><br />
+    <button id="RiboVisionSettings" class="toolBarBtn" title="RiboVision Settings"></button><br />
+    <button id="RiboVisionSaveManager" class="toolBarBtn" title="RiboVision Save/Restore Manager"></button><br />
+    <button id="openInteractionSettingBtn" class="toolBarBtn" title="Interaction Setting"></button><br />
+    <button id="openManualBtn" class="toolBarBtn" title="Ribovision Manual" onclick=
+    "window.open(&#39;./Documentation/index.html&#39;)">Ribovision Manual</button>
+  </div>
+  
+  {% include "dialog_boxes.html" %}
+  {% include "settings_panel.html" %}
+  
+
+  <div id="InteractionTip" title="ToolTip" style="position:fixed;width:1px;height:1px;z-index:1000000">
+    <div id="interactiontip" style="visibility:hidden">
+      <h3 class="ui-widget-header3">ResidueTip</h3><span id="BasePairType" class="NavLineItem2"></span> <span id="BasePairSubType"
+      class="NavLineItem2"></span>
+
+      <div id="iResidueTipA"></div>
+
+      <div id="iResidueTipB"></div>
+    </div>
+  </div>
+</body>
+{% include "footer.html" %}
+
+</html>

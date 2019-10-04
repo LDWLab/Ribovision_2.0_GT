@@ -18,6 +18,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path('alignments/', include('alignments.urls')),
+    path('ribovision/', include('ribovision.urls')),
     path('admin/', admin.site.urls),
 ]
 
