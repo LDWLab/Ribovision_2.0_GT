@@ -25,9 +25,10 @@ based on:
 
 // for documentation see apollo.chemistry.gatech.edu/RiboVision/Documentation
 //This doesn't exist and this probably won't be the final license.
-load static;
+
 /////////////////////////// Global Variable Declaration ///////////////////////
 // Main Variables
+load static;	//without this it doesn't load static files in django
 var rvDataSets = [];
 var rvViews = [];
 
