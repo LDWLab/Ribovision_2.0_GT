@@ -1,2 +1,5 @@
 ./venv/
 ./env/
+./.vscode/
+*.pyc
+*settings.py
