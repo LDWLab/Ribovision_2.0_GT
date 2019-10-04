@@ -1,0 +1,59 @@
+
+<!-- THREE <meta name="NGLviewPort" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">-->
+
+<link rel="stylesheet" href="static/css/font-awesome.min.css" />
+<link rel="stylesheet" href="static/css/ngl_main.css" />
+<link rel="stylesheet" href="static/css/light.css" id="theme" />
+
+<!-- THREE -->
+<script src="static/js/three/three.js"></script>
+<script src="static/js/three/Detector.js"></script>
+<script src="static/js/three/controls/TrackballControls.js"></script>
+<script src="static/js/three/loaders/OBJLoader.js"></script>
+<script src="static/js/three/loaders/PLYLoader.js"></script>
+
+<!-- LIB -->
+<script src="static/js/lib/async.js"></script>
+<script src="static/js/lib/promise.min.js"></script>
+<script src="static/js/lib/sprintf.min.js"></script>
+<script src="static/js/lib/jszip.min.js"></script>
+<script src="static/js/lib/pako.min.js"></script>
+<script src="static/js/lib/lzma.js"></script>
+<script src="static/js/lib/bzip2.js"></script>
+<script src="static/js/lib/chroma.min.js"></script>
+<script src="static/js/lib/svd.js"></script>
+<script src="static/js/lib/signals.min.js"></script>
+
+<!-- NGL -->
+<script src="static/js/ngl/shims.js"></script>
+<script src="static/js/ngl/core.js"></script>
+<script src="static/js/ngl/worker.js"></script>
+<script src="static/js/ngl/utils.js"></script>
+<script src="static/js/ngl/symmetry.js"></script>
+<script src="static/js/ngl/alignment.js"></script>
+<script src="static/js/ngl/geometry.js"></script>
+<script src="static/js/ngl/selection.js"></script>
+<script src="static/js/ngl/superposition.js"></script>
+<script src="static/js/ngl/structure.js"></script>
+<script src="static/js/ngl/trajectory.js"></script>
+<script src="static/js/ngl/surface.js"></script>
+<script src="static/js/ngl/script.js"></script>
+<script src="static/js/ngl/streamer.js"></script>
+<script src="static/js/ngl/parser.js"></script>
+<script src="static/js/ngl/writer.js"></script>
+<script src="static/js/ngl/loader.js"></script>
+<script src="static/js/ngl/viewer.js"></script>
+<script src="static/js/ngl/buffer.js"></script>
+<script src="static/js/ngl/representation.js"></script>
+<script src="static/js/ngl/stage.js"></script>
+<!--<script src="static/js/ngl/gui.js"></script> LIB -->
+
+<!-- UI -->
+<script src="static/js/lib/tether.min.js"></script>
+<script src="static/js/lib/colorpicker.js"></script>
+<script src="static/js/lib/ui/ui.js"></script>
+<script src="static/js/lib/ui/ui.extra.js"></script>
+<script src="static/js/lib/ui/ui.ngl.js"></script>
+<script src="static/js/ngl/gui.js"></script>
+
+<script src="static/js/RiboVision/RiboVisionNGL.js"></script>

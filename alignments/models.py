@@ -98,7 +98,7 @@ class PolymerData(models.Model):
 
 
 class PolymerMetadata(models.Model):
-    polymer = models.ForeignKey(PolymerData, models.DO_NOTHING, primary_key=True)
+    polymer = models.OneToOneField(PolymerData, models.DO_NOTHING, primary_key=True)
     accession_type = models.CharField(max_length=45)
     polymer_type = models.CharField(max_length=45)
     accession = models.CharField(max_length=45, blank=True, null=True)
