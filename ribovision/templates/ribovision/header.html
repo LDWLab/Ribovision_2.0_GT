@@ -1,4 +1,6 @@
 
+{% load static %}
+
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.js">
 </script>
 <script type="text/javascript">
@@ -13,15 +15,15 @@
 
 <script type="text/javascript" src="https://code.jquery.com/ui/1.11.4/jquery-ui.js">
 </script>
-<script type="text/javascript" src="static/js/jquery.mousewheel.min.js">
+<script type="text/javascript" src="{% static "ribovision/js/jquery.mousewheel.min.js" %}">
 </script>
-<script type="text/javascript" src="static/js/jquery.ui.touch-punch.min.js">
+<script type="text/javascript" src="{% static "ribovision/js/jquery.ui.touch-punch.min.js" %}">
 </script>
-<script type="text/javascript" src="static/js/jquery.multiselect.min.js">
+<script type="text/javascript" src="{% static "ribovision/js/jquery.multiselect.min.js" %}">
 </script>
-<script type="text/javascript" src="static/js/jquery.multiselect.filter.min.js">
+<script type="text/javascript" src="{% static "ribovision/js/jquery.multiselect.filter.min.js" %}">
 </script>
-<script type="text/javascript" src="static/js/jquery.csv.min.js">
+<script type="text/javascript" src="{% static "ribovision/js/jquery.csv.min.js" %}">
 </script>
 <script src="https://d3js.org/d3.v3.min.js" charset="utf-8">
 </script>
@@ -30,25 +32,25 @@
 <script type="text/javascript" src="https://canvg.github.io/canvg/canvg.js">
 </script><!--Use farbtastic library-->
 
-<script type="text/javascript" src="static/js/farbtastic/farbtastic.js">
+<script type="text/javascript" src="{% static "ribovision/js/farbtastic/farbtastic.js" %}">
 </script>
 
 
 <!--Custom Menu Plugins-->
 
-<script type="text/javascript" src="static/js/iosmenu.js">
+<script type="text/javascript" src="{% static "ribovision/js/iosmenu.js" %}">
 </script>
-<script type="text/javascript" src="static/js/multiAccordion.js">
+<script type="text/javascript" src="{% static "ribovision/js/multiAccordion.js" %}">
 </script>
-<script type="text/javascript" src="static/js/RiboVision/RiboVision.js">
+<script type="text/javascript" src="{% static "ribovision/js/RiboVision/RiboVision.js" %}">
 //<![CDATA[
 //Use RiboVision library
 //]]>
 </script><!--Style Sheets-->
-<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.structure.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui.theme.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/jquery.multiselect.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/jquery.multiselect.filter.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/farbtastic.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/navLine.css') }}">
+<link rel="stylesheet" href="{% static "ribovision/css/style.css" %}">
+<link rel="stylesheet" href="{% static "ribovision/css/jquery-ui.structure.css" %}">
+<link rel="stylesheet" href="{% static "ribovision/css/jquery-ui.theme.css" %}">
+<link rel="stylesheet" href="{% static "ribovision/css/jquery.multiselect.css" %}">
+<link rel="stylesheet" href="{% static "ribovision/css/jquery.multiselect.filter.css" %}">
+<link rel="stylesheet" href="{% static "ribovision/css/farbtastic.css" %}">
+<link rel="stylesheet" href="{% static "ribovision/css/navLine.css" %}">
