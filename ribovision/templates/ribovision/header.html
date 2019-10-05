@@ -46,7 +46,100 @@
 //<![CDATA[
 //Use RiboVision library
 //]]>
-</script><!--Style Sheets-->
+</script>
+<script>
+$.holdReady(true);
+$.ajax({
+	type : "GET",
+	crossDomain : true,
+	url : "{% static "ribovision/js/RiboVision/RiboVisionObjects.js" %}",
+	dataType : "script",
+	success : function () {
+		$.holdReady(false);
+	},
+	error : function () {
+		alert("RiboVisionObjects.js load fail");
+	}
+});
+</script>
+<script>
+$.holdReady(true);
+$.ajax({
+	type : "GET",
+	crossDomain : true,
+	url : "{% static "ribovision/js/RiboVision/RiboVisionLoadSpecies.js" %}",
+	dataType : "script",
+	success : function () {
+		$.holdReady(false);
+	},
+	error : function () {
+		alert("RiboVisionLoadSpecies.js load fail");
+	}
+});
+</script>
+<script>
+$.holdReady(true);
+$.ajax({
+	type : "GET",
+	crossDomain : true,
+	url : "{% static "ribovision/js/RiboVision/RiboVisionSelections.js" %}",
+	dataType : "script",
+	success : function () {
+		$.holdReady(false);
+	},
+	error : function () {
+		alert("RiboVisionSelections.js load fail");
+	}
+});
+</script>
+<script>
+$.holdReady(true);
+$.ajax({
+	type : "GET",
+	crossDomain : true,
+	url : "{% static "ribovision/js/RiboVision/RiboVisionLayers.js" %}",
+	dataType : "script",
+	success : function () {
+		$.holdReady(false);
+	},
+	error : function () {
+		alert("RiboVisionLayers.js load fail");
+	}
+});
+</script>
+<script>
+$.holdReady(true);
+$.ajax({
+	type : "GET",
+	crossDomain : true,
+	url : "{% static "ribovision/js/RiboVision/RiboVisionFunctions.js" %}",
+	dataType : "script",
+	success : function () {
+		$.holdReady(false);
+	},
+	error : function () {
+		alert("RiboVisionFunctions.js load fail");
+	}
+});
+</script>
+<script>
+$(document).ready(function () {
+	$.ajax({
+		type : "GET",
+		crossDomain : true,
+		url : "{% static "ribovision/js/RiboVision/RiboVisionInitialization.js" %}"",
+		dataType : "script",
+		success : function () {
+			RiboVisionReady();
+		},
+		error : function () {
+			alert("RiboVisionInitialization.js load fail");
+		}
+	});
+});
+</script>
+
+<!--Style Sheets-->
 <link rel="stylesheet" href="{% static "ribovision/css/style.css" %}">
 <link rel="stylesheet" href="{% static "ribovision/css/jquery-ui.structure.css" %}">
 <link rel="stylesheet" href="{% static "ribovision/css/jquery-ui.theme.css" %}">
