@@ -28,7 +28,7 @@ based on:
 
 /////////////////////////// Global Variable Declaration ///////////////////////
 // Main Variables
-load static;	//without this it doesn't load static files in django
+
 var rvDataSets = [];
 var rvViews = [];
 
@@ -1843,19 +1843,19 @@ if (canvas2DSupported) {
 }
 ///////////////////////////////////////////////////////////////////////////////
 ////////////////////////// RiboVision Object Definitions  /////////////////////
-$.holdReady(true);
-$.ajax({
-	type : "GET",
-	crossDomain : true,
-	url : "static/js/RiboVision/RiboVisionObjects.js",
-	dataType : "script",
-	success : function () {
-		$.holdReady(false);
-	},
-	error : function () {
-		alert("js load fail");
-	}
-});
+//$.holdReady(true);
+//$.ajax({
+//	type : "GET",
+//	crossDomain : true,
+//	url : "static/ribovision/js/RiboVision/RiboVisionObjects.js",
+//	dataType : "script",
+//	success : function () {
+//		$.holdReady(false);
+//	},
+//	error : function () {
+//		alert("RiboVisionObjects.js load fail");
+//	}
+//});
 ///////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////// Initialize RiboVision Jmol  ////////////////////////
@@ -1893,71 +1893,71 @@ $.ajax({
 ///////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////// Initialize RiboVision Functions  ////////////////////////
-$.holdReady(true);
-$.ajax({
-	type : "GET",
-	crossDomain : true,
-	url : "static/js/RiboVision/RiboVisionLoadSpecies.js",
-	dataType : "script",
-	success : function () {
-		$.holdReady(false);
-	},
-	error : function () {
-		alert("js load fail");
-	}
-});
-$.holdReady(true);
-$.ajax({
-	type : "GET",
-	crossDomain : true,
-	url : "static/js/RiboVision/RiboVisionSelections.js",
-	dataType : "script",
-	success : function () {
-		$.holdReady(false);
-	},
-	error : function () {
-		alert("js load fail");
-	}
-});
-$.holdReady(true);
-$.ajax({
-	type : "GET",
-	crossDomain : true,
-	url : "static/js/RiboVision/RiboVisionLayers.js",
-	dataType : "script",
-	success : function () {
-		$.holdReady(false);
-	},
-	error : function () {
-		alert("js load fail");
-	}
-});
-$.holdReady(true);
-$.ajax({
-	type : "GET",
-	crossDomain : true,
-	url : "static/js/RiboVision/RiboVisionFunctions.js",
-	dataType : "script",
-	success : function () {
-		$.holdReady(false);
-	},
-	error : function () {
-		alert("js load fail");
-	}
-});
-///////////////////////////////////////////////////////////////////////////////
-
-$(document).ready(function () {
-	$.ajax({
-		type : "GET",
-		crossDomain : true,
-		url : "static/js/RiboVision/RiboVisionInitialization.js",
-		dataType : "script",
-		success : function () {
-			RiboVisionReady();
-		},
-		error : function () {
-			alert("js load fail");
-		}
-	});
-});
+//$.holdReady(true);
+//$.ajax({
+//	type : "GET",
+//	crossDomain : true,
+//	url : "static/js/RiboVision/RiboVisionLoadSpecies.js",
+//	dataType : "script",
+//	success : function () {
+//		$.holdReady(false);
+//	},
+//	error : function () {
+//		alert("js load fail");
+//	}
+//});
+//$.holdReady(true);
+//$.ajax({
+//	type : "GET",
+//	crossDomain : true,
+//	url : "static/js/RiboVision/RiboVisionSelections.js",
+//	dataType : "script",
+//	success : function () {
+//		$.holdReady(false);
+//	},
+//	error : function () {
+//		alert("js load fail");
+//	}
+//});
+//$.holdReady(true);
+//$.ajax({
+//	type : "GET",
+//	crossDomain : true,
+//	url : "static/js/RiboVision/RiboVisionLayers.js",
+//	dataType : "script",
+//	success : function () {
+//		$.holdReady(false);
+//	},
+//	error : function () {
+//		alert("js load fail");
+//	}
+//});
+//$.holdReady(true);
+//$.ajax({
+//	type : "GET",
+//	crossDomain : true,
+//	url : "static/js/RiboVision/RiboVisionFunctions.js",
+//	dataType : "script",
+//	success : function () {
+//		$.holdReady(false);
+//	},
+//	error : function () {
+//		alert("js load fail");
+//	}
+//});
+/////////////////////////////////////////////////////////////////////////////////
+//
+//$(document).ready(function () {
+//	$.ajax({
+//		type : "GET",
+//		crossDomain : true,
+//		url : "static/js/RiboVision/RiboVisionInitialization.js",
+//		dataType : "script",
+//		success : function () {
+//			RiboVisionReady();
+//		},
+//		error : function () {
+//			alert("js load fail");
+//		}
+//	});
+//});
