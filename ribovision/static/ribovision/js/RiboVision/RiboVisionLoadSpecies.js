@@ -119,7 +119,7 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 			type: 'POST',
 			contentType: 'application/json', 
 			accept: 'application/json',
-			url: 'RiboVision/v1.0/fetchStructureName',
+			url: 'api/RiboVision/v1.0/fetchStructureName',
 			data: JSON.stringify([species_string]),
 			success: function(data) {
 				$.each(data, function (index, value) {
@@ -141,7 +141,7 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 			type: 'POST',
 			contentType: 'application/json', 
 			accept: 'application/json',
-			url: 'RiboVision/v1.0/speciesTable',
+			url: 'api/RiboVision/v1.0/speciesTable',
 			data: JSON.stringify([species_string]),
 			success: function(data) {
 				if(data.length == 0) {
@@ -231,7 +231,7 @@ function processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2){
 					type: 'POST',
 					contentType: 'application/json', 
 					accept: 'application/json',
-					url: 'RiboVision/v1.0/fetchResidues',
+					url: 'api/RiboVision/v1.0/fetchResidues',
 					data: JSON.stringify([speciesInterest,speciesInterest,speciesInterest]),
 					success: function(db_residues) {
 						completedDS+=1;
