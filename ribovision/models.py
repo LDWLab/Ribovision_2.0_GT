@@ -112,6 +112,18 @@ class Linelabels(models.Model):
         managed = False
         db_table = 'LineLabels'
 
+class Mastertable(models.Model):
+    master_id = models.IntegerField()
+    Active = models.IntegerField(db_column='Active', blank=True, null=True)  # Field name made lowercase.
+    SpeciesName = models.CharField(db_column='SpeciesName', max_length=24, blank=True, null=True)  # Field name made lowercase.
+    DataSetType = models.CharField(db_column='DataSetType', max_length=33, blank=True, null=True)  # Field name made lowercase.
+    StructureName = models.CharField(db_column='StructureName', max_length=14, blank=True, null=True)  # Field name made lowercase.
+    LoadString = models.CharField(db_column='LoadString', max_length=29, blank=True, null=True)  # Field name made lowercase.
+    Species_Abr = models.CharField(db_column='Species_Abr', max_length=5, blank=True, null=True)  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'MasterTable'
 
 class Nomenclature(models.Model):
     nom_id = models.AutoField(primary_key=True)
