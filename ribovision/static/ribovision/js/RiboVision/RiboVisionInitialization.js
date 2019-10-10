@@ -1175,7 +1175,7 @@ function InitRibovision3(FreshState) {
 		// }
 	// });
 	
-	$.getJSON('RiboVision/v1.0/fetchMasterList', {
+	$.getJSON('api/RiboVision/v1.0/fetchMasterList', {
 		//FetchMasterList : true
 	}, function (MasterList) {
 		$("#speciesList").find("optgroup").remove();
