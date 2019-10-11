@@ -232,7 +232,7 @@ function processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2){
 					contentType: 'application/json', 
 					accept: 'application/json',
 					url: 'api/RiboVision/v1.0/fetchResidues',
-					data: JSON.stringify([speciesInterest,speciesInterest,speciesInterest]),
+					data: JSON.stringify(speciesInterest),
 					success: function(db_residues) {
 						completedDS+=1;
 						$("#TemplateLink").attr("href", "./Templates/" + speciesInterest + "_UserDataTemplate.csv");
