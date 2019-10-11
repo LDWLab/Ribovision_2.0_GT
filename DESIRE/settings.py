@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '7*kcidzx=ndm(@1#bf9p0#$nhpa-*1a%2s+-cei^2n^x)p1k1_'
+SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -83,8 +83,8 @@ DATABASES = {
     'default': {
         'NAME': 'SEREB',
         'ENGINE': 'mysql.connector.django',
-        'USER': 'ppenev',             #Write username here
-        'PASSWORD': 'eb1e1e^^',         #And password here
+        'USER': os.environ['DJANGO_USERNAME'],             #Write username here
+        'PASSWORD': os.environ['DJANGO_PASSWORD'],         #And password here
         'HOST': '130.207.36.75',
         'PORT': '3306',
         'OPTIONS': {
