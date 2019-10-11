@@ -20,12 +20,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '7*kcidzx=ndm(@1#bf9p0#$nhpa-*1a%2s+-cei^2n^x)p1k1_'
+SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['130.207.36.75']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -33,6 +33,7 @@ ALLOWED_HOSTS = ['130.207.36.75']
 INSTALLED_APPS = [
     'django.contrib.admin',
     'alignments.apps.AlignmentsConfig',
+    'ribovision.apps.RibovisionConfig',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -50,12 +51,16 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'
+
 ROOT_URLCONF = 'DESIRE.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'ribovision/templates/ribovision'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -77,13 +82,11 @@ WSGI_APPLICATION = 'DESIRE.wsgi.application'
 DATABASES = {
     'default': {
         'NAME': 'SEREB',
-        'ENGINE': 'django.db.backends.mysql',
-        'USER': 'ppenev',
-        'PASSWORD': 'eb1e1e^^',
-        #'USER': 'django_web',             #Write username here
-        #'PASSWORD': 'rv3_dsire_DJNG',         #And password here
-        'HOST': '/var/lib/mysql/mysql.sock',
-        'PORT': '',
+        'ENGINE': 'mysql.connector.django',
+        'USER': os.environ['DJANGO_USERNAME'],             #Write username here
+        'PASSWORD': os.environ['DJANGO_PASSWORD'],         #And password here
+        'HOST': '130.207.36.75',
+        'PORT': '3306',
         'OPTIONS': {
           'autocommit': True,
         },
