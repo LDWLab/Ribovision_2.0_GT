@@ -2,5 +2,4 @@
 ./env/
 ./.vscode/
 *.pyc
-*settings.py
 *~
