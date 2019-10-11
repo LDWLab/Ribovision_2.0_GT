@@ -1,11 +1,39 @@
-{% block content %}
-<select onchange="location = this.value;">
-	<option value="">Select a superkingdom</option>
-	{% for superkingdom in superKingdoms %}
-		<option value="">{{ superkingdom.groupname }}</option>
-	{% endfor %}
-</select>
-{% endblock %}
+{% load static %}
+<script src="{% static "alignments/vue.js" %}"></script>
+{% verbatim %}
+<div class="container">
+	<h4>Vue.js Expandable Tree Menu<br/><small>(Recursive Components)</small></h4>
+	<div id="app">
+	<tree-menu 
+			   :nodes="tree.nodes" 
+			   :depth="0"   
+			   :label="tree.label"
+			   ></tree-menu>
+	</div>
+  </div>
+  
+  
+  <script type="text/x-template" id="tree-menu">
+	<div class="tree-menu">
+	  <div class="label-wrapper" @click="toggleChildren">
+		<div :style="indent" :class="labelClasses">
+		  <i v-for="node in nodes" class="fa" :class="iconClasses"></i>
+			{{label}}
+		</div>
+	  </div>
+	  <tree-menu 
+		v-if="showChildren"
+		v-for="node in nodes"
+		v-bind:key="node.id"
+		:nodes="node.nodes" 
+		:label="node.label"
+		:depth="depth + 1"   
+	  >
+	  </tree-menu>
+	</div>
+  </script>
+  {% endverbatim %}
+<script src={% static 'alignments/tree_menu.js' %}></script>
 <!-- FOO -->
 
 <p>OR</p> 
