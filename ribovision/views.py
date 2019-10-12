@@ -7,6 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 def fetchmasterlist(request):
     response = Mastertable.objects.values('SpeciesName', 'DataSetType', 'StructureName', 'LoadString').filter(Active = True)
+    #response = Mastertable.objects.raw('SELECT SpeciesName, DataSetType, StructureName, LoadString FROM MasterTable WHERE Active=True)
     return JsonResponse(list(response), safe = False)
 
 def fetchresidues(request):

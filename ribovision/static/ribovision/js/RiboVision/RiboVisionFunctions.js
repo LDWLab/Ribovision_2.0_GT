@@ -1617,7 +1617,7 @@ function customDataProcess(data_label,targetLayerName){
 		RefreshSelectionMenu();
 		//Make new selection invisible. 
 		$(".oneSelectionGroup[name=" + targetSelection.Name +"]").find(".checkBoxDIV-S").find(".visibilityCheckImg").attr("value","invisible");
-		$(".oneSelectionGroup[name=" + targetSelection.Name +"]").find(".checkBoxDIV-S").find(".visibilityCheckImg").attr("src","static/images/invisible.png");
+		$(".oneSelectionGroup[name=" + targetSelection.Name +"]").find(".checkBoxDIV-S").find(".visibilityCheckImg").attr("src","/static/ribovision/images/invisible.png");
 		rvds.drawSelection("selected");
 		
 		if ($.inArray("ColorPalette", customkeys) >= 0 || $.inArray("TwoColorMode", customkeys) >= 0){
@@ -2964,7 +2964,7 @@ function welcomeScreen() {
 			rvDataSets[0].Layers[0].CanvasContext.drawImage(img, -1*(rvDataSets[0].HighlightLayer.Canvas.width - 612)/2,-1*(rvDataSets[0].HighlightLayer.Canvas.height - 792-242)/2,image_width,image_height);
 		}
 	}
-	img.src = "static/images/RiboVisionLogoHigh.png"; //
+	img.src = "/static/ribovision/images/RiboVisionLogoHigh.png"; //
 
 }
 ///////////////////////////////////////////////////////////////////////////////

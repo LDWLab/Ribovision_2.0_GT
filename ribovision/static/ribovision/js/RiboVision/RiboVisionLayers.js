@@ -396,15 +396,15 @@ function LayerMenu(Layer, key, RVcolor) {
 	//targetLayer.Color = $($currentGroup).find(".colorBox").css("background");
 
 	//hide and show icon: eye
-	var $visibleImgPath = "static/images/visible.png";
-	var $invisibleImgPath = "static/images/invisible.png";
+	var $visibleImgPath = "/static/ribovision/images/visible.png";
+	var $invisibleImgPath = "/static/ribovision/images/invisible.png";
 	$($currentGroup)
 	.append($("<div>").addClass("checkBoxDIV").css({
 			'float' : 'left',
 			'padding-top' : 5,
 			'margin-left' : 5,
 			'width' : 20
-		}).append($("<img class='visibilityCheckImg' value='visible' title='visibility' src='static/images/visible.png'/>").css({
+		}).append($("<img class='visibilityCheckImg' value='visible' title='visibility' src='/static/ribovision/images/visible.png'/>").css({
 				'width' : '24px',
 				'height' : 'auto',
 				'margin-top' : 3
