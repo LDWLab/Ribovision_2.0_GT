@@ -1,6 +1,6 @@
 {% load static %}
 <script src="{% static "alignments/vue.js" %}"></script>
-{% verbatim %}
+
 <div class="container">
 	<h4>Vue.js Expandable Tree Menu<br/><small>(Recursive Components)</small></h4>
 	<div id="app">
@@ -17,8 +17,8 @@
 	<div class="tree-menu">
 	  <div class="label-wrapper" @click="toggleChildren">
 		<div :style="indent" :class="labelClasses">
-		  <i v-for="node in nodes" class="fa" :class="iconClasses"></i>
-			{{label}}
+			<i v-for="node in nodes" class="fa" :class="iconClasses"></i>
+			[[label]]
 		</div>
 	  </div>
 	  <tree-menu 
@@ -32,7 +32,7 @@
 	  </tree-menu>
 	</div>
   </script>
-  {% endverbatim %}
+
 <script src={% static 'alignments/tree_menu.js' %}></script>
 <!-- FOO -->
 

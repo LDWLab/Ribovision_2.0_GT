@@ -24,6 +24,7 @@ let tree = {
   }
   
   Vue.component('tree-menu', { 
+	delimiters: ['[[',']]'],
 	template: '#tree-menu',
 	props: [ 'nodes', 'label', 'depth' ],
 	data() {
@@ -54,7 +55,6 @@ let tree = {
   
   new Vue({
 	el: '#app',
-	delimiters: ['{{', '}}'],
 	data: {
 	  tree
 	}
