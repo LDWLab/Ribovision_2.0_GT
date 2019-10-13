@@ -119,7 +119,8 @@ def textlabels(request):
     '''
     if request.method == "POST":
         structure_identity = request.body.decode()
-        SQLStatement = 'SELECT * FROM TextLabels WHERE secondary_structure_id = (SELECT SecStr_id FROM SecondaryStructures WHERE Name = '+structure_identity+')'
+        SQLStatement = 'SELECT Fill, Font, Font_Size as \'FontSize\', LabelText, TextLabel_id as \'id\', X, Y\
+        FROM TextLabels WHERE secondary_structure_id = (SELECT SecStr_id FROM SecondaryStructures WHERE Name = '+structure_identity+')'
         with connection.cursor() as cur:
             cur.execute(SQLStatement)
             response = [dict((cur.description[i][0], value)
