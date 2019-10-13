@@ -45,7 +45,7 @@ function load3Dstructure(structure_3d){
 		} else if(structure_3d.indexOf(".cif")> 0){
 			var loadstring="/static/ribovision/structures/mmcif/" + structure_3d;	
 		} else {
-			var loadstring="/static/ribovision/structures/mmtf/" + structure_3d + ".mmtf.gz";
+			var loadstring="/static/ribovision/structures/mmtf/" + structure_3d + ".mmtf";
 		}
 		//Assume BU1.
 		stage.loadFile( loadstring, {assembly: "BU1"}).then( function( o ){	

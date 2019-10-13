@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.http import JsonResponse
 from django.views.generic import ListView
 from django.views.decorators.csrf import csrf_exempt
+import re
 
 def fetchmasterlist(request):
     response = Mastertable.objects.values('SpeciesName', 'DataSetType', 'StructureName', 'LoadString').filter(Active = True)
@@ -23,8 +24,15 @@ def fetchstructurename(request):
         StructureName: "4V9D"
     '''
     if request.method == "POST":
-        #response = Threedstructures.objects.values('structurename').filter(number_3d_structure_id = )
-        pass
+        structure_identity = request.body.decode()
+        SQLStatement = 'SELECT DISTINCT StructureName FROM ThreeDStructures WHERE 3D_structure_id = \
+            (SELECT 3D_structure_id FROM Secondary_Tertiary WHERE secondary_structure_id = (\
+                SELECT SecStr_id FROM SecondaryStructures WHERE Name = '+structure_identity+'))'
+        with connection.cursor() as cur:
+            cur.execute(SQLStatement)
+            response = [dict((cur.description[i][0], value)
+            for i, value in enumerate(row)) for row in cur.fetchall()]
+    return JsonResponse(list(response), safe = False)
 
 def speciestable(request):
     '''Requires :
@@ -36,7 +44,21 @@ def speciestable(request):
         Species_Name: "Escherichia coli"
     '''
     if request.method == "POST":
-        pass
+        structure_identity = request.body.decode()
+        SQLStatement = 'SELECT CAST(Circle_Radius AS CHAR) AS Circle_Radius, CAST(Font_Size_Canvas AS CHAR) AS Font_Size_Canvas, CAST(Font_Size_SVG AS CHAR) AS Font_Size_SVG,\
+            SecondaryStructures.Name as \'SS_Table\', Abbreviation as \'Species_Abr\', Species.name as \'Species_Name\' FROM SecondaryStructures\
+            INNER JOIN Species ON SecondaryStructures.strain_fk = Species.strain_id\
+            WHERE SecondaryStructures.Name = '+structure_identity
+        with connection.cursor() as cur:
+            cur.execute(SQLStatement)
+            response = [dict()]
+            for row in cur.fetchall():
+                for i, value in enumerate(row):
+                    if re.search(r'\d', value):
+                        response[0][cur.description[i][0]] = float(value)
+                    else:
+                        response[0][cur.description[i][0]] = value
+    return JsonResponse(list(response), safe = False)
 
 def fetchresidues(request):
     '''Requires for each entry:
@@ -58,10 +80,10 @@ def fetchresidues(request):
         unModResName: "G"
     '''
     if request.method == "POST":
-        structure_identity = request.body
+        structure_identity = request.body.decode()
         SQLStatement = 'SELECT SS_Data.map_index, GeneSymbol, resNum, X, Y, unModResName, modResName, polymer_type, \
                         MoleculeGroup, ChainName, Domain_RN, Domain_AN, Domains_Color, Helix_Num, Helix_Color\
-                        FROM (SELECT * FROM SecondaryStructures WHERE Name = '+structure_identity.decode()+') AS ss\
+                        FROM (SELECT * FROM SecondaryStructures WHERE Name = '+structure_identity+') AS ss\
                         LEFT JOIN SS_Data ON ss.SecStr_id = SS_Data.ss_id\
                         LEFT JOIN Residues ON SS_Data.res_id = Residues.resi_id\
                         LEFT JOIN Polymer_Data ON Residues.PolData_id = Polymer_Data.PData_id\
@@ -69,10 +91,19 @@ def fetchresidues(request):
                         LEFT JOIN ChainList ON Polymer_Data.PData_id = ChainList.polymer_id\
                         INNER JOIN StructuralData2 ON ss.SecStr_id = StructuralData2.secondary_structure_id\
                         WHERE SS_Data.map_index = StructuralData2.map_index'
+        SQLStatement_old = 'SELECT ss.map_Index, ss.molName, resNum, X, Y, unModResName, modResName, MoleculeType, \
+                MoleculeGroup, ChainName, Domain_RN, Domain_AN, Domains_Color, Helix_Num, Helix_Color, ss.SS_Table \
+                FROM (SELECT * FROM ribovision2.SecondaryStructures WHERE SS_Table = '+structure_identity+') AS ss \
+                INNER JOIN ribovision2.MoleculeNames AS mn ON ss.molName = mn.MoleculeName \
+                INNER JOIN (SELECT MoleculeName, ChainName FROM ribovision2.ChainList \
+                WHERE StructureName = (SELECT DISTINCT StructureName FROM ribovision2.Secondary_Tertiary WHERE SS_Table = '+structure_identity+')) \
+                AS cl ON cl.MoleculeName = ss.molName \
+                LEFT JOIN (SELECT * FROM ribovision2.StructuralData2 WHERE SS_Table = '+structure_identity+') AS sd ON sd.map_Index = ss.map_Index'
+
         with connection.cursor() as cursor:
             cursor.execute(SQLStatement)
-            response = cursor.fetchall()
-        
+            response = [dict((cursor.description[i][0], value)
+            for i, value in enumerate(row)) for row in cursor.fetchall()]
     return JsonResponse(list(response), safe = False)
 
 def textlabels(request):
@@ -87,7 +118,13 @@ def textlabels(request):
         id: 633
     '''
     if request.method == "POST":
-        pass
+        structure_identity = request.body.decode()
+        SQLStatement = 'SELECT * FROM TextLabels WHERE secondary_structure_id = (SELECT SecStr_id FROM SecondaryStructures WHERE Name = '+structure_identity+')'
+        with connection.cursor() as cur:
+            cur.execute(SQLStatement)
+            response = [dict((cur.description[i][0], value)
+            for i, value in enumerate(row)) for row in cur.fetchall()]
+        return JsonResponse(list(response), safe = False)
 
 def linelabels(request):
     '''Requires for each entry:
@@ -104,7 +141,13 @@ def linelabels(request):
         id: 623
     '''
     if request.method == "POST":
-        pass
+        structure_identity = request.body.decode()
+        SQLStatement = 'SELECT * FROM LineLabels WHERE secondary_structure_id = (SELECT SecStr_id FROM SecondaryStructures WHERE Name = '+structure_identity+')'
+        with connection.cursor() as cur:
+            cur.execute(SQLStatement)
+            response = [dict((cur.description[i][0], value)
+            for i, value in enumerate(row)) for row in cur.fetchall()]
+        return JsonResponse(list(response), safe = False)
 
 def fetchinteractionsmenu(request):
     '''Requires:

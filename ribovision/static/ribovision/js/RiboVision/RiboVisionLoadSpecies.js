@@ -120,7 +120,7 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 			contentType: 'application/json', 
 			accept: 'application/json',
 			url: 'api/RiboVision/v1.0/fetchStructureName',
-			data: JSON.stringify([species_string]),
+			data: JSON.stringify(species_string),
 			success: function(data) {
 				$.each(data, function (index, value) {
 					waitFor3Dinit(value);
@@ -142,7 +142,7 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 			contentType: 'application/json', 
 			accept: 'application/json',
 			url: 'api/RiboVision/v1.0/speciesTable',
-			data: JSON.stringify([species_string]),
+			data: JSON.stringify(species_string),
 			success: function(data) {
 				if(data.length == 0) {
 					console.log("Assuming custom mode for now.")

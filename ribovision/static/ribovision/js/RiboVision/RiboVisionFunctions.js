@@ -62,7 +62,7 @@ function initLabels(speciesSplit,customResidues) {
 					type: 'POST',
 					contentType: 'application/json', 
 					accept: 'application/json',
-					data: JSON.stringify([species]),
+					data: JSON.stringify(species),
 					cache: false,
 					success: function(textlabels) {
 						TextLabels = textlabels;
@@ -75,7 +75,7 @@ function initLabels(speciesSplit,customResidues) {
 					url: 'api/RiboVision/v1.0/lineLabels',
 					type: 'POST',
 					dataType: 'json',
-					data: JSON.stringify([species]),
+					data: JSON.stringify(species),
 					cache: false,
 					success: function(linelabels) {
 						LineLabels = linelabels;
