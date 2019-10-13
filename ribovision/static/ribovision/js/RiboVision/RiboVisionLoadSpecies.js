@@ -358,9 +358,9 @@ function populateMenus(structureName){
 		items : ".dataBubble"
 	});
 	// // Get conservation table
-	// $.getJSON('RiboVision/v1.0/fullTable', {
-		// FullTable : rvDataSets[speciesIndex].SpeciesEntry.ConservationTable
-		// }, function (ConservationTable) {
-			// rvDataSets[speciesIndex].ConservationTable=ConservationTable;
+	// $.getJSON('api/RiboVision/v1.0/fullTable', {
+	//	 FullTable : rvDataSets[speciesIndex].SpeciesEntry.ConservationTable
+	//	 }, function (ConservationTable) {
+	//		 rvDataSets[speciesIndex].ConservationTable=ConservationTable;
 	// })
 }

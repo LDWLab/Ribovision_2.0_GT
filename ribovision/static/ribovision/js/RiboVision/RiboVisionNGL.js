@@ -40,12 +40,12 @@ function load3Dstructure(structure_3d){
 	if (stage.compList[0]==undefined  || stage.compList[0].name.substr(0,4)!=structure_3d){
 		
 		if(structure_3d.indexOf(".pdb")> 0){
-			var loadstring="static/structures/pdb/" + structure_3d ;
+			var loadstring="/static/ribovision/structures/pdb/" + structure_3d ;
 			
 		} else if(structure_3d.indexOf(".cif")> 0){
-			var loadstring="static/structures/mmcif/" + structure_3d;	
+			var loadstring="/static/ribovision/structures/mmcif/" + structure_3d;	
 		} else {
-			var loadstring="static/structures/mmtf/" + structure_3d + ".mmtf.gz";
+			var loadstring="/static/ribovision/structures/mmtf/" + structure_3d + ".mmtf.gz";
 		}
 		//Assume BU1.
 		stage.loadFile( loadstring, {assembly: "BU1"}).then( function( o ){	

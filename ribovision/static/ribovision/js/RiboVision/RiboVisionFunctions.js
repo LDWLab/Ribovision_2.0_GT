@@ -40,7 +40,7 @@ function initLabels(speciesSplit,customResidues) {
 			if (species != "None" && species != "custom") {
 				var TextLabels=[];
 				var LineLabels=[];
-				// $.postJSON('RiboVision/v1.0/textLabels', {
+				// $.postJSON('api/RiboVision/v1.0/textLabels', {
 					// TextLabels : species
 				// }, function (textlabels) {
 					// TextLabels = textlabels;
@@ -48,7 +48,7 @@ function initLabels(speciesSplit,customResidues) {
 					// rvDataSets[speciesIndex].addLabels(TextLabels, LineLabels);
 					// rvDataSets[speciesIndex].drawLabels("labels");
 				// })
-				// $.getJSON('RiboVision/v1.0/lineLabels', {
+				// $.getJSON('api/RiboVision/v1.0/lineLabels', {
 					// LineLabels : rvDataSets[speciesIndex].SpeciesEntry.LineLabels
 				// }, function (linelabels) {
 					// LineLabels = linelabels;
@@ -58,8 +58,8 @@ function initLabels(speciesSplit,customResidues) {
 				// })
 				
 				$.ajax({
-					url: 'RiboVision/v1.0/textLabels',
-					type: 'post',
+					url: 'api/RiboVision/v1.0/textLabels',
+					type: 'POST',
 					contentType: 'application/json', 
 					accept: 'application/json',
 					data: JSON.stringify([species]),
@@ -72,8 +72,8 @@ function initLabels(speciesSplit,customResidues) {
 					}
 				})
 				$.ajax({
-					url: 'RiboVision/v1.0/lineLabels',
-					type: 'post',
+					url: 'api/RiboVision/v1.0/lineLabels',
+					type: 'POST',
 					dataType: 'json',
 					data: JSON.stringify([species]),
 					cache: false,
@@ -888,8 +888,8 @@ function colorMapping(targetLayer, colName, colorlist = "Rainbow1" , indexMode =
 		colorProcess(data, indexMode,targetLayer,colors);
 	} else {
 		$.ajax({
-			url: 'RiboVision/v1.0/fetchStructData',
-			type: 'post',
+			url: 'api/RiboVision/v1.0/fetchStructData',
+			type: 'POST',
 			contentType: 'application/json', 
 			accept: 'application/json',
 			data: JSON.stringify([rvDataSets[targetLayer.SetNumber].SpeciesEntry.SS_Table, structureName[0].StructureName,colName]),
@@ -942,7 +942,7 @@ function colorNameToHex(color,prefix='#',nullcolor=false) {
 function appendBasePairs(BasePairTable, colName) {
 	var p = BasePairTable.indexOf("_NPN");
 	if (p < 0) {
-		$.getJSON('RiboVision/v1.0/basePairs', {
+		$.getJSON('api/RiboVision/v1.0/basePairs', {
 			BasePairs : BasePairTable
 		}, function (basePairs2) {
 			ActiveBasePairSet=ActiveBasePairSet.concat(basePairs2);
@@ -953,7 +953,7 @@ function appendBasePairs(BasePairTable, colName) {
 	} else {
 		//var dd = document.getElementById("ProtList");
 		//var colName = dd.options[dd.selectedIndex].value;
-		$.getJSON('RiboVision/v1.0/basePairs', {
+		$.getJSON('api/RiboVision/v1.0/basePairs', {
 			ProtBasePairs : BasePairTable,
 			ProtChain : colName
 		}, function (basePairs2) {
@@ -988,8 +988,8 @@ function refreshBasePairs(BasePairTable) {
 		colorMappingLoop(undefined,array_of_checked_values,array_of_checked_titles);
 	} else {
 		$.ajax({
-			url: 'RiboVision/v1.0/fetchInteractions',
-			type: 'post',
+			url: 'api/RiboVision/v1.0/fetchInteractions',
+			type: 'POST',
 			contentType: 'application/json', 
 			accept: 'application/json',
 			data: JSON.stringify([structureName[0].StructureName,BasePairTable]),
@@ -1885,7 +1885,7 @@ function saveNavLine() {
 	//Form Submit;
 	var form = document.createElement("form");
 	form.setAttribute("method", "post");
-	form.setAttribute("action", "RiboVision/v1.0/save1D");
+	form.setAttribute("action", "api/RiboVision/v1.0/save1D");
 	form.setAttribute("target", "_blank");
 	var hiddenField = document.createElement("input");
 	hiddenField.setAttribute("type", "hidden");
@@ -1995,7 +1995,7 @@ function saveSVG() {
 	//Form Submit;
 	var form = document.createElement("form");
 	form.setAttribute("method", "post");
-	form.setAttribute("action", "RiboVision/v1.0/save2D");
+	form.setAttribute("action", "api/RiboVision/v1.0/save2D");
 	form.setAttribute("target", "_blank");
 	var hiddenField = document.createElement("input");
 	hiddenField.setAttribute("type", "hidden");
@@ -2012,7 +2012,7 @@ function saveJPG() {
 	//Form Submit;
 	var form = document.createElement("form");
 	form.setAttribute("method", "post");
-	form.setAttribute("action", "RiboVision/v1.0/save2D");
+	form.setAttribute("action", "api/RiboVision/v1.0/save2D");
 	form.setAttribute("target", "_blank");
 	var hiddenField = document.createElement("input");
 	hiddenField.setAttribute("type", "hidden");
@@ -2030,7 +2030,7 @@ function savePNG() {
 	//Form Submit;
 	var form = document.createElement("form");
 	form.setAttribute("method", "post");
-	form.setAttribute("action", "RiboVision/v1.0/save2D");
+	form.setAttribute("action", "api/RiboVision/v1.0/save2D");
 	form.setAttribute("target", "_blank");
 	var hiddenField = document.createElement("input");
 	hiddenField.setAttribute("type", "hidden");
@@ -2048,7 +2048,7 @@ function savePDF() {
 	//Form Submit;
 	var form = document.createElement("form");
 	form.setAttribute("method", "post");
-	form.setAttribute("action", "RiboVision/v1.0/save2D");
+	form.setAttribute("action", "api/RiboVision/v1.0/save2D");
 	form.setAttribute("target", "_blank");
 	var hiddenField = document.createElement("input");
 	hiddenField.setAttribute("type", "hidden");
@@ -2071,7 +2071,7 @@ function savePML(){
 	//Form Submit;
 	var form = document.createElement("form");
 	form.setAttribute("method", "post");
-	form.setAttribute("action", "RiboVision/v1.0/savepml");
+	form.setAttribute("action", "api/RiboVision/v1.0/savepml");
 	form.setAttribute("target", "_blank");
 	var hiddenField = document.createElement("input");
 	hiddenField.setAttribute("type", "hidden");
@@ -2709,8 +2709,8 @@ function computeFasta(){
 /////////////////////////////// Load Data Functions ///////////////////////////
 function populateInteractionMenu(structureName) {
 	$.ajax({
-		url: 'RiboVision/v1.0/fetchInteractionsMenu',
-		type: 'post',
+		url: 'api/RiboVision/v1.0/fetchInteractionsMenu',
+		type: 'POST',
 		contentType: 'application/json', 
 		accept: 'application/json',
 		data: JSON.stringify([structureName]),
@@ -2751,8 +2751,8 @@ function populateInteractionMenu(structureName) {
 
 function populateStructDataMenu(structureName) {
 	$.ajax({
-		url: 'RiboVision/v1.0/structdatamenu',
-		type: 'post',
+		url: 'api/RiboVision/v1.0/structdatamenu',
+		type: 'POST',
 		contentType: 'application/json', 
 		accept: 'application/json',
 		data: JSON.stringify([structureName]),
