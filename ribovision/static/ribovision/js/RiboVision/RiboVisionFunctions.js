@@ -2964,7 +2964,7 @@ function welcomeScreen() {
 			rvDataSets[0].Layers[0].CanvasContext.drawImage(img, -1*(rvDataSets[0].HighlightLayer.Canvas.width - 612)/2,-1*(rvDataSets[0].HighlightLayer.Canvas.height - 792-242)/2,image_width,image_height);
 		}
 	}
-	img.src = "/static/ribovision/images/RiboVisionLogoHigh.png"; //
+	img.src = "/static/ribovision/images/RiboVisionLogoHig.png"; //
 
 }
 ///////////////////////////////////////////////////////////////////////////////
