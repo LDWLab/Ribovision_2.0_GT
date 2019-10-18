@@ -42,6 +42,7 @@ def speciestable(request):
         SS_Table: "ECOLI_SSU"
         Species_Abr: "ECOLI"
         Species_Name: "Escherichia coli"
+        Molecule_Names: ??? "23S:5S"
     '''
     if request.method == "POST":
         structure_identity = request.body.decode()
@@ -49,16 +50,30 @@ def speciestable(request):
             SecondaryStructures.Name as \'SS_Table\', Abbreviation as \'Species_Abr\', Species.name as \'Species_Name\' FROM SecondaryStructures\
             INNER JOIN Species ON SecondaryStructures.strain_fk = Species.strain_id\
             WHERE SecondaryStructures.Name = '+structure_identity
+        SQLStatement_with_polymers = 'SELECT CAST(Circle_Radius AS CHAR) AS Circle_Radius, CAST(Font_Size_Canvas AS CHAR) AS Font_Size_Canvas,\
+            CAST(Font_Size_SVG AS CHAR) AS Font_Size_SVG, CAST(GeneSymbol AS CHAR) AS Molecule_Names, ss.Name as \'SS_Table\', \
+            Abbreviation as \'Species_Abr\', Species.name as \'Species_Name\' FROM (SELECT * FROM SEREB.SecondaryStructures WHERE Name = '+structure_identity+') as ss \
+            INNER JOIN Species ON ss.strain_fk = Species.strain_id\
+            INNER JOIN Secondary_Tertiary ON ss.SecStr_id = Secondary_Tertiary.secondary_structure_id \
+            INNER JOIN ThreeDStructures ON Secondary_Tertiary.3D_structure_id = ThreeDStructures.3D_structure_id \
+            INNER JOIN ChainList ON ThreeDStructures.3D_structure_id = ChainList.3D_structure_id \
+            INNER JOIN Polymer_Data on ChainList.polymer_id = Polymer_Data.PData_id\
+            INNER JOIN Nomenclature on Polymer_Data.nomgd_id = Nomenclature.nom_id\
+            WHERE Nomenclature.MoleculeGroup='+structure_identity.split('_')[1]
         with connection.cursor() as cur:
             cur.execute(SQLStatement)
             response = [dict()]
             for row in cur.fetchall():
                 for i, value in enumerate(row):
-                    if re.search(r'\d', value):
-                        response[0][cur.description[i][0]] = float(value)
-                    else:
-                        response[0][cur.description[i][0]] = value
-    return JsonResponse(list(response), safe = False)
+                    if value:       #Not good cus it overwrites the Molecule_Names; have to fix it later
+                        if re.match(r"\d{1}\.{1}\d{1}", value):
+                            response[0][cur.description[i][0]] = float(value)
+                        else:
+                            response[0][cur.description[i][0]] = value
+    if bool(response[0]):
+        return JsonResponse(list(response), safe = False)
+    else:
+        return JsonResponse(list(), safe = False)
 
 def fetchresidues(request):
     '''Requires for each entry:
@@ -81,8 +96,8 @@ def fetchresidues(request):
     '''
     if request.method == "POST":
         structure_identity = request.body.decode()
-        SQLStatement = 'SELECT SS_Data.map_index, GeneSymbol, resNum, X, Y, unModResName, modResName, polymer_type, \
-                        MoleculeGroup, ChainName, Domain_RN, Domain_AN, Domains_Color, Helix_Num, Helix_Color\
+        SQLStatement = 'SELECT SS_Data.map_index, CAST(GeneSymbol AS CHAR) AS molName, resNum, X, Y, unModResName, modResName, \
+                        CAST(polymer_type AS CHAR) AS MoleculeType, MoleculeGroup, ChainName, Domain_RN, Domain_AN, Domains_Color, Helix_Num, Helix_Color\
                         FROM (SELECT * FROM SecondaryStructures WHERE Name = '+structure_identity+') AS ss\
                         LEFT JOIN SS_Data ON ss.SecStr_id = SS_Data.ss_id\
                         LEFT JOIN Residues ON SS_Data.res_id = Residues.resi_id\
