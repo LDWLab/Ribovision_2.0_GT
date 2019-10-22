@@ -91,6 +91,7 @@ function initLabels(speciesSplit,customResidues) {
 					var customLabels=processCustomLabels(customResidues);
 					rvDataSets[speciesIndex].addLabels(customLabels.TextLabels, customLabels.LineLabels);
 					rvDataSets[speciesIndex].drawLabels("labels");
+					console.log(customLabels.TextLabels, customLabels.LineLabels)
 				} else {
 					rvDataSets[speciesIndex].addLabels([], []);
 				}
@@ -124,10 +125,11 @@ function processCustomLabels(customResidues){
 		customLabels.LineLabels[index].StrokeLineJoin="round";
 		customLabels.LineLabels[index].StrokeMiterLimit="10.000";
 		customLabels.LineLabels[index].StrokeWidth=data.LineThickness;
-		customLabels.LineLabels[index].X1=data.LineX1;
-		customLabels.LineLabels[index].X2=data.LineX2;
-		customLabels.LineLabels[index].Y1=data.LineY1;
-		customLabels.LineLabels[index].Y2=data.LineY1;	
+		console.log("Here be X1:",index,data.LineX1)
+		customLabels.LineLabels[index].X1=parseFloat(data.LineX1);
+		customLabels.LineLabels[index].X2=parseFloat(data.LineX2);
+		customLabels.LineLabels[index].Y1=parseFloat(data.LineY1);
+		customLabels.LineLabels[index].Y2=parseFloat(data.LineY1);	
 	});	
 	return customLabels;
 }

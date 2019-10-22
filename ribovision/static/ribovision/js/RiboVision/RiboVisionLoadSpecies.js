@@ -149,7 +149,8 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 					speciesIndex = 0;
 					// Come back and fill this in with real molecule names sometime
 					var se = {Molecule_Names : ['custom']};
-					rvDataSets[speciesIndex].addSpeciesEntry(se);					
+					rvDataSets[speciesIndex].addSpeciesEntry(se);
+					console.log(rvDataSets)
 				} else {
 					$.each(data, function (index, value) {
 						speciesIndex=$.inArray(value.SS_Table,speciesSplit);
