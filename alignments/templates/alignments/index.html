@@ -1,4 +1,24 @@
 {% load static %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+var tree;
+
+$.ajax({
+    url: '/alignments/showTaxonomy',
+    type: "GET",
+	dataType: "json",
+	// data: JSON.stringify(data),
+    success: function (data) {
+		console.log(data);
+		tree = JSON.stringify(data);
+		console.log(tree)
+    },
+    error: function (error) {
+        console.log(`Error ${error}`);
+    }
+});
+console.log('Blah blah: ', tree);
+</script>
 <script src="{% static "alignments/vue.js" %}"></script>
 
 <div class="container">

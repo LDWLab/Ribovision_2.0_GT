@@ -5,6 +5,8 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView
 import re
 
+from django.http import JsonResponse
+
 def sql_alignment_query(aln_id):
 	alnposition = AlnData.objects.raw('SELECT * FROM SEREB.Aln_Data\
 		INNER JOIN SEREB.Alignment ON SEREB.Aln_Data.aln_id = SEREB.Alignment.Aln_id\
@@ -16,6 +18,21 @@ def sql_alignment_query(aln_id):
 	fastastring,max_aln_length = build_alignment(alnposition)
 
 	return fastastring,max_aln_length
+
+def buildTaxonomy(request):
+	dictionary = {
+		'label' : 'root',
+		'nodes' : {
+			'label' : 'item1',
+			'nodes' : {
+				'label' : 'item1.1',
+			}
+		}
+	}
+	return JsonResponse(dictionary, safe = False)
+
+def buildTaxonomyHelper(request, countIndentations, parent):
+	pass
 
 def build_alignment(rawMYSQLresult):
 	'''

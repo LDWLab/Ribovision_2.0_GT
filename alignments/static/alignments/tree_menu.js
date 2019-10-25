@@ -1,27 +1,46 @@
-let tree = {
-	label: 'root',
-	nodes: [
-	  {
-		label: 'item1',
-		nodes: [
-		  {
-			label: 'item1.1'
-		  },
-		  {
-			label: 'item1.2',
-			nodes: [
-			  {
-				label: 'item1.2.1'
-			  }
-			]
-		  }
-		]
-	  }, 
-	  {
-		label: 'item2'  
-	  }
-	]
-  }
+// var tree;
+
+// $.ajax({
+//     url: '/alignments/showTaxonomy',
+//     type: "GET",
+// 	dataType: "json",
+// 	// data: JSON.stringify(data),
+//     success: function (data) {
+// 		console.log(data);
+// 		tree = JSON.stringify(data);
+// 		console.log(tree)
+//     },
+//     error: function (error) {
+//         console.log(`Error ${error}`);
+//     }
+// });
+// console.log('Blah blah: ', tree);
+
+// let tree = {
+// 	label: 'root',
+// 	nodes: [
+// 	  {
+// 		label: 'item1',
+// 		nodes: [
+// 		  {
+// 			label: 'item1.1'
+// 		  },
+// 		  {
+// 			label: 'item1.2',
+// 			nodes: [
+// 			  {
+// 				label: 'item1.2.1'
+// 			  }
+// 			]
+// 		  }
+// 		]
+// 	  }, 
+// 	  {
+// 		label: 'item2'  
+// 	  }
+// 	]
+//   }
+
   
   Vue.component('tree-menu', { 
 	delimiters: ['[[',']]'],
