@@ -25,27 +25,21 @@ def buildTaxonomy(request):
 	tree = {
 	'label': 'root',
 	'nodes': [
-	  {
+	{
 		'label': 'item1',
 		'nodes': [
 		{
 			'label': 'item1.1'
-		},
-		{
+		},{
 			'label': 'item1.2',
 			'nodes': [
-			  {
+			{
 				'label': 'item1.2.1'
-			  }
-			]
-		  }
-		]
-	  }, 
-	  {
+			}]
+		}]
+	},{
 		'label': 'item2'
-	}
-	]
-	}
+	}]}
 	return JsonResponse(tree, safe = False)
 
 def build_alignment(rawMYSQLresult):

@@ -3,7 +3,6 @@
      url: '/alignments/showTaxonomy',
      type: "GET",
  	dataType: "json",
- 	// data: JSON.stringify(data),
      success: function (data) {
  		console.log(data);
  		tree = data;
@@ -11,36 +10,13 @@
      error: function (error) {
          console.log(`Error ${error}`);
 	 },
-	 async: false
- });
- console.log('Blah blah: ', tree);
+	 async: false		//Essentially means everything after this will wait for the ajax call to happen,
+ });					//which is precisely what we wanted to do. 
+						//We need to be careful how long the python function takes to construct the tree.
+						//In principle not a good way to do it, but it works for now.
 
-// let tree = {
-// 	label: 'root',
-// 	nodes: [
-// 	  {
-// 		label: 'item1',
-// 		nodes: [
-// 		  {
-// 			label: 'item1.1'
-// 		  },
-// 		  {
-// 			label: 'item1.2',
-// 			nodes: [
-// 			  {
-// 				label: 'item1.2.1'
-// 			  }
-// 			]
-// 		  }
-// 		]
-// 	  }, 
-// 	  {
-// 		label: 'item2'  
-// 	  }
-// 	]
-//   }
+ console.log('Tree is in the JS global scope: ', tree);
 
-  
   Vue.component('tree-menu', { 
 	delimiters: ['[[',']]'],
 	template: '#tree-menu',
