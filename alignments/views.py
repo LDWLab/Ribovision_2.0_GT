@@ -22,7 +22,32 @@ def sql_alignment_query(aln_id):
 def buildTaxonomy(request):
 	Taxgroups.objects.raw('SELECT * FROM SEREB.TaxGroups WHERE\
 		SEREB.TaxGroups.parent = "0";')
-	return JsonResponse(response, safe = False)
+	tree = {
+	'label': 'root',
+	'nodes': [
+	  {
+		'label': 'item1',
+		'nodes': [
+		{
+			'label': 'item1.1'
+		},
+		{
+			'label': 'item1.2',
+			'nodes': [
+			  {
+				'label': 'item1.2.1'
+			  }
+			]
+		  }
+		]
+	  }, 
+	  {
+		'label': 'item2'
+	}
+	]
+	}
+		
+	return JsonResponse(tree, safe = False)
 
 def build_alignment(rawMYSQLresult):
 	'''

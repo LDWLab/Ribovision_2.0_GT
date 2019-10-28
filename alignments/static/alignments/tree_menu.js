@@ -1,20 +1,19 @@
-// var tree;
-
-// $.ajax({
-//     url: '/alignments/showTaxonomy',
-//     type: "GET",
-// 	dataType: "json",
-// 	// data: JSON.stringify(data),
-//     success: function (data) {
-// 		console.log(data);
-// 		tree = JSON.stringify(data);
-// 		console.log(tree)
-//     },
-//     error: function (error) {
-//         console.log(`Error ${error}`);
-//     }
-// });
-// console.log('Blah blah: ', tree);
+ var tree;
+ $.ajax({
+     url: '/alignments/showTaxonomy',
+     type: "GET",
+ 	dataType: "json",
+ 	// data: JSON.stringify(data),
+     success: function (data) {
+ 		console.log(data);
+ 		tree = JSON.stringify(data);
+     },
+     error: function (error) {
+         console.log(`Error ${error}`);
+	 },
+	 async: false
+ });
+ console.log('Blah blah: ', tree);
 
 // let tree = {
 // 	label: 'root',
