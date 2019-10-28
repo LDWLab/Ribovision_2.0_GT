@@ -46,7 +46,6 @@ def buildTaxonomy(request):
 	}
 	]
 	}
-		
 	return JsonResponse(tree, safe = False)
 
 def build_alignment(rawMYSQLresult):

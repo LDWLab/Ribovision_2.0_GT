@@ -6,7 +6,7 @@
  	// data: JSON.stringify(data),
      success: function (data) {
  		console.log(data);
- 		tree = JSON.stringify(data);
+ 		tree = data;
      },
      error: function (error) {
          console.log(`Error ${error}`);
