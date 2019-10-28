@@ -20,19 +20,9 @@ def sql_alignment_query(aln_id):
 	return fastastring,max_aln_length
 
 def buildTaxonomy(request):
-	dictionary = {
-		'label' : 'root',
-		'nodes' : {
-			'label' : 'item1',
-			'nodes' : {
-				'label' : 'item1.1',
-			}
-		}
-	}
-	return JsonResponse(dictionary, safe = False)
-
-def buildTaxonomyHelper(request, countIndentations, parent):
-	pass
+	Taxgroups.objects.raw('SELECT * FROM SEREB.TaxGroups WHERE\
+		SEREB.TaxGroups.parent = "0";')
+	return JsonResponse(response, safe = False)
 
 def build_alignment(rawMYSQLresult):
 	'''
