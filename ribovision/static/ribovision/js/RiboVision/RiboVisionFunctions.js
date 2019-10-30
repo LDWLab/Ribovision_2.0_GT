@@ -36,7 +36,6 @@ function initLabels(speciesSplit,customResidues) {
 	$.each(speciesSplit, function (speciesIndex, species) {
 		if (rvDataSets[speciesIndex] != undefined){
 			rvDataSets[speciesIndex].addLabels([], []);
-		
 			if (species != "None" && species != "custom") {
 				var TextLabels=[];
 				var LineLabels=[];
@@ -91,8 +90,9 @@ function initLabels(speciesSplit,customResidues) {
 					var customLabels=processCustomLabels(customResidues);
 					rvDataSets[speciesIndex].addLabels(customLabels.TextLabels, customLabels.LineLabels);
 					rvDataSets[speciesIndex].drawLabels("labels");
-					console.log(customLabels.TextLabels, customLabels.LineLabels)
+					console.log("Text:", rvDataSets[speciesIndex].rvTextLabels, "Line:", rvDataSets[speciesIndex].rvLineLabels)
 				} else {
+					console.log("Cleaning unnecessarily")
 					rvDataSets[speciesIndex].addLabels([], []);
 				}
 			}
@@ -107,25 +107,24 @@ function processCustomLabels(customResidues){
 	customLabels["LineLabels"]=[];
 
 	
-	var labeledResidues = $.grep(customResidues, function(e){ return e.LabelX !=undefined; });
+	var labeledResidues = $.grep(customResidues, function(e){ return e.LabelX != ''; });
 			
 	$.each(labeledResidues, function (index, data) {
-		customLabels.TextLabels[index]=[];
+		customLabels.TextLabels[index]={};
 		customLabels.TextLabels[index].Fill=data.LabelColor
 		customLabels.TextLabels[index].Font="MyriadPro-Regular";
-		customLabels.TextLabels[index].FontSize=data.LabelFontSize;
+		customLabels.TextLabels[index].FontSize=parseFloat(data.LabelFontSize);
 		customLabels.TextLabels[index].LabelText=data.LabelSymbol
-		customLabels.TextLabels[index].X=data.LabelX;
-		customLabels.TextLabels[index].Y=data.LabelY;
+		customLabels.TextLabels[index].X=parseFloat(data.LabelX);
+		customLabels.TextLabels[index].Y=parseFloat(data.LabelY);
 		customLabels.TextLabels[index].id=index;
-		customLabels.LineLabels[index]=[];
+		customLabels.LineLabels[index]={};
 		customLabels.LineLabels[index].id=index;
 		customLabels.LineLabels[index].Fill="";
 		customLabels.LineLabels[index].Stroke=data.LineColor;
 		customLabels.LineLabels[index].StrokeLineJoin="round";
-		customLabels.LineLabels[index].StrokeMiterLimit="10.000";
-		customLabels.LineLabels[index].StrokeWidth=data.LineThickness;
-		console.log("Here be X1:",index,data.LineX1)
+		customLabels.LineLabels[index].StrokeMiterLimit=parseFloat("10.000");
+		customLabels.LineLabels[index].StrokeWidth=parseFloat(data.LineThickness);
 		customLabels.LineLabels[index].X1=parseFloat(data.LineX1);
 		customLabels.LineLabels[index].X2=parseFloat(data.LineX2);
 		customLabels.LineLabels[index].Y1=parseFloat(data.LineY1);

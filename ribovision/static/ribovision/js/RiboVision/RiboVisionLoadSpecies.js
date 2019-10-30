@@ -89,7 +89,7 @@ function processResidueData(ResidueData,speciesIndex){
 function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 	var speciesSplit=species.split("&");
 	//Load Labels
-	initLabels(speciesSplit,customResidues); 
+	initLabels(speciesSplit,customResidues);
 	//ResiduePositions=[[]];
 	MainResidueMap=[[]];
 
@@ -150,7 +150,6 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 					// Come back and fill this in with real molecule names sometime
 					var se = {Molecule_Names : ['custom']};
 					rvDataSets[speciesIndex].addSpeciesEntry(se);
-					console.log(rvDataSets)
 				} else {
 					$.each(data, function (index, value) {
 						speciesIndex=$.inArray(value.SS_Table,speciesSplit);
@@ -163,7 +162,7 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 			}
 		});
 	})
-	
+	initLabels(speciesSplit,customResidues);
 	processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2);
 }
 
