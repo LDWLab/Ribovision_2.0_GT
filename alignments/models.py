@@ -175,6 +175,7 @@ class Taxgroups(models.Model):
     taxgroup_id = models.IntegerField(primary_key=True)
     grouplevel = models.CharField(db_column='groupLevel', max_length=45, blank=True, null=True)  # Field name made lowercase.
     groupname = models.CharField(db_column='groupName', max_length=45, blank=True, null=True)  # Field name made lowercase.
+    parent = models.ForeignKey('self', models.DO_NOTHING, db_column='parent', blank=True, null=True)
     # taxid = models.IntegerField(blank=True, null=True)
 
     class Meta:
