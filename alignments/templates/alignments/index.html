@@ -44,21 +44,21 @@
 <script src={% static 'alignments/tree_menu.js' %}>
 var tree;
 
-$.ajax({
-    url: '/alignments/showTaxonomy',
-    type: "GET",
-	dataType: "json",
-	// data: JSON.stringify(data),
-    success: function (data) {
-		console.log(data);
-		tree = JSON.stringify(data);
-		console.log(tree)
-    },
-    error: function (error) {
-        console.log(`Error ${error}`);
-    }
-});
-console.log('Blah blah: ', tree);
+// $.ajax({
+//     url: '/alignments/showTaxonomy',
+//     type: "GET",
+// 	dataType: "json",
+// 	// data: JSON.stringify(data),
+//     success: function (data) {
+// 		console.log(data);
+// 		tree = JSON.stringify(data);
+// 		console.log(tree)
+//     },
+//     error: function (error) {
+//         console.log(`Error ${error}`);
+//     }
+// });
+// console.log('Blah blah: ', tree);
 </script>
 
 <p>OR</p> 

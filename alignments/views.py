@@ -20,14 +20,6 @@ def sql_alignment_query(aln_id):
 	return fastastring,max_aln_length
 
 def buildTaxonomy(request):
-	# nodeSet = []
-	# for taxgroup in taxgroups:
-	# 	nodeSet.append({'label' : taxgroup.groupname})
-	# tree = {
-	# 	'label' : 'Select a taxgroup:',
-	# 	'nodes' : nodeSet
-	# }
-
 	# tree = {
 	# 'label': 'root',
 	# 'nodes': [
@@ -47,15 +39,13 @@ def buildTaxonomy(request):
 	# 	'label': 'item2'
 	# }]}
 
-	taxgroups = Taxgroups.objects.raw('SELECT * FROM SEREB.TaxGroups WHERE\
-		 SEREB.TaxGroups.groupLevel = "superkingdom";')
+	taxgroups = Taxgroups.objects.raw('SELECT * FROM SEREB.TaxGroups WHERE SEREB.TaxGroups.groupLevel = "superkingdom";')
 	taxonomy = []
 	for taxgroup in taxgroups:
 		subtaxonomy = {
 			'label' : taxgroup.groupname,
-			'nodes' : buildTaxonomyRecurse(taxgroup.parent)
+			'nodes' : buildTaxonomyRecurse(taxgroup.taxgroup_id)
 		}
-		print(str(subtaxonomy['nodes']))
 		taxonomy.append(subtaxonomy)
 	tree = {
 		'label' : 'Select a taxgroup:',
@@ -64,15 +54,13 @@ def buildTaxonomy(request):
 	return JsonResponse(tree, safe = False)
 
 def buildTaxonomyRecurse(parentIndex):
-	mySQLStr = 'SELECT * FROM SEREB.TaxGroups WHERE\
-		 SEREB.TaxGroups.groupLevel = "' + str(parentIndex) + '";'
+	mySQLStr = 'SELECT * FROM SEREB.TaxGroups WHERE SEREB.TaxGroups.parent = "' + str(parentIndex) + '";'
 	taxgroups = Taxgroups.objects.raw(mySQLStr)
-	print(mySQLStr)
 	taxonomy = []
 	for taxgroup in taxgroups:
 		subtaxonomy = {
 			'label' : taxgroup.groupname,
-			'nodes' : {}#buildTaxonomyRecurse()
+			'nodes' : buildTaxonomyRecurse(taxgroup.taxgroup_id)
 		}
 		taxonomy.append(subtaxonomy)
 	return taxonomy
