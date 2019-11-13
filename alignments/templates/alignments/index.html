@@ -25,7 +25,8 @@
 	  <div class="label-wrapper" @click="toggleChildren">
 		<div :style="indent" :class="labelClasses">
 			<i v-for="node in nodes" class="fa" :class="iconClasses"></i>
-			[[label]]
+			[[label]], [[taxID]]
+			
 		</div>
 	  </div>
 	  <tree-menu 
@@ -34,7 +35,8 @@
 		v-bind:key="node.id"
 		:nodes="node.nodes" 
 		:label="node.label"
-		:depth="depth + 1"   
+		:depth="depth + 1"
+		:taxID="node.taxID"
 	  >
 	  </tree-menu>
 	</div>
