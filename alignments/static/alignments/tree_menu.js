@@ -43,12 +43,6 @@
 	methods: {
 	  toggleChildren() {
 		 this.showChildren = !this.showChildren;
-		 if (this.showChildren) {
-			 var button = document.getElementById("getAlignment");
-			 var newValue = "{% url 'alignments:detail' " + this.label + " %}"
-			//  alert(newValue);
-			 button.setAttribute("value", newValue);
-		 }
 	  }
 	}
   });

@@ -6,7 +6,6 @@
 
 </script>
 <script src="{% static "alignments/vue.js" %}">
-
 </script>
 
 <div class="container">
@@ -41,25 +40,13 @@
 	</div>
   </script>
 
-<script src={% static 'alignments/tree_menu.js' %}>
-var tree;
+<script src={% static 'alignments/tree_menu.js' %}></script>
 
-// $.ajax({
-//     url: '/alignments/showTaxonomy',
-//     type: "GET",
-// 	dataType: "json",
-// 	// data: JSON.stringify(data),
-//     success: function (data) {
-// 		console.log(data);
-// 		tree = JSON.stringify(data);
-// 		console.log(tree)
-//     },
-//     error: function (error) {
-//         console.log(`Error ${error}`);
-//     }
-// });
-// console.log('Blah blah: ', tree);
-</script>
+<p>OR</p> 
+
+<h4>Trying different dependency<br/></h4>
+<div id="app2"></div>
+<script src={% static 'alignments/dependent_series.js' %}></script>
 
 <p>OR</p> 
 

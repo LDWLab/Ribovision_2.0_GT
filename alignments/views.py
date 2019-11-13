@@ -19,6 +19,22 @@ def sql_alignment_query(aln_id):
 
 	return fastastring,max_aln_length
 
+def sql_filtered_aln_query(aln_id, parent_id):
+	SQLStatement = 'SELECT * FROM SEREB.Aln_Data\
+					INNER JOIN SEREB.Alignment ON SEREB.Aln_Data.aln_id = SEREB.Alignment.Aln_id\
+					INNER JOIN SEREB.Residues ON SEREB.Aln_Data.res_id = SEREB.Residues.resi_id\
+					INNER JOIN (SELECT * from SEREB.Polymer_Data WHERE \
+								SEREB.Polymer_Data.PData_id IN (SELECT PData_id from SEREB.Polymer_Alignments WHERE SEREB.Polymer_Alignments.Aln_id = '+str(aln_id)+')\
+								AND \
+								SEREB.Polymer_Data.strain_id IN (SELECT strain_id FROM SEREB.Species_TaxGroup WHERE taxgroup_id = '+str(parent_id)+')) as filtered_polymers\
+					            ON SEREB.Residues.PolData_id = filtered_polymers.PData_id\
+					INNER JOIN SEREB.Species ON filtered_polymers.strain_id = SEREB.Species.strain_id\
+					WHERE SEREB.Alignment.aln_id = '+str(aln_id)
+	alnposition = AlnData.objects.raw(SQLStatement)
+	alnpos=[]
+	fastastring,max_aln_length = build_alignment(alnposition)
+	return fastastring,max_aln_length
+
 def buildTaxonomy(request):
 	# tree = {
 	# 'label': 'root',
@@ -121,8 +137,13 @@ def index(request):
 
 def detail(request, align_name):
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
-	fastastring,max_aln_length = sql_alignment_query(align_id)
-	#print(fastastring)
+	
+	#Old style request
+	#fastastring,max_aln_length = sql_alignment_query(align_id)
+	
+	#New style request with filtering by parent
+	fastastring,max_aln_length = sql_filtered_aln_query(align_id,'2')
+
 	context = {'fastastring': fastastring, 'aln_name':str(Alignment.objects.filter(aln_id = align_id)[0].name)}
 	return render(request, 'alignments/detail.html', context)
 
