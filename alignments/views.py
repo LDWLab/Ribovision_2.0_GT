@@ -44,7 +44,8 @@ def buildTaxonomy(request):
 	for taxgroup in taxgroups:
 		subtaxonomy = {
 			'label' : taxgroup.groupname,
-			'nodes' : buildTaxonomyRecurse(taxgroup.taxgroup_id)
+			'nodes' : buildTaxonomyRecurse(taxgroup.taxgroup_id),
+			'taxID' : taxgroup.taxgroup_id
 		}
 		taxonomy.append(subtaxonomy)
 	tree = {
@@ -60,7 +61,8 @@ def buildTaxonomyRecurse(parentIndex):
 	for taxgroup in taxgroups:
 		subtaxonomy = {
 			'label' : taxgroup.groupname,
-			'nodes' : buildTaxonomyRecurse(taxgroup.taxgroup_id)
+			'nodes' : buildTaxonomyRecurse(taxgroup.taxgroup_id),
+			'taxID' : taxgroup.taxgroup_id
 		}
 		taxonomy.append(subtaxonomy)
 	return taxonomy
