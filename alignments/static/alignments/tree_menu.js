@@ -17,10 +17,10 @@
 
  console.log('Tree is in the JS global scope: ', tree);
 
-  Vue.component('tree-menu', { 
+Vue.component('tree-menu', { 
 	delimiters: ['[[',']]'],
 	template: '#tree-menu',
-	props: [ 'nodes', 'label', 'depth' ],
+	props: [ 'nodes', 'label', 'depth', 'taxID' ],
 	data() {
 	   return {
 		 showChildren: false
@@ -41,11 +41,18 @@
 	  }
 	},
 	methods: {
-	  toggleChildren() {
-		 this.showChildren = !this.showChildren;
-	  }
+		toggleChildren() {
+		this.showChildren = !this.showChildren;
+		if (this.showChildren) {
+			var button = document.getElementById("getAlignment");
+			//var newValue = "{% url 'alignments:detail' " + this.taxID + " %}"
+			var newValue =  this.taxID 
+			//  alert(newValue);
+			button.setAttribute("value", newValue);
+		}
+		}
 	}
-  });
+});
   
   new Vue({
 	el: '#app',

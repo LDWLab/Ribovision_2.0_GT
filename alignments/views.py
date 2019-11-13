@@ -27,7 +27,7 @@ def sql_filtered_aln_query(aln_id, parent_id):
 								SEREB.Polymer_Data.PData_id IN (SELECT PData_id from SEREB.Polymer_Alignments WHERE SEREB.Polymer_Alignments.Aln_id = '+str(aln_id)+')\
 								AND \
 								SEREB.Polymer_Data.strain_id IN (SELECT strain_id FROM SEREB.Species_TaxGroup WHERE taxgroup_id = '+str(parent_id)+')) as filtered_polymers\
-					            ON SEREB.Residues.PolData_id = filtered_polymers.PData_id\
+								ON SEREB.Residues.PolData_id = filtered_polymers.PData_id\
 					INNER JOIN SEREB.Species ON filtered_polymers.strain_id = SEREB.Species.strain_id\
 					WHERE SEREB.Alignment.aln_id = '+str(aln_id)
 	alnposition = AlnData.objects.raw(SQLStatement)
