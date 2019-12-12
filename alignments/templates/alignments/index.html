@@ -25,7 +25,8 @@
 	  <div class="label-wrapper" @click="toggleChildren">
 		<div :style="indent" :class="labelClasses">
 			<i v-for="node in nodes" class="fa" :class="iconClasses"></i>
-			[[label]], [[taxID]]
+			<!-- [[label]], [[taxID]] -->
+			[[label]]
 			
 		</div>
 	  </div>
@@ -44,11 +45,11 @@
 
 <script src={% static 'alignments/tree_menu.js' %}></script>
 
-<p>OR</p> 
+<!-- <p>OR</p> 
 
 <h4>Trying different dependency<br/></h4>
 <div id="app2"></div>
-<script src={% static 'alignments/dependent_series.js' %}></script>
+<script src={% static 'alignments/dependent_series.js' %}></script> -->
 
 <!-- <button id="getAlignment" value="">Get Alignment</button> -->
 

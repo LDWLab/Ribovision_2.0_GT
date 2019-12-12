@@ -43,13 +43,13 @@ Vue.component('tree-menu', {
 	methods: {
 		toggleChildren() {
 		this.showChildren = !this.showChildren;
-		if (this.showChildren) {
+		// if (this.showChildren) {
 			var button = document.getElementById("getAlignment");
 			//var newValue = "{% url 'alignments:detail' " + this.taxID + " %}"
 			var newValue = this.taxID 
 			//  alert(newValue);
 			button.setAttribute("value2", newValue);
-		}
+		// }
 		}
 	}
 });
