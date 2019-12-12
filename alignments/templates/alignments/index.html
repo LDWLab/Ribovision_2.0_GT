@@ -45,6 +45,21 @@
 
 <script src={% static 'alignments/tree_menu.js' %}></script>
 
+
+
+<button onclick="myFunction()">Try it</button>
+<p id="demo"></p>
+
+<script>
+function myFunction() {
+  var str1 = "Hello ";
+  var value2 = document.getElementById("getAlignment").getAttribute("value2");
+  var res = str1.concat(value2);
+  document.getElementById("demo").innerHTML = res;
+}
+</script>
+
+
 <!-- <p>OR</p> 
 
 <h4>Trying different dependency<br/></h4>
@@ -55,11 +70,11 @@
 
 <p>OR</p> 
 
-<select id="getAlignment" value2="" onchange="location = this.value;">
-	<option value="">Select an alignment</option>
+<select onchange="location = this.value2;">
+	<option >Select an alignment</option>
 	{% for aln in some_Alignments %}
 		{%if 'LSU' not in aln.name%}
-			<option value2=getAlignment.value2 value="{% url 'alignments:detail' aln.name %}">{{ aln.name }}</option>
+			<option value="{% url 'alignments:detail' aln.name %}">{{ aln.name }}</option>
 		{% endif %}
 	{% endfor %}
 </select>
@@ -70,7 +85,7 @@
 	<option value="">Select an rRNA alignment</option>
 	{% for aln in some_Alignments %}
 		{%if 'LSU' in aln.name%}
-			<option value="{% url 'alignments:rRNA' aln.name %}">{{ aln.name }}</option>
+			<option value2="{% url 'alignments:rRNA' aln.name %}">{{ aln.name }}</option>
 		{% endif %}
 	{% endfor %}
 </select>
