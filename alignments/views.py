@@ -135,14 +135,14 @@ def index(request):
 	}
 	return render(request, 'alignments/index.html', context)
 
-def detail(request, align_name):
+def detail(request, align_name, tax_group):
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
 	
 	#Old style request
 	#fastastring,max_aln_length = sql_alignment_query(align_id)
 	
 	#New style request with filtering by parent
-	fastastring,max_aln_length = sql_filtered_aln_query(align_id,'2')
+	fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)
 
 	context = {'fastastring': fastastring, 'aln_name':str(Alignment.objects.filter(aln_id = align_id)[0].name)}
 	return render(request, 'alignments/detail.html', context)
