@@ -53,13 +53,15 @@
 
 <!-- <button id="getAlignment" value="">Get Alignment</button> -->
 
-<p>OR</p> 
+<p>OR</p>
 
-<select id="getAlignment" value2="" onchange="location = this.value;">
+<button type="button">Test</button>
+
+<select id="getAlignment" value="FOO" value2=1 onchange="location = this.value;">
 	<option value="">Select an alignment</option>
 	{% for aln in some_Alignments %}
 		{%if 'LSU' not in aln.name%}
-			<option value2=getAlignment.value2 value="{% url 'alignments:detail' aln.name %}">{{ aln.name }}</option>
+			<option value2=getAlignment.value2>{{ aln.name }}</option>
 		{% endif %}
 	{% endfor %}
 </select>

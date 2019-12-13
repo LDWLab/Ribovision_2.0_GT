@@ -46,8 +46,7 @@ Vue.component('tree-menu', {
 		// if (this.showChildren) {
 			var button = document.getElementById("getAlignment");
 			//var newValue = "{% url 'alignments:detail' " + this.taxID + " %}"
-			var newValue = this.taxID 
-			//  alert(newValue);
+			var newValue = this.taxID;
 			button.setAttribute("value2", newValue);
 		// }
 		}
