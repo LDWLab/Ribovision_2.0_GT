@@ -46,17 +46,16 @@
 <script src={% static 'alignments/tree_menu.js' %}></script>
 
 <script>
-function myFunction(value) {
-  var value2 = document.getElementById("getAlignment").getAttribute("value2");
-  var prots = "rProtein/"
-  var res = prots.concat(value).concat("/").concat(value2);
+function myFunction(alignment_name,aln_type) {
+  var parent_taxid = document.getElementById("getAlignment").getAttribute("value2");
+  var res = aln_type.concat(alignment_name).concat("/").concat(parent_taxid);
   window.location.href = res;
 }
 </script>
 
 <p>AND</p> 
 
-<select id="getAlignment" onchange= "myFunction(this.value);">
+<select id="getAlignment" onchange= "myFunction(this.value, 'rProtein/');">
 	<option >Select an alignment</option>
 	{% for aln in some_Alignments %}
 		{%if 'LSU' not in aln.name%}
@@ -67,11 +66,11 @@ function myFunction(value) {
 
 <p>OR</p>
 
-<select onchange="location = this.value;">
+<select id="getAlignment" onchange= "myFunction(this.value, 'rRNA/');">
 	<option value="">Select an rRNA alignment</option>
 	{% for aln in some_Alignments %}
 		{%if 'LSU' in aln.name%}
-			<option value="{% url 'alignments:rRNA' aln.name %}">{{ aln.name }}</option>
+			<option value={{ aln.name }}>{{ aln.name }}</option>
 		{% endif %}
 	{% endfor %}
 </select>
