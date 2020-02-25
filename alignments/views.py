@@ -113,6 +113,21 @@ def entropy(request, align_name, tax_group, taxid):
 	fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)
 	aln_shannon_list = Shannon.main(['-a',fastastring,'-f','fastastring','--return_within','-s',filter_strain])
 	print(aln_shannon_list)
+	context = {'shannon_dictionary': aln_shannon_list, 'entropy_address':align_name+"/"+str(tax_group)+"/"+str(taxid)}
+	return render(request, 'alignments/entropy_detail.html', context)
+
+def api_entropy(request, align_name, tax_group, taxid):
+	from alignments import Shannon
+	import os
+	from django.conf import settings
+	#file_ = open(os.path.join(settings.BASE_DIR, '1cbs_outliers.txt'))
+	#string = file_.read()
+	#return JsonResponse(string, safe = False)
+	filter_strain = Species.objects.filter(strain_id = taxid)[0].strain
+	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
+	fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)
+	aln_shannon_list = Shannon.main(['-a',fastastring,'-f','fastastring','--return_within','-s',filter_strain])
+	return JsonResponse(aln_shannon_list, safe = False)
 
 def index(request):
 	some_Alignments = Alignment.objects.all()
@@ -123,6 +138,9 @@ def index(request):
 		'superKingdoms': superKingdoms
 	}
 	return render(request, 'alignments/index.html', context)
+
+def jalview(request):
+	return render(request, "alignments/jalview.html")
 
 def rProtein(request, align_name, tax_group):
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
