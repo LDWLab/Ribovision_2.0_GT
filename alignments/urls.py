@@ -7,7 +7,10 @@ app_name = 'alignments'
 
 urlpatterns = [
 	path('', views.index, name='index'),
-	path('rRNA/<str:name>/', views.rRNA, name='rRNA'),
-	path('rProtein/<str:align_name>/', views.detail, name='detail'),
+	path('rRNA/<str:align_name>/<int:tax_group>', views.rRNA, name='rRNA'),
+	path('rProtein/<str:align_name>/<int:tax_group>', views.rProtein, name='rProtein'),
+	path('jalview', views.jalview, name='Jalview'),
 	path('showTaxonomy', views.buildTaxonomy, name='showTaxonomy'),
+	path('entropy/<str:align_name>/<int:tax_group>/<int:taxid>', views.entropy, name='entropy'),
+	path('entropy-api/<str:align_name>/<int:tax_group>/<int:taxid>', views.api_entropy, name='api_entropy'),
 ]

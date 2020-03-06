@@ -45,33 +45,48 @@
 
 <script src={% static 'alignments/tree_menu.js' %}></script>
 
-<script>
-function myFunction(alignment_name,aln_type) {
-  var parent_taxid = document.getElementById("getAlignment").getAttribute("value2");
-  var res = aln_type.concat(alignment_name).concat("/").concat(parent_taxid);
-  window.location.href = res;
-}
-</script>
+<!-- <p>OR</p> 
 
-<p>AND</p> 
+<h4>Trying different dependency<br/></h4>
+<div id="app2"></div>
+<script src={% static 'alignments/dependent_series.js' %}></script> -->
 
-<select id="getAlignment" onchange= "myFunction(this.value, 'rProtein/');">
-	<option >Select an alignment</option>
+<!-- <button id="getAlignment" value="">Get Alignment</button> -->
+
+<p>OR</p>
+
+<button type="button" onclick="">Test</button>
+
+<select id="getAlignment" value="FOO" value2=1 onchange="location = this.value;">
+	<option value="">Select an alignment</option>
 	{% for aln in some_Alignments %}
 		{%if 'LSU' not in aln.name%}
-			<option value={{ aln.name }}>{{ aln.name }}</option>
+			<option value2=getAlignment.value2>{{ aln.name }}</option>
 		{% endif %}
 	{% endfor %}
 </select>
 
 <p>OR</p>
 
-<select id="getAlignment" onchange= "myFunction(this.value, 'rRNA/');">
+<select onchange="location = this.value;">
 	<option value="">Select an rRNA alignment</option>
 	{% for aln in some_Alignments %}
 		{%if 'LSU' in aln.name%}
-			<option value={{ aln.name }}>{{ aln.name }}</option>
+			<option value="{% url 'alignments:rRNA' aln.name %}">{{ aln.name }}</option>
 		{% endif %}
 	{% endfor %}
 </select>
+
+
+<!-- OLD CODE
+{% if some_Alignments %}
+	<ul>
+	{% for aln in some_Alignments %}
+		<li><a href="{% url 'alignments:detail' aln.aln_id %}">{{ aln.name }}</a></li>
+	{% endfor %}
+	</ul>
+{% else %}
+	<p>No alignments are available.</p>
+{% endif %}
+-->
 

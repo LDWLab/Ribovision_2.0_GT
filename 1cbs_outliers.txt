@@ -1,0 +1,25 @@
+{"1cbs":
+	{"molecules":
+		[{"entity_id":1,"chains":
+			[{"models":
+				[{"model_id":1,"residues":
+					[{"author_insertion_code":"","author_residue_number":1,"alt_code":"","outlier_types":["clashes"],"residue_number":1},
+					{"author_insertion_code":"","author_residue_number":14,"alt_code":"","outlier_types":["sidechain_outliers"],"residue_number":14},
+					{"author_insertion_code":"","author_residue_number":26,"alt_code":"","outlier_types":["sidechain_outliers1"],"residue_number":26},
+					{"author_insertion_code":"","author_residue_number":29,"alt_code":"","outlier_types":["clashes"],"residue_number":29},
+					{"author_insertion_code":"","author_residue_number":59,"alt_code":"","outlier_types":["clashes42"],"residue_number":59},
+					{"author_insertion_code":"","author_residue_number":69,"alt_code":"","outlier_types":["clashes84"],"residue_number":69},
+					{"author_insertion_code":"","author_residue_number":76,"alt_code":"","outlier_types":["clashes"],"residue_number":76},
+					{"author_insertion_code":"","author_residue_number":82,"alt_code":"","outlier_types":["clashes"],"residue_number":82},
+					{"author_insertion_code":"","author_residue_number":83,"alt_code":"","outlier_types":["clashes"],"residue_number":83},
+					{"author_insertion_code":"","author_residue_number":94,"alt_code":"","outlier_types":["clashes"],"residue_number":94},
+					{"author_insertion_code":"","author_residue_number":95,"alt_code":"","outlier_types":["clashes"],"residue_number":95},
+					{"author_insertion_code":"","author_residue_number":100,"alt_code":"","outlier_types":["clashes"],"residue_number":100},
+					{"author_insertion_code":"","author_residue_number":110,"alt_code":"","outlier_types":["clashes"],"residue_number":110},
+					{"author_insertion_code":"","author_residue_number":113,"alt_code":"","outlier_types":["clashes"],"residue_number":113},
+					{"author_insertion_code":"","author_residue_number":127,"alt_code":"","outlier_types":["sidechain_outliers"],"residue_number":127}]
+				}],
+			"chain_id":"A","struct_asym_id":"A"}]
+		}]
+	}
+}

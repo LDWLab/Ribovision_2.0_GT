@@ -53,6 +53,17 @@ function myFunction(alignment_name,aln_type) {
 }
 </script>
 
+<<<<<<< HEAD
+<p>OR</p>
+
+<button type="button" onclick="">Test</button>
+
+<select id="getAlignment" value="FOO" value2=1 onchange="location = this.value;">
+	<option value="">Select an alignment</option>
+	{% for aln in some_Alignments %}
+		{%if 'LSU' not in aln.name%}
+			<option value2=getAlignment.value2>{{ aln.name }}</option>
+=======
 <p>AND</p> 
 
 <select id="getAlignment" onchange= "myFunction(this.value, 'rProtein/');">
@@ -60,6 +71,7 @@ function myFunction(alignment_name,aln_type) {
 	{% for aln in some_Alignments %}
 		{%if 'LSU' not in aln.name%}
 			<option value={{ aln.name }}>{{ aln.name }}</option>
+>>>>>>> 8eca931d9206cf87704fb4be3e49500cfedd0a4e
 		{% endif %}
 	{% endfor %}
 </select>

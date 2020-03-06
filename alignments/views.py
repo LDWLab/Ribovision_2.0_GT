@@ -36,25 +36,6 @@ def sql_filtered_aln_query(aln_id, parent_id):
 	return fastastring,max_aln_length
 
 def buildTaxonomy(request):
-	# tree = {
-	# 'label': 'root',
-	# 'nodes': [
-	# {
-	# 	'label': 'item1',
-	# 	'nodes': [
-	# 	{
-	# 		'label': 'item1.1'
-	# 	},{
-	# 		'label': 'item1.2',
-	# 		'nodes': [
-	# 		{
-	# 			'label': 'item1.2.1'
-	# 		}]
-	# 	}]
-	# },{
-	# 	'label': 'item2'
-	# }]}
-
 	taxgroups = Taxgroups.objects.raw('SELECT * FROM SEREB.TaxGroups WHERE SEREB.TaxGroups.groupLevel = "superkingdom";')
 	taxonomy = []
 	for taxgroup in taxgroups:
@@ -125,6 +106,29 @@ def build_alignment(rawMYSQLresult):
 	literal_string = re.sub(r'\n\n','\n',fasta_string)
 	return literal_string.lstrip().encode('unicode-escape').decode('ascii'),max(all_alnpositions)
 
+def entropy(request, align_name, tax_group, taxid):
+	from alignments import Shannon
+	filter_strain = Species.objects.filter(strain_id = taxid)[0].strain
+	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
+	fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)
+	aln_shannon_list = Shannon.main(['-a',fastastring,'-f','fastastring','--return_within','-s',filter_strain])
+	print(aln_shannon_list)
+	context = {'shannon_dictionary': aln_shannon_list, 'entropy_address':align_name+"/"+str(tax_group)+"/"+str(taxid)}
+	return render(request, 'alignments/entropy_detail.html', context)
+
+def api_entropy(request, align_name, tax_group, taxid):
+	from alignments import Shannon
+	import os
+	from django.conf import settings
+	#file_ = open(os.path.join(settings.BASE_DIR, '1cbs_outliers.txt'))
+	#string = file_.read()
+	#return JsonResponse(string, safe = False)
+	filter_strain = Species.objects.filter(strain_id = taxid)[0].strain
+	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
+	fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)
+	aln_shannon_list = Shannon.main(['-a',fastastring,'-f','fastastring','--return_within','-s',filter_strain])
+	return JsonResponse(aln_shannon_list, safe = False)
+
 def index(request):
 	some_Alignments = Alignment.objects.all()
 	superKingdoms = Taxgroups.objects.raw('SELECT * FROM SEREB.TaxGroups WHERE\
@@ -135,34 +139,18 @@ def index(request):
 	}
 	return render(request, 'alignments/index.html', context)
 
-def detail(request, align_name):
-	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
-	
-	#Old style request
-	#fastastring,max_aln_length = sql_alignment_query(align_id)
-	
-	#New style request with filtering by parent
-	fastastring,max_aln_length = sql_filtered_aln_query(align_id,'2')
+def jalview(request):
+	return render(request, "alignments/jalview.html")
 
+def rProtein(request, align_name, tax_group):
+	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
+	fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)
 	context = {'fastastring': fastastring, 'aln_name':str(Alignment.objects.filter(aln_id = align_id)[0].name)}
 	return render(request, 'alignments/detail.html', context)
 
-def rRNA(request, name):
-	align_id = Alignment.objects.filter(name = name)[0].aln_id
-	fastastring,max_aln_length = sql_alignment_query(align_id)
+def rRNA(request, align_name, tax_group):
+	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
+	fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)
 	context = {'fastastring': fastastring, 'aln_name':str(Alignment.objects.filter(aln_id = align_id)[0].name)}
 	return render(request, 'alignments/rRNA.html', context)
 
-class TaxgroupListView(ListView):
-	model = Taxgroups
-	context_object_name = 'taxgroups'
-
-class TaxgroupCreateView(CreateView):
-	model = Taxgroups
-	fields = ('superkingdom', 'phyla', 'alignment')
-	success_url = reverse_lazy('taxgroup_changelist')
-
-class TaxgroupUpdateView(UpdateView):
-	model = Taxgroups
-	fields = ('superkingdom', 'phyla', 'alignment')
-	success_url = reverse_lazy('taxgroup_changelist')
