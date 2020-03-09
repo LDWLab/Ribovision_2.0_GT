@@ -1,0 +1,89 @@
+{% load static %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+ <script>
+
+
+</script>
+<script src="{% static "alignments/vue.js" %}">
+</script>
+
+<div class="container">
+	<h4>Vue.js Expandable Tree Menu<br/><small>(Recursive Components)</small></h4>
+	<div id="app">
+	<tree-menu 
+			   :nodes="tree.nodes" 
+			   :depth="0"   
+			   :label="tree.label"
+			   ></tree-menu>
+	</div>
+  </div>
+  
+  
+  <script type="text/x-template" id="tree-menu">
+	<div class="tree-menu">
+	  <div class="label-wrapper" @click="toggleChildren">
+		<div :style="indent" :class="labelClasses">
+			<i v-for="node in nodes" class="fa" :class="iconClasses"></i>
+			<!-- [[label]], [[taxID]] -->
+			[[label]]
+			
+		</div>
+	  </div>
+	  <tree-menu 
+		v-if="showChildren"
+		v-for="node in nodes"
+		v-bind:key="node.id"
+		:nodes="node.nodes" 
+		:label="node.label"
+		:depth="depth + 1"
+		:taxID="node.taxID"
+	  >
+	  </tree-menu>
+	</div>
+  </script>
+
+<script src={% static 'alignments/tree_menu.js' %}></script>
+
+<script>
+function myFunction(alignment_name,aln_type) {
+  var parent_taxid = document.getElementById("getAlignment").getAttribute("value2");
+  var res = aln_type.concat(alignment_name).concat("/").concat(parent_taxid);
+  window.location.href = res;
+}
+</script>
+
+<<<<<<< HEAD
+<p>OR</p>
+
+<button type="button" onclick="">Test</button>
+
+<select id="getAlignment" value="FOO" value2=1 onchange="location = this.value;">
+	<option value="">Select an alignment</option>
+	{% for aln in some_Alignments %}
+		{%if 'LSU' not in aln.name%}
+			<option value2=getAlignment.value2>{{ aln.name }}</option>
+=======
+<p>AND</p> 
+
+<select id="getAlignment" onchange= "myFunction(this.value, 'rProtein/');">
+	<option >Select an alignment</option>
+	{% for aln in some_Alignments %}
+		{%if 'LSU' not in aln.name%}
+			<option value={{ aln.name }}>{{ aln.name }}</option>
+>>>>>>> 8eca931d9206cf87704fb4be3e49500cfedd0a4e
+		{% endif %}
+	{% endfor %}
+</select>
+
+<p>OR</p>
+
+<select id="getAlignment" onchange= "myFunction(this.value, 'rRNA/');">
+	<option value="">Select an rRNA alignment</option>
+	{% for aln in some_Alignments %}
+		{%if 'LSU' in aln.name%}
+			<option value={{ aln.name }}>{{ aln.name }}</option>
+		{% endif %}
+	{% endfor %}
+</select>
+
