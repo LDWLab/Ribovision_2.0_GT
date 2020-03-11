@@ -1,11 +1,12 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-from alignments.models import *
-from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, UpdateView
 import re
 
-from django.http import JsonResponse
+from django.shortcuts import render
+from django.http import HttpResponse, Http404, JsonResponse
+from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, UpdateView
+
+from alignments.models import *
+from alignments.taxonomy_views import *
 
 def sql_alignment_query(aln_id):
 	alnposition = AlnData.objects.raw('SELECT * FROM SEREB.Aln_Data\
@@ -32,37 +33,10 @@ def sql_filtered_aln_query(aln_id, parent_id):
 					WHERE SEREB.Alignment.aln_id = '+str(aln_id)
 	alnposition = AlnData.objects.raw(SQLStatement)
 	alnpos=[]
+	if len(alnposition) == 0:
+		raise Http404("We do not have this combination of arguments in our database.")
 	fastastring,max_aln_length = build_alignment(alnposition)
 	return fastastring,max_aln_length
-
-def buildTaxonomy(request):
-	taxgroups = Taxgroups.objects.raw('SELECT * FROM SEREB.TaxGroups WHERE SEREB.TaxGroups.groupLevel = "superkingdom";')
-	taxonomy = []
-	for taxgroup in taxgroups:
-		subtaxonomy = {
-			'label' : taxgroup.groupname,
-			'nodes' : buildTaxonomyRecurse(taxgroup.taxgroup_id),
-			'taxID' : taxgroup.taxgroup_id
-		}
-		taxonomy.append(subtaxonomy)
-	tree = {
-		'label' : 'Select a taxgroup:',
-		'nodes' : taxonomy
-	}
-	return JsonResponse(tree, safe = False)
-
-def buildTaxonomyRecurse(parentIndex):
-	mySQLStr = 'SELECT * FROM SEREB.TaxGroups WHERE SEREB.TaxGroups.parent = "' + str(parentIndex) + '";'
-	taxgroups = Taxgroups.objects.raw(mySQLStr)
-	taxonomy = []
-	for taxgroup in taxgroups:
-		subtaxonomy = {
-			'label' : taxgroup.groupname,
-			'nodes' : buildTaxonomyRecurse(taxgroup.taxgroup_id),
-			'taxID' : taxgroup.taxgroup_id
-		}
-		taxonomy.append(subtaxonomy)
-	return taxonomy
 
 def build_alignment(rawMYSQLresult):
 	'''
@@ -106,6 +80,17 @@ def build_alignment(rawMYSQLresult):
 	literal_string = re.sub(r'\n\n','\n',fasta_string)
 	return literal_string.lstrip().encode('unicode-escape').decode('ascii'),max(all_alnpositions)
 
+def api_twc(request, align_name, tax_group1, tax_group2, anchor_taxid):
+	filter_strain = Species.objects.filter(strain_id = anchor_taxid)[0].strain
+	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
+	fastastring1,max_aln_length1 = sql_filtered_aln_query(align_id,tax_group1)
+	fastastring2,max_aln_length2 = sql_filtered_aln_query(align_id,tax_group2)
+	fastastring1 = re.sub('>','>a_', fastastring1)
+	fastastring2 = re.sub('>','>b_', fastastring2)
+	concat_fasta = re.sub(r'\n>', '\\n' ,fastastring1+fastastring2)
+	#concat_fasta = re.sub(r'\n\n', '\n' ,concat_fasta)
+	return HttpResponse(concat_fasta, content_type="text/plain")
+
 def entropy(request, align_name, tax_group, taxid):
 	from alignments import Shannon
 	filter_strain = Species.objects.filter(strain_id = taxid)[0].strain
@@ -138,9 +123,6 @@ def index(request):
 		'superKingdoms': superKingdoms
 	}
 	return render(request, 'alignments/index.html', context)
-
-def jalview(request):
-	return render(request, "alignments/jalview.html")
 
 def rProtein(request, align_name, tax_group):
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
