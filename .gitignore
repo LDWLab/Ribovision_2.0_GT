@@ -1,15 +1,4 @@
 ./.vscode/
 *.pyc
 *~
-env/pyvenv.cfg
-env/bin/activate
-env/bin/activate.csh
-env/bin/activate.fish
-env/bin/pip
-env/bin/pip3
-env/bin/pip3.7
-env/bin/sqlformat
-env/bin/django-admin
-env/bin/django-admin.pyc
-env/bin/easy_install
-env/bin/easy_install-3.7
+env/*
