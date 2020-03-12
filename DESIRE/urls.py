@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
+    path('', include('alignments.urls')),
     path('alignments/', include('alignments.urls')),
     path('ribovision/', include('ribovision.urls')),
     path('admin/', admin.site.urls),

@@ -124,6 +124,19 @@ def index(request):
 	}
 	return render(request, 'alignments/index.html', context)
 
+def index_orthologs(request):
+	some_Alignments = Alignment.objects.all()
+	superKingdoms = Taxgroups.objects.raw('SELECT * FROM SEREB.TaxGroups WHERE\
+		 SEREB.TaxGroups.groupLevel = "superkingdom";')
+	context = {
+		'some_Alignments': some_Alignments,
+		'superKingdoms': superKingdoms
+	}
+	return render(request, 'alignments/index_orthologs.html', context)
+
+def jalview(request):
+	return render(request, "alignments/jalview.html")
+
 def rProtein(request, align_name, tax_group):
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
 	fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)

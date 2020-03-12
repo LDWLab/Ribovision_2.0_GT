@@ -7,6 +7,9 @@ app_name = 'alignments'
 
 urlpatterns = [
 	path('', views.index, name='index'),
+	path('orthologs/', views.index_orthologs, name='orthologs'),
+	path('orthologs/rRNA/<str:align_name>/<int:tax_group>', views.rRNA, name='rRNA'),
+	path('orthologs/rProtein/<str:align_name>/<int:tax_group>', views.rProtein, name='rProtein'),
 	path('rRNA/<str:align_name>/<int:tax_group>', views.rRNA, name='rRNA'),
 	path('rProtein/<str:align_name>/<int:tax_group>', views.rProtein, name='rProtein'),
 	path('showTaxonomy', views.buildTaxonomy, name='showTaxonomy'),
