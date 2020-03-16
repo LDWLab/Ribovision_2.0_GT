@@ -49,6 +49,7 @@
 function myFunction(alignment_name,aln_type) {
   var parent_taxid = document.getElementById("getAlignment").getAttribute("value2");
   var res = aln_type.concat(alignment_name).concat("/").concat(parent_taxid);
+  console.log(res);
   window.location.href = res;
 }
 </script>

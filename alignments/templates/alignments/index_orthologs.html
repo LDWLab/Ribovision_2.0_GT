@@ -48,9 +48,17 @@
 
 <script>
 function myFunction(alignment_name,aln_type) {
-  var parent_taxid = document.getElementById("getAlignment").getAttribute("value2");
-  var res = aln_type.concat(alignment_name).concat("/").concat(parent_taxid);
-  window.location.href = res;
+	var
+		getAlignment = document.getElementById("getAlignment"),
+		parent_taxid1 = getAlignment.getAttribute("value1"),
+		parent_taxid2 = getAlignment.getAttribute("value2");
+	
+	// var res = aln_type.concat(alignment_name).concat("/").concat(parent_taxid2);
+	// localhost:8000/alignments/twc-api/uL16/2/2157/511145
+	var res = "twc-api/" + alignment_name + "/" + parent_taxid1 + "/" + parent_taxid2 + "/511145";
+	// alert(res);
+	console.log(res);
+	window.location.href = res;
 }
 </script>
 
