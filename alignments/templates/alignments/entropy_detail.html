@@ -9,17 +9,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
   
-<!-- Complied & minified library css -->
-    <link rel="stylesheet" href="http://apollo2.chemistry.gatech.edu/RiboVision3/pdb_component_libary/pdb.component.library.min-1.0.0.css" />
+  <!-- Required for IE11 -->
+  <script src="https://cdn.jsdelivr.net/npm/babel-polyfill/dist/polyfill.min.js" defer></script>
+  <!-- Web component polyfill (only loads what it needs) -->
+  <script src="https://cdn.jsdelivr.net/npm/@webcomponents/webcomponentsjs/webcomponents-lite.js" charset="utf-8" defer></script>
+  <!-- Required to polyfill modern browsers as code is ES5 for IE... -->
+  <script src="https://cdn.jsdelivr.net/npm/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js" charset="utf-8" defer></script>
 
-   <!-- Dependencey scripts (these can be skipped if already included in page) -->
-    <script src="http://apollo2.chemistry.gatech.edu/RiboVision3/pdb_component_libary/d3.min.js"></script>
-    <script src="http://apollo2.chemistry.gatech.edu/RiboVision3/pdb_component_libary/angular.1.4.7.min.js"></script>
-	
+  <!-- d3.js dependency script -->
+  <script src="https://cdn.jsdelivr.net/npm/d3@5.9.2" defer></script>
 
 
     <!-- Complied & minified library JS -->
-    <script src={% static 'alignments/pdb.component.library.1.0.4.js' %}></script> 
+    <script src={% static 'alignments/pdb-topology-viewer-component-2.0.2.js' %}></script> 
 
     <script>
       angular.element(document).ready(function () {
@@ -37,7 +39,7 @@
 </head>
 <body>
 	<div>
-		<pdb-topology-viewer entry-id="1cbs" entity-id="1" height="325" width="400" entropy={{entropy_address}}></pdb-topology-viewer>
+		<pdb-topology-viewer entry-id="1b23" entity-id="2" chain-id="P"  entropy={{entropy_address}}></pdb-topology-viewer>
 	</div>
 	<div>
 		{%for pos in shannon_dictionary%}
