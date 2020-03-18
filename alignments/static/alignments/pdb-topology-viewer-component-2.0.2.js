@@ -1148,7 +1148,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
    }) : (this.chainId = e.chainId, this.initPainting())) : this.displayError("param")
   }, t.prototype.initPainting = function() {
    var e = this;
-   this.getApiData(this.entryId, this.chainId).then(function(t) {
+   this.getApiData(this.entryId, this.chainId, this.entrId).then(function(t) {
     if (t) {
      if (void 0 === t[0] || void 0 === t[2] || void 0 === t[4]) return void e.displayError();
      e.apiData = t, e.pdbevents = e.createNewEvent(["PDB.topologyViewer.click", "PDB.topologyViewer.mouseover", "PDB.topologyViewer.mouseout"]), e.getPDBSequenceArray(e.apiData[0][e.entryId]), e.drawTopologyStructures(), e.createDomainDropdown(), e.subscribeEvents && e.subscribeWcEvents()
@@ -1175,11 +1175,11 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
      }
     })
    })
-  }, t.prototype.getApiData = function(i, n) {
+  }, t.prototype.getApiData = function(i, n, entr) {
    return __awaiter(this, void 0, void 0, function() {
     var e;
     return __generator(this, function(t) {
-     return e = ["https://www.ebi.ac.uk/pdbe/api/pdb/entry/entities/" + i, "https://www.ebi.ac.uk/pdbe/api/mappings/" + i, "https://www.ebi.ac.uk/pdbe/api/topology/entry/" + i, "https://www.ebi.ac.uk/pdbe/api/validation/residuewise_outlier_summary/entry/" + i, "https://www.ebi.ac.uk/pdbe/api/pdb/entry/polymer_coverage/" + i + "/chain/" + n], [2, Promise.all(e.map(function(t) {
+     return e = ["http://127.0.0.1:8001/alignments/entropy-api/" + entr, "https://www.ebi.ac.uk/pdbe/api/pdb/entry/entities/" + i, "https://www.ebi.ac.uk/pdbe/api/mappings/" + i, "https://www.ebi.ac.uk/pdbe/api/topology/entry/" + i, "https://www.ebi.ac.uk/pdbe/api/validation/residuewise_outlier_summary/entry/" + i, "https://www.ebi.ac.uk/pdbe/api/pdb/entry/polymer_coverage/" + i + "/chain/" + n], [2, Promise.all(e.map(function(t) {
       return fetch(t)
      })).then(function(t) {
       return Promise.all(t.map(function(t) {
@@ -1262,6 +1262,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
    this.dispatchEvent("PDB.topologyViewer.click", {
     residueNumber: t.residue_number,
     type: t.type,
+    entrId: this.entrId,
     entryId: this.entryId,
     entityId: this.entityId,
     chainId: this.chainId
@@ -1896,7 +1897,7 @@ window.PdbTopologyViewerPlugin = PdbTopologyViewerPlugin,
    g = (n = i.n(S)()(HTMLElement), p()(w, n), d()(w, null, [{
     key: "observedAttributes",
     get: function() {
-     return ["entry-id", "entity-id", "chain-id", "display-style", "error-style", "menu-style", "subscribe-events"]
+     return ["entry-id", "entity-id", "entropy-id", "chain-id", "display-style", "error-style", "menu-style", "subscribe-events"]
     }
    }]), d()(w, [{
     key: "validateParams",
@@ -1910,15 +1911,16 @@ window.PdbTopologyViewerPlugin = PdbTopologyViewerPlugin,
       void 0 === this.pluginInstance && (this.pluginInstance = new PdbTopologyViewerPlugin);
       var t = {
        entryId: this.entryId,
-       entityId: this.entityId
+       entityId: this.entityId,
+       entrId: this.entrId
       };
-      void 0 !== this.chainId && null !== this.chainId && (t.chainId = this.chainId), void 0 !== this.displayStyle && null !== this.displayStyle && (t.displayStyle = this.displayStyle), void 0 !== this.errorStyle && null !== this.errorStyle && (t.errorStyle = this.errorStyle), void 0 !== this.menuStyle && null !== this.menuStyle && (t.menuStyle = this.menuStyle), void 0 !== this.subscribeEvents && null !== this.subscribeEvents && (t.subscribeEvents = this.subscribeEvents), this.pluginInstance.render(this, t)
+      void 0 !== this.chainId && null !== this.chainId && (t.chainId = this.chainId), (t.entrId = this.entrId), void 0 !== this.displayStyle && null !== this.displayStyle && (t.displayStyle = this.displayStyle), void 0 !== this.errorStyle && null !== this.errorStyle && (t.errorStyle = this.errorStyle), void 0 !== this.menuStyle && null !== this.menuStyle && (t.menuStyle = this.menuStyle), void 0 !== this.subscribeEvents && null !== this.subscribeEvents && (t.subscribeEvents = this.subscribeEvents), this.pluginInstance.render(this, t)
      }
     }
    }, {
     key: "attributeChangedCallback",
     value: function() {
-     this.entryId = this.getAttribute("entry-id"), this.entityId = this.getAttribute("entity-id"), this.chainId = this.getAttribute("chain-id"), this.displayStyle = this.getAttribute("display-style"), this.errorStyle = this.getAttribute("error-style"), this.menuStyle = this.getAttribute("menu-style"), this.subscribeEvents = this.getAttribute("subscribe-events"), this.invokePlugin()
+     this.entryId = this.getAttribute("entry-id"), this.entityId = this.getAttribute("entity-id"),this.entrId = this.getAttribute("entropy-id"), this.chainId = this.getAttribute("chain-id"), this.displayStyle = this.getAttribute("display-style"), this.errorStyle = this.getAttribute("error-style"), this.menuStyle = this.getAttribute("menu-style"), this.subscribeEvents = this.getAttribute("subscribe-events"), this.invokePlugin()
     }
    }]), w);
 

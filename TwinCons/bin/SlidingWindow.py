@@ -1,0 +1,91 @@
+#!/usr/bin/env python3
+"""Calculates conservation score for sliding window of one alignment"""
+import re, sys, argparse
+import numpy as np
+from Bio import AlignIO
+import pandas as pd
+
+import PhyMeas
+
+def create_and_parse_argument_options(argument_list):
+	parser = argparse.ArgumentParser(description='Slide two groups of an alignment and calculate a score for each sliding position')
+	parser.add_argument('alignment_path', help='Path to folder with alignment files.')
+	parser.add_argument('-w','--window', help='Window for sliding the two groups', type=int, default=1)
+	parser.add_argument('-bt','--bad_score_threshold', help='Threshold for number of allowed bad scores when calculating length of positive sections.', type=int, default=0, required=False)
+	parser.add_argument('-st','--score_threshold', help='Absolute value of threshold for a position to be considered positive or negative', type=int, default=0.5, required=False)
+	commandline_args = parser.parse_args(argument_list)
+	return commandline_args
+
+def uninterrupted_stretches(alnindex, alnindex_score,comm_args):
+	"""Calculates lengths of uninterrupted lengths of positive and negative scores given a threshold;
+	Also associates these scores with the last position of the alignment index.
+	"""
+	posdata,negdata={},{}
+	unint_pos_len,unint_neg_len,wei,bad_length=0,0,0,0
+	for x,has_more in PhyMeas.lookahead(range(0,len(alnindex))):
+		if alnindex_score[alnindex[x]] > comm_args.score_threshold:
+			wei+=alnindex_score[alnindex[x]]
+			unint_pos_len+=1
+			if unint_neg_len != 0:
+				negdata[alnindex[x-1]]=unint_neg_len
+				unint_neg_len = 0
+		elif alnindex_score[alnindex[x]] < -comm_args.score_threshold:
+			unint_neg_len+=1
+			if bad_length >= comm_args.bad_score_threshold:
+				if unint_pos_len != 0:
+					posdata[alnindex[x-1]]=(unint_pos_len,wei)
+					wei,unint_pos_len,bad_length=0,0,0
+			else:
+				bad_length+=1
+		else:				#in case of score threshold different from 0
+			if bad_length >= comm_args.bad_score_threshold:
+				if unint_pos_len != 0:
+					posdata[alnindex[x-1]]=(unint_pos_len,wei)
+					unint_pos_len,wei,bad_length = 0,0,0
+			else:
+				bad_length+=1
+			if unint_neg_len != 0:
+				negdata[alnindex[x-1]]=unint_neg_len
+				unint_neg_len = 0
+		if has_more is False:
+			if unint_pos_len != 0:
+				posdata[alnindex[x]]=(unint_pos_len,wei)
+			if unint_neg_len != 0:
+				negdata[alnindex[x]]=unint_neg_len
+	return posdata, negdata
+
+
+def main(commandline_args):
+	comm_args = create_and_parse_argument_options(commandline_args)
+	alignment_file = PhyMeas.read_align(comm_args.alignment_path)
+	uniq_aa = PhyMeas.uniq_AA_list(alignment_file)
+	sliced_alignments = PhyMeas.slice_by_name(alignment_file)
+	first_aln = sorted(list(sliced_alignments.keys()))[0]
+	slided_scores={}				#Sliding increment -> (scores,alignment objects)
+	for i in range(0,sliced_alignments[first_aln].get_alignment_length(),comm_args.window):
+		#print(i)
+		second_aln = AlignIO.MultipleSeqAlignment([])
+		for record in sliced_alignments[sorted(list(sliced_alignments.keys()))[1]]:
+			second_aln.append(record)
+		#Reorders an alignment group using the specified window size
+		reordered_aln=sliced_alignments[first_aln][:,-(sliced_alignments[first_aln].get_alignment_length()-i):]+sliced_alignments[first_aln][:,:i]
+		for record in reordered_aln:
+			second_aln.append(record)
+		alnindex_score,sliced_alns,number_of_aligned_positions=PhyMeas.main(['-as',second_aln.format("fasta"), '-r', '-bl'])
+		
+
+		out_dict={}
+		for x in alnindex_score.keys():
+			out_dict[x] = alnindex_score[x][0]
+		slided_scores[i] = out_dict
+	
+
+	for file in slided_scores:
+		print ("Increment is "+str(file))
+		alnindex = sorted(slided_scores[file].keys())
+		posdata,negdata = uninterrupted_stretches(alnindex, slided_scores[file],comm_args)
+		for x in sorted(posdata.keys()):
+			print(x, posdata[x])
+
+if __name__ == "__main__":
+	main(sys.argv[1:])

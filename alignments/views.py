@@ -8,6 +8,7 @@ from django.views.generic import ListView, CreateView, UpdateView
 from alignments.models import *
 from alignments.taxonomy_views import *
 
+
 def sql_alignment_query(aln_id):
 	alnposition = AlnData.objects.raw('SELECT * FROM SEREB.Aln_Data\
 		INNER JOIN SEREB.Alignment ON SEREB.Aln_Data.aln_id = SEREB.Alignment.Aln_id\
@@ -32,11 +33,90 @@ def sql_filtered_aln_query(aln_id, parent_id):
 					INNER JOIN SEREB.Species ON filtered_polymers.strain_id = SEREB.Species.strain_id\
 					WHERE SEREB.Alignment.aln_id = '+str(aln_id)
 	alnposition = AlnData.objects.raw(SQLStatement)
-	alnpos=[]
 	if len(alnposition) == 0:
 		raise Http404("We do not have this combination of arguments in our database.")
 	fastastring,max_aln_length = build_alignment(alnposition)
 	return fastastring,max_aln_length
+
+def dictfetchall(cursor):
+	"Return all rows from a cursor as a dict"
+	columns = [col[0] for col in cursor.description]
+	return [
+		dict(zip(columns, row))
+		for row in cursor.fetchall()
+	]
+
+def sql_filtered_aln_query_two_parents(aln_id, parent1_id, parent2_id):
+	'''Queries DB for alignment from 2 parent taxids AND
+	Constructs the alignment with parent group names at the front of sequence names.
+	'''
+	parent1_level = Taxgroups.objects.filter(taxgroup_id=parent1_id)[0].grouplevel
+	parent2_level = Taxgroups.objects.filter(taxgroup_id=parent2_id)[0].grouplevel
+	if parent1_level != parent2_level:
+		raise Http404("For now we do not support comparisons between different taxonomic levels. Offending levels are: "+parent1_level+" and "+parent2_level)
+	from django.db import connection
+	SQLStatement = 'SELECT * FROM SEREB.Aln_Data\
+					INNER JOIN SEREB.Alignment ON SEREB.Aln_Data.aln_id = SEREB.Alignment.Aln_id\
+					INNER JOIN SEREB.Residues ON SEREB.Aln_Data.res_id = SEREB.Residues.resi_id\
+					INNER JOIN (SELECT * from SEREB.Polymer_Data WHERE \
+								SEREB.Polymer_Data.PData_id IN (SELECT PData_id from SEREB.Polymer_Alignments WHERE SEREB.Polymer_Alignments.Aln_id = '+str(aln_id)+')\
+								AND \
+								SEREB.Polymer_Data.strain_id IN (SELECT strain_id FROM SEREB.Species_TaxGroup WHERE taxgroup_id = '+str(parent1_id)+' OR taxgroup_id = '+str(parent2_id)+')) as filtered_polymers\
+								ON SEREB.Residues.PolData_id = filtered_polymers.PData_id\
+					INNER JOIN SEREB.Species ON filtered_polymers.strain_id = SEREB.Species.strain_id\
+					WHERE SEREB.Alignment.aln_id = '+str(aln_id)
+	with connection.cursor() as cursor:
+		cursor.execute(SQLStatement)
+		#print(dictfetchall(cursor)[0]['strain_id'])
+		raw_result = dictfetchall(cursor)
+
+	if len(raw_result) == 0:
+		raise Http404("We do not have this combination of arguments in our database.")
+
+	nogap_tupaln={}
+	all_alnpositions=[]
+	kingdom_name = ''
+	for row in raw_result:
+		all_alnpositions.append(row['aln_pos'])
+		if (kingdom_name,row['strain']) in nogap_tupaln:
+			nogap_tupaln[(kingdom_name,row['strain'])].append((row['unModResName'], row['aln_pos']))
+		else:
+			try:	#The following assumption is bad. Has to work for any top level group.
+				kingdom_query = Taxgroups.objects.filter(grouplevel=parent1_level, speciestaxgroup__strain=row['strain_id'])[0]
+				kingdom_name = kingdom_query.groupname
+			except:
+				raise Http404("No superkingdom result for taxid"+row['strain_id']+"!")
+			nogap_tupaln[(kingdom_name,row['strain'])]=[]
+			nogap_tupaln[(kingdom_name,row['strain'])].append((row['unModResName'], row['aln_pos']))
+	fasta_string=''
+
+	for kingdom_strain in nogap_tupaln:
+		strain = re.sub(' ','_',kingdom_strain[1])
+		fasta_string+='\n>'+kingdom_strain[0]+'_'+strain+'\n'
+		mem = 1
+		for index, resi_pos in enumerate(nogap_tupaln[kingdom_strain], start=1):
+			if mem == resi_pos[1]:
+				mem = mem+1
+			elif mem < resi_pos[1]:
+				diff = resi_pos[1]-mem
+				for i in range(0,diff):
+					mem = mem+1
+					fasta_string+='-'
+				mem = mem+1
+			else:
+				raise ValueError("This shouldn't be possible!")
+			fasta_string+=resi_pos[0]
+			if index == len(nogap_tupaln[kingdom_strain]):
+				if resi_pos[1] < max(all_alnpositions):
+					diff = max(all_alnpositions)-resi_pos[1]
+					for index2,i in enumerate(range(0,diff), start=1):
+						fasta_string+='-'
+						if index2 == diff:
+							fasta_string+='\n'
+				else:
+					fasta_string+='\n'
+	literal_string = re.sub(r'\n\n','\n',fasta_string,flags=re.M)
+	return literal_string.lstrip().encode('unicode-escape').decode('ascii'),max(all_alnpositions)
 
 def build_alignment(rawMYSQLresult):
 	'''
@@ -77,19 +157,22 @@ def build_alignment(rawMYSQLresult):
 							fasta_string+='\n'
 				else:
 					fasta_string+='\n'
-	literal_string = re.sub(r'\n\n','\n',fasta_string)
+	literal_string = re.sub(r'\n\n','\n',fasta_string,flags=re.M)
 	return literal_string.lstrip().encode('unicode-escape').decode('ascii'),max(all_alnpositions)
 
 def api_twc(request, align_name, tax_group1, tax_group2, anchor_taxid):
+	
+	#### This should be separate view with its own URL for serving multi-group alignments ####
 	filter_strain = Species.objects.filter(strain_id = anchor_taxid)[0].strain
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
-	fastastring1,max_aln_length1 = sql_filtered_aln_query(align_id,tax_group1)
-	fastastring2,max_aln_length2 = sql_filtered_aln_query(align_id,tax_group2)
-	fastastring1 = re.sub('>','>a_', fastastring1)
-	fastastring2 = re.sub('>','>b_', fastastring2)
-	concat_fasta = re.sub(r'\n>', '\\n' ,fastastring1+fastastring2)
-	#concat_fasta = re.sub(r'\n\n', '\n' ,concat_fasta)
-	return HttpResponse(concat_fasta, content_type="text/plain")
+	fastastring,max_aln_length1 = sql_filtered_aln_query_two_parents(align_id,tax_group1,tax_group2)
+	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
+	#### __________________________________________________ ####
+	
+	from TwinCons.bin import PhyMeas
+	list_for_phymeas = ['-as',concat_fasta, '-r', '-bl']
+	alnindex_score,sliced_alns,number_of_aligned_positions=PhyMeas.main(list_for_phymeas)	
+	return JsonResponse(alnindex_score, safe = False)
 
 def entropy(request, align_name, tax_group, taxid):
 	from alignments import Shannon
