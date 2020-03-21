@@ -75,19 +75,19 @@ def sql_filtered_aln_query_two_parents(aln_id, parent1_id, parent2_id):
 
 	nogap_tupaln={}
 	all_alnpositions=[]
-	kingdom_name = ''
+	topgroup_name = ''
 	for row in raw_result:
 		all_alnpositions.append(row['aln_pos'])
-		if (kingdom_name,row['strain']) in nogap_tupaln:
-			nogap_tupaln[(kingdom_name,row['strain'])].append((row['unModResName'], row['aln_pos']))
+		if (topgroup_name,row['strain']) in nogap_tupaln:
+			nogap_tupaln[(topgroup_name,row['strain'])].append((row['unModResName'], row['aln_pos']))
 		else:
-			try:	#The following assumption is bad. Has to work for any top level group.
-				kingdom_query = Taxgroups.objects.filter(grouplevel=parent1_level, speciestaxgroup__strain=row['strain_id'])[0]
-				kingdom_name = kingdom_query.groupname
+			try:
+				topgroup_query = Taxgroups.objects.filter(grouplevel=parent1_level, speciestaxgroup__strain=row['strain_id'])[0]
+				topgroup_name = topgroup_query.groupname
 			except:
 				raise Http404("No superkingdom result for taxid"+row['strain_id']+"!")
-			nogap_tupaln[(kingdom_name,row['strain'])]=[]
-			nogap_tupaln[(kingdom_name,row['strain'])].append((row['unModResName'], row['aln_pos']))
+			nogap_tupaln[(topgroup_name,row['strain'])]=[]
+			nogap_tupaln[(topgroup_name,row['strain'])].append((row['unModResName'], row['aln_pos']))
 	fasta_string=''
 
 	for kingdom_strain in nogap_tupaln:

@@ -1111,7 +1111,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
        var e = [],
         i = o[s[t]];
        for (var n in i) i[n].mappings.forEach(function(t) {
-        t.entity_id == r.entityId && t.chain_id == r.chainId && t.entropy_id == r.entropyId && e.push({
+        t.entity_id == r.entityId && t.chain_id == r.chainId && e.push({
          start: t.start.residue_number,
          end: t.end.residue_number,
          color: void 0
@@ -1143,17 +1143,14 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
   }
   return t.prototype.render = function(t, e) {
    var i = this;
-   //Added this here
-   this.entropyId = t.entropyId
    e && void 0 !== e.displayStyle && null != e.displayStyle && (this.displayStyle += e.displayStyle), e && void 0 !== e.errorStyle && null != e.errorStyle && (this.errorStyle += e.errorStyle), e && void 0 !== e.menuStyle && null != e.menuStyle && (this.menuStyle += e.menuStyle), this.targetEle = t, this.targetEle && (this.targetEle.innerHTML = ""), t && e && e.entryId && e.entityId ? (0 == e.subscribeEvents && (this.subscribeEvents = !1), this.entityId = e.entityId, this.entryId = e.entryId.toLowerCase(), void 0 === e.chainId || null == e.chainId ? this.getObservedResidues(this.entryId).then(function(t) {
     void 0 !== t && void 0 !== t[i.entryId] && void 0 !== t[i.entryId][i.entityId] ? (i.chainId = t[i.entryId][i.entityId][0].chain_id, i.initPainting()) : i.displayError()
    }) : (this.chainId = e.chainId, this.initPainting())) : this.displayError("param")
   }, t.prototype.initPainting = function() {
    var e = this;
-   this.getApiData(this.entryId, this.chainId, this.entropyId).then(function(t) {
+   this.getApiData(this.entryId, this.chainId).then(function(t) {
     if (t) {
-      console.log(t[5])
-     if (void 0 === t[0] || void 0 === t[2] || void 0 === t[4] || void 0 === t[5]) return void e.displayError();
+     if (void 0 === t[0] || void 0 === t[2] || void 0 === t[4]) return void e.displayError();
      e.apiData = t, e.pdbevents = e.createNewEvent(["PDB.topologyViewer.click", "PDB.topologyViewer.mouseover", "PDB.topologyViewer.mouseout"]), e.getPDBSequenceArray(e.apiData[0][e.entryId]), e.drawTopologyStructures(), e.createDomainDropdown(), e.subscribeEvents && e.subscribeWcEvents()
     }
    })
@@ -1178,11 +1175,11 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
      }
     })
    })
-  }, t.prototype.getApiData = function(i, n, entr) {
+  }, t.prototype.getApiData = function(i, n) {
    return __awaiter(this, void 0, void 0, function() {
     var e;
     return __generator(this, function(t) {
-     return e = ["https://www.ebi.ac.uk/pdbe/api/pdb/entry/entities/" + i, "https://www.ebi.ac.uk/pdbe/api/mappings/" + i, "https://www.ebi.ac.uk/pdbe/api/topology/entry/" + i, "https://www.ebi.ac.uk/pdbe/api/validation/residuewise_outlier_summary/entry/" + i, "https://www.ebi.ac.uk/pdbe/api/pdb/entry/polymer_coverage/" + i + "/chain/" + n, "http://127.0.0.1:8001/alignments/entropy-api/" + entr,], [2, Promise.all(e.map(function(t) {
+     return e = [ "https://www.ebi.ac.uk/pdbe/api/pdb/entry/entities/" + i, "https://www.ebi.ac.uk/pdbe/api/mappings/" + i, "https://www.ebi.ac.uk/pdbe/api/topology/entry/" + i, "https://www.ebi.ac.uk/pdbe/api/validation/residuewise_outlier_summary/entry/" + i, "https://www.ebi.ac.uk/pdbe/api/pdb/entry/polymer_coverage/" + i + "/chain/" + n], [2, Promise.all(e.map(function(t) {
       return fetch(t)
      })).then(function(t) {
       return Promise.all(t.map(function(t) {
@@ -1200,6 +1197,8 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
    var e = this,
     i = [],
     t = this.apiData[2][this.entryId][this.entityId][this.chainId];
+	
+	console.log(t);
    for (var n in t) t[n] && t[n].forEach(function(t) {
     void 0 !== t.path && 0 < t.path.length && (i = i.concat(e.chunkArray(t.path, 2)))
    });
@@ -1223,7 +1222,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
     0 === a ? (h.residue_number = t, h.pathData = [this.scaledPointsArr[4], this.scaledPointsArr[1], this.scaledPointsArr[4], this.scaledPointsArr[1] + o, this.scaledPointsArr[8], this.scaledPointsArr[1] + o, this.scaledPointsArr[8], this.scaledPointsArr[13]]) : (h.residue_number = t + a, h.pathData = [s[a - 1].pathData[2], s[a - 1].pathData[3], s[a - 1].pathData[2], s[a - 1].pathData[3] + o, s[a - 1].pathData[4], s[a - 1].pathData[5] + o, s[a - 1].pathData[4], s[a - 1].pathData[5]]), s.push(h)
    }
    this.svgEle.selectAll(".subpath-strands" + i).remove(), this.svgEle.selectAll(".subpath-strands" + i).data(s).enter().append("path").attr("class", function(t, e) {
-    //console.log("strandsSubPath subpath-strands" + i + " topo_res_" + t.residue_number);
+    console.log("strandsSubPath subpath-strands" + i + " topo_res_" + t.residue_number);
 	return "strandsSubPath subpath-strands" + i + " topo_res_" + t.residue_number
    }).attr("d", function(t, e) {
     return "M " + t.pathData.join(" ") + " Z"
@@ -1263,7 +1262,6 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
    this.dispatchEvent("PDB.topologyViewer.click", {
     residueNumber: t.residue_number,
     type: t.type,
-    entropyId: this.entropyId,
     entryId: this.entryId,
     entityId: this.entityId,
     chainId: this.chainId
@@ -1273,7 +1271,6 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
    this.renderTooltip(e, "show"), "strands" !== e.type && "helices" !== e.type || i.attr("fill", this.defaultColours.mouseOver).attr("fill-opacity", "0.3"), "coils" === e.type && i.attr("stroke", this.defaultColours.mouseOver).attr("stroke-width", 1), this.dispatchEvent("PDB.topologyViewer.mouseover", {
     residueNumber: e.residue_number,
     type: e.type,
-    entropyId: this.entropyId,
     entryId: this.entryId,
     entityId: this.entityId,
     chainId: this.chainId
@@ -1284,7 +1281,6 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
     r = .3,
     o = d3.select(t);
    this.renderTooltip("", "hide"), o.classed("coloured") ? (i = o.attr("data-color"), r = n = 1) : "coils" === e.type && (i = this.defaultColours.borderColor), "strands" !== e.type && "helices" !== e.type || o.attr("fill", i).attr("fill-opacity", n), "coils" === e.type && o.attr("stroke", i).attr("stroke-width", r), this.dispatchEvent("PDB.topologyViewer.mouseout", {
-    entropyId: this.entropyId,
     entryId: this.entryId,
     entityId: this.entityId,
     chainId: this.chainId
@@ -1900,12 +1896,12 @@ window.PdbTopologyViewerPlugin = PdbTopologyViewerPlugin,
    g = (n = i.n(S)()(HTMLElement), p()(w, n), d()(w, null, [{
     key: "observedAttributes",
     get: function() {
-     return ["entry-id", "entity-id", "entropy-id", "chain-id", "display-style", "error-style", "menu-style", "subscribe-events"]
+     return ["entry-id", "entity-id", "chain-id", "display-style", "error-style", "menu-style", "subscribe-events"]
     }
    }]), d()(w, [{
     key: "validateParams",
     value: function() {
-     return void 0 !== this.entryId && void 0 !== this.entityId && null != this.entityId
+     return void 0 !== this.entryId && void 0 !== this.entityId && null != this.entryId && null != this.entityId
     }
    }, {
     key: "invokePlugin",
@@ -1915,15 +1911,14 @@ window.PdbTopologyViewerPlugin = PdbTopologyViewerPlugin,
       var t = {
        entryId: this.entryId,
        entityId: this.entityId,
-       entropyId: this.entropyId
       };
-      void 0 !== this.entropyId && null !== this.entropyId && (t.entropyId = this.entropyId), void 0 !== this.chainId && null !== this.chainId && (t.chainId = this.chainId), void 0 !== this.displayStyle && null !== this.displayStyle && (t.displayStyle = this.displayStyle), void 0 !== this.errorStyle && null !== this.errorStyle && (t.errorStyle = this.errorStyle), void 0 !== this.menuStyle && null !== this.menuStyle && (t.menuStyle = this.menuStyle), void 0 !== this.subscribeEvents && null !== this.subscribeEvents && (t.subscribeEvents = this.subscribeEvents), this.pluginInstance.render(this, t)
+      void 0 !== this.chainId && null !== this.chainId && (t.chainId = this.chainId), void 0 !== this.displayStyle && null !== this.displayStyle && (t.displayStyle = this.displayStyle), void 0 !== this.errorStyle && null !== this.errorStyle && (t.errorStyle = this.errorStyle), void 0 !== this.menuStyle && null !== this.menuStyle && (t.menuStyle = this.menuStyle), void 0 !== this.subscribeEvents && null !== this.subscribeEvents && (t.subscribeEvents = this.subscribeEvents), this.pluginInstance.render(this, t)
      }
     }
    }, {
     key: "attributeChangedCallback",
     value: function() {
-     this.entropyId = this.getAttribute("entropy-id"), this.entryId = this.getAttribute("entry-id"), this.entityId = this.getAttribute("entity-id"), this.chainId = this.getAttribute("chain-id"), this.displayStyle = this.getAttribute("display-style"), this.errorStyle = this.getAttribute("error-style"), this.menuStyle = this.getAttribute("menu-style"), this.subscribeEvents = this.getAttribute("subscribe-events"), this.invokePlugin()
+     this.entryId = this.getAttribute("entry-id"), this.entityId = this.getAttribute("entity-id"), this.chainId = this.getAttribute("chain-id"), this.displayStyle = this.getAttribute("display-style"), this.errorStyle = this.getAttribute("error-style"), this.menuStyle = this.getAttribute("menu-style"), this.subscribeEvents = this.getAttribute("subscribe-events"), this.invokePlugin()
     }
    }]), w);
 
