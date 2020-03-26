@@ -71,7 +71,9 @@ function myFunction2(pdb_name) {
 
 <select id = "getPDB" onchange="myFunction2(this.value)">
 	<option>Select a PDB</option>
-	<option value=511145>511145</optionvalue>
+	{% for pdb in threeDstructures %}
+		<option value={{ pdb.structurename }}>{{ pdb.structurename }}</option>
+	{% endfor %}
 </select>
 
 <p>AND</p> 

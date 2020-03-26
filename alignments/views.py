@@ -208,12 +208,14 @@ def index(request):
 	return render(request, 'alignments/index.html', context)
 
 def index_orthologs(request):
+	three_d_structures = Threedstructures.objects.all()
 	some_Alignments = Alignment.objects.all()
 	superKingdoms = Taxgroups.objects.raw('SELECT * FROM SEREB.TaxGroups WHERE\
 		 SEREB.TaxGroups.groupLevel = "superkingdom";')
 	context = {
 		'some_Alignments': some_Alignments,
-		'superKingdoms': superKingdoms
+		'superKingdoms': superKingdoms,
+		'threeDstructures': three_d_structures
 	}
 	return render(request, 'alignments/index_orthologs.html', context)
 

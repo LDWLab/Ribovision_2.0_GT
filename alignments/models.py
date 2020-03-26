@@ -181,3 +181,21 @@ class Taxgroups(models.Model):
     class Meta:
         managed = False
         db_table = 'TaxGroups'
+
+class Threedstructures(models.Model):
+    number_3d_structure_id = models.AutoField(db_column='3D_structure_id', primary_key=True)  # Field name made lowercase. Field renamed because it wasn't a valid Python identifier.
+    structurename = models.CharField(db_column='StructureName', max_length=50, blank=True, null=True)  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'ThreeDStructures'
+
+class Chainlist(models.Model):
+    chainlist_id = models.IntegerField(db_column='ChainList_id', primary_key=True)  # Field name made lowercase.
+    number_3d_structure = models.ForeignKey('Threedstructures', models.DO_NOTHING, db_column='3D_structure_id')  # Field name made lowercase. Field renamed because it wasn't a valid Python identifier.
+    polymer = models.ForeignKey('PolymerData', models.DO_NOTHING)
+    chainname = models.CharField(db_column='ChainName', max_length=3, blank=True, null=True)  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'ChainList'
