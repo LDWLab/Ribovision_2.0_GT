@@ -91,7 +91,7 @@ def species_index_to_aln_index(alignment_obj, species_id):
     index_start=0
 
     for aln in alignment_obj:
-        if aln.id == species_id:
+        if species_id in aln.id:
             aln_anchor_map=dict()
             aln_i = 0
             seq_i = 0

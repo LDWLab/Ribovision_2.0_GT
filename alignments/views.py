@@ -163,14 +163,23 @@ def build_alignment(rawMYSQLresult):
 def api_twc(request, align_name, tax_group1, tax_group2, anchor_taxid):
 	
 	#### This should be separate view with its own URL for serving multi-group alignments ####
-	filter_strain = Species.objects.filter(strain_id = anchor_taxid)[0].strain
+	filter_strain = str(Species.objects.filter(strain_id = anchor_taxid)[0].strain).replace(" ", "_")
+
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
 	fastastring,max_aln_length1 = sql_filtered_aln_query_two_parents(align_id,tax_group1,tax_group2)
 	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
-	#### __________________________________________________ ####
+	
+	#### _____________Trim down the alignment______________ ####
+	from alignments.Shannon import species_index_to_aln_index, truncate_aln
+	from Bio import AlignIO
+	from io import StringIO
+	alignment = list(AlignIO.parse(StringIO(concat_fasta), 'fasta'))[0]
+	aln_anchor_map = species_index_to_aln_index(alignment, filter_strain)
+	alignment = truncate_aln(alignment, list(aln_anchor_map.keys()), aln_anchor_map=aln_anchor_map)
+	#### _______________Calculate TwinCons_________________ ####
 	
 	from TwinCons.bin import PhyMeas
-	list_for_phymeas = ['-as',concat_fasta, '-r', '-bl']
+	list_for_phymeas = ['-as',alignment.format("fasta"), '-r', '-bl']
 	alnindex_score,sliced_alns,number_of_aligned_positions=PhyMeas.main(list_for_phymeas)	
 	return JsonResponse(alnindex_score, safe = False)
 
