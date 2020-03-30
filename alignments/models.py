@@ -139,6 +139,7 @@ class Secondarystructures(models.Model):
     secstr_id = models.AutoField(db_column='SecStr_id', primary_key=True)  # Field name made lowercase.
     moleculegroup = models.CharField(db_column='MoleculeGroup', max_length=45)  # Field name made lowercase.
     variation = models.CharField(db_column='Variation', max_length=45)  # Field name made lowercase.
+    strain_fk = models.ForeignKey('Species', models.DO_NOTHING, db_column='strain_fk', blank=True, null=True)
     name = models.CharField(db_column='Name', max_length=255, blank=True, null=True)  # Field name made lowercase.
     font_size_svg = models.DecimalField(db_column='Font_Size_SVG', max_digits=2, decimal_places=1, blank=True, null=True)  # Field name made lowercase.
     font_size_canvas = models.DecimalField(db_column='Font_Size_Canvas', max_digits=2, decimal_places=1, blank=True, null=True)  # Field name made lowercase.
@@ -199,3 +200,12 @@ class Chainlist(models.Model):
     class Meta:
         managed = False
         db_table = 'ChainList'
+
+class SecondaryTertiary(models.Model):
+    secondary_tertiary_id = models.IntegerField(primary_key=True)
+    secondary_structure = models.ForeignKey(Secondarystructures, models.DO_NOTHING)
+    number_3d_structure = models.ForeignKey('Threedstructures', models.DO_NOTHING, db_column='3D_structure_id')  # Field name made lowercase. Field renamed because it wasn't a valid Python identifier.
+
+    class Meta:
+        managed = False
+        db_table = 'Secondary_Tertiary'

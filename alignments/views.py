@@ -160,8 +160,18 @@ def build_alignment(rawMYSQLresult):
 	literal_string = re.sub(r'\n\n','\n',fasta_string,flags=re.M)
 	return literal_string.lstrip().encode('unicode-escape').decode('ascii'),max(all_alnpositions)
 
-def api_twc(request, align_name, tax_group1, tax_group2, anchor_taxid):
-	
+def pdbid_to_strainid(pdbid):
+	'''Transforms PDBID to taxid'''
+	structure_id = Threedstructures.objects.filter(structurename = pdbid)[0]
+	secondary_id = SecondaryTertiary.objects.values("secondary_structure").filter(number_3d_structure = structure_id)[0]["secondary_structure"]
+	anchor_taxid = Secondarystructures.objects.values("strain_fk").filter(secstr_id = secondary_id)[0]["strain_fk"]
+	return anchor_taxid
+
+def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure):
+
+	#### _____________Transform PDBID to taxid______________ ####
+	anchor_taxid = pdbid_to_strainid(anchor_structure)
+
 	#### This should be separate view with its own URL for serving multi-group alignments ####
 	filter_strain = str(Species.objects.filter(strain_id = anchor_taxid)[0].strain).replace(" ", "_")
 
@@ -183,23 +193,22 @@ def api_twc(request, align_name, tax_group1, tax_group2, anchor_taxid):
 	alnindex_score,sliced_alns,number_of_aligned_positions=PhyMeas.main(list_for_phymeas)	
 	return JsonResponse(alnindex_score, safe = False)
 
-def entropy(request, align_name, tax_group, taxid):
+def entropy(request, align_name, tax_group, anchor_structure):
 	from alignments import Shannon
+	taxid = pdbid_to_strainid(anchor_structure)
 	filter_strain = Species.objects.filter(strain_id = taxid)[0].strain
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
 	fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)
 	aln_shannon_list = Shannon.main(['-a',fastastring,'-f','fastastring','--return_within','-s',filter_strain])
 	#print(aln_shannon_list)
-	context = {'shannon_dictionary': aln_shannon_list, 'entropy_address':align_name+"/"+str(tax_group)+"/"+str(taxid)}
+	context = {'pdbid': anchor_structure, 'shannon_dictionary': aln_shannon_list, 'entropy_address':align_name+"/"+str(tax_group)+"/"+str(anchor_structure)}
 	return render(request, 'alignments/entropy_detail.html', context)
 
-def api_entropy(request, align_name, tax_group, taxid):
+def api_entropy(request, align_name, tax_group, anchor_structure):
 	from alignments import Shannon
 	import os
 	from django.conf import settings
-	#file_ = open(os.path.join(settings.BASE_DIR, '1cbs_outliers.txt'))
-	#string = file_.read()
-	#return JsonResponse(string, safe = False)
+	taxid = pdbid_to_strainid(anchor_structure)
 	filter_strain = Species.objects.filter(strain_id = taxid)[0].strain
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
 	fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)
