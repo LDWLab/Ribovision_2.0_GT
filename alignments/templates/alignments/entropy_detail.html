@@ -21,7 +21,7 @@
 
 
     <!-- Complied & minified library JS -->
-    <script src={% static 'alignments/pdb-topology-viewer-component-2.0.6.js' %}></script> 
+    <script src={% static 'alignments/pdb-topology-viewer-component-2.0.7.js' %}></script> 
 
     <style>
       .view3d {
@@ -32,8 +32,8 @@
     </style>
 </head>
 <body>
-	<div>
-		<pdb-topology-viewer entry-id="1b23" entity-id="2" chain-id="P" height="600" width="800" entropy-id={{entropy_address}}></pdb-topology-viewer>
+	<div id='topview'>
+		
 	</div>
 	<div>
 		{%for pos in shannon_dictionary%}

@@ -1650,7 +1650,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
        t.chain_id == e.chainId && t.models.forEach(function(t) {
          t.residues.forEach(function(t) {
          console.log(t.residue_number); 
-         if (270 > t.residue_number) {console.log(t.residue_number, RiboData[parseInt(t.residue_number+1)][1]); 
+         if (RiboData.length > t.residue_number) {console.log(t.residue_number, RiboData[parseInt(t.residue_number)][1]); 
          
          
          //o.defaultColours.qualityRiboVision= "rgb(364.2857142857143,364.2857142857143,75.71428571428572)"
@@ -1663,7 +1663,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
           i = "issue";
           console.log(e)
          }
-         if ((1 !== t.outlier_types.length || "RSRZ" !== t.outlier_types[0] ) && 270 > t.residue_number) {
+         if ((1 !== t.outlier_types.length || "RSRZ" !== t.outlier_types[0] ) && RiboData.length > t.residue_number) {
           1 === t.outlier_types.length ? e = "rgb("+String(RiboData[parseInt(t.residue_number)][1]*100)+","+String(RiboData[parseInt(t.residue_number)][1]*100)+",175.71428571428572)" : (e = 2 === t.outlier_types.length ? o.defaultColours.qualityOrange : o.defaultColours.qualityRed, i = "issues"), h.push(t.residue_number);
           var n = "Validation " + i + ": " + t.outlier_types.join(", ") + "<br>"; - 1 < a.indexOf(t.residue_number) && (n = "Validation issues: " + t.outlier_types.join(", ") + ", RSRZ<br>"), s.push({
            start: parseInt(t.residue_number),
@@ -1764,11 +1764,11 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
      console.log(this.apiData[5], this.apiData[5].length,  i.molecules);
  
      void 0 !== i && void 0 !== i.molecules && 0 < i.molecules.length && (i.molecules.forEach(function(t) {
-      t.entity_id == e.entityId && t.chains.forEach(function(t) {
-       t.chain_id == e.chainId && t.models.forEach(function(t) {
+      t.entity_id == "2" && t.chains.forEach(function(t) {
+       t.chain_id == "P" && t.models.forEach(function(t) {
          t.residues.forEach(function(t) {
          console.log(t.residue_number); 
-         if (270 > t.residue_number) {console.log(t.residue_number, RiboData[parseInt(t.residue_number+1)][1]); 
+         if (RiboData.length > t.residue_number) {console.log(t.residue_number, RiboData[parseInt(t.residue_number)][1]); 
          
          
          //o.defaultColours.qualityRiboVision= "rgb(364.2857142857143,364.2857142857143,75.71428571428572)"
@@ -1781,7 +1781,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
           i = "issue";
           console.log(e, t.outlier_types.length)
          }
-         if ((1 === t.outlier_types.length  ) && 270 > t.residue_number) {
+         if ((1 === t.outlier_types.length  ) && RiboData.length > t.residue_number) {
           e = "rgb("+String(RiboData[parseInt(t.residue_number)][1]*10)+","+String(RiboData[parseInt(t.residue_number)][1]*100)+",175.71428571428572)", o.drawValidationShape(t.residue_number, "circle", o.defaultColours.qualityRiboVision); 
           l = i.indexOf(t.residue_number);
           console.log(l);
