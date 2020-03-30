@@ -198,10 +198,12 @@ def entropy(request, align_name, tax_group, anchor_structure):
 	taxid = pdbid_to_strainid(anchor_structure)
 	filter_strain = Species.objects.filter(strain_id = taxid)[0].strain
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
+	polymerid = PolymerData.objects.values("pdata_id").filter(polymeralignments__aln = align_id, strain = taxid)[0]["pdata_id"]
+	chainid = Chainlist.objects.values("chainname").filter(polymer = polymerid)[0]["chainname"]
 	fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)
 	aln_shannon_list = Shannon.main(['-a',fastastring,'-f','fastastring','--return_within','-s',filter_strain])
 	#print(aln_shannon_list)
-	context = {'pdbid': anchor_structure, 'shannon_dictionary': aln_shannon_list, 'entropy_address':align_name+"/"+str(tax_group)+"/"+str(anchor_structure)}
+	context = {'pdbid': anchor_structure, 'chainid': chainid, 'shannon_dictionary': aln_shannon_list, 'entropy_address':align_name+"/"+str(tax_group)+"/"+str(anchor_structure)}
 	return render(request, 'alignments/entropy_detail.html', context)
 
 def api_entropy(request, align_name, tax_group, anchor_structure):

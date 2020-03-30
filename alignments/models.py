@@ -209,3 +209,12 @@ class SecondaryTertiary(models.Model):
     class Meta:
         managed = False
         db_table = 'Secondary_Tertiary'
+
+class PolymerAlignments(models.Model):
+    pdata = models.ForeignKey('PolymerData', models.DO_NOTHING, db_column='PData_id')  # Field name made lowercase.
+    aln = models.ForeignKey(Alignment, models.DO_NOTHING, db_column='Aln_id')  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'Polymer_Alignments'
+        unique_together = (('pdata', 'aln'),)
