@@ -47,6 +47,7 @@
 <script src={% static 'alignments/tree_menu.js' %}></script>
 
 <script>
+	var pdb = null;
 function myFunction(alignment_name,aln_type) {
 	var
 		getAlignment = document.getElementById("getAlignment"),
@@ -55,12 +56,25 @@ function myFunction(alignment_name,aln_type) {
 	
 	// var res = aln_type.concat(alignment_name).concat("/").concat(parent_taxid2);
 	// localhost:8000/alignments/twc-api/uL16/2/2157/511145
-	var res = "twc-api/" + alignment_name + "/" + parent_taxid1 + "/" + parent_taxid2 + "/511145";
+	var res = "twc-api/" + alignment_name + "/" + parent_taxid1 + "/" + parent_taxid2 + "/" + pdb;
 	// alert(res);
 	console.log(res);
 	window.location.href = res;
 }
+
+function myFunction2(pdb_name) {
+	pdb = pdb_name;
+}
 </script>
+
+<p>AND</p> 
+
+<select id = "getPDB" onchange="myFunction2(this.value)">
+	<option>Select a PDB</option>
+	{% for pdb in threeDstructures %}
+		<option value={{ pdb.structurename }}>{{ pdb.structurename }}</option>
+	{% endfor %}
+</select>
 
 <p>AND</p> 
 

@@ -160,37 +160,57 @@ def build_alignment(rawMYSQLresult):
 	literal_string = re.sub(r'\n\n','\n',fasta_string,flags=re.M)
 	return literal_string.lstrip().encode('unicode-escape').decode('ascii'),max(all_alnpositions)
 
-def api_twc(request, align_name, tax_group1, tax_group2, anchor_taxid):
-	
+def pdbid_to_strainid(pdbid):
+	'''Transforms PDBID to taxid'''
+	structure_id = Threedstructures.objects.filter(structurename = pdbid)[0]
+	secondary_id = SecondaryTertiary.objects.values("secondary_structure").filter(number_3d_structure = structure_id)[0]["secondary_structure"]
+	anchor_taxid = Secondarystructures.objects.values("strain_fk").filter(secstr_id = secondary_id)[0]["strain_fk"]
+	return anchor_taxid
+
+def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure):
+
+	#### _____________Transform PDBID to taxid______________ ####
+	anchor_taxid = pdbid_to_strainid(anchor_structure)
+
 	#### This should be separate view with its own URL for serving multi-group alignments ####
-	filter_strain = Species.objects.filter(strain_id = anchor_taxid)[0].strain
+	filter_strain = str(Species.objects.filter(strain_id = anchor_taxid)[0].strain).replace(" ", "_")
+
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
 	fastastring,max_aln_length1 = sql_filtered_aln_query_two_parents(align_id,tax_group1,tax_group2)
 	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
-	#### __________________________________________________ ####
+	
+	#### _____________Trim down the alignment______________ ####
+	from alignments.Shannon import species_index_to_aln_index, truncate_aln
+	from Bio import AlignIO
+	from io import StringIO
+	alignment = list(AlignIO.parse(StringIO(concat_fasta), 'fasta'))[0]
+	aln_anchor_map = species_index_to_aln_index(alignment, filter_strain)
+	alignment = truncate_aln(alignment, list(aln_anchor_map.keys()), aln_anchor_map=aln_anchor_map)
+	#### _______________Calculate TwinCons_________________ ####
 	
 	from TwinCons.bin import PhyMeas
-	list_for_phymeas = ['-as',concat_fasta, '-r', '-bl']
+	list_for_phymeas = ['-as',alignment.format("fasta"), '-r', '-bl']
 	alnindex_score,sliced_alns,number_of_aligned_positions=PhyMeas.main(list_for_phymeas)	
 	return JsonResponse(alnindex_score, safe = False)
 
-def entropy(request, align_name, tax_group, taxid):
+def entropy(request, align_name, tax_group, anchor_structure):
 	from alignments import Shannon
+	taxid = pdbid_to_strainid(anchor_structure)
 	filter_strain = Species.objects.filter(strain_id = taxid)[0].strain
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
+	polymerid = PolymerData.objects.values("pdata_id").filter(polymeralignments__aln = align_id, strain = taxid)[0]["pdata_id"]
+	chainid = Chainlist.objects.values("chainname").filter(polymer = polymerid)[0]["chainname"]
 	fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)
 	aln_shannon_list = Shannon.main(['-a',fastastring,'-f','fastastring','--return_within','-s',filter_strain])
 	#print(aln_shannon_list)
-	context = {'shannon_dictionary': aln_shannon_list, 'entropy_address':align_name+"/"+str(tax_group)+"/"+str(taxid)}
+	context = {'pdbid': anchor_structure, 'chainid': chainid, 'shannon_dictionary': aln_shannon_list, 'entropy_address':align_name+"/"+str(tax_group)+"/"+str(anchor_structure)}
 	return render(request, 'alignments/entropy_detail.html', context)
 
-def api_entropy(request, align_name, tax_group, taxid):
+def api_entropy(request, align_name, tax_group, anchor_structure):
 	from alignments import Shannon
 	import os
 	from django.conf import settings
-	#file_ = open(os.path.join(settings.BASE_DIR, '1cbs_outliers.txt'))
-	#string = file_.read()
-	#return JsonResponse(string, safe = False)
+	taxid = pdbid_to_strainid(anchor_structure)
 	filter_strain = Species.objects.filter(strain_id = taxid)[0].strain
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
 	fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)
@@ -208,12 +228,14 @@ def index(request):
 	return render(request, 'alignments/index.html', context)
 
 def index_orthologs(request):
+	three_d_structures = Threedstructures.objects.all()
 	some_Alignments = Alignment.objects.all()
 	superKingdoms = Taxgroups.objects.raw('SELECT * FROM SEREB.TaxGroups WHERE\
 		 SEREB.TaxGroups.groupLevel = "superkingdom";')
 	context = {
 		'some_Alignments': some_Alignments,
-		'superKingdoms': superKingdoms
+		'superKingdoms': superKingdoms,
+		'threeDstructures': three_d_structures
 	}
 	return render(request, 'alignments/index_orthologs.html', context)
 

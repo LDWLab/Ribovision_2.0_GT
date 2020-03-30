@@ -39,6 +39,25 @@
 		{%for pos in shannon_dictionary%}
 			<li>{{pos}}</li>
 		{%endfor%}
-	</div>
+  </div>
+  
+  <script type ="text/javascript">
+    var pdblower = "{{pdbid}}".toLocaleLowerCase();
+    var request = new XMLHttpRequest();
+    request.open('GET', 'https://www.ebi.ac.uk/pdbe/api/topology/entry/{{pdbid}}/chain/{{chainid}}', true);
+    request.onload = function() {
+      var data = JSON.parse(this.response);
+      if (request.status >= 200 && request.status < 400) {
+        var entityid = Object.keys(data[pdblower])[0];
+        var topology_viewer = "<pdb-topology-viewer entry-id={{pdbid}} entity-id="+entityid+" chain-id={{chainid}}  entropy-id={{entropy_address}}></pdb-topology-viewer>"
+        document.getElementById('topview').innerHTML = topology_viewer;
+      } else {
+        console.log('error');
+      }
+    }
+    // Send request
+    request.send()
+  </script>
 </body>
 </html>
+
