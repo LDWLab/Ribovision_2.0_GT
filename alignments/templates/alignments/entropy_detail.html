@@ -1,63 +1,49 @@
-</head>
 <!DOCTYPE html>
 <html lang="en">
 {% load static %}
 <head>
 
-	<title>Bootstrap Example</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
-  
-  <!-- Required for IE11 -->
-  <script src="https://cdn.jsdelivr.net/npm/babel-polyfill/dist/polyfill.min.js" defer></script>
-  <!-- Web component polyfill (only loads what it needs) -->
-  <script src="https://cdn.jsdelivr.net/npm/@webcomponents/webcomponentsjs/webcomponents-lite.js" charset="utf-8" defer></script>
-  <!-- Required to polyfill modern browsers as code is ES5 for IE... -->
-  <script src="https://cdn.jsdelivr.net/npm/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js" charset="utf-8" defer></script>
+	<title>Entropy mapped on topology</title>
+	<meta charset="utf-8">
 
-  <!-- d3.js dependency script -->
-  <script src="https://cdn.jsdelivr.net/npm/d3@5.9.2" defer></script>
+	<!-- d3.js dependency script -->
+	<script src="https://cdn.jsdelivr.net/npm/d3@5.9.2" defer></script>
 
+	<!-- Complied & minified library JS -->
+	<script type="text/javascript" src={% static 'alignments/pdb-topology-viewer-component-2.0.7.js' %} defer></script> 
 
-    <!-- Complied & minified library JS -->
-    <script src={% static 'alignments/pdb-topology-viewer-component-2.0.7.js' %}></script> 
-
-    <style>
-      .view3d {
-        height:400px;
-        width:400px;
-        position:relative;
-      }
-    </style>
+	<style>
+		#topview {
+			height:400px;
+			width:400px;
+			position:relative;}
+	</style>
 </head>
 <body>
-	<div id='topview'>
-		
-	</div>
+	<div id='topview'></div>
 	<div>
 		{%for pos in shannon_dictionary%}
 			<li>{{pos}}</li>
 		{%endfor%}
-  </div>
-  
-  <script type ="text/javascript">
-    var pdblower = "{{pdbid}}".toLocaleLowerCase();
-    var request = new XMLHttpRequest();
-    request.open('GET', 'https://www.ebi.ac.uk/pdbe/api/topology/entry/{{pdbid}}/chain/{{chainid}}', true);
-    request.onload = function() {
-      var data = JSON.parse(this.response);
-      if (request.status >= 200 && request.status < 400) {
-        var entityid = Object.keys(data[pdblower])[0];
-        var topology_viewer = "<pdb-topology-viewer entry-id={{pdbid}} entity-id="+entityid+" chain-id={{chainid}}  entropy-id={{entropy_address}}></pdb-topology-viewer>"
-        document.getElementById('topview').innerHTML = topology_viewer;
-      } else {
-        console.log('error');
-      }
-    }
-    // Send request
-    request.send()
-  </script>
+	</div>
+	
+	<script type ="text/javascript">
+		var pdblower = "{{pdbid}}".toLocaleLowerCase();
+		var request = new XMLHttpRequest();
+		request.open('GET', 'https://www.ebi.ac.uk/pdbe/api/topology/entry/{{pdbid}}/chain/{{chainid}}', true);
+		request.onload = function() {
+			var data = JSON.parse(this.response);
+			if (request.status >= 200 && request.status < 400) {
+				var entityid = Object.keys(data[pdblower])[0];
+				var topology_viewer = "<pdb-topology-viewer entry-id={{pdbid}} entity-id="+entityid+" chain-id={{chainid}}	entropy-id={{entropy_address}}></pdb-topology-viewer>"
+				document.getElementById('topview').innerHTML = topology_viewer;
+			} else {
+				console.log('error');
+			}
+		}
+		// Send request
+		request.send()
+	</script>
 </body>
 </html>
 
