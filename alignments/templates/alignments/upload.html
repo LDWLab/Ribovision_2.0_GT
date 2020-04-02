@@ -1,0 +1,16 @@
+<!-- <html>
+<body>
+    <form enctype="multipart/form-data" action="submit" method="post">{% csrf_token %}
+        <p>File: <input type="file" accept=".csv" name="filename"></p>
+        <p><input type="submit" value="Submit"></p>
+    </form>
+</body>
+</html> -->
+<html>
+<body>
+   <form enctype = "multipart/form-data" action = "submit" method = "post">{% csrf_token %}
+   <p>File: <input type = "file" accept=".csv" name = "filename" /></p>
+   <p><input type = "submit" value = "Upload" /></p>
+</form>
+</body>
+</html>
