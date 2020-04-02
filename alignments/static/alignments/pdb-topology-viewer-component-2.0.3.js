@@ -1152,6 +1152,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
    var e = this;
    this.getApiData(this.entryId, this.chainId, this.entropyId).then(function(t) {
     if (t) {
+      console.log(t[5])
      if (void 0 === t[0] || void 0 === t[2] || void 0 === t[4] || void 0 === t[5]) return void e.displayError();
      e.apiData = t, e.pdbevents = e.createNewEvent(["PDB.topologyViewer.click", "PDB.topologyViewer.mouseover", "PDB.topologyViewer.mouseout"]), e.getPDBSequenceArray(e.apiData[0][e.entryId]), e.drawTopologyStructures(), e.createDomainDropdown(), e.subscribeEvents && e.subscribeWcEvents()
     }
@@ -1180,7 +1181,6 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
   }, t.prototype.getApiData = function(i, n, entr) {
    return __awaiter(this, void 0, void 0, function() {
     var e;
-    console.log(e);
     return __generator(this, function(t) {
      return e = ["https://www.ebi.ac.uk/pdbe/api/pdb/entry/entities/" + i, "https://www.ebi.ac.uk/pdbe/api/mappings/" + i, "https://www.ebi.ac.uk/pdbe/api/topology/entry/" + i, "https://www.ebi.ac.uk/pdbe/api/validation/residuewise_outlier_summary/entry/" + i, "https://www.ebi.ac.uk/pdbe/api/pdb/entry/polymer_coverage/" + i + "/chain/" + n, "http://127.0.0.1:8001/alignments/entropy-api/" + entr,], [2, Promise.all(e.map(function(t) {
       return fetch(t)

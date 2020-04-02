@@ -1092,6 +1092,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
     qualityGreen: "rgb(0,182.85714285714286,0)",
     qualityRed: "rgb(291.42857142857144,0,0)",
     qualityYellow: "rgb(364.2857142857143,364.2857142857143,75.71428571428572)",
+    qualityRiboVision: "rgb(364.2857142857143,364.2857142857143,75.71428571428572)",
     qualityOrange: "rgb(291.42857142857144,121.42857142857143,0)"
    }, this.displayStyle = "border:1px solid #696969;", this.errorStyle = "border:1px solid #696969; height:54%; padding-top:46%; text-align:center; font-weight:bold;", this.menuStyle = "position:relative;height:38px;line-height:38px;background-color:#696969;padding: 0 10px;font-size:16px; color: #efefef;", this.svgWidth = 100, this.svgHeight = 100, this.subscribeEvents = !0, this.createNewEvent = function(t) {
     var n = {};
@@ -1117,7 +1118,6 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
          color: void 0
         })
        });
-	   console.log(i);
        0 < e.length && a.domainTypes.push({
         label: s[t],
         data: e
@@ -1130,10 +1130,9 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
     if (this.domainTypes = [{
       label: "Annotation",
       data: null
-     }], this.getAnnotationFromMappings(), this.getAnnotationFromOutliers(), this.selectedDomain = this.domainTypes[0], 1 < this.domainTypes.length) {
+     }], this.getAnnotationFromMappings(), this.getAnnotationFromOutliers(),this.getAnnotationFromRiboVision(), this.selectedDomain = this.domainTypes[0], 1 < this.domainTypes.length) {
      var i = "";
-	 console.log(this.domainTypes);
-     this.domainTypes.forEach(function(t, e) {
+	 this.domainTypes.forEach(function(t, e) {
       i = i + '<option value="' + e + '">' + t.label + "</option>"
      });
      var t = this.targetEle.querySelector(".menuSelectbox");
@@ -1180,7 +1179,6 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
   }, t.prototype.getApiData = function(i, n, entr) {
    return __awaiter(this, void 0, void 0, function() {
     var e;
-    console.log(e);
     return __generator(this, function(t) {
      return e = ["https://www.ebi.ac.uk/pdbe/api/pdb/entry/entities/" + i, "https://www.ebi.ac.uk/pdbe/api/mappings/" + i, "https://www.ebi.ac.uk/pdbe/api/topology/entry/" + i, "https://www.ebi.ac.uk/pdbe/api/validation/residuewise_outlier_summary/entry/" + i, "https://www.ebi.ac.uk/pdbe/api/pdb/entry/polymer_coverage/" + i + "/chain/" + n, "http://127.0.0.1:8001/alignments/entropy-api/" + entr,], [2, Promise.all(e.map(function(t) {
       return fetch(t)
@@ -1623,7 +1621,77 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
      data: s
     }))
    }
-  }, t.prototype.resetTheme = function() {
+  },
+  
+  t.prototype.getAnnotationFromRiboVision = function() {
+    var e = this,
+     o = this,
+     t = this.getChainStartAndEnd(),
+ 
+     s = [{
+      start: t.start,
+      end: t.end,
+      color: o.defaultColours.qualityGreen,
+      tooltipMsg: "No validation issue reported for "
+     }],
+     a = [],
+     h = [0];
+     console.log(t);
+     var RiboData=this.apiData[5];
+     console.log(RiboData);
+    if (void 0 !== this.apiData[5]) {
+     var i = this.apiData[3][this.entryId];
+     var RiboData=this.apiData[5];
+     console.log(this.apiData[5], this.apiData[5].length,  i.molecules);
+ 
+     void 0 !== i && void 0 !== i.molecules && 0 < i.molecules.length && (i.molecules.forEach(function(t) {
+      t.entity_id == e.entityId && t.chains.forEach(function(t) {
+       t.chain_id == e.chainId && t.models.forEach(function(t) {
+         t.residues.forEach(function(t) {
+         console.log(t.residue_number); 
+         if (270 > t.residue_number) {console.log(t.residue_number, RiboData[parseInt(t.residue_number+1)][1]); 
+         
+         
+         //o.defaultColours.qualityRiboVision= "rgb(364.2857142857143,364.2857142857143,75.71428571428572)"
+
+         o.defaultColours.qualityRiboVision= "rgb("+String(RiboData[parseInt(t.residue_number)][1]*100)+",364.2857142857143,75.71428571428572)"
+         var e = o.defaultColours.qualityRiboVision,
+
+    
+
+          i = "issue";
+          console.log(e)
+         }
+         if ((1 !== t.outlier_types.length || "RSRZ" !== t.outlier_types[0] ) && 270 > t.residue_number) {
+          1 === t.outlier_types.length ? e = "rgb("+String(RiboData[parseInt(t.residue_number)][1]*100)+","+String(RiboData[parseInt(t.residue_number)][1]*100)+",75.71428571428572)" : (e = 2 === t.outlier_types.length ? o.defaultColours.qualityOrange : o.defaultColours.qualityRed, i = "issues"), h.push(t.residue_number);
+          var n = "Validation " + i + ": " + t.outlier_types.join(", ") + "<br>"; - 1 < a.indexOf(t.residue_number) && (n = "Validation issues: " + t.outlier_types.join(", ") + ", RSRZ<br>"), s.push({
+           start: parseInt(t.residue_number),
+           end: parseInt(t.residue_number),
+           color: e,
+           tooltipMsg: n,
+           tooltipPosition: "prefix"
+          })
+         } else {
+          e = o.defaultColours.qualityRed, o.drawValidationShape(t.residue_number, "circle", e), a.push(t.residue_number);
+          var r = h.indexOf(t.residue_number); - 1 < r ? s[r].tooltipMsg = s[r].tooltipMsg.replace("<br>", ", RSRZ<br>") : (s.push({
+           start: parseInt(t.residue_number),
+           end: parseInt(t.residue_number),
+           color: o.defaultColours.qualityGreen,
+           tooltipMsg: "Validation issue: RSRZ <br>",
+           tooltipPosition: "prefix"
+          }), h.push(t.residue_number))
+         }
+        })
+       })
+      })
+     }), 0 < s.length && this.domainTypes.push({
+      label: "RiboVision",
+      data: s
+     }))
+    }
+   },
+   
+  t.prototype.resetTheme = function() {
    var o = this;
    this.svgEle.selectAll(".coloured").each(function(t) {
     var e = d3.select(this),
@@ -1649,7 +1717,10 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
    t.forEach(function(t) {
     for (var e = t.start; e <= t.end; e++) i.changeResidueColor(e, t.color, t.tooltipMsg, t.tooltipPosition)
    })
-  }, t.prototype.displayDomain = function(t) {
+  }, 
+  
+  
+  t.prototype.displayDomain = function(t) {
    var e = this.targetEle.querySelector(".menuSelectbox"),
     i = parseInt(e.value),
     n = this.domainTypes[i];
@@ -1674,7 +1745,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
 
 	    var svg = getNode("svg");
         document.body.appendChild(svg);
-        console.log(svg); 
+        
 		svg.appendChild(svgData1);
 		
 		

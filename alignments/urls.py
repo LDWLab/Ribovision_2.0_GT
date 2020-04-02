@@ -15,9 +15,9 @@ urlpatterns = [
 	path('rProtein/<str:align_name>/<int:tax_group>', views.rProtein, name='rProtein'),
 	path('showTaxonomy', views.buildTaxonomy, name='showTaxonomy'),
 	path('showTaxonomy-api/<int:parent>', views.api_showTaxonomy, name='api_showTaxonomy'),
-	path('entropy/<str:align_name>/<int:tax_group>/<int:taxid>', views.entropy, name='entropy'),
-	path('entropy-api/<str:align_name>/<int:tax_group>/<int:taxid>', views.api_entropy, name='api_entropy'),
-	path('twc-api/<str:align_name>/<int:tax_group1>/<int:tax_group2>/<int:anchor_taxid>', views.api_twc, name='api_twc'),
-	path('orthologs/twc-api/<str:align_name>/<int:tax_group1>/<int:tax_group2>/<int:anchor_taxid>', views.api_twc, name='api_twc'),
+	path('entropy/<str:align_name>/<int:tax_group>/<str:anchor_structure>', views.entropy, name='entropy'),
+	path('entropy-api/<str:align_name>/<int:tax_group>/<str:anchor_structure>', views.api_entropy, name='api_entropy'),
+	path('twc-api/<str:align_name>/<int:tax_group1>/<int:tax_group2>/<str:anchor_structure>', views.api_twc, name='api_twc'),
+	path('orthologs/twc-api/<str:align_name>/<int:tax_group1>/<int:tax_group2>/<str:anchor_structure>', views.api_twc, name='api_twc'),
 	path('upload/submit', views.submit, name = 'submit'),
 ]

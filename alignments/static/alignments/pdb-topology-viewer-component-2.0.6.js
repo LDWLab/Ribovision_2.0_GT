@@ -1092,6 +1092,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
     qualityGreen: "rgb(0,182.85714285714286,0)",
     qualityRed: "rgb(291.42857142857144,0,0)",
     qualityYellow: "rgb(364.2857142857143,364.2857142857143,75.71428571428572)",
+    qualityRiboVision: "rgb(364.2857142857143,364.2857142857143,75.71428571428572)",
     qualityOrange: "rgb(291.42857142857144,121.42857142857143,0)"
    }, this.displayStyle = "border:1px solid #696969;", this.errorStyle = "border:1px solid #696969; height:54%; padding-top:46%; text-align:center; font-weight:bold;", this.menuStyle = "position:relative;height:38px;line-height:38px;background-color:#696969;padding: 0 10px;font-size:16px; color: #efefef;", this.svgWidth = 100, this.svgHeight = 100, this.subscribeEvents = !0, this.createNewEvent = function(t) {
     var n = {};
@@ -1117,23 +1118,21 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
          color: void 0
         })
        });
-	   console.log(i);
        0 < e.length && a.domainTypes.push({
         label: s[t],
         data: e
        })
       }
      }
-     for (var o = this.apiData[1][this.entryId], s = ["UniProt", "CATH", "Pfam", "SCOP", "RiboVision"], a = this, e = 0; e < 3; e++) t(e)
+     for (var o = this.apiData[1][this.entryId], s = ["UniProt", "CATH", "Pfam", "SCOP", "RiboVision", "RiboVision1"], a = this, e = 0; e < 3; e++) t(e)
     }
    }, this.createDomainDropdown = function() {
     if (this.domainTypes = [{
       label: "Annotation",
       data: null
-     }], this.getAnnotationFromMappings(), this.getAnnotationFromOutliers(), this.selectedDomain = this.domainTypes[0], 1 < this.domainTypes.length) {
+     }], this.getAnnotationFromMappings(), this.getAnnotationFromOutliers(),this.getAnnotationFromRiboVision(),this.getAnnotationFromRiboVision1(),this.getAnnotationFromRiboVision2(), this.selectedDomain = this.domainTypes[0], 1 < this.domainTypes.length) {
      var i = "";
-	 console.log(this.domainTypes);
-     this.domainTypes.forEach(function(t, e) {
+	 this.domainTypes.forEach(function(t, e) {
       i = i + '<option value="' + e + '">' + t.label + "</option>"
      });
      var t = this.targetEle.querySelector(".menuSelectbox");
@@ -1180,9 +1179,8 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
   }, t.prototype.getApiData = function(i, n, entr) {
    return __awaiter(this, void 0, void 0, function() {
     var e;
-    console.log(e);
     return __generator(this, function(t) {
-     return e = ["https://www.ebi.ac.uk/pdbe/api/pdb/entry/entities/" + i, "https://www.ebi.ac.uk/pdbe/api/mappings/" + i, "https://www.ebi.ac.uk/pdbe/api/topology/entry/" + i, "https://www.ebi.ac.uk/pdbe/api/validation/residuewise_outlier_summary/entry/" + i, "https://www.ebi.ac.uk/pdbe/api/pdb/entry/polymer_coverage/" + i + "/chain/" + n, "http://127.0.0.1:8001/alignments/entropy-api/" + entr,], [2, Promise.all(e.map(function(t) {
+     return e = ["https://www.ebi.ac.uk/pdbe/api/pdb/entry/entities/" + i, "https://www.ebi.ac.uk/pdbe/api/mappings/" + i, "http://127.0.0.1:8001/static/alignments/Topology_1b23_m4.txt", "http://127.0.0.1:8001/static/alignments/Data_dummy.txt", "https://www.ebi.ac.uk/pdbe/api/pdb/entry/polymer_coverage/" + i + "/chain/" + n, "http://127.0.0.1:8001/alignments/entropy-api/" + entr,], [2, Promise.all(e.map(function(t) {
       return fetch(t)
      })).then(function(t) {
       return Promise.all(t.map(function(t) {
@@ -1270,7 +1268,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
    })
   }, t.prototype.mouseoverAction = function(t, e) {
    var i = d3.select(t);
-   this.renderTooltip(e, "show"), "strands" !== e.type && "helices" !== e.type || i.attr("fill", this.defaultColours.mouseOver).attr("fill-opacity", "0.3"), "coils" === e.type && i.attr("stroke", this.defaultColours.mouseOver).attr("stroke-width", 1), this.dispatchEvent("PDB.topologyViewer.mouseover", {
+   this.renderTooltip(e, "show"), "strands" !== e.type && "helices" !== e.type || i.attr("fill", this.defaultColours.mouseOver).attr("fill-opacity", "0.3"), "coils" === e.type && i.attr("stroke", this.defaultColours.mouseOver).attr("stroke-width", 1.0), this.dispatchEvent("PDB.topologyViewer.mouseover", {
     residueNumber: e.residue_number,
     type: e.type,
     entropyId: this.entropyId,
@@ -1547,11 +1545,11 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
      tooltipMsg: "Validation issue: RSRZ <br>",
      tooltipPosition: "prefix"
     };
-    this.svgEle.append("path").attr("class", "validationResidue rsrz_" + t).data([u]).attr("fill", i).attr("stroke", "#000").attr("stroke-width", .3).attr("transform", function(t) {
+    this.svgEle.append("path").attr("class", "validationResidue rsrz_" + t).data([u]).attr("fill", i).attr("stroke", "#000").attr("stroke-width", .1).attr("transform", function(t) {
      return "translate(" + a.x + "," + a.y + ")"
     }).attr("d", d3.symbol().type(function(t, e) {
      return d3.symbols[0]
-    }).size(o.height / 2)).style("display", "none").on("mouseover", function(t) {
+    }).size(1.8)).style("display", "none").on("mouseover", function(t) {
      n.mouseoverAction(this, t)
     }).on("mousemove", function(t) {
      n.mouseoverAction(this, t)
@@ -1582,7 +1580,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
     s = [{
      start: t.start,
      end: t.end,
-     color: o.defaultColours.qualityGreen,
+  
      tooltipMsg: "No validation issue reported for "
     }],
     a = [],
@@ -1595,22 +1593,22 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
       t.chain_id == e.chainId && t.models.forEach(function(t) {
        t.residues.forEach(function(t) {
         var e = o.defaultColours.qualityYellow,
-         i = "issue";
+         i = "issue2";
         if (1 !== t.outlier_types.length || "RSRZ" !== t.outlier_types[0]) {
-         1 === t.outlier_types.length ? e = o.defaultColours.qualityYellow : (e = 2 === t.outlier_types.length ? o.defaultColours.qualityOrange : o.defaultColours.qualityRed, i = "issues"), h.push(t.residue_number);
+         1 === t.outlier_types.length ? e = o.defaultColours.qualityOrange : (e = 2 === t.outlier_types.length ? o.defaultColours.qualityOrange : o.defaultColours.qualityRed, i = "issues"), h.push(t.residue_number);
          var n = "Validation " + i + ": " + t.outlier_types.join(", ") + "<br>"; - 1 < a.indexOf(t.residue_number) && (n = "Validation issues: " + t.outlier_types.join(", ") + ", RSRZ<br>"), s.push({
           start: parseInt(t.residue_number),
           end: parseInt(t.residue_number),
-          color: e,
+          
           tooltipMsg: n,
           tooltipPosition: "prefix"
          })
         } else {
-         e = o.defaultColours.qualityRed, o.drawValidationShape(t.residue_number, "circle", e), a.push(t.residue_number);
+         o.drawValidationShape(t.residue_number, "circle", e), a.push(t.residue_number);
          var r = h.indexOf(t.residue_number); - 1 < r ? s[r].tooltipMsg = s[r].tooltipMsg.replace("<br>", ", RSRZ<br>") : (s.push({
           start: parseInt(t.residue_number),
           end: parseInt(t.residue_number),
-          color: o.defaultColours.qualityGreen,
+        
           tooltipMsg: "Validation issue: RSRZ <br>",
           tooltipPosition: "prefix"
          }), h.push(t.residue_number))
@@ -1623,7 +1621,194 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
      data: s
     }))
    }
-  }, t.prototype.resetTheme = function() {
+  },
+  
+  t.prototype.getAnnotationFromRiboVision = function() {
+    var e = this,
+     o = this,
+     t = this.getChainStartAndEnd(),
+ 
+     s = [{
+      start: t.start,
+      end: t.end,
+      color: o.defaultColours.qualityGreen,
+      tooltipMsg: "No validation issue reported for "
+     }],
+     a = [],
+     h = [0];
+     console.log(t);
+     var RiboData=this.apiData[5];
+     console.log(RiboData);
+    if (void 0 !== this.apiData[5]) {
+     var i = this.apiData[3][this.entryId];
+     var RiboData=this.apiData[5];
+     console.log(this.apiData[5], this.apiData[5].length,  i.molecules);
+ 
+     void 0 !== i && void 0 !== i.molecules && 0 < i.molecules.length && (i.molecules.forEach(function(t) {
+      t.entity_id == e.entityId && t.chains.forEach(function(t) {
+       t.chain_id == e.chainId && t.models.forEach(function(t) {
+         t.residues.forEach(function(t) {
+         console.log(t.residue_number); 
+         if (270 > t.residue_number) {console.log(t.residue_number, RiboData[parseInt(t.residue_number+1)][1]); 
+         
+         
+         //o.defaultColours.qualityRiboVision= "rgb(364.2857142857143,364.2857142857143,75.71428571428572)"
+
+         o.defaultColours.qualityRiboVision= "rgb("+String(RiboData[parseInt(t.residue_number)][1]*100)+","+String(RiboData[parseInt(t.residue_number)][1]*100)+",175.71428571428572)"
+         var e = o.defaultColours.qualityRiboVision,
+
+    
+
+          i = "issue";
+          console.log(e)
+         }
+         if ((1 !== t.outlier_types.length || "RSRZ" !== t.outlier_types[0] ) && 270 > t.residue_number) {
+          1 === t.outlier_types.length ? e = "rgb("+String(RiboData[parseInt(t.residue_number)][1]*100)+","+String(RiboData[parseInt(t.residue_number)][1]*100)+",175.71428571428572)" : (e = 2 === t.outlier_types.length ? o.defaultColours.qualityOrange : o.defaultColours.qualityRed, i = "issues"), h.push(t.residue_number);
+          var n = "Validation " + i + ": " + t.outlier_types.join(", ") + "<br>"; - 1 < a.indexOf(t.residue_number) && (n = "Validation issues: " + t.outlier_types.join(", ") + ", RSRZ<br>"), s.push({
+           start: parseInt(t.residue_number),
+           end: parseInt(t.residue_number),
+           color: e,
+           tooltipMsg: n,
+           tooltipPosition: "prefix"
+          })
+         } else {
+          e = o.defaultColours.qualityRed, o.drawValidationShape(t.residue_number, "circle", e), a.push(t.residue_number);
+          var r = h.indexOf(t.residue_number); - 1 < r ? s[r].tooltipMsg = s[r].tooltipMsg.replace("<br>", ", RSRZ<br>") : (s.push({
+           start: parseInt(t.residue_number),
+           end: parseInt(t.residue_number),
+           color: o.defaultColours.qualityGreen,
+           tooltipMsg: "Validation issue: RSRZ <br>",
+           tooltipPosition: "prefix"
+          }), h.push(t.residue_number))
+         }
+        })
+       })
+      })
+     }), 0 < s.length && this.domainTypes.push({
+      label: "RiboVision",
+      data: s
+     }))
+    }
+   },
+
+   t.prototype.getAnnotationFromRiboVision2 = function() {
+    var e = this,
+     o = this,
+     t = this.getChainStartAndEnd(),
+ 
+     s = [{
+      start: t.start,
+      end: t.end,
+   
+      tooltipMsg: "No validation issue reported for "
+     }],
+     a = [],
+     h = [0];
+     console.log(t);
+    if (void 0 !== this.apiData[3]) {
+     var i = this.apiData[3][this.entryId];
+     void 0 !== i && void 0 !== i.molecules && 0 < i.molecules.length && (i.molecules.forEach(function(t) {
+      t.entity_id == e.entityId && t.chains.forEach(function(t) {
+       t.chain_id == e.chainId && t.models.forEach(function(t) {
+        t.residues.forEach(function(t) {
+         var e = o.defaultColours.qualityYellow,
+          i = "issue2";
+         if (1 !== t.outlier_types.length || "RSRZ" !== t.outlier_types[0]) {
+          1 === t.outlier_types.length ? e = o.defaultColours.qualityOrange : (e = 2 === t.outlier_types.length ? o.defaultColours.qualityOrange : o.defaultColours.qualityRed, i = "issues"), h.push(t.residue_number);
+          var n = "Validation " + i + ": " + t.outlier_types.join(", ") + "<br>"; - 1 < a.indexOf(t.residue_number) && (n = "Validation issues: " + t.outlier_types.join(", ") + ", RSRZ<br>"), s.push({
+           start: parseInt(t.residue_number),
+           end: parseInt(t.residue_number),
+           
+           tooltipMsg: n,
+           tooltipPosition: "prefix"
+          })
+         } else {
+          o.drawValidationShape(t.residue_number, "circle", e), a.push(t.residue_number);
+          var r = h.indexOf(t.residue_number); - 1 < r ? s[r].tooltipMsg = s[r].tooltipMsg.replace("<br>", ", RSRZ<br>") : (s.push({
+           start: parseInt(t.residue_number),
+           end: parseInt(t.residue_number),
+         
+           tooltipMsg: "Validation issue: RSRZ <br>",
+           tooltipPosition: "prefix"
+          }), h.push(t.residue_number))
+         }
+        })
+       })
+      })
+     }), 0 < s.length && this.domainTypes.push({
+      label: "RiboVision2",
+      data: s
+     }))
+    }
+   },
+   t.prototype.getAnnotationFromRiboVision1 = function() {
+    var e = this,
+     o = this,
+     t = this.getChainStartAndEnd(),
+ 
+     s = [{
+      start: t.start,
+      end: t.end,
+      
+      tooltipMsg: "No validation issue reported for "
+     }],
+     a = [],
+     h = [0];
+     console.log(t);
+     var RiboData=this.apiData[5];
+     console.log(RiboData);
+    if (void 0 !== this.apiData[5]) {
+     var i = this.apiData[3][this.entryId];
+     var RiboData=this.apiData[5];
+     console.log(this.apiData[5], this.apiData[5].length,  i.molecules);
+ 
+     void 0 !== i && void 0 !== i.molecules && 0 < i.molecules.length && (i.molecules.forEach(function(t) {
+      t.entity_id == e.entityId && t.chains.forEach(function(t) {
+       t.chain_id == e.chainId && t.models.forEach(function(t) {
+         t.residues.forEach(function(t) {
+         console.log(t.residue_number); 
+         if (270 > t.residue_number) {console.log(t.residue_number, RiboData[parseInt(t.residue_number+1)][1]); 
+         
+         
+         //o.defaultColours.qualityRiboVision= "rgb(364.2857142857143,364.2857142857143,75.71428571428572)"
+
+         o.defaultColours.qualityRiboVision= "rgb("+String(RiboData[parseInt(t.residue_number)][1]*100)+","+String(RiboData[parseInt(t.residue_number)][1]*100)+",175.71428571428572)"
+         var e = o.defaultColours.qualityRiboVision,
+
+    
+
+          i = "issue";
+          console.log(e, t.outlier_types.length)
+         }
+         if ((1 === t.outlier_types.length  ) && 270 > t.residue_number) {
+          e = "rgb("+String(RiboData[parseInt(t.residue_number)][1]*10)+","+String(RiboData[parseInt(t.residue_number)][1]*100)+",175.71428571428572)", o.drawValidationShape(t.residue_number, "circle", o.defaultColours.qualityRiboVision); 
+          l = i.indexOf(t.residue_number);
+          console.log(l);
+
+         
+          if (l ===-1) {s.push({
+            start: parseInt(t.residue_number),
+            end: parseInt(t.residue_number),
+            color: e,
+            tooltipMsg: "Validation issue: RSRZ1 <br>",
+            tooltipPosition: "prefix"
+          }),  h.push(t.residue_number);
+          o.drawValidationShape(t.residue_number, "circle", e);
+      
+          a.push(t.residue_number)
+          }
+          
+         } 
+        })
+       })
+      })
+     }), 0 < s.length && this.domainTypes.push({
+      label: "RiboVision1",
+      data: s
+     }))
+    }
+   }, 
+  t.prototype.resetTheme = function() {
    var o = this;
    this.svgEle.selectAll(".coloured").each(function(t) {
     var e = d3.select(this),
@@ -1638,7 +1823,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
    null != r._groups[0][0] && (r.data()[0].tooltipMsg = i, r.data()[0].tooltipPosition = n, r.attr("stroke", function(t) {
     return "coils" === t.type ? e : "#111"
    }).attr("stroke-width", function(t) {
-    return "coils" === t.type ? 1 : 0
+    return "coils" === t.type ? 0.4 : 0
    }).attr("fill", function(t) {
     return "coils" === t.type ? "none" : e
    }).attr("fill-opacity", function(t) {
@@ -1649,12 +1834,26 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
    t.forEach(function(t) {
     for (var e = t.start; e <= t.end; e++) i.changeResidueColor(e, t.color, t.tooltipMsg, t.tooltipPosition)
    })
-  }, t.prototype.displayDomain = function(t) {
+  }, 
+  t.prototype.updateTheme_RV2 = function(t) {
+    var i = this;
+    t.forEach(function(t) {
+     for (var e = t.start; e <= 1; e++) i.changeResidueColor(e, t.color, t.tooltipMsg, t.tooltipPosition)
+    })
+   }, 
+  
+  t.prototype.displayDomain = function(t) {
    var e = this.targetEle.querySelector(".menuSelectbox"),
     i = parseInt(e.value),
     n = this.domainTypes[i];
-   null !== n.data ? (this.resetTheme(), this.updateTheme(n.data), "Quality" === n.label && this.svgEle.selectAll(".validationResidue").style("display", "block")) : "zoom" !== t && this.resetTheme()
-  }, t.prototype.resetDisplay = function() {
+    console.log(n.data);
+    null !== n.data ? (this.resetTheme(), this.updateTheme(n.data), "Quality" === n.label && this.svgEle.selectAll(".validationResidue").style("display", "block")) : "zoom" !== t && this.resetTheme();
+    if ("RiboVision2" === n.label) {null !== n.data ? (this.resetTheme(), this.updateTheme_RV2(n.data), "RiboVision2" === n.label && this.svgEle.selectAll(".validationResidue").style("display", "block")) : "zoom" !== t && this.resetTheme()} 
+   
+
+  },  
+  
+  t.prototype.resetDisplay = function() {
    this.targetEle.querySelector(".menuSelectbox").value = 0, this.displayDomain()
   }, t.prototype.saveSVG = function() {
         function getNode(n, v) {
@@ -1674,7 +1873,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
 
 	    var svg = getNode("svg");
         document.body.appendChild(svg);
-        console.log(svg); 
+        
 		svg.appendChild(svgData1);
 		
 		
