@@ -279,6 +279,19 @@ def submit(request):
 				data_pairs.append((int(entry[0]), float(entry[1])))
 			except StopIteration:
 				break
-		print(context)
-	return render(request, 'alignments/colors.html', context)
+	return render(request, 'alignments/csvDisplay.html', context)
 
+def submitAlignment(request):
+	data_pairs = []
+	context = {
+		'data_pairs' : data_pairs
+	}
+	if request.method == 'POST' and 'filename' in request.FILES:
+		file = request.FILES['filename']
+		file_iterator = iter(file)
+		while True:
+			try:
+				data_pairs.append((file_iterator.__next__().decode().strip(), file_iterator.__next__().decode().strip()))
+			except StopIteration:
+				break
+	return render(request, 'alignments/alignmentsDisplay.html', context)
