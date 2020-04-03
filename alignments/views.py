@@ -190,7 +190,7 @@ def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure):
 	
 	from TwinCons.bin import PhyMeas
 	list_for_phymeas = ['-as',alignment.format("fasta"), '-r', '-bl']
-	alnindex_score,sliced_alns,number_of_aligned_positions=PhyMeas.main(list_for_phymeas)	
+	alnindex_score,sliced_alns,number_of_aligned_positions=PhyMeas.main(list_for_phymeas)
 	return JsonResponse(alnindex_score, safe = False)
 
 def entropy(request, align_name, tax_group, anchor_structure):
