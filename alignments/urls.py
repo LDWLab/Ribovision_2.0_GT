@@ -20,4 +20,5 @@ urlpatterns = [
 	path('twc-api/<str:align_name>/<int:tax_group1>/<int:tax_group2>/<str:anchor_structure>', views.api_twc, name='api_twc'),
 	path('orthologs/twc-api/<str:align_name>/<int:tax_group1>/<int:tax_group2>/<str:anchor_structure>', views.api_twc, name='api_twc'),
 	path('upload/submit', views.submit, name = 'submit'),
+	path('upload/submitAlignment', views.submitAlignment, name='submitAlignment'),
 ]
