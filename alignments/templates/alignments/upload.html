@@ -1,0 +1,14 @@
+
+<html>
+<body>
+   <form enctype = "multipart/form-data" action = "submit" method = "post">{% csrf_token %}
+      <p>CSV Selection: <input type = "file" accept=".csv" name = "filename" /></p>
+      <p><input type = "submit" value = "Upload CSV" /></p>
+   </form>
+
+   <form enctype = "multipart/form-data" action = "submitAlignment" method = "post">{% csrf_token %}
+      <p>Alignment Selection: <input type = "file" accept=".fa, .fas" name = "filename" /></p>
+      <p><input type = "submit" value = "Upload Alignment" /></p>
+   </form>
+</body>
+</html>
