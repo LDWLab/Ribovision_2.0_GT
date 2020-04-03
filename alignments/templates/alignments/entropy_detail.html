@@ -7,10 +7,16 @@
 	<meta charset="utf-8">
 
 	<!-- d3.js dependency script -->
-	<script src="https://cdn.jsdelivr.net/npm/d3@5.9.2" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@5.9.2" defer></script>
+ 
+  <script src=https://cdnjs.cloudflare.com/ajax/libs/mathjs/3.3.0/math.min.js></script>
+
 
 	<!-- Complied & minified library JS -->
-	<script type="text/javascript" src={% static 'alignments/pdb-topology-viewer-component-2.0.7.js' %} defer></script> 
+  <script type="text/javascript" src={% static 'alignments/pdb-topology-viewer-component-2.0.8.js' %} defer></script> 
+  <script type="text/javascript" src={% static 'alignments/palette.js-master/palette.js' %} defer></script> 
+  <script type="text/javascript" src={% static 'alignments/palette.js-master/demo.js' %} defer></script> 
+
 
 	<style>
 		#topview {
