@@ -185,13 +185,23 @@ def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure):
 	from io import StringIO
 	alignment = list(AlignIO.parse(StringIO(concat_fasta), 'fasta'))[0]
 	aln_anchor_map = species_index_to_aln_index(alignment, filter_strain)
-	alignment = truncate_aln(alignment, list(aln_anchor_map.keys()), aln_anchor_map=aln_anchor_map)
+	alignment = truncate_aln(alignment, list(aln_anchor_map[0].keys()), aln_anchor_map=aln_anchor_map[0])
 	#### _______________Calculate TwinCons_________________ ####
 	
 	from TwinCons.bin import PhyMeas
 	list_for_phymeas = ['-as',alignment.format("fasta"), '-r', '-bl']
 	alnindex_score,sliced_alns,number_of_aligned_positions=PhyMeas.main(list_for_phymeas)
-	return JsonResponse(alnindex_score, safe = False)
+	list_for_topology_viewer = []
+	for alnindex in alnindex_score:
+		list_for_topology_viewer.append([alnindex,alnindex_score[alnindex][0]])
+	return JsonResponse(list_for_topology_viewer, safe = False)
+
+def twincons(request, align_name, tax_group1, tax_group2, anchor_structure):
+	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
+	polymerid = PolymerData.objects.values("pdata_id").filter(polymeralignments__aln = align_id, strain = taxid)[0]["pdata_id"]
+	chainid = Chainlist.objects.values("chainname").filter(polymer = polymerid)[0]["chainname"]
+	context = {'pdbid': anchor_structure, 'chainid': chainid, 'entropy_address':align_name+"/"+str(tax_group)+"/"+str(anchor_structure)}
+	return render(request, 'alignments/entropy_detail.html', context)
 
 def entropy(request, align_name, tax_group, anchor_structure):
 	from alignments import Shannon
