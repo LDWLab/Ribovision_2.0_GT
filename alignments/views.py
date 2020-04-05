@@ -3,6 +3,8 @@ import re
 from django.shortcuts import render
 from django.http import HttpResponse, Http404, JsonResponse
 from django.urls import reverse_lazy
+from django.conf import settings
+from django.core.files.storage import FileSystemStorage
 from django.views.generic import ListView, CreateView, UpdateView
 
 from alignments.models import *
@@ -264,3 +266,42 @@ def rRNA(request, align_name, tax_group):
 	context = {'fastastring': fastastring, 'aln_name':str(Alignment.objects.filter(aln_id = align_id)[0].name)}
 	return render(request, 'alignments/rRNA.html', context)
 
+def upload(request):
+	context = {
+
+	}
+	return render(request, 'alignments/upload.html', context)
+
+def submit(request):
+	data_pairs = []
+
+	context = {
+		'data_pairs' : data_pairs
+	}
+	if request.method == 'POST' and 'filename' in request.FILES:
+		file = request.FILES['filename']
+		file_iterator = iter(file)
+		# Skip the title line
+		print(file_iterator.__next__().decode())
+		while True:
+			try:
+				entry = file_iterator.__next__().decode().strip().split(',')
+				data_pairs.append((int(entry[0]), float(entry[1])))
+			except StopIteration:
+				break
+	return render(request, 'alignments/csvDisplay.html', context)
+
+def submitAlignment(request):
+	data_pairs = []
+	context = {
+		'data_pairs' : data_pairs
+	}
+	if request.method == 'POST' and 'filename' in request.FILES:
+		file = request.FILES['filename']
+		file_iterator = iter(file)
+		while True:
+			try:
+				data_pairs.append((file_iterator.__next__().decode().strip(), file_iterator.__next__().decode().strip()))
+			except StopIteration:
+				break
+	return render(request, 'alignments/alignmentsDisplay.html', context)
