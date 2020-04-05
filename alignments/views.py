@@ -199,11 +199,12 @@ def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure):
 	return JsonResponse(list_for_topology_viewer, safe = False)
 
 def twincons(request, align_name, tax_group1, tax_group2, anchor_structure):
+	taxid = pdbid_to_strainid(anchor_structure)
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
 	polymerid = PolymerData.objects.values("pdata_id").filter(polymeralignments__aln = align_id, strain = taxid)[0]["pdata_id"]
 	chainid = Chainlist.objects.values("chainname").filter(polymer = polymerid)[0]["chainname"]
-	context = {'pdbid': anchor_structure, 'chainid': chainid, 'entropy_address':align_name+"/"+str(tax_group)+"/"+str(anchor_structure)}
-	return render(request, 'alignments/entropy_detail.html', context)
+	context = {'pdbid': anchor_structure, 'chainid': chainid, 'entropy_address':"twc-api/"+align_name+"/"+str(tax_group1)+"/"+str(tax_group2)+"/"+str(anchor_structure)}
+	return render(request, 'alignments/twc_detail.html', context)
 
 def entropy(request, align_name, tax_group, anchor_structure):
 	from alignments import Shannon
@@ -215,7 +216,7 @@ def entropy(request, align_name, tax_group, anchor_structure):
 	fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)
 	aln_shannon_list = Shannon.main(['-a',fastastring,'-f','fastastring','--return_within','-s',filter_strain])
 	#print(aln_shannon_list)
-	context = {'pdbid': anchor_structure, 'chainid': chainid, 'shannon_dictionary': aln_shannon_list, 'entropy_address':align_name+"/"+str(tax_group)+"/"+str(anchor_structure)}
+	context = {'pdbid': anchor_structure, 'chainid': chainid, 'shannon_dictionary': aln_shannon_list, 'entropy_address':"entropy-api/"+align_name+"/"+str(tax_group)+"/"+str(anchor_structure)}
 	return render(request, 'alignments/entropy_detail.html', context)
 
 def api_entropy(request, align_name, tax_group, anchor_structure):
