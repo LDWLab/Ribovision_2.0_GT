@@ -3327,7 +3327,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
             start: parseInt(t.residue_number),
             end: parseInt(t.residue_number),
             color: e,
-            tooltipMsg: "Validation issue: RSRZ1 <br>",
+            tooltipMsg: Number.parseFloat(RiboData[parseInt(t.residue_number)][1]).toPrecision(3),
             tooltipPosition: "prefix"
           }),  h.push(t.residue_number);
           o.drawValidationShape(t.residue_number, "circle", e);
