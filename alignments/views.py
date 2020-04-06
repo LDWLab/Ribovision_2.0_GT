@@ -187,13 +187,24 @@ def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure):
 	from io import StringIO
 	alignment = list(AlignIO.parse(StringIO(concat_fasta), 'fasta'))[0]
 	aln_anchor_map = species_index_to_aln_index(alignment, filter_strain)
-	alignment = truncate_aln(alignment, list(aln_anchor_map.keys()), aln_anchor_map=aln_anchor_map)
+	alignment = truncate_aln(alignment, list(aln_anchor_map[0].keys()), aln_anchor_map=aln_anchor_map[0])
 	#### _______________Calculate TwinCons_________________ ####
 	
 	from TwinCons.bin import PhyMeas
 	list_for_phymeas = ['-as',alignment.format("fasta"), '-r', '-bl']
 	alnindex_score,sliced_alns,number_of_aligned_positions=PhyMeas.main(list_for_phymeas)
-	return JsonResponse(alnindex_score, safe = False)
+	list_for_topology_viewer = []
+	for alnindex in alnindex_score:
+		list_for_topology_viewer.append([alnindex,alnindex_score[alnindex][0]])
+	return JsonResponse(list_for_topology_viewer, safe = False)
+
+def twincons(request, align_name, tax_group1, tax_group2, anchor_structure):
+	taxid = pdbid_to_strainid(anchor_structure)
+	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
+	polymerid = PolymerData.objects.values("pdata_id").filter(polymeralignments__aln = align_id, strain = taxid)[0]["pdata_id"]
+	chainid = Chainlist.objects.values("chainname").filter(polymer = polymerid)[0]["chainname"]
+	context = {'pdbid': anchor_structure, 'chainid': chainid, 'entropy_address':"twc-api/"+align_name+"/"+str(tax_group1)+"/"+str(tax_group2)+"/"+str(anchor_structure)}
+	return render(request, 'alignments/twc_detail.html', context)
 
 def entropy(request, align_name, tax_group, anchor_structure):
 	from alignments import Shannon
@@ -205,7 +216,7 @@ def entropy(request, align_name, tax_group, anchor_structure):
 	fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)
 	aln_shannon_list = Shannon.main(['-a',fastastring,'-f','fastastring','--return_within','-s',filter_strain])
 	#print(aln_shannon_list)
-	context = {'pdbid': anchor_structure, 'chainid': chainid, 'shannon_dictionary': aln_shannon_list, 'entropy_address':align_name+"/"+str(tax_group)+"/"+str(anchor_structure)}
+	context = {'pdbid': anchor_structure, 'chainid': chainid, 'shannon_dictionary': aln_shannon_list, 'entropy_address':"entropy-api/"+align_name+"/"+str(tax_group)+"/"+str(anchor_structure)}
 	return render(request, 'alignments/entropy_detail.html', context)
 
 def api_entropy(request, align_name, tax_group, anchor_structure):
@@ -292,6 +303,22 @@ def submitAlignment(request):
 		while True:
 			try:
 				data_pairs.append((file_iterator.__next__().decode().strip(), file_iterator.__next__().decode().strip()))
+			except StopIteration:
+				break
+	return render(request, 'alignments/alignmentsDisplay.html', context)
+
+def submitAlignmentText(request):
+	data_pairs = []
+	context = {
+		'data_pairs' : data_pairs
+	}
+	if request.method == 'POST' and 'alignmentText' in request.POST:
+		alignmentText = request.POST['alignmentText']
+		lines = alignmentText.split('\n')
+		lines_iterator = iter(lines)
+		while True:
+			try:
+				data_pairs.append((lines_iterator.__next__().strip(), lines_iterator.__next__().strip()))
 			except StopIteration:
 				break
 	return render(request, 'alignments/alignmentsDisplay.html', context)

@@ -56,7 +56,7 @@ function myFunction(alignment_name,aln_type) {
 	
 	// var res = aln_type.concat(alignment_name).concat("/").concat(parent_taxid2);
 	// localhost:8000/alignments/twc-api/uL16/2/2157/511145
-	var res = "twc-api/" + alignment_name + "/" + parent_taxid1 + "/" + parent_taxid2 + "/" + pdb;
+	var res = "twincons/" + alignment_name + "/" + parent_taxid1 + "/" + parent_taxid2 + "/" + pdb;
 	// alert(res);
 	console.log(res);
 	window.location.href = res;

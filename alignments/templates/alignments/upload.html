@@ -10,5 +10,15 @@
       <p>Alignment Selection: <input type = "file" accept=".fa, .fas" name = "filename" /></p>
       <p><input type = "submit" value = "Upload Alignment" /></p>
    </form>
+
+   <form enctype = "multipart/form-data" action = "submitAlignmentText" method = "post">{% csrf_token %}
+      <p>
+         Input Alignment Text: <br>
+         <textarea name = 'alignmentText' cols="50" rows="20"></textarea>
+      </p>
+      <p>
+         <input type = "submit" value = "Upload Alignment Text">
+      </p>
+   </form>
 </body>
 </html>
