@@ -295,3 +295,19 @@ def submitAlignment(request):
 			except StopIteration:
 				break
 	return render(request, 'alignments/alignmentsDisplay.html', context)
+
+def submitAlignmentText(request):
+	data_pairs = []
+	context = {
+		'data_pairs' : data_pairs
+	}
+	if request.method == 'POST' and 'alignmentText' in request.POST:
+		alignmentText = request.POST['alignmentText']
+		lines = alignmentText.split('\n')
+		lines_iterator = iter(lines)
+		while True:
+			try:
+				data_pairs.append((lines_iterator.__next__().strip(), lines_iterator.__next__().strip()))
+			except StopIteration:
+				break
+	return render(request, 'alignments/alignmentsDisplay.html', context)
