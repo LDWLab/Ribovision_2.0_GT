@@ -3,7 +3,7 @@
 {% load static %}
 <head>
 
-	<title>Entropy mapped on topology</title>
+	<title>TwinCons mapped on topology</title>
 	<meta charset="utf-8">
 
 	<!-- d3.js dependency script -->
@@ -27,11 +27,6 @@
 </head>
 <body>
 	<div id='topview'></div>
-	<div>
-		{%for pos in shannon_dictionary%}
-			<li>{{pos}}</li>
-		{%endfor%}
-	</div>
 	
 	<script type ="text/javascript">
 		var pdblower = "{{pdbid}}".toLocaleLowerCase();
