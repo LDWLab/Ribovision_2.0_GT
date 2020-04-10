@@ -106,7 +106,7 @@ def fix_multispecie(query_term, orig_fasta_seq, write_list):
 	return True
 
 def write_csv(list_to_write):
-	with open('taxid_acc_db_prot_sequence.csv', mode='a') as output_file:
+	with open('./CSV/acc_seqs_all_test.csv', mode='a') as output_file:
 		writer = csv.writer(output_file, delimiter=',')
 		writer.writerow(list_to_write)
 

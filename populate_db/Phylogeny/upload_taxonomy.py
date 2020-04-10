@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import getopt
-import sys
+import sys, re
 import os
 import csv
 from Bio import Entrez
@@ -9,18 +9,18 @@ import getpass
 import mysql.connector
 import time
 
-def usage():
-	print (\
-	"USAGE:\n./taxonomy.py -i [input_file_path] -o [output_file_path] -h\n\
-	-i: defines path to input file. Works only on xlsx type of files.\tREQUIRED\n\
-	-o: defines output file\tREQUIRED\n\
-	-h: prints this\
-")
+#def usage():
+#	print (\
+#	"USAGE:\n./taxonomy.py -i [input_file_path] -o [output_file_path] -h\n\
+#	-i: defines path to input file. Works only on xlsx type of files.\tREQUIRED\n\
+#	-o: defines output file\tREQUIRED\n\
+#	-h: prints this\
+#")
 
-filename = './input_taxids.txt'
+filename = './data/input_taxids.txt'
 Entrez.email = "ppenev@gatech.edu"  # Always tell NCBI who you are
 
-with open('./input_taxids.txt') as f:
+with open(filename) as f:
 	input_taxes = f.read().splitlines()
 
 '''-----------------------------------------------------------------------'''
@@ -28,7 +28,7 @@ with open('./input_taxids.txt') as f:
 '''-----------------------------------------------------------------------'''
 uname = input('User name: ')
 pw = getpass.getpass('Password: ')
-cnx = mysql.connector.connect(user=uname,password=pw,host='130.207.36.75', database='SEREB')
+cnx = mysql.connector.connect(user=uname,password=pw,host='130.207.36.76', database='SEREB2')
 cursor = cnx.cursor()
 '''-----------------------------------------------------------------------'''
 '''-----------------------------------------------------------------------'''
@@ -72,11 +72,11 @@ verynew_taxon = list(verynew_taxon)
 
 
 '''---Species Table---'''################################################################################
-#for strain_Id in onlyStrainIDs:
-#	strain = TAXON[strain_Id][strain_Id][1]
-#	query = ("INSERT INTO `SEREB`.`Species`(`strain_id`,`strain`) VALUES('"+strain_Id+"','"+strain+"')")
-#	#print(query)
-#	cursor.execute(query)
+for strain_Id in onlyStrainIDs:
+	strain = TAXON[strain_Id][strain_Id][1]
+	query = ("INSERT INTO `SEREB2`.`Species`(`strain_id`,`strain`) VALUES('"+strain_Id+"','"+strain+"')")
+	#print(query)
+	cursor.execute(query)
 
 '''---TaxGroups Table---'''##############################################################################
 empty = []
@@ -101,20 +101,23 @@ for strain_Id in onlyStrainIDs:
 			lineage_increment += 1
 		if ids not in empty:
 			empty.append(ids)
-			if parent is not None or '':
-				query = ("INSERT INTO `SEREB`.`TaxGroups`(`taxgroup_id`,`groupLevel`,`groupName`,`parent`) VALUES('"+ids+"','"+group_lvl+"','"+group_name+"','"+parent+"')")
+			if parent:
+				if re.search (r'^no_*', parent):
+					parent = 0
+				query = ("INSERT INTO `SEREB2`.`TaxGroups`(`taxgroup_id`,`groupLevel`,`groupName`,`parent`) VALUES('"+ids+"','"+group_lvl+"','"+group_name+"','"+str(parent)+"')")
 			else:
-				query = ("INSERT INTO `SEREB`.`TaxGroups`(`taxgroup_id`,`groupLevel`,`groupName`) VALUES('"+ids+"','"+group_lvl+"','"+group_name+"')")
+				query = ("INSERT INTO `SEREB2`.`TaxGroups`(`taxgroup_id`,`groupLevel`,`groupName`,`parent`) VALUES('"+ids+"','"+group_lvl+"','"+group_name+"','0')")
 			print(query, type(parent))
 			cursor.execute(query)
 
-#for strainID in onlyStrainIDs:
-#	for ids in TAXON[strainID].keys():
-#		if ids != strainID:
-#			taxgroupID = ids
-#			query = ("INSERT INTO `SEREB`.`Species_TaxGroup`(`strain_id`,`taxgroup_id`) VALUES('"+strainID+"','"+taxgroupID+"')")
-#			#print(query)
-#			cursor.execute(query)
+for strainID in onlyStrainIDs:
+	for ids in TAXON[strainID].keys():
+		if ids != strainID:
+			taxgroupID = ids
+			query = ("INSERT INTO `SEREB2`.`Species_TaxGroup`(`strain_id`,`taxgroup_id`) VALUES('"+strainID+"','"+taxgroupID+"')")
+			#print(query)
+			cursor.execute(query)
+
 cursor.execute("SET FOREIGN_KEY_CHECKS=1")
 cnx.commit()
 cursor.close()
