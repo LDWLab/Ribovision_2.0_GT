@@ -1,0 +1,13 @@
+id,Active,SpeciesName,DataSetType,StructureName,LoadString,Species_Abr
+1,1,Escherichia coli,ribosome,4V9D,ECOLI_LSU&ECOLI_SSU,ECOLI
+2,0,Escherichia coli,ribosome (historic),4V9D,ECOLI_LSU_HIST&ECOLI_SSU_HIST,ECOLI
+3,1,Drosophila melanogaster,ribosome,4V6W,DROME_LSU&DROME_SSU,DROME
+4,1,Haloarcula marismortui,ribosome,4V9F,HALMA_LSU,HALMA
+5,1,Homo sapiens,ribosome,4UG0,HUMAN_LSU&HUMAN_SSU,HUMAN
+6,1,Homo sapiens,mitochondrial ribosome,3J7Y,HUMAN_MTLSU,HUMAN
+7,1,Pyrococcus furiosus,ribosome,4V6U,PYRFU_LSU&PYRFU_SSU,PYRFU
+8,1,Saccharomyces cerevisiae,ribosome,4V88,YEAST_LSU&YEAST_SSU,YEAST
+9,1,Saccharomyces cerevisiae,mitochondrial ribosome (historic),3J6B,YEAST_MTLSU_HIST,YEAST
+10,1,Thermus thermophilus,ribosome,1VY4,THET8_LSU&THET8_SSU,THET8
+11,0,aPTCγ,custom ribosome,aPTCg_min.pdb,THET8_HSIAO,HSIAO
+12,0,TT-Central Core,custom ribosome,TT_DomainA.pdb,THET8_GULEN,GULEN

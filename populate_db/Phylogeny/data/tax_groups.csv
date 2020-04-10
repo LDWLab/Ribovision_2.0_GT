@@ -1,0 +1,505 @@
+taxgroup_id	groupLevel	groupName	taxid
+2157	superkingdom	Archaea	2157
+2	superkingdom	Bacteria	2
+2759	superkingdom	Eukaryota	2759
+28889	phylum	Crenarchaeota	28889
+28890	phylum	Euryarchaeota	28890
+192989	phylum	Nanoarchaeota	192989
+1224	phylum	Proteobacteria	1224
+1117	phylum	Cyanobacteria	1117
+1239	phylum	Firmicutes	1239
+976	phylum	Bacteroidetes	976
+201174	phylum	Actinobacteria	201174
+204428	phylum	Chlamydiae	204428
+1090	phylum	Chlorobi	1090
+200795	phylum	Chloroflexi	200795
+1297	phylum	Deinococcus-Thermus	1297
+32066	phylum	Fusobacteria	32066
+544448	phylum	Tenericutes	544448
+203682	phylum	Planctomycetes	203682
+200918	phylum	Thermotogae	200918
+203691	phylum	Spirochaetes	203691
+10190	phylum	Rotifera	10190
+6656	phylum	Arthropoda	6656
+35493	phylum	Streptophyta	35493
+6231	phylum	Nematoda	6231
+5794	phylum	Apicomplexa	5794
+7711	phylum	Chordata	7711
+4890	phylum	Ascomycota	4890
+2836	phylum	Bacillariophyta	2836
+1462422	phylum	Candidatus Parvarchaeota	1462422
+1801631	phylum	Candidatus Micrarchaeota	1801631
+743725	phylum	Candidatus Diapherotrites	743725
+1801616	phylum	Candidatus Woesearchaeota	1801616
+651137	phylum	Thaumarchaeota	651137
+183924	class	Thermoprotei	183924
+183988	class	Methanopyri	183988
+183980	class	Archaeoglobi	183980
+183963	class	Halobacteria	183963
+183925	class	Methanobacteria	183925
+183939	class	Methanococci	183939
+224756	class	Methanomicrobia	224756
+183968	class	Thermococci	183968
+183967	class	Thermoplasmata	183967
+1236	class	Gammaproteobacteria	1236
+28211	class	Alphaproteobacteria	28211
+28216	class	Betaproteobacteria	28216
+91061	class	Bacilli	91061
+200643	class	Bacteroidia	200643
+1760	class	Actinobacteria	1760
+204429	class	Chlamydiia	204429
+191410	class	Chlorobia	191410
+768503	class	Cytophagia	768503
+301297	class	Dehalococcoidia	301297
+188787	class	Deinococci	188787
+203490	class	Fusobacteriia	203490
+28221	class	Deltaproteobacteria	28221
+307596	class	Gloeobacteria	307596
+29547	class	Epsilonproteobacteria	29547
+31969	class	Mollicutes	31969
+203683	class	Planctomycetia	203683
+186801	class	Clostridia	186801
+188708	class	Thermotogae	188708
+203692	class	Spirochaetia	203692
+44578	class	Bdelloidea	44578
+50557	class	Insecta	50557
+119089	class	Chromadorea	119089
+1280412	class	Conoidasida	1280412
+2797	class	Bangiophyceae	2797
+186623	class	Actinopteri	186623
+4891	class	Saccharomycetes	4891
+8782	class	Aves	8782
+40674	class	Mammalia	40674
+4447	class	Liliopsida	4447
+422676	class	Aconoidasida	422676
+147554	class	Schizosaccharomycetes	147554
+6020	class	Oligohymenophorea	6020
+33836	class	Coscinodiscophyceae	33836
+8292	class	Amphibia	8292
+114380	order	Desulfurococcales	114380
+2266	order	Thermoproteales	2266
+2281	order	Sulfolobales	2281
+68985	order	Methanopyrales	68985
+2231	order	Archaeoglobales	2231
+2235	order	Halobacteriales	2235
+1644055	order	Haloferacales	1644055
+2158	order	Methanobacteriales	2158
+2182	order	Methanococcales	2182
+2191	order	Methanomicrobiales	2191
+94695	order	Methanosarcinales	94695
+1890940	order	Nanoarchaeales	1890940
+2258	order	Thermococcales	2258
+2301	order	Thermoplasmatales	2301
+72274	order	Pseudomonadales	72274
+356	order	Rhizobiales	356
+1161	order	Nostocales	1161
+206389	order	Rhodocyclales	206389
+1385	order	Bacillales	1385
+171549	order	Bacteroidales	171549
+85004	order	Bifidobacteriales	85004
+91347	order	Enterobacterales	91347
+80840	order	Burkholderiales	80840
+204458	order	Caulobacterales	204458
+51291	order	Chlamydiales	51291
+191411	order	Chlorobiales	191411
+118969	order	Legionellales	118969
+1118	order	Chroococcales	1118
+768507	order	Cytophagales	768507
+1202465	order	Dehalococcoidales	1202465
+118964	order	Deinococcales	118964
+203491	order	Fusobacteriales	203491
+69541	order	Desulfuromonadales	69541
+307595	order	Gloeobacterales	307595
+204441	order	Rhodospirillales	204441
+135625	order	Pasteurellales	135625
+213849	order	Campylobacterales	213849
+85006	order	Micrococcales	85006
+1191478	order	Magnetococcales	1191478
+186328	order	Entomoplasmatales	186328
+85007	order	Corynebacteriales	85007
+206351	order	Neisseriales	206351
+32003	order	Nitrosomonadales	32003
+204457	order	Sphingomonadales	204457
+85009	order	Propionibacteriales	85009
+204455	order	Rhodobacterales	204455
+112	order	Planctomycetales	112
+135622	order	Alteromonadales	135622
+186826	order	Lactobacillales	186826
+186802	order	Clostridiales	186802
+1890424	order	Synechococcales	1890424
+68295	order	Thermoanaerobacterales	68295
+2419	order	Thermotogales	2419
+68933	order	Thermales	68933
+136	order	Spirochaetales	136
+135623	order	Vibrionales	135623
+766	order	Rickettsiales	766
+135614	order	Xanthomonadales	135614
+104779	order	Adinetida	104779
+7147	order	Diptera	7147
+3699	order	Brassicales	3699
+6236	order	Rhabditida	6236
+75739	order	Eucoccidiorida	75739
+265318	order	Cyanidiales	265318
+7952	order	Cypriniformes	7952
+2058949	order	Dictyosteliales	2058949
+4892	order	Saccharomycetales	4892
+8976	order	Galliformes	8976
+589342	order	Pyrenomonadales	589342
+9443	order	Primates	9443
+7894	order	Coelacanthiformes	7894
+5653	order	Kinetoplastida	5653
+38605	order	Didelphimorphia	38605
+9989	order	Rodentia	9989
+38820	order	Poales	38820
+5819	order	Haemosporida	5819
+34346	order	Schizosaccharomycetales	34346
+31277	order	Hymenostomatida	31277
+33847	order	Thalassiosirales	33847
+8342	order	Anura	8342
+31932	order	Nitrosopumilales	31932
+2272	family	Desulfurococcaceae	2272
+2307	family	Pyrodictiaceae	2307
+2267	family	Thermoproteaceae	2267
+118883	family	Sulfolobaceae	118883
+114378	family	Thermofilaceae	114378
+183713	family	Methanopyraceae	183713
+2232	family	Archaeoglobaceae	2232
+1963268	family	Haloarculaceae	1963268
+2236	family	Halobacteriaceae	2236
+1644056	family	Haloferacaceae	1644056
+1963271	family	Halorubraceae	1963271
+2159	family	Methanobacteriaceae	2159
+196117	family	Methanocaldococcaceae	196117
+2183	family	Methanococcaceae	2183
+88404	family	Methanocorpusculaceae	88404
+2194	family	Methanomicrobiaceae	2194
+1198451	family	Methanoregulaceae	1198451
+196137	family	Methanospirillaceae	196137
+2206	family	Methanosarcinaceae	2206
+143067	family	Methanosaetaceae	143067
+1890941	family	Nanoarchaeaceae	1890941
+2259	family	Thermococcaceae	2259
+46630	family	Picrophilaceae	46630
+46659	family	Thermoplasmataceae	46659
+468	family	Moraxellaceae	468
+82115	family	Rhizobiaceae	82115
+1162	family	Nostocaceae	1162
+2008794	family	Zoogloeaceae	2008794
+186817	family	Bacillaceae	186817
+815	family	Bacteroidaceae	815
+772	family	Bartonellaceae	772
+31953	family	Bifidobacteriaceae	31953
+543	family	Enterobacteriaceae	543
+41294	family	Bradyrhizobiaceae	41294
+119060	family	Burkholderiaceae	119060
+76892	family	Caulobacteraceae	76892
+809	family	Chlamydiaceae	809
+191412	family	Chlorobiaceae	191412
+118968	family	Coxiellaceae	118968
+1890450	family	Aphanothecaceae	1890450
+89373	family	Cytophagaceae	89373
+2008795	family	Azonexaceae	2008795
+1202464	family	Dehalococcoidaceae	1202464
+183710	family	Deinococcaceae	183710
+203492	family	Fusobacteriaceae	203492
+213422	family	Geobacteraceae	213422
+1890422	family	Gloeobacteraceae	1890422
+433	family	Acetobacteraceae	433
+712	family	Pasteurellaceae	712
+72293	family	Helicobacteraceae	72293
+444	family	Legionellaceae	444
+85023	family	Microbacteriaceae	85023
+186820	family	Listeriaceae	186820
+1191479	family	Magnetococcaceae	1191479
+41295	family	Rhodospirillaceae	41295
+33925	family	Entomoplasmataceae	33925
+1762	family	Mycobacteriaceae	1762
+481	family	Neisseriaceae	481
+206379	family	Nitrosomonadaceae	206379
+41297	family	Sphingomonadaceae	41297
+1903414	family	Morganellaceae	1903414
+80864	family	Comamonadaceae	80864
+171551	family	Porphyromonadaceae	171551
+31957	family	Propionibacteriaceae	31957
+135621	family	Pseudomonadaceae	135621
+31989	family	Rhodobacteraceae	31989
+126	family	Planctomycetaceae	126
+267890	family	Shewanellaceae	267890
+90964	family	Staphylococcaceae	90964
+1300	family	Streptococcaceae	1300
+543349	family	Symbiobacteriaceae	543349
+1890426	family	Synechococcaceae	1890426
+1890428	family	Merismopediaceae	1890428
+186814	family	Thermoanaerobacteraceae	186814
+188709	family	Thermotogaceae	188709
+188786	family	Thermaceae	188786
+137	family	Spirochaetaceae	137
+641	family	Vibrionaceae	641
+942	family	Anaplasmataceae	942
+32033	family	Xanthomonadaceae	32033
+1903411	family	Yersiniaceae	1903411
+104780	family	Adinetidae	104780
+7157	family	Culicidae	7157
+3700	family	Brassicaceae	3700
+6243	family	Rhabditidae	6243
+35082	family	Cryptosporidiidae	35082
+265316	family	Cyanidiaceae	265316
+7953	family	Cyprinidae	7953
+2058185	family	Dictyosteliaceae	2058185
+7214	family	Drosophilidae	7214
+4893	family	Saccharomycetaceae	4893
+9005	family	Phasianidae	9005
+589343	family	Geminigeraceae	589343
+9604	family	Hominidae	9604
+7895	family	Coelacanthidae	7895
+5654	family	Trypanosomatidae	5654
+9265	family	Didelphidae	9265
+10066	family	Muridae	10066
+4479	family	Poaceae	4479
+1639119	family	Plasmodiidae	1639119
+4894	family	Schizosaccharomycetaceae	4894
+291294	family	Tetrahymenidae	291294
+29202	family	Thalassiosiraceae	29202
+8352	family	Pipidae	8352
+34353	family	Dipodascaceae	34353
+1890942	family	Nanopusillaceae	1890942
+338190	family	Nitrosopumilaceae	338190
+56635	genus	Aeropyrum	56635
+54247	genus	Hyperthermus	54247
+76886	genus	Caldivirga	76886
+54258	genus	Ignicoccus	54258
+2279	genus	Staphylothermus	2279
+41980	genus	Metallosphaera	41980
+2284	genus	Sulfolobus	2284
+69655	genus	Sulfurisphaera	69655
+2276	genus	Pyrobaculum	2276
+2268	genus	Thermofilum	2268
+2319	genus	Methanopyrus	2319
+2233	genus	Archaeoglobus	2233
+2237	genus	Haloarcula	2237
+2239	genus	Halobacterium	2239
+2251	genus	Haloferax	2251
+293431	genus	Haloquadratum	293431
+56688	genus	Halorubrum	56688
+63743	genus	Natronomonas	63743
+2316	genus	Methanosphaera	2316
+145260	genus	Methanothermobacter	145260
+196118	genus	Methanocaldococcus	196118
+2184	genus	Methanococcus	2184
+2192	genus	Methanocorpusculum	2192
+45989	genus	Methanoculleus	45989
+395331	genus	Methanoregula	395331
+2202	genus	Methanospirillum	2202
+2225	genus	Methanococcoides	2225
+2222	genus	Methanothrix	2222
+2207	genus	Methanosarcina	2207
+193568	genus	Nanoarchaeum	193568
+2260	genus	Pyrococcus	2260
+2263	genus	Thermococcus	2263
+46631	genus	Picrophilus	46631
+2302	genus	Thermoplasma	2302
+469	genus	Acinetobacter	469
+357	genus	Agrobacterium	357
+264688	genus	Trichormus	264688
+12960	genus	Azoarcus	12960
+1386	genus	Bacillus	1386
+816	genus	Bacteroides	816
+773	genus	Bartonella	773
+1678	genus	Bifidobacterium	1678
+203804	genus	Candidatus Blochmannia	203804
+374	genus	Bradyrhizobium	374
+32008	genus	Burkholderia	32008
+75	genus	Caulobacter	75
+810	genus	Chlamydia	810
+256319	genus	Chlorobaculum	256319
+776	genus	Coxiella	776
+263510	genus	Crocosphaera	263510
+978	genus	Cytophaga	978
+73029	genus	Dechloromonas	73029
+61434	genus	Dehalococcoides	61434
+1298	genus	Deinococcus	1298
+561	genus	Escherichia	561
+848	genus	Fusobacterium	848
+129337	genus	Geobacillus	129337
+28231	genus	Geobacter	28231
+33071	genus	Gloeobacter	33071
+441	genus	Gluconobacter	441
+724	genus	Haemophilus	724
+209	genus	Helicobacter	209
+445	genus	Legionella	445
+110932	genus	Leifsonia	110932
+1637	genus	Listeria	1637
+162171	genus	Magnetococcus	162171
+13134	genus	Magnetospirillum	13134
+46239	genus	Mesoplasma	46239
+1763	genus	Mycobacterium	1763
+482	genus	Neisseria	482
+914	genus	Nitrosomonas	914
+165696	genus	Novosphingobium	165696
+182709	genus	Oceanobacillus	182709
+29487	genus	Photorhabdus	29487
+52972	genus	Polaromonas	52972
+836	genus	Porphyromonas	836
+1912216	genus	Cutibacterium	1912216
+286	genus	Pseudomonas	286
+106589	genus	Cupriavidus	106589
+1060	genus	Rhodobacter	1060
+265488	genus	Rhodopirellula	265488
+22	genus	Shewanella	22
+28105	genus	Sinorhizobium	28105
+1279	genus	Staphylococcus	1279
+1301	genus	Streptococcus	1301
+2733	genus	Symbiobacterium	2733
+1129	genus	Synechococcus	1129
+1142	genus	Synechocystis	1142
+249529	genus	Caldanaerobacter	249529
+146785	genus	Thermosynechococcus	146785
+2335	genus	Thermotoga	2335
+270	genus	Thermus	270
+157	genus	Treponema	157
+2038	genus	Tropheryma	2038
+662	genus	Vibrio	662
+953	genus	Wolbachia	953
+338	genus	Xanthomonas	338
+629	genus	Yersinia	629
+541	genus	Zymomonas	541
+104781	genus	Adineta	104781
+7158	genus	Aedes	7158
+7164	genus	Anopheles	7164
+3701	genus	Arabidopsis	3701
+6237	genus	Caenorhabditis	6237
+5806	genus	Cryptosporidium	5806
+45156	genus	Cyanidioschyzon	45156
+7954	genus	Danio	7954
+5782	genus	Dictyostelium	5782
+7215	genus	Drosophila	7215
+33170	genus	Eremothecium	33170
+9030	genus	Gallus	9030
+55528	genus	Guillardia	55528
+9605	genus	Homo	9605
+7896	genus	Latimeria	7896
+5658	genus	Leishmania	5658
+13615	genus	Monodelphis	13615
+10088	genus	Mus	10088
+4527	genus	Oryza	4527
+9596	genus	Pan	9596
+5820	genus	Plasmodium	5820
+10114	genus	Rattus	10114
+4930	genus	Saccharomyces	4930
+4895	genus	Schizosaccharomyces	4895
+5890	genus	Tetrahymena	5890
+35127	genus	Thalassiosira	35127
+5690	genus	Trypanosoma	5690
+8353	genus	Xenopus	8353
+4951	genus	Yarrowia	4951
+662758	genus	Candidatus Parvarchaeum	662758
+662756	genus	Candidatus Micrarchaeum	662756
+1890407	genus	Candidatus Nanopusillus	1890407
+338191	genus	Nitrosopumilus	338191
+56636	species	Aeropyrum pernix	56636
+54248	species	Hyperthermus butylicus	54248
+76887	species	Caldivirga maquilingensis	76887
+160233	species	Ignicoccus hospitalis	160233
+2280	species	Staphylothermus marinus	2280
+43687	species	Metallosphaera sedula	43687
+2285	species	Sulfolobus acidocaldarius	2285
+111955	species	Sulfurisphaera tokodaii	111955
+181486	species	Pyrobaculum calidifontis	181486
+2269	species	Thermofilum pendens	2269
+2320	species	Methanopyrus kandleri	2320
+2234	species	Archaeoglobus fulgidus	2234
+2238	species	Haloarcula marismortui	2238
+2242	species	Halobacterium salinarum	2242
+2246	species	Haloferax volcanii	2246
+293091	species	Haloquadratum walsbyi	293091
+2247	species	Halorubrum lacusprofundi	2247
+2257	species	Natronomonas pharaonis	2257
+2317	species	Methanosphaera stadtmanae	2317
+145262	species	Methanothermobacter thermautotrophicus	145262
+2190	species	Methanocaldococcus jannaschii	2190
+42879	species	Methanococcus aeolicus	42879
+83984	species	Methanocorpusculum labreanum	83984
+2198	species	Methanoculleus marisnigri	2198
+358766	species	Methanoregula boonei	358766
+2203	species	Methanospirillum hungatei	2203
+29291	species	Methanococcoides burtonii	29291
+2224	species	Methanothrix thermoacetophila	2224
+2214	species	Methanosarcina acetivorans	2214
+2208	species	Methanosarcina barkeri	2208
+2209	species	Methanosarcina mazei	2209
+160232	species	Nanoarchaeum equitans	160232
+2261	species	Pyrococcus furiosus	2261
+311400	species	Thermococcus kodakarensis	311400
+82076	species	Picrophilus torridus	82076
+50339	species	Thermoplasma volcanium	50339
+106654	species	Acinetobacter nosocomialis	106654
+1176649	species	Agrobacterium fabrum	1176649
+264691	species	Trichormus variabilis	264691
+1392	species	Bacillus anthracis	1392
+818	species	Bacteroides thetaiotaomicron	818
+38323	species	Bartonella henselae	38323
+216816	species	Bifidobacterium longum	216816
+1355477	species	Bradyrhizobium diazoefficiens	1355477
+155892	species	Caulobacter vibrioides	155892
+83557	species	Chlamydia caviae	83557
+1097	species	Chlorobaculum tepidum	1097
+777	species	Coxiella burnetii	777
+263511	species	Crocosphaera watsonii	263511
+985	species	Cytophaga hutchinsonii	985
+259537	species	Dechloromonas aromatica	259537
+61435	species	Dehalococcoides mccartyi	61435
+1299	species	Deinococcus radiodurans	1299
+851	species	Fusobacterium nucleatum	851
+1462	species	Geobacillus kaustophilus	1462
+35554	species	Geobacter sulfurreducens	35554
+33072	species	Gloeobacter violaceus	33072
+442	species	Gluconobacter oxydans	442
+727	species	Haemophilus influenzae	727
+32025	species	Helicobacter hepaticus	32025
+446	species	Legionella pneumophila	446
+1575	species	Leifsonia xyli	1575
+1639	species	Listeria monocytogenes	1639
+1124597	species	Magnetococcus marinus	1124597
+188	species	Magnetospirillum magnetotacticum	188
+2151	species	Mesoplasma florum	2151
+1769	species	Mycobacterium leprae	1769
+485	species	Neisseria gonorrhoeae	485
+915	species	Nitrosomonas europaea	915
+48935	species	Novosphingobium aromaticivorans	48935
+182710	species	Oceanobacillus iheyensis	182710
+2218628	species	Photorhabdus laumondii	2218628
+837	species	Porphyromonas gingivalis	837
+1747	species	Cutibacterium acnes	1747
+287	species	Pseudomonas aeruginosa	287
+248026	species	Cupriavidus pinatubonensis	248026
+1063	species	Rhodobacter sphaeroides	1063
+265606	species	Rhodopirellula baltica	265606
+70863	species	Shewanella oneidensis	70863
+382	species	Sinorhizobium meliloti	382
+1280	species	Staphylococcus aureus	1280
+1313	species	Streptococcus pneumoniae	1313
+2734	species	Symbiobacterium thermophilum	2734
+911092	species	Caldanaerobacter subterraneus	911092
+146786	species	Thermosynechococcus elongatus	146786
+2336	species	Thermotoga maritima	2336
+274	species	Thermus thermophilus	274
+160	species	Treponema pallidum	160
+2039	species	Tropheryma whipplei	2039
+666	species	Vibrio cholerae	666
+80849	species	Wolbachia endosymbiont of Brugia malayi	80849
+346	species	Xanthomonas citri	346
+632	species	Yersinia pestis	632
+542	species	Zymomonas mobilis	542
+7165	species	Anopheles gambiae	7165
+237895	species	Cryptosporidium hominis	237895
+44689	species	Dictyostelium discoideum	44689
+5660	species	Leishmania braziliensis	5660
+4530	species	Oryza sativa	4530
+5833	species	Plasmodium falciparum	5833
+4932	species	Saccharomyces cerevisiae	4932
+4896	species	Schizosaccharomyces pombe	4896
+35128	species	Thalassiosira pseudonana	35128
+5691	species	Trypanosoma brucei	5691
+4952	species	Yarrowia lipolytica	4952
+662759	species	Candidatus Parvarchaeum acidiphilum	662759
+662757	species	Candidatus Micrarchaeum acidiphilum	662757
