@@ -9,7 +9,7 @@
 </script>
 
 <div class="container">
-	<h4>Vue.js Expandable Tree Menu<br/><small>(Recursive Components)</small></h4>
+	<h4>Select phylogenetic groups for TwinCons<br/></h4>
 	<div id="app">
 		Select two taxgroups:
 	<tree-menu 
@@ -75,6 +75,10 @@ function myFunction2(pdb_name) {
 		<option value={{ pdb.structurename }}>{{ pdb.structurename }}</option>
 	{% endfor %}
 </select>
+
+<p>OR</p>
+<button>Use Uploaded FASTA file</button>{{filename}}
+
 
 <p>AND</p> 
 
