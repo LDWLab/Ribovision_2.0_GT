@@ -169,6 +169,35 @@ def pdbid_to_strainid(pdbid):
 	anchor_taxid = Secondarystructures.objects.values("strain_fk").filter(secstr_id = secondary_id)[0]["strain_fk"]
 	return anchor_taxid
 
+def api_twc_with_upload(request, align_name, tax_group1, tax_group2, anchor_structure):
+
+	#### _____________Transform PDBID to taxid______________ ####
+	anchor_taxid = pdbid_to_strainid(anchor_structure)
+
+	#### This should be separate view with its own URL for serving multi-group alignments ####
+	filter_strain = str(Species.objects.filter(strain_id = anchor_taxid)[0].strain).replace(" ", "_")
+
+	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
+	fastastring,max_aln_length1 = sql_filtered_aln_query_two_parents(align_id,tax_group1,tax_group2)
+	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
+	
+	#### _____________Trim down the alignment______________ ####
+	from alignments.Shannon import species_index_to_aln_index, truncate_aln
+	from Bio import AlignIO
+	from io import StringIO
+	alignment = list(AlignIO.parse(StringIO(concat_fasta), 'fasta'))[0]
+	aln_anchor_map = species_index_to_aln_index(alignment, filter_strain)
+	alignment = truncate_aln(alignment, list(aln_anchor_map[0].keys()), aln_anchor_map=aln_anchor_map[0])
+	#### _______________Calculate TwinCons_________________ ####
+	
+	from TwinCons.bin import PhyMeas
+	list_for_phymeas = ['-as',alignment.format("fasta"), '-r', '-bl']
+	alnindex_score,sliced_alns,number_of_aligned_positions=PhyMeas.main(list_for_phymeas)
+	list_for_topology_viewer = []
+	for alnindex in alnindex_score:
+		list_for_topology_viewer.append([alnindex,alnindex_score[alnindex][0]])
+	return JsonResponse(list_for_topology_viewer, safe = False)
+
 def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure):
 
 	#### _____________Transform PDBID to taxid______________ ####
@@ -294,26 +323,43 @@ def submit(request):
 
 def submitAlignment(request):
 	data_pairs = []
+	three_d_structures = Threedstructures.objects.all()
+	some_Alignments = Alignment.objects.all()
+	superKingdoms = Taxgroups.objects.raw('SELECT * FROM SEREB.TaxGroups WHERE\
+		 SEREB.TaxGroups.groupLevel = "superkingdom";')
 	context = {
+		'some_Alignments': some_Alignments,
+		'superKingdoms': superKingdoms,
+		'threeDstructures': three_d_structures,
 		'data_pairs' : data_pairs
 	}
 	if request.method == 'POST' and 'filename' in request.FILES:
 		file = request.FILES['filename']
+		context['filename'] = file.name
 		file_iterator = iter(file)
 		while True:
 			try:
 				data_pairs.append((file_iterator.__next__().decode().strip(), file_iterator.__next__().decode().strip()))
 			except StopIteration:
 				break
-	return render(request, 'alignments/alignmentsDisplay.html', context)
+	# return render(request, 'alignments/alignmentsDisplay.html', context)
+	return render(request, 'alignments/index_orthologs.html', context)
 
 def submitAlignmentText(request):
 	data_pairs = []
+	three_d_structures = Threedstructures.objects.all()
+	some_Alignments = Alignment.objects.all()
+	superKingdoms = Taxgroups.objects.raw('SELECT * FROM SEREB.TaxGroups WHERE\
+		 SEREB.TaxGroups.groupLevel = "superkingdom";')
 	context = {
+		'some_Alignments': some_Alignments,
+		'superKingdoms': superKingdoms,
+		'threeDstructures': three_d_structures,
 		'data_pairs' : data_pairs
 	}
 	if request.method == 'POST' and 'alignmentText' in request.POST:
 		alignmentText = request.POST['alignmentText']
+		context['filename'] = ''
 		lines = alignmentText.split('\n')
 		lines_iterator = iter(lines)
 		while True:
@@ -321,4 +367,5 @@ def submitAlignmentText(request):
 				data_pairs.append((lines_iterator.__next__().strip(), lines_iterator.__next__().strip()))
 			except StopIteration:
 				break
-	return render(request, 'alignments/alignmentsDisplay.html', context)
+	# return render(request, 'alignments/alignmentsDisplay.html', context)
+	return render(request, 'alignments/index_orthologs.html', context)
