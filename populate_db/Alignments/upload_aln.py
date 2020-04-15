@@ -30,8 +30,8 @@ for opt, arg in opts:
 		sys.exit(2)
 
 #uname = input("User name: ")
-#pw = getpass.getpass("Password: ")
-cnx = mysql.connector.connect(user='ppenev', password='eb1e1e^^', host='130.207.36.75', database='SEREB')
+pw = getpass.getpass("Password: ")
+cnx = mysql.connector.connect(user='ppenev', password=pw, host='130.207.36.75', database='SEREB')
 cursor = cnx.cursor()
 
 def read_align(aln_name):

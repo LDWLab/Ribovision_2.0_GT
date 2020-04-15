@@ -589,6 +589,7 @@ CREATE TABLE IF NOT EXISTS `SEREB`.`Structural_Folds` (
   `Name` VARCHAR(45) NOT NULL,
   `classification_system` VARCHAR(45) NOT NULL,
   `parent` INT NOT NULL,
+  `external_id` VARCHAR(45),
   PRIMARY KEY (`struc_fold_id`),
   INDEX `parent_self_fk_idx` (`parent` ASC),
   CONSTRAINT `parent_self_fk`
