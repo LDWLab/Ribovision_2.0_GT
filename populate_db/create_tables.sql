@@ -140,12 +140,11 @@ COLLATE = utf8_unicode_ci;
 -- Table `SEREB`.`Aln_Data`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `SEREB`.`Aln_Data` (
-  `AlnData_id` INT NOT NULL AUTO_INCREMENT,
   `aln_id` INT NOT NULL,
   `res_id` INT NOT NULL,
   `aln_pos` INT NOT NULL,
   `polymer_order` INT NULL DEFAULT NULL,
-  PRIMARY KEY (`AlnData_id`),
+  PRIMARY KEY (`aln_id`, `res_id`),
   INDEX `alignment_id_idx` (`aln_id` ASC),
   INDEX `residue_num_idx` (`res_id` ASC),
   CONSTRAINT `AlnD_fork`

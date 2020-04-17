@@ -3,9 +3,11 @@ import re, csv, sys, getopt, getpass, mysql.connector, argparse
 
 def create_and_parse_argument_options(argument_list):
 	parser = argparse.ArgumentParser(description='Update structural folds tables from ECOD and SCOPe, given a PDB ID')
-	parser.add_argument('-pdb','--pdb_id', help='PDB identifier to query', type=str)
-	parser.add_argument('-uname','--user_name', help='Username for connecting to DESIRE', type=str)
-	parser.add_argument('-dl','--download_most_recent_fold_definitions', help='Update latest fold definitions.', required=False, default=False, action="store_true")
+	parser.add_argument('pdb_id', help='PDB identifier to query', type=str)
+	parser.add_argument('user_name', help='Username for connecting to DESIRE', type=str)
+	parser.add_argument('-host','--db_host', help='Defines database host (default: 130.207.36.75)', type=str, default='130.207.36.75')
+	parser.add_argument('-schema','--db_schema', help='Defines schema to use (default: SEREB)', type=str, default='SEREB')
+	parser.add_argument('-dl','--download_most_recent_fold_definitions', help='Update latest fold definitions.', default=False, action="store_true")
 	commandline_args = parser.parse_args(argument_list)
 	return commandline_args
 
@@ -138,7 +140,7 @@ def main(commandline_arguments):
 		download_latest_fold_defs('http://prodata.swmed.edu/ecod/distributions/ecod.latest.domains.txt', 'ecod.latest.domains.txt')
 	ecod_defs = parse_ecod_definitions(pdbid)
 
-	cnx = initiate_connection(comm_args.user_name, '130.207.36.75', 'SEREB')
+	cnx = initiate_connection(comm_args.user_name, comm_args.db_host, comm_args.db_schema)
 	cursor = cnx.cursor()
 
 	check_then_upload_struc_fold(ecod_defs, cursor, cnx, pdbid)
