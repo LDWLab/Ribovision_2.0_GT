@@ -30,7 +30,6 @@ class Alignment(models.Model):
 
 
 class AlnData(models.Model):
-    alndata_id = models.AutoField(db_column='AlnData_id', primary_key=True)  # Field name made lowercase.
     aln = models.ForeignKey(Alignment, models.DO_NOTHING)
     res = models.ForeignKey('Residues', models.DO_NOTHING)
     aln_pos = models.IntegerField()
@@ -39,6 +38,7 @@ class AlnData(models.Model):
     class Meta:
         managed = False
         db_table = 'Aln_Data'
+        unique_together = (('aln', 'res'),)
 
 
 class AlnDomains(models.Model):
