@@ -3142,6 +3142,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
      console.log(Y_range);
 
      RiboData_Y_norm = RiboData_Y.map(x => (x-Y_min)/Y_range);
+     RiboData_Y_norm_back = RiboData_Y.map(x => 1-(x-Y_min)/Y_range);
     
 
  
@@ -3152,7 +3153,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
          console.log(t.residue_number); 
          if (RiboData.length > t.residue_number) {console.log(t.residue_number, RiboData[parseInt(t.residue_number)][1]); 
             
-            var col_tol=palette.tolDivergingColor(RiboData_Y_norm[parseInt(t.residue_number)]);
+            var col_tol=palette.tolDivergingColor(RiboData_Y_norm_back[parseInt(t.residue_number)]);
 
             var col_tol_rgb= hexToRgb1(col_tol);
            

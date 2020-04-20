@@ -12,7 +12,7 @@ from alignments.taxonomy_views import *
 
 
 def sql_alignment_query(aln_id):
-	alnposition = AlnData.objects.raw('SELECT * FROM SEREB.Aln_Data\
+	alnposition = AlnData.objects.raw('SELECT CONCAT(Aln_Data.aln_id,Aln_Data.res_id) AS id,strain,unModResName,aln_pos FROM SEREB.Aln_Data\
 		INNER JOIN SEREB.Alignment ON SEREB.Aln_Data.aln_id = SEREB.Alignment.Aln_id\
 		INNER JOIN SEREB.Residues ON SEREB.Aln_Data.res_id = SEREB.Residues.resi_id\
 		INNER JOIN SEREB.Polymer_Data ON SEREB.Residues.PolData_id = SEREB.Polymer_Data.PData_id\
@@ -24,7 +24,7 @@ def sql_alignment_query(aln_id):
 	return fastastring,max_aln_length
 
 def sql_filtered_aln_query(aln_id, parent_id):
-	SQLStatement = 'SELECT * FROM SEREB.Aln_Data\
+	SQLStatement = 'SELECT CONCAT(Aln_Data.aln_id,Aln_Data.res_id) AS id,strain,unModResName,aln_pos FROM SEREB.Aln_Data\
 					INNER JOIN SEREB.Alignment ON SEREB.Aln_Data.aln_id = SEREB.Alignment.Aln_id\
 					INNER JOIN SEREB.Residues ON SEREB.Aln_Data.res_id = SEREB.Residues.resi_id\
 					INNER JOIN (SELECT * from SEREB.Polymer_Data WHERE \
@@ -57,7 +57,7 @@ def sql_filtered_aln_query_two_parents(aln_id, parent1_id, parent2_id):
 	if parent1_level != parent2_level:
 		raise Http404("For now we do not support comparisons between different taxonomic levels. Offending levels are: "+parent1_level+" and "+parent2_level)
 	from django.db import connection
-	SQLStatement = 'SELECT * FROM SEREB.Aln_Data\
+	SQLStatement = 'SELECT CONCAT(Aln_Data.aln_id,Aln_Data.res_id) AS id,strain,unModResName,aln_pos FROM SEREB.Aln_Data\
 					INNER JOIN SEREB.Alignment ON SEREB.Aln_Data.aln_id = SEREB.Alignment.Aln_id\
 					INNER JOIN SEREB.Residues ON SEREB.Aln_Data.res_id = SEREB.Residues.resi_id\
 					INNER JOIN (SELECT * from SEREB.Polymer_Data WHERE \
@@ -148,7 +148,7 @@ def build_alignment(rawMYSQLresult):
 					fasta_string+='-'
 				mem = mem+1
 			else:
-				raise ValueError("This shouldn't be possible!")
+				raise ValueError("You are likely looking at cross-domain alignment with sequences from repeated species. For now this is not supported!")
 			fasta_string+=resi_pos[0]
 			if index == len(nogap_tupaln[strain]):
 				if resi_pos[1] < max(all_alnpositions):

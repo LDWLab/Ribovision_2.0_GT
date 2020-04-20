@@ -30,7 +30,6 @@ class Alignment(models.Model):
 
 
 class AlnData(models.Model):
-    alndata_id = models.AutoField(db_column='AlnData_id', primary_key=True)  # Field name made lowercase.
     aln = models.ForeignKey(Alignment, models.DO_NOTHING)
     res = models.ForeignKey('Residues', models.DO_NOTHING)
     aln_pos = models.IntegerField()
@@ -39,6 +38,7 @@ class AlnData(models.Model):
     class Meta:
         managed = False
         db_table = 'Aln_Data'
+        unique_together = (('aln', 'res'),)
 
 
 class AlnDomains(models.Model):
@@ -218,3 +218,33 @@ class PolymerAlignments(models.Model):
         managed = False
         db_table = 'Polymer_Alignments'
         unique_together = (('pdata', 'aln'),)
+
+class StructuralFolds(models.Model):
+    struc_fold_id = models.AutoField(primary_key=True)
+    level = models.CharField(db_column='Level', max_length=45)  # Field name made lowercase.
+    name = models.CharField(db_column='Name', max_length=45)  # Field name made lowercase.
+    classification_system = models.CharField(max_length=45)
+    parent = models.ForeignKey('self', models.DO_NOTHING, db_column='parent')
+    external_id = models.CharField(max_length=45, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'Structural_Folds'
+
+class StrucfoldResidues(models.Model):
+    residue = models.ForeignKey(Residues, models.DO_NOTHING)
+    strucfold = models.ForeignKey('StructuralFolds', models.DO_NOTHING)
+
+    class Meta:
+        managed = False
+        db_table = 'StrucFold_Residues'
+        unique_together = (('residue', 'strucfold'),)
+
+class StrucfoldChains(models.Model):
+    strucfold = models.ForeignKey('StructuralFolds', models.DO_NOTHING)
+    chain = models.ForeignKey(Chainlist, models.DO_NOTHING)
+
+    class Meta:
+        managed = False
+        db_table = 'StrucFold_Chains'
+        unique_together = (('strucfold', 'chain'),)
