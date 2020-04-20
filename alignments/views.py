@@ -174,7 +174,7 @@ def api_twc_with_upload(request, filename, anchor_structure):
 	anchor_taxid = pdbid_to_strainid(anchor_structure)
 
 	#### This should be separate view with its own URL for serving multi-group alignments ####
-	filter_strain = str(Species.objects.filter(strain_id = anchor_taxid)[0].strain).replace(" ", "_")
+	filter_strain = str(anchor_taxid)
 
 	fastastring = request.session.get('fasta')
 	print('fastastring:\n' + fastastring)
