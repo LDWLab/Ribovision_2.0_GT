@@ -169,16 +169,16 @@ def pdbid_to_strainid(pdbid):
 	anchor_taxid = Secondarystructures.objects.values("strain_fk").filter(secstr_id = secondary_id)[0]["strain_fk"]
 	return anchor_taxid
 
-def api_twc_with_upload(request, align_name, tax_group1, tax_group2, anchor_structure):
-
+def api_twc_with_upload(request, filename, anchor_structure):
 	#### _____________Transform PDBID to taxid______________ ####
 	anchor_taxid = pdbid_to_strainid(anchor_structure)
 
 	#### This should be separate view with its own URL for serving multi-group alignments ####
 	filter_strain = str(Species.objects.filter(strain_id = anchor_taxid)[0].strain).replace(" ", "_")
 
-	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
-	fastastring,max_aln_length1 = sql_filtered_aln_query_two_parents(align_id,tax_group1,tax_group2)
+	fastastring = request.session.get('fasta')
+	print('fastastring:\n' + fastastring)
+
 	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
 	
 	#### _____________Trim down the alignment______________ ####
@@ -208,6 +208,7 @@ def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure):
 
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
 	fastastring,max_aln_length1 = sql_filtered_aln_query_two_parents(align_id,tax_group1,tax_group2)
+	print('fastastring:\n' + fastastring)
 	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
 	
 	#### _____________Trim down the alignment______________ ####
@@ -277,7 +278,8 @@ def index_orthologs(request):
 	context = {
 		'some_Alignments': some_Alignments,
 		'superKingdoms': superKingdoms,
-		'threeDstructures': three_d_structures
+		'threeDstructures': three_d_structures,
+		'file_name' : None
 	}
 	return render(request, 'alignments/index_orthologs.html', context)
 
@@ -297,8 +299,9 @@ def rRNA(request, align_name, tax_group):
 	return render(request, 'alignments/rRNA.html', context)
 
 def upload(request):
+	three_d_structures = Threedstructures.objects.all()
 	context = {
-
+		'threeDstructures': three_d_structures,
 	}
 	return render(request, 'alignments/upload.html', context)
 
@@ -331,17 +334,26 @@ def submitAlignment(request):
 		'some_Alignments': some_Alignments,
 		'superKingdoms': superKingdoms,
 		'threeDstructures': three_d_structures,
-		'data_pairs' : data_pairs
+		'data_pairs' : data_pairs,
+		'file_name' : None,
+		'fasta' : None
 	}
 	if request.method == 'POST' and 'filename' in request.FILES:
+		fasta = ''
 		file = request.FILES['filename']
-		context['filename'] = file.name
+		context['file_name'] = file.name
+		file_name = file.name
 		file_iterator = iter(file)
 		while True:
 			try:
-				data_pairs.append((file_iterator.__next__().decode().strip(), file_iterator.__next__().decode().strip()))
+				line0 = file_iterator.__next__().decode()
+				line1 = file_iterator.__next__().decode()
+				data_pairs.append((line0.strip(), line1.strip()))
+				fasta = fasta + line0 + line1
 			except StopIteration:
 				break
+		context['fasta'] = fasta
+		request.session['fasta'] = fasta
 	# return render(request, 'alignments/alignmentsDisplay.html', context)
 	return render(request, 'alignments/index_orthologs.html', context)
 
@@ -355,7 +367,8 @@ def submitAlignmentText(request):
 		'some_Alignments': some_Alignments,
 		'superKingdoms': superKingdoms,
 		'threeDstructures': three_d_structures,
-		'data_pairs' : data_pairs
+		'data_pairs' : data_pairs,
+		'file_name' : None
 	}
 	if request.method == 'POST' and 'alignmentText' in request.POST:
 		alignmentText = request.POST['alignmentText']
