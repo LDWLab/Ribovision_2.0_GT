@@ -65,6 +65,10 @@ function myFunction(alignment_name,aln_type) {
 function myFunction2(pdb_name) {
 	pdb = pdb_name;
 }
+
+function myFunction3(file_name) {
+	window.location.href = "twincons/" + file_name + "/" + pdb
+}
 </script>
 
 <p>AND</p> 
@@ -76,11 +80,13 @@ function myFunction2(pdb_name) {
 	{% endfor %}
 </select>
 
-<p>OR</p>
-<button>Use Uploaded FASTA file</button>{{filename}}
-
-
 <p>AND</p> 
+
+<button value={{ file_name }} onclick="myFunction3(this.value)" method = "post">Use User-Uploaded Fasta
+
+</button> {{file_name}}
+
+<p>OR</p>
 
 <select id="getAlignment" onchange= "myFunction(this.value, 'rProtein/');">
 	<option >Select an alignment</option>
