@@ -24,7 +24,7 @@ def sql_alignment_query(aln_id):
 	return fastastring,max_aln_length
 
 def sql_filtered_aln_query(aln_id, parent_id):
-	SQLStatement = 'SELECT CONCAT(Aln_Data.aln_id,Aln_Data.res_id) AS id,strain,unModResName,aln_pos FROM SEREB.Aln_Data\
+	SQLStatement = 'SELECT CONCAT(Aln_Data.aln_id,Aln_Data.res_id) AS id,strain,unModResName,aln_pos,Species.strain_id FROM SEREB.Aln_Data\
 					INNER JOIN SEREB.Alignment ON SEREB.Aln_Data.aln_id = SEREB.Alignment.Aln_id\
 					INNER JOIN SEREB.Residues ON SEREB.Aln_Data.res_id = SEREB.Residues.resi_id\
 					INNER JOIN (SELECT * from SEREB.Polymer_Data WHERE \
@@ -57,7 +57,7 @@ def sql_filtered_aln_query_two_parents(aln_id, parent1_id, parent2_id):
 	if parent1_level != parent2_level:
 		raise Http404("For now we do not support comparisons between different taxonomic levels. Offending levels are: "+parent1_level+" and "+parent2_level)
 	from django.db import connection
-	SQLStatement = 'SELECT CONCAT(Aln_Data.aln_id,Aln_Data.res_id) AS id,strain,unModResName,aln_pos FROM SEREB.Aln_Data\
+	SQLStatement = 'SELECT CONCAT(Aln_Data.aln_id,Aln_Data.res_id) AS id,strain,unModResName,aln_pos,Species.strain_id FROM SEREB.Aln_Data\
 					INNER JOIN SEREB.Alignment ON SEREB.Aln_Data.aln_id = SEREB.Alignment.Aln_id\
 					INNER JOIN SEREB.Residues ON SEREB.Aln_Data.res_id = SEREB.Residues.resi_id\
 					INNER JOIN (SELECT * from SEREB.Polymer_Data WHERE \
@@ -174,7 +174,7 @@ def api_twc_with_upload(request, anchor_structure):
 	anchor_taxid = pdbid_to_strainid(anchor_structure)
 
 	#### This should be separate view with its own URL for serving multi-group alignments ####
-	filter_strain = str(Species.objects.filter(strain_id = anchor_taxid)[0].strain).replace(" ", "_")
+	filter_strain = str(anchor_taxid)
 
 	fastastring = request.session.get('fasta')
 	print('fastastring:\n' + fastastring)
