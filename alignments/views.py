@@ -10,6 +10,7 @@ from django.views.generic import ListView, CreateView, UpdateView
 from alignments.models import *
 from alignments.taxonomy_views import *
 from alignments.residue_api import *
+from alignments.structure_api import *
 
 
 def sql_alignment_query(aln_id):
@@ -163,12 +164,6 @@ def build_alignment(rawMYSQLresult):
 	literal_string = re.sub(r'\n\n','\n',fasta_string,flags=re.M)
 	return literal_string.lstrip().encode('unicode-escape').decode('ascii'),max(all_alnpositions)
 
-def pdbid_to_strainid(pdbid):
-	'''Transforms PDBID to taxid'''
-	structure_id = Threedstructures.objects.filter(structurename = pdbid)[0]
-	secondary_id = SecondaryTertiary.objects.values("secondary_structure").filter(number_3d_structure = structure_id)[0]["secondary_structure"]
-	anchor_taxid = Secondarystructures.objects.values("strain_fk").filter(secstr_id = secondary_id)[0]["strain_fk"]
-	return anchor_taxid
 
 def api_twc_with_upload(request, anchor_structure):
 	#### _____________Transform PDBID to taxid______________ ####
@@ -178,7 +173,7 @@ def api_twc_with_upload(request, anchor_structure):
 	filter_strain = str(anchor_taxid)
 
 	fastastring = request.session.get('fasta')
-	print('fastastring:\n' + fastastring)
+	#print('fastastring:\n' + fastastring)
 
 	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
 	
@@ -187,8 +182,8 @@ def api_twc_with_upload(request, anchor_structure):
 	from Bio import AlignIO
 	from io import StringIO
 	alignment = list(AlignIO.parse(StringIO(concat_fasta), 'fasta'))[0]
-	# aln_anchor_map = species_index_to_aln_index(alignment, filter_strain)
-	# alignment = truncate_aln(alignment, list(aln_anchor_map[0].keys()), aln_anchor_map=aln_anchor_map[0])
+	aln_anchor_map = species_index_to_aln_index(alignment, filter_strain)
+	alignment = truncate_aln(alignment, list(aln_anchor_map[0].keys()), aln_anchor_map=aln_anchor_map[0])
 	#### _______________Calculate TwinCons_________________ ####
 	
 	from TwinCons.bin import PhyMeas
@@ -238,7 +233,7 @@ def twincons_with_upload(request, anchor_structure):
 	context = {
 		'pdbid': anchor_structure, 
 		'chainid': chainid, 
-		'entropy_address': "upload/twincons/4V9D" #"twc-api/"+align_name+"/"+str(tax_group1)+"/"+str(tax_group2)+"/"+str(anchor_structure)
+		'entropy_address': "upload/twc-api/"+str(anchor_structure) #"twc-api/"+align_name+"/"+str(tax_group1)+"/"+str(tax_group2)+"/"+str(anchor_structure)
 	}
 	print('Complete')
 	return render(request, 'alignments/twc_detail_with_upload.html', context)
@@ -306,9 +301,6 @@ def index_orthologs(request):
 		'file_name' : None
 	}
 	return render(request, 'alignments/index_orthologs.html', context)
-
-def jalview(request):
-	return render(request, "alignments/jalview.html")
 
 def rProtein(request, align_name, tax_group):
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
