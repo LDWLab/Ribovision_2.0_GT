@@ -224,16 +224,12 @@ def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure):
 		list_for_topology_viewer.append([alnindex,alnindex_score[alnindex][0]])
 	return JsonResponse(list_for_topology_viewer, safe = False)
 
-def twincons_with_upload(request, anchor_structure):
+def twincons_with_upload(request, anchor_structure, chain):
 	taxid = pdbid_to_strainid(anchor_structure)
-	# align_id = Alignment.objects.filter(name = align_name)[0].aln_id
-	align_id = Alignment.objects.filter(name = "uS09")[0].aln_id
-	polymerid = PolymerData.objects.values("pdata_id").filter(polymeralignments__aln = align_id, strain = taxid)[0]["pdata_id"]
-	chainid = Chainlist.objects.values("chainname").filter(polymer = polymerid)[0]["chainname"]
 	context = {
 		'pdbid': anchor_structure, 
-		'chainid': chainid, 
-		'entropy_address': "upload/twc-api/"+str(anchor_structure) #"twc-api/"+align_name+"/"+str(tax_group1)+"/"+str(tax_group2)+"/"+str(anchor_structure)
+		'chainid': chain, 
+		'entropy_address': "upload/twc-api/"+str(anchor_structure)
 	}
 	print('Complete')
 	return render(request, 'alignments/twc_detail_with_upload.html', context)

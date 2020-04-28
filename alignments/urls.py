@@ -26,6 +26,6 @@ urlpatterns = [
 	path('upload/submit', views.submit, name = 'submit'),
 	path('upload/submitAlignment', views.submitAlignment, name='submitAlignment'),
 	path('upload/submitAlignmentText', views.submitAlignmentText, name='submitAlignmentText'),
-	path('upload/twincons/<str:anchor_structure>', views.twincons_with_upload, name='api_twc_with_upload'),
+	path('upload/twincons/<str:anchor_structure>/<str:chain>', views.twincons_with_upload, name='api_twc_with_upload'),
 	path('upload/twc-api/<str:anchor_structure>', views.api_twc_with_upload, name='api_twc_with_upload')
 ]

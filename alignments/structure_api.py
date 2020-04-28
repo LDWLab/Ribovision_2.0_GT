@@ -35,9 +35,8 @@ def struc_info(request, struc_id):
 	for result in get_chains_polymers(struc_id):
 		pid_name_chid_name.append((result.new_name, result.gi, result.pdata_id, result.ChainName, result.ChainList_id))
 
-
-
 	struc_data = {
+		'PDBID': structure.structurename,
 		'Polymers and Chains': pid_name_chid_name,
 		'Secondary Structures': ssid_name,
 	}
