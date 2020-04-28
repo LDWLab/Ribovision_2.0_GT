@@ -9,6 +9,7 @@ from django.views.generic import ListView, CreateView, UpdateView
 
 from alignments.models import *
 from alignments.taxonomy_views import *
+from alignments.residue_api import *
 
 
 def sql_alignment_query(aln_id):

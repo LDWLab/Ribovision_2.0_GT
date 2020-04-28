@@ -9,13 +9,13 @@ from django.db import models
 
 
 class AdResidues(models.Model):
-    ad_id = models.IntegerField(db_column='AD_id',primary_key=True)  # Field name made lowercase.
-    residuep_id = models.IntegerField(db_column='residueP_id')  # Check if its okay to leave pk like that
+    ad = models.ForeignKey('AssociatedData', models.DO_NOTHING, db_column='AD_id')  # Field name made lowercase.
+    residuep = models.ForeignKey('Residues', models.DO_NOTHING, db_column='residueP_id')  # Field name made lowercase.
 
     class Meta:
         managed = False
         db_table = 'AD_Residues'
-        unique_together = (('ad_id', 'residuep_id'),)
+        unique_together = (('ad', 'residuep'),)
 
 
 class Alignment(models.Model):
@@ -30,6 +30,7 @@ class Alignment(models.Model):
 
 
 class AlnData(models.Model):
+    aln_data_id = models.AutoField(db_column='Aln_Data_id', primary_key=True)  # Field name made lowercase.
     aln = models.ForeignKey(Alignment, models.DO_NOTHING)
     res = models.ForeignKey('Residues', models.DO_NOTHING)
     aln_pos = models.IntegerField()
@@ -38,7 +39,6 @@ class AlnData(models.Model):
     class Meta:
         managed = False
         db_table = 'Aln_Data'
-        unique_together = (('aln', 'res'),)
 
 
 class AlnDomains(models.Model):
