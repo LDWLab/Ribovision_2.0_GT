@@ -66,8 +66,8 @@ function myFunction2(pdb_name) {
 	pdb = pdb_name;
 }
 
-function myFunction3(file_name) {
-	window.location.href = "twincons/" + file_name + "/" + pdb
+function myFunction3() {
+	window.location.href = "twincons/" + pdb
 }
 </script>
 
@@ -82,7 +82,7 @@ function myFunction3(file_name) {
 
 <p>AND</p> 
 
-<button value={{ file_name }} onclick="myFunction3(this.value)" method = "post">Use User-Uploaded Fasta
+<button onclick="myFunction3()" method = "post">Use User-Uploaded Fasta
 
 </button> {{file_name}}
 

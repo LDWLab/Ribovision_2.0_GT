@@ -37,7 +37,6 @@
 			if (request.status >= 200 && request.status < 400) {
 				var entityid = Object.keys(data[pdblower])[0];
 				var topology_viewer = "<pdb-topology-viewer entry-id={{pdbid}} entity-id="+entityid+" chain-id={{chainid}}	entropy-id={{entropy_address}}></pdb-topology-viewer>"
-				alert(topology_viewer)
 				document.getElementById('topview').innerHTML = topology_viewer;
 			} else {
 				console.log('error');

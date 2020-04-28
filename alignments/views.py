@@ -170,7 +170,7 @@ def pdbid_to_strainid(pdbid):
 	anchor_taxid = Secondarystructures.objects.values("strain_fk").filter(secstr_id = secondary_id)[0]["strain_fk"]
 	return anchor_taxid
 
-def api_twc_with_upload(request, filename, anchor_structure):
+def api_twc_with_upload(request, anchor_structure):
 	#### _____________Transform PDBID to taxid______________ ####
 	anchor_taxid = pdbid_to_strainid(anchor_structure)
 
@@ -187,8 +187,8 @@ def api_twc_with_upload(request, filename, anchor_structure):
 	from Bio import AlignIO
 	from io import StringIO
 	alignment = list(AlignIO.parse(StringIO(concat_fasta), 'fasta'))[0]
-	aln_anchor_map = species_index_to_aln_index(alignment, filter_strain)
-	alignment = truncate_aln(alignment, list(aln_anchor_map[0].keys()), aln_anchor_map=aln_anchor_map[0])
+	# aln_anchor_map = species_index_to_aln_index(alignment, filter_strain)
+	# alignment = truncate_aln(alignment, list(aln_anchor_map[0].keys()), aln_anchor_map=aln_anchor_map[0])
 	#### _______________Calculate TwinCons_________________ ####
 	
 	from TwinCons.bin import PhyMeas
@@ -229,12 +229,30 @@ def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure):
 		list_for_topology_viewer.append([alnindex,alnindex_score[alnindex][0]])
 	return JsonResponse(list_for_topology_viewer, safe = False)
 
+def twincons_with_upload(request, anchor_structure):
+	taxid = pdbid_to_strainid(anchor_structure)
+	# align_id = Alignment.objects.filter(name = align_name)[0].aln_id
+	align_id = Alignment.objects.filter(name = "uS09")[0].aln_id
+	polymerid = PolymerData.objects.values("pdata_id").filter(polymeralignments__aln = align_id, strain = taxid)[0]["pdata_id"]
+	chainid = Chainlist.objects.values("chainname").filter(polymer = polymerid)[0]["chainname"]
+	context = {
+		'pdbid': anchor_structure, 
+		'chainid': chainid, 
+		'entropy_address': "upload/twincons/4V9D" #"twc-api/"+align_name+"/"+str(tax_group1)+"/"+str(tax_group2)+"/"+str(anchor_structure)
+	}
+	print('Complete')
+	return render(request, 'alignments/twc_detail_with_upload.html', context)
+
 def twincons(request, align_name, tax_group1, tax_group2, anchor_structure):
 	taxid = pdbid_to_strainid(anchor_structure)
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
 	polymerid = PolymerData.objects.values("pdata_id").filter(polymeralignments__aln = align_id, strain = taxid)[0]["pdata_id"]
 	chainid = Chainlist.objects.values("chainname").filter(polymer = polymerid)[0]["chainname"]
-	context = {'pdbid': anchor_structure, 'chainid': chainid, 'entropy_address':"twc-api/"+align_name+"/"+str(tax_group1)+"/"+str(tax_group2)+"/"+str(anchor_structure)}
+	context = {
+		'pdbid': anchor_structure, 
+		'chainid': chainid, 
+		'entropy_address':"twc-api/"+align_name+"/"+str(tax_group1)+"/"+str(tax_group2)+"/"+str(anchor_structure)
+	}
 	return render(request, 'alignments/twc_detail.html', context)
 
 def entropy(request, align_name, tax_group, anchor_structure):
@@ -247,7 +265,12 @@ def entropy(request, align_name, tax_group, anchor_structure):
 	fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)
 	aln_shannon_list = Shannon.main(['-a',fastastring,'-f','fastastring','--return_within','-s',filter_strain])
 	#print(aln_shannon_list)
-	context = {'pdbid': anchor_structure, 'chainid': chainid, 'shannon_dictionary': aln_shannon_list, 'entropy_address':"entropy-api/"+align_name+"/"+str(tax_group)+"/"+str(anchor_structure)}
+	context = {
+		'pdbid': anchor_structure, 
+		'chainid': chainid, 
+		'shannon_dictionary': aln_shannon_list, 
+		'entropy_address':"entropy-api/"+align_name+"/"+str(tax_group)+"/"+str(anchor_structure)
+	}
 	return render(request, 'alignments/entropy_detail.html', context)
 
 def api_entropy(request, align_name, tax_group, anchor_structure):

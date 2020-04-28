@@ -36,12 +36,12 @@
 	<script type ="text/javascript">
 		var pdblower = "{{pdbid}}".toLocaleLowerCase();
 		var request = new XMLHttpRequest();
-		request.open('GET', 'https://www.ebi.ac.uk/pdbe/api/topology/entry/{{pdbid}}/chain/{{chainid}}', true);
+		request.open('GET', 'https://www.ebi.ac.uk/pdbe/api/topology/entry/{{pdbid}}/chain/AI', true);
 		request.onload = function() {
 			var data = JSON.parse(this.response);
 			if (request.status >= 200 && request.status < 400) {
 				var entityid = Object.keys(data[pdblower])[0];
-				var topology_viewer = "<pdb-topology-viewer entry-id={{pdbid}} entity-id="+entityid+" chain-id={{chainid}}	entropy-id={{entropy_address}}></pdb-topology-viewer>"
+				var topology_viewer = "<pdb-topology-viewer entry-id={{pdbid}} entity-id="+entityid+" chain-id=AI	entropy-id={{entropy_address}}></pdb-topology-viewer>"
 				document.getElementById('topview').innerHTML = topology_viewer;
 			} else {
 				console.log('error');
