@@ -62,12 +62,34 @@ function myFunction(alignment_name,aln_type) {
 	window.location.href = res;
 }
 
-function myFunction2(pdb_name) {
-	pdb = pdb_name;
+function myFunction2(struc_id) {
+	var struc_data;
+	$.ajax({
+	url: '/struc-api/'+struc_id,
+	type: "GET",
+	dataType: "json",
+	success: function (data) {
+ 		console.log(data);
+ 		struc_data = data;},
+	error: function (error) {
+		console.log(`Error ${error}`);},
+	 async: false
+	});
+
+	pdb = struc_data["PDBID"];
+	
+	if (struc_id.length == 0) document.getElementById("chain_selector").innerHTML = "<option></option>";
+	else {
+		var catOptions = "";
+		for (polymer_chain of struc_data["Polymers and Chains"]) {
+			catOptions += "<option value="+polymer_chain[3]+">" + polymer_chain[0] + "</option>";
+		}
+		document.getElementById("chain_selector").innerHTML = catOptions;
+	}
 }
 
-function myFunction3() {
-	window.location.href = "twincons/" + pdb
+function myFunction3(chain) {
+	window.location.href = "twincons/" + pdb + "/" + chain
 }
 </script>
 
@@ -96,13 +118,17 @@ function myFunction3() {
 <select id = "getPDB" onchange="myFunction2(this.value)">
 	<option>Select a PDB</option>
 	{% for pdb in threeDstructures %}
-		<option value={{ pdb.structurename }}>{{ pdb.structurename }}</option>
+		<option value={{ pdb.number_3d_structure_id }}>{{ pdb.structurename }}</option>
 	{% endfor %}
 </select>
 
 <p>AND</p> 
 
-<button onclick="myFunction3()" method = "post">Use User-Uploaded Fasta
+<select name="chain_selector" id="chain_selector">
+	<option value="" disabled selected>Select polymer</option>
+</select>
+
+<button onclick="myFunction3(chain_selector.value)" method = "post">Use User-Uploaded Fasta
 
 </button> {{file_name}}
 
