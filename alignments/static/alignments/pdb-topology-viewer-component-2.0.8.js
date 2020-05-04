@@ -2635,6 +2635,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
    }) : (this.chainId = e.chainId, this.initPainting())) : this.displayError("param")
   }, t.prototype.initPainting = function() {
    var e = this;
+   console.log(this.entryId, this.chainId, this.entropyId);
    this.getApiData(this.entryId, this.chainId, this.entropyId).then(function(t) {
     if (t) {
      if (void 0 === t[0] || void 0 === t[2] || void 0 === t[4] || void 0 === t[5]) return void e.displayError();
@@ -2665,6 +2666,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
   }, t.prototype.getApiData = function(i, n, entr) {
    return __awaiter(this, void 0, void 0, function() {
     var e;
+    console.log(i, n, entr);
     return __generator(this, function(t) {
      return e = ["https://www.ebi.ac.uk/pdbe/api/pdb/entry/entities/" + i, "https://www.ebi.ac.uk/pdbe/api/mappings/" + i, "https://www.ebi.ac.uk/pdbe/api/topology/entry/" + i, "http://127.0.0.1:8000/static/alignments/Data_dummy.txt", "https://www.ebi.ac.uk/pdbe/api/pdb/entry/polymer_coverage/" + i + "/chain/" + n, "http://127.0.0.1:8000/alignments/" + entr,], [2, Promise.all(e.map(function(t) {
       return fetch(t)
@@ -2683,7 +2685,31 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
   }, t.prototype.getDomainRange = function() {
    var e = this,
     i = [],
+    //filtering by a domain
+
+    //update domain start and end positions here
+    istart=191;
+    iend=309;
+    
+    
     t = this.apiData[2][this.entryId][this.entityId][this.chainId];
+    tc = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"];
+    te = this.apiData[2][this.entryId][this.entityId][this.chainId]["extents"];
+    th = this.apiData[2][this.entryId][this.entityId][this.chainId]["helices"];
+    ts = this.apiData[2][this.entryId][this.entityId][this.chainId]["strands"];
+    
+    ths = this.apiData[2][this.entryId][this.entityId][this.chainId]["helices"][0]["start"];
+    the = this.apiData[2][this.entryId][this.entityId][this.chainId]["helices"][0]["stop"];
+    
+    for( var k = 0; k < th.length; k++){ if ((( th[k]["start"] < istart) && ( th[k]["stop"] < istart))||(( th[k]["start"] > iend) && ( th[k]["stop"] > iend))) { this.apiData[2][this.entryId][this.entityId][this.chainId]["helices"].splice(k, 1); k--; }}
+    for( var k = 0; k < ts.length; k++){ if ((( ts[k]["start"] < istart) && ( ts[k]["stop"] < istart))||(( ts[k]["start"] > iend) && ( ts[k]["stop"] > iend))) { this.apiData[2][this.entryId][this.entityId][this.chainId]["strands"].splice(k, 1); k--; }}
+    for( var k = 0; k < tc.length; k++){ if ((( tc[k]["start"] < istart) && ( tc[k]["stop"] < istart))||(( tc[k]["start"] > iend) && ( tc[k]["stop"] > iend))) { this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"].splice(k, 1); k--; }}
+    //console.log(t, tc, te, th,ths, the, ts);
+   // console.log(th,ths, the);
+
+    // end of filltering 
+
+    console.log(t);
    for (var n in t) t[n] && t[n].forEach(function(t) {
     void 0 !== t.path && 0 < t.path.length && (i = i.concat(e.chunkArray(t.path, 2)))
    });
