@@ -90,9 +90,9 @@ def species_index_to_aln_index(alignment_obj, species_id):
     Also returns the numerical index for the anchor sequence
     in the alignment object.
     '''
-    print(species_id)
-    for aln in alignment_obj:
-        print('___' + aln)
+    #print(species_id)
+    #for aln in alignment_obj:
+    #    print('___' + aln)
     aln_anchor_index=0
     for aln in alignment_obj:
         if species_id in aln.id:
