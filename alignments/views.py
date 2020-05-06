@@ -164,6 +164,26 @@ def build_alignment(rawMYSQLresult):
 	literal_string = re.sub(r'\n\n','\n',fasta_string,flags=re.M)
 	return literal_string.lstrip().encode('unicode-escape').decode('ascii'),max(all_alnpositions)
 
+def trim_alignment(concat_fasta, filter_strain):
+	'''Reads a fasta string into alignment and trims it down by filter sequence'''
+	from alignments.Shannon import species_index_to_aln_index, truncate_aln
+	from Bio import AlignIO
+	from io import StringIO
+	alignment = list(AlignIO.parse(StringIO(concat_fasta), 'fasta'))[0]
+	aln_anchor_map, anchor_ix_in_alignment = species_index_to_aln_index(alignment, filter_strain)
+	alignment = truncate_aln(alignment, list(aln_anchor_map.keys()), aln_anchor_map=aln_anchor_map)
+	return alignment
+
+def calculate_twincons(alignment):
+	'''Calculates twincons score given an alignment object.
+	Returns data in a list format for the topology viewer'''
+	from TwinCons.bin import PhyMeas
+	list_for_phymeas = ['-as',alignment.format("fasta"), '-r', '-bl']
+	alnindex_score,sliced_alns,number_of_aligned_positions=PhyMeas.main(list_for_phymeas)
+	list_for_topology_viewer = []
+	for alnindex in alnindex_score:
+		list_for_topology_viewer.append([alnindex,alnindex_score[alnindex][0]])
+	return list_for_topology_viewer
 
 def api_twc_with_upload(request, anchor_structure):
 	#### _____________Transform PDBID to taxid______________ ####
@@ -178,20 +198,11 @@ def api_twc_with_upload(request, anchor_structure):
 	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
 	
 	#### _____________Trim down the alignment______________ ####
-	from alignments.Shannon import species_index_to_aln_index, truncate_aln
-	from Bio import AlignIO
-	from io import StringIO
-	alignment = list(AlignIO.parse(StringIO(concat_fasta), 'fasta'))[0]
-	aln_anchor_map = species_index_to_aln_index(alignment, filter_strain)
-	alignment = truncate_aln(alignment, list(aln_anchor_map[0].keys()), aln_anchor_map=aln_anchor_map[0])
-	#### _______________Calculate TwinCons_________________ ####
+	alignment = trim_alignment(concat_fasta, filter_strain)
 	
-	from TwinCons.bin import PhyMeas
-	list_for_phymeas = ['-as',alignment.format("fasta"), '-r', '-bl']
-	alnindex_score,sliced_alns,number_of_aligned_positions=PhyMeas.main(list_for_phymeas)
-	list_for_topology_viewer = []
-	for alnindex in alnindex_score:
-		list_for_topology_viewer.append([alnindex,alnindex_score[alnindex][0]])
+	#### _______________Calculate TwinCons_________________ ####
+	list_for_topology_viewer = calculate_twincons(alignment)
+
 	return JsonResponse(list_for_topology_viewer, safe = False)
 
 def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure):
@@ -204,24 +215,15 @@ def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure):
 
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
 	fastastring,max_aln_length1 = sql_filtered_aln_query_two_parents(align_id,tax_group1,tax_group2)
-	print('fastastring:\n' + fastastring)
+	#print('fastastring:\n' + fastastring)
 	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
 	
 	#### _____________Trim down the alignment______________ ####
-	from alignments.Shannon import species_index_to_aln_index, truncate_aln
-	from Bio import AlignIO
-	from io import StringIO
-	alignment = list(AlignIO.parse(StringIO(concat_fasta), 'fasta'))[0]
-	aln_anchor_map = species_index_to_aln_index(alignment, filter_strain)
-	alignment = truncate_aln(alignment, list(aln_anchor_map[0].keys()), aln_anchor_map=aln_anchor_map[0])
-	#### _______________Calculate TwinCons_________________ ####
+	alignment = trim_alignment(concat_fasta, filter_strain)
 	
-	from TwinCons.bin import PhyMeas
-	list_for_phymeas = ['-as',alignment.format("fasta"), '-r', '-bl']
-	alnindex_score,sliced_alns,number_of_aligned_positions=PhyMeas.main(list_for_phymeas)
-	list_for_topology_viewer = []
-	for alnindex in alnindex_score:
-		list_for_topology_viewer.append([alnindex,alnindex_score[alnindex][0]])
+	#### _______________Calculate TwinCons_________________ ####
+	list_for_topology_viewer = calculate_twincons(alignment)
+	
 	return JsonResponse(list_for_topology_viewer, safe = False)
 
 def twincons_with_upload(request, anchor_structure, chain):
@@ -232,7 +234,7 @@ def twincons_with_upload(request, anchor_structure, chain):
 		'entropy_address': "upload/twc-api/"+str(anchor_structure)
 	}
 	print('Complete')
-	return render(request, 'alignments/twc_detail_with_upload.html', context)
+	return render(request, 'alignments/twc_detail.html', context)
 
 def twincons(request, align_name, tax_group1, tax_group2, anchor_structure):
 	taxid = pdbid_to_strainid(anchor_structure)

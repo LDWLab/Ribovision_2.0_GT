@@ -2630,11 +2630,13 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
    var i = this;
    //Added this here
    this.entropyId = t.entropyId
+   this.filterRange = t.filterRange
    e && void 0 !== e.displayStyle && null != e.displayStyle && (this.displayStyle += e.displayStyle), e && void 0 !== e.errorStyle && null != e.errorStyle && (this.errorStyle += e.errorStyle), e && void 0 !== e.menuStyle && null != e.menuStyle && (this.menuStyle += e.menuStyle), this.targetEle = t, this.targetEle && (this.targetEle.innerHTML = ""), t && e && e.entryId && e.entityId ? (0 == e.subscribeEvents && (this.subscribeEvents = !1), this.entityId = e.entityId, this.entryId = e.entryId.toLowerCase(), void 0 === e.chainId || null == e.chainId ? this.getObservedResidues(this.entryId).then(function(t) {
     void 0 !== t && void 0 !== t[i.entryId] && void 0 !== t[i.entryId][i.entityId] ? (i.chainId = t[i.entryId][i.entityId][0].chain_id, i.initPainting()) : i.displayError()
    }) : (this.chainId = e.chainId, this.initPainting())) : this.displayError("param")
   }, t.prototype.initPainting = function() {
    var e = this;
+   console.log(this.entryId, this.chainId, this.entropyId, this.filterRange);
    this.getApiData(this.entryId, this.chainId, this.entropyId).then(function(t) {
     if (t) {
      if (void 0 === t[0] || void 0 === t[2] || void 0 === t[4] || void 0 === t[5]) return void e.displayError();
@@ -2665,6 +2667,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
   }, t.prototype.getApiData = function(i, n, entr) {
    return __awaiter(this, void 0, void 0, function() {
     var e;
+    console.log(i, n, entr);
     return __generator(this, function(t) {
      return e = ["https://www.ebi.ac.uk/pdbe/api/pdb/entry/entities/" + i, "https://www.ebi.ac.uk/pdbe/api/mappings/" + i, "https://www.ebi.ac.uk/pdbe/api/topology/entry/" + i, "http://127.0.0.1:8000/static/alignments/Data_dummy.txt", "https://www.ebi.ac.uk/pdbe/api/pdb/entry/polymer_coverage/" + i + "/chain/" + n, "http://127.0.0.1:8000/alignments/" + entr,], [2, Promise.all(e.map(function(t) {
       return fetch(t)
@@ -2683,7 +2686,31 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
   }, t.prototype.getDomainRange = function() {
    var e = this,
     i = [],
+    //filtering by a domain
+
+    //update domain start and end positions here
+    
+    istart=this.filterRange.split(",")[0];
+    iend=this.filterRange.split(",")[1];
+    
     t = this.apiData[2][this.entryId][this.entityId][this.chainId];
+    tc = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"];
+    te = this.apiData[2][this.entryId][this.entityId][this.chainId]["extents"];
+    th = this.apiData[2][this.entryId][this.entityId][this.chainId]["helices"];
+    ts = this.apiData[2][this.entryId][this.entityId][this.chainId]["strands"];
+    
+    ths = this.apiData[2][this.entryId][this.entityId][this.chainId]["helices"][0]["start"];
+    the = this.apiData[2][this.entryId][this.entityId][this.chainId]["helices"][0]["stop"];
+    
+    for( var k = 0; k < th.length; k++){ if ((( th[k]["start"] < istart) && ( th[k]["stop"] < istart))||(( th[k]["start"] > iend) && ( th[k]["stop"] > iend))) { this.apiData[2][this.entryId][this.entityId][this.chainId]["helices"].splice(k, 1); k--; }}
+    for( var k = 0; k < ts.length; k++){ if ((( ts[k]["start"] < istart) && ( ts[k]["stop"] < istart))||(( ts[k]["start"] > iend) && ( ts[k]["stop"] > iend))) { this.apiData[2][this.entryId][this.entityId][this.chainId]["strands"].splice(k, 1); k--; }}
+    for( var k = 0; k < tc.length; k++){ if ((( tc[k]["start"] < istart) && ( tc[k]["stop"] < istart))||(( tc[k]["start"] > iend) && ( tc[k]["stop"] > iend))) { this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"].splice(k, 1); k--; }}
+    //console.log(t, tc, te, th,ths, the, ts);
+   // console.log(th,ths, the);
+
+    // end of filltering 
+
+    console.log(t);
    for (var n in t) t[n] && t[n].forEach(function(t) {
     void 0 !== t.path && 0 < t.path.length && (i = i.concat(e.chunkArray(t.path, 2)))
    });
@@ -2748,6 +2775,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
     residueNumber: t.residue_number,
     type: t.type,
     entropyId: this.entropyId,
+    filterRange: this.filterRange,
     entryId: this.entryId,
     entityId: this.entityId,
     chainId: this.chainId
@@ -2758,6 +2786,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
     residueNumber: e.residue_number,
     type: e.type,
     entropyId: this.entropyId,
+    filterRange: this.filterRange,
     entryId: this.entryId,
     entityId: this.entityId,
     chainId: this.chainId
@@ -2769,6 +2798,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
     o = d3.select(t);
    this.renderTooltip("", "hide"), o.classed("coloured") ? (i = o.attr("data-color"), r = n = 1) : "coils" === e.type && (i = this.defaultColours.borderColor), "strands" !== e.type && "helices" !== e.type || o.attr("fill", i).attr("fill-opacity", n), "coils" === e.type && o.attr("stroke", i).attr("stroke-width", r), this.dispatchEvent("PDB.topologyViewer.mouseout", {
     entropyId: this.entropyId,
+    filterRange: this.filterRange,
     entryId: this.entryId,
     entityId: this.entityId,
     chainId: this.chainId
@@ -3740,7 +3770,7 @@ window.PdbTopologyViewerPlugin = PdbTopologyViewerPlugin,
    g = (n = i.n(S)()(HTMLElement), p()(w, n), d()(w, null, [{
     key: "observedAttributes",
     get: function() {
-     return ["entry-id", "entity-id", "entropy-id", "chain-id", "display-style", "error-style", "menu-style", "subscribe-events"]
+     return ["entry-id", "entity-id", "entropy-id", "filter-range", "chain-id", "display-style", "error-style", "menu-style", "subscribe-events"]
     }
    }]), d()(w, [{
     key: "validateParams",
@@ -3755,15 +3785,17 @@ window.PdbTopologyViewerPlugin = PdbTopologyViewerPlugin,
       var t = {
        entryId: this.entryId,
        entityId: this.entityId,
-       entropyId: this.entropyId
+       entropyId: this.entropyId,
+       filterRange: this.filterRange
       };
-      void 0 !== this.entropyId && null !== this.entropyId && (t.entropyId = this.entropyId), void 0 !== this.chainId && null !== this.chainId && (t.chainId = this.chainId), void 0 !== this.displayStyle && null !== this.displayStyle && (t.displayStyle = this.displayStyle), void 0 !== this.errorStyle && null !== this.errorStyle && (t.errorStyle = this.errorStyle), void 0 !== this.menuStyle && null !== this.menuStyle && (t.menuStyle = this.menuStyle), void 0 !== this.subscribeEvents && null !== this.subscribeEvents && (t.subscribeEvents = this.subscribeEvents), this.pluginInstance.render(this, t)
+      void 0 !== this.entropyId && null !== this.entropyId && (t.entropyId = this.entropyId), void 0 !== this.filterRange && null !== this.filterRange && (t.filterRange = this.filterRange), void 0 !== this.chainId && null !== this.chainId && (t.chainId = this.chainId), void 0 !== this.displayStyle && null !== this.displayStyle && (t.displayStyle = this.displayStyle), void 0 !== this.errorStyle && null !== this.errorStyle && (t.errorStyle = this.errorStyle), void 0 !== this.menuStyle && null !== this.menuStyle && (t.menuStyle = this.menuStyle), void 0 !== this.subscribeEvents && null !== this.subscribeEvents && (t.subscribeEvents = this.subscribeEvents), this.pluginInstance.render(this, t)
      }
     }
    }, {
     key: "attributeChangedCallback",
     value: function() {
-     this.entropyId = this.getAttribute("entropy-id"), this.entryId = this.getAttribute("entry-id"), this.entityId = this.getAttribute("entity-id"), this.chainId = this.getAttribute("chain-id"), this.displayStyle = this.getAttribute("display-style"), this.errorStyle = this.getAttribute("error-style"), this.menuStyle = this.getAttribute("menu-style"), this.subscribeEvents = this.getAttribute("subscribe-events"), this.invokePlugin()
+     this.entropyId = this.getAttribute("entropy-id"), this.getAttribute("filter-range"), this.entryId = this.getAttribute("entry-id"), this.entityId = this.getAttribute("entity-id"), this.chainId = this.getAttribute("chain-id"), this.displayStyle = this.getAttribute("display-style"), this.errorStyle = this.getAttribute("error-style"), this.menuStyle = this.getAttribute("menu-style"), this.subscribeEvents = this.getAttribute("subscribe-events"), this.invokePlugin()
+     this.filterRange = this.getAttribute("filter-range")
     }
    }]), w);
 

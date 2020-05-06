@@ -16,6 +16,8 @@
   <script type="text/javascript" src={% static 'alignments/pdb-topology-viewer-component-2.0.8.js' %} defer></script> 
   <script type="text/javascript" src={% static 'alignments/palette.js-master/palette.js' %} defer></script> 
   <script type="text/javascript" src={% static 'alignments/palette.js-master/demo.js' %} defer></script> 
+  <script type="text/javascript" src={% static 'alignments/GetRangeMapping.js' %} defer></script> 
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
 
 	<style>
@@ -36,8 +38,11 @@
 			var data = JSON.parse(this.response);
 			if (request.status >= 200 && request.status < 400) {
 				var entityid = Object.keys(data[pdblower])[0];
-				var topology_viewer = "<pdb-topology-viewer entry-id={{pdbid}} entity-id="+entityid+" chain-id={{chainid}}	entropy-id={{entropy_address}}></pdb-topology-viewer>"
-				alert(topology_viewer)
+				var mapping = []
+				GetRangeMapping("{{pdbid}}", "{{chainid}}", "1-50", mapping)
+				console.log(mapping)
+				var topology_viewer = "<pdb-topology-viewer entry-id={{pdbid}} entity-id="+entityid+" chain-id={{chainid}}	entropy-id={{entropy_address}} filter-range="+mapping+"></pdb-topology-viewer>"
+				//alert(topology_viewer)
 				document.getElementById('topview').innerHTML = topology_viewer;
 			} else {
 				console.log('error');
