@@ -5,15 +5,12 @@
  	dataType: "json",
      success: function (data) {
  		console.log(data);
- 		tree = data;
+ 		callback(data)
      },
      error: function (error) {
          console.log(`Error ${error}`);
-	 },
-	 async: false		//Essentially means everything after this will wait for the ajax call to happen,
- });					//which is precisely what we wanted to do. 
-						//We need to be careful how long the python function takes to construct the tree.
-						//In principle not a good way to do it, but it works for now.
+	 }
+ });
 
  console.log('Tree is in the JS global scope: ', tree);
 
@@ -55,10 +52,11 @@ Vue.component('tree-menu', {
 		}
 	}
 });
-  
+function callback(tree){
   new Vue({
 	el: '#app',
 	data: {
 	  tree
 	}
   })
+}
