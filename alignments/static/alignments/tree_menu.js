@@ -12,8 +12,6 @@
 	 }
  });
 
- console.log('Tree is in the JS global scope: ', tree);
-
 Vue.component('tree-menu', { 
 	delimiters: ['[[',']]'],
 	template: '#tree-menu',
