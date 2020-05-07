@@ -2723,12 +2723,17 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
   
 
     tc = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"]; 
-    tcp = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["path"];
-    tcs = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"];
-     console.log(tc, tcp, tcs);
+    tca = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["start"];
+    tco = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["stop"];
+    tcp = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["path"];
+     console.log(tc, tca, tco, tcp);
 
-    for( var k = 0; k < 1; k++){ if ((( tc[0]["start"] < istart) && ( tc[0]["stop"] >= istart) )) { del=istart - tc[0]["start"]-1;  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["path"].splice(0, (del-1)*2);  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"]=this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"]+del;  }}
-    //for( var k = tc.length-1; k > tc.length-2; k--){ if ((( tc[tc.length-1]["start"] <= iend) &&( tc[tc.length-1]["stop"] >= iend) )) { del=iend - tc[tc.length-1]["stop"]-1; path_length=tc[tc.length-1]["stop"].length; console.log(path_length); this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["path"].splice(path_length-(del)*2+1, (del)*2);  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"]=this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["stop"]-del;  }}
+    //for( var k = 0; k < 1; k++){ if ((( tc[0]["start"] < istart) && ( tc[0]["stop"] >= istart) )) { del=istart - tc[0]["start"]-1;  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["path"].splice(0, (del-1)*2);  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"]=this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"]+del;  }}
+    //for( var k = tc.length-1; k > tc.length-2; k--){ if ((( tc[tc.length-1]["start"] <= iend) &&( tc[tc.length-1]["stop"] >= iend) )) { del=tc[tc.length-1]["stop"]-1-iend; path_length=tc[tc.length-1]["path"].length; console.log(del, path_length); this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["path"].splice(path_length-3, 2);  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["stop"]=this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["stop"]-del;  }}
+    
+    for( var k = 0; k < 1; k++){ if ((( tc[0]["start"] < istart) && ( tc[0]["stop"] >= istart) )) { del=istart - tc[0]["start"]-1; del1=del; if (del>2){del1=2};  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["path"].splice(0, (del1-1)*2);  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"]=this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"]+del+1;  }}
+    for( var k = tc.length-1; k > tc.length-2; k--){ if ((( tc[tc.length-1]["start"] <= iend) &&( tc[tc.length-1]["stop"] >= iend) )) { del=tc[tc.length-1]["stop"]-1-iend; del1=del; if (del>2){del1=2}; path_length=tc[tc.length-1]["path"].length; console.log(del, path_length); this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["path"].splice(path_length-(del1-1)*2-1, (del1-1)*2);  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["stop"]=this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["stop"]-del-1;  }}
+    
     console.log(tc);
  
     //this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"][0]=54;
