@@ -45,6 +45,7 @@
   </script>
 
 <script src={% static 'alignments/tree_menu.js' %}></script>
+<script src={% static 'alignments/GetPDBeChains.js' %}></script>
 
 <script>
 	var pdb = null;
@@ -92,6 +93,11 @@ function myFunction3(chain) {
 	window.location.href = "twincons/" + pdb + "/" + chain
 }
 </script>
+
+<form action="" method="post">{% csrf_token %}
+    Input pdb identifier: <input placeholder="PDB ID" type="text" name="pdbid" maxlength="4"/> <br/>
+	<p><input type="submit" /></p>
+</form>
 
 <p>AND</p> 
 

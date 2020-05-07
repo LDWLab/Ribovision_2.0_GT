@@ -51,10 +51,10 @@ Vue.component('tree-menu', {
 	}
 });
 function callback(tree){
-  new Vue({
-	el: '#app',
-	data: {
-	  tree
-	}
-  })
+	new Vue({
+		el: '#app',
+		data: {
+			tree
+		}
+	})
 }

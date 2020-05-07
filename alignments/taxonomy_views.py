@@ -13,7 +13,8 @@ def buildTaxonomy(request):
 		taxonomy.append(subtaxonomy)
 	tree = {
 		'label' : 'Root',
-		'nodes' : taxonomy
+		'nodes' : taxonomy,
+		'taxID' : 0
 	}
 	return JsonResponse(tree, safe = False)
 
@@ -25,7 +26,8 @@ def api_showTaxonomy(request, parent):
 		}
 	tree = {
 		'label' : 'Root',
-		'nodes' : taxonomy
+		'nodes' : taxonomy,
+		'taxID' : 0
 	}
 	return JsonResponse(tree, safe = False)
 
