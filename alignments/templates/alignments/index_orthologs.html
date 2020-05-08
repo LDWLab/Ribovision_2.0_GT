@@ -22,8 +22,10 @@
 		<div :style="indent" :class="labelClasses">
 			<i v-for="node in nodes" class="fa" :class="iconClasses"></i>
 			[[label]]
-			<input type="checkbox" id="check" name="check" unchecked>
-			
+			<!--
+			<label :for="taxID"> [[label]] </label>
+			<input type="checkbox" :id="taxID" name="check" unchecked>
+			-->
 		</div>
 	  </div>
 	  <tree-menu 
@@ -38,12 +40,42 @@
 	  </tree-menu>
 	</div>
 </script>
-
+<br>
 <script src={% static 'alignments/tree_menu.js' %}></script>
 <script src={% static 'alignments/GetPDBeChains.js' %}></script>
 
+AND (
+<form id="user_input_pdb_form" action="" method="post" class = "form-inline" style = "margin: 0; padding: 0;">{% csrf_token %}
+	<style type="text/css">
+		form, table {
+			display:inline;
+			margin:0px;
+			padding:0px;
+		}
+	</style>
+	Input pdb identifier: 
+	<input placeholder="PDB ID" onchange = "prepareMethod2()" type="text" name="pdbid" maxlength="4" style="display: inline;"/><input type="submit" />
+</form>
+
+OR
 <form enctype = "multipart/form-data" method = "post" id = "mainForm"> {% csrf_token %}
-	AND (
+
+
+	 <select id = "getPDB" onchange="preparePDB(this.value)">
+		<option>Select a PDB</option>
+		{% for pdb in threeDstructures %}
+			<option value={{ pdb.number_3d_structure_id }}>{{ pdb.structurename }}</option>
+		{% endfor %}
+	</select>
+	)<br><br>
+ AND
+
+	<select name = "chain_selector" id = "chain_selector" onclick = "chain = chain_selector.value; prepareMethod2();">
+		<option value = "" disabled selected>Select polymer</option>
+	</select>
+
+	<br><br>
+AND (
 
 	<select id = "selectProteinAlignment" onclick = "alignmentName = this.value; alignmentType = 'rProtein/'; prepareMethod1();">
 		<option>Select a protein alignment</option>
@@ -54,7 +86,7 @@
 		{% endfor %}
 	</select>
 
-	OR
+OR
 
 	<select id = "selectRRNAAlignment" onclick = "alignmentName = this.value; alignmentType = 'rRNA/'; prepareMethod1();">
 		<option>Select an rRNA alignment</option>
@@ -63,42 +95,13 @@
 				<option value = {{ aln.name }}>{{ aln.name }}</option>
 			{% endif %}
 		{% endfor %}
-	</select>
+	</select>	
+	)<br><br>
 
-	) AND <select id = "getPDB" onchange="preparePDB(this.value)">
-		<option>Select a PDB</option>
-		{% for pdb in threeDstructures %}
-			<option value={{ pdb.number_3d_structure_id }}>{{ pdb.structurename }}</option>
-		{% endfor %}
-	</select>
-	<br>
-	<br>
 
-	OR(
-	
-	<form action="" method="post" class = "form-inline" style = "margin: 0; padding: 0;">{% csrf_token %}
-		<style type="text/css">
-			form, table {
-				display:inline;
-				margin:0px;
-				padding:0px;
-			}
-		</style>
-		Input pdb identifier: 
-		<input placeholder="PDB ID" onchange = "prepareMethod2()" type="text" name="pdbid" maxlength="4" style="display: inline;"/><input type="submit" />
-	</form>
+	OR (Upload fasta file: <input type = "file" accept = ".fa, .fas" name = "alignment file">
 
-	AND
-
-	<select name = "chain_selector" id = "chain_selector" onclick = "chain = chain_selector.value; prepareMethod2();">
-		<option value = "" disabled selected>Select polymer</option>
-	</select>
-
-	<br>
-
-	AND (Upload fasta file: <input type = "file" accept = ".fa, .fas" name = "alignment file">
-
-	OR<br>
+	OR
 
 	<textarea name = "alignmentText" cols = "50" rows = "20" placeholder = "Input alignment text" onclick = "chain = chain_selector.value; prepareMethod2();" onchange = ""></textarea>
 
@@ -113,6 +116,7 @@
 
 	<input id = "submitButton" type = "submit" value = "Submit" disabled>
 </form>
+
 
 <script>
 	var
