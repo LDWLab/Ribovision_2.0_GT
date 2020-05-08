@@ -2692,6 +2692,9 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
     
     istart=this.filterRange.split(",")[0];
     iend=this.filterRange.split(",")[1];
+
+    console.log(istart, iend);
+
     
     t = this.apiData[2][this.entryId][this.entityId][this.chainId];
     tc = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"];
@@ -2701,14 +2704,39 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
     
     ths = this.apiData[2][this.entryId][this.entityId][this.chainId]["helices"][0]["start"];
     the = this.apiData[2][this.entryId][this.entityId][this.chainId]["helices"][0]["stop"];
+
+    //for( var k = 0; k < th.length; k++){ if ((( th[k]["start"] < istart) && ( th[k]["stop"] < istart))||(( th[k]["start"] > iend) && ( th[k]["stop"] > iend))) { this.apiData[2][this.entryId][this.entityId][this.chainId]["helices"].splice(k, 1); k--; }}
+    //for( var k = 0; k < ts.length; k++){ if ((( ts[k]["start"] < istart) && ( ts[k]["stop"] < istart))||(( ts[k]["start"] > iend) && ( ts[k]["stop"] > iend))) { this.apiData[2][this.entryId][this.entityId][this.chainId]["strands"].splice(k, 1); k--; }}
+    //for( var k = 0; k < tc.length; k++){ if ((( tc[k]["start"] < istart) && ( tc[k]["stop"] < istart))||(( tc[k]["start"] > iend) && ( tc[k]["stop"] > iend))) { this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"].splice(k, 1); k--; }}
     
     for( var k = 0; k < th.length; k++){ if ((( th[k]["start"] < istart) && ( th[k]["stop"] < istart))||(( th[k]["start"] > iend) && ( th[k]["stop"] > iend))) { this.apiData[2][this.entryId][this.entityId][this.chainId]["helices"].splice(k, 1); k--; }}
-    for( var k = 0; k < ts.length; k++){ if ((( ts[k]["start"] < istart) && ( ts[k]["stop"] < istart))||(( ts[k]["start"] > iend) && ( ts[k]["stop"] > iend))) { this.apiData[2][this.entryId][this.entityId][this.chainId]["strands"].splice(k, 1); k--; }}
-    for( var k = 0; k < tc.length; k++){ if ((( tc[k]["start"] < istart) && ( tc[k]["stop"] < istart))||(( tc[k]["start"] > iend) && ( tc[k]["stop"] > iend))) { this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"].splice(k, 1); k--; }}
-    //console.log(t, tc, te, th,ths, the, ts);
-   // console.log(th,ths, the);
+    for( var k = 0; k < ts.length; k++){ if ((( ts[k]["stop"] < istart)) || (( ts[k]["start"] > iend))) { this.apiData[2][this.entryId][this.entityId][this.chainId]["strands"].splice(k, 1); k--; }}
+    for( var k = 0; k < tc.length; k++){ if ((( tc[k]["stop"] < istart) && ( tc[k]["start"] !=-1 ))||(( tc[k]["start"] > iend) && ( tc[k]["stop"] > iend))) { this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"].splice(k, 1); k--; }}
 
+    tc = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"];
+    console.log(tc);
+
+    for( var k = 0; k < tc.length; k++){ if (( tc[0]["start"] == -1) ) { this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"].splice(0, 1); k--; }}
+    for( var k = tc.length-1; k >= 0; k--){ if (( tc[tc.length-1]["start"] == -1) ) { this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"].splice(tc.length-1, 1); k--; }}
+ 
     // end of filltering 
+  
+
+    tc = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"]; 
+    tca = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["start"];
+    tco = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["stop"];
+    tcp = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["path"];
+     console.log(tc, tca, tco, tcp);
+
+    //for( var k = 0; k < 1; k++){ if ((( tc[0]["start"] < istart) && ( tc[0]["stop"] >= istart) )) { del=istart - tc[0]["start"]-1;  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["path"].splice(0, (del-1)*2);  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"]=this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"]+del;  }}
+    //for( var k = tc.length-1; k > tc.length-2; k--){ if ((( tc[tc.length-1]["start"] <= iend) &&( tc[tc.length-1]["stop"] >= iend) )) { del=tc[tc.length-1]["stop"]-1-iend; path_length=tc[tc.length-1]["path"].length; console.log(del, path_length); this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["path"].splice(path_length-3, 2);  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["stop"]=this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["stop"]-del;  }}
+    
+    for( var k = 0; k < 1; k++){ if ((( tc[0]["start"] < istart) && ( tc[0]["stop"] >= istart) )) { del=istart - tc[0]["start"]-1; del1=del; if (del>2){del1=2};  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["path"].splice(0, (del1-1)*2);  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"]=this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"]+del+1;  }}
+    for( var k = tc.length-1; k > tc.length-2; k--){ if ((( tc[tc.length-1]["start"] <= iend) &&( tc[tc.length-1]["stop"] >= iend) )) { del=tc[tc.length-1]["stop"]-1-iend; del1=del; if (del>2){del1=2}; path_length=tc[tc.length-1]["path"].length; console.log(del, path_length); this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["path"].splice(path_length-(del1-1)*2-1, (del1-1)*2);  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["stop"]=this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["stop"]-del-1;  }}
+    
+    console.log(tc);
+ 
+    //this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"][0]=54;
 
     console.log(t);
    for (var n in t) t[n] && t[n].forEach(function(t) {
@@ -3390,7 +3418,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
      }],
      a = [],
      h = [0];
-     console.log(t);
+     //console.log(t);
      var RiboData=this.apiData[5];
     
     if (void 0 !== this.apiData[5]) {
@@ -3404,7 +3432,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
      Y_max=Math.max.apply(Math, RiboData_Y);
      Y_range=Math.max.apply(Math, RiboData_Y)-Math.min.apply(Math, RiboData_Y);
 
-     console.log(Y_range);
+     //console.log(Y_range);
 
      RiboData_Y_norm = RiboData_Y.map(x => (x-Y_min)/Y_range);
     
@@ -3433,7 +3461,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
              var col_tol_rgb= hexToRgb1(col_tol);
 
              var col_tol_rgb_GB = hexToRgb_GreenBlind2(col_tol);
-             console.log(col_tol, col_tol_rgb, col_tol_rgb_GB );
+            // console.log(col_tol, col_tol_rgb, col_tol_rgb_GB );
 
           
             
@@ -3517,7 +3545,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
    var e = this.targetEle.querySelector(".menuSelectbox"),
     i = parseInt(e.value),
     n = this.domainTypes[i];
-    console.log(n.data);
+    //console.log(n.data);
     null !== n.data ? (this.resetTheme(), this.updateTheme(n.data), "Quality" === n.label && this.svgEle.selectAll(".validationResidue").style("display", "block")) : "zoom" !== t && this.resetTheme();
     if ("RiboVision2" === n.label) {null !== n.data ? (this.resetTheme(), this.updateTheme_RV2(n.data), "RiboVision2" === n.label && this.svgEle.selectAll(".validationResidue").style("display", "block")) : "zoom" !== t && this.resetTheme()} 
    

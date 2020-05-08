@@ -39,22 +39,26 @@ Vue.component('tree-menu', {
 		toggleChildren() {
 		this.showChildren = !this.showChildren;
 		// if (this.showChildren) {
-			var button = document.getElementById("getAlignment");
 			//var newValue = "{% url 'alignments:detail' " + this.taxID + " %}"
-			var
-				value1 = button.getAttribute("value2"),
-				value2 = this.taxID;
-			button.setAttribute("value1", value1);
-			button.setAttribute("value2", value2);
+			setTaxID2(getTaxID1());
+			setTaxID1(this.taxID);
+			prepareMethod1();
+
+			// var
+			// 	form = document.getElementById("mainForm"),
+			// 	taxID1 = form.getAttribute("taxID2"),
+			// 	taxID2 = this.taxID;
+			// form.setAttribute("taxID1", taxID1);
+			// form.setAttribute("taxID2", taxID2);
 		// }
 		}
 	}
 });
 function callback(tree){
-  new Vue({
-	el: '#app',
-	data: {
-	  tree
-	}
-  })
+	new Vue({
+		el: '#app',
+		data: {
+			tree
+		}
+	})
 }

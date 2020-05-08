@@ -1,10 +1,6 @@
 {% load static %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
- <script>
-
-
-</script>
 <script src="{% static "alignments/vue.js" %}">
 </script>
 
@@ -18,14 +14,13 @@
 			   :label="tree.label"
 			   >Loading phylogenetic tree...</tree-menu>
 	</div>
-  </div>
+</div>
   
-  <script type="text/x-template" id="tree-menu">
+<script type="text/x-template" id="tree-menu">
 	<div class="tree-menu">
 	  <div class="label-wrapper" @click="toggleChildren">
 		<div :style="indent" :class="labelClasses">
 			<i v-for="node in nodes" class="fa" :class="iconClasses"></i>
-			<!-- [[label]], [[taxID]] -->
 			[[label]]
 			<input type="checkbox" id="check" name="check" unchecked>
 			
@@ -42,115 +37,147 @@
 	  >
 	  </tree-menu>
 	</div>
-  </script>
-
-<script src={% static 'alignments/tree_menu.js' %}></script>
-
-<script>
-	var pdb = null;
-function myFunction(alignment_name,aln_type) {
-	var
-		getAlignment = document.getElementById("getAlignment"),
-		parent_taxid1 = getAlignment.getAttribute("value1"),
-		parent_taxid2 = getAlignment.getAttribute("value2");
-	
-	// var res = aln_type.concat(alignment_name).concat("/").concat(parent_taxid2);
-	// localhost:8000/alignments/twc-api/uL16/2/2157/511145
-	var res = "twincons/" + alignment_name + "/" + parent_taxid1 + "/" + parent_taxid2 + "/" + pdb;
-	// alert(res);
-	console.log(res);
-	window.location.href = res;
-}
-
-function myFunction2(struc_id) {
-	var struc_data;
-	$.ajax({
-	url: '/struc-api/'+struc_id,
-	type: "GET",
-	dataType: "json",
-	success: function (data) {
- 		console.log(data);
- 		struc_data = data;},
-	error: function (error) {
-		console.log(`Error ${error}`);},
-	 async: false
-	});
-
-	pdb = struc_data["PDBID"];
-	
-	if (struc_id.length == 0) document.getElementById("chain_selector").innerHTML = "<option></option>";
-	else {
-		var catOptions = "";
-		for (polymer_chain of struc_data["Polymers and Chains"]) {
-			catOptions += "<option value="+polymer_chain[3]+">" + polymer_chain[0] + "</option>";
-		}
-		document.getElementById("chain_selector").innerHTML = catOptions;
-	}
-}
-
-function myFunction3(chain) {
-	window.location.href = "twincons/" + pdb + "/" + chain
-}
 </script>
 
-<form enctype = "multipart/form-data" action = "" method = "post">{% csrf_token %}
-   <p>CSV Selection: <input type = "file" accept=".csv" name = "filename" /></p>
-   <p><input type = "submit" value = "Upload CSV" /></p>
+<script src={% static 'alignments/tree_menu.js' %}></script>
+<script src={% static 'alignments/GetPDBeChains.js' %}></script>
+
+<form enctype = "multipart/form-data" method = "POST" id = "mainForm"> {% csrf_token %}
+	AND (
+
+	<select id = "selectProteinAlignment" onclick = "alignmentName = this.value; alignmentType = 'rProtein/'; prepareMethod1();">
+		<option>Select a protein alignment</option>
+		{% for aln in some_Alignments %}
+			{% if 'LSU' not in aln.name %}
+				<option value={{ aln.name }}>{{ aln.name }}</option>
+			{% endif %}
+		{% endfor %}
+	</select>
+
+	OR
+
+	<select id = "selectRRNAAlignment" onclick = "alignmentName = this.value; alignmentType = 'rRNA/'; prepareMethod1();">
+		<option>Select an rRNA alignment</option>
+		{% for aln in some_Alignments %}
+			{% if 'LSU' in aln.name %}
+				<option value = {{ aln.name }}>{{ aln.name }}</option>
+			{% endif %}
+		{% endfor %}
+	</select>
+
+	) AND <select id = "getPDB" onchange="preparePDB(this.value)">
+		<option>Select a PDB</option>
+		{% for pdb in threeDstructures %}
+			<option value={{ pdb.number_3d_structure_id }}>{{ pdb.structurename }}</option>
+		{% endfor %}
+	</select>
+	<br>
+	<br>
+
+	OR(
+	
+	<form action="" method="post" class = "form-inline" style = "margin: 0; padding: 0;">{% csrf_token %}
+		<style type="text/css">
+			form, table {
+				display:inline;
+				margin:0px;
+				padding:0px;
+			}
+		</style>
+		Input pdb identifier: 
+		<input placeholder="PDB ID" onchange = "prepareMethod2()" type="text" name="pdbid" maxlength="4" style="display: inline;"/><input type="submit" />
+	</form>
+
+	AND
+
+	<select name = "chain_selector" id = "chain_selector" onclick = "chain = chain_selector.value; prepareMethod2();">
+		<option value = "" disabled selected>Select polymer</option>
+	</select>
+
+	<br>
+
+	AND (Upload fasta file: <input type = "file" accept = ".fa, .fas" name = "alignment file">
+
+	OR<br>
+
+	<textarea name = "alignmentText" cols = "50" rows = "20" placeholder = "Input alignment text" onclick = "chain = chain_selector.value; prepareMethod2();" onchange = ""></textarea>
+
+	))
+	<br>
+	<br>
+
+	CSV Selection: <input type = "file" accept=".csv" name = "filename"/>
+
+	<br>
+	<br>
+
+	<input id = "submitButton" type = "submit" value = "Submit" disabled>
 </form>
 
-<form enctype = "multipart/form-data" action = "" method = "post">{% csrf_token %}
-   <p>Alignment Selection: <input type = "file" accept=".fa, .fas" name = "filename" /></p>
-   <p><input type = "submit" value = "Upload Alignment" /></p>
-</form>
+<script>
+	var
+		mainForm = document.getElementById("mainForm"),
+		pdb = null,
+		alignmentName,
+		alignmentType,
+		chain,
+		textArea,
+		submitButton,
+		taxID1,
+		taxID2;
 
-<form enctype = "multipart/form-data" action = "" method = "post">{% csrf_token %}
-   <p>
-	  Input Alignment Text: <br>
-	  <textarea name = 'alignmentText' cols="50" rows="20"></textarea>
-   </p>
-   <p>
-	  <input type = "submit" value = "Upload Alignment Text">
-   </p>
-</form>
+	function setTaxID1(tax1) {
+		taxID1 = tax1;
+	}
 
-<p>AND</p> 
+	function setTaxID2(tax2) {
+		taxID2 = tax2;
+	}
 
-<select id = "getPDB" onchange="myFunction2(this.value)">
-	<option>Select a PDB</option>
-	{% for pdb in threeDstructures %}
-		<option value={{ pdb.number_3d_structure_id }}>{{ pdb.structurename }}</option>
-	{% endfor %}
-</select>
+	function getTaxID1() {
+		return taxID1;
+	}
 
-<p>AND</p> 
+	function getTaxID2() {
+		return taxID2;
+	}
 
-<select name="chain_selector" id="chain_selector">
-	<option value="" disabled selected>Select polymer</option>
-</select>
+	function preparePDB(struc_id) {
+		var struc_data;
+		$.ajax({
+		url: '/struc-api/'+struc_id,
+		type: "GET",
+		dataType: "json",
+		success: function (data) {
+			console.log(data);
+			struc_data = data;},
+		error: function (error) {
+			console.log(`Error ${error}`);},
+		async: false
+		});
 
-<button onclick="myFunction3(chain_selector.value)" method = "post">Use User-Uploaded Fasta
+		pdb = struc_data["PDBID"];
+		
+		if (struc_id.length == 0) {
+			document.getElementById("chain_selector").innerHTML = "<option></option>";
+		} else {
+			var catOptions = "";
+			for (polymer_chain of struc_data["Polymers and Chains"]) {
+				catOptions += "<option value="+polymer_chain[3]+">" + polymer_chain[0] + "</option>";
+			}
+			document.getElementById("chain_selector").innerHTML = catOptions;
+		}
 
-</button> {{file_name}}
+		prepareMethod1();
+	}
 
-<p>OR</p>
+	function prepareMethod1() {
+		mainForm.action = "twincons/" + alignmentName + "/" + taxID1 + "/" + taxID2 + "/" + pdb;
+		document.getElementById("submitButton").disabled = !(alignmentName && taxID1 && taxID2 && pdb);
+	}
 
-<select id="getAlignment" onchange= "myFunction(this.value, 'rProtein/');">
-	<option >Select an alignment</option>
-	{% for aln in some_Alignments %}
-		{%if 'LSU' not in aln.name%}
-			<option value={{ aln.name }}>{{ aln.name }}</option>
-		{% endif %}
-	{% endfor %}
-</select>
-
-<p>OR</p>
-
-<select id="getAlignment" onchange= "myFunction(this.value, 'rRNA/');">
-	<option value="">Select an rRNA alignment</option>
-	{% for aln in some_Alignments %}
-		{%if 'LSU' in aln.name%}
-			<option value={{ aln.name }}>{{ aln.name }}</option>
-		{% endif %}
-	{% endfor %}
-</select>
-
+	function prepareMethod2() {
+		mainForm.action = "twincons/" + pdb + "/" + chain;
+		document.getElementById("submitButton").disabled = !(pdb && chain);
+	}
+</script>
