@@ -42,7 +42,7 @@
 <script src={% static 'alignments/tree_menu.js' %}></script>
 <script src={% static 'alignments/GetPDBeChains.js' %}></script>
 
-<form enctype = "multipart/form-data" method = "POST" id = "mainForm"> {% csrf_token %}
+<form enctype = "multipart/form-data" method = "post" id = "mainForm"> {% csrf_token %}
 	AND (
 
 	<select id = "selectProteinAlignment" onclick = "alignmentName = this.value; alignmentType = 'rProtein/'; prepareMethod1();">
