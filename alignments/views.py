@@ -185,21 +185,33 @@ def calculate_twincons(alignment):
 		list_for_topology_viewer.append([alnindex,alnindex_score[alnindex][0]])
 	return list_for_topology_viewer
 
+def upload_custom_data_for_mapping(request):
+	if request.method == 'POST' and 'filename' in request.FILES:
+		data_pairs = []
+		file = request.FILES['filename']
+		file_iterator = iter(file)
+		while True:
+			try:
+				entry = file_iterator.__next__().decode().strip().split(',')
+				data_pairs.append((int(entry[0]), float(entry[1])))
+			except StopIteration:
+				break
+		request.session['csv'] = data_pairs
+	if request.method == 'GET':
+		data_pairs = request.session.get('csv')
+		return JsonResponse(data_pairs, safe = False)
+
 def api_twc_with_upload(request, anchor_structure):
 	#### _____________Transform PDBID to taxid______________ ####
 	anchor_taxid = pdbid_to_strainid(anchor_structure)
-
-	#### This should be separate view with its own URL for serving multi-group alignments ####
-	filter_strain = str(anchor_taxid)
 
 	fastastring = request.session.get('fasta')
 	#print('fastastring:\n' + fastastring)
 
 	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
-	
 	#### _____________Trim down the alignment______________ ####
-	alignment = trim_alignment(concat_fasta, filter_strain)
-	
+	alignment = trim_alignment(concat_fasta, str(anchor_taxid))
+
 	#### _______________Calculate TwinCons_________________ ####
 	list_for_topology_viewer = calculate_twincons(alignment)
 
@@ -230,13 +242,17 @@ def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure=''):
 	return JsonResponse(list_for_topology_viewer, safe = False)
 
 def twincons_with_upload(request, anchor_structure, chain):
-	taxid = pdbid_to_strainid(anchor_structure)
+	from django.urls import resolve
+	current_url = resolve(request.path_info).url_name
 	context = {
 		'pdbid': anchor_structure, 
-		'chainid': chain, 
-		'entropy_address': "upload/twc-api/"+str(anchor_structure)
-	}
-	print('Complete')
+		'chainid': chain
+		}
+	if current_url == 'twc_with_upload':
+		context['entropy_address'] = "upload/twc-api/"+str(anchor_structure)
+	elif current_url == 'custom_csv_data_viewer':
+		upload_custom_data_for_mapping(request)
+		context['entropy_address'] = "custom-csv-data"
 	return render(request, 'alignments/twc_detail.html', context)
 
 def twincons(request, align_name, tax_group1, tax_group2, anchor_structure):
@@ -321,6 +337,9 @@ def upload(request):
 		'threeDstructures': three_d_structures,
 	}
 	return render(request, 'alignments/upload.html', context)
+
+def upload_custom_data(request):
+	return render(request, 'alignments/upload_custom_data.html')
 
 def submit(request):
 	data_pairs = []
