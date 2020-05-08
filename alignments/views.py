@@ -205,21 +205,24 @@ def api_twc_with_upload(request, anchor_structure):
 
 	return JsonResponse(list_for_topology_viewer, safe = False)
 
-def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure):
+def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure=''):
 
 	#### _____________Transform PDBID to taxid______________ ####
-	anchor_taxid = pdbid_to_strainid(anchor_structure)
-
+	if anchor_structure != '':
+		anchor_taxid = pdbid_to_strainid(anchor_structure)
+		filter_strain = str(Species.objects.filter(strain_id = anchor_taxid)[0].strain).replace(" ", "_")
+	
 	#### This should be separate view with its own URL for serving multi-group alignments ####
-	filter_strain = str(Species.objects.filter(strain_id = anchor_taxid)[0].strain).replace(" ", "_")
-
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
 	fastastring,max_aln_length1 = sql_filtered_aln_query_two_parents(align_id,tax_group1,tax_group2)
 	#print('fastastring:\n' + fastastring)
 	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
 	
 	#### _____________Trim down the alignment______________ ####
-	alignment = trim_alignment(concat_fasta, filter_strain)
+	if anchor_structure != '':
+		alignment = trim_alignment(concat_fasta, filter_strain)
+	else:
+		alignment = concat_fasta
 	
 	#### _______________Calculate TwinCons_________________ ####
 	list_for_topology_viewer = calculate_twincons(alignment)

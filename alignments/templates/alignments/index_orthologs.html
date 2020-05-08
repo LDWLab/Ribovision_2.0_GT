@@ -22,6 +22,7 @@
 		<div :style="indent" :class="labelClasses">
 			<i v-for="node in nodes" class="fa" :class="iconClasses"></i>
 			[[label]]
+			<input type="checkbox" :id="taxID" name="check" unchecked>
 			<!--
 			<label :for="taxID"> [[label]] </label>
 			<input type="checkbox" :id="taxID" name="check" unchecked>
@@ -102,11 +103,11 @@ OR
 	OR (Upload fasta file: <input type = "file" accept = ".fa, .fas" name = "alignment file">
 
 	OR
-
+	<br>
 	<textarea name = "alignmentText" cols = "50" rows = "20" placeholder = "Input alignment text" onclick = "chain = chain_selector.value; prepareMethod2();" onchange = ""></textarea>
 
 	))
-	<br>
+	
 	<br>
 
 	CSV Selection: <input type = "file" accept=".csv" name = "filename"/>

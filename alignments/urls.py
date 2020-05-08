@@ -20,6 +20,7 @@ urlpatterns = [
 	path('orthologs/twincons/<str:align_name>/<int:tax_group1>/<int:tax_group2>/<str:anchor_structure>', views.twincons, name='twincons'),
 	path('entropy-api/<str:align_name>/<int:tax_group>/<str:anchor_structure>', views.api_entropy, name='api_entropy'),
 	path('twc-api/<str:align_name>/<int:tax_group1>/<int:tax_group2>/<str:anchor_structure>', views.api_twc, name='api_twc'),
+	path('twc-api/<str:align_name>/<int:tax_group1>/<int:tax_group2>', views.api_twc, name='api_twc_no_struc'),
 	path('resi-api/<int:resi_id>', views.resi_info),
 	path('struc-api/<int:struc_id>', views.struc_info),
 	path('orthologs/twc-api/<str:align_name>/<int:tax_group1>/<int:tax_group2>/<str:anchor_structure>', views.api_twc, name='api_twc'),
