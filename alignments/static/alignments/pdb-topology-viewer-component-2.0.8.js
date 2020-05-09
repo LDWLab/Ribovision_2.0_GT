@@ -2693,10 +2693,10 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
     istart=this.filterRange.split(",")[0];
     iend=this.filterRange.split(",")[1];
 
-    if (istart == 0 && iend == 0) {istart = parseInt (t["terms"][0]["resnum"]); iend = parseInt (t["terms"][1]["resnum"]) }
+    if (istart == 0 && iend == 100000) {istart = parseInt (t["terms"][0]["resnum"]); iend = parseInt (t["terms"][1]["resnum"]) }
 
 
-    console.log(istart, iend, parseInt (t["terms"][1]["resnum"]));
+    console.log(t, parseInt (t["terms"][1]["resnum"]));
 
     
    
