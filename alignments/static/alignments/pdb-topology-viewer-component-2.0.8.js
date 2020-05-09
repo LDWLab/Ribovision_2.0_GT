@@ -3521,7 +3521,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
    null != r._groups[0][0] && (r.data()[0].tooltipMsg = i, r.data()[0].tooltipPosition = n, r.attr("stroke", function(t) {
     return "coils" === t.type ? e : "#111"
    }).attr("stroke-width", function(t) {
-    return "coils" === t.type ? 0.4 : 0
+    return "coils" === t.type ? 0.5 : 0
    }).attr("fill", function(t) {
     return "coils" === t.type ? "none" : e
    }).attr("fill-opacity", function(t) {
