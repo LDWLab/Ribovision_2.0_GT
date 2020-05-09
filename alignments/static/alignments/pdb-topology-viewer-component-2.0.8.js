@@ -2689,14 +2689,17 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
     //filtering by a domain
 
     //update domain start and end positions here
-    
+    t = this.apiData[2][this.entryId][this.entityId][this.chainId];
     istart=this.filterRange.split(",")[0];
     iend=this.filterRange.split(",")[1];
 
-    console.log(istart, iend);
+    if (istart == 0 && iend == 0) {istart = parseInt (t["terms"][0]["resnum"]); iend = parseInt (t["terms"][1]["resnum"]) }
+
+
+    console.log(istart, iend, parseInt (t["terms"][1]["resnum"]));
 
     
-    t = this.apiData[2][this.entryId][this.entityId][this.chainId];
+   
     tc = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"];
     te = this.apiData[2][this.entryId][this.entityId][this.chainId]["extents"];
     th = this.apiData[2][this.entryId][this.entityId][this.chainId]["helices"];
