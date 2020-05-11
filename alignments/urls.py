@@ -12,7 +12,6 @@ urlpatterns = [
 	path('orthologs/rProtein/<str:align_name>/<int:tax_group>', views.rProtein, name='rProtein'),
 	path('orthologs/Visualizer/<str:align_name>/<int:tax_group1>/<int:tax_group2>/<str:anchor_structure>', views.visualizer),
 	path('orthologs/Visualizer/<str:align_name>/<int:tax_group1>/<int:tax_group2>/', views.visualizer),
-	path('orthologs/Visualizer/<str:anchor_structure>/<str:chain>', views.visualizerWithChain),
 	path('rRNA/<str:align_name>/<int:tax_group>', views.rRNA, name='rRNA'),
 	path('rProtein/<str:align_name>/<int:tax_group>', views.rProtein, name='rProtein'),
 	path('showTaxonomy', views.buildTaxonomy, name='showTaxonomy'),

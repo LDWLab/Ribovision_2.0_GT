@@ -335,9 +335,6 @@ def visualizerHelper(request, urlSuffix):
 def visualizer(request, align_name, tax_group1, tax_group2, anchor_structure = ''):
 	return visualizerHelper(request, align_name + "/" + str(tax_group1) + "/" + str(tax_group2) + "/" + anchor_structure)
 
-def visualizerWithChain(request, anchor_structure, chain):
-	return visualizerHelper(anchor_structure + "/" + chain)
-
 def rProtein(request, align_name, tax_group):
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
 	fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)
