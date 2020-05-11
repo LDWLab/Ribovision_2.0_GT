@@ -76,7 +76,7 @@
 
 	OR(
 	
-	<form action="" method="post" class = "form-inline" style = "margin: 0; padding: 0;">{% csrf_token %}
+	<form action="" method="post">{% csrf_token %}
 		<style type="text/css">
 			form, table {
 				display:inline;
@@ -85,7 +85,7 @@
 			}
 		</style>
 		Input pdb identifier: 
-		<input placeholder="PDB ID" onchange = "prepareMethod2()" type="text" name="pdbid" maxlength="4" style="display: inline;"/><input type="submit" />
+		<input placeholder="PDB ID" onchange = "prepareMethod2()" type="text" name="pdbid" maxlength="4" style="display: inline;"/><input type = "submit" />
 	</form>
 
 	AND
@@ -111,7 +111,7 @@
 	<br>
 	<br>
 
-	<input id = "submitButton" type = "submit" value = "Submit" disabled>
+	<input id = "submitButton" name = "submitButton" type = "submit" value = "Submit" disabled>
 </form>
 
 <script>
