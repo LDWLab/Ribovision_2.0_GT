@@ -1,20 +1,22 @@
 {% load static %}
+<form id="user_input_pdb_form" action="" method="post" class = "form-inline" style = "margin: 0; padding: 0;">{% csrf_token %}
+	<style type="text/css">
+		form, table {
+			display:inline;
+			margin:0px;
+			padding:0px;
+		}
+	</style>
+	Input pdb identifier: 
+	<input placeholder="PDB ID" onchange = "prepareMethod2()" type="text" name="pdbid" maxlength="4" style="display: inline;"/><input type="submit" />
+</form>
+
+AND
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
 <script src="{% static "alignments/vue.js" %}">
 </script>
-
-<div class="container">
-	<h4>Select phylogenetic groups for TwinCons<br/></h4>
-	<div id="app">
-		Select two taxgroups:<br/>
-	<tree-menu 
-			   :nodes="tree.nodes" 
-			   :depth="0"   
-			   :label="tree.label"
-			   >Loading phylogenetic tree...</tree-menu>
-	</div>
-</div>
   
 <script type="text/x-template" id="tree-menu">
 	<div class="tree-menu">
@@ -22,8 +24,11 @@
 		<div :style="indent" :class="labelClasses">
 			<i v-for="node in nodes" class="fa" :class="iconClasses"></i>
 			[[label]]
-			<input type="checkbox" id="check" name="check" unchecked>
-			
+			<input type="checkbox" :id="taxID" name="check" unchecked>
+		<!--
+			<label :for="taxID"> [[label]] </label>
+			<input type="checkbox" :id="taxID" name="check" unchecked>
+			-->
 		</div>
 	  </div>
 	  <tree-menu 
@@ -38,24 +43,58 @@
 	  </tree-menu>
 	</div>
 </script>
-
 <script src={% static 'alignments/tree_menu.js' %}></script>
 <script src={% static 'alignments/GetPDBeChains.js' %}></script>
 
-<form enctype = "multipart/form-data" method = "post" id = "mainForm"> {% csrf_token %}
-	AND (
+<form enctype = "multipart/form-data" method = "post" id = "mainForm" class = "form-inline" style = "margin: 0; padding: 0;"> {% csrf_token %}
+	<select name = "chain_selector" id = "chain_selector" onclick = "chain = chain_selector.value; prepareMethod2();">
+		<option value = "" disabled selected>Select polymer</option>
+	</select>
 
+	AND (Upload fasta file: <input type = "file" id = "fileSelector" onchange = "textbox.disabled = this.value; prepareMethod2();" accept = ".fa, .fas" name = "alignment file"> OR
+	<br>
+	<textarea name = "alignmentText" id = "textbox" cols = "50" rows = "20" onchange = "fileSelector.disabled = this.value; prepareMethod2()" placeholder = "Input alignment text" onclick = "chain = chain_selector.value; prepareMethod2();" onchange = ""></textarea>)
+
+	<br><br>OR
+
+	<div class="container">
+		<h4>Select phylogenetic groups for TwinCons:<br/></h4>
+		<div id="app">
+			Select two taxgroups:<br/>
+		<tree-menu 
+			:nodes="tree.nodes" 
+			:depth="0"   
+			:label="tree.label"
+			>Loading phylogenetic tree...</tree-menu>
+		</div>
+	</div>
+
+	<style type="text/css">
+		form, table {
+			display:inline;
+			margin:0px;
+			padding:0px;
+		}
+	</style>
+	AND <select id = "getPDB" onchange="preparePDB(this.value)">
+	<option>Select a PDB</option>
+		{% for pdb in threeDstructures %}
+			<option value={{ pdb.number_3d_structure_id }}>{{ pdb.structurename }}</option>
+		{% endfor %}
+	</select>
+	AND (
+	
 	<select id = "selectProteinAlignment" onclick = "alignmentName = this.value; alignmentType = 'rProtein/'; prepareMethod1();">
-		<option>Select a protein alignment</option>
+		<option>Select an rProtein alignment</option>
 		{% for aln in some_Alignments %}
 			{% if 'LSU' not in aln.name %}
 				<option value={{ aln.name }}>{{ aln.name }}</option>
 			{% endif %}
 		{% endfor %}
 	</select>
-
+	
 	OR
-
+	
 	<select id = "selectRRNAAlignment" onclick = "alignmentName = this.value; alignmentType = 'rRNA/'; prepareMethod1();">
 		<option>Select an rRNA alignment</option>
 		{% for aln in some_Alignments %}
@@ -64,55 +103,17 @@
 			{% endif %}
 		{% endfor %}
 	</select>
-
-	) AND <select id = "getPDB" onchange="preparePDB(this.value)">
-		<option>Select a PDB</option>
-		{% for pdb in threeDstructures %}
-			<option value={{ pdb.number_3d_structure_id }}>{{ pdb.structurename }}</option>
-		{% endfor %}
-	</select>
-	<br>
-	<br>
-
-	OR(
 	
-	<form action="" method="post">{% csrf_token %}
-		<style type="text/css">
-			form, table {
-				display:inline;
-				margin:0px;
-				padding:0px;
-			}
-		</style>
-		Input pdb identifier: 
-		<input placeholder="PDB ID" onchange = "prepareMethod2()" type="text" name="pdbid" maxlength="4" style="display: inline;"/><input type = "submit" />
-	</form>
-
-	AND
-
-	<select name = "chain_selector" id = "chain_selector" onclick = "chain = chain_selector.value; prepareMethod2();">
-		<option value = "" disabled selected>Select polymer</option>
-	</select>
-
-	<br>
-
-	AND (Upload fasta file: <input type = "file" accept = ".fa, .fas" name = "alignment file">
-
-	OR<br>
-
-	<textarea name = "alignmentText" cols = "50" rows = "20" placeholder = "Input alignment text" onclick = "chain = chain_selector.value; prepareMethod2();" onchange = ""></textarea>
-
-	))
-	<br>
-	<br>
+	<br><br>
 
 	CSV Selection: <input type = "file" accept=".csv" name = "filename"/>
-
-	<br>
 	<br>
 
 	<input id = "submitButton" name = "submitButton" type = "submit" value = "Submit" disabled>
 </form>
+
+<br><br>
+<button id = "visualizer" onclick = "window.location.href = 'Visualizer/' + visualizerURLSuffix" disabled>TWC Visualizer</button>
 
 <script>
 	var
@@ -124,7 +125,9 @@
 		textArea,
 		submitButton,
 		taxID1,
-		taxID2;
+		taxID2,
+		submitButton = document.getElementById("submitButton"),
+		visualizerURLSuffix;
 
 	function setTaxID1(tax1) {
 		taxID1 = tax1;
@@ -172,12 +175,16 @@
 	}
 
 	function prepareMethod1() {
-		mainForm.action = "twincons/" + alignmentName + "/" + taxID1 + "/" + taxID2 + "/" + pdb;
-		document.getElementById("submitButton").disabled = !(alignmentName && taxID1 && taxID2 && pdb);
+		visualizerURLSuffix = alignmentName + "/" + taxID1 + "/" + taxID2 + "/" + pdb;
+		mainForm.action = "twincons/" + visualizerURLSuffix;
+		submitButton.disabled = !(alignmentName && taxID1 && taxID2);
+		visualizer.disabled = submitButton.disabled;
 	}
 
 	function prepareMethod2() {
-		mainForm.action = "twincons/" + pdb + "/" + chain;
-		document.getElementById("submitButton").disabled = !(pdb && chain);
+		visualizerURLSuffix = pdb + "/" + chain;
+		mainForm.action = "twincons/" + visualizerURLSuffix;
+		submitButton.disabled = !(pdb && chain && pdb && (textbox.disabled || fileSelector.disabled));
+		visualizer.disabled = submitButton.disabled;
 	}
 </script>

@@ -2689,14 +2689,19 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
     //filtering by a domain
 
     //update domain start and end positions here
-    
+    t = this.apiData[2][this.entryId][this.entityId][this.chainId];
     istart=this.filterRange.split(",")[0];
     iend=this.filterRange.split(",")[1];
 
-    console.log(istart, iend);
+    //if (istart == 0 && iend == 100000) {istart = parseInt (t["terms"][0]["resnum"]); iend = parseInt (t["terms"][1]["resnum"]) }
 
-    
-    t = this.apiData[2][this.entryId][this.entityId][this.chainId];
+
+    console.log(t, istart, iend);
+
+    if ( iend != 100000) {
+
+  
+   
     tc = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"];
     te = this.apiData[2][this.entryId][this.entityId][this.chainId]["extents"];
     th = this.apiData[2][this.entryId][this.entityId][this.chainId]["helices"];
@@ -2705,10 +2710,6 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
     ths = this.apiData[2][this.entryId][this.entityId][this.chainId]["helices"][0]["start"];
     the = this.apiData[2][this.entryId][this.entityId][this.chainId]["helices"][0]["stop"];
 
-    //for( var k = 0; k < th.length; k++){ if ((( th[k]["start"] < istart) && ( th[k]["stop"] < istart))||(( th[k]["start"] > iend) && ( th[k]["stop"] > iend))) { this.apiData[2][this.entryId][this.entityId][this.chainId]["helices"].splice(k, 1); k--; }}
-    //for( var k = 0; k < ts.length; k++){ if ((( ts[k]["start"] < istart) && ( ts[k]["stop"] < istart))||(( ts[k]["start"] > iend) && ( ts[k]["stop"] > iend))) { this.apiData[2][this.entryId][this.entityId][this.chainId]["strands"].splice(k, 1); k--; }}
-    //for( var k = 0; k < tc.length; k++){ if ((( tc[k]["start"] < istart) && ( tc[k]["stop"] < istart))||(( tc[k]["start"] > iend) && ( tc[k]["stop"] > iend))) { this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"].splice(k, 1); k--; }}
-    
     for( var k = 0; k < th.length; k++){ if ((( th[k]["start"] < istart) && ( th[k]["stop"] < istart))||(( th[k]["start"] > iend) && ( th[k]["stop"] > iend))) { this.apiData[2][this.entryId][this.entityId][this.chainId]["helices"].splice(k, 1); k--; }}
     for( var k = 0; k < ts.length; k++){ if ((( ts[k]["stop"] < istart)) || (( ts[k]["start"] > iend))) { this.apiData[2][this.entryId][this.entityId][this.chainId]["strands"].splice(k, 1); k--; }}
     for( var k = 0; k < tc.length; k++){ if ((( tc[k]["stop"] < istart) && ( tc[k]["start"] !=-1 ))||(( tc[k]["start"] > iend) && ( tc[k]["stop"] > iend))) { this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"].splice(k, 1); k--; }}
@@ -2719,25 +2720,23 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
     for( var k = 0; k < tc.length; k++){ if (( tc[0]["start"] == -1) ) { this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"].splice(0, 1); k--; }}
     for( var k = tc.length-1; k >= 0; k--){ if (( tc[tc.length-1]["start"] == -1) ) { this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"].splice(tc.length-1, 1); k--; }}
  
-    // end of filltering 
-  
 
     tc = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"]; 
     tca = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["start"];
     tco = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["stop"];
     tcp = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["path"];
-     console.log(tc, tca, tco, tcp);
+
 
     //for( var k = 0; k < 1; k++){ if ((( tc[0]["start"] < istart) && ( tc[0]["stop"] >= istart) )) { del=istart - tc[0]["start"]-1;  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["path"].splice(0, (del-1)*2);  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"]=this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"]+del;  }}
     //for( var k = tc.length-1; k > tc.length-2; k--){ if ((( tc[tc.length-1]["start"] <= iend) &&( tc[tc.length-1]["stop"] >= iend) )) { del=tc[tc.length-1]["stop"]-1-iend; path_length=tc[tc.length-1]["path"].length; console.log(del, path_length); this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["path"].splice(path_length-3, 2);  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["stop"]=this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["stop"]-del;  }}
     
     for( var k = 0; k < 1; k++){ if ((( tc[0]["start"] < istart) && ( tc[0]["stop"] >= istart) )) { del=istart - tc[0]["start"]-1; del1=del; if (del>2){del1=2};  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["path"].splice(0, (del1-1)*2);  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"]=this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"]+del+1;  }}
     for( var k = tc.length-1; k > tc.length-2; k--){ if ((( tc[tc.length-1]["start"] <= iend) &&( tc[tc.length-1]["stop"] >= iend) )) { del=tc[tc.length-1]["stop"]-1-iend; del1=del; if (del>2){del1=2}; path_length=tc[tc.length-1]["path"].length; console.log(del, path_length); this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["path"].splice(path_length-(del1-1)*2-1, (del1-1)*2);  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["stop"]=this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["stop"]-del-1;  }}
-    
+   
     console.log(tc);
  
     //this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"][0]=54;
-
+    };
     console.log(t);
    for (var n in t) t[n] && t[n].forEach(function(t) {
     void 0 !== t.path && 0 < t.path.length && (i = i.concat(e.chunkArray(t.path, 2)))
@@ -3522,7 +3521,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
    null != r._groups[0][0] && (r.data()[0].tooltipMsg = i, r.data()[0].tooltipPosition = n, r.attr("stroke", function(t) {
     return "coils" === t.type ? e : "#111"
    }).attr("stroke-width", function(t) {
-    return "coils" === t.type ? 0.4 : 0
+    return "coils" === t.type ? 0.5 : 0
    }).attr("fill", function(t) {
     return "coils" === t.type ? "none" : e
    }).attr("fill-opacity", function(t) {

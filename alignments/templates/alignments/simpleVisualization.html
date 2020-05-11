@@ -1,0 +1,32 @@
+<script src="https://cdn.plot.ly/plotly-latest.min.js" charset="utf-8"></script>
+
+<body>
+    <div id = "div0">
+
+    </div>
+    <script>
+        var
+            xyPairs = "{{xyPairs}}";
+            xArray = [],
+            yArray = [];
+        console.log("xyPairs: " + xyPairs);
+        xyPairs = JSON.parse(xyPairs);
+        console.log("__xyPairs: " + xyPairs);
+        xyPairs.forEach(iterationHelper);
+        console.log(xArray);
+        console.log(yArray);
+        var
+            data = [{
+                x : xArray,
+                y : yArray,
+                type: 'bar'
+            }];
+        Plotly.newPlot('div0', data)
+
+        function iterationHelper(xyPair) {
+            console.log(xyPair);
+            xArray.push(xyPair[0]);
+            yArray.push(xyPair[1]);
+        }
+    </script>
+</body>

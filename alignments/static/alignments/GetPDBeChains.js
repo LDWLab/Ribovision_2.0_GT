@@ -1,3 +1,10 @@
+$(function() {
+    $('#user_input_pdb_form').submit(function() {
+        find_chains_from_PDBe_api($('form').serializeObject()['pdbid'])
+        return false;
+    });
+});
+
 $.fn.serializeObject = function(){
     var o = {};
     var a = this.serializeArray();
@@ -13,13 +20,6 @@ $.fn.serializeObject = function(){
     });
     return o;
 };
- 
-$(function() {
-    $('form').submit(function() {
-        find_chains_from_PDBe_api($('form').serializeObject()['pdbid'])
-        return false;
-    });
-});
 
 function find_chains_from_PDBe_api(struc_id) {
     pdb = struc_id

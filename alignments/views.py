@@ -1,5 +1,8 @@
 import re
 
+import urllib.request
+import json
+
 from django.shortcuts import render
 from django.http import HttpResponse, Http404, JsonResponse
 from django.urls import reverse_lazy
@@ -185,41 +188,56 @@ def calculate_twincons(alignment):
 		list_for_topology_viewer.append([alnindex,alnindex_score[alnindex][0]])
 	return list_for_topology_viewer
 
+def upload_custom_data_for_mapping(request):
+	if request.method == 'POST' and 'filename' in request.FILES:
+		data_pairs = []
+		file = request.FILES['filename']
+		file_iterator = iter(file)
+		while True:
+			try:
+				entry = file_iterator.__next__().decode().strip().split(',')
+				data_pairs.append((int(entry[0]), float(entry[1])))
+			except StopIteration:
+				break
+		request.session['csv'] = data_pairs
+	if request.method == 'GET':
+		data_pairs = request.session.get('csv')
+		return JsonResponse(data_pairs, safe = False)
+
 def api_twc_with_upload(request, anchor_structure):
 	#### _____________Transform PDBID to taxid______________ ####
 	anchor_taxid = pdbid_to_strainid(anchor_structure)
-
-	#### This should be separate view with its own URL for serving multi-group alignments ####
-	filter_strain = str(anchor_taxid)
 
 	fastastring = request.session.get('fasta')
 	#print('fastastring:\n' + fastastring)
 
 	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
-	
 	#### _____________Trim down the alignment______________ ####
-	alignment = trim_alignment(concat_fasta, filter_strain)
-	
+	alignment = trim_alignment(concat_fasta, str(anchor_taxid))
+
 	#### _______________Calculate TwinCons_________________ ####
 	list_for_topology_viewer = calculate_twincons(alignment)
 
 	return JsonResponse(list_for_topology_viewer, safe = False)
 
-def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure):
+def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure=''):
 
 	#### _____________Transform PDBID to taxid______________ ####
-	anchor_taxid = pdbid_to_strainid(anchor_structure)
-
+	if anchor_structure != '':
+		anchor_taxid = pdbid_to_strainid(anchor_structure)
+		filter_strain = str(Species.objects.filter(strain_id = anchor_taxid)[0].strain).replace(" ", "_")
+	
 	#### This should be separate view with its own URL for serving multi-group alignments ####
-	filter_strain = str(Species.objects.filter(strain_id = anchor_taxid)[0].strain).replace(" ", "_")
-
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
 	fastastring,max_aln_length1 = sql_filtered_aln_query_two_parents(align_id,tax_group1,tax_group2)
 	#print('fastastring:\n' + fastastring)
 	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
 	
 	#### _____________Trim down the alignment______________ ####
-	alignment = trim_alignment(concat_fasta, filter_strain)
+	if anchor_structure != '':
+		alignment = trim_alignment(concat_fasta, filter_strain)
+	else:
+		alignment = concat_fasta
 	
 	#### _______________Calculate TwinCons_________________ ####
 	list_for_topology_viewer = calculate_twincons(alignment)
@@ -227,13 +245,17 @@ def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure):
 	return JsonResponse(list_for_topology_viewer, safe = False)
 
 def twincons_with_upload(request, anchor_structure, chain):
-	taxid = pdbid_to_strainid(anchor_structure)
+	from django.urls import resolve
+	current_url = resolve(request.path_info).url_name
 	context = {
 		'pdbid': anchor_structure, 
-		'chainid': chain, 
-		'entropy_address': "upload/twc-api/"+str(anchor_structure)
-	}
-	print('Complete')
+		'chainid': chain
+		}
+	if current_url == 'twc_with_upload':
+		context['entropy_address'] = "upload/twc-api/"+str(anchor_structure)
+	elif current_url == 'custom_csv_data_viewer':
+		upload_custom_data_for_mapping(request)
+		context['entropy_address'] = "custom-csv-data"
 	return render(request, 'alignments/twc_detail.html', context)
 
 def twincons(request, align_name, tax_group1, tax_group2, anchor_structure):
@@ -300,6 +322,22 @@ def index_orthologs(request):
 	}
 	return render(request, 'alignments/index_orthologs.html', context)
 
+def visualizerHelper(request, urlSuffix):
+	data = json.load(urllib.request.urlopen("http://127.0.0.1:8000/orthologs/twc-api/" + urlSuffix))
+	xyPairs = []
+	context = {
+		"xyPairs" : xyPairs
+	}
+	for xyPair in data:
+		xyPairs.append(xyPair)
+	return render(request, 'alignments/simpleVisualization.html', context)
+
+def visualizer(request, align_name, tax_group1, tax_group2, anchor_structure = ''):
+	return visualizerHelper(request, align_name + "/" + str(tax_group1) + "/" + str(tax_group2) + "/" + anchor_structure)
+
+def visualizerWithChain(request, anchor_structure, chain):
+	return visualizerHelper(anchor_structure + "/" + chain)
+
 def rProtein(request, align_name, tax_group):
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
 	fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)
@@ -311,88 +349,3 @@ def rRNA(request, align_name, tax_group):
 	fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)
 	context = {'fastastring': fastastring, 'aln_name':str(Alignment.objects.filter(aln_id = align_id)[0].name)}
 	return render(request, 'alignments/rRNA.html', context)
-
-def upload(request):
-	three_d_structures = Threedstructures.objects.all()
-	context = {
-		'threeDstructures': three_d_structures,
-	}
-	return render(request, 'alignments/upload.html', context)
-
-def submit(request):
-	data_pairs = []
-
-	context = {
-		'data_pairs' : data_pairs
-	}
-	if request.method == 'POST' and 'filename' in request.FILES:
-		file = request.FILES['filename']
-		file_iterator = iter(file)
-		# Skip the title line
-		print(file_iterator.__next__().decode())
-		while True:
-			try:
-				entry = file_iterator.__next__().decode().strip().split(',')
-				data_pairs.append((int(entry[0]), float(entry[1])))
-			except StopIteration:
-				break
-	return render(request, 'alignments/csvDisplay.html', context)
-
-def submitAlignment(request):
-	data_pairs = []
-	three_d_structures = Threedstructures.objects.all()
-	some_Alignments = Alignment.objects.all()
-	superKingdoms = Taxgroups.objects.raw('SELECT * FROM SEREB.TaxGroups WHERE\
-		 SEREB.TaxGroups.groupLevel = "superkingdom";')
-	context = {
-		'some_Alignments': some_Alignments,
-		'superKingdoms': superKingdoms,
-		'threeDstructures': three_d_structures,
-		'data_pairs' : data_pairs,
-		'file_name' : None,
-		'fasta' : None
-	}
-	if request.method == 'POST' and 'filename' in request.FILES:
-		fasta = ''
-		file = request.FILES['filename']
-		context['file_name'] = file.name
-		file_name = file.name
-		file_iterator = iter(file)
-		while True:
-			try:
-				line0 = file_iterator.__next__().decode()
-				line1 = file_iterator.__next__().decode()
-				data_pairs.append((line0.strip(), line1.strip()))
-				fasta = fasta + line0 + line1
-			except StopIteration:
-				break
-		context['fasta'] = fasta
-		request.session['fasta'] = fasta
-	# return render(request, 'alignments/alignmentsDisplay.html', context)
-	return render(request, 'alignments/index_orthologs.html', context)
-
-def submitAlignmentText(request):
-	data_pairs = []
-	three_d_structures = Threedstructures.objects.all()
-	some_Alignments = Alignment.objects.all()
-	superKingdoms = Taxgroups.objects.raw('SELECT * FROM SEREB.TaxGroups WHERE\
-		 SEREB.TaxGroups.groupLevel = "superkingdom";')
-	context = {
-		'some_Alignments': some_Alignments,
-		'superKingdoms': superKingdoms,
-		'threeDstructures': three_d_structures,
-		'data_pairs' : data_pairs,
-		'file_name' : None
-	}
-	if request.method == 'POST' and 'alignmentText' in request.POST:
-		alignmentText = request.POST['alignmentText']
-		context['filename'] = ''
-		lines = alignmentText.split('\n')
-		lines_iterator = iter(lines)
-		while True:
-			try:
-				data_pairs.append((lines_iterator.__next__().strip(), lines_iterator.__next__().strip()))
-			except StopIteration:
-				break
-	# return render(request, 'alignments/alignmentsDisplay.html', context)
-	return render(request, 'alignments/index_orthologs.html', context)
