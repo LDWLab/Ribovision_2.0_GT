@@ -118,15 +118,24 @@ def twincons_with_upload(request, anchor_structure, chain):
 		context['entropy_address'] = "custom-csv-data"
 	return render(request, 'alignments/twc_detail.html', context)
 
-def twincons(request, align_name, tax_group1, tax_group2, anchor_structure):
+def twincons(request, align_name, tax_group1, tax_group2, anchor_structure, minIndex = '', maxIndex = ''):
 	taxid = pdbid_to_strainid(anchor_structure)
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
 	polymerid = PolymerData.objects.values("pdata_id").filter(polymeralignments__aln = align_id, strain = taxid)[0]["pdata_id"]
 	chainid = Chainlist.objects.values("chainname").filter(polymer = polymerid)[0]["chainname"]
+	if (minIndex == ''):
+		minIndex = 0
+	else:
+		minIndex = int(minIndex)
+	if (maxIndex == ''):
+		maxIndex = 100000
+	else:
+		maxIndex = int(maxIndex)
 	context = {
 		'pdbid': anchor_structure, 
 		'chainid': chainid, 
-		'entropy_address':"twc-api/"+align_name+"/"+str(tax_group1)+"/"+str(tax_group2)+"/"+str(anchor_structure)
+		'entropy_address':"twc-api/"+align_name+"/"+str(tax_group1)+"/"+str(tax_group2)+"/"+str(anchor_structure),
+		'range' : (minIndex, maxIndex),
 	}
 	return render(request, 'alignments/twc_detail.html', context)
 
