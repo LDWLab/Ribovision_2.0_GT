@@ -212,9 +212,6 @@ def visualizerHelper(request, urlSuffix):
 def visualizer(request, align_name, tax_group1, tax_group2, anchor_structure = ''):
 	return visualizerHelper(request, align_name + "/" + str(tax_group1) + "/" + str(tax_group2) + "/" + anchor_structure)
 
-def visualizerWithChain(request, anchor_structure, chain):
-	return visualizerHelper(anchor_structure + "/" + chain)
-
 def upload_custom_data(request):
 	return render(request, 'alignments/upload_custom_data.html')
 
