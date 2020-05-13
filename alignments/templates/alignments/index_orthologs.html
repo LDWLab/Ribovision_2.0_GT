@@ -14,10 +14,11 @@
 AND
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="{% static "alignments/vue.js" %}"></script>
+<script src={% static 'alignments/tree_menu.js' %}></script>
+<script src={% static 'alignments/GetPDBeChains.js' %}></script>
+<script src={% static 'alignments/tree_helper_functions.js' %}></script>
 
-<script src="{% static "alignments/vue.js" %}">
-</script>
-  
 <script type="text/x-template" id="tree-menu">
 	<div class="tree-menu">
 	  <div class="label-wrapper" @click="toggleChildren">
@@ -43,8 +44,7 @@ AND
 	  </tree-menu>
 	</div>
 </script>
-<script src={% static 'alignments/tree_menu.js' %}></script>
-<script src={% static 'alignments/GetPDBeChains.js' %}></script>
+
 
 <form enctype = "multipart/form-data" method = "post" id = "mainForm" class = "form-inline" style = "margin: 0; padding: 0;"> {% csrf_token %}
 	<select name = "chain_selector" id = "chain_selector" onclick = "chain = chain_selector.value; prepareMethod2();">
@@ -129,22 +129,6 @@ AND
 		submitButton = document.getElementById("submitButton"),
 		visualizerURLSuffix;
 
-	function setTaxID1(tax1) {
-		taxID1 = tax1;
-	}
-
-	function setTaxID2(tax2) {
-		taxID2 = tax2;
-	}
-
-	function getTaxID1() {
-		return taxID1;
-	}
-
-	function getTaxID2() {
-		return taxID2;
-	}
-
 	function preparePDB(struc_id) {
 		var struc_data;
 		$.ajax({
@@ -174,17 +158,4 @@ AND
 		prepareMethod1();
 	}
 
-	function prepareMethod1() {
-		visualizerURLSuffix = alignmentName + "/" + taxID1 + "/" + taxID2 + "/" + pdb;
-		mainForm.action = "twincons/" + visualizerURLSuffix;
-		submitButton.disabled = !(alignmentName && taxID1 && taxID2);
-		visualizer.disabled = submitButton.disabled;
-	}
-
-	function prepareMethod2() {
-		visualizerURLSuffix = pdb + "/" + chain;
-		mainForm.action = "twincons/" + visualizerURLSuffix;
-		submitButton.disabled = !(pdb && chain && pdb && (textbox.disabled || fileSelector.disabled));
-		visualizer.disabled = submitButton.disabled;
-	}
 </script>

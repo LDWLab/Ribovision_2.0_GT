@@ -1,6 +1,6 @@
 $(function() {
     $('#user_input_pdb_form').submit(function() {
-        find_chains_from_PDBe_api($('form').serializeObject()['pdbid'])
+        find_chains_from_PDBe_api($('form').serializeObject()['pdbid'].toLowerCase())
         return false;
     });
 });

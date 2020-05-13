@@ -16,7 +16,7 @@ urlpatterns = [
 	path('rRNA/<str:align_name>/<int:tax_group>', views.rRNA, name='rRNA'),
 	path('rProtein/<str:align_name>/<int:tax_group>', views.rProtein, name='rProtein'),
 	path('showTaxonomy', views.buildTaxonomy, name='showTaxonomy'),
-	path('showTaxonomy-api/<int:parent>', views.api_showTaxonomy, name='api_showTaxonomy'),
+	path('showTaxonomy-api/<int:current_tax>', views.api_showTaxonomy, name='api_showTaxonomy'),
 	path('entropy/<str:align_name>/<int:tax_group>/<str:anchor_structure>', views.entropy, name='entropy'),
 	path('twincons/<str:align_name>/<int:tax_group1>/<int:tax_group2>/<str:anchor_structure>', views.twincons, name='twincons'),
 	path('orthologs/twincons/<str:align_name>/<int:tax_group1>/<int:tax_group2>/<str:anchor_structure>', views.twincons, name='twincons'),
@@ -29,5 +29,6 @@ urlpatterns = [
 	path('orthologs/twincons/<str:anchor_structure>/<str:chain>', views.twincons_with_upload, name='twc_with_upload'),
 	path('upload/twc-api/<str:anchor_structure>', views.api_twc_with_upload, name='api_twc_with_upload'),
 	path('upload-custom-csv/<str:anchor_structure>/<str:chain>', views.twincons_with_upload, name='custom_csv_data_viewer'),
-	path('custom-csv-data', views.upload_custom_data_for_mapping, name='custom_csv_data_handler')
+	path('custom-csv-data', views.upload_custom_data_for_mapping, name='custom_csv_data_handler'),
+	path('upload-custom-csv/', views.upload_custom_data, name='upload_custom_data'),
 ]

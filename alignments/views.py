@@ -14,158 +14,7 @@ from alignments.models import *
 from alignments.taxonomy_views import *
 from alignments.residue_api import *
 from alignments.structure_api import *
-
-
-def sql_alignment_query(aln_id):
-	alnposition = AlnData.objects.raw('SELECT CONCAT(Aln_Data.aln_id,Aln_Data.res_id) AS id,strain,unModResName,aln_pos FROM SEREB.Aln_Data\
-		INNER JOIN SEREB.Alignment ON SEREB.Aln_Data.aln_id = SEREB.Alignment.Aln_id\
-		INNER JOIN SEREB.Residues ON SEREB.Aln_Data.res_id = SEREB.Residues.resi_id\
-		INNER JOIN SEREB.Polymer_Data ON SEREB.Residues.PolData_id = SEREB.Polymer_Data.PData_id\
-		INNER JOIN SEREB.Species ON SEREB.Polymer_Data.strain_id = SEREB.Species.strain_id\
-		WHERE SEREB.Alignment.aln_id = '+str(aln_id)+'')
-	alnpos=[]
-	fastastring,max_aln_length = build_alignment(alnposition)
-
-	return fastastring,max_aln_length
-
-def sql_filtered_aln_query(aln_id, parent_id):
-	SQLStatement = 'SELECT CONCAT(Aln_Data.aln_id,Aln_Data.res_id) AS id,strain,unModResName,aln_pos,Species.strain_id FROM SEREB.Aln_Data\
-					INNER JOIN SEREB.Alignment ON SEREB.Aln_Data.aln_id = SEREB.Alignment.Aln_id\
-					INNER JOIN SEREB.Residues ON SEREB.Aln_Data.res_id = SEREB.Residues.resi_id\
-					INNER JOIN (SELECT * from SEREB.Polymer_Data WHERE \
-								SEREB.Polymer_Data.PData_id IN (SELECT PData_id from SEREB.Polymer_Alignments WHERE SEREB.Polymer_Alignments.Aln_id = '+str(aln_id)+')\
-								AND \
-								SEREB.Polymer_Data.strain_id IN (SELECT strain_id FROM SEREB.Species_TaxGroup WHERE taxgroup_id = '+str(parent_id)+')) as filtered_polymers\
-								ON SEREB.Residues.PolData_id = filtered_polymers.PData_id\
-					INNER JOIN SEREB.Species ON filtered_polymers.strain_id = SEREB.Species.strain_id\
-					WHERE SEREB.Alignment.aln_id = '+str(aln_id)
-	alnposition = AlnData.objects.raw(SQLStatement)
-	if len(alnposition) == 0:
-		raise Http404("We do not have this combination of arguments in our database.")
-	fastastring,max_aln_length = build_alignment(alnposition)
-	return fastastring,max_aln_length
-
-def dictfetchall(cursor):
-	"Return all rows from a cursor as a dict"
-	columns = [col[0] for col in cursor.description]
-	return [
-		dict(zip(columns, row))
-		for row in cursor.fetchall()
-	]
-
-def sql_filtered_aln_query_two_parents(aln_id, parent1_id, parent2_id):
-	'''Queries DB for alignment from 2 parent taxids AND
-	Constructs the alignment with parent group names at the front of sequence names.
-	'''
-	parent1_level = Taxgroups.objects.filter(taxgroup_id=parent1_id)[0].grouplevel
-	parent2_level = Taxgroups.objects.filter(taxgroup_id=parent2_id)[0].grouplevel
-	if parent1_level != parent2_level:
-		raise Http404("For now we do not support comparisons between different taxonomic levels. Offending levels are: "+parent1_level+" and "+parent2_level)
-	from django.db import connection
-	SQLStatement = 'SELECT CONCAT(Aln_Data.aln_id,Aln_Data.res_id) AS id,strain,unModResName,aln_pos,Species.strain_id FROM SEREB.Aln_Data\
-					INNER JOIN SEREB.Alignment ON SEREB.Aln_Data.aln_id = SEREB.Alignment.Aln_id\
-					INNER JOIN SEREB.Residues ON SEREB.Aln_Data.res_id = SEREB.Residues.resi_id\
-					INNER JOIN (SELECT * from SEREB.Polymer_Data WHERE \
-								SEREB.Polymer_Data.PData_id IN (SELECT PData_id from SEREB.Polymer_Alignments WHERE SEREB.Polymer_Alignments.Aln_id = '+str(aln_id)+')\
-								AND \
-								SEREB.Polymer_Data.strain_id IN (SELECT strain_id FROM SEREB.Species_TaxGroup WHERE taxgroup_id = '+str(parent1_id)+' OR taxgroup_id = '+str(parent2_id)+')) as filtered_polymers\
-								ON SEREB.Residues.PolData_id = filtered_polymers.PData_id\
-					INNER JOIN SEREB.Species ON filtered_polymers.strain_id = SEREB.Species.strain_id\
-					WHERE SEREB.Alignment.aln_id = '+str(aln_id)
-	with connection.cursor() as cursor:
-		cursor.execute(SQLStatement)
-		#print(dictfetchall(cursor)[0]['strain_id'])
-		raw_result = dictfetchall(cursor)
-
-	if len(raw_result) == 0:
-		raise Http404("We do not have this combination of arguments in our database.")
-
-	nogap_tupaln={}
-	all_alnpositions=[]
-	topgroup_name = ''
-	for row in raw_result:
-		all_alnpositions.append(row['aln_pos'])
-		if (topgroup_name,row['strain']) in nogap_tupaln:
-			nogap_tupaln[(topgroup_name,row['strain'])].append((row['unModResName'], row['aln_pos']))
-		else:
-			try:
-				topgroup_query = Taxgroups.objects.filter(grouplevel=parent1_level, speciestaxgroup__strain=row['strain_id'])[0]
-				topgroup_name = topgroup_query.groupname
-			except:
-				raise Http404("No superkingdom result for taxid"+row['strain_id']+"!")
-			nogap_tupaln[(topgroup_name,row['strain'])]=[]
-			nogap_tupaln[(topgroup_name,row['strain'])].append((row['unModResName'], row['aln_pos']))
-	fasta_string=''
-
-	for kingdom_strain in nogap_tupaln:
-		strain = re.sub(' ','_',kingdom_strain[1])
-		fasta_string+='\n>'+kingdom_strain[0]+'_'+strain+'\n'
-		mem = 1
-		for index, resi_pos in enumerate(nogap_tupaln[kingdom_strain], start=1):
-			if mem == resi_pos[1]:
-				mem = mem+1
-			elif mem < resi_pos[1]:
-				diff = resi_pos[1]-mem
-				for i in range(0,diff):
-					mem = mem+1
-					fasta_string+='-'
-				mem = mem+1
-			else:
-				raise ValueError("This shouldn't be possible!")
-			fasta_string+=resi_pos[0]
-			if index == len(nogap_tupaln[kingdom_strain]):
-				if resi_pos[1] < max(all_alnpositions):
-					diff = max(all_alnpositions)-resi_pos[1]
-					for index2,i in enumerate(range(0,diff), start=1):
-						fasta_string+='-'
-						if index2 == diff:
-							fasta_string+='\n'
-				else:
-					fasta_string+='\n'
-	literal_string = re.sub(r'\n\n','\n',fasta_string,flags=re.M)
-	return literal_string.lstrip().encode('unicode-escape').decode('ascii'),max(all_alnpositions)
-
-def build_alignment(rawMYSQLresult):
-	'''
-	In here add a way to do the phase; we iterate over resis, so all we need to check is what phase the ones from PYRFU are.
-	'''
-	nogap_tupaln={}
-	all_alnpositions=[]
-	for row in rawMYSQLresult:
-		all_alnpositions.append(row.aln_pos)
-		if row.strain in nogap_tupaln:
-			nogap_tupaln[row.strain].append((row.unModResName, row.aln_pos))
-		else:
-			nogap_tupaln[row.strain]=[]
-			nogap_tupaln[row.strain].append((row.unModResName, row.aln_pos))
-	fasta_string=''
-	for strain in nogap_tupaln:
-		strain1 = re.sub(' ','_',strain)
-		fasta_string+='\n>'+strain1+'\n'
-		mem = 1
-		for index, resi_pos in enumerate(nogap_tupaln[strain], start=1):
-			if mem == resi_pos[1]:
-				mem = mem+1
-			elif mem < resi_pos[1]:
-				diff = resi_pos[1]-mem
-				for i in range(0,diff):
-					mem = mem+1
-					fasta_string+='-'
-				mem = mem+1
-			else:
-				raise ValueError("You are likely looking at cross-domain alignment with sequences from repeated species. For now this is not supported!")
-			fasta_string+=resi_pos[0]
-			if index == len(nogap_tupaln[strain]):
-				if resi_pos[1] < max(all_alnpositions):
-					diff = max(all_alnpositions)-resi_pos[1]
-					for index2,i in enumerate(range(0,diff), start=1):
-						fasta_string+='-'
-						if index2 == diff:
-							fasta_string+='\n'
-				else:
-					fasta_string+='\n'
-	literal_string = re.sub(r'\n\n','\n',fasta_string,flags=re.M)
-	return literal_string.lstrip().encode('unicode-escape').decode('ascii'),max(all_alnpositions)
+from alignments.alignment_query_and_build import *
 
 def trim_alignment(concat_fasta, filter_strain):
 	'''Reads a fasta string into alignment and trims it down by filter sequence'''
@@ -226,20 +75,31 @@ def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure=''):
 	if anchor_structure != '':
 		anchor_taxid = pdbid_to_strainid(anchor_structure)
 		filter_strain = str(Species.objects.filter(strain_id = anchor_taxid)[0].strain).replace(" ", "_")
-	
-	#### This should be separate view with its own URL for serving multi-group alignments ####
+
+	#### _________Query database for the alignment__________ ####
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
-	fastastring,max_aln_length1 = sql_filtered_aln_query_two_parents(align_id,tax_group1,tax_group2)
+	
+	rawsqls = []
+	for parent in [tax_group1, tax_group2]:
+		rawsqls.append((sql_filtered_aln_query(align_id, parent), Taxgroups.objects.get(pk=parent).groupname))
+	nogap_tupaln = dict()
+	max_alnposition = 0
+	for rawsql, parent in rawsqls:
+		nogap_tupaln, max_alnposition= query_to_dict_structure(rawsql, parent, nogap_tupaln, max_alnposition)
+
+	print(nogap_tupaln)
+	#### __________________Build alignment__________________ ####
+	fastastring = build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_alnposition)
 	#print('fastastring:\n' + fastastring)
 	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
-	
-	#### _____________Trim down the alignment______________ ####
+
+	#### ______________Trim down the alignment______________ ####
 	if anchor_structure != '':
 		alignment = trim_alignment(concat_fasta, filter_strain)
 	else:
 		alignment = concat_fasta
 	
-	#### _______________Calculate TwinCons_________________ ####
+	#### ________________Calculate TwinCons_________________ ####
 	list_for_topology_viewer = calculate_twincons(alignment)
 	
 	return JsonResponse(list_for_topology_viewer, safe = False)
@@ -277,7 +137,11 @@ def entropy(request, align_name, tax_group, anchor_structure):
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
 	polymerid = PolymerData.objects.values("pdata_id").filter(polymeralignments__aln = align_id, strain = taxid)[0]["pdata_id"]
 	chainid = Chainlist.objects.values("chainname").filter(polymer = polymerid)[0]["chainname"]
-	fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)
+	
+	rawsql_result = sql_filtered_aln_query(align_id, tax_group)
+	nogap_tupaln, max_aln_length = query_to_dict_structure(rawsql_result, Taxgroups.objects.get(pk=tax_group).groupname)
+	fastastring = build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_aln_length)
+	#fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)
 	aln_shannon_list = Shannon.main(['-a',fastastring,'-f','fastastring','--return_within','-s',filter_strain])
 	#print(aln_shannon_list)
 	context = {
@@ -295,7 +159,11 @@ def api_entropy(request, align_name, tax_group, anchor_structure):
 	taxid = pdbid_to_strainid(anchor_structure)
 	filter_strain = Species.objects.filter(strain_id = taxid)[0].strain
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
-	fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)
+	
+	rawsql_result = sql_filtered_aln_query(align_id, tax_group)
+	nogap_tupaln, max_aln_length = query_to_dict_structure(rawsql_result, Taxgroups.objects.get(pk=tax_group).groupname)
+	fastastring = build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_aln_length)
+	#fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)
 	aln_shannon_list = Shannon.main(['-a',fastastring,'-f','fastastring','--return_within','-s',filter_strain])
 	return JsonResponse(aln_shannon_list, safe = False)
 
@@ -338,14 +206,24 @@ def visualizer(request, align_name, tax_group1, tax_group2, anchor_structure = '
 def visualizerWithChain(request, anchor_structure, chain):
 	return visualizerHelper(anchor_structure + "/" + chain)
 
+def upload_custom_data(request):
+	return render(request, 'alignments/upload_custom_data.html')
+
 def rProtein(request, align_name, tax_group):
+	#if tax_group == 0 - no filter
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
-	fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)
+	rawsql_result = sql_filtered_aln_query(align_id, tax_group)
+	nogap_tupaln, max_aln_length = query_to_dict_structure(rawsql_result, Taxgroups.objects.get(pk=tax_group).groupname)
+	fastastring = build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_aln_length)
+	#fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)
 	context = {'fastastring': fastastring, 'aln_name':str(Alignment.objects.filter(aln_id = align_id)[0].name)}
 	return render(request, 'alignments/detail.html', context)
 
 def rRNA(request, align_name, tax_group):
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
-	fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)
+	rawsql_result = sql_filtered_aln_query(align_id, tax_group)
+	nogap_tupaln, max_aln_length = query_to_dict_structure(rawsql_result, Taxgroups.objects.get(pk=tax_group).groupname)
+	fastastring = build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_aln_length)
+	#fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)
 	context = {'fastastring': fastastring, 'aln_name':str(Alignment.objects.filter(aln_id = align_id)[0].name)}
 	return render(request, 'alignments/rRNA.html', context)
