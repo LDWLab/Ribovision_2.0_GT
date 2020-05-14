@@ -1,32 +1,45 @@
 <script src="https://cdn.plot.ly/plotly-latest.min.js" charset="utf-8"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
 <body>
-    <div id = "div0">
 
-    </div>
+        
+    <div id = "div0"></div>
+
     <script>
-        var
-            xyPairs = "{{xyPairs}}";
+        function get_twc_list_data(twc_api_url) {
+            $.ajax({
+            url: twc_api_url,
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                build_plotly_graph(data);
+            },
+            error: function (error) {
+                console.log(`Error ${error}`);}
+            });
+        }
+        function build_plotly_graph(data){
+            var
             xArray = [],
             yArray = [];
-        console.log("xyPairs: " + xyPairs);
-        xyPairs = JSON.parse(xyPairs);
-        console.log("__xyPairs: " + xyPairs);
-        xyPairs.forEach(iterationHelper);
-        console.log(xArray);
-        console.log(yArray);
-        var
-            data = [{
-                x : xArray,
-                y : yArray,
-                type: 'bar'
-            }];
-        Plotly.newPlot('div0', data)
-
-        function iterationHelper(xyPair) {
-            console.log(xyPair);
-            xArray.push(xyPair[0]);
-            yArray.push(xyPair[1]);
+            data.forEach(iterationHelper);
+            Plotly.newPlot(
+                'div0', [{
+                    x : xArray,
+                    y : yArray,
+                    type: 'bar',
+                    marker:{
+                        color:'rgba(255,153,51,0.6)', //A list of colors folowing the colormap. Pass from python maybe. ['rgba(204,204,204,1)', 'rgba(222,45,38,0.8)']
+                    }
+                }],
+            );
+            function iterationHelper(xyPair) {
+                console.log(xyPair);
+                xArray.push(xyPair[0]);
+                yArray.push(xyPair[1]);
+            }
         }
+    window.onload = get_twc_list_data("{{twc_api_url}}")
     </script>
 </body>

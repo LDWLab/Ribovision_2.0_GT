@@ -104,25 +104,7 @@ def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure=''):
 	
 	return JsonResponse(list_for_topology_viewer, safe = False)
 
-def twincons_with_upload(request, anchor_structure, chain):
-	from django.urls import resolve
-	current_url = resolve(request.path_info).url_name
-	context = {
-		'pdbid': anchor_structure, 
-		'chainid': chain
-		}
-	if current_url == 'twc_with_upload':
-		context['entropy_address'] = "upload/twc-api/"+str(anchor_structure)
-	elif current_url == 'custom_csv_data_viewer':
-		upload_custom_data_for_mapping(request)
-		context['entropy_address'] = "custom-csv-data"
-	return render(request, 'alignments/twc_detail.html', context)
-
-def twincons(request, align_name, tax_group1, tax_group2, anchor_structure, minIndex = '', maxIndex = ''):
-	taxid = pdbid_to_strainid(anchor_structure)
-	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
-	polymerid = PolymerData.objects.values("pdata_id").filter(polymeralignments__aln = align_id, strain = taxid)[0]["pdata_id"]
-	chainid = Chainlist.objects.values("chainname").filter(polymer = polymerid)[0]["chainname"]
+def minmaxIndex_handler(minIndex, maxIndex):
 	if (minIndex == ''):
 		minIndex = str(0)
 	else:
@@ -131,13 +113,26 @@ def twincons(request, align_name, tax_group1, tax_group2, anchor_structure, minI
 		maxIndex = str(100000)
 	else:
 		maxIndex = str(maxIndex)
+	return minIndex, maxIndex
+
+def twincons_handler(request, anchor_structure, chain, align_name='', tax_group1='', tax_group2='', minIndex = '', maxIndex = ''):
+	from django.urls import resolve
+	current_url = resolve(request.path_info).url_name
+	minIndex, maxIndex = minmaxIndex_handler(minIndex, maxIndex)
+	context = dict()
 	context = {
 		'pdbid': anchor_structure, 
-		'chainid': chainid, 
-		'entropy_address':"twc-api/"+align_name+"/"+str(tax_group1)+"/"+str(tax_group2)+"/"+str(anchor_structure),
+		'chainid': chain,
 		'minIndex' : minIndex,
 		'maxIndex' : maxIndex
 	}
+	if current_url == 'twc_with_upload':
+		context['entropy_address'] = "upload/twc-api/"+str(anchor_structure)
+	elif current_url == 'custom_csv_data_viewer':
+		upload_custom_data_for_mapping(request)
+		context['entropy_address'] = "custom-csv-data"
+	elif current_url == 'twincons':
+		context['entropy_address'] = "twc-api/"+align_name+"/"+str(tax_group1)+"/"+str(tax_group2)+"/"+str(anchor_structure)
 	return render(request, 'alignments/twc_detail.html', context)
 
 def entropy(request, align_name, tax_group, anchor_structure):
@@ -200,18 +195,23 @@ def index_orthologs(request):
 	}
 	return render(request, 'alignments/index_orthologs.html', context)
 
-def visualizerHelper(request, urlSuffix):
-	data = json.load(urllib.request.urlopen("http://127.0.0.1:8000/orthologs/twc-api/" + urlSuffix))
-	xyPairs = []
-	context = {
-		"xyPairs" : xyPairs
-	}
-	for xyPair in data:
-		xyPairs.append(xyPair)
-	return render(request, 'alignments/simpleVisualization.html', context)
+# def visualizerHelper(request, urlSuffix):
+# 	data = json.load(urllib.request.urlopen("http://127.0.0.1:8000/orthologs/twc-api/" + urlSuffix))
+# 	xyPairs = []
+# 	context = {
+# 		"xyPairs" : xyPairs
+# 	}
+# 	for xyPair in data:
+# 		xyPairs.append(xyPair)
+# 	return render(request, 'alignments/simpleVisualization.html', context)
 
 def visualizer(request, align_name, tax_group1, tax_group2, anchor_structure = ''):
-	return visualizerHelper(request, align_name + "/" + str(tax_group1) + "/" + str(tax_group2) + "/" + anchor_structure)
+	twc_api_url = "http://127.0.0.1:8000/orthologs/twc-api/" + align_name + "/" + str(tax_group1) + "/" + str(tax_group2) + "/" + anchor_structure
+	context = {
+		"twc_api_url" : twc_api_url
+	}
+	return render(request, 'alignments/simpleVisualization.html', context)
+	#return visualizerHelper(request, align_name + "/" + str(tax_group1) + "/" + str(tax_group2) + "/" + anchor_structure)
 
 def upload_custom_data(request):
 	return render(request, 'alignments/upload_custom_data.html')

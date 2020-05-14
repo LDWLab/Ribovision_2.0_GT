@@ -23,18 +23,43 @@ function getTaxID2() {
 }
 
 function prepareMethod1() {
-	visualizerURLSuffix = alignmentName + "/" + taxID1 + "/" + taxID2 + "/" + pdb;
+	visualizerURLSuffix = pdb + "/" + chain + "/" + alignmentName + "/" + taxID1 + "/" + taxID2;
 	if (typeof minIndex !== 'undefined' && typeof maxIndex !== 'undefined') {
 		visualizerURLSuffix += "/" +minIndex+ "/" +maxIndex
 	}
+	visualizerURL = alignmentName + "/" + taxID1 + "/" + taxID2 + "/" + pdb
 	mainForm.action = "twincons/" + visualizerURLSuffix;
-	submitButton.disabled = !(alignmentName && taxID1 && taxID2);
+	submitButton.disabled = !(alignmentName && taxID1 && taxID2 && chain);
 	visualizer.disabled = submitButton.disabled;
 }
 
 function prepareMethod2() {
 	visualizerURLSuffix = pdb + "/" + chain;
-	mainForm.action = "twincons/" + visualizerURLSuffix;
+	visualizerURL = alignmentName + "/" + taxID1 + "/" + taxID2 + "/" + pdb
+	mainForm.action = "upload/twincons/" + visualizerURLSuffix;
 	submitButton.disabled = !(pdb && chain && pdb && (textbox.disabled || fileSelector.disabled));
+	visualizer.disabled = submitButton.disabled;
+	document.getElementById("mainFormDiv").disabled = true; 
+}
+
+//testing here (still slight problems when preparing with ranges)
+function prepareMethod(upload = new Boolean(false)) {
+	
+	if (upload){
+		visualizerURLSuffix = pdb + "/" + chain;
+		if (typeof minIndex !== 'undefined' && typeof maxIndex !== 'undefined') {
+			visualizerURLSuffix += "/" +minIndex+ "/" +maxIndex
+		}
+		mainForm.action = "upload/twincons/" + visualizerURLSuffix;
+		submitButton.disabled = !(pdb && chain && pdb && (textbox.disabled || fileSelector.disabled));
+	}else{
+		visualizerURLSuffix = alignmentName + "/" + taxID1 + "/" + taxID2 + "/" + pdb;
+		if (typeof minIndex !== 'undefined' && typeof maxIndex !== 'undefined') {
+			visualizerURLSuffix += "/" +minIndex+ "/" +maxIndex
+		}
+		mainForm.action = "twincons/" + visualizerURLSuffix;
+		submitButton.disabled = !(alignmentName && taxID1 && taxID2);
+		
+	}
 	visualizer.disabled = submitButton.disabled;
 }

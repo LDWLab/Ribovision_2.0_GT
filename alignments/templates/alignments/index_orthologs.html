@@ -44,7 +44,7 @@ AND
 </script>
 <script src={% static 'alignments/tree_menu.js' %}></script>
 <script src={% static 'alignments/GetPDBeChains.js' %}></script>
-<script src={% static 'alignments/tree_helper_functions.js' %}></script>
+<script src={% static 'alignments/form_helper_functions.js' %}></script>
 
 <form enctype = "multipart/form-data" method = "post" id = "mainForm" class = "form-inline" style = "margin: 0; padding: 0;"> {% csrf_token %}
 	<select name = "chain_selector" id = "chain_selector" onclick = "chain = chain_selector.value; prepareMethod2();">
@@ -81,6 +81,10 @@ AND
 		{% for pdb in threeDstructures %}
 			<option value={{ pdb.number_3d_structure_id }}>{{ pdb.structurename }}</option>
 		{% endfor %}
+	</select>
+	with a chain 
+	<select name = "chain_selector2" id = "chain_selector2" onclick = "chain = chain_selector2.value; prepareMethod1();">
+		<option value = "" disabled selected>Select polymer</option>
 	</select>
 	<br>
 	OR <br>
@@ -121,7 +125,7 @@ AND
 </form>
 
 <br><br>
-<button id = "visualizer" onclick = "window.location.href = 'Visualizer/' + visualizerURLSuffix" disabled>TWC Visualizer</button>
+<button id = "visualizer" onclick = "window.location.href = 'Visualizer/' + visualizerURL" disabled>TWC Visualizer</button>
 
 <script>
 	var
@@ -137,7 +141,8 @@ AND
 		taxID1,
 		taxID2,
 		submitButton = document.getElementById("submitButton"),
-		visualizerURLSuffix;
+		visualizerURLSuffix,
+		visualizerURL;
 
 	function preparePDB(struc_id) {
 		var struc_data;
@@ -156,13 +161,13 @@ AND
 		pdb = struc_data["PDBID"];
 		
 		if (struc_id.length == 0) {
-			document.getElementById("chain_selector").innerHTML = "<option></option>";
+			document.getElementById("chain_selector2").innerHTML = "<option></option>";
 		} else {
 			var catOptions = "";
 			for (polymer_chain of struc_data["Polymers and Chains"]) {
 				catOptions += "<option value="+polymer_chain[3]+">" + polymer_chain[0] + "</option>";
 			}
-			document.getElementById("chain_selector").innerHTML = catOptions;
+			document.getElementById("chain_selector2").innerHTML = catOptions;
 		}
 
 		prepareMethod1();
