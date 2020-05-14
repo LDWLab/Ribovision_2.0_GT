@@ -39,7 +39,6 @@ function prepareMethod2() {
 	mainForm.action = "upload/twincons/" + visualizerURLSuffix;
 	submitButton.disabled = !(pdb && chain && pdb && (textbox.disabled || fileSelector.disabled));
 	visualizer.disabled = submitButton.disabled;
-	document.getElementById("mainFormDiv").disabled = true; 
 }
 
 //testing here (still slight problems when preparing with ranges)
