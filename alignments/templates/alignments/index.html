@@ -11,19 +11,19 @@
 <body>
 
 
-<select id="dropdown" onchange= "get_taxonomy_api(this.value); parent_taxid = this.value; console.log(parent_taxid)">
+<select id="dropdown" size="7" onchange= "get_taxonomy_api(this.value); setParentTax(this.value); console.log(parent_taxid)" >
 	<option>Select taxonomic group</option>
 </select>
 
 <script src={% static 'alignments/pure_jquery_phylogeny_helper.js' %}></script>
 
 <script>
+	var parent_taxid;
 
 function myFunction(alignment_name,aln_type) {
-  var parent_taxid = $("#dropdown :selected").val();
-  var res = aln_type.concat(alignment_name).concat("/").concat(parent_taxid);
-  console.log(res);
-  window.location.href = res;
+	var res = aln_type.concat(alignment_name).concat("/").concat(parent_taxid);
+	console.log(res);
+	window.location.href = res;
 }
 </script>
 

@@ -30,6 +30,10 @@ function callback(json_data){
 	}
 }
 
+function setParentTax(tax){
+	window.parent_taxid = tax
+}
+
 window.onload = function(){
 	get_taxonomy_api(0)
 };
