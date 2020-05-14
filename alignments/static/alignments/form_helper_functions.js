@@ -6,6 +6,14 @@ function setTaxID2(tax2) {
 	taxID2 = tax2;
 }
 
+function setminIndex(minin){
+	window.minIndex = minin;
+}
+
+function setmaxIndex(maxin){
+	window.maxIndex = maxin;
+}
+
 function getTaxID1() {
 	return taxID1;
 }
@@ -16,6 +24,9 @@ function getTaxID2() {
 
 function prepareMethod1() {
 	visualizerURLSuffix = alignmentName + "/" + taxID1 + "/" + taxID2 + "/" + pdb;
+	if (typeof minIndex !== 'undefined' && typeof maxIndex !== 'undefined') {
+		visualizerURLSuffix += "/" +minIndex+ "/" +maxIndex
+	}
 	mainForm.action = "twincons/" + visualizerURLSuffix;
 	submitButton.disabled = !(alignmentName && taxID1 && taxID2);
 	visualizer.disabled = submitButton.disabled;

@@ -15,9 +15,7 @@ AND
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="{% static "alignments/vue.js" %}"></script>
-<script src={% static 'alignments/tree_menu.js' %}></script>
-<script src={% static 'alignments/GetPDBeChains.js' %}></script>
-<script src={% static 'alignments/tree_helper_functions.js' %}></script>
+
 
 <script type="text/x-template" id="tree-menu">
 	<div class="tree-menu">
@@ -44,7 +42,9 @@ AND
 	  </tree-menu>
 	</div>
 </script>
-
+<script src={% static 'alignments/tree_menu.js' %}></script>
+<script src={% static 'alignments/GetPDBeChains.js' %}></script>
+<script src={% static 'alignments/tree_helper_functions.js' %}></script>
 
 <form enctype = "multipart/form-data" method = "post" id = "mainForm" class = "form-inline" style = "margin: 0; padding: 0;"> {% csrf_token %}
 	<select name = "chain_selector" id = "chain_selector" onclick = "chain = chain_selector.value; prepareMethod2();">
@@ -82,6 +82,14 @@ AND
 			<option value={{ pdb.number_3d_structure_id }}>{{ pdb.structurename }}</option>
 		{% endfor %}
 	</select>
+	<br>
+	OR <br>
+	Select range for truncating topology (optional)<br>
+	<label for="minIndex">Bottom range</label><br>
+	<input type="text" id="minIndex" name="minIndex" onchange="setminIndex(this.value); prepareMethod1();"><br>
+	<label for="maxIndex">Upper range</label><br>
+	<input type="text" id="maxIndex" name="maxIndex" onchange="setmaxIndex(this.value); prepareMethod1();"><br><br>
+	
 	AND (
 	
 	<select id = "selectProteinAlignment" onclick = "alignmentName = this.value; alignmentType = 'rProtein/'; prepareMethod1();">
@@ -103,7 +111,7 @@ AND
 			{% endif %}
 		{% endfor %}
 	</select>
-	
+	)
 	<br><br>
 
 	CSV Selection: <input type = "file" accept=".csv" name = "filename"/>
@@ -119,6 +127,8 @@ AND
 	var
 		mainForm = document.getElementById("mainForm"),
 		pdb = null,
+		maxIndex,
+		minIndex,
 		alignmentName,
 		alignmentType,
 		chain,

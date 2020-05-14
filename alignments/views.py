@@ -90,9 +90,9 @@ def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure=''):
 	print(nogap_tupaln)
 	#### __________________Build alignment__________________ ####
 	fastastring = build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_alnposition)
-	#print('fastastring:\n' + fastastring)
 	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
-
+	#print(concat_fasta)
+	
 	#### ______________Trim down the alignment______________ ####
 	if anchor_structure != '':
 		alignment = trim_alignment(concat_fasta, filter_strain)
@@ -124,18 +124,19 @@ def twincons(request, align_name, tax_group1, tax_group2, anchor_structure, minI
 	polymerid = PolymerData.objects.values("pdata_id").filter(polymeralignments__aln = align_id, strain = taxid)[0]["pdata_id"]
 	chainid = Chainlist.objects.values("chainname").filter(polymer = polymerid)[0]["chainname"]
 	if (minIndex == ''):
-		minIndex = 0
+		minIndex = str(0)
 	else:
-		minIndex = int(minIndex)
+		minIndex = str(minIndex)
 	if (maxIndex == ''):
-		maxIndex = 100000
+		maxIndex = str(100000)
 	else:
-		maxIndex = int(maxIndex)
+		maxIndex = str(maxIndex)
 	context = {
 		'pdbid': anchor_structure, 
 		'chainid': chainid, 
 		'entropy_address':"twc-api/"+align_name+"/"+str(tax_group1)+"/"+str(tax_group2)+"/"+str(anchor_structure),
-		'range' : (minIndex, maxIndex),
+		'minIndex' : minIndex,
+		'maxIndex' : maxIndex
 	}
 	return render(request, 'alignments/twc_detail.html', context)
 
@@ -219,8 +220,10 @@ def rProtein(request, align_name, tax_group):
 	#if tax_group == 0 - no filter
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
 	rawsql_result = sql_filtered_aln_query(align_id, tax_group)
-	nogap_tupaln, max_aln_length = query_to_dict_structure(rawsql_result, Taxgroups.objects.get(pk=tax_group).groupname)
+	nogap_tupaln = dict()
+	nogap_tupaln, max_aln_length = query_to_dict_structure(rawsql_result, Taxgroups.objects.get(pk=tax_group).groupname, nogap_tupaln)
 	fastastring = build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_aln_length)
+	print(fastastring)
 	#fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)
 	context = {'fastastring': fastastring, 'aln_name':str(Alignment.objects.filter(aln_id = align_id)[0].name)}
 	return render(request, 'alignments/detail.html', context)
@@ -228,7 +231,8 @@ def rProtein(request, align_name, tax_group):
 def rRNA(request, align_name, tax_group):
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
 	rawsql_result = sql_filtered_aln_query(align_id, tax_group)
-	nogap_tupaln, max_aln_length = query_to_dict_structure(rawsql_result, Taxgroups.objects.get(pk=tax_group).groupname)
+	nogap_tupaln = dict()
+	nogap_tupaln, max_aln_length = query_to_dict_structure(rawsql_result, Taxgroups.objects.get(pk=tax_group).groupname, nogap_tupaln)
 	fastastring = build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_aln_length)
 	#fastastring,max_aln_length = sql_filtered_aln_query(align_id,tax_group)
 	context = {'fastastring': fastastring, 'aln_name':str(Alignment.objects.filter(aln_id = align_id)[0].name)}

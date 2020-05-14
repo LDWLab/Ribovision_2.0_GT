@@ -39,7 +39,8 @@
 			if (request.status >= 200 && request.status < 400) {
 				var entityid = Object.keys(data[pdblower])[0];
 				var mapping = []
-				GetRangeMapping("{{pdbid}}", "{{chainid}}", "1-100000", mapping)
+				var range_string = "{{minIndex}}".concat("-").concat("{{maxIndex}}")
+				GetRangeMapping("{{pdbid}}", "{{chainid}}", range_string, mapping)
 				console.log(mapping)
 				var topology_viewer = "<pdb-topology-viewer entry-id={{pdbid}} entity-id="+entityid+" chain-id={{chainid}}	entropy-id={{entropy_address}} filter-range="+mapping+"></pdb-topology-viewer>"
 				//alert(topology_viewer)

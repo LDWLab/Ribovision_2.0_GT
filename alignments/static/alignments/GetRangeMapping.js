@@ -8,6 +8,7 @@ function customFilter(object, result, key, value){
 	}
 }
 function GetRangeMapping(pdbid, chainid, range, mapping){
+	console.log(range)
 	$.ajax({
 	url: 'https://www.ebi.ac.uk/pdbe/api/mappings/uniprot/'+pdbid,
 	type: "GET",
