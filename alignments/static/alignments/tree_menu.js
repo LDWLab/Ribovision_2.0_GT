@@ -15,7 +15,7 @@
 Vue.component('tree-menu', { 
 	delimiters: ['[[',']]'],
 	template: '#tree-menu',
-	props: [ 'nodes', 'label', 'depth', 'taxID' ],
+	props: [ 'children', 'label', 'depth', 'id' ],
 	data() {
 	   return {
 		 showChildren: false
@@ -29,7 +29,7 @@ Vue.component('tree-menu', {
 		}
 	  },
 	  labelClasses() {
-		return { 'has-children': this.nodes }
+		return { 'has-children': this.children }
 	  },
 	  indent() {
 		return { transform: `translate(${this.depth * 50}px)` }
@@ -41,7 +41,7 @@ Vue.component('tree-menu', {
 		// if (this.showChildren) {
 			//var newValue = "{% url 'alignments:detail' " + this.taxID + " %}"
 			setTaxID2(getTaxID1());
-			setTaxID1(this.taxID);
+			setTaxID1(this.id);
 			prepareMethod1();
 
 			// var

@@ -7,14 +7,14 @@ def buildTaxonomy(request):
 	for taxgroup in taxgroups:
 		subtaxonomy = {
 			'label' : taxgroup.groupname,
-			'nodes' : buildTaxonomyRecurse(taxgroup.taxgroup_id),
-			'taxID' : taxgroup.taxgroup_id
+			'children' : buildTaxonomyRecurse(taxgroup.taxgroup_id),
+			'id' : taxgroup.taxgroup_id
 		}
 		taxonomy.append(subtaxonomy)
 	tree = {
 		'label' : 'Root',
-		'nodes' : taxonomy,
-		'taxID' : 0
+		'children' : taxonomy,
+		'id' : 0
 	}
 	return JsonResponse(tree, safe = False)
 
@@ -52,8 +52,41 @@ def buildTaxonomyRecurse(parentIndex):
 	for taxgroup in taxgroups:
 		subtaxonomy = {
 			'label' : taxgroup.groupname,
-			'nodes' : buildTaxonomyRecurse(taxgroup.taxgroup_id),
-			'taxID' : taxgroup.taxgroup_id
+			'children' : buildTaxonomyRecurse(taxgroup.taxgroup_id),
+			'id' : taxgroup.taxgroup_id
+		}
+		taxonomy.append(subtaxonomy)
+	return taxonomy
+
+def buildFoldTaxonomy(request):
+	struc_groups = StructuralFolds.objects.raw('SELECT * FROM SEREB.Structural_Folds WHERE SEREB.Structural_Folds.Level = "Architecture";')
+	taxonomy = []
+	for taxgroup in struc_groups:
+		subtaxonomy = {
+			'label' : taxgroup.name,
+			'children' : buildFoldTaxonomyRecurse(taxgroup.struc_fold_id),
+			'id' : taxgroup.struc_fold_id,
+			'ext_id' : taxgroup.external_id
+		}
+		taxonomy.append(subtaxonomy)
+	tree = {
+		'label' : 'Root',
+		'children' : taxonomy,
+		'id' : 0,
+		'ext_id' : None
+	}
+	return JsonResponse(tree, safe = False)
+
+def buildFoldTaxonomyRecurse(parentIndex):
+	mySQLStr = 'SELECT * FROM SEREB.Structural_Folds WHERE SEREB.Structural_Folds.parent = "' + str(parentIndex) + '";'
+	struc_groups = StructuralFolds.objects.raw(mySQLStr)
+	taxonomy = []
+	for curr_group in struc_groups:
+		subtaxonomy = {
+			'label' : curr_group.name,
+			'children' : buildFoldTaxonomyRecurse(curr_group.struc_fold_id),
+			'id' : curr_group.struc_fold_id,
+			'ext_id' : curr_group.external_id
 		}
 		taxonomy.append(subtaxonomy)
 	return taxonomy

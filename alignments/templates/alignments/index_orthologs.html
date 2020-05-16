@@ -21,23 +21,23 @@ AND
 	<div class="tree-menu">
 	  <div class="label-wrapper" @click="toggleChildren">
 		<div :style="indent" :class="labelClasses">
-			<i v-for="node in nodes" class="fa" :class="iconClasses"></i>
+			<i v-for="node in children" class="fa" :class="iconClasses"></i>
 			[[label]]
-			<input type="checkbox" :id="taxID" name="check" unchecked>
+			<input type="checkbox" :id="id" name="check" unchecked>
 		<!--
-			<label :for="taxID"> [[label]] </label>
-			<input type="checkbox" :id="taxID" name="check" unchecked>
+			<label :for="id"> [[label]] </label>
+			<input type="checkbox" :id="id" name="check" unchecked>
 			-->
 		</div>
 	  </div>
 	  <tree-menu 
 		v-if="showChildren"
-		v-for="node in nodes"
+		v-for="node in children"
 		v-bind:key="node.id"
-		:nodes="node.nodes" 
+		:children="node.children" 
 		:label="node.label"
 		:depth="depth + 1"
-		:taxID="node.taxID"
+		:id="node.id"
 	  >
 	  </tree-menu>
 	</div>
@@ -62,7 +62,7 @@ AND
 		<div id="app">
 			Select two taxgroups:<br/>
 		<tree-menu 
-			:nodes="tree.nodes" 
+			:children="tree.children" 
 			:depth="0"   
 			:label="tree.label"
 			>Loading phylogenetic tree...</tree-menu>

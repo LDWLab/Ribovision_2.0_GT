@@ -216,6 +216,13 @@ def visualizer(request, align_name, tax_group1, tax_group2, anchor_structure = '
 def upload_custom_data(request):
 	return render(request, 'alignments/upload_custom_data.html')
 
+def paralog_entry_form(request):
+	return render(request, 'alignments/index_paralogs.html')
+
+def paralog_display_entropy(request, align_name, fold1, fold2):
+	pass
+	#return render(request, 'alignments/twc_detail.html', context)
+
 def rProtein(request, align_name, tax_group):
 	#if tax_group == 0 - no filter
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
