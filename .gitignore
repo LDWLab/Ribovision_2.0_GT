@@ -2,4 +2,5 @@
 *.pyc
 *~
 env/*
+venv/*
 populate_db/Struc_Folds/*.txt
