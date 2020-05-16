@@ -87,11 +87,15 @@ def parsefastastring(fastastring):
 def species_index_to_aln_index(alignment_obj, species_id):
     '''Given a species id and an alignment object,
     returns a index mapping of sequence id -> alignment id.
+    Also returns the numerical index for the anchor sequence
+    in the alignment object.
     '''
-    index_start=0
-
+    #print(species_id)
+    #for aln in alignment_obj:
+    #    print('___' + aln)
+    aln_anchor_index=0
     for aln in alignment_obj:
-        if aln.id == species_id:
+        if species_id in aln.id:
             aln_anchor_map=dict()
             aln_i = 0
             seq_i = 0
@@ -101,7 +105,8 @@ def species_index_to_aln_index(alignment_obj, species_id):
                     aln_anchor_map[seq_i] = aln_i
                 aln_i +=1
             break
-    return aln_anchor_map
+        aln_anchor_index+=1
+    return aln_anchor_map, aln_anchor_index
 
 def truncate_aln(alignment_obj, index_positions, *args, **kwargs):
     aln_anchor_map = kwargs.get('aln_anchor_map', None)
@@ -116,9 +121,11 @@ def truncate_aln(alignment_obj, index_positions, *args, **kwargs):
 
 def parseMSA(msa, alnformat, verbose, *args, **kwargs):
     """Parse in the MSA file using Biopython's AlignIO
-    It can trim down the alignment given an index_sequence id"""
+    It can trim down the alignment given an index_sequence id
+    and return the index sequence itself."""
     
-    index_sequence = kwargs.get('index_sequence', None)
+    index_sequence_id = kwargs.get('index_sequence_id', None)
+    index_sequence = ''
     from Bio import AlignIO
 
     if alnformat == 'fastastring':
@@ -126,10 +133,10 @@ def parseMSA(msa, alnformat, verbose, *args, **kwargs):
     else:
         alignment = AlignIO.read(msa, alnformat)
 
-    if index_sequence is not None:
-        aln_anchor_map = species_index_to_aln_index(alignment, index_sequence)
+    if index_sequence_id is not None:
+        aln_anchor_map, aln_anchor_index = species_index_to_aln_index(alignment, index_sequence_id)
         alignment = truncate_aln(alignment, list(aln_anchor_map.keys()), aln_anchor_map=aln_anchor_map)
-
+        index_sequence = str(alignment[aln_anchor_index].seq)
     # Do a little sanity checking:
     seq_lengths_list = []
     for record in alignment:
@@ -145,7 +152,7 @@ def parseMSA(msa, alnformat, verbose, *args, **kwargs):
 
     index = range(1, list(seq_lengths)[0]+1)
 
-    return alignment, list(seq_lengths), index
+    return alignment, list(seq_lengths), index, index_sequence
 
 ##################################################################
 # Function to calcuate the Shannon's entropy per alignment column
@@ -214,9 +221,10 @@ def main(commandline_arguments):
 
     #Trim or no trim
     if args.anchor_sequence:
-        alignment, seq_lengths, index = parseMSA(msa, alnformat, verbose, index_sequence=anchorseq)
+        alignment, seq_lengths, index, ix_seq = parseMSA(msa, alnformat, verbose, index_sequence_id=anchorseq)
+
     else:
-        alignment, seq_lengths, index = parseMSA(msa, alnformat, verbose)
+        alignment, seq_lengths, index, ix_seq = parseMSA(msa, alnformat, verbose)
     sel = shannon_entropy_list_msa(alignment)
 
     if runningmean > 0:
@@ -224,8 +232,8 @@ def main(commandline_arguments):
 
     if return_within is True:
         return_list = []
-        for c1, c2 in zip(index, sel):
-            return_list.append((c1,c2))
+        for c1, c2, c3 in zip(index, sel, ix_seq):
+            return_list.append((c1,c2,c3))
         return return_list
 
     if verbose > 0: print("Index" + '\t' + "Entropy")

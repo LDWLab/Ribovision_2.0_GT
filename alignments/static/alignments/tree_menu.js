@@ -5,17 +5,12 @@
  	dataType: "json",
      success: function (data) {
  		console.log(data);
- 		tree = data;
+ 		callback(data)
      },
      error: function (error) {
          console.log(`Error ${error}`);
-	 },
-	 async: false		//Essentially means everything after this will wait for the ajax call to happen,
- });					//which is precisely what we wanted to do. 
-						//We need to be careful how long the python function takes to construct the tree.
-						//In principle not a good way to do it, but it works for now.
-
- console.log('Tree is in the JS global scope: ', tree);
+	 }
+ });
 
 Vue.component('tree-menu', { 
 	delimiters: ['[[',']]'],
@@ -44,18 +39,26 @@ Vue.component('tree-menu', {
 		toggleChildren() {
 		this.showChildren = !this.showChildren;
 		// if (this.showChildren) {
-			var button = document.getElementById("getAlignment");
 			//var newValue = "{% url 'alignments:detail' " + this.taxID + " %}"
-			var newValue = this.taxID;
-			button.setAttribute("value2", newValue);
+			setTaxID2(getTaxID1());
+			setTaxID1(this.taxID);
+			prepareMethod1();
+
+			// var
+			// 	form = document.getElementById("mainForm"),
+			// 	taxID1 = form.getAttribute("taxID2"),
+			// 	taxID2 = this.taxID;
+			// form.setAttribute("taxID1", taxID1);
+			// form.setAttribute("taxID2", taxID2);
 		// }
 		}
 	}
 });
-  
-  new Vue({
-	el: '#app',
-	data: {
-	  tree
-	}
-  })
+function callback(tree){
+	new Vue({
+		el: '#app',
+		data: {
+			tree
+		}
+	})
+}

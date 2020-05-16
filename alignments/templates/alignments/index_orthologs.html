@@ -1,34 +1,33 @@
 {% load static %}
+<form id="user_input_pdb_form" action="" method="post" class = "form-inline" style = "margin: 0; padding: 0;">{% csrf_token %}
+	<style type="text/css">
+		form, table {
+			display:inline;
+			margin:0px;
+			padding:0px;
+		}
+	</style>
+	Input pdb identifier: 
+	<input placeholder="PDB ID" onchange = "prepareMethod2()" type="text" name="pdbid" maxlength="4" style="display: inline;"/><input type="submit" />
+</form>
+
+AND
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="{% static "alignments/vue.js" %}"></script>
 
- <script>
 
-
-</script>
-<script src="{% static "alignments/vue.js" %}">
-</script>
-
-<div class="container">
-	<h4>Vue.js Expandable Tree Menu<br/><small>(Recursive Components)</small></h4>
-	<div id="app">
-		Select two taxgroups:
-	<tree-menu 
-			   :nodes="tree.nodes" 
-			   :depth="0"   
-			   :label="tree.label"
-			   ></tree-menu>
-	</div>
-  </div>
-  
-  <script type="text/x-template" id="tree-menu">
+<script type="text/x-template" id="tree-menu">
 	<div class="tree-menu">
 	  <div class="label-wrapper" @click="toggleChildren">
 		<div :style="indent" :class="labelClasses">
 			<i v-for="node in nodes" class="fa" :class="iconClasses"></i>
-			<!-- [[label]], [[taxID]] -->
 			[[label]]
-			<input type="checkbox" id="check" name="check" unchecked>
-			
+			<input type="checkbox" :id="taxID" name="check" unchecked>
+		<!--
+			<label :for="taxID"> [[label]] </label>
+			<input type="checkbox" :id="taxID" name="check" unchecked>
+			-->
 		</div>
 	  </div>
 	  <tree-menu 
@@ -42,37 +41,136 @@
 	  >
 	  </tree-menu>
 	</div>
-  </script>
-
+</script>
 <script src={% static 'alignments/tree_menu.js' %}></script>
+<script src={% static 'alignments/GetPDBeChains.js' %}></script>
+<script src={% static 'alignments/form_helper_functions.js' %}></script>
+
+<form enctype = "multipart/form-data" method = "post" id = "mainForm" class = "form-inline" style = "margin: 0; padding: 0;"> {% csrf_token %}
+	<select name = "chain_selector" id = "chain_selector" onclick = "chain = chain_selector.value; prepareMethod2();">
+		<option value = "" disabled selected>Select polymer</option>
+	</select>
+
+	AND (Upload fasta file: <input type = "file" id = "fileSelector" onchange = "textbox.disabled = this.value; prepareMethod2();" accept = ".fa, .fas" name = "alignment file"> OR
+	<br>
+	<textarea name = "alignmentText" id = "textbox" cols = "50" rows = "20" onchange = "fileSelector.disabled = this.value; prepareMethod2()" placeholder = "Input alignment text" onclick = "chain = chain_selector.value; prepareMethod2();" onchange = ""></textarea>)
+
+	<br><br>OR
+
+	<div class="container">
+		<h4>Select phylogenetic groups for TwinCons:<br/></h4>
+		<div id="app">
+			Select two taxgroups:<br/>
+		<tree-menu 
+			:nodes="tree.nodes" 
+			:depth="0"   
+			:label="tree.label"
+			>Loading phylogenetic tree...</tree-menu>
+		</div>
+	</div>
+
+	<style type="text/css">
+		form, table {
+			display:inline;
+			margin:0px;
+			padding:0px;
+		}
+	</style>
+	AND <select id = "getPDB" onchange="preparePDB(this.value)">
+	<option>Select a PDB</option>
+		{% for pdb in threeDstructures %}
+			<option value={{ pdb.number_3d_structure_id }}>{{ pdb.structurename }}</option>
+		{% endfor %}
+	</select>
+	with a chain 
+	<select name = "chain_selector2" id = "chain_selector2" onclick = "chain = chain_selector2.value; prepareMethod1();">
+		<option value = "" disabled selected>Select polymer</option>
+	</select>
+	<br>
+	OR <br>
+	Select range for truncating topology (optional)<br>
+	<label for="minIndex">Bottom range</label><br>
+	<input type="text" id="minIndex" name="minIndex" onchange="setminIndex(this.value); prepareMethod1();"><br>
+	<label for="maxIndex">Upper range</label><br>
+	<input type="text" id="maxIndex" name="maxIndex" onchange="setmaxIndex(this.value); prepareMethod1();"><br><br>
+	
+	AND (
+	
+	<select id = "selectProteinAlignment" onclick = "alignmentName = this.value; alignmentType = 'rProtein/'; prepareMethod1();">
+		<option>Select an rProtein alignment</option>
+		{% for aln in some_Alignments %}
+			{% if 'LSU' not in aln.name %}
+				<option value={{ aln.name }}>{{ aln.name }}</option>
+			{% endif %}
+		{% endfor %}
+	</select>
+	
+	OR
+	
+	<select id = "selectRRNAAlignment" onclick = "alignmentName = this.value; alignmentType = 'rRNA/'; prepareMethod1();">
+		<option>Select an rRNA alignment</option>
+		{% for aln in some_Alignments %}
+			{% if 'LSU' in aln.name %}
+				<option value = {{ aln.name }}>{{ aln.name }}</option>
+			{% endif %}
+		{% endfor %}
+	</select>
+	)
+	<br><br>
+
+	CSV Selection: <input type = "file" accept=".csv" name = "filename"/>
+	<br>
+
+	<input id = "submitButton" name = "submitButton" type = "submit" value = "Submit" disabled>
+</form>
+
+<br><br>
+<button id = "visualizer" onclick = "window.location.href = 'Visualizer/' + visualizerURL" disabled>TWC Visualizer</button>
 
 <script>
-function myFunction(alignment_name,aln_type) {
-  var parent_taxid = document.getElementById("getAlignment").getAttribute("value2");
-  var res = aln_type.concat(alignment_name).concat("/").concat(parent_taxid);
-  window.location.href = res;
-}
+	var
+		mainForm = document.getElementById("mainForm"),
+		pdb = null,
+		maxIndex,
+		minIndex,
+		alignmentName,
+		alignmentType,
+		chain,
+		textArea,
+		submitButton,
+		taxID1,
+		taxID2,
+		submitButton = document.getElementById("submitButton"),
+		visualizerURLSuffix,
+		visualizerURL;
+
+	function preparePDB(struc_id) {
+		var struc_data;
+		$.ajax({
+		url: '/struc-api/'+struc_id,
+		type: "GET",
+		dataType: "json",
+		success: function (data) {
+			console.log(data);
+			struc_data = data;},
+		error: function (error) {
+			console.log(`Error ${error}`);},
+		async: false
+		});
+
+		pdb = struc_data["PDBID"];
+		
+		if (struc_id.length == 0) {
+			document.getElementById("chain_selector2").innerHTML = "<option></option>";
+		} else {
+			var catOptions = "";
+			for (polymer_chain of struc_data["Polymers and Chains"]) {
+				catOptions += "<option value="+polymer_chain[3]+">" + polymer_chain[0] + "</option>";
+			}
+			document.getElementById("chain_selector2").innerHTML = catOptions;
+		}
+
+		prepareMethod1();
+	}
+
 </script>
-
-<p>AND</p> 
-
-<select id="getAlignment" onchange= "myFunction(this.value, 'rProtein/');">
-	<option >Select an alignment</option>
-	{% for aln in some_Alignments %}
-		{%if 'LSU' not in aln.name%}
-			<option value={{ aln.name }}>{{ aln.name }}</option>
-		{% endif %}
-	{% endfor %}
-</select>
-
-<p>OR</p>
-
-<select id="getAlignment" onchange= "myFunction(this.value, 'rRNA/');">
-	<option value="">Select an rRNA alignment</option>
-	{% for aln in some_Alignments %}
-		{%if 'LSU' in aln.name%}
-			<option value={{ aln.name }}>{{ aln.name }}</option>
-		{% endif %}
-	{% endfor %}
-</select>
-
