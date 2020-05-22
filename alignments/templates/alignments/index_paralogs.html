@@ -16,6 +16,7 @@
 	<form action="">
 	<div id="phylo_tree_dropdown">
 		<treeselect 
+			:load-options="loadOptions"
 			v-model="value" 
 			v-on:input="limiter"
 			placeholder="Select two groups"
