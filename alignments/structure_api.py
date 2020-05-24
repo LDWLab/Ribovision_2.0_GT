@@ -17,7 +17,6 @@ def get_chains_polymers(struc_id):
 				ON SEREB.Polymer_Data.Pdata_id = filtered_chains.polymer_id\
 			INNER JOIN Nomenclature ON SEREB.Polymer_Data.nomgd_id = Nomenclature.nom_id"
 	polymer_chains = PolymerData.objects.raw(query)
-	print (polymer_chains)
 	if len(polymer_chains) == 0:
 		return chain_pol_list
 	return polymer_chains
@@ -27,7 +26,7 @@ def struc_info(request, struc_id):
 	try:
 		structure = Threedstructures.objects.get(pk=struc_id)
 	except Threedstructures.DoesNotExist:
-		raise Http404("Structure id is not present in the database!")
+		raise Http404("Structure id "+str(struc_id)+" is not present in the database!")
 	taxid = pdbid_to_strainid(structure.structurename)
 	superk = get_superkingdom_id(taxid)
 	ssid_name = list()
