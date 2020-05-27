@@ -40,18 +40,19 @@ def get_lowest_level_folds(fold_id, reqest_fold):
 
 #CONCAT(Aln_id,"_",polymer_id) AS id
 def get_available_alns(f_fold_id):
-	query = 'SELECT Aln_id,Polymer_Data.PData_id FROM SEREB.Polymer_Data\
+	query = 'SELECT Alignment.Aln_id,Alignment.Name,Alignment.Method,Polymer_Data.PData_id FROM SEREB.Polymer_Data\
 			INNER JOIN SEREB.ChainList ON Polymer_Data.PData_id = ChainList.polymer_id\
 			INNER JOIN SEREB.Polymer_Alignments ON Polymer_Data.PData_id = Polymer_Alignments.PData_id\
+			INNER JOIN SEREB.Alignment ON Polymer_Alignments.Aln_id = Alignment.Aln_id\
 			INNER JOIN (SELECT * FROM SEREB.StrucFold_Chains WHERE strucfold_id ='+str(f_fold_id)+')\
 				AS filtered_chains\
 			ON SEREB.ChainList.ChainList_id = filtered_chains.chain_id'
-	aln_id_to_pid = PolymerData.objects.raw(query)
+	raw_object = PolymerData.objects.raw(query)
 	output_dict = dict()
-	for aln_and_pid in aln_id_to_pid:
+	for aln_and_pid in raw_object:
 		if aln_and_pid.pdata_id not in output_dict.keys():
 			output_dict[aln_and_pid.pdata_id] = []
-		output_dict[aln_and_pid.pdata_id].append(aln_and_pid.Aln_id)
+		output_dict[aln_and_pid.pdata_id].append((aln_and_pid.Aln_id,aln_and_pid.Name,aln_and_pid.Method))
 	return output_dict
 
 def fold_info(request, fold_id):

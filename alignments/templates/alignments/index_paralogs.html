@@ -13,20 +13,24 @@
 	
 </head>
 <body>
-	<form action="">
 	<div id="phylo_tree_dropdown">
 		<treeselect 
 			:load-options="loadOptions"
 			v-model="value" 
-			v-on:input="limiter"
-			placeholder="Select two groups"
+			v-on:input="limiter(value); loadData(value)"
+			placeholder="Select a group"
 			:multiple="true" 
 			:options="options" 
 			:flat="true"
-			:limit="2"
-			/>Loading phylogenetic tree...
+			:limit="1"
+			>Loading phylogenetic tree...</treeselect><br>
+	
+		<select v-model="valuef">
+		  <option :value="null" selected disabled hidden>Select an alignment</option>
+		  <option v-for="item in items" v-bind:value="item.value">[[ item.text ]]</option>
+		</select>
+		<span v-if="valuef">Selected: [[valuef]]</span>
 	</div>
-	</form>
 	<script src="{% static "alignments/vue_tree_select.js" %}"></script>
 </body>
 
