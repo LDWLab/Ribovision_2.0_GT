@@ -9,29 +9,44 @@
 	<!-- include vue-treeselect & its styles. you can change the version tag to better suit your needs. -->
 	<script src="https://cdn.jsdelivr.net/npm/@riophae/vue-treeselect@^0.4.0/dist/vue-treeselect.umd.min.js"></script>
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@riophae/vue-treeselect@^0.4.0/dist/vue-treeselect.min.css">
-	<!-- include our custom tree Ajax call and tree object. -->
 	
+	<script src="{% static "alignments/msa.min.gz.js" %}"></script>
+	<script src="{% static "alignments/swingjs/swingjs2.js" %}"></script>
 </head>
 <body>
 	<div id="phylo_tree_dropdown">
 		<treeselect 
-			:load-options="loadOptions"
-			v-model="value" 
-			v-on:input="limiter(value); loadData(value)"
-			placeholder="Select a group"
-			:multiple="true" 
-			:options="options" 
-			:flat="true"
-			:limit="1"
-			>Loading phylogenetic tree...</treeselect><br>
+		  :load-options="loadOptions"
+		  v-model="value" 
+		  v-on:input="limiter(value); loadData(value)"
+		  placeholder="Select a group"
+		  :multiple="true" 
+		  :options="options" 
+		  :flat="true"
+		  :limit="1"
+		  >Loading phylogenetic tree...</treeselect><br>
 	
-		<select v-model="valuef">
+		<select v-if="value" v-model="valuef">
 		  <option :value="null" selected disabled hidden>Select an alignment</option>
-		  <option v-for="item in items" v-bind:value="item.value">[[ item.text ]]</option>
+		  <option v-for="aln in alignments" v-bind:value="aln.value">[[ aln.text ]]</option>
 		</select>
-		<span v-if="valuef">Selected: [[valuef]]</span>
+		<br>
+		<input v-if="valuef" v-model="pdbid" v-on:input="getPDBchains(pdbid)" placeholder="PDB ID" maxlength="4">
+		<br>
+		<select v-if="chains" v-model="chainid" v-on:input="showAlignment(valuef)">
+		  <option :value ="null" selected disabled hidden>Select polymer</option>
+		  <option v-for="chain in chains" v-bind:value="chain.value">[[ chain.text ]]</option>
+		</select>
+		<br>
+		<span v-if="valuef && pdbid && chainid">Selected: [[valuef]] PDBID: [[pdbid]] Chain: [[chainid]]
+			<br><br>
+			<div id="alnDiv">Loading alignment...</div>
+		</span>
 	</div>
+	
+	<!-- include our custom tree Ajax call and tree object. -->
 	<script src="{% static "alignments/vue_tree_select.js" %}"></script>
+
 </body>
 
 <script>

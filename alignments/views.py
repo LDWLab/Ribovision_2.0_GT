@@ -15,7 +15,9 @@ from alignments.taxonomy_views import *
 from alignments.residue_api import *
 from alignments.structure_api import *
 from alignments.fold_api import *
+from alignments.alignment_query_and_build import para_aln
 import alignments.alignment_query_and_build as aqab
+
 
 def trim_alignment(concat_fasta, filter_strain):
 	'''Reads a fasta string into alignment and trims it down by filter sequence'''

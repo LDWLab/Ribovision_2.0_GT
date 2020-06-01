@@ -6,7 +6,7 @@ function ajax(url) {
 			type: 'GET',
 			dataType: "json",
 			success: function(data) {
-				resolve([data])
+				resolve(data)
 			},
 			error: function (error) {
 				console.log(`Error ${error}`);
@@ -15,16 +15,6 @@ function ajax(url) {
 		})
 	})
 }
-
-const iterate = (obj, output_obj) => {
-    Object.keys(obj).forEach(key => {
-    console.log('key: '+ key + ', value: '+obj[key]);
-    if (typeof obj[key] === 'object Object') {
-            iterate(obj[key])
-        }
-    })
-}
-
 
 Vue.component('treeselect', VueTreeselect.Treeselect,)
 
@@ -35,7 +25,10 @@ new Vue({
 		value: null,
 		valuef: null,
 		options: null,
-		items: null
+		alignments: null,
+		pdbid: null,
+		chains: null,
+		chainid: null
 	},
 	methods: {
 		limiter(e) {
@@ -47,8 +40,8 @@ new Vue({
 		loadOptions({action, callback}) {
 			if (action === "LOAD_ROOT_OPTIONS"){
 				ajax('/alignments/showStrucTaxonomy').then(data =>{
-					data[0].isDisabled = true,
-					this.options = data;
+					data.isDisabled = true,
+					this.options = [data];
 					callback();
 				}).catch(error => {
 					console.log(error)
@@ -56,26 +49,76 @@ new Vue({
 			}
 		},
 		loadData:function(value) {
-			this.items = null;
+			this.alignments = null;
 			ajax('/alignments/fold-api/'+value)
 			.then(data=>{
 				//Fix up our data
-				var fpa = data[0]["Folds to polymers to alignments"]
+				var fpa = data["Folds to polymers to alignments"]
 				var fpa_viz = [];
 				Object.keys(fpa).forEach(fkey => {
 					Object.keys(fpa[fkey]).forEach(pkey => {
 						fpa[fkey][pkey].forEach(function (akey){
 							fpa_viz.push({
-								text:  akey[1],
-								value: pkey.concat(',',akey)
+								text:  'Alignment '.concat(akey[1],'; fold ',fkey),
+								value: fkey.concat(',',akey)
 							});
 						});
 					});
 				});
 				var temp_arr = fpa_viz
 				fpa_viz = Array.from(new Set(temp_arr.map(JSON.stringify))).map(JSON.parse);
-				this.items = fpa_viz
+				this.alignments = fpa_viz
 			});
+		},
+		getPDBchains(pdbid){
+			if (pdbid.length === 4){
+				ajax('https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/'+pdbid.toLowerCase())
+					.then(struc_data =>{
+						var chain_options = [];
+						for (var i = 0; i < struc_data[pdbid.toLowerCase()].length; i++) {
+							if (struc_data[pdbid.toLowerCase()][i]["molecule_type"] == "Bound"){
+								continue;}
+							if (struc_data[pdbid.toLowerCase()][i]["molecule_type"] == "Water"){
+								continue;}
+							chain_options.push({
+								text: struc_data[pdbid.toLowerCase()][i]["molecule_name"][0],
+								value: struc_data[pdbid.toLowerCase()][i]["in_chains"][0]
+							})
+						}
+						var temp_arr = chain_options
+						chain_options = Array.from(new Set(temp_arr.map(JSON.stringify))).map(JSON.parse);
+						this.chains = chain_options
+					}).catch(error => {
+						alert("No such pdb id: "+pdbid+".",error)
+					})
+			}
+		},
+		showAlignment(aln_id){
+			var url = '/paralog-aln-api/'+aln_id.split(',')[1]
+			ajax(url).then(fasta =>{
+				var opts = {
+					el: document.getElementById("alnDiv"),
+					seqs: msa.io.fasta.parse(fasta),
+					colorscheme: {
+						scheme: "clustal2",
+					},
+					zoomer: {
+						// general
+						alignmentWidth: 1000,
+						alignmentHeight: 750,
+						columnWidth: 15,
+						rowHeight: 15,
+						labelNameLength: 300,
+						autoResize: true, // only for the width
+					},
+					// smaller menu for JSBin
+					menu: "small",
+					bootstrapMenu: true
+				};
+
+				var m = new msa.msa(opts);
+				m.render();
+			})
 		}
 	}
 })

@@ -3,4 +3,6 @@
 *~
 env/*
 venv/*
+jalview-js/*
+alignments/static/alignments/swingjs/*
 populate_db/Struc_Folds/*.txt

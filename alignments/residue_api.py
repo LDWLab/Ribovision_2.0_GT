@@ -112,5 +112,7 @@ def resi_info(request, resi_id):
 		'Alignment positions' : residue_alignments,
 	}
 
-	return JsonResponse(resi_data, safe = False)
-
+	if request == None:
+		return resi_data
+	else:
+		return JsonResponse(resi_data, safe = False)
