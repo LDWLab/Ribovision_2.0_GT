@@ -2,8 +2,6 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
 <body>
-
-        
     <div id = "div0"></div>
 
     <script>
@@ -21,8 +19,8 @@
         }
         function build_plotly_graph(data){
             var
-            xArray = [],
-            yArray = [];
+                xArray = [],
+                yArray = [];
             data.forEach(iterationHelper);
             Plotly.newPlot(
                 'div0', [{
