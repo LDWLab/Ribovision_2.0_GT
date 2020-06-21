@@ -21,7 +21,7 @@ for opt, arg in opts:
 		usage()
 		sys.exit(2)
 	elif opt in ('-t', '--tsv_file'):
-		aln_path = arg
+		tsv_path = arg
 	else:
 		usage()
 		sys.exit(2)
