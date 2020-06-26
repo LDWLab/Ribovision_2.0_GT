@@ -1,0 +1,83 @@
+<div id="RiboVisionSettingsPanel" title="Settings Panel">
+    <div id="OverAllControlDiv" class="ui-widget-content SettingsDiv">
+      <h3 class="ui-widget-header3">General Settings</h3>
+
+      <div id="buttonmode">
+        One Button Mode:<br />
+        <input id="moveMode" type="radio" name="mode" value="move" onclick="modeSelect(&#39;move&#39;)" /><label for=
+        "moveMode">Move</label><br />
+        <input id="selectMode" type="radio" name="mode" value="select" onclick="modeSelect(&#39;select&#39;)" /><label for=
+        "selectMode">Select Nucleotides</label><br />
+        <input id="selectModeL" type="radio" name="mode" value="selectL" onclick="modeSelect(&#39;selectL&#39;)" /><label for=
+        "selectModeL">Select Lines</label><br />
+        <input id="colorMode" type="radio" name="mode" value="color" onclick="modeSelect(&#39;color&#39;)" /><label for=
+        "colorMode">Color Nucleotides</label><br />
+        <input id="colorModeL" type="radio" name="mode" value="color" onclick="modeSelect(&#39;colorL&#39;)" /><label for=
+        "colorModeL">Color Lines</label><br />
+      </div><br />
+
+      <p>Resize 2D &amp; 3D panels</p>
+
+      <div id="canvasPorportionSlider" style="width:240px;"></div><br />
+
+      <p>Resize 1D Panel</p>
+
+      <div id="topPorportionSlider" style="width:13px;"></div>
+    </div>
+
+    <div id="NLControlDiv" class="ui-widget-content SettingsDiv">
+      <h3 class="ui-widget-header3">1D Panel</h3>
+
+      <div id="NavLineToggle">
+        1D Panel:<br />
+        <input id="nlON" type="radio" name="nl" value="on" /><label for="nlON">On</label> <input id="nlOFF" type="radio" name="nl"
+        value="off" /><label for="nlOFF">Off</label>
+      </div>
+    </div>
+
+    <div id="SSControlDiv" class="ui-widget-content SettingsDiv">
+      <h3 class="ui-widget-header3">2D Panel</h3>
+
+      <div id="ResidueTipToggle">
+        ResidueTip:<br />
+        <input id="rtON" type="radio" name="rt" value="on" /><label for="rtON">On</label> <input id="rtOFF" type="radio" name="rt"
+        value="off" /><label for="rtOFF">Off</label>
+      </div><br />
+
+      <div id="ZAset">
+        Zoom-Aware Lines:<br />
+        <input id="zaON" type="radio" name="za" value="on" /><label for="zaON">On</label> <input id="zaOFF" type="radio" name="za"
+        value="off" /><label for="zaOFF">Off</label>
+      </div>
+    </div>
+
+    <div id="3DControlDiv" class="ui-widget-content SettingsDiv">
+      <h3 class="ui-widget-header3">3D Panel</h3>
+
+      <p>The 3D Panel can be turned on and off. This panel is powered through NGL Viewer.</p>
+
+      <div id="3DToggle">
+        3D Panel:<br />
+        <input id="3dpON" type="radio" name="3dp" value="on" /><label for="3dpON">On</label> <input id="3dpOFF" type="radio" name="3dp"
+        value="off" /><label for="3dpOFF">Off</label>
+      </div>
+
+      <div id="BaseView">
+        BaseView Mode:<br />
+        <input id="bvON" type="radio" name="bv" value="on" /><label for="bvON">On</label> <input id="bvOFF" type="radio" name="bv"
+        value="off" /><label for="bvOFF">Off</label>
+      </div><br />
+      <br />
+    </div>
+  </div>
+
+  <div id="ResidueTip" title="ToolTip" style="position:fixed;width:1px;height:1px;z-index:1000000">
+    <div id="residuetip" style="visibility:hidden">
+      <h3 class="ui-widget-header3">ResidueTip</h3>
+
+      <div id="ResidueTipContent">
+        <span id="resName" class="NavLineItem2"></span> <span id="conSeqLetter" class="NavLineItem"></span> <span id="activeData"
+        class="NavLineItem"></span> <span id="conPercentage" class="NavLineItem"></span>
+      </div>
+    </div>
+  </div>

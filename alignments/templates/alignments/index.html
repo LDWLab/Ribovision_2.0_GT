@@ -1,45 +1,52 @@
-{% block content %}
-<select onchange="location = this.value;">
-	<option value="">Select a superkingdom</option>
-	{% for superkingdom in superKingdoms %}
-		<option value="">{{ superkingdom.groupname }}</option>
-	{% endfor %}
+{% load static %}
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" 
+			integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" 
+			crossorigin="anonymous">
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" 
+			integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" 
+			crossorigin="anonymous"></script>
+</head>
+<body>
+
+
+<select id="dropdown" size="7" onchange= "get_taxonomy_api(this.value); setParentTax(this.value); console.log(parent_taxid)" >
+	<option>Select taxonomic group</option>
 </select>
-{% endblock %}
-<!-- FOO -->
 
-<p>OR</p> 
+<script src={% static 'alignments/pure_jquery_phylogeny_helper.js' %}></script>
 
-<select onchange="location = this.value;">
-	<option value="">Select an alignment</option>
+<script>
+	var parent_taxid;
+
+function myFunction(alignment_name,aln_type) {
+	var res = aln_type.concat(alignment_name).concat("/").concat(parent_taxid);
+	console.log(res);
+	window.location.href = res;
+}
+</script>
+
+<p>AND</p> 
+
+<select id="getAlignment"; onchange= "myFunction(this.value, 'rProtein/'); alignmentName = this.value" >
+	<option >Select an alignment</option>
 	{% for aln in some_Alignments %}
 		{%if 'LSU' not in aln.name%}
-			<option value="{% url 'alignments:detail' aln.name %}">{{ aln.name }}</option>
+			<option value={{ aln.name }}>{{ aln.name }}</option>
 		{% endif %}
 	{% endfor %}
 </select>
 
 <p>OR</p>
 
-<select onchange="location = this.value;">
+<select id="getAlignment" onchange= "myFunction(this.value, 'rRNA/'); alignmentName = this.value">
 	<option value="">Select an rRNA alignment</option>
 	{% for aln in some_Alignments %}
 		{%if 'LSU' in aln.name%}
-			<option value="{% url 'alignments:rRNA' aln.name %}">{{ aln.name }}</option>
+			<option value={{ aln.name }}>{{ aln.name }}</option>
 		{% endif %}
 	{% endfor %}
 </select>
 
-
-<!-- OLD CODE
-{% if some_Alignments %}
-	<ul>
-	{% for aln in some_Alignments %}
-		<li><a href="{% url 'alignments:detail' aln.aln_id %}">{{ aln.name }}</a></li>
-	{% endfor %}
-	</ul>
-{% else %}
-	<p>No alignments are available.</p>
-{% endif %}
--->
-
+</body>

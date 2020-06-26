@@ -1,0 +1,19 @@
+Species_Name,Species_Abr,SS_Table,Font_Size_SVG,Font_Size_Canvas,Circle_Radius
+Drosophila melanogaster,DROME,DROME_LSU,3.2,2.5,1.2
+Drosophila melanogaster,DROME,DROME_SSU,3.9,3.1,1.7
+Escherichia coli,ECOLI,ECOLI_LSU,3.9,3.1,1.7
+Escherichia coli,ECOLI,ECOLI_SSU,3.9,3.1,1.7
+Haloarcula marismortui,HALMA,HALMA_LSU,3.9,3.1,1.7
+Haloarcula marismortui,HALMA,HALMA_SSU,3.9,3.1,1.7
+Homo sapiens,HUMAN,HUMAN_LSU,3,2.5,1.2
+Homo sapiens,HUMAN,HUMAN_MTL,3.5,2.6,1.4
+Homo sapiens,HUMAN,HUMAN_SSU,3.9,3.1,1.7
+Pyrococcus furiosus,PYRFU,PYRFU_LSU,4,3.2,2.2
+Pyrococcus furiosus,PYRFU,PYRFU_SSU,3.9,3.1,1.7
+Thermus thermophilus,THET8,THET8_GULEN,3.9,3.1,1.7
+Thermus thermophilus,THET9,THET8_HSIAO,3.9,3.1,1.7
+Thermus thermophilus,THET1,THET8_LSU,3.9,3.1,1.7
+Thermus thermophilus,THET1,THET8_SSU,3.9,3.1,1.7
+Saccharomyces cerevisiae,YEAST,YEAST_LSU,3.5,2.6,1.4
+Saccharomyces cerevisiae,YEAST,YEAST_MTL,2.9,2.5,1.2
+Saccharomyces cerevisiae,YEAST,YEAST_SSU,3.9,3.1,1.7

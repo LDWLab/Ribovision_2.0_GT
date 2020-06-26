@@ -8,7 +8,7 @@
 <p>
 	You are looking at alignment {{aln_name}}.
 </p>
-<div id="yourDiv">press "Run with JS"</div>
+<div id="yourDiv">Something is wrong!</div>
 <script>
 var sequence = "{{ fastastring }}".replace(/&gt;/g,'\>');
 var opts = {
@@ -26,12 +26,17 @@ var opts = {
 		labelNameLength: 200,
 		autoResize: true, // only for the width
 	},
+	vis: {
+		conserv: true,
+	},
 	// smaller menu for JSBin
 	menu: "small",
 	bootstrapMenu: true
 };
 
 var m = new msa.msa(opts);
+console.log(m.seqs.g.colorscheme.attributes.scheme)
+console.log(m)
 m.render();
 
 </script>

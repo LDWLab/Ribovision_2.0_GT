@@ -1,0 +1,32 @@
+
+path{
+  fill: none;
+  stroke: #448ccb;
+}
+
+
+text {
+    font-family: Arial;
+    font-size: 9pt;
+}
+
+#residuetip{
+	z-index: 100;
+	height:300px;
+	width:300px;
+	position: absolute;
+	left: 70px;
+	top: 20px;
+	background: #ebebeb;
+	opacity:0.8;
+	color:#042445;
+	border: 1px solid #b2b2b3;
+	border-radius: 10px;
+	font-family: Arial;
+	-webkit-box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.4);
+	-moz-box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.4);
+	box-shadow: 1px 1px 5px 0px rgba(0, 0, 0, 0.4);
+}
+.NavLineItem {
+	margin-left:6px;
+}
