@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+
+	<title>Entropy mapped on topology</title>
+	<meta charset="utf-8">
+
+	<!-- d3.js dependency script -->
+  <script src="https://cdn.jsdelivr.net/npm/d3@5.9.2" defer></script>
+ 
+  <script src=https://cdnjs.cloudflare.com/ajax/libs/mathjs/3.3.0/math.min.js></script>
+
+
+	<!-- Complied & minified library JS -->
+  <script type="text/javascript" src={% static 'alignments/pdb-topology-viewer-component-2.0.8.js' %} defer></script> 
+  <script type="text/javascript" src={% static 'alignments/palette.js-master/palette.js' %} defer></script> 
+  <script type="text/javascript" src={% static 'alignments/palette.js-master/demo.js' %} defer></script> 
+
+
+	<style>
+		#topview {
+			height:400px;
+			width:400px;
+			position:relative;}
+	</style>
+</head>
+<body>
+	<div id='topview'></div>
+	<div>
+		{%for pos in shannon_dictionary%}
+			<li>{{pos}}</li>
+		{%endfor%}
+	</div>
+	
+	<script type ="text/javascript">
+		var pdblower = "{{pdbid}}".toLocaleLowerCase();
+		var request = new XMLHttpRequest();
+		request.open('GET', 'https://www.ebi.ac.uk/pdbe/api/topology/entry/{{pdbid}}/chain/AI', true);
+		request.onload = function() {
+			var data = JSON.parse(this.response);
+			if (request.status >= 200 && request.status < 400) {
+				var entityid = Object.keys(data[pdblower])[0];
+				var topology_viewer = "<pdb-topology-viewer entry-id={{pdbid}} entity-id="+entityid+" chain-id=AI	entropy-id={{entropy_address}}></pdb-topology-viewer>"
+				document.getElementById('topview').innerHTML = topology_viewer;
+			} else {
+				console.log('error');
+			}
+		}
+		// Send request
+		request.send()
+	</script>
+</body>
+</html>
+

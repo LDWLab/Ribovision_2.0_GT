@@ -1,0 +1,46 @@
+
+<html>
+   <head>
+       {% load static %}
+       <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+       <script src={% static 'alignments/GetPDBeChains.js' %}></script>
+   </head>
+   <body>
+   
+      <form id="user_input_pdb_form" action="" method="post" class = "form-inline" style = "margin: 0; padding: 0;">{% csrf_token %}
+          <style type="text/css">
+              form, table {
+                   display:inline;
+                   margin:0px;
+                   padding:0px;
+               }
+          </style>
+          Input pdb identifier: 
+          <input placeholder="PDB ID" onchange = "prepareMethod2()" type="text" name="pdbid" maxlength="4" style="display: inline;"/><input type="submit" />
+       </form>
+   
+       <form enctype = "multipart/form-data" id="mainForm" method = "post">{% csrf_token %}
+           <p>
+           <select name = "chain_selector" id = "chain_selector" onclick = "chain = chain_selector.value; prepareMethod2();">
+               <option value = "" disabled selected>Select polymer</option>
+           </select>
+           </p>
+           <p>CSV Selection: <input type = "file" accept=".csv" name = "filename" /></p>
+           <p><input type = "submit" value = "Upload CSV" id = "submitButton"/></p>
+       </form>
+   
+       <script>
+           var
+               mainForm = document.getElementById("mainForm"),
+               pdb = null,
+               chain,
+               submitButton;
+   
+           function prepareMethod2() {
+               mainForm.action =  pdb + "/" + chain;
+               document.getElementById("submitButton").disabled = !(pdb && chain);
+           }
+       </script>
+   
+   </body>
+   </html>

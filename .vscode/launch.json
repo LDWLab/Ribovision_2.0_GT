@@ -1,19 +1,41 @@
 {
-	// Use IntelliSense to learn about possible attributes.
-	// Hover to view descriptions of existing attributes.
-	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-	"version": "0.2.0",
-	"configurations": [
-		{
-			"name": "Python: Django",
-			"type": "python",
-			"request": "launch",
-			"program": "${workspaceFolder}/manage.py",
-			"args": [
-				"runserver",
-				"--noreload"
-			],
-			"django": true
-		}
-	]
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Upload alignment",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/populate_db/Alignments/upload_aln.py",
+            "console": "integratedTerminal",
+            "args": [
+                "/home/ppenev/Dropbox-Gatech/ProteinProject/Alignments/rProteins/Archaeal/aeL14_txid_tagged.fas",
+                "ae"
+            ]
+        },
+        {
+            "name": "Upload accession",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/populate_db/Polymers/upload_accession.py",
+            "console": "integratedTerminal",
+            "args": [
+                "-c",
+                "${workspaceFolder}/populate_db/Polymers/CSV/acc_seqs_bact+uL29.csv"
+            ]
+        },
+        {
+            "name": "Python: Django",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "args": [
+                "runserver",
+                "--noreload"
+            ],
+            "django": true
+        }
+    ]
 }

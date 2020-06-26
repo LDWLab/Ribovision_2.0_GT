@@ -1,0 +1,10 @@
+"StructDataName","ColName","ColorList","IndexMode","ExtraArg"
+"B factors","mean_tempFactor","Rainbow1","FALSE",
+"FineOnion","FineOnion","Rainbow1","FALSE",
+"GASE","Shannon_Entropy","Rainbow1","FALSE",NULL
+"Map Index","map_Index","Rainbow1","FALSE",NULL
+"Mg ions, 2.4A","Mg_ions_24","BinaryColors","TRUE",
+"Mg ions, 2.6A","Mg_ions_26","BinaryColors","TRUE",
+"Mg ions, 6.0A","Mg_ions_60","BinaryColors","TRUE",
+"Onion","Onion","OnionColors","TRUE",
+"PASE","CoVar_Entropy","Rainbow1","FALSE",NULL
