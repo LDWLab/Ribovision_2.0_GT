@@ -89,7 +89,7 @@ function processResidueData(ResidueData,speciesIndex){
 function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 	var speciesSplit=species.split("&");
 	//Load Labels
-	initLabels(speciesSplit,customResidues); 
+	initLabels(speciesSplit,customResidues);
 	//ResiduePositions=[[]];
 	MainResidueMap=[[]];
 
@@ -120,7 +120,7 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 			contentType: 'application/json', 
 			accept: 'application/json',
 			url: 'api/RiboVision/v1.0/fetchStructureName',
-			data: JSON.stringify([species_string]),
+			data: JSON.stringify(species_string),
 			success: function(data) {
 				$.each(data, function (index, value) {
 					waitFor3Dinit(value);
@@ -142,14 +142,14 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 			contentType: 'application/json', 
 			accept: 'application/json',
 			url: 'api/RiboVision/v1.0/speciesTable',
-			data: JSON.stringify([species_string]),
+			data: JSON.stringify(species_string),
 			success: function(data) {
 				if(data.length == 0) {
 					console.log("Assuming custom mode for now.")
 					speciesIndex = 0;
 					// Come back and fill this in with real molecule names sometime
 					var se = {Molecule_Names : ['custom']};
-					rvDataSets[speciesIndex].addSpeciesEntry(se);					
+					rvDataSets[speciesIndex].addSpeciesEntry(se);
 				} else {
 					$.each(data, function (index, value) {
 						speciesIndex=$.inArray(value.SS_Table,speciesSplit);
@@ -162,7 +162,7 @@ function loadSpecies(species,customResidues,DoneLoading,DoneLoading2) {
 			}
 		});
 	})
-	
+	initLabels(speciesSplit,customResidues);
 	processDataSets(speciesSplit,customResidues,DoneLoading,DoneLoading2);
 }
 
@@ -358,9 +358,9 @@ function populateMenus(structureName){
 		items : ".dataBubble"
 	});
 	// // Get conservation table
-	// $.getJSON('RiboVision/v1.0/fullTable', {
-		// FullTable : rvDataSets[speciesIndex].SpeciesEntry.ConservationTable
-		// }, function (ConservationTable) {
-			// rvDataSets[speciesIndex].ConservationTable=ConservationTable;
+	// $.getJSON('api/RiboVision/v1.0/fullTable', {
+	//	 FullTable : rvDataSets[speciesIndex].SpeciesEntry.ConservationTable
+	//	 }, function (ConservationTable) {
+	//		 rvDataSets[speciesIndex].ConservationTable=ConservationTable;
 	// })
 }

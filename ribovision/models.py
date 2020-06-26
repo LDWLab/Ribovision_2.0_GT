@@ -125,6 +125,15 @@ class Mastertable(models.Model):
         managed = False
         db_table = 'MasterTable'
 
+class Moleculenames(models.Model):
+    moleculename = models.CharField(db_column='MoleculeName', primary_key=True, max_length=6)  # Field name made lowercase.
+    moleculetype = models.CharField(db_column='MoleculeType', max_length=70, blank=True, null=True)  # Field name made lowercase.
+    moleculegroup = models.CharField(db_column='MoleculeGroup', max_length=5, blank=True, null=True)  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'MoleculeNames'
+
 class Nomenclature(models.Model):
     nom_id = models.AutoField(primary_key=True)
     new_name = models.CharField(max_length=10)
