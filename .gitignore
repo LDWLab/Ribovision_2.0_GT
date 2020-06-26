@@ -1,5 +1,6 @@
 ./venv/
 ./env/
+env*
 ./.vscode/
 *.pyc
 *~
