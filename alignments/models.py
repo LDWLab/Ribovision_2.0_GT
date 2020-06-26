@@ -115,7 +115,7 @@ class Residues(models.Model):
     resnum = models.IntegerField(db_column='resNum')  # Field name made lowercase.
     unmodresname = models.CharField(db_column='unModResName', max_length=1)  # Field name made lowercase.
     modresname = models.CharField(db_column='modResName', max_length=1, blank=True, null=True)  # Field name made lowercase.
-    altname = models.CharField(db_column='altName', max_length=45, blank=True, null=True)  # Field name made lowercase.
+    codon = models.CharField(db_column='codon', max_length=45, blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = False
