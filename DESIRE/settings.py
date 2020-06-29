@@ -85,7 +85,7 @@ DATABASES = {
         'ENGINE': 'mysql.connector.django',
         'USER': os.environ['DJANGO_USERNAME'],             #Write username here
         'PASSWORD': os.environ['DJANGO_PASSWORD'],         #And password here
-        'HOST': '130.207.36.75',
+        'HOST': '130.207.36.76',
         'PORT': '3306',
         'OPTIONS': {
           'autocommit': True,
