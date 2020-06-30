@@ -1,37 +1,24 @@
 from django.http import JsonResponse, Http404
 from alignments.models import *
 
-'''Recursion for transition to Apollo2:
-with recursive cte (struc_fold_id, name, parent, level) as (
-  select     struc_fold_id,
-             name,
-             parent,
-             level
-  from       Structural_Folds
-  where      parent = 2
-  union all
-  select     p.struc_fold_id,
-             p.name,
-             p.parent,
-             p.level
-  from       Structural_Folds p
-  inner join cte
-          on p.parent = cte.struc_fold_id
-)
-select * from cte where level = 'F';
-'''
-
 def get_lowest_level_folds(fold_id, reqest_fold):
 	if reqest_fold.level == 'F':
 		return [reqest_fold]
 	empty_fold_list = list()
-	query = "SELECT  struc_fold_id, name, parent, level \
-	FROM	(SELECT * from Structural_Folds\
-			ORDER BY parent, struc_fold_id) folds_sorted,\
-			(select @pv := '"+str(fold_id)+"') initialisation\
-	WHERE 	find_in_set(parent, @pv)\
-	AND 	length(@pv := CONCAT(@pv, ',', struc_fold_id))\
-	AND 	level = 'F'"
+	query = "\
+	with recursive cte (struc_fold_id, name, parent, level) as \
+	(\
+	select struc_fold_id, name, parent, level\
+		from Structural_Folds\
+		where parent = 2\
+		union all\
+		select p.struc_fold_id, p.name, p.parent, p.level\
+		from Structural_Folds p\
+		inner join cte\
+			on p.parent = cte.struc_fold_id\
+	)\
+	select * from cte where level = 'F'"
+
 	lower_folds = StructuralFolds.objects.raw(query)
 	if len(lower_folds) == 0:
 		return empty_fold_list
