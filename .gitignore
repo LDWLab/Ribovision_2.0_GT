@@ -2,6 +2,7 @@
 *.pyc
 *~
 env/*
+DESIRE/env/*
 venv/*
 jalview-js/*
 alignments/static/alignments/swingjs/*
