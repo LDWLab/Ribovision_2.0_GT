@@ -147,7 +147,7 @@ class Nomenclature(models.Model):
 
 class OldName(models.Model):
     old_id = models.AutoField(primary_key=True)
-    nomo = models.ForeignKey(Nomenclature, models.DO_NOTHING)
+    nn_fk = models.ForeignKey(Nomenclature, models.DO_NOTHING, db_column='nn_fk_id')
     old_name = models.CharField(max_length=45)
     n_b_y_h_a = models.CharField(db_column='N_B_Y_H_A', max_length=3)  # Field name made lowercase.
 

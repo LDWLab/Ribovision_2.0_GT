@@ -1,3 +1,6 @@
+from django.db import models
+
+# Create your models here.
 # This is an auto-generated Django model module.
 # You'll have to do the following manually to clean this up:
 #   * Rearrange models' order
@@ -5,7 +8,7 @@
 #   * Make sure each ForeignKey has `on_delete` set to the desired behavior.
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
-from django.db import models
+
 
 
 class AdResidues(models.Model):
@@ -87,8 +90,8 @@ class OldName(models.Model):
 class PolymerData(models.Model):
     pdata_id = models.AutoField(db_column='PData_id', primary_key=True)  # Field name made lowercase.
     gi = models.CharField(db_column='GI', unique=True, max_length=45)  # Field name made lowercase.
-    strain = models.ForeignKey('Species', models.DO_NOTHING)
-    nomgd = models.ForeignKey(Nomenclature, models.DO_NOTHING, blank=True, null=True)
+    strain = models.ForeignKey('Species', models.DO_NOTHING, db_column='strain_id')
+    nomgd = models.ForeignKey(Nomenclature, models.DO_NOTHING, blank=True, null=True, db_column='nomgd_id')
     genesymbol = models.CharField(db_column='GeneSymbol', max_length=45, blank=True, null=True)  # Field name made lowercase.
     genedescription = models.CharField(db_column='GeneDescription', max_length=100, blank=True, null=True)  # Field name made lowercase.
 
