@@ -12,8 +12,8 @@ from django.db import models
 
 
 class AdResidues(models.Model):
-    ad = models.ForeignKey('AssociatedData', models.DO_NOTHING, db_column='AD_id')  # Field name made lowercase.
-    residuep = models.ForeignKey('Residues', models.DO_NOTHING, db_column='residueP_id')  # Field name made lowercase.
+    ad = models.ForeignKey('AssociatedData', models.DO_NOTHING, db_column='AD_id', default=None)  # Field name made lowercase.
+    residuep = models.ForeignKey('Residues', models.DO_NOTHING, db_column='residueP_id', default=None)  # Field name made lowercase.
 
     class Meta:
         managed = False

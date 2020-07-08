@@ -10,6 +10,11 @@ router.register(r'polymers', views.PolymerViewSet)
 router.register(r'residues', views.ResidueViewSet)
 router.register(r'ss', views.SSViewSet)
 router.register(r'ssdata', views.SSDataViewSet)
+router.register(r'alignments', views.AlignmentViewSet)
+router.register(r'adresi', views.AdResiduesViewSet)
+router.register(r'ad', views.AssociatedDataViewSet)
+router.register(r'residue-alignment', views.AlnDataViewSet)
+
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.

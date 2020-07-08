@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Residues, PolymerData, Species, Nomenclature, OldName, Secondarystructures, SsData
+from .models import *
 
 class NomenclatureSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -35,3 +35,23 @@ class SSDataSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = SsData
         fields = ['ssd_id', 'res']
+
+class AdResiduesSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = AdResidues
+        fields = ['ad', 'residuep']
+
+class AlignmentSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Alignment
+        fields = '__all__'
+
+class AssociatedDataSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = AssociatedData
+        fields = '__all__'
+
+class AlnDataSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = AlnData
+        fields = '__all__'

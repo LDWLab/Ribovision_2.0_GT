@@ -31,3 +31,19 @@ class SSViewSet(viewsets.ModelViewSet):
 class SSDataViewSet(viewsets.ModelViewSet):
     queryset = SsData.objects.all().order_by('ssd_id')
     serializer_class = SSDataSerializer
+
+class AdResiduesViewSet(viewsets.ModelViewSet):
+    queryset = AdResidues.objects.raw('SELECT CONCAT(AD_Residues.AD_id,"_",AD_Residues.residueP_id) AS id,AD_id,residueP_id FROM SEREB.AD_Residues')
+    serializer_class = AdResiduesSerializer
+
+class AlignmentViewSet(viewsets.ModelViewSet):
+    queryset = Alignment.objects.all().order_by('aln_id')
+    serializer_class = AlignmentSerializer
+
+class AssociatedDataViewSet(viewsets.ModelViewSet):
+    queryset = AssociatedData.objects.all().order_by('data_id')
+    serializer_class = AssociatedDataSerializer
+
+class AlnDataViewSet(viewsets.ModelViewSet):
+    queryset = AlnData.objects.all()
+    serializer_class = AlnDataSerializer
