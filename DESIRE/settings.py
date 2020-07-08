@@ -91,6 +91,7 @@ DATABASES = {
         'PORT': '3306',
         'OPTIONS': {
           'autocommit': True,
+          'use_pure': True,
         },
     }
 }

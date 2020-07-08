@@ -29,12 +29,12 @@ class ResidueSerializer(serializers.HyperlinkedModelSerializer):
 class SecondarystructuresSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Secondarystructures
-        fields = ['secstr_id', 'moleculegroup', 'variation', 'strain_fk', 'name']
+        fields = '__all__'
 
 class SSDataSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = SsData
-        fields = ['ssd_id', 'res']
+        fields = '__all__'
 
 class AdResiduesSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
