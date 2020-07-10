@@ -20,17 +20,16 @@ class AdResidues(models.Model):
         db_table = 'AD_Residues'
         unique_together = (('ad', 'residuep'),)
 
-
 class Alignment(models.Model):
     aln_id = models.AutoField(db_column='Aln_id', primary_key=True)  # Field name made lowercase.
     name = models.CharField(db_column='Name', max_length=45)  # Make sure it's unique to make nice URLs # Field name made lowercase.
     method = models.CharField(db_column='Method', max_length=45)  # Field name made lowercase.
     source = models.CharField(db_column='Source', max_length=10)  # Field name made lowercase.
+    polymers = models.ManyToManyField('PolymerData', through='PolymerAlignments', related_name="alns_of_polymer")
 
     class Meta:
         managed = False
         db_table = 'Alignment'
-
 
 class AlnData(models.Model):
     aln_data_id = models.AutoField(db_column='Aln_Data_id', primary_key=True)  # Field name made lowercase.
@@ -86,6 +85,14 @@ class OldName(models.Model):
         managed = False
         db_table = 'Old_name'
 
+class PolymerAlignments(models.Model):
+    pdata = models.ForeignKey('PolymerData', models.DO_NOTHING, db_column='PData_id')  # Field name made lowercase.
+    aln = models.ForeignKey(Alignment, models.DO_NOTHING, db_column='Aln_id')  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'Polymer_Alignments'
+        unique_together = (('pdata', 'aln'),)
 
 class PolymerData(models.Model):
     pdata_id = models.AutoField(db_column='PData_id', primary_key=True)  # Field name made lowercase.
@@ -94,6 +101,7 @@ class PolymerData(models.Model):
     nomgd = models.ForeignKey(Nomenclature, models.DO_NOTHING, blank=True, null=True, db_column='nomgd_id')
     genesymbol = models.CharField(db_column='GeneSymbol', max_length=45, blank=True, null=True)  # Field name made lowercase.
     genedescription = models.CharField(db_column='GeneDescription', max_length=100, blank=True, null=True)  # Field name made lowercase.
+    alns = models.ManyToManyField(Alignment, through=PolymerAlignments, related_name='alns_of_polymer')
 
     class Meta:
         managed = False
@@ -114,7 +122,7 @@ class PolymerMetadata(models.Model):
 
 class Residues(models.Model):
     resi_id = models.AutoField(primary_key=True)
-    poldata = models.ForeignKey(PolymerData, models.DO_NOTHING, db_column='PolData_id')  # Field name made lowercase.
+    poldata = models.ForeignKey(PolymerData, models.DO_NOTHING, db_column='PolData_id', related_name='residues_in_polymer')  # Field name made lowercase.
     resnum = models.IntegerField(db_column='resNum')  # Field name made lowercase.
     unmodresname = models.CharField(db_column='unModResName', max_length=1)  # Field name made lowercase.
     modresname = models.CharField(db_column='modResName', max_length=1, blank=True, null=True)  # Field name made lowercase.
@@ -212,15 +220,6 @@ class SecondaryTertiary(models.Model):
     class Meta:
         managed = False
         db_table = 'Secondary_Tertiary'
-
-class PolymerAlignments(models.Model):
-    pdata = models.ForeignKey('PolymerData', models.DO_NOTHING, db_column='PData_id')  # Field name made lowercase.
-    aln = models.ForeignKey(Alignment, models.DO_NOTHING, db_column='Aln_id')  # Field name made lowercase.
-
-    class Meta:
-        managed = False
-        db_table = 'Polymer_Alignments'
-        unique_together = (('pdata', 'aln'),)
 
 class StructuralFolds(models.Model):
     struc_fold_id = models.AutoField(primary_key=True)

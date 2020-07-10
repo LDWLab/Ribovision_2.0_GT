@@ -14,6 +14,7 @@ router.register(r'alignments', views.AlignmentViewSet)
 router.register(r'adresi', views.AdResiduesViewSet)
 router.register(r'ad', views.AssociatedDataViewSet)
 router.register(r'residue-alignment', views.AlnDataViewSet)
+router.register(r'taxonomic-groups', views.TaxGroupViewSet)
 
 
 # Wire up our API using automatic URL routing.

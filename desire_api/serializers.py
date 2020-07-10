@@ -16,15 +16,27 @@ class SpeciesSerializer(serializers.HyperlinkedModelSerializer):
         model = Species
         fields = '__all__'
 
-class PolymerSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = PolymerData
-        fields = ['pdata_id', 'gi', 'genesymbol', 'genedescription', 'strain', 'nomgd']
-
 class ResidueSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Residues
         fields = '__all__'
+
+class PolResidueSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Residues
+        fields = ['url']
+
+class PolAlnSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Alignment
+        fields = ['url']
+
+class PolymerSerializer(serializers.HyperlinkedModelSerializer):
+    residues_in_polymer = PolResidueSerializer(many=True, read_only=True)
+    alns_of_polymer = PolAlnSerializer(many=True, read_only=True)
+    class Meta:
+        model = PolymerData
+        fields = ['pdata_id', 'gi', 'genesymbol', 'genedescription', 'strain', 'nomgd', 'residues_in_polymer', 'alns_of_polymer']
 
 class SecondarystructuresSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -54,4 +66,9 @@ class AssociatedDataSerializer(serializers.HyperlinkedModelSerializer):
 class AlnDataSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = AlnData
+        fields = '__all__'
+
+class TaxGroupSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Taxgroups
         fields = '__all__'

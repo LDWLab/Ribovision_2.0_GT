@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework import viewsets
 
 from .serializers import *
-from .models import Residues, PolymerData, Species, Nomenclature, OldName, Secondarystructures, SsData
+from .models import *
 
 class SpeciesViewSet(viewsets.ModelViewSet):
     queryset = Species.objects.all().order_by('strain_id')
@@ -47,3 +47,7 @@ class AssociatedDataViewSet(viewsets.ModelViewSet):
 class AlnDataViewSet(viewsets.ModelViewSet):
     queryset = AlnData.objects.all()
     serializer_class = AlnDataSerializer
+
+class TaxGroupViewSet(viewsets.ModelViewSet):
+    queryset = Taxgroups.objects.all()
+    serializer_class = TaxGroupSerializer
