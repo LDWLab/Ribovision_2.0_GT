@@ -97,7 +97,7 @@ class PolymerAlignments(models.Model):
 class PolymerData(models.Model):
     pdata_id = models.AutoField(db_column='PData_id', primary_key=True)  # Field name made lowercase.
     gi = models.CharField(db_column='GI', unique=True, max_length=45)  # Field name made lowercase.
-    strain = models.ForeignKey('Species', models.DO_NOTHING, db_column='strain_id')
+    strain = models.ForeignKey('Species', models.DO_NOTHING, db_column='strain_id', related_name='polymers_of_species')
     nomgd = models.ForeignKey(Nomenclature, models.DO_NOTHING, blank=True, null=True, db_column='nomgd_id')
     genesymbol = models.CharField(db_column='GeneSymbol', max_length=45, blank=True, null=True)  # Field name made lowercase.
     genedescription = models.CharField(db_column='GeneDescription', max_length=100, blank=True, null=True)  # Field name made lowercase.
