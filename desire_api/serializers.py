@@ -36,7 +36,7 @@ class SpeciesSerializer(serializers.HyperlinkedModelSerializer):
     polymers_of_species = SpeciesPolymerAlignmentSerializer(many=True, read_only=True)
     class Meta:
         model = Species
-        fields = '__all__'
+        fields = ['url', 'strain', 'name', 'abbreviation', 'polymers_of_species']
 
 class PolymerSerializer(serializers.HyperlinkedModelSerializer):
     residues_in_polymer = PolResidueSerializer(many=True, read_only=True)
@@ -75,7 +75,37 @@ class AlnDataSerializer(serializers.HyperlinkedModelSerializer):
         model = AlnData
         fields = '__all__'
 
+class AlignmentTxGrpSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Alignment
+        fields = ['url', 'name', 'method', 'source']
+
 class TaxGroupSerializer(serializers.HyperlinkedModelSerializer):
+    alignment_ids = serializers.SerializerMethodField()
+    def get_alignment_ids(self, obj):
+        if obj.grouplevel == 'strain':
+            return list(["Implement case of strain."])
+        rawsql = "\
+        SELECT DISTINCT Alignment.Aln_id FROM Alignment\
+        INNER JOIN Polymer_Alignments ON Alignment.Aln_id = Polymer_Alignments.Aln_id\
+        INNER JOIN Polymer_Data on Polymer_Alignments.PData_id = Polymer_Data.PData_id\
+        WHERE Polymer_Data.strain_id IN\
+        (with recursive cte (taxgroup_id, groupName, parent, groupLevel) as \
+        (\
+        select taxgroup_id, groupName, parent, groupLevel\
+            from TaxGroups\
+            where parent = %s\
+            union all\
+            select p.taxgroup_id, p.groupName, p.parent, p.groupLevel\
+            from TaxGroups p\
+            inner join cte\
+                on p.parent = cte.taxgroup_id\
+        )\
+        select taxgroup_id from cte where (groupLevel REGEXP 'strain')\
+        )"%(str(obj.taxgroup_id))
+        aln_ids = Alignment.objects.raw(rawsql)
+        outlist = [x.aln_id for x in aln_ids]
+        return list(outlist)
     class Meta:
         model = Taxgroups
-        fields = '__all__'
+        fields = ['url', 'groupname', 'grouplevel', 'parent', 'alignment_ids']

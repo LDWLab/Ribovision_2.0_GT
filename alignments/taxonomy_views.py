@@ -1,6 +1,23 @@
 from django.http import JsonResponse
 from alignments.models import *
 
+# Recursively collect all children at level for given taxgroup_id
+'''
+query = '\
+	with recursive cte (taxgroup_id, groupName, parent, groupLevel) as \
+	(\
+	select taxgroup_id, groupName, parent, groupLevel\
+		from TaxGroups\
+		where parent = 2157\
+		union all\
+		select p.taxgroup_id, p.groupName, p.parent, p.groupLevel\
+		from TaxGroups p\
+		inner join cte\
+			on p.parent = cte.taxgroup_id\
+	)\
+	select taxgroup_id from cte where (groupLevel REGEXP ".*phylum")'
+'''
+
 def buildTaxonomy(request):
 	taxgroups = Taxgroups.objects.raw('SELECT * FROM SEREB.TaxGroups WHERE SEREB.TaxGroups.groupLevel = "superkingdom";')
 	taxonomy = []

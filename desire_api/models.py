@@ -26,6 +26,7 @@ class Alignment(models.Model):
     method = models.CharField(db_column='Method', max_length=45)  # Field name made lowercase.
     source = models.CharField(db_column='Source', max_length=10)  # Field name made lowercase.
     polymers = models.ManyToManyField('PolymerData', through='PolymerAlignments', related_name="alns_of_polymer")
+    taxonomic_groups = models.ManyToManyField('TaxGroups', through='AlnDomains', related_name="alns_of_txgrp")
 
     class Meta:
         managed = False
@@ -167,6 +168,7 @@ class Species(models.Model):
     strain = models.CharField(max_length=100, blank=True, null=True)
     taxid = models.IntegerField(blank=True, null=True)
     abbreviation = models.CharField(db_column='Abbreviation', max_length=45, blank=True, null=True)  # Field name made lowercase.
+    taxgroups = models.ManyToManyField('Taxgroups', through='SpeciesTaxgroup', related_name="species_of_taxgroup")
 
     class Meta:
         managed = False
@@ -188,6 +190,8 @@ class Taxgroups(models.Model):
     grouplevel = models.CharField(db_column='groupLevel', max_length=45, blank=True, null=True)  # Field name made lowercase.
     groupname = models.CharField(db_column='groupName', max_length=45, blank=True, null=True)  # Field name made lowercase.
     parent = models.ForeignKey('self', models.DO_NOTHING, db_column='parent', blank=True, null=True)
+    species = models.ManyToManyField(Species, through='SpeciesTaxgroup', related_name="species_of_taxgroup")
+    # alignments = models.ManyToManyField(Alignment, through='AlnDomains', related_name="alns_of_txgrp")
     # taxid = models.IntegerField(blank=True, null=True)
 
     class Meta:
