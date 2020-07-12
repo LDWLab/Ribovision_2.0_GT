@@ -226,13 +226,20 @@ def paralog_display_entropy(request, align_name, fold1, fold2):
 	pass
 	#return render(request, 'alignments/twc_detail.html', context)
 
-def rProtein(request, align_name, tax_group):
-	#if tax_group == 0 - no filter
-	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
-	rawsql_result = aqab.sql_filtered_aln_query(align_id, tax_group)
+def simple_fasta(request, aln_id, tax_group, internal=False):
+	rawsql_result = aqab.sql_filtered_aln_query(aln_id, tax_group)
 	nogap_tupaln = dict()
 	nogap_tupaln, max_aln_length = aqab.query_to_dict_structure(rawsql_result, Taxgroups.objects.get(pk=tax_group).groupname, nogap_tupaln)
 	fastastring = aqab.build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_aln_length)
+	if internal:
+		return fastastring
+	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
+	return JsonResponse(concat_fasta, safe = False)
+
+def rProtein(request, align_name, tax_group):
+	#if tax_group == 0 - no filter
+	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
+	fastastring = simple_fasta(request, align_id, tax_group, internal=True)
 	print(fastastring)
 	#fastastring,max_aln_length = aqab.sql_filtered_aln_query(align_id,tax_group)
 	context = {'fastastring': fastastring, 'aln_name':str(Alignment.objects.filter(aln_id = align_id)[0].name)}

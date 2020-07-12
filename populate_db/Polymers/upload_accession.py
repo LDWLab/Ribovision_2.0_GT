@@ -26,7 +26,7 @@ for opt, arg in opts:
 
 #uname = input("User name: ")
 pw = getpass.getpass("Password: ")
-cnx = mysql.connector.connect(user='ppenev', password=pw, host='130.207.36.75', database='SEREB')
+cnx = mysql.connector.connect(user='ppenev', password=pw, host='130.207.36.76', database='SEREB')
 cursor = cnx.cursor()
 
 def read_csv(csv_path):

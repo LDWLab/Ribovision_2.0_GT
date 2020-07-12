@@ -11,37 +11,41 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@riophae/vue-treeselect@^0.4.0/dist/vue-treeselect.min.css">
 	
 	<script src="{% static "alignments/msa.min.gz.js" %}"></script>
-	<script src="{% static "alignments/swingjs/swingjs2.js" %}"></script>
 </head>
 <body>
 	<div id="phylo_tree_dropdown">
 		<treeselect 
 		  :load-options="loadOptions"
-		  v-model="value" 
-		  v-on:input="limiter(value); loadData(value)"
-		  placeholder="Select two groups"
+		  v-model="tax_id" 
+		  v-on:input="limiter(tax_id); loadData(tax_id)"
+		  placeholder="Select a group"
 		  :multiple="true" 
 		  :options="options" 
 		  :flat="true"
 		  :limit="1"
 		  >Loading phylogenetic tree...</treeselect><br>
 	
-		<select v-if="value" v-model="valuef">
+		<select v-if="tax_id" v-model="alnobj" @change="showAlignment(alnobj.id, tax_id)">
 		  <option :value="null" selected disabled hidden>Select an alignment</option>
-		  <option v-for="aln in alignments" v-bind:value="aln.value">[[ aln.text ]]</option>
+		  <option v-for="aln in alignments" v-bind:value="{ id: aln.value, text: aln.text }">[[ aln.text ]]</option>
 		</select>
+		<span v-if="alnobj">
+			<br><br>
+			<div id="alnDiv">Loading alignment...</div>
+		</span>
 		<br>
-		<input v-if="valuef" v-model="pdbid" v-on:input="getPDBchains(pdbid)" placeholder="PDB ID" maxlength="4">
+		<span v-if="alnobj">Selected alignment: [[alnobj.text]]. Select PDB and chain for mapping:</span>
 		<br>
-		<select v-if="chains" v-model="chainid" v-on:input="showAlignment(valuef)">
+		<input v-if="alnobj" v-model="pdbid" v-on:input="getPDBchains(pdbid)" placeholder="PDB ID" maxlength="4">
+		<br>
+		<select v-if="chains" v-model="chainid">
 		  <option :value ="null" selected disabled hidden>Select polymer</option>
 		  <option v-for="chain in chains" v-bind:value="chain.value">[[ chain.text ]]</option>
 		</select>
 		<br>
-		<span v-if="valuef && pdbid && chainid">Selected: [[valuef]] PDBID: [[pdbid]] Chain: [[chainid]]
-			<br><br>
-			<div id="alnDiv">Loading alignment...</div>
-		</span>
+
+
+
 	</div>
 	
 	<!-- include our custom tree Ajax call and tree object. -->

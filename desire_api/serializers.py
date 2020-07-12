@@ -86,7 +86,7 @@ class TaxGroupSerializer(serializers.HyperlinkedModelSerializer):
         if obj.grouplevel == 'strain':
             return list(["Implement case of strain."])
         rawsql = "\
-        SELECT DISTINCT Alignment.Aln_id FROM Alignment\
+        SELECT DISTINCT Alignment.Aln_id, Alignment.name FROM Alignment\
         INNER JOIN Polymer_Alignments ON Alignment.Aln_id = Polymer_Alignments.Aln_id\
         INNER JOIN Polymer_Data on Polymer_Alignments.PData_id = Polymer_Data.PData_id\
         WHERE Polymer_Data.strain_id IN\
@@ -104,7 +104,7 @@ class TaxGroupSerializer(serializers.HyperlinkedModelSerializer):
         select taxgroup_id from cte where (groupLevel REGEXP 'strain')\
         )"%(str(obj.taxgroup_id))
         aln_ids = Alignment.objects.raw(rawsql)
-        outlist = [x.aln_id for x in aln_ids]
+        outlist = [(x.aln_id, x.name) for x in aln_ids]
         return list(outlist)
     class Meta:
         model = Taxgroups

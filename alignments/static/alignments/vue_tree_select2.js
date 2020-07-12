@@ -22,8 +22,8 @@ new Vue({
 	el: '#phylo_tree_dropdown',
 	delimiters: ['[[',']]'],
 	data: {
-		value: null,
-		valuef: null,
+		tax_id: null,
+		alnobj: null,
 		options: null,
 		alignments: null,
 		pdbid: null,
@@ -50,23 +50,17 @@ new Vue({
 		},
 		loadData:function(value) {
 			this.alignments = null;
-			ajax('/alignments/fold-api/'+value)
+			ajax('/desire-api/taxonomic-groups/'+value+'/?format=json')
 			.then(data=>{
 				//Fix up our data
-				var fpa = data["Folds to polymers to alignments"]
+				var fpa = data["alignment_ids"]
 				var fpa_viz = [];
-				Object.keys(fpa).forEach(fkey => {
-					Object.keys(fpa[fkey]).forEach(pkey => {
-						fpa[fkey][pkey].forEach(function (akey){
-							fpa_viz.push({
-								text:  'Alignment '.concat(akey[1],'; fold ',fkey),
-								value: fkey.concat(',',akey)
-							});
-						});
+				fpa.forEach(function (fkey){
+					fpa_viz.push({
+						text:  fkey[1],
+						value: fkey[0]
 					});
 				});
-				var temp_arr = fpa_viz
-				fpa_viz = Array.from(new Set(temp_arr.map(JSON.stringify))).map(JSON.parse);
 				this.alignments = fpa_viz
 			});
 		},
@@ -93,8 +87,8 @@ new Vue({
 					})
 			}
 		},
-		showAlignment(aln_id){
-			var url = '/paralog-aln-api/'+aln_id.split(',')[1]
+		showAlignment(aln_id, taxid){
+			var url = '/ortholog-aln-api/'+aln_id+'/'+taxid[0]
 			ajax(url).then(fasta =>{
 				var opts = {
 					el: document.getElementById("alnDiv"),
@@ -104,18 +98,17 @@ new Vue({
 					},
 					zoomer: {
 						// general
-						alignmentWidth: 1000,
-						alignmentHeight: 750,
+						alignmentWidth: 500,
+						alignmentHeight: 400,
 						columnWidth: 15,
 						rowHeight: 15,
 						labelNameLength: 300,
 						autoResize: true, // only for the width
 					},
 					// smaller menu for JSBin
-					menu: "small",
-					bootstrapMenu: true
+					//menu: "small",
+					//bootstrapMenu: true
 				};
-
 				var m = new msa.msa(opts);
 				m.render();
 			})
