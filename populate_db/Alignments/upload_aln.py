@@ -8,7 +8,7 @@ def create_and_parse_argument_options(argument_list):
     parser.add_argument('alignment_file', help='Path to alignment file', type=str)
     parser.add_argument('source', help='Defines superkingdom source (e.g. abe)', type=str)
     parser.add_argument('-aln_method','--alignment_method', help='Alignment method used (default: PROMALS3D)', type=str, default='PROMALS3D')
-    parser.add_argument('-host','--db_host', help='Defines database host (default: 130.207.36.75)', type=str, default='130.207.36.75')
+    parser.add_argument('-host','--db_host', help='Defines database host (default: 130.207.36.76)', type=str, default='130.207.36.76')
     parser.add_argument('-schema','--db_schema', help='Defines schema to use (default: SEREB)', type=str, default='SEREB')
     parser.add_argument('-user_name','--uname', help='Defines user name to use (default: ppenev)', type=str, default='ppenev')
     commandline_args = parser.parse_args(argument_list)
@@ -42,6 +42,7 @@ def check_nomo_id(cursor, occur, name):
     '''
     Gets nom_id for new name and superkingdom
     '''
+    occur = occur.capitalize() 
     cursor.execute("SELECT SEREB.Nomenclature.nom_id FROM SEREB.Nomenclature\
         WHERE SEREB.Nomenclature.new_name = '"+name+"' AND SEREB.Nomenclature.occurrence = '"+occur+"'")
     result = cursor.fetchall()
@@ -50,7 +51,7 @@ def check_nomo_id(cursor, occur, name):
     #If no result maybe alignment is using BAN nomenclature
     except:
         cursor.execute("SELECT SEREB.Nomenclature.nom_id FROM SEREB.Nomenclature\
-            INNER JOIN SEREB.Old_name ON SEREB.Nomenclature.nom_id=SEREB.Old_name.nomo_id\
+            INNER JOIN SEREB.Old_name ON SEREB.Nomenclature.nom_id=SEREB.Old_name.nn_fk_id\
             WHERE SEREB.Old_name.old_name = '"+name+"' AND SEREB.Old_name.N_B_Y_H_A = 'BAN'\
             AND SEREB.Nomenclature.occurrence = '"+occur+"'")
         result = cursor.fetchall()
@@ -82,6 +83,7 @@ def upaln_getid(cursor, aln_name, source_string, method_name):
     '''
     Uploads alignment name and method, then returns its primary key from the DB.
     '''
+
     query = "INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('"+aln_name+"','"+method_name+"','"+source_string+"')"
     print(query)
     cursor.execute(query)
@@ -105,7 +107,7 @@ def upload_pol_aln(cursor, pol_id, aln_id):
 
 def upload_aln_data(cursor, entry, seq_aln_pos, aln_id, polymer_id):
     '''Uploads aln_data table'''
-    print (entry.seq[seq_aln_pos[1]-1],end='')
+    #print (entry.seq[seq_aln_pos[1]-1],end='')
     resi_id = check_resi_id(cursor, str(seq_aln_pos[0]), str(polymer_id), str(entry.seq[seq_aln_pos[1]-1]))
     #print(resi_id)
     cursor.execute("SELECT aln_id,res_id FROM SEREB.Aln_Data WHERE\
@@ -114,7 +116,7 @@ def upload_aln_data(cursor, entry, seq_aln_pos, aln_id, polymer_id):
     result = cursor.fetchall()
     if len(result) == 0:
         query = "INSERT INTO `SEREB`.`Aln_Data`(`aln_id`,`res_id`,`aln_pos`) VALUES('"+str(aln_id)+"','"+str(resi_id)+"','"+str(seq_aln_pos[1])+"')"
-        print(query)
+        #print(query)
         cursor.execute(query)
         return True
     if len(result) == 1:
@@ -199,8 +201,8 @@ def main(commandline_arguments):
     comm_args = create_and_parse_argument_options(commandline_arguments)
     aln_path = comm_args.alignment_file
     source_string = comm_args.source
-    
-    pw = getpass.getpass("Password: ")
+    pw = 'eb1e1e^^'
+    #pw = getpass.getpass("Password: ")
     cnx = mysql.connector.connect(user=comm_args.uname, password=pw, host=comm_args.db_host, database=comm_args.db_schema)
     cursor = cnx.cursor()
 
@@ -222,7 +224,7 @@ def main(commandline_arguments):
         mapped_resis = create_aln_mapping(entry)
         for seq_aln_pos in mapped_resis:
             upload_aln_data(cursor, entry, seq_aln_pos, aln_id, polymer_id)
-        print()
+        #print()
     
     cnx.commit()
     cursor.close()

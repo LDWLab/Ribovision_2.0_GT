@@ -22,7 +22,7 @@
 		  :multiple="true" 
 		  :options="options" 
 		  :flat="true"
-		  :limit="1"
+		  :limit="2"
 		  >Loading phylogenetic tree...</treeselect><br>
 	
 		<select v-if="tax_id" v-model="alnobj" @change="showAlignment(alnobj.id, tax_id)">

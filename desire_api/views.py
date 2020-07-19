@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from rest_framework import viewsets
+from url_filter.integrations.drf import DjangoFilterBackend
 
 from .serializers import *
 from .models import *
@@ -11,6 +12,8 @@ class SpeciesViewSet(viewsets.ModelViewSet):
 class NomenclatureViewSet(viewsets.ModelViewSet):
     queryset = Nomenclature.objects.all().order_by('nom_id')
     serializer_class = NomenclatureSerializer
+    filter_backends = [DjangoFilterBackend]
+    filter_fields = ['nom_id', 'new_name', 'occurrence', 'moleculegroup']
 
 class OldNomenclatureViewSet(viewsets.ModelViewSet):
     queryset = OldName.objects.all().order_by('old_id')
@@ -51,3 +54,5 @@ class AlnDataViewSet(viewsets.ModelViewSet):
 class TaxGroupViewSet(viewsets.ModelViewSet):
     queryset = Taxgroups.objects.all()
     serializer_class = TaxGroupSerializer
+    filter_backends = [DjangoFilterBackend]
+    filter_fields = ['groupname', 'grouplevel', 'taxgroup_id']

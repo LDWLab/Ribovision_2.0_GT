@@ -17,12 +17,24 @@ def sql_filtered_aln_query(aln_id, parent_id):
 		INNER JOIN SEREB.Residues ON SEREB.Aln_Data.res_id = SEREB.Residues.resi_id\
 		INNER JOIN (\
 			SELECT * from SEREB.Polymer_Data WHERE SEREB.Polymer_Data.PData_id IN \
-				(SELECT PData_id from SEREB.Polymer_Alignments WHERE SEREB.Polymer_Alignments.Aln_id = '+str(aln_id)+')\
+				(SELECT PData_id from SEREB.Polymer_Alignments WHERE SEREB.Polymer_Alignments.Aln_id = %s)\
 			AND SEREB.Polymer_Data.strain_id IN \
-				(SELECT strain_id FROM SEREB.Species_TaxGroup WHERE taxgroup_id = '+str(parent_id)+')) as filtered_polymers\
+				(with recursive cte (taxgroup_id, groupName, parent, groupLevel) as \
+		(\
+		select taxgroup_id, groupName, parent, groupLevel\
+			from TaxGroups\
+			where parent = %s\
+			union all\
+			select p.taxgroup_id, p.groupName, p.parent, p.groupLevel\
+			from TaxGroups p\
+			inner join cte\
+				on p.parent = cte.taxgroup_id\
+		)\
+		select taxgroup_id from cte where (groupLevel REGEXP "strain"))) as filtered_polymers\
 		ON SEREB.Residues.PolData_id = filtered_polymers.PData_id\
 		INNER JOIN SEREB.Species ON filtered_polymers.strain_id = SEREB.Species.strain_id\
-		WHERE SEREB.Alignment.aln_id = '+str(aln_id)
+		WHERE SEREB.Alignment.aln_id = %s'%(str(aln_id),str(parent_id),str(aln_id))
+
 	with connection.cursor() as cursor:
 		cursor.execute(SQLStatement)
 		raw_result = dictfetchall(cursor)
