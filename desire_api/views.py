@@ -50,6 +50,8 @@ class AssociatedDataViewSet(viewsets.ModelViewSet):
 class AlnDataViewSet(viewsets.ModelViewSet):
     queryset = AlnData.objects.all()
     serializer_class = AlnDataSerializer
+    filter_backends = [DjangoFilterBackend]
+    filter_fields = '__all__'
 
 class TaxGroupViewSet(viewsets.ModelViewSet):
     queryset = Taxgroups.objects.all()

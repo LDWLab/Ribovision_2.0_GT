@@ -242,10 +242,12 @@ def simple_fasta(request, aln_id, tax_group, internal=False):
 		nogap_tupaln, max_alnposition= aqab.query_to_dict_structure(rawsql, parent, nogap_tupaln, max_alnposition)
 	
 	fastastring = aqab.build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_alnposition)
+	unf_species_list = [x.split('\\')[0] for x in fastastring.split('>')]
+	filtered_spec_list = [re.sub('_',' ', re.sub(r'^.*?_', '', x)) for x in unf_species_list[1:]]
 	if internal:
 		return fastastring
 	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
-	return JsonResponse(concat_fasta, safe = False)
+	return JsonResponse([concat_fasta,filtered_spec_list], safe = False)
 
 # def simple_fasta(request, aln_id, tax_group, internal=False):
 # 	rawsql_result = aqab.sql_filtered_aln_query(aln_id, tax_group)
