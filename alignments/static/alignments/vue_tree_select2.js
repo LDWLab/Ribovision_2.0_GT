@@ -112,17 +112,17 @@ var vm = new Vue({
                     colorscheme: {
                         scheme: "clustal2",
                     },
-                    columns: {
-                        hidden: fasta[2] // hidden columns
-                    },
+                    //columns: {
+                    //    hidden: fasta[2] // hidden columns
+                    //},
                     zoomer: {
                         // general
-                        //alignmentWidth: 500,
-                        //alignmentHeight: 400,
-                        //columnWidth: 15,
-                        //rowHeight: 15,
-                        //labelNameLength: 300,
-                        autoResize: true, // only for the width
+                        alignmentWidth: 500,
+                        alignmentHeight: 400,
+                        columnWidth: 15,
+                        rowHeight: 15,
+                        labelNameLength: 300,
+                        autoResize: false, // only for the width
                     },
                     conf: {
                         registerMouseHover: false,

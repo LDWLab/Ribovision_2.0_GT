@@ -15,7 +15,6 @@
 <body>
 	<div id="phylo_tree_dropdown">
 		<treeselect 
-		  ref="foo"
 		  :load-options="loadOptions"
 		  v-model="tax_id" 
 		  v-on:input="limiter(tax_id); loadData(tax_id)"
