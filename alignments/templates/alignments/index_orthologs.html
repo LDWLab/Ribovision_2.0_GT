@@ -15,6 +15,7 @@
 <body>
 	<div id="phylo_tree_dropdown">
 		<treeselect 
+		  ref="foo"
 		  :load-options="loadOptions"
 		  v-model="tax_id" 
 		  v-on:input="limiter(tax_id); loadData(tax_id)"
@@ -33,6 +34,8 @@
 			<br><br>
 			<div id="alnDiv">Loading alignment...</div>
 		</span>
+		<br>
+		<span v-if="aln_meta_data">Last selected residue: [[aln_meta_data]]</span>
 		<br>
 		<span v-if="alnobj">Selected alignment: [[alnobj.text]]. Select PDB and chain for mapping:</span>
 		<br>

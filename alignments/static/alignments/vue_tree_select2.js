@@ -17,7 +17,7 @@ function ajax(url) {
 
 Vue.component('treeselect', VueTreeselect.Treeselect, )
 
-new Vue({
+var vm = new Vue({
     el: '#phylo_tree_dropdown',
     delimiters: ['[[', ']]'],
     data: {
@@ -27,7 +27,8 @@ new Vue({
         alignments: null,
         pdbid: null,
         chains: null,
-        chainid: null
+        chainid: null,
+        aln_meta_data: null,
     },
     methods: {
         limiter(e) {
@@ -102,6 +103,7 @@ new Vue({
             }
         },
         showAlignment(aln_id, taxid) {
+            this.aln_meta_data = null;
             var url = '/ortholog-aln-api/' + aln_id + '/' + taxid
             ajax(url).then(fasta => {
                 var opts = {
@@ -115,12 +117,12 @@ new Vue({
                     },
                     zoomer: {
                         // general
-                        alignmentWidth: 500,
-                        alignmentHeight: 400,
-                        columnWidth: 15,
-                        rowHeight: 15,
-                        labelNameLength: 300,
-                        autoResize: false, // only for the width
+                        //alignmentWidth: 500,
+                        //alignmentHeight: 400,
+                        //columnWidth: 15,
+                        //rowHeight: 15,
+                        //labelNameLength: 300,
+                        autoResize: true, // only for the width
                     },
                     conf: {
                         registerMouseHover: false,
@@ -133,12 +135,17 @@ new Vue({
                 var m = new msa.msa(opts);
                 m.render();
                 m.g.on("residue:click", function(data) {
+                    vm.aln_meta_data = null;
                     var url = '/desire-api/residue-alignment/?format=json&aln_pos=' + String(Number(data["rowPos"]) + 1) + '&aln=' + aln_id + '&res__poldata__strain__strain=' + fasta[1][Number(data["seqId"])]
                     ajax(url).then(alnpos_data => {
                         ajax('/resi-api/' + alnpos_data["results"][0]["res"].split("/")[5]).then(resiData => {
-                            console.log(resiData)
+                            vm.aln_meta_data = resiData;
                         });
-                    });
+                    }).catch(error => {
+                        vm.aln_meta_data = null;
+                        console.log("No residue with alignment position: " + data["rowPos"] + ". In alignment " + aln_id + ". Of species " + fasta[1][Number(data["seqId"])]);
+                        console.log(error);
+                    })
                 });
             })
         }
