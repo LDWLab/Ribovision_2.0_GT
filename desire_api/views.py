@@ -18,14 +18,20 @@ class NomenclatureViewSet(viewsets.ModelViewSet):
 class OldNomenclatureViewSet(viewsets.ModelViewSet):
     queryset = OldName.objects.all().order_by('old_id')
     serializer_class = OldNameSerializer
+    filter_backends = [DjangoFilterBackend]
+    filter_fields = ['old_id', 'nn_fk', 'old_name', 'n_b_y_h_a']
 
 class PolymerViewSet(viewsets.ModelViewSet):
     queryset = PolymerData.objects.all().order_by('pdata_id')
     serializer_class = PolymerSerializer
+    filter_backends = [DjangoFilterBackend]
+    filter_fields = ['pdata_id', 'gi', 'genesymbol', 'genedescription', 'strain', 'nomgd']
 
 class ResidueViewSet(viewsets.ModelViewSet):
     queryset = Residues.objects.all().order_by('resi_id')
     serializer_class = ResidueSerializer
+    filter_backends = [DjangoFilterBackend]
+    filter_fields = ['resnum', 'poldata', 'unmodresname']
 
 class SSViewSet(viewsets.ModelViewSet):
     queryset = Secondarystructures.objects.all().order_by('secstr_id')
@@ -58,3 +64,9 @@ class TaxGroupViewSet(viewsets.ModelViewSet):
     serializer_class = TaxGroupSerializer
     filter_backends = [DjangoFilterBackend]
     filter_fields = ['groupname', 'grouplevel', 'taxgroup_id']
+
+'''
+/desire-api/residues/?resnum=10&poldata__strain=74969&poldata__nomgd__new_name=uL02
+/desire-api/residue-alignment/?res=404342&aln=1
+/desire-api/residue-alignment/?aln_pos=61&aln=1&res__poldata__strain__in=74969,9606
+'''

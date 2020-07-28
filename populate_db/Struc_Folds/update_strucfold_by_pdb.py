@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-import re, csv, sys, getopt, getpass, mysql.connector, argparse
+import os, re, csv, sys, getopt, getpass, mysql.connector, argparse
 
 def create_and_parse_argument_options(argument_list):
 	parser = argparse.ArgumentParser(description='Update structural folds tables from ECOD and SCOPe, given a PDB ID')
 	parser.add_argument('pdb_id', help='PDB identifier to query', type=str)
 	parser.add_argument('user_name', help='Username for connecting to DESIRE', type=str)
-	parser.add_argument('-host','--db_host', help='Defines database host (default: 130.207.36.75)', type=str, default='130.207.36.75')
+	parser.add_argument('-host','--db_host', help='Defines database host (default: 130.207.36.76)', type=str, default='130.207.36.76')
 	parser.add_argument('-schema','--db_schema', help='Defines schema to use (default: SEREB)', type=str, default='SEREB')
 	parser.add_argument('-dl','--download_most_recent_fold_definitions', help='Update latest fold definitions.', default=False, action="store_true")
 	commandline_args = parser.parse_args(argument_list)
@@ -25,9 +25,9 @@ def initiate_connection(uname, host, database):
 	cnx = mysql.connector.connect(user=uname, password=pw, host=host, database=database)
 	return cnx
 
-def parse_ecod_definitions(pdbid):
+def parse_ecod_definitions(pdbid, file_loc):
 	ecod_defs = list()
-	with open("ecod.latest.domains.txt") as file:
+	with open(os.path.dirname(__file__)+file_loc) as file:
 		for line in file:
 			if re.match(r'^#', line):
 				continue
@@ -59,13 +59,14 @@ def upload_strucfold_chains(cursor, strucfoldid, chainid):
 	return True
 
 def upload_strucfold_resis(cursor, strucfoldid, resi_ids):
-	for strucid, resid in map(lambda e: (e, strucfoldid), resi_ids):
+	for resid, strucid  in map(lambda e: (e, strucfoldid), resi_ids):
 		cursor.execute("SELECT * FROM SEREB.StrucFold_Residues WHERE\
 						strucfold_id = '"+str(strucid)+"' AND\
 						residue_id = '"+str(resid)+"'")
 		result = cursor.fetchall()
 		if len(result) == 0:
-			query = "INSERT INTO `SEREB`.`StrucFold_Residues`(`residue_id`, `strucfold_id`) VALUES ('"+str(strucid)+"','"+str(resid)+"')"
+			print(result)
+			query = "INSERT INTO `SEREB`.`StrucFold_Residues`(`residue_id`, `strucfold_id`) VALUES ('"+str(resid)+"','"+str(strucid)+"')"
 			cursor.execute(query)
 	return True
 
@@ -92,7 +93,7 @@ def check_polymerid_from_chainid(cursor, pdbid, chainid):
 	cursor.execute("SELECT polymer_id, ChainList_id FROM SEREB.ChainList\
 					INNER JOIN SEREB.ThreeDStructures ON SEREB.ChainList.3D_structure_id = SEREB.ThreeDStructures.3D_structure_id\
 					WHERE SEREB.ThreeDStructures.StructureName = '"+pdbid.upper()+"' AND\
-					SEREB.ChainList.ChainName = '"+chainid+"'")
+					 SEREB.ChainList.ChainName = BINARY '"+chainid+"'")
 	result = cursor.fetchall()
 	if len(result) == 0:
 		return None, None
@@ -137,8 +138,9 @@ def main(commandline_arguments):
 	comm_args = create_and_parse_argument_options(commandline_arguments)
 	pdbid = str(comm_args.pdb_id).lower()
 	if comm_args.download_most_recent_fold_definitions:
-		download_latest_fold_defs('http://prodata.swmed.edu/ecod/distributions/ecod.latest.domains.txt', 'ecod.latest.domains.txt')
-	ecod_defs = parse_ecod_definitions(pdbid)
+		download_latest_fold_defs('http://prodata.swmed.edu/ecod/distributions/ecod.latest.domains.txt', os.path.dirname(__file__)+'/ecod.latest.domains.txt')
+	file_loc = "/ecod.latest.domains.txt"
+	ecod_defs = parse_ecod_definitions(pdbid, file_loc)
 
 	cnx = initiate_connection(comm_args.user_name, comm_args.db_host, comm_args.db_schema)
 	cursor = cnx.cursor()

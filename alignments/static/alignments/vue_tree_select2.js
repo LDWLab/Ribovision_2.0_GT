@@ -136,7 +136,8 @@ var vm = new Vue({
                 m.render();
                 m.g.on("residue:click", function(data) {
                     vm.aln_meta_data = null;
-                    var url = '/desire-api/residue-alignment/?format=json&aln_pos=' + String(Number(data["rowPos"]) + 1) + '&aln=' + aln_id + '&res__poldata__strain__strain=' + fasta[1][Number(data["seqId"])]
+                    const strainQuery = '&res__poldata__strain__strain=';
+                    var url = `/desire-api/residue-alignment/?format=json&aln_pos=${String(Number(data["rowPos"]) + 1)}&aln=${aln_id}${strainQuery}${fasta[1][Number(data["seqId"])]}`
                     ajax(url).then(alnpos_data => {
                         ajax('/resi-api/' + alnpos_data["results"][0]["res"].split("/")[5]).then(resiData => {
                             vm.aln_meta_data = resiData;
