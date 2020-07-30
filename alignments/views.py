@@ -179,7 +179,9 @@ def index(request):
 	some_Alignments = Alignment.objects.all()
 	superKingdoms = Taxgroups.objects.raw('SELECT * FROM SEREB.TaxGroups WHERE\
 		 SEREB.TaxGroups.groupLevel = "superkingdom";')
+	
 	context = {
+		'props': list(Taxgroups.objects.values('taxgroup_id', 'groupname')),
 		'some_Alignments': some_Alignments,
 		'superKingdoms': superKingdoms
 	}
