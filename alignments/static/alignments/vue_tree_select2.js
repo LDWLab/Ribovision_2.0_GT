@@ -148,6 +148,9 @@ var vm = new Vue({
                         console.log(error);
                     })
                 });
+                m.g.on("residue:mousein", function(data) {
+                    console.log(data)
+                });
             })
         }
     }

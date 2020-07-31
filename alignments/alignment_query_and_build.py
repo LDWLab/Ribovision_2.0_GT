@@ -10,9 +10,8 @@ def dictfetchall(cursor):
 		for row in cursor.fetchall()
 	]
 
-def sql_filtered_aln_query(aln_id, parent_id):
-	from django.db import connection
-	SQLStatement = 'SELECT CONCAT(Aln_Data.aln_id,"_",Aln_Data.res_id) AS id,strain,unModResName,aln_pos,Species.strain_id FROM SEREB.Aln_Data\
+def construct_query(aln_id, parent_id):
+	return 'SELECT CONCAT(Aln_Data.aln_id,"_",Aln_Data.res_id) AS id,strain,unModResName,aln_pos,Species.strain_id FROM SEREB.Aln_Data\
 		INNER JOIN SEREB.Alignment ON SEREB.Aln_Data.aln_id = SEREB.Alignment.Aln_id\
 		INNER JOIN SEREB.Residues ON SEREB.Aln_Data.res_id = SEREB.Residues.resi_id\
 		INNER JOIN (\
@@ -35,6 +34,9 @@ def sql_filtered_aln_query(aln_id, parent_id):
 		INNER JOIN SEREB.Species ON filtered_polymers.strain_id = SEREB.Species.strain_id\
 		WHERE SEREB.Alignment.aln_id = %s'%(str(aln_id),str(parent_id),str(aln_id))
 
+def sql_filtered_aln_query(aln_id, parent_id):
+	from django.db import connection
+	SQLStatement = construct_query(aln_id, parent_id)
 	with connection.cursor() as cursor:
 		cursor.execute(SQLStatement)
 		raw_result = dictfetchall(cursor)

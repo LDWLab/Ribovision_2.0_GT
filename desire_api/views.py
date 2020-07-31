@@ -1,9 +1,16 @@
 from django.shortcuts import render
+from django.http import QueryDict, JsonResponse, Http404
+from django.db import connection
 from rest_framework import viewsets
+from rest_framework.views import APIView
+from rest_framework.reverse import reverse
 from url_filter.integrations.drf import DjangoFilterBackend
+from url_filter.filtersets import ModelFilterSet
 
 from .serializers import *
 from .models import *
+from alignments.alignment_query_and_build import construct_query, dictfetchall
+
 
 class SpeciesViewSet(viewsets.ModelViewSet):
     queryset = Species.objects.all().order_by('strain_id')
@@ -28,7 +35,7 @@ class PolymerViewSet(viewsets.ModelViewSet):
     filter_fields = ['pdata_id', 'gi', 'genesymbol', 'genedescription', 'strain', 'nomgd']
 
 class ResidueViewSet(viewsets.ModelViewSet):
-    queryset = Residues.objects.all().order_by('resi_id')
+    queryset = Residues.objects.all()
     serializer_class = ResidueSerializer
     filter_backends = [DjangoFilterBackend]
     filter_fields = ['resnum', 'poldata', 'unmodresname']
@@ -65,8 +72,48 @@ class TaxGroupViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filter_fields = ['groupname', 'grouplevel', 'taxgroup_id']
 
-'''
-/desire-api/residues/?resnum=10&poldata__strain=74969&poldata__nomgd__new_name=uL02
-/desire-api/residue-alignment/?res=404342&aln=1
-/desire-api/residue-alignment/?aln_pos=61&aln=1&res__poldata__strain__in=74969,9606
-'''
+class ResiFilterSet(ModelFilterSet):
+    class Meta(object):
+        model = Residues
+
+class ResiAlnFilterSet(ModelFilterSet):
+    class Meta(object):
+        model = AlnData
+
+def get_filter_set_results(query, filterset, queryset, field):
+    curr_query = QueryDict(query)
+    curr_fs = filterset(data=curr_query, queryset=queryset)
+    for entry in curr_fs.filter():
+        yield getattr(entry, field)
+
+def filterresi(request, resnum, strain, new_name, aln_id, parent_tx):
+    #Add check for strain to be in parent_tx
+
+    resis = list(get_filter_set_results(f'resnum={resnum}&poldata__strain={strain}&poldata__nomgd__new_name={new_name}',
+                                    ResiFilterSet, Residues.objects.all(), 'pk'))
+    if len(resis) == 0:
+        raise Http404(f'The combination of residue number {resnum}, strain id {strain}, and polymer name {new_name} is not present in the database!')
+    if len(resis) > 1:
+        raise Http404(f'The combination of residue number {resnum}, strain id {strain}, and polymer name {new_name} should filter down to a single residue!')
+    
+    alnpositions = list(get_filter_set_results(f'res={resis[0]}&aln={aln_id}',
+                                            ResiAlnFilterSet, AlnData.objects.all(), 'aln_pos'))
+    if len(alnpositions) == 0:
+        raise Http404(f'The combination of residue id {resis[0]}, and alignment id {aln_id} is not present in the database!\n\
+    Likely the polymer name {new_name} does not correspond to alignment id {aln_id}.')
+
+    SQLStatement = construct_query(aln_id, parent_tx)+' AND SEREB.Aln_Data.aln_pos=%s'%(str(alnpositions[0]))
+    with connection.cursor() as cursor:
+        cursor.execute(SQLStatement)
+        raw_result = dictfetchall(cursor)
+    if len(raw_result) == 0:
+        raise Http404("We do not have this combination of arguments in our database.")
+    residues = list()
+    for row in raw_result:
+        residues.append(row['unModResName'])
+    data = {
+        "residue_id" : resis,
+        "alignment position" : alnpositions,
+        "residues in column" : residues
+    }
+    return JsonResponse(data, safe = False)

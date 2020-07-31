@@ -21,5 +21,9 @@ router.register(r'taxonomic-groups', views.TaxGroupViewSet)
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     path('', include(router.urls)),
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('filterresi/<int:resnum>/<int:strain>/<str:new_name>/<int:aln_id>/<int:parent_tx>', views.filterresi),
 ]
+
+#Check this for list of values when adding multiple parents
+#https://stackoverflow.com/questions/62371344/custom-django-url-path-converter-comma-separated-integers
