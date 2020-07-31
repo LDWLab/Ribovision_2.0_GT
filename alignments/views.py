@@ -179,7 +179,9 @@ def index(request):
 	some_Alignments = Alignment.objects.all()
 	superKingdoms = Taxgroups.objects.raw('SELECT * FROM SEREB.TaxGroups WHERE\
 		 SEREB.TaxGroups.groupLevel = "superkingdom";')
+	
 	context = {
+		'props': list(Taxgroups.objects.values('taxgroup_id', 'groupname')),
 		'some_Alignments': some_Alignments,
 		'superKingdoms': superKingdoms
 	}
@@ -242,10 +244,19 @@ def simple_fasta(request, aln_id, tax_group, internal=False):
 		nogap_tupaln, max_alnposition= aqab.query_to_dict_structure(rawsql, parent, nogap_tupaln, max_alnposition)
 	
 	fastastring = aqab.build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_alnposition)
+	unf_species_list = [x.split('\\')[0] for x in fastastring.split('>')[1:]]
+	unf_seq_list = [x.split('\\n')[1] for x in fastastring.split('>')[1:]]
+	list_for_intersect = list()
+	for sequence in unf_seq_list:
+		iterator = re.finditer('-', sequence)
+		gap_positions = [m.start(0) for m in iterator]
+		list_for_intersect.append(gap_positions)
+	gap_only_cols = list(set(list_for_intersect[0]).intersection(*list_for_intersect))
+	filtered_spec_list = [re.sub('_',' ', re.sub(r'^.*?_', '', x)) for x in unf_species_list]
 	if internal:
 		return fastastring
 	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
-	return JsonResponse(concat_fasta, safe = False)
+	return JsonResponse([concat_fasta,filtered_spec_list,gap_only_cols], safe = False)
 
 # def simple_fasta(request, aln_id, tax_group, internal=False):
 # 	rawsql_result = aqab.sql_filtered_aln_query(aln_id, tax_group)

@@ -5,6 +5,17 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Upload structural folds",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/populate_db/Struc_Folds/update_strucfold_by_pdb.py",
+            "console": "integratedTerminal",
+            "args": [
+                "4v6u",
+                "ppenev"
+            ]
+        },
+        {
             "name": "Upload alignment",
             "type": "python",
             "request": "launch",

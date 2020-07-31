@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import *
 
 class NomenclatureSerializer(serializers.HyperlinkedModelSerializer):
-    nom_id = serializers.IntegerField(read_only=True)
+    #nom_id = serializers.IntegerField(read_only=True)
     class Meta:
         model = Nomenclature
         fields = '__all__'

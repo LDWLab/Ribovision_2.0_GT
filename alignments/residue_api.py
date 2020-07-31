@@ -90,16 +90,17 @@ def resi_info(request, resi_id):
 	residue_folds = StructuralFolds.objects.filter(strucfoldresidues__residue = resi_id)
 	if len(residue_folds) == 0:
 		residue_folds = related_struc_fold_annotated_resis(resi_id, residue_alignments, superk)
-	for fold in residue_folds:
-		residue_lf.append((fold.level,fold.name))
+	if residue_folds is not None:
+		for fold in residue_folds:
+			residue_lf.append((fold.level,fold.name))
 	
 	assoc_data = list()
 	ad_filter = AssociatedData.objects.filter(adresidues__residuep = resi_id)
 	if len(ad_filter) == 0:			#In the case of no associated data check the data for aligned resi in an annotated polymer
 		ad_filter = related_ad_data_annotated_resis(resi_id, residue_alignments, superk)
-	for ass_data in ad_filter:
-		assoc_data.append((ass_data.type, ass_data.value))
-	
+	if ad_filter is not None:
+		for ass_data in ad_filter:
+			assoc_data.append((ass_data.type, ass_data.value))
 
 	resi_data = {
 		'Residue' : unmodresname,
