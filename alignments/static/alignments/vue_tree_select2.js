@@ -105,6 +105,7 @@ var vm = new Vue({
         showAlignment(aln_id, taxid) {
             this.aln_meta_data = null;
             var url = '/ortholog-aln-api/' + aln_id + '/' + taxid
+            var main_elmnt = document.getElementById("main_elt")
             ajax(url).then(fasta => {
                 var opts = {
                     el: document.getElementById("alnDiv"),
@@ -117,8 +118,8 @@ var vm = new Vue({
                     //},
                     zoomer: {
                         // general
-                        alignmentWidth: 500,
-                        alignmentHeight: 400,
+                        alignmentWidth: main_elmnt.offsetWidth * 0.7,
+                        alignmentHeight: main_elmnt.offsetHeight * 0.4,
                         columnWidth: 15,
                         rowHeight: 15,
                         labelNameLength: 300,
@@ -166,6 +167,8 @@ var vm = new Vue({
                 var topology_viewer = `<pdb-topology-viewer entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid}	entropy-id=${entropy_address} filter-range=${mapping}></pdb-topology-viewer>`
                 document.getElementById('topview').innerHTML = topology_viewer;
             });
+        }, showPDBViewer(){
+            ajax().then
         }
     }
 })
