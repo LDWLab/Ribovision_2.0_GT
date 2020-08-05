@@ -1,0 +1,63 @@
+#phylo_tree_dropdown {
+  display: grid;
+  height: 100vh;
+  grid-template: 1fr auto auto / auto 1fr
+  }
+  
+  header {
+	background: lightpink;
+	padding: 2rem;
+	grid-column: 1 / 4;
+  }
+
+  .left-sidebar {
+	background: lightblue;
+	grid-column: 1 / 2;
+	width: 300px;
+	
+  }
+
+  main {
+	background: wheat;
+  grid-column: 2 / 3;
+  }
+
+  #alnDiv{
+    display: grid;
+    place-items: center;
+  }
+
+  #topview{
+    display: grid;
+    place-items: center;
+  }
+
+  footer {
+    background: coral;
+    padding: 2rem;
+    text-align: center;
+    grid-column: 1 / 4;
+  }
+  
+  body {
+    font-family: system-ui, sans-serif;
+  }
+  
+  .left-sidebar,
+  main {
+    padding: 1rem;
+  }
+
+  .vue-treeselect__menu {
+    overflow-x: auto;
+    text-overflow: clip;
+    }
+
+  .vue-treeselect__placeholder,
+  .vue-treeselect__single-value,
+  .vue-treeselect__label,
+  .vue-treeselect__tip-text {
+    overflow-x: auto;
+    text-overflow: clip;
+  }
+

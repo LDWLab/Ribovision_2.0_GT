@@ -152,6 +152,20 @@ var vm = new Vue({
                     console.log(data)
                 });
             })
+        }, showTopologyViewer (pdbid, chainid, entropy_address){
+            var minIndex = String(0)
+            var maxIndex = String(100000)
+            var pdblower = pdbid.toLocaleLowerCase();
+            var topology_url = `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdblower}/chain/${chainid}`
+            ajax(topology_url).then(data => {
+                var entityid = Object.keys(data[pdblower])[0];
+                var mapping = []
+                var range_string = minIndex.concat("-").concat(maxIndex)
+                GetRangeMapping(pdbid, chainid, range_string, mapping)
+                console.log(mapping)
+                var topology_viewer = `<pdb-topology-viewer entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid}	entropy-id=${entropy_address} filter-range=${mapping}></pdb-topology-viewer>`
+                document.getElementById('topview').innerHTML = topology_viewer;
+            });
         }
     }
 })

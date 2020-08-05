@@ -1,7 +1,7 @@
 <html>
 <head>
 	{% load static %}
-	<!-- Guilde here https://vue-treeselect.js.org/ -->
+	<!-- Guide here https://vue-treeselect.js.org/ -->
 	<!-- include Ajax -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	<!-- include Vue 2.x -->
@@ -9,80 +9,72 @@
 	<!-- include vue-treeselect & its styles. you can change the version tag to better suit your needs. -->
 	<script src="https://cdn.jsdelivr.net/npm/@riophae/vue-treeselect@^0.4.0/dist/vue-treeselect.umd.min.js"></script>
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@riophae/vue-treeselect@^0.4.0/dist/vue-treeselect.min.css">
+	<link rel="stylesheet" type="text/css" href="{% static 'alignments/style.css' %}">
+	
+	<!-- Alignment viewer -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/15.4.2/react-dom.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/prop-types/15.5.2/prop-types.js"></script>
 	<script src="https://unpkg.com/@plotly/react-msa-viewer/dist/index.umd.min.js"></script>
-	
 	<script src="{% static "alignments/msa.min.gz.js" %}"></script>
+
+	<!-- Topology viewer -->
+	<script src="https://cdn.jsdelivr.net/npm/d3@5.9.2" defer></script>
+	<script src=https://cdnjs.cloudflare.com/ajax/libs/mathjs/3.3.0/math.min.js></script>
+	<!-- Complied & minified library JS -->
+	<script type="text/javascript" src={% static 'alignments/pdb-topology-viewer-component-2.0.8.js' %} defer></script> 
+	<script type="text/javascript" src={% static 'alignments/palette.js-master/palette.js' %} defer></script> 
+	<script type="text/javascript" src={% static 'alignments/palette.js-master/demo.js' %} defer></script> 
+	<script type="text/javascript" src={% static 'alignments/GetRangeMapping.js' %} defer></script> 
+	
 </head>
 <body>
+	<header class="pink section">Header</header>
 	<div id="phylo_tree_dropdown">
-		<treeselect 
-		  :load-options="loadOptions"
-		  v-model="tax_id" 
-		  v-on:input="limiter(tax_id); loadData(tax_id)"
-		  placeholder="Select a group"
-		  :multiple="true" 
-		  :options="options" 
-		  :flat="true"
-		  :limit="2"
-		  >Loading phylogenetic tree...</treeselect><br>
-	
-		<select v-if="tax_id" v-model="alnobj" @change="showAlignment(alnobj.id, tax_id)">
-		  <option :value="null" selected disabled hidden>Select an alignment</option>
-		  <option v-for="aln in alignments" v-bind:value="{ id: aln.value, text: aln.text }">[[ aln.text ]]</option>
-		</select>
-		<span v-if="alnobj">
-			<br><br>
-			<div id="alnDiv">Loading alignment...</div>
-		</span>
+		<div class="left-sidebar">Left Sidebar <br>
+			<treeselect 
+			  :load-options="loadOptions"
+			  v-model="tax_id" 
+			  v-on:input="limiter(tax_id); loadData(tax_id)"
+			  placeholder="Select a group"
+			  :multiple="true" 
+			  :options="options" 
+			  :flat="true"
+			  :limit="2"
+			  >Loading phylogenetic tree...</treeselect><br>
+			
+			<select v-if="tax_id" v-model="alnobj" @change="showAlignment(alnobj.id, tax_id)">
+			  <option :value="null" selected disabled hidden>Select an alignment</option>
+			  <option v-for="aln in alignments" v-bind:value="{ id: aln.value, text: aln.text }">[[ aln.text ]]</option>
+			</select>
+			<br>
+			<span v-if="alnobj">Selected alignment: [[alnobj.text]].<br>Select PDB and chain for mapping:</span>
+			<br>
+			<input v-if="alnobj" v-model="pdbid" v-on:input="getPDBchains(pdbid)" placeholder="PDB ID" maxlength="4">
+			<br>
+			<select v-if="chains" v-model="chainid" @change="showTopologyViewer(pdbid, chainid, 'twc-api/'+alnobj.text+'/'+tax_id[0]+'/'+tax_id[1]+'/'+pdbid)">
+			  <option :value ="null" selected disabled hidden>Select polymer</option>
+			  <option v-for="chain in chains" v-bind:value="chain.value">[[ chain.text ]]</option>
+			</select>
+			<br><span v-if="chainid">
+				TWC API: twc-api/[[alnobj.id]]/[[ tax_id[0] ]]/[[ tax_id[1] ]]/[[pdbid]]. And chain id [[chainid]]
+			</span>
+		</div>
+		<main id="main_elt"> Main Content<br>
+			<span v-if="alnobj">
+				<div id="alnDiv">Loading alignment...</div>
+			</span><br>
+			<span v-if="aln_meta_data">Last selected residue: [[aln_meta_data]]</span><br>
+			<span v-if="chainid">
+				<div id="topview">Loading topology viewer...</div>
+			</span>
 		<br>
-		<span v-if="aln_meta_data">Last selected residue: [[aln_meta_data]]</span>
-		<br>
-		<span v-if="alnobj">Selected alignment: [[alnobj.text]]. Select PDB and chain for mapping:</span>
-		<br>
-		<input v-if="alnobj" v-model="pdbid" v-on:input="getPDBchains(pdbid)" placeholder="PDB ID" maxlength="4">
-		<br>
-		<select v-if="chains" v-model="chainid">
-		  <option :value ="null" selected disabled hidden>Select polymer</option>
-		  <option v-for="chain in chains" v-bind:value="chain.value">[[ chain.text ]]</option>
-		</select>
-		<br>
-
+		</main>
+		<footer >Footer</footer>
 	</div>
-	<div id="my-msa" />
-	<script>
-	var options = {
-		sequences: [
-			{
-				name: "seq.1",
-				sequence: "MEEPQSDPSIEP-PLSQETFSDLWKLLPENNVLSPLPS-QA-VDDLMLSPDDLAQWLTED"
-			},
-			{
-				name: "seq.2",
-				sequence: "MEEPQSDLSIEL-PLSQETFSDLWKLLPPNNVLSTLPS-SDSIEE-LFLSENVAGWLEDP"
-			},
-			{
-				name: "seq.3",
-				sequence: "MEEPQSDLSIEL-PLSQETFSDLWKLLPPNNVLSTLPS-SDSIEE-LFLSENVAGWLEDP"
-			},
-		],
-		colorScheme: "clustal",
-		onResidueMouseEnter: console.log
-	};
-
-	ReactDOM.render(
-		React.createElement(ReactMSAViewer.MSAViewer, options),
-		document.getElementById('my-msa')
-	);
-	</script>
 	<!-- include our custom tree Ajax call and tree object. -->
 	<script src="{% static "alignments/vue_tree_select2.js" %}"></script>
 
 </body>
 
-<script>
-
-</script>
 </html>
