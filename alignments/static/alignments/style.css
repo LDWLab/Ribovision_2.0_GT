@@ -33,6 +33,12 @@
     width: 50%;
     height: 50%;
   }
+  #pdbeMolstarView{
+    display: grid;
+    place-items: right;
+    width: 50%;
+    height: 50%;
+  }
 
   footer {
     background: coral;
