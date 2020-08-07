@@ -1,25 +1,24 @@
 #phylo_tree_dropdown {
-  display: grid;
-  height: 100vh;
-  grid-template: 1fr auto auto / auto 1fr
+    display: grid;
+    height: 100vh;
+    grid-template: 1fr auto auto / auto 1fr
   }
   
   header {
-	background: lightpink;
-	padding: 2rem;
-	grid-column: 1 / 4;
+    background: lightpink;
+    padding: 2rem;
+    grid-column: 1 / 4;
   }
 
   .left-sidebar {
-	background: lightblue;
-	grid-column: 1 / 2;
-	width: 300px;
-	
+    background: lightblue;
+    grid-column: 1 / 2;
+    width: 300px;
   }
 
   main {
-	background: wheat;
-  grid-column: 2 / 3;
+    background: wheat;
+    grid-column: 2 / 3;
   }
 
   #alnDiv{
@@ -29,13 +28,14 @@
 
   #topview{
     display: grid;
-    place-items: left;
+    float: left;
     width: 50%;
     height: 50%;
   }
+
   #pdbeMolstarView{
     display: grid;
-    place-items: right;
+    float: right;
     width: 50%;
     height: 50%;
   }
@@ -46,11 +46,11 @@
     text-align: center;
     grid-column: 1 / 4;
   }
-  
+
   body {
     font-family: system-ui, sans-serif;
   }
-  
+
   .left-sidebar,
   main {
     padding: 1rem;
@@ -59,7 +59,7 @@
   .vue-treeselect__menu {
     overflow-x: auto;
     text-overflow: clip;
-    }
+  }
 
   .vue-treeselect__placeholder,
   .vue-treeselect__single-value,

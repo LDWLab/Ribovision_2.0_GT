@@ -50,8 +50,8 @@
 	<header class="pink section">DESIRE: DatabasE for Study and Imaging of Ribosomal Evolution</header>
 	<div id="phylo_tree_dropdown">
 		{% csrf_token %}
-		<div class="left-sidebar">Left Sidebar <br>
-			<treeselect 
+		<div class="left-sidebar"><br>
+			<p><treeselect 
 			  :load-options="loadOptions"
 			  v-model="tax_id" 
 			  v-on:input="limiter(tax_id); loadData(tax_id)"
@@ -60,53 +60,33 @@
 			  :options="options" 
 			  :flat="true"
 			  :limit="2"
-			  >Loading phylogenetic tree...</treeselect><br>
-			
-			<select v-if="tax_id" v-model="alnobj" @change="showAlignment(alnobj.id, tax_id)">
+			  >Loading phylogenetic tree...</treeselect></p>
+			<p><select v-if="tax_id" v-model="alnobj" @change="showAlignment(alnobj.id, tax_id)">
 			  <option :value="null" selected disabled hidden>Select an alignment</option>
 			  <option v-for="aln in alignments" v-bind:value="{ id: aln.value, text: aln.text }">[[ aln.text ]]</option>
-			</select>
-			<br>
-			<span v-if="alnobj">Selected alignment: [[alnobj.text]].<br>Select PDB and chain for mapping:</span>
-			<br>
-			<input v-if="alnobj" v-model="pdbid" v-on:input="getPDBchains(pdbid)" placeholder="PDB ID" maxlength="4">
-			<br>
-			<select v-if="chains" v-model="chainid" @change="showTopologyViewer(pdbid, chainid, 'twc-api/'+alnobj.text+'/'+tax_id[0]+'/'+tax_id[1]+'/'+pdbid, fasta_data); showPDBViewer(pdbid, chainid)">
-			  <option :value ="null" selected disabled hidden>Select polymer</option>
-			  <option v-for="chain in chains" v-bind:value="chain.value">[[ chain.text ]]</option>
-			</select>
-			<br><span v-if="chainid">
-				TWC API: twc-api/[[alnobj.id]]/[[ tax_id[0] ]]/[[ tax_id[1] ]]/[[pdbid]]. And chain id [[chainid]]
-			</span>
+			</select></p>
+			<p><span v-if="alnobj">Selected alignment: [[alnobj.text]].<br>Input PDB and polymer for mapping:</span></p>
+			<p><input v-if="alnobj" v-model="pdbid" v-on:input="getPDBchains(pdbid, alnobj.id)" placeholder="PDB ID" maxlength="4"></p>
+			<p v-if="hide_chains">Looking for available polymers...</p>
+			<p><select v-if="chains" v-model="chainid" @change="showTopologyViewer(pdbid, chainid, 'twc-api/'+alnobj.text+'/'+tax_id[0]+'/'+tax_id[1]+'/'+pdbid, fasta_data); showPDBViewer(pdbid, chainid)">
+				<option :value ="null" selected disabled hidden>Select polymer</option>
+				<option v-for="chain in chains" v-bind:value="chain.value">[[ chain.text ]]</option>
+			</select></p>
 		</div>
-		<main id="main_elt"> Main Content<br>
+		<main id="main_elt"><br>
 			<span v-if="alnobj">
 				<div id="alnDiv">Loading alignment...</div>
 			</span><br>
-			<span v-if="aln_meta_data">Last selected residue: [[aln_meta_data]]</span><br>
-
-
-
+			<span v-if="aln_meta_data">Selected residue: [[aln_meta_data]]</span><br>
 			<span v-if="chainid">
-				<div id="topview">Loading topology viewer...
-
-
-
-				</div>
-
-				<div id ="pdbeMolstarView">Loading Molstar Component...
-					
-				</div>
-			</span>
-		<br>
+				<div id="topview">Loading topology viewer and conservation data...</div>
+				<div id ="pdbeMolstarView">Loading Molstar Component...</div>
+			</span><br>
 		</main>
 		<footer >Footer</footer>
 	</div>
 	<!-- include our custom tree Ajax call and tree object. -->
-
-
 	<script src="{% static "alignments/vue_tree_select2.js" %}"></script>
-
 </body>
 
 </html>

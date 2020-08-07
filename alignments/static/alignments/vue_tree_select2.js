@@ -35,6 +35,34 @@ function ajax(url, optional_data='') {
         })
     }
 }
+var filterAvailablePolymers = function(chain_list, aln_id){
+    let temp_arr = [];
+    for (var i = 0; i < chain_list.length; i++) {
+        let pol_name = chain_list[i]["molecule_name"][0]
+        if (chain_list[i]["molecule_type"].toLowerCase() == "bound") {continue;}
+        if (chain_list[i]["molecule_type"].toLowerCase() == "water") {continue;}
+        $.ajax({
+            url: `/desire-api/polymers/?alns_of_polymer=${aln_id}&format=json&genedescription=${pol_name}`,
+            type: 'GET',
+            dataType: "json",
+            async: false,
+            success: function(pol_result) {
+                if (pol_result["count"] > 0){
+                    temp_arr.push({
+                        text: chain_list[i]["molecule_name"][0],
+                        value: chain_list[i]["in_chains"][0]
+                    })
+                }
+            },
+            error: function(error) {
+                console.log(`Error ${error}`);
+                reject(error)
+            }
+        })
+    }
+    chain_options = Array.from(new Set(temp_arr.map(JSON.stringify))).map(JSON.parse);
+    return chain_options
+}
 
 Vue.component('treeselect', VueTreeselect.Treeselect, )
 
@@ -50,7 +78,8 @@ var vm = new Vue({
         chains: null,
         chainid: null,
         aln_meta_data: null,
-        fasta_data: null
+        fasta_data: null,
+        hide_chains: null
     },
     methods: {
         limiter(e) {
@@ -99,26 +128,16 @@ var vm = new Vue({
                     this.alignments = fpa_viz
                 });
         },
-        getPDBchains(pdbid) {
+        getPDBchains(pdbid, aln_id) {
             if (pdbid.length === 4) {
+                this.chains = null
+                this.hide_chains = true
                 ajax('https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/' + pdbid.toLowerCase())
                     .then(struc_data => {
-                        var chain_options = [];
-                        for (var i = 0; i < struc_data[pdbid.toLowerCase()].length; i++) {
-                            if (struc_data[pdbid.toLowerCase()][i]["molecule_type"] == "Bound") {
-                                continue;
-                            }
-                            if (struc_data[pdbid.toLowerCase()][i]["molecule_type"] == "Water") {
-                                continue;
-                            }
-                            chain_options.push({
-                                text: struc_data[pdbid.toLowerCase()][i]["molecule_name"][0],
-                                value: struc_data[pdbid.toLowerCase()][i]["in_chains"][0]
-                            })
-                        }
-                        var temp_arr = chain_options
-                        chain_options = Array.from(new Set(temp_arr.map(JSON.stringify))).map(JSON.parse);
-                        this.chains = chain_options
+                        var chain_list = struc_data[pdbid.toLowerCase()];
+                        chain_options = filterAvailablePolymers(chain_list, aln_id);
+                        this.chains = chain_options;
+                        this.hide_chains = null;
                     }).catch(error => {
                         alert("No such pdb id: " + pdbid + ".", error)
                     })
@@ -150,7 +169,7 @@ var vm = new Vue({
                         autoResize: false, // only for the width
                     },
                     conf: {
-                        registerMouseHover: false,
+                        registerMouseHover: true,
                         registerMouseClicks: true,
                     },
                     // smaller menu for JSBin
@@ -192,11 +211,7 @@ var vm = new Vue({
                     document.getElementById('topview').innerHTML = topology_viewer;
                 })
             });
-        }, 
-        
-
-        
-        showPDBViewer(pdbid, chainid){
+        }, showPDBViewer(pdbid, chainid){
             var minIndex = String(0)
             var maxIndex = String(100000)
             var pdblower = pdbid.toLocaleLowerCase();
@@ -214,12 +229,10 @@ var vm = new Vue({
                 GetRangeMapping(pdbid, chainid, range_string, mapping)
                 console.log(mapping)
 
-                
                 var PDBMolstar_viewer = `<pdbe-molstar id="PdbeMolstarComponent" molecule-id="1cbs" hide-controls="true" subscribe-events="true" ></pdbe-molstar>`
                 document.getElementById('pdbeMolstarView').innerHTML = PDBMolstar_viewer;
                 var PdbeMolstarComponent = document.getElementById('PdbeMolstarComponent');
                 var viewerInstance2 = PdbeMolstarComponent.viewerInstance;
-
 
                 viewerInstance2.visual.update({
                     customData: { url: `https://www.ebi.ac.uk/pdbe/coordinates/${pdblower}/chains?entityId=${entityid}&encoding=bcif`, format: 'cif', binary:true },
@@ -228,8 +241,6 @@ var vm = new Vue({
                           hideControls: true,                   
                           subscribeEvents: true
                         });
-
-  
 
                         document.addEventListener('PDB.topologyViewer.click', (e)=>{
                             var pdbeMolstar=document.getElementById("PdbeMolstarComponent")
@@ -288,11 +299,3 @@ var vm = new Vue({
     }
  
 })
-
-
-   
-   
-   
-   
-   
-    
