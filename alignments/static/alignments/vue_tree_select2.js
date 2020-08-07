@@ -1,18 +1,39 @@
-function ajax(url) {
-    return new Promise((resolve, reject) => {
-        $.ajax({
-            url: url,
-            type: 'GET',
-            dataType: "json",
-            success: function(data) {
-                resolve(data)
-            },
-            error: function(error) {
-                console.log(`Error ${error}`);
-                reject(error)
-            }
+function ajax(url, optional_data='') {
+    if (optional_data != ''){
+        var el = document.getElementsByName("csrfmiddlewaretoken");
+        csrf_value = el[0].getAttribute("value");
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                dataType: "json",
+                data: optional_data,
+                headers: {'X-CSRFToken': csrf_value},
+                success: function(data) {
+                    resolve(data)
+                },
+                error: function(error) {
+                    console.log(`Error ${error}`);
+                    reject(error)
+                }
+            })
         })
-    })
+    }else{
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: url,
+                type: 'GET',
+                dataType: "json",
+                success: function(data) {
+                    resolve(data)
+                },
+                error: function(error) {
+                    console.log(`Error ${error}`);
+                    reject(error)
+                }
+            })
+        })
+    }
 }
 
 Vue.component('treeselect', VueTreeselect.Treeselect, )
@@ -29,6 +50,7 @@ var vm = new Vue({
         chains: null,
         chainid: null,
         aln_meta_data: null,
+        fasta_data: null
     },
     methods: {
         limiter(e) {
@@ -104,9 +126,11 @@ var vm = new Vue({
         },
         showAlignment(aln_id, taxid) {
             this.aln_meta_data = null;
-            var url = '/ortholog-aln-api/' + aln_id + '/' + taxid
-            var main_elmnt = document.getElementById("main_elt")
+            this.fasta_data = null;
+            var url = `/ortholog-aln-api/${aln_id}/${taxid}`
             ajax(url).then(fasta => {
+                this.fasta_data = fasta[0];
+                var main_elmnt = document.getElementById("main_elt")
                 var opts = {
                     el: document.getElementById("alnDiv"),
                     seqs: msa.io.fasta.parse(fasta[0]),
@@ -153,19 +177,20 @@ var vm = new Vue({
                     console.log(data)
                 });
             })
-        }, showTopologyViewer (pdbid, chainid, entropy_address){
+        }, showTopologyViewer (pdbid, chainid, entropy_address, fasta){
             var minIndex = String(0)
             var maxIndex = String(100000)
             var pdblower = pdbid.toLocaleLowerCase();
-            var topology_url = `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdblower}/chain/${chainid}`
-            ajax(topology_url).then(data => {
-                var entityid = Object.keys(data[pdblower])[0];
-                var mapping = []
-                var range_string = minIndex.concat("-").concat(maxIndex)
-                GetRangeMapping(pdbid, chainid, range_string, mapping)
-                console.log(mapping)
-                var topology_viewer = `<pdb-topology-viewer entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid}	entropy-id=${entropy_address} filter-range=${mapping}></pdb-topology-viewer>`
-                document.getElementById('topview').innerHTML = topology_viewer;
+            ajax(entropy_address, optional_data={fasta}).then(twcData => {
+                var topology_url = `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdblower}/chain/${chainid}`
+                ajax(topology_url).then(data => {
+                    var entityid = Object.keys(data[pdblower])[0];
+                    var mapping = []
+                    var range_string = minIndex.concat("-").concat(maxIndex)
+                    GetRangeMapping(pdbid, chainid, range_string, mapping)
+                    var topology_viewer = `<pdb-topology-viewer entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid}	entropy-id=${twcData} filter-range=${mapping}></pdb-topology-viewer>`
+                    document.getElementById('topview').innerHTML = topology_viewer;
+                })
             });
         }, showPDBViewer(){
             ajax().then

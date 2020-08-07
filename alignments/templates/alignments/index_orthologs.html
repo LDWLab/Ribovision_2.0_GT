@@ -22,15 +22,15 @@
 	<script src="https://cdn.jsdelivr.net/npm/d3@5.9.2" defer></script>
 	<script src=https://cdnjs.cloudflare.com/ajax/libs/mathjs/3.3.0/math.min.js></script>
 	<!-- Complied & minified library JS -->
-	<script type="text/javascript" src={% static 'alignments/pdb-topology-viewer-component-2.0.8.js' %} defer></script> 
+	<script type="text/javascript" src={% static 'alignments/pdb-topology-viewer-component-2.0.8-5.js' %} defer></script> 
 	<script type="text/javascript" src={% static 'alignments/palette.js-master/palette.js' %} defer></script> 
-	<script type="text/javascript" src={% static 'alignments/palette.js-master/demo.js' %} defer></script> 
 	<script type="text/javascript" src={% static 'alignments/GetRangeMapping.js' %} defer></script> 
 	
 </head>
 <body>
-	<header class="pink section">Header</header>
+	<header class="pink section">DESIRE: DatabasE for Study and Imaging of Ribosomal Evolution</header>
 	<div id="phylo_tree_dropdown">
+		{% csrf_token %}
 		<div class="left-sidebar">Left Sidebar <br>
 			<treeselect 
 			  :load-options="loadOptions"
@@ -52,7 +52,7 @@
 			<br>
 			<input v-if="alnobj" v-model="pdbid" v-on:input="getPDBchains(pdbid)" placeholder="PDB ID" maxlength="4">
 			<br>
-			<select v-if="chains" v-model="chainid" @change="showTopologyViewer(pdbid, chainid, 'twc-api/'+alnobj.text+'/'+tax_id[0]+'/'+tax_id[1]+'/'+pdbid)">
+			<select v-if="chains" v-model="chainid" @change="showTopologyViewer(pdbid, chainid, 'twc-api/'+alnobj.text+'/'+tax_id[0]+'/'+tax_id[1]+'/'+pdbid, fasta_data)">
 			  <option :value ="null" selected disabled hidden>Select polymer</option>
 			  <option v-for="chain in chains" v-bind:value="chain.value">[[ chain.text ]]</option>
 			</select>

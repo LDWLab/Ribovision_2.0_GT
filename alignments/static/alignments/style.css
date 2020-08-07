@@ -25,15 +25,13 @@
   #alnDiv{
     display: grid;
     place-items: center;
-    width: 70%;
-    height: 40%;
   }
 
   #topview{
     display: grid;
-    place-items: center;
-    width: 70%;
-    height: 40%;
+    place-items: left;
+    width: 50%;
+    height: 50%;
   }
 
   footer {

@@ -79,20 +79,23 @@ def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure=''):
 		anchor_taxid = pdbid_to_strainid(anchor_structure)
 		filter_strain = str(Species.objects.filter(strain_id = anchor_taxid)[0].strain).replace(" ", "_")
 
-	#### _________Query database for the alignment__________ ####
-	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
-	
-	rawsqls = []
-	for parent in [tax_group1, tax_group2]:
-		rawsqls.append((aqab.sql_filtered_aln_query(align_id, parent), Taxgroups.objects.get(pk=parent).groupname))
-	nogap_tupaln = dict()
-	max_alnposition = 0
-	for rawsql, parent in rawsqls:
-		nogap_tupaln, max_alnposition= aqab.query_to_dict_structure(rawsql, parent, nogap_tupaln, max_alnposition)
+	fastastring = request.POST.get('fasta')
+	if fastastring is None:
+		#### _________Query database for the alignment__________ ####
+		align_id = Alignment.objects.filter(name = align_name)[0].aln_id
 
-	print(nogap_tupaln)
-	#### __________________Build alignment__________________ ####
-	fastastring = aqab.build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_alnposition)
+		rawsqls = []
+		for parent in [tax_group1, tax_group2]:
+			rawsqls.append((aqab.sql_filtered_aln_query(align_id, parent), Taxgroups.objects.get(pk=parent).groupname))
+		nogap_tupaln = dict()
+		max_alnposition = 0
+		for rawsql, parent in rawsqls:
+			nogap_tupaln, max_alnposition= aqab.query_to_dict_structure(rawsql, parent, nogap_tupaln, max_alnposition)
+
+		print(nogap_tupaln)
+		#### __________________Build alignment__________________ ####
+		fastastring = aqab.build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_alnposition)
+	
 	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
 	#print(concat_fasta)
 	

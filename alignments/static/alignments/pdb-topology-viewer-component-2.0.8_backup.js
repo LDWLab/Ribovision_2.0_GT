@@ -2636,10 +2636,10 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
    }) : (this.chainId = e.chainId, this.initPainting())) : this.displayError("param")
   }, t.prototype.initPainting = function() {
    var e = this;
-   //console.log(this.entryId, this.chainId, this.entropyId, this.filterRange);
-   this.getApiData(this.entryId, this.chainId).then(function(t) {
+   console.log(this.entryId, this.chainId, this.entropyId, this.filterRange);
+   this.getApiData(this.entryId, this.chainId, this.entropyId).then(function(t) {
     if (t) {
-     if (void 0 === t[0] || void 0 === t[2] || void 0 === t[4] ) return void e.displayError();
+     if (void 0 === t[0] || void 0 === t[2] || void 0 === t[4] || void 0 === t[5]) return void e.displayError();
      e.apiData = t, e.pdbevents = e.createNewEvent(["PDB.topologyViewer.click", "PDB.topologyViewer.mouseover", "PDB.topologyViewer.mouseout"]), e.getPDBSequenceArray(e.apiData[0][e.entryId]), e.drawTopologyStructures(), e.createDomainDropdown(), e.subscribeEvents && e.subscribeWcEvents()
     }
    })
@@ -2664,12 +2664,12 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
      }
     })
    })
-  }, t.prototype.getApiData = function(i, n) {
+  }, t.prototype.getApiData = function(i, n, entr) {
    return __awaiter(this, void 0, void 0, function() {
     var e;
-    console.log(i, n);
+    console.log(i, n, entr);
     return __generator(this, function(t) {
-     return e = ["https://www.ebi.ac.uk/pdbe/api/pdb/entry/entities/" + i, "https://www.ebi.ac.uk/pdbe/api/mappings/" + i, "https://www.ebi.ac.uk/pdbe/api/topology/entry/" + i, "http://127.0.0.1:8000/static/alignments/Data_dummy.txt", "https://www.ebi.ac.uk/pdbe/api/pdb/entry/polymer_coverage/" + i + "/chain/" + n,], [2, Promise.all(e.map(function(t) {
+     return e = ["https://www.ebi.ac.uk/pdbe/api/pdb/entry/entities/" + i, "https://www.ebi.ac.uk/pdbe/api/mappings/" + i, "https://www.ebi.ac.uk/pdbe/api/topology/entry/" + i, "http://127.0.0.1:8000/static/alignments/Data_dummy.txt", "https://www.ebi.ac.uk/pdbe/api/pdb/entry/polymer_coverage/" + i + "/chain/" + n, "http://127.0.0.1:8000/alignments/" + entr,], [2, Promise.all(e.map(function(t) {
       return fetch(t)
      })).then(function(t) {
       return Promise.all(t.map(function(t) {
@@ -3180,17 +3180,16 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
      a = [],
      h = [0];
      console.log(t);
-     
-    if (void 0 !== this.entropyId) {
+     var RiboData=this.apiData[5];
+     //console.log(RiboData);
+    if (void 0 !== this.apiData[5]) {
      var i = this.apiData[3]["1b23"];
-     var unParsedTWC = this.entropyId.split(",")
-     var RiboData = new Array();
-     unParsedTWC.forEach(function (item, index) {
-     if (index % 2 == 0){
-         RiboData.push([item, unParsedTWC[index+1]])
-       }
-     });
-     RiboData_Y=getCol(RiboData, 1);
+     //console.log(this.apiData[3], this.entryId);
+     var RiboData=this.apiData[5];
+     //console.log(this.apiData[5], this.apiData[5].length,  i.molecules);
+
+
+     RiboData_Y=getCol(this.apiData[5], 1);
    
 
      Y_min=Math.min.apply(Math, RiboData_Y);
@@ -3320,19 +3319,14 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
      a = [],
      h = [0];
      console.log(t);
+     var RiboData=this.apiData[5];
+    
+    if (void 0 !== this.apiData[5]) {
+     var i = this.apiData[3]["1b23"];
+     var RiboData=this.apiData[5];
 
-    if (void 0 !== this.entropyId) {
-      var i = this.apiData[3]["1b23"];
-      var unParsedTWC = this.entropyId.split(",")
-      var RiboData = new Array();
-      unParsedTWC.forEach(function (item, index) {
-      if (index % 2 == 0){
-          RiboData.push([item, unParsedTWC[index+1]])
-        }
-      });
-
-     RiboData_Y = getCol(RiboData, 1);
-     console.log(RiboData_Y)
+     RiboData_Y=getCol(this.apiData[5], 1);
+   
 
      Y_min=Math.min.apply(Math, RiboData_Y);
      Y_max=Math.max.apply(Math, RiboData_Y);
@@ -3341,7 +3335,16 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
      console.log(Y_range);
 
      RiboData_Y_norm = RiboData_Y.map(x => (x-Y_min)/Y_range);
+    
 
+
+
+
+   
+
+
+  
+ 
      void 0 !== i && void 0 !== i.molecules && 0 < i.molecules.length && (i.molecules.forEach(function(t) {
       t.entity_id == "2" && t.chains.forEach(function(t) {
        t.chain_id == "P" && t.models.forEach(function(t) {
@@ -3415,18 +3418,13 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
      a = [],
      h = [0];
      //console.log(t);
-
-    if (void 0 !== this.entropyId) {
+     var RiboData=this.apiData[5];
+    
+    if (void 0 !== this.apiData[5]) {
      var i = this.apiData[3]["1b23"];
-     var unParsedTWC = this.entropyId.split(",")
-     var RiboData = new Array();
-     unParsedTWC.forEach(function (item, index) {
-     if (index % 2 == 0){
-         RiboData.push([item, unParsedTWC[index+1]])
-       }
-     });
+     var RiboData=this.apiData[5];
 
-     RiboData_Y=getCol(this.entropyId, 1);
+     RiboData_Y=getCol(this.apiData[5], 1);
    
 
      Y_min=Math.min.apply(Math, RiboData_Y);
@@ -3818,7 +3816,7 @@ window.PdbTopologyViewerPlugin = PdbTopologyViewerPlugin,
        entropyId: this.entropyId,
        filterRange: this.filterRange
       };
-      void 0 !== this.filterRange && null !== this.filterRange && (t.filterRange = this.filterRange), void 0 !== this.chainId && null !== this.chainId && (t.chainId = this.chainId), void 0 !== this.displayStyle && null !== this.displayStyle && (t.displayStyle = this.displayStyle), void 0 !== this.errorStyle && null !== this.errorStyle && (t.errorStyle = this.errorStyle), void 0 !== this.menuStyle && null !== this.menuStyle && (t.menuStyle = this.menuStyle), void 0 !== this.subscribeEvents && null !== this.subscribeEvents && (t.subscribeEvents = this.subscribeEvents), this.pluginInstance.render(this, t)
+      void 0 !== this.entropyId && null !== this.entropyId && (t.entropyId = this.entropyId), void 0 !== this.filterRange && null !== this.filterRange && (t.filterRange = this.filterRange), void 0 !== this.chainId && null !== this.chainId && (t.chainId = this.chainId), void 0 !== this.displayStyle && null !== this.displayStyle && (t.displayStyle = this.displayStyle), void 0 !== this.errorStyle && null !== this.errorStyle && (t.errorStyle = this.errorStyle), void 0 !== this.menuStyle && null !== this.menuStyle && (t.menuStyle = this.menuStyle), void 0 !== this.subscribeEvents && null !== this.subscribeEvents && (t.subscribeEvents = this.subscribeEvents), this.pluginInstance.render(this, t)
      }
     }
    }, {
