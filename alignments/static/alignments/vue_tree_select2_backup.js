@@ -167,107 +167,13 @@ var vm = new Vue({
                 var topology_viewer = `<pdb-topology-viewer entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid}	entropy-id=${entropy_address} filter-range=${mapping}></pdb-topology-viewer>`
                 document.getElementById('topview').innerHTML = topology_viewer;
             });
-        }, 
-        
+        }, showPDBViewer(){
+            ajax().then
+        },
 
-        
-        showPDBViewer(pdbid, chainid){
-            var minIndex = String(0)
-            var maxIndex = String(100000)
-            var pdblower = pdbid.toLocaleLowerCase();
-            console.log('PDBV');
-            var coordinates_url=`https://www.ebi.ac.uk/pdbe/coordinates/${pdblower}/chains?entityId=27&encoding=bcif`;
-            var topology_url = `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdblower}/chain/${chainid}`
-            console.log(coordinates_url);
-
-            ajax(topology_url).then (data => {
-                var entityid = Object.keys(data[pdblower])[0];
-                var coordinates_url=`https://www.ebi.ac.uk/pdbe/coordinates/${pdblower}/chains?${entityid}&encoding=bcif`;
-                console.log(entityid);
-                var mapping = []
-                var range_string = minIndex.concat("-").concat(maxIndex)
-                GetRangeMapping(pdbid, chainid, range_string, mapping)
-                console.log(mapping)
-
-                
-                var PDBMolstar_viewer = `<pdbe-molstar id="PdbeMolstarComponent" molecule-id="1cbs" hide-controls="true" subscribe-events="true" ></pdbe-molstar>`
-                document.getElementById('pdbeMolstarView').innerHTML = PDBMolstar_viewer;
-                var PdbeMolstarComponent = document.getElementById('PdbeMolstarComponent');
-                var viewerInstance2 = PdbeMolstarComponent.viewerInstance;
-
-
-                viewerInstance2.visual.update({
-                    customData: { url: `https://www.ebi.ac.uk/pdbe/coordinates/${pdblower}/chains?entityId=${entityid}&encoding=bcif`, format: 'cif', binary:true },
-                          hideCanvasControls: ["expand", "selection", " animation"],
-                          assemblyId: '1',                    
-                          hideControls: true,                   
-                          subscribeEvents: true
-                        });
-
-  
-
-                        document.addEventListener('PDB.topologyViewer.click', (e)=>{
-                            var pdbeMolstar=document.getElementById("PdbeMolstarComponent")
-                            var molstar= pdbeMolstar.viewerInstance;                            
-                            var chainId=e.eventData.chainId;
-                            var entityId=e.eventData.entityId;
-                            var residueNumber=e.eventData.residueNumber;
-                            var types=e.eventData.type;                            
-                            molstar.visual.select({
-                            data:[
-                            {
-                            entity_id:entityId,
-                            start_residue_number:residueNumber,
-                            end_residue_number:residueNumber,
-                            color:{r:20, y:100, b:200},
-                            focus:false},
-                            
-                            
-                            ],
-                            
-                            })
-                            })
-                            
-                            
-                            document.addEventListener('PDB.topologyViewer.mouseover', (e)=>{
-                            var pdbeMolstar=document.getElementById("PdbeMolstarComponent")
-                            var molstar= pdbeMolstar.viewerInstance;                            
-                            var chainId=e.eventData.chainId;
-                            var entityId=e.eventData.entityId;
-                            var residueNumber=e.eventData.residueNumber;
-                            var types=e.eventData.type;
-                            
-                            molstar.visual.highlight({
-                            
-                            
-                            data:[
-                            {
-                            entity_id:entityId,
-                            start_residue_number:residueNumber,
-                            end_residue_number:residueNumber,
-                            },
-                            
-                            
-                            ],
-                            
-                            })
-                            })
-                                     
-
-
-            });
-        }
 
 
         
     }
  
 })
-
-
-   
-   
-   
-   
-   
-    

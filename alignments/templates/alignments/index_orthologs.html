@@ -10,7 +10,8 @@
 	<script src="https://cdn.jsdelivr.net/npm/@riophae/vue-treeselect@^0.4.0/dist/vue-treeselect.umd.min.js"></script>
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@riophae/vue-treeselect@^0.4.0/dist/vue-treeselect.min.css">
 	<link rel="stylesheet" type="text/css" href="{% static 'alignments/style.css' %}">
-	
+	<link rel="stylesheet" type="text/css" href="{% static 'alignments/pdbe-molstar-1.1.0-dev.5.css' %}">
+
 	<!-- Alignment viewer -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/15.4.2/react-dom.min.js"></script>
@@ -26,6 +27,24 @@
 	<script type="text/javascript" src={% static 'alignments/palette.js-master/palette.js' %} defer></script> 
 	<script type="text/javascript" src={% static 'alignments/palette.js-master/demo.js' %} defer></script> 
 	<script type="text/javascript" src={% static 'alignments/GetRangeMapping.js' %} defer></script> 
+	<script type="text/javascript" src={% static 'alignments/pdbe-molstar-component-1.1.0-dev.5.js' %} defer></script>
+
+	<style>
+			 #topview{
+        float:left;
+        width:500px;
+        height: 500px;
+        position:relative;
+      }	
+      #pdbeMolstarView {
+		padding-top: 50px;
+   
+        float:left;
+        width:400px;
+        height: 400px;
+        position:relative;
+      }
+	</style>	
 	
 </head>
 <body>
@@ -52,7 +71,7 @@
 			<br>
 			<input v-if="alnobj" v-model="pdbid" v-on:input="getPDBchains(pdbid)" placeholder="PDB ID" maxlength="4">
 			<br>
-			<select v-if="chains" v-model="chainid" @change="showTopologyViewer(pdbid, chainid, 'twc-api/'+alnobj.text+'/'+tax_id[0]+'/'+tax_id[1]+'/'+pdbid)">
+			<select v-if="chains" v-model="chainid" @change="showTopologyViewer(pdbid, chainid, 'twc-api/'+alnobj.text+'/'+tax_id[0]+'/'+tax_id[1]+'/'+pdbid); showPDBViewer(pdbid, chainid)">
 			  <option :value ="null" selected disabled hidden>Select polymer</option>
 			  <option v-for="chain in chains" v-bind:value="chain.value">[[ chain.text ]]</option>
 			</select>
@@ -65,14 +84,27 @@
 				<div id="alnDiv">Loading alignment...</div>
 			</span><br>
 			<span v-if="aln_meta_data">Last selected residue: [[aln_meta_data]]</span><br>
+
+
+
 			<span v-if="chainid">
-				<div id="topview">Loading topology viewer...</div>
+				<div id="topview">Loading topology viewer...
+
+
+
+				</div>
+
+				<div id ="pdbeMolstarView">Loading Molstar Component...
+					
+				</div>
 			</span>
 		<br>
 		</main>
 		<footer >Footer</footer>
 	</div>
 	<!-- include our custom tree Ajax call and tree object. -->
+
+
 	<script src="{% static "alignments/vue_tree_select2.js" %}"></script>
 
 </body>
