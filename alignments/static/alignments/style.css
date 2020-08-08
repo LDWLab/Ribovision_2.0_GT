@@ -1,50 +1,55 @@
 #phylo_tree_dropdown {
     display: grid;
     height: 100vh;
-    grid-template: 1fr auto auto / auto 1fr
+    grid-template: auto 1fr 1fr auto / auto 1fr 1fr
   }
   
   header {
     background: lightpink;
     padding: 2rem;
-    grid-column: 1 / 4;
+    grid-column: 1 / 5;
+    grid-row: 1 ;
   }
 
   .left-sidebar {
     background: lightblue;
     grid-column: 1 / 2;
+    grid-row: 2 / 4 ;
     width: 300px;
   }
 
-  main {
-    background: wheat;
-    grid-column: 2 / 3;
-  }
-
-  #alnDiv{
+  .alignment_section{
     display: grid;
     place-items: center;
+    background: wheat;
+    grid-column: 2 / 4;
+    grid-row: 2 ;
   }
 
-  #topview{
+  .topology_section{
     display: grid;
-    float: left;
-    width: 50%;
-    height: 50%;
+    place-items: center;
+    background: wheat;
+    grid-column: 2 ;
+    grid-row: 3 ;
+    text-align: center;
   }
 
-  #pdbeMolstarView{
+  .molstar_section{
     display: grid;
-    float: right;
-    width: 50%;
-    height: 50%;
+    place-items: center;
+    background: wheat;
+    grid-column: 3 ;
+    grid-row: 3 ;
+    text-align: center;
   }
 
   footer {
     background: coral;
     padding: 2rem;
     text-align: center;
-    grid-column: 1 / 4;
+    grid-column: 1 / 5 ;
+    grid-row: 4 ;
   }
 
   body {
@@ -52,7 +57,8 @@
   }
 
   .left-sidebar,
-  main {
+  .topology_section,
+  .molstar_section {
     padding: 1rem;
   }
 
@@ -69,3 +75,15 @@
     text-overflow: clip;
   }
 
+  #topview{
+    width: 500px;
+    height: 500px;
+    float:left;
+    position:relative;
+  }
+  #pdbeMolstarView {
+    width: 500px;
+    height: 500px;
+    float:left;
+    position:relative;
+  }

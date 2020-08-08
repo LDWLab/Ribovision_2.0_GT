@@ -27,31 +27,13 @@
 	<script type="text/javascript" src={% static 'alignments/palette.js-master/palette.js' %} defer></script> 
 	<script type="text/javascript" src={% static 'alignments/GetRangeMapping.js' %} defer></script> 
 	<script type="text/javascript" src={% static 'alignments/pdbe-molstar-component-1.1.0-dev.5.js' %} defer></script>
-
-	<style>
-			 #topview{
-        float:left;
-        width:500px;
-        height: 500px;
-        position:relative;
-      }	
-      #pdbeMolstarView {
-		padding-top: 50px;
-   
-        float:left;
-        width:400px;
-        height: 400px;
-        position:relative;
-      }
-	</style>	
-	
 </head>
 <body>
 	<header class="pink section">DESIRE: DatabasE for Study and Imaging of Ribosomal Evolution</header>
 	<div id="phylo_tree_dropdown">
 		{% csrf_token %}
 		<div class="left-sidebar"><br>
-			<p><treeselect 
+			<treeselect 
 			  :load-options="loadOptions"
 			  v-model="tax_id" 
 			  v-on:input="limiter(tax_id); loadData(tax_id)"
@@ -60,29 +42,36 @@
 			  :options="options" 
 			  :flat="true"
 			  :limit="2"
-			  >Loading phylogenetic tree...</treeselect></p>
+			  >Loading phylogenetic tree...</treeselect>
 			<p><select v-if="tax_id" v-model="alnobj" @change="showAlignment(alnobj.id, tax_id)">
 			  <option :value="null" selected disabled hidden>Select an alignment</option>
 			  <option v-for="aln in alignments" v-bind:value="{ id: aln.value, text: aln.text }">[[ aln.text ]]</option>
 			</select></p>
 			<p><span v-if="alnobj">Selected alignment: [[alnobj.text]].<br>Input PDB and polymer for mapping:</span></p>
-			<p><input v-if="alnobj" v-model="pdbid" v-on:input="getPDBchains(pdbid, alnobj.id)" placeholder="PDB ID" maxlength="4"></p>
+			<p><input id="pdb_input" v-if="alnobj" v-model="pdbid" v-on:input="getPDBchains(pdbid, alnobj.id)" placeholder="4v9d" maxlength="4"></p>
 			<p v-if="hide_chains">Looking for available polymers...</p>
 			<p><select v-if="chains" v-model="chainid" @change="showTopologyViewer(pdbid, chainid, 'twc-api/'+alnobj.text+'/'+tax_id[0]+'/'+tax_id[1]+'/'+pdbid, fasta_data); showPDBViewer(pdbid, chainid)">
 				<option :value ="null" selected disabled hidden>Select polymer</option>
 				<option v-for="chain in chains" v-bind:value="chain.value">[[ chain.text ]]</option>
 			</select></p>
 		</div>
-		<main id="main_elt"><br>
-			<span v-if="alnobj">
+		<div class="alignment_section">
+			<p></p>
+			<span id="alnif" v-if="alnobj">
 				<div id="alnDiv">Loading alignment...</div>
 			</span><br>
-			<span v-if="aln_meta_data">Selected residue: [[aln_meta_data]]</span><br>
-			<span v-if="chainid">
+			<span v-if="aln_meta_data">Selected residue: [[aln_meta_data]]</span>
+		</div>
+		<div class="topology_section">
+			<span id="topif" v-if="chainid">
 				<div id="topview">Loading topology viewer and conservation data...</div>
+			</span>
+		</div>
+		<div class="molstar_section">
+			<span id="molif" v-if="chainid">
 				<div id ="pdbeMolstarView">Loading Molstar Component...</div>
-			</span><br>
-		</main>
+			</span>
+		</div>
 		<footer >Footer</footer>
 	</div>
 	<!-- include our custom tree Ajax call and tree object. -->

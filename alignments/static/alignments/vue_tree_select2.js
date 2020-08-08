@@ -64,6 +64,34 @@ var filterAvailablePolymers = function(chain_list, aln_id){
     return chain_options
 }
 
+var create_deleted_element = function (parent_id, child_id, child_text){
+    const parent = document.getElementById(parent_id);
+    const child_elt = document.createElement("div");
+    const childText = document.createTextNode(child_text);
+    child_elt.setAttribute("id", child_id);
+    child_elt.setAttribute("id", child_id);
+    child_elt.appendChild(childText);
+    parent.appendChild(child_elt);
+}
+
+var cleanupOnNewAlignment = function (vueObj){
+    const menu_item = document.querySelector(".smenubar");
+    const aln_item = document.getElementById("alnDiv");
+    const topview_item = document.getElementById("topview");
+    const molstar_item = document.getElementById("pdbeMolstarView");
+    const pdb_input = document.getElementById("pdb_input");
+    if (pdb_input) {
+        if (pdb_input.getAttribute("value") != ""){vueObj.pdbid = null;}
+    }
+    if (vueObj.chains) {vueObj.chains = null;}
+    if (menu_item) {menu_item.remove();}
+    if (aln_item) {aln_item.remove(); create_deleted_element("alnif", "alnDiv", "Loading alignment...")}
+    if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Select new chain!")}
+    if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Select new structure!")}
+    vueObj.aln_meta_data = null;
+    vueObj.fasta_data = null;
+}
+
 Vue.component('treeselect', VueTreeselect.Treeselect, )
 
 var vm = new Vue({
@@ -135,8 +163,7 @@ var vm = new Vue({
                 ajax('https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/' + pdbid.toLowerCase())
                     .then(struc_data => {
                         var chain_list = struc_data[pdbid.toLowerCase()];
-                        chain_options = filterAvailablePolymers(chain_list, aln_id);
-                        this.chains = chain_options;
+                        this.chains = filterAvailablePolymers(chain_list, aln_id);
                         this.hide_chains = null;
                     }).catch(error => {
                         alert("No such pdb id: " + pdbid + ".", error)
@@ -144,12 +171,11 @@ var vm = new Vue({
             }
         },
         showAlignment(aln_id, taxid) {
-            this.aln_meta_data = null;
-            this.fasta_data = null;
+            cleanupOnNewAlignment(vm);
             var url = `/ortholog-aln-api/${aln_id}/${taxid}`
             ajax(url).then(fasta => {
                 this.fasta_data = fasta[0];
-                var main_elmnt = document.getElementById("main_elt")
+                var main_elmnt = document.querySelector(".alignment_section")
                 var opts = {
                     el: document.getElementById("alnDiv"),
                     seqs: msa.io.fasta.parse(fasta[0]),
@@ -161,11 +187,11 @@ var vm = new Vue({
                     //},
                     zoomer: {
                         // general
-                        alignmentWidth: main_elmnt.offsetWidth * 0.7,
-                        alignmentHeight: main_elmnt.offsetHeight * 0.4,
+                        alignmentWidth: main_elmnt.offsetWidth * 0.75,
+                        alignmentHeight: main_elmnt.offsetHeight * 0.9,
                         columnWidth: 15,
                         rowHeight: 15,
-                        labelNameLength: 300,
+                        labelNameLength: main_elmnt.offsetWidth * 0.18,
                         autoResize: false, // only for the width
                     },
                     conf: {
@@ -173,8 +199,8 @@ var vm = new Vue({
                         registerMouseClicks: true,
                     },
                     // smaller menu for JSBin
-                    //menu: "small",
-                    //bootstrapMenu: true
+                    menu: "small",
+                    bootstrapMenu: true
                 };
                 var m = new msa.msa(opts);
                 m.render();
@@ -197,6 +223,10 @@ var vm = new Vue({
                 });
             })
         }, showTopologyViewer (pdbid, chainid, entropy_address, fasta){
+            const topview_item = document.getElementById("topview");
+            const molstar_item = document.getElementById("pdbeMolstarView");
+            if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Loading topology viewer and conservation data...")}
+            if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Loading Molstar Component...")}
             var minIndex = String(0)
             var maxIndex = String(100000)
             var pdblower = pdbid.toLocaleLowerCase();
