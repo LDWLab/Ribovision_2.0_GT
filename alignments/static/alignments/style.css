@@ -87,3 +87,6 @@
     float:left;
     position:relative;
   }
+  #tree_type{
+    text-align: center;
+  }

@@ -32,11 +32,17 @@
 	<header class="pink section">DESIRE: DatabasE for Study and Imaging of Ribosomal Evolution</header>
 	<div id="phylo_tree_dropdown">
 		{% csrf_token %}
-		<div class="left-sidebar"><br>
+		<div class="left-sidebar">
+			<p id="tree_type">
+				<input type="radio" id="orthologs" value="orth" v-model="type_tree" @input="cleanTreeOpts()">
+				<label for="orthologs">Orthologs</label>
+				<input type="radio" id="paralogs" value="para" v-model="type_tree" @input="cleanTreeOpts()">
+				<label for="paralogs">Paralogs</label>
+			</p>
 			<treeselect 
 			  :load-options="loadOptions"
 			  v-model="tax_id" 
-			  v-on:input="limiter(tax_id); loadData(tax_id)"
+			  v-on:input="limiter(tax_id); loadData(tax_id, type_tree)"
 			  placeholder="Select a group"
 			  no-children-text="Loading... or no children"
 			  :multiple="true" 
@@ -45,7 +51,7 @@
 			  :limit="2"
 			  :default-expand-level="1"
 			  >Loading phylogenetic tree...</treeselect>
-			<p><select v-if="tax_id" v-model="alnobj" @change="showAlignment(alnobj.id, tax_id)">
+			<p><select v-if="tax_id" v-model="alnobj" @change="showAlignment(alnobj.id, tax_id, type_tree)">
 			  <option :value="null" selected disabled hidden>Select an alignment</option>
 			  <option v-for="aln in alignments" v-bind:value="{ id: aln.value, text: aln.text }">[[ aln.text ]]</option>
 			</select></p>

@@ -69,7 +69,7 @@ var create_deleted_element = function (parent_id, child_id, child_text){
     parent.appendChild(child_elt);
 }
 
-var cleanupOnNewAlignment = function (vueObj){
+var cleanupOnNewAlignment = function (vueObj, aln_text=''){
     const menu_item = document.querySelector(".smenubar");
     const aln_item = document.getElementById("alnDiv");
     const topview_item = document.getElementById("topview");
@@ -80,11 +80,44 @@ var cleanupOnNewAlignment = function (vueObj){
     }
     if (vueObj.chains) {vueObj.chains = null;}
     if (menu_item) {menu_item.remove();}
-    if (aln_item) {aln_item.remove(); create_deleted_element("alnif", "alnDiv", "Loading alignment...")}
+    if (aln_item) {aln_item.remove(); create_deleted_element("alnif", "alnDiv", aln_text)}
     if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Select new chain!")}
     if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Select new structure!")}
     vueObj.aln_meta_data = null;
     vueObj.fasta_data = null;
+}
+
+var loadParaOptions = function (action, callback, vm) {
+    if (action === "LOAD_ROOT_OPTIONS"){
+        ajax('/alignments/showStrucTaxonomy').then(data =>{
+            data.isDisabled = true,
+            vm.options = [data];
+            callback();
+        }).catch(error => {
+            console.log(error)
+        })
+    }
+}
+
+var loadParaAlns = function (value, vm) {
+    vm.alignments = null;
+    ajax('/alignments/fold-api/'+value).then(data=>{
+        var fpa = data["Folds to polymers to alignments"]
+        var fpa_viz = [];
+        Object.keys(fpa).forEach(fkey => {
+            Object.keys(fpa[fkey]).forEach(pkey => {
+                fpa[fkey][pkey].forEach(function (akey){
+                    fpa_viz.push({
+                        text:  'Alignment '.concat(akey[1],'; fold ',fkey),
+                        value: fkey.concat(',',akey)
+                    });
+                });
+            });
+        });
+        var temp_arr = fpa_viz
+        fpa_viz = Array.from(new Set(temp_arr.map(JSON.stringify))).map(JSON.parse);
+        vm.alignments = fpa_viz
+    });
 }
 
 Vue.component('treeselect', VueTreeselect.Treeselect, )
@@ -103,6 +136,7 @@ var vm = new Vue({
         aln_meta_data: null,
         fasta_data: null,
         hide_chains: null,
+        type_tree: "orth",
     },
     methods: {
         limiter(e) {
@@ -110,77 +144,91 @@ var vm = new Vue({
                 alert('You can only select two groups!')
                 e.pop()
             }
+        }, cleanTreeOpts() {
+            this.options = null;
+            this.tax_id = null;
+            cleanupOnNewAlignment(vm, "Select new alignment!");
         }, loadOptions({ action, callback }) {
-            if (action === "LOAD_CHILDREN_OPTIONS") {
-                action = "";
-                callback();
-            //     When they figure out LOAD_CHILDREN_OPTIONS with async search
-            //     ajax(`/alignments/showTaxonomy-api/${parentNode.id}`).then(data => {
-            //         let fetched_data = [data]
-            //         parentNode.children = fetched_data[0].children
-            //         callback()
-            //     }).catch(error => {
-            //         parentNode.children = []
-            //         console.log(error)
-            //         callback(new Error(`Failed to load options: network error: ${error}`))
-            //     })
-            };
-            if (action === "LOAD_ROOT_OPTIONS") {
-                ajax(`/alignments/showTaxonomy-api/0`).then(data => {
-                    data.isDisabled = true;
-                    this.options = [data];
+            if (this.type_tree == "orth"){
+                if (action === "LOAD_CHILDREN_OPTIONS") {
+                    action = "";
                     callback();
-                }).catch(error => {
-                    console.log(error)
-                })
-            };
-            if (action === "LOAD_ROOT_OPTIONS") {
-                ajax('/alignments/showTaxonomy').then(data => {
-                    this.options = null;
-                    data.isDisabled = true;
-                    this.options = [data];
-                    callback();
-                    console.log("finished!")
-                }).catch(error => {
-                    console.log(error)
-                })
-            };
-        },
-        loadData: function(value) {
-            this.alignments = null;
-            var url = '/desire-api/taxonomic-groups/?format=json&taxgroup_id__in=' + value
-            ajax(url).then(data => {
-                if (data["results"].length === 2) {
-                    function getObjIntersection(o1, o2) {
-                        return Object.keys(o1).filter({}.hasOwnProperty.bind(o2));
+                //     When they figure out LOAD_CHILDREN_OPTIONS with async search
+                //     ajax(`/alignments/showTaxonomy-api/${parentNode.id}`).then(data => {
+                //         let fetched_data = [data]
+                //         parentNode.children = fetched_data[0].children
+                //         callback()
+                //     }).catch(error => {
+                //         parentNode.children = []
+                //         console.log(error)
+                //         callback(new Error(`Failed to load options: network error: ${error}`))
+                //     })
+                };
+                if (action === "LOAD_ROOT_OPTIONS") {
+                    ajax(`/alignments/showTaxonomy-api/0`).then(data => {
+                        data.isDisabled = true;
+                        this.options = [data];
+                        callback();
+                    }).catch(error => {
+                        console.log(error)
+                    })
+                };
+                if (action === "LOAD_ROOT_OPTIONS") {
+                    ajax('/alignments/showTaxonomy').then(data => {
+                        if (this.type_tree == "orth"){
+                            this.options = null;
+                            data.isDisabled = true;
+                            this.options = [data];
+                            callback();
+                        }
+                    }).catch(error => {
+                        console.log(error)
+                    })
+                };
+            }
+            if (this.type_tree == "para"){
+                loadParaOptions(action, callback, vm);
+            }
+        }, loadData: function(value, type_tree) {
+            if (type_tree == "orth"){
+                this.alignments = null;
+                var url = '/desire-api/taxonomic-groups/?format=json&taxgroup_id__in=' + value
+                ajax(url).then(data => {
+                    if (data["results"].length === 2) {
+                        function getObjIntersection(o1, o2) {
+                            return Object.keys(o1).filter({}.hasOwnProperty.bind(o2));
+                        }
+                        var alns_first_tax = Object.fromEntries(data["results"][0]["alignment_ids"]);
+                        var alns_second_tax = Object.fromEntries(data["results"][1]["alignment_ids"]);
+                        var aln_indexes = getObjIntersection(alns_first_tax, alns_second_tax);
+                        var fpa = []
+                        aln_indexes.forEach(function(alnk) {
+                            fpa.push(Array(Number(alnk), alns_first_tax[alnk]))
+                        });
+                    } else {
+                        var fpa = data["results"][0]["alignment_ids"]
                     }
-                    var alns_first_tax = Object.fromEntries(data["results"][0]["alignment_ids"]);
-                    var alns_second_tax = Object.fromEntries(data["results"][1]["alignment_ids"]);
-                    var aln_indexes = getObjIntersection(alns_first_tax, alns_second_tax);
-                    var fpa = []
-                    aln_indexes.forEach(function(alnk) {
-                        fpa.push(Array(Number(alnk), alns_first_tax[alnk]))
+                    var fpa_viz = [];
+                    fpa.forEach(function(fkey) {
+                        fpa_viz.push({
+                            text: fkey[1],
+                            value: fkey[0]
+                        });
                     });
-                } else {
-                    var fpa = data["results"][0]["alignment_ids"]
-                }
-                var fpa_viz = [];
-                fpa.forEach(function(fkey) {
-                    fpa_viz.push({
-                        text: fkey[1],
-                        value: fkey[0]
-                    });
+                    this.alignments = fpa_viz
                 });
-                this.alignments = fpa_viz
-            });
-        },
-        getPDBchains(pdbid, aln_id) {
+            }
+            if (type_tree == "para"){
+                loadParaAlns (value, vm)
+            }
+        }, getPDBchains(pdbid, aln_id) {
             if (pdbid.length === 4) {
                 this.chains = null
                 this.hide_chains = true
                 ajax('https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/' + pdbid.toLowerCase())
                     .then(struc_data => {
                         var chain_list = struc_data[pdbid.toLowerCase()];
+                        if (this.type_tree == "para") {aln_id = aln_id.split(',')[1]}
                         filterAvailablePolymers(chain_list, aln_id, vm);
                         this.hide_chains = null;
                     }).catch(error => {
@@ -188,9 +236,12 @@ var vm = new Vue({
                     })
             }
         },
-        showAlignment(aln_id, taxid) {
-            cleanupOnNewAlignment(vm);
-            var url = `/ortholog-aln-api/${aln_id}/${taxid}`
+        showAlignment(aln_id, taxid, type_tree) {
+            cleanupOnNewAlignment(vm, "Loading alignment...");
+            if (type_tree == "orth"){
+                var url = `/ortholog-aln-api/${aln_id}/${taxid}`}
+            if (type_tree == "para"){
+                var url = '/paralog-aln-api/'+aln_id.split(',')[1]}
             ajax(url).then(fasta => {
                 this.fasta_data = fasta[0];
                 var main_elmnt = document.querySelector(".alignment_section")
