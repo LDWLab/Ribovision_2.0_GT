@@ -38,10 +38,12 @@
 			  v-model="tax_id" 
 			  v-on:input="limiter(tax_id); loadData(tax_id)"
 			  placeholder="Select a group"
+			  no-children-text="Loading... or no children"
 			  :multiple="true" 
 			  :options="options" 
 			  :flat="true"
 			  :limit="2"
+			  :default-expand-level="1"
 			  >Loading phylogenetic tree...</treeselect>
 			<p><select v-if="tax_id" v-model="alnobj" @change="showAlignment(alnobj.id, tax_id)">
 			  <option :value="null" selected disabled hidden>Select an alignment</option>

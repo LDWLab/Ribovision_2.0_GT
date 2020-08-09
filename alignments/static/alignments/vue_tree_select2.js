@@ -102,7 +102,7 @@ var vm = new Vue({
         chainid: null,
         aln_meta_data: null,
         fasta_data: null,
-        hide_chains: null
+        hide_chains: null,
     },
     methods: {
         limiter(e) {
@@ -110,17 +110,41 @@ var vm = new Vue({
                 alert('You can only select two groups!')
                 e.pop()
             }
-        },
-        loadOptions({ action, callback }) {
+        }, loadOptions({ action, callback }) {
+            if (action === "LOAD_CHILDREN_OPTIONS") {
+                action = "";
+                callback();
+            //     When they figure out LOAD_CHILDREN_OPTIONS with async search
+            //     ajax(`/alignments/showTaxonomy-api/${parentNode.id}`).then(data => {
+            //         let fetched_data = [data]
+            //         parentNode.children = fetched_data[0].children
+            //         callback()
+            //     }).catch(error => {
+            //         parentNode.children = []
+            //         console.log(error)
+            //         callback(new Error(`Failed to load options: network error: ${error}`))
+            //     })
+            };
             if (action === "LOAD_ROOT_OPTIONS") {
-                ajax('/alignments/showTaxonomy').then(data => {
-                    data.isDisabled = true,
-                        this.options = [data];
+                ajax(`/alignments/showTaxonomy-api/0`).then(data => {
+                    data.isDisabled = true;
+                    this.options = [data];
                     callback();
                 }).catch(error => {
                     console.log(error)
                 })
-            }
+            };
+            if (action === "LOAD_ROOT_OPTIONS") {
+                ajax('/alignments/showTaxonomy').then(data => {
+                    this.options = null;
+                    data.isDisabled = true;
+                    this.options = [data];
+                    callback();
+                    console.log("finished!")
+                }).catch(error => {
+                    console.log(error)
+                })
+            };
         },
         loadData: function(value) {
             this.alignments = null;
