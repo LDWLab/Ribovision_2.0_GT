@@ -35,33 +35,28 @@ function ajax(url, optional_data='') {
         })
     }
 }
-var filterAvailablePolymers = function(chain_list, aln_id){
+var filterAvailablePolymers = function(chain_list, aln_id, vueObj){
     let temp_arr = [];
-    for (var i = 0; i < chain_list.length; i++) {
-        let pol_name = chain_list[i]["molecule_name"][0]
-        if (chain_list[i]["molecule_type"].toLowerCase() == "bound") {continue;}
-        if (chain_list[i]["molecule_type"].toLowerCase() == "water") {continue;}
-        $.ajax({
-            url: `/desire-api/polymers/?alns_of_polymer=${aln_id}&format=json&genedescription=${pol_name}`,
-            type: 'GET',
-            dataType: "json",
-            async: false,
-            success: function(pol_result) {
-                if (pol_result["count"] > 0){
+    let url = `/desire-api/alignments/${aln_id}/?format=json`;
+    ajax(url).then( aln_data => {
+        for (let i = 0; i < chain_list.length; i++) {
+            if (chain_list[i]["molecule_type"].toLowerCase() == "bound") {continue;}
+            if (chain_list[i]["molecule_type"].toLowerCase() == "water") {continue;}
+            for (let ix =0; ix < aln_data["polymers"].length; ix++){
+                if (aln_data["polymers"][ix]["genedescription"].trim() == chain_list[i]["molecule_name"][0]){
                     temp_arr.push({
                         text: chain_list[i]["molecule_name"][0],
                         value: chain_list[i]["in_chains"][0]
                     })
                 }
-            },
-            error: function(error) {
-                console.log(`Error ${error}`);
-                reject(error)
             }
-        })
-    }
+        }
     chain_options = Array.from(new Set(temp_arr.map(JSON.stringify))).map(JSON.parse);
-    return chain_options
+    if (chain_options.length === 0) {
+        chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
+    }
+    vueObj.chains = chain_options;
+    });
 }
 
 var create_deleted_element = function (parent_id, child_id, child_text){
@@ -130,31 +125,30 @@ var vm = new Vue({
         loadData: function(value) {
             this.alignments = null;
             var url = '/desire-api/taxonomic-groups/?format=json&taxgroup_id__in=' + value
-            ajax(url)
-                .then(data => {
-                    if (data["results"].length === 2) {
-                        function getObjIntersection(o1, o2) {
-                            return Object.keys(o1).filter({}.hasOwnProperty.bind(o2));
-                        }
-                        var alns_first_tax = Object.fromEntries(data["results"][0]["alignment_ids"]);
-                        var alns_second_tax = Object.fromEntries(data["results"][1]["alignment_ids"]);
-                        var aln_indexes = getObjIntersection(alns_first_tax, alns_second_tax);
-                        var fpa = []
-                        aln_indexes.forEach(function(alnk) {
-                            fpa.push(Array(Number(alnk), alns_first_tax[alnk]))
-                        });
-                    } else {
-                        var fpa = data["results"][0]["alignment_ids"]
+            ajax(url).then(data => {
+                if (data["results"].length === 2) {
+                    function getObjIntersection(o1, o2) {
+                        return Object.keys(o1).filter({}.hasOwnProperty.bind(o2));
                     }
-                    var fpa_viz = [];
-                    fpa.forEach(function(fkey) {
-                        fpa_viz.push({
-                            text: fkey[1],
-                            value: fkey[0]
-                        });
+                    var alns_first_tax = Object.fromEntries(data["results"][0]["alignment_ids"]);
+                    var alns_second_tax = Object.fromEntries(data["results"][1]["alignment_ids"]);
+                    var aln_indexes = getObjIntersection(alns_first_tax, alns_second_tax);
+                    var fpa = []
+                    aln_indexes.forEach(function(alnk) {
+                        fpa.push(Array(Number(alnk), alns_first_tax[alnk]))
                     });
-                    this.alignments = fpa_viz
+                } else {
+                    var fpa = data["results"][0]["alignment_ids"]
+                }
+                var fpa_viz = [];
+                fpa.forEach(function(fkey) {
+                    fpa_viz.push({
+                        text: fkey[1],
+                        value: fkey[0]
+                    });
                 });
+                this.alignments = fpa_viz
+            });
         },
         getPDBchains(pdbid, aln_id) {
             if (pdbid.length === 4) {
@@ -163,7 +157,7 @@ var vm = new Vue({
                 ajax('https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/' + pdbid.toLowerCase())
                     .then(struc_data => {
                         var chain_list = struc_data[pdbid.toLowerCase()];
-                        this.chains = filterAvailablePolymers(chain_list, aln_id);
+                        filterAvailablePolymers(chain_list, aln_id, vm);
                         this.hide_chains = null;
                     }).catch(error => {
                         alert("No such pdb id: " + pdbid + ".", error)

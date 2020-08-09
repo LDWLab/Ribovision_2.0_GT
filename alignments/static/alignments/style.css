@@ -63,6 +63,7 @@
   }
 
   .vue-treeselect__menu {
+    width: 450px;
     overflow-x: auto;
     text-overflow: clip;
   }
@@ -71,7 +72,6 @@
   .vue-treeselect__single-value,
   .vue-treeselect__label,
   .vue-treeselect__tip-text {
-    overflow-x: auto;
     text-overflow: clip;
   }
 

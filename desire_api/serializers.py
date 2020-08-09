@@ -61,7 +61,13 @@ class AdResiduesSerializer(serializers.HyperlinkedModelSerializer):
         model = AdResidues
         fields = ['ad', 'residuep']
 
+class GeneDescriptionSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = PolymerData
+        fields = ['url', 'gi', 'strain', 'nomgd', 'genesymbol', 'genedescription']
+
 class AlignmentSerializer(serializers.HyperlinkedModelSerializer):
+    polymers = GeneDescriptionSerializer(many=True, read_only=True)
     class Meta:
         model = Alignment
         fields = '__all__'
