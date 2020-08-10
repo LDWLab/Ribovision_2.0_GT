@@ -3342,9 +3342,13 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
      RiboData_Y = getCol(RiboData, 1);
      console.log(RiboData_Y)
 
-     Y_min=Math.min.apply(Math, RiboData_Y);
-     Y_max=Math.max.apply(Math, RiboData_Y);
-     Y_range=Math.max.apply(Math, RiboData_Y)-Math.min.apply(Math, RiboData_Y);
+     //Y_min=Math.min.apply(Math, RiboData_Y);
+     //Y_max=Math.max.apply(Math, RiboData_Y);
+     //Y_range=Math.max.apply(Math, RiboData_Y)-Math.min.apply(Math, RiboData_Y);
+
+     Y_min=-5.0;
+     Y_max=10;
+     Y_range=15;
 
      console.log(Y_range);
 
