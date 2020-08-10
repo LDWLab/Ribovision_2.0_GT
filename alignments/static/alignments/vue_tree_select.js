@@ -28,7 +28,8 @@ new Vue({
 		alignments: null,
 		pdbid: null,
 		chains: null,
-		chainid: null
+		chainid: null,
+		type_tree: "orth"
 	},
 	methods: {
 		limiter(e) {

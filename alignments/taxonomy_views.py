@@ -37,7 +37,7 @@ def buildTaxonomy(request):
 
 def api_showTaxonomy(request, current_tax):
 	if current_tax == 0:
-		toplevel_label = "LUCA"
+		toplevel_label = "Root"
 		taxgroups = Taxgroups.objects.raw('SELECT * FROM SEREB.TaxGroups WHERE SEREB.TaxGroups.groupLevel = "superkingdom";')
 		curent_parent = 0
 		level = "root"
@@ -52,13 +52,27 @@ def api_showTaxonomy(request, current_tax):
 		taxgroups = Taxgroups.objects.raw(mySQLStr)
 	nodes = list()
 	for taxgroup in taxgroups:
-		nodes.append((taxgroup.groupname,taxgroup.taxgroup_id,taxgroup.grouplevel))
+		sql_for_children = f'SELECT * FROM SEREB.TaxGroups WHERE SEREB.TaxGroups.parent = "{taxgroup.taxgroup_id}"'
+		# children = Taxgroups.objects.raw(sql_for_children)
+		# children_for_json = list()
+		# for child in children:
+		# 	children_for_json.append({
+		# 		'label': child.groupname,
+		# 		'id': child.taxgroup_id,
+		# 		'level': child.grouplevel,
+		# 	})
+		nodes.append({
+			'label': taxgroup.groupname,
+			'id': taxgroup.taxgroup_id,
+			'level': taxgroup.grouplevel,
+			'children': None
+		})
 	taxonomy = {
 			'label' : toplevel_label,
-			'taxID' : current_tax,
+			'id' : current_tax,
 			'level' : level,
 			'parent' : curent_parent,
-			'nodes' : nodes
+			'children' : nodes
 		}
 	return JsonResponse(taxonomy, safe = False)
 

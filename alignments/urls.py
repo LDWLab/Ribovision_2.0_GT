@@ -6,7 +6,7 @@ from . import views
 app_name = 'alignments'
 
 urlpatterns = [
-	path('', views.index, name='index'),
+	path('', views.index_orthologs, name='index'),
 	path('orthologs/', views.index_orthologs, name='orthologs'),
 	path('paralogs/', views.paralog_entry_form, name='paralogs'),
 	path('orthologs/rRNA/<str:align_name>/<int:tax_group>', views.rRNA, name='rRNA'),

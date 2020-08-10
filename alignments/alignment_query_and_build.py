@@ -134,7 +134,7 @@ def para_aln(request, aln_id):
 	
 	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
 
-	return JsonResponse(concat_fasta, safe = False)
+	return JsonResponse([concat_fasta], safe = False)
 
 def query_to_dict_structure(rawMYSQLresult, filter_element, nogap_tupaln=dict(), max_alnposition=0):
 	for row in rawMYSQLresult:

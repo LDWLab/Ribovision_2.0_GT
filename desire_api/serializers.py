@@ -40,11 +40,11 @@ class SpeciesSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['url', 'strain', 'name', 'abbreviation', 'polymers_of_species']
 
 class PolymerSerializer(serializers.HyperlinkedModelSerializer):
-    residues_in_polymer = PolResidueSerializer(many=True, read_only=True)
+    #residues_in_polymer = PolResidueSerializer(many=True, read_only=True)
     alns_of_polymer = PolAlnSerializer(many=True, read_only=True)
     class Meta:
         model = PolymerData
-        fields = ['pdata_id', 'gi', 'genesymbol', 'genedescription', 'strain', 'nomgd', 'alns_of_polymer', 'residues_in_polymer']
+        fields = ['pdata_id', 'gi', 'genesymbol', 'genedescription', 'strain', 'nomgd', 'alns_of_polymer']
 
 class SecondarystructuresSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -61,7 +61,13 @@ class AdResiduesSerializer(serializers.HyperlinkedModelSerializer):
         model = AdResidues
         fields = ['ad', 'residuep']
 
+class GeneDescriptionSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = PolymerData
+        fields = ['url', 'gi', 'strain', 'nomgd', 'genesymbol', 'genedescription']
+
 class AlignmentSerializer(serializers.HyperlinkedModelSerializer):
+    polymers = GeneDescriptionSerializer(many=True, read_only=True)
     class Meta:
         model = Alignment
         fields = '__all__'

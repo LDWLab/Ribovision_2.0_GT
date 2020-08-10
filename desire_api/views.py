@@ -32,7 +32,7 @@ class PolymerViewSet(viewsets.ModelViewSet):
     queryset = PolymerData.objects.all().order_by('pdata_id')
     serializer_class = PolymerSerializer
     filter_backends = [DjangoFilterBackend]
-    filter_fields = ['pdata_id', 'gi', 'genesymbol', 'genedescription', 'strain', 'nomgd']
+    filter_fields = ['pdata_id', 'gi', 'genesymbol', 'genedescription', 'strain', 'nomgd', 'alns_of_polymer']
 
 class ResidueViewSet(viewsets.ModelViewSet):
     queryset = Residues.objects.all()
@@ -55,6 +55,8 @@ class AdResiduesViewSet(viewsets.ModelViewSet):
 class AlignmentViewSet(viewsets.ModelViewSet):
     queryset = Alignment.objects.all().order_by('aln_id')
     serializer_class = AlignmentSerializer
+    filter_backends = [DjangoFilterBackend]
+    filter_fields = ['name', 'method', 'source', 'polymers']
 
 class AssociatedDataViewSet(viewsets.ModelViewSet):
     queryset = AssociatedData.objects.all().order_by('data_id')
