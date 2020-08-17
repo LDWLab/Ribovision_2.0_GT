@@ -292,6 +292,7 @@ var vm = new Vue({
                 });
             })
         }, showTopologyViewer (pdbid, chainid, entropy_address, fasta){
+            if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {return;}
             const topview_item = document.getElementById("topview");
             const molstar_item = document.getElementById("pdbeMolstarView");
             if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Loading topology viewer and conservation data...")}
@@ -311,6 +312,7 @@ var vm = new Vue({
                 })
             });
         }, showPDBViewer(pdbid, chainid){
+            if (document.querySelector("pdbe-molstar")) {return;}
             var minIndex = String(0)
             var maxIndex = String(100000)
             var pdblower = pdbid.toLocaleLowerCase();
