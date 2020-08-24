@@ -85,6 +85,7 @@ var cleanupOnNewAlignment = function (vueObj, aln_text=''){
     if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Select new structure!")}
     vueObj.aln_meta_data = null;
     vueObj.fasta_data = null;
+    vueObj.frequency_data = null;
 }
 
 var loadParaOptions = function (action, callback, vm) {
@@ -137,6 +138,7 @@ var vm = new Vue({
         fasta_data: null,
         hide_chains: null,
         type_tree: "orth",
+        frequency_data: null,
     },
     methods: {
         limiter(e) {
@@ -244,6 +246,7 @@ var vm = new Vue({
                 var url = '/paralog-aln-api/'+aln_id.split(',')[1]}
             ajax(url).then(fasta => {
                 this.fasta_data = fasta[0];
+                this.frequency_data = fasta[3]
                 var main_elmnt = document.querySelector(".alignment_section")
                 var opts = {
                     el: document.getElementById("alnDiv"),
