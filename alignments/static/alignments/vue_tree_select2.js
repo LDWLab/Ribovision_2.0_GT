@@ -35,22 +35,25 @@ function ajax(url, optional_data='') {
         })
     }
 }
-var filterAvailablePolymers = function(chain_list, aln_id, vueObj){
+var filterAvailablePolymers = function(chain_list, aln_id, vueObj) {
     let temp_arr = [];
     let url = `/desire-api/alignments/${aln_id}/?format=json`;
     ajax(url).then( aln_data => {
         for (let i = 0; i < chain_list.length; i++) {
-            if (chain_list[i]["molecule_type"].toLowerCase() == "bound") {continue;}
-            if (chain_list[i]["molecule_type"].toLowerCase() == "water") {continue;}
+            let chain_listI = chain_list[i]
+            if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
+            if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
             for (let ix =0; ix < aln_data["polymers"].length; ix++){
                 if (aln_data["polymers"][ix]["genedescription"].trim() == chain_list[i]["molecule_name"][0]){
                     temp_arr.push({
-                        text: chain_list[i]["molecule_name"][0],
-                        value: chain_list[i]["in_chains"][0]
+                        text: chain_listI["molecule_name"][0],
+                        value: chain_listI["in_chains"][0],
+                        sequence: chain_listI["sequence"]
                     })
                 }
             }
         }
+    // console.log("___" + temp_arr[temp_arr.length - 1]["sequence"] + "___");
     chain_options = Array.from(new Set(temp_arr.map(JSON.stringify))).map(JSON.parse);
     if (chain_options.length === 0) {
         chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
@@ -59,7 +62,7 @@ var filterAvailablePolymers = function(chain_list, aln_id, vueObj){
     });
 }
 
-var create_deleted_element = function (parent_id, child_id, child_text){
+var create_deleted_element = function (parent_id, child_id, child_text) {
     const parent = document.getElementById(parent_id);
     const child_elt = document.createElement("div");
     const childText = document.createTextNode(child_text);
@@ -69,7 +72,7 @@ var create_deleted_element = function (parent_id, child_id, child_text){
     parent.appendChild(child_elt);
 }
 
-var cleanupOnNewAlignment = function (vueObj, aln_text=''){
+var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     const menu_item = document.querySelector(".smenubar");
     const aln_item = document.getElementById("alnDiv");
     const topview_item = document.getElementById("topview");
@@ -303,7 +306,13 @@ var vm = new Vue({
             var minIndex = String(0)
             var maxIndex = String(100000)
             var pdblower = pdbid.toLocaleLowerCase();
-            ajax(entropy_address, optional_data={fasta}).then(twcData => {
+            let ebi_sequence = vm.chains.filter(obj => {
+                console.log("___" + obj["value"] + " " + chainid + " " + (obj["value"] === chainid) + "___");
+                return obj["value"] === chainid;
+            })[0]["sequence"];
+            // let ebi_sequence = vm.chains[0]["sequence"];
+            ajax(entropy_address, optional_data={fasta, ebi_sequence}).then(twcData => {
+                alert(twcData)
                 var topology_url = `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdblower}/chain/${chainid}`
                 ajax(topology_url).then(data => {
                     var entityid = Object.keys(data[pdblower])[0];
@@ -340,66 +349,51 @@ var vm = new Vue({
 
                 viewerInstance2.visual.update({
                     customData: { url: `https://www.ebi.ac.uk/pdbe/coordinates/${pdblower}/chains?entityId=${entityid}&encoding=bcif`, format: 'cif', binary:true },
-                          hideCanvasControls: ["expand", "selection", " animation"],
-                          assemblyId: '1',                    
-                          hideControls: true,                   
-                          subscribeEvents: true
-                        });
+                        hideCanvasControls: ["expand", "selection", " animation"],
+                        assemblyId: '1',                    
+                        hideControls: true,                   
+                        subscribeEvents: true
+                });
 
-                        document.addEventListener('PDB.topologyViewer.click', (e)=>{
-                            var pdbeMolstar=document.getElementById("PdbeMolstarComponent")
-                            var molstar= pdbeMolstar.viewerInstance;                            
-                            var chainId=e.eventData.chainId;
-                            var entityId=e.eventData.entityId;
-                            var residueNumber=e.eventData.residueNumber;
-                            var types=e.eventData.type;                            
-                            molstar.visual.select({
-                            data:[
+                document.addEventListener('PDB.topologyViewer.click', (e) => {
+                    var pdbeMolstar=document.getElementById("PdbeMolstarComponent")
+                    var molstar= pdbeMolstar.viewerInstance;                            
+                    var chainId=e.eventData.chainId;
+                    var entityId=e.eventData.entityId;
+                    var residueNumber=e.eventData.residueNumber;
+                    var types=e.eventData.type;                            
+                    molstar.visual.select({
+                        data:[
                             {
-                            entity_id:entityId,
-                            start_residue_number:residueNumber,
-                            end_residue_number:residueNumber,
-                            color:{r:20, y:100, b:200},
-                            focus:false},
-                            
-                            
-                            ],
-                            
-                            })
-                            })
-                            
-                            
-                            document.addEventListener('PDB.topologyViewer.mouseover', (e)=>{
-                            var pdbeMolstar=document.getElementById("PdbeMolstarComponent")
-                            var molstar= pdbeMolstar.viewerInstance;                            
-                            var chainId=e.eventData.chainId;
-                            var entityId=e.eventData.entityId;
-                            var residueNumber=e.eventData.residueNumber;
-                            var types=e.eventData.type;
-                            
-                            molstar.visual.highlight({
-                            
-                            
-                            data:[
-                            {
-                            entity_id:entityId,
-                            start_residue_number:residueNumber,
-                            end_residue_number:residueNumber,
+                                entity_id:entityId,
+                                start_residue_number:residueNumber,
+                                end_residue_number:residueNumber,
+                                color:{r:20, y:100, b:200},
+                                focus:false
                             },
-                            
-                            
-                            ],
-                            
-                            })
-                            })
-                                     
+                        ],
+                    })
+                })
 
-
+                document.addEventListener('PDB.topologyViewer.mouseover', (e) => {
+                    var pdbeMolstar=document.getElementById("PdbeMolstarComponent")
+                    var molstar= pdbeMolstar.viewerInstance;                            
+                    var chainId=e.eventData.chainId;
+                    var entityId=e.eventData.entityId;
+                    var residueNumber=e.eventData.residueNumber;
+                    var types=e.eventData.type;
+                    
+                    molstar.visual.highlight({
+                        data:[
+                            {
+                                entity_id:entityId,
+                                start_residue_number:residueNumber,
+                                end_residue_number:residueNumber,
+                            },
+                        ],
+                    })
+                })
             });
         }
-
-
-        
     }
- 
 })
