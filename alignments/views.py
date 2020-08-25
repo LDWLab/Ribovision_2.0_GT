@@ -3,6 +3,13 @@ import re
 import urllib.request
 import json
 
+import datetime
+
+import subprocess
+from subprocess import Popen, PIPE
+
+import os
+
 from django.shortcuts import render
 from django.http import HttpResponse, Http404, JsonResponse
 from django.urls import reverse_lazy
@@ -71,6 +78,34 @@ def api_twc_with_upload(request, anchor_structure):
 	list_for_topology_viewer = calculate_twincons(alignment)
 
 	return JsonResponse(list_for_topology_viewer, safe = False)
+
+def api_twc_parameterless(request):
+	now = datetime.datetime.now()
+	fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
+	alignmentFileName = "./static/alignment" + fileNameSuffix + ".txt"
+	ebiFileName = "./static/ebi_sequence" + fileNameSuffix + ".txt"
+	mappingFileName = ebiFileName + ".map"
+
+	fh = open(alignmentFileName, "w")
+	fh.write(request.POST["fasta"])
+	fh.close()
+
+	fh = open(ebiFileName, "w")
+	fh.write(">ebi_sequence\n")
+	fh.write(request.POST["ebi_sequence"])
+	fh.close()
+
+	pipe = Popen("mafft --addfull " + ebiFileName + " --mapout " + alignmentFileName + "; cat " + mappingFileName, stdout=PIPE, shell=True)
+	output = pipe.communicate()[0]
+	text = output.decode("ascii")
+	print(text)
+
+	os.remove(alignmentFileName)
+	os.remove(ebiFileName)
+	os.remove(mappingFileName)
+
+	context = {}
+	return render(request, "alignments/dummyPage.html", context)
 
 def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure=''):
 

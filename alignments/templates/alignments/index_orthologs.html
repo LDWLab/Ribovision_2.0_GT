@@ -58,7 +58,7 @@
 			<p><span v-if="alnobj">Selected alignment: [[alnobj.text]].<br>Input PDB and polymer for mapping:</span></p>
 			<p><input id="pdb_input" v-if="alnobj" v-model="pdbid" v-on:input="getPDBchains(pdbid, alnobj.id)" placeholder="4v9d" maxlength="4"></p>
 			<p v-if="hide_chains">Looking for available polymers...</p>
-			<p><select v-if="chains" v-model="chainid" @change="showTopologyViewer(pdbid, chainid, 'twc-api/'+alnobj.text+'/'+tax_id[0]+'/'+tax_id[1]+'/'+pdbid, fasta_data); showPDBViewer(pdbid, chainid)">
+			<p><select v-if="chains" v-model="chainid" @change="showTopologyViewer(pdbid, chainid, 'twc-api/', fasta_data); showPDBViewer(pdbid, chainid)">
 				<option :value ="null" selected disabled>Select polymer</option>
 				<option v-for="chain in chains" v-bind:value="chain.value">[[ chain.text ]]</option>
 			</select></p>

@@ -1,4 +1,3 @@
- 
 from django.urls import include, path
 
 from . import views
@@ -23,6 +22,7 @@ urlpatterns = [
 	path('twincons/<str:anchor_structure>/<str:chain>/<str:align_name>/<int:tax_group1>/<int:tax_group2>', views.twincons_handler, name='twincons'),
 	path('entropy-api/<str:align_name>/<int:tax_group>/<str:anchor_structure>', views.api_entropy, name='api_entropy'),
 	path('twc-api/<str:align_name>/<int:tax_group1>/<int:tax_group2>/<str:anchor_structure>', views.api_twc, name='api_twc'),
+	path('twc-api/', views.api_twc_parameterless, name='api_twc'),
 	path('twc-api/<str:align_name>/<int:tax_group1>/<int:tax_group2>', views.api_twc, name='api_twc_no_struc'),
 	path('resi-api/<int:resi_id>', views.resi_info),
 	path('struc-api/<int:struc_id>', views.struc_info),
