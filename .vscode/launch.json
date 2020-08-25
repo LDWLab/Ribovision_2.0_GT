@@ -16,6 +16,13 @@
             "django": true
         },
         {
+            "name": "Launch Chrome",
+            "request": "launch",
+            "type": "chrome",
+            "url": "http://127.0.0.1:8000/",
+            "webRoot": "${workspaceFolder}"
+        },
+        {
             "name": "Upload structural folds",
             "type": "python",
             "request": "launch",

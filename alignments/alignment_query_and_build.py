@@ -1,4 +1,5 @@
 from django.http import JsonResponse, Http404
+from Bio.SeqUtils import IUPACData
 from alignments.models import *
 from alignments.residue_api import *
 
@@ -130,11 +131,11 @@ def para_aln(request, aln_id):
 		sorted_sql = sorted(rawsql, key = lambda i: (i['strain'], i['aln_pos']))
 		nogap_tupaln, max_alnposition= query_to_dict_structure(sorted_sql, fold[1].replace('_','-'), nogap_tupaln, max_alnposition)
 
-	fastastring = build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_alnposition)
+	fastastring, frequency_list = build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_alnposition)
 	
 	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
 
-	return JsonResponse([concat_fasta], safe = False)
+	return JsonResponse([concat_fasta, frequency_list], safe = False)
 
 def query_to_dict_structure(rawMYSQLresult, filter_element, nogap_tupaln=dict(), max_alnposition=0):
 	for row in rawMYSQLresult:
@@ -147,10 +148,13 @@ def query_to_dict_structure(rawMYSQLresult, filter_element, nogap_tupaln=dict(),
 			nogap_tupaln[(row['strain'], filter_element)].append((row['unModResName'], row['aln_pos'], row['id'].split("_")[1]))
 	return nogap_tupaln, max_alnposition
 
-def build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_alnposition):
+def build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_alnposition, all_residues=IUPACData.protein_letters):
 	import re
+	from alignments.Shannon import gap_adjusted_frequency
 	fasta_string=''
+	alignment_rows = list()
 	for strain in nogap_tupaln:
+		row_residue_list = list()
 		alignment_sequence_name = str(strain[1])+"_"+str(re.sub(' ','_',strain[0]))
 		fasta_string+='\n>'+alignment_sequence_name+'\n'
 		mem = 1
@@ -162,18 +166,27 @@ def build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_alnpositio
 				for i in range(0,diff):
 					mem = mem+1
 					fasta_string+='-'
+					row_residue_list.append('-')
 				mem = mem+1
 			#else:
 			#	raise ValueError("You are likely looking at cross-domain alignment with sequences from repeated species. For now this is not supported!")
 			fasta_string+=resi_pos[0]
+			row_residue_list.append(resi_pos[0])
 			if index == len(nogap_tupaln[strain]):
 				if resi_pos[1] < max_alnposition:
 					diff = max_alnposition-resi_pos[1]
 					for index2,i in enumerate(range(0,diff), start=1):
 						fasta_string+='-'
+						row_residue_list.append('-')
 						if index2 == diff:
+							alignment_rows.append(row_residue_list)
 							fasta_string+='\n'
 				else:
+					alignment_rows.append(row_residue_list)
 					fasta_string+='\n'
+	alignment_columns = [x for x in map(list, zip(*alignment_rows))]
+	frequency_list = list()
+	for resi_column in alignment_columns:
+		frequency_list.append(gap_adjusted_frequency(resi_column, all_residues))
 	literal_string = re.sub(r'\n\n','\n',fasta_string,flags=re.M)
-	return literal_string.lstrip().encode('unicode-escape').decode('ascii')
+	return literal_string.lstrip().encode('unicode-escape').decode('ascii'), frequency_list

@@ -129,7 +129,7 @@ def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure=''):
 
 		print(nogap_tupaln)
 		#### __________________Build alignment__________________ ####
-		fastastring = aqab.build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_alnposition)
+		fastastring, frequency_list = aqab.build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_alnposition)
 	
 	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
 	#print(concat_fasta)
@@ -186,7 +186,7 @@ def entropy(request, align_name, tax_group, anchor_structure):
 	
 	rawsql_result = aqab.sql_filtered_aln_query(align_id, tax_group)
 	nogap_tupaln, max_aln_length = aqab.query_to_dict_structure(rawsql_result, Taxgroups.objects.get(pk=tax_group).groupname)
-	fastastring = aqab.build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_aln_length)
+	fastastring, frequency_list = aqab.build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_aln_length)
 	#fastastring,max_aln_length = aqab.sql_filtered_aln_query(align_id,tax_group)
 	aln_shannon_list = Shannon.main(['-a',fastastring,'-f','fastastring','--return_within','-s',filter_strain])
 	#print(aln_shannon_list)
@@ -208,7 +208,7 @@ def api_entropy(request, align_name, tax_group, anchor_structure):
 	
 	rawsql_result = aqab.sql_filtered_aln_query(align_id, tax_group)
 	nogap_tupaln, max_aln_length = aqab.query_to_dict_structure(rawsql_result, Taxgroups.objects.get(pk=tax_group).groupname)
-	fastastring = aqab.build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_aln_length)
+	fastastring, frequency_list = aqab.build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_aln_length)
 	#fastastring,max_aln_length = aqab.sql_filtered_aln_query(align_id,tax_group)
 	aln_shannon_list = Shannon.main(['-a',fastastring,'-f','fastastring','--return_within','-s',filter_strain])
 	return JsonResponse(aln_shannon_list, safe = False)
@@ -281,7 +281,7 @@ def simple_fasta(request, aln_id, tax_group, internal=False):
 	for rawsql, parent in rawsqls:
 		nogap_tupaln, max_alnposition= aqab.query_to_dict_structure(rawsql, parent, nogap_tupaln, max_alnposition)
 	
-	fastastring = aqab.build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_alnposition)
+	fastastring, frequency_list = aqab.build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_alnposition)
 	unf_species_list = [x.split('\\')[0] for x in fastastring.split('>')[1:]]
 	unf_seq_list = [x.split('\\n')[1] for x in fastastring.split('>')[1:]]
 	list_for_intersect = list()
@@ -294,7 +294,7 @@ def simple_fasta(request, aln_id, tax_group, internal=False):
 	if internal:
 		return fastastring
 	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
-	return JsonResponse([concat_fasta,filtered_spec_list,gap_only_cols], safe = False)
+	return JsonResponse([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list], safe = False)
 
 # def simple_fasta(request, aln_id, tax_group, internal=False):
 # 	rawsql_result = aqab.sql_filtered_aln_query(aln_id, tax_group)
@@ -316,11 +316,12 @@ def rProtein(request, align_name, tax_group):
 	return render(request, 'alignments/detail.html', context)
 
 def rRNA(request, align_name, tax_group):
+	from Bio.SeqUtils import IUPACData
 	align_id = Alignment.objects.filter(name = align_name)[0].aln_id
 	rawsql_result = aqab.sql_filtered_aln_query(align_id, tax_group)
 	nogap_tupaln = dict()
 	nogap_tupaln, max_aln_length = aqab.query_to_dict_structure(rawsql_result, Taxgroups.objects.get(pk=tax_group).groupname, nogap_tupaln)
-	fastastring = aqab.build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_aln_length)
+	fastastring, frequency_list = aqab.build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_aln_length, IUPACData.unambiguous_rna_letters)
 	#fastastring,max_aln_length = aqab.sql_filtered_aln_query(align_id,tax_group)
 	context = {'fastastring': fastastring, 'aln_name':str(Alignment.objects.filter(aln_id = align_id)[0].name)}
 	return render(request, 'alignments/rRNA.html', context)
