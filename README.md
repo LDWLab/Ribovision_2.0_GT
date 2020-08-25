@@ -2,18 +2,28 @@
 
 ## Installation
 
-1. Initial set up:
+1. Initial set up and prerequisites:
 
 	a. Linux distribution (Native Linux system or <a href="https://docs.microsoft.com/en-us/windows/wsl/install-win10#update-to-wsl-2">WSL</a>)
+
+	After it has been set up make sure it is updated:
+
+	>sudo apt-get update
+
+	>sudo apt-get upgrade
 	
 	b. <a href=" https://code.visualstudio.com/docs/setup/setup-overview">Visual Studio Code</a> (VS Code)
 
 	c. Follow the first two sections of <a href="https://code.visualstudio.com/docs/setup/setup-overview">this guide</a> to install a virtual python environment for the Django project (at least python3.6).
 
-	d. Instal git and get an account on github.com. Contact the current admin to receive access to the project repository,
+	d. Install Mafft:
+
+	>sudo apt-get install -y mafft
+	
+	e. Instal git and get an account on github.com. Contact the current admin to receive access to the project repository,
 	as well as user account and password for the MySQL database.
 
-	e. In the Linux startup file (.bashrc or .bash_profile) add these lines:
+	f. In the Linux startup file (.bashrc or .bash_profile) add these lines:
 
 	>export DJANGO_SECRET_KEY='' (provided by admin)
 	
@@ -21,11 +31,11 @@
 	
 	>export DJANGO_PASSWORD='' (MySQL password provided by admin)
 
-	f. Set up GaTech VPN with the Cisco AnyConnect Secure Mobility Client. Follow <a href="https://faq.oit.gatech.edu/content/how-do-i-get-started-campus-vpn">these</a> instructions.
+	g. Set up GaTech VPN with the Cisco AnyConnect Secure Mobility Client. Follow <a href="https://faq.oit.gatech.edu/content/how-do-i-get-started-campus-vpn">these</a> instructions.
 
 2. Clone the <a href="https://github.com/LDWLab/DESIRE.git">project repository</a> in a new folder.
 
-3. Using the command line from the root directory of the project rn the following commands:
+3. Using the command line from the root directory of the project run the following commands:
 
 	a. Activate the virtual environment
 
