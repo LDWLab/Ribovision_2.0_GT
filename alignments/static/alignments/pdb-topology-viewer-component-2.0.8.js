@@ -3332,7 +3332,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
     if (void 0 !== this.entropyId) {
       var i = this.apiData[3]["1b23"];
       var unParsedTWC = this.entropyId.split(",")
-      var RiboData = new Array();
+      var RiboData = ["-"];
       unParsedTWC.forEach(function (item, index) {
       if (index % 2 == 0){
           RiboData.push([item, unParsedTWC[index+1]])
@@ -3349,8 +3349,6 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
      Y_min=-5.0;
      Y_max=10;
      Y_range=15;
-
-     console.log(Y_range);
 
      RiboData_Y_norm = RiboData_Y.map(x => (x-Y_min)/Y_range);
     
@@ -3372,7 +3370,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
 
 
          if (RiboData.length > t.residue_number) {
-             console.log(t.residue_number, RiboData[parseInt(t.residue_number)][1]); 
+             //console.log(t.residue_number, RiboData[parseInt(t.residue_number)][1]); 
 
              RiboData[parseInt(t.residue_number)][1]
 
@@ -3381,7 +3379,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
 
              var col_tol_rgb= hexToRgb1(col_tol);
              var col_tol_rgb_s= hexToRgb(col_tol);
-             console.log(t.residue_number, col_tol, col_tol_rgb, Entity_id_loc);
+             //console.log(t.residue_number, col_tol, col_tol_rgb, Entity_id_loc);
 
              window.selectSections_RV1.push({
                      
@@ -3393,7 +3391,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
              
                      });
 
-             console.log(window.selectSections_RV1);        
+             //console.log(window.selectSections_RV1);        
      
          
          //o.defaultColours.qualityRiboVision= "rgb(364.2857142857143,364.2857142857143,75.71428571428572)"

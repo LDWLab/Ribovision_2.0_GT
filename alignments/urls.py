@@ -23,6 +23,7 @@ urlpatterns = [
 	path('entropy-api/<str:align_name>/<int:tax_group>/<str:anchor_structure>', views.api_entropy, name='api_entropy'),
 	path('twc-api/<str:align_name>/<int:tax_group1>/<int:tax_group2>/<str:anchor_structure>', views.api_twc, name='api_twc'),
 	path('twc-api/', views.api_twc_parameterless, name='api_twc'),
+	path('mapSeqAln/', views.make_map_from_alnix_to_sequenceix, name='mapping_aln_to_seq'),
 	path('twc-api/<str:align_name>/<int:tax_group1>/<int:tax_group2>', views.api_twc, name='api_twc_no_struc'),
 	path('resi-api/<int:resi_id>', views.resi_info),
 	path('struc-api/<int:struc_id>', views.struc_info),

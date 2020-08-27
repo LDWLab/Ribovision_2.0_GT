@@ -122,10 +122,19 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
 		os.remove(removeFile)
 	return mapping
 
+def request_post_data(post_data):
+	fasta = post_data["fasta"]
+	ebi_sequence = post_data["ebi_sequence"]
+	startIndex = int(post_data["startIndex"])
+	return fasta, ebi_sequence, startIndex
+
+def make_map_from_alnix_to_sequenceix(request):
+	fasta, ebi_sequence, startIndex = request_post_data(request.POST)
+	mapping = constructEbiAlignmentString(fasta, ebi_sequence, startIndex)
+	return JsonResponse(mapping, safe = False)
+
 def api_twc_parameterless(request):
-	fasta = request.POST["fasta"]
-	ebi_sequence = request.POST["ebi_sequence"]
-	startIndex = int(request.POST["startIndex"])
+	fasta, ebi_sequence, startIndex = request_post_data(request.POST)
 
 	mapping = constructEbiAlignmentString(fasta, ebi_sequence, startIndex)
 	concat_fasta = re.sub(r'\\n','\n', fasta,flags=re.M)
