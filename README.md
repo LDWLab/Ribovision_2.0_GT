@@ -33,9 +33,15 @@
 
 	g. Set up GaTech VPN with the Cisco AnyConnect Secure Mobility Client. Follow <a href="https://faq.oit.gatech.edu/content/how-do-i-get-started-campus-vpn">these</a> instructions.
 
-2. Clone the <a href="https://github.com/LDWLab/DESIRE.git">project repository</a> in a new folder.
+2. Clone the <a href="https://github.com/LDWLab/DESIRE.git">project repository</a> in a new folder. Get on the latest development branch.
 
-3. Using the command line from the root directory of the project run the following commands:
+3. Follow the first two sections of <a href="https://code.visualstudio.com/docs/python/tutorial-django">this guide</a> to install a virtual environment in the DESIRE folder.
+
+	a. Prerequisites
+	
+	b. Create a project environment for the Django tutorial
+
+4. Using the command line from the root directory of the project run the following commands:
 
 	a. Activate the virtual environment
 
@@ -61,6 +67,6 @@
 
 	>npm run watch
 
-4. Open a VS Code folder in the root directory of the project.
+5. Open a VS Code folder in the root directory of the project.
 
-5. The debugger should now work while connected to the GaTech VPN.
+6. The debugger should now work while connected to the GaTech VPN.
