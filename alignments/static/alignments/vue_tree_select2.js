@@ -48,7 +48,8 @@ var filterAvailablePolymers = function(chain_list, aln_id, vueObj) {
                     temp_arr.push({
                         text: chain_listI["molecule_name"][0],
                         value: chain_listI["in_chains"][0],
-                        sequence: chain_listI["sequence"]
+                        sequence: chain_listI["sequence"],
+                        startIndex: chain_listI.source[0].mappings[0].start.residue_number
                     })
                 }
             }
@@ -306,13 +307,22 @@ var vm = new Vue({
             var minIndex = String(0)
             var maxIndex = String(100000)
             var pdblower = pdbid.toLocaleLowerCase();
-            let ebi_sequence = vm.chains.filter(obj => {
-                console.log("___" + obj["value"] + " " + chainid + " " + (obj["value"] === chainid) + "___");
-                return obj["value"] === chainid;
-            })[0]["sequence"];
+            let temp = vm.chains.filter(obj => {
+                return obj["value"] == chainid;
+            })[0];
+            let ebi_sequence = temp["sequence"];
+            let startIndex = temp["startIndex"];
             // let ebi_sequence = vm.chains[0]["sequence"];
-            ajax(entropy_address, optional_data={fasta, ebi_sequence}).then(twcData => {
-                alert(twcData)
+            ajax(entropy_address, optional_data={fasta, ebi_sequence, startIndex}).then(twcDataWithMapping => {
+                twcDataUnmapped = twcDataWithMapping[0]
+                mapping = twcDataWithMapping[1]
+                twcData = []
+                for (i = 0; i < twcDataUnmapped.length; i++) {
+                    let mappedI0 = mapping[twcDataUnmapped[i][0]];
+                    if (mappedI0) {
+                        twcData.push([mappedI0, twcDataUnmapped[i][1]]);
+                    }
+                }
                 var topology_url = `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdblower}/chain/${chainid}`
                 ajax(topology_url).then(data => {
                     var entityid = Object.keys(data[pdblower])[0];

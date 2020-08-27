@@ -11,7 +11,7 @@ from subprocess import Popen, PIPE
 import os
 
 from django.shortcuts import render
-from django.http import HttpResponse, Http404, JsonResponse
+from django.http import HttpResponse, Http404, JsonResponse, HttpResponseServerError
 from django.urls import reverse_lazy
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
@@ -79,7 +79,7 @@ def api_twc_with_upload(request, anchor_structure):
 
 	return JsonResponse(list_for_topology_viewer, safe = False)
 
-def api_twc_parameterless(request):
+def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
 	now = datetime.datetime.now()
 	fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
 	alignmentFileName = "./static/alignment" + fileNameSuffix + ".txt"
@@ -87,25 +87,50 @@ def api_twc_parameterless(request):
 	mappingFileName = ebiFileName + ".map"
 
 	fh = open(alignmentFileName, "w")
-	fh.write(request.POST["fasta"])
+	fh.write(fasta)
 	fh.close()
 
 	fh = open(ebiFileName, "w")
 	fh.write(">ebi_sequence\n")
-	fh.write(request.POST["ebi_sequence"])
+	fh.write(ebi_sequence)
 	fh.close()
+
+	shiftIndexBy = 0
+	if startIndex > 1:
+		shiftIndexBy = startIndex - 1
 
 	pipe = Popen("mafft --addfull " + ebiFileName + " --mapout " + alignmentFileName + "; cat " + mappingFileName, stdout=PIPE, shell=True)
 	output = pipe.communicate()[0]
-	text = output.decode("ascii")
-	print(text)
+	text = output.decode("ascii").split('\n#')[1]
 
-	os.remove(alignmentFileName)
-	os.remove(ebiFileName)
-	os.remove(mappingFileName)
+	mapping = dict()
+	firstLine = True
+	for line in text.split('\n'):
+		if firstLine:
+			firstLine = False
+			continue
+		row = line.split(', ')
+		if len(row) < 3:
+			continue
+		if row[2] == '-':
+			continue
+		if row[1] == '-':
+			raise Http404("Mapping did not work properly.")
+		mapping[int(row[2])] = int(row[1]) + shiftIndexBy
 
-	context = {}
-	return render(request, "alignments/dummyPage.html", context)
+	for removeFile in [alignmentFileName, ebiFileName, mappingFileName]:
+		os.remove(removeFile)
+	return mapping
+
+def api_twc_parameterless(request):
+	fasta = request.POST["fasta"]
+	ebi_sequence = request.POST["ebi_sequence"]
+	startIndex = int(request.POST["startIndex"])
+
+	mapping = constructEbiAlignmentString(fasta, ebi_sequence, startIndex)
+	concat_fasta = re.sub(r'\\n','\n', fasta,flags=re.M)
+	list_for_topology_viewer = calculate_twincons(concat_fasta)
+	return JsonResponse([list_for_topology_viewer, mapping], safe = False)
 
 def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure=''):
 
