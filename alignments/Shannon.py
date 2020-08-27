@@ -189,9 +189,6 @@ def gap_adjusted_frequency(column_list, all_residues):
     for base in all_residues:
         n_i = adjsuted_column_list.count(base) # Number of residues of type i
         n_i += gap_freq
-        if n_i == 0:
-            frequency_list.append(0)
-            continue
         P_i = n_i/float(M) # n_i(Number of residues of type i) / M(Number of residues in column)
         frequency_list.append(P_i)
     return frequency_list
@@ -201,6 +198,8 @@ def shannon_entropy(list_input, all_residues):
     entropy_list = []
     frequency_list = gap_adjusted_frequency(list_input, all_residues)
     for P_i in frequency_list:
+        if P_i == 0:
+            continue
         entropy_i = P_i*(math.log(P_i,2))
         entropy_list.append(entropy_i)
     sh_entropy = -(sum(entropy_list))

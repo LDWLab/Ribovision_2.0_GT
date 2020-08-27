@@ -20,8 +20,7 @@
 
 	>sudo apt-get install -y mafft
 	
-	e. Instal git and get an account on github.com. Contact the current admin to receive access to the project repository,
-	as well as user account and password for the MySQL database.
+	e. Instal git and get an account on github.com. Contact the current admin to receive access to the project repository, as well as user account and password for the MySQL database.
 
 	f. In the Linux startup file (.bashrc or .bash_profile) add these lines:
 
