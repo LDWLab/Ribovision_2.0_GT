@@ -39,9 +39,9 @@ def trim_alignment(concat_fasta, filter_strain):
 def calculate_twincons(alignment):
 	'''Calculates twincons score given an alignment object.
 	Returns data in a list format for the topology viewer'''
-	from TwinCons.bin import PhyMeas
-	list_for_phymeas = ['-as',alignment.format("fasta"), '-r', '-bl']
-	alnindex_score,sliced_alns,number_of_aligned_positions=PhyMeas.main(list_for_phymeas)
+	from TwinCons.bin import TwinCons
+	list_for_phymeas = ['-as',alignment.format("fasta"), '-r', '-mx', 'blosum62']
+	alnindex_score, sliced_alns, number_of_aligned_positions, gp_mapping = TwinCons.main(list_for_phymeas)
 	list_for_topology_viewer = []
 	for alnindex in alnindex_score:
 		list_for_topology_viewer.append([alnindex,alnindex_score[alnindex][0]])

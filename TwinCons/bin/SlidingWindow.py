@@ -5,7 +5,7 @@ import numpy as np
 from Bio import AlignIO
 import pandas as pd
 
-import PhyMeas
+import TwinCons
 
 def create_and_parse_argument_options(argument_list):
 	parser = argparse.ArgumentParser(description='Slide two groups of an alignment and calculate a score for each sliding position')
@@ -16,13 +16,29 @@ def create_and_parse_argument_options(argument_list):
 	commandline_args = parser.parse_args(argument_list)
 	return commandline_args
 
+def lookahead(iterable):
+    """Pass through all values from the given iterable, augmented by the
+    information if there are more values to come after the current one
+    (True), or if it is the last value (False).
+    """
+    # Get an iterator and pull the first value.
+    it = iter(iterable)
+    last = next(it)
+    # Run the iterator to exhaustion (starting from the second value).
+    for val in it:
+        # Report the *previous* value (more to come).
+        yield last, True
+        last = val
+    # Report the last value.
+    yield last, False
+
 def uninterrupted_stretches(alnindex, alnindex_score,comm_args):
 	"""Calculates lengths of uninterrupted lengths of positive and negative scores given a threshold;
 	Also associates these scores with the last position of the alignment index.
 	"""
 	posdata,negdata={},{}
 	unint_pos_len,unint_neg_len,wei,bad_length=0,0,0,0
-	for x,has_more in PhyMeas.lookahead(range(0,len(alnindex))):
+	for x,has_more in lookahead(range(0,len(alnindex))):
 		if alnindex_score[alnindex[x]] > comm_args.score_threshold:
 			wei+=alnindex_score[alnindex[x]]
 			unint_pos_len+=1
@@ -57,9 +73,9 @@ def uninterrupted_stretches(alnindex, alnindex_score,comm_args):
 
 def main(commandline_args):
 	comm_args = create_and_parse_argument_options(commandline_args)
-	alignment_file = PhyMeas.read_align(comm_args.alignment_path)
-	uniq_aa = PhyMeas.uniq_AA_list(alignment_file)
-	sliced_alignments = PhyMeas.slice_by_name(alignment_file)
+	alignment_file = TwinCons.read_align(comm_args.alignment_path)
+	uniq_aa = TwinCons.uniq_AA_list(alignment_file)
+	sliced_alignments = TwinCons.slice_by_name(alignment_file)
 	first_aln = sorted(list(sliced_alignments.keys()))[0]
 	slided_scores={}				#Sliding increment -> (scores,alignment objects)
 	for i in range(0,sliced_alignments[first_aln].get_alignment_length(),comm_args.window):
@@ -71,7 +87,7 @@ def main(commandline_args):
 		reordered_aln=sliced_alignments[first_aln][:,-(sliced_alignments[first_aln].get_alignment_length()-i):]+sliced_alignments[first_aln][:,:i]
 		for record in reordered_aln:
 			second_aln.append(record)
-		alnindex_score,sliced_alns,number_of_aligned_positions=PhyMeas.main(['-as',second_aln.format("fasta"), '-r', '-bl'])
+		alnindex_score,sliced_alns,number_of_aligned_positions=TwinCons.main(['-as',second_aln.format("fasta"), '-r', '-bl'])
 		
 
 		out_dict={}

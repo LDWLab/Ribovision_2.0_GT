@@ -3352,9 +3352,8 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
 
      RiboData_Y_norm = RiboData_Y.map(x => (x-Y_min)/Y_range);
     
-   var RV1_test=[{entity_id: Entity_id_loc, focus: true}];
-          window.selectSections_RV1 = [{entity_id: Entity_id_loc, focus: true}];
-      var Entity_id_loc=e.entityId;
+    window.selectSections_RV1 = [{entity_id: Entity_id_loc, focus: true}];
+    var Entity_id_loc=e.entityId;
 
      
 
@@ -3390,12 +3389,6 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
                        sideChain: false,
              
                      });
-
-             //console.log(window.selectSections_RV1);        
-     
-         
-         //o.defaultColours.qualityRiboVision= "rgb(364.2857142857143,364.2857142857143,75.71428571428572)"
-        // o.defaultColours.qualityRiboVision= "rgb("+String(RiboData[parseInt(t.residue_number)][1]*100)+","+String(RiboData[parseInt(t.residue_number)][1]*100)+",175.71428571428572)"
 
          o.defaultColours.qualityRiboVision= "rgb("+String(col_tol_rgb)+")"
          var e = o.defaultColours.qualityRiboVision,
