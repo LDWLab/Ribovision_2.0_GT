@@ -3314,20 +3314,18 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
      }))
     }
    },
-   t.prototype.getAnnotationFromRiboVision1 = function() {
+  t.prototype.getAnnotationFromRiboVision1 = function() {
     var e = this,
-     o = this,
-     t = this.getChainStartAndEnd(),
+    o = this,
+    t = this.getChainStartAndEnd(),
  
-     s = [{
+    s = [{
       start: t.start,
       end: t.end,
-      
       tooltipMsg: "No validation issue reported for "
      }],
-     a = [],
-     h = [0];
-     console.log(t);
+    a = [],
+    h = [0];
 
     if (void 0 !== this.entropyId) {
       var i = this.apiData[3]["1b23"];
@@ -3342,93 +3340,61 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
      RiboData_Y = getCol(RiboData, 1);
      console.log(RiboData_Y)
 
-     //Y_min=Math.min.apply(Math, RiboData_Y);
-     //Y_max=Math.max.apply(Math, RiboData_Y);
-     //Y_range=Math.max.apply(Math, RiboData_Y)-Math.min.apply(Math, RiboData_Y);
+      Y_min=-5.0;
+      Y_max=10;
+      Y_range=15;
 
-     Y_min=-5.0;
-     Y_max=10;
-     Y_range=15;
-
-     RiboData_Y_norm = RiboData_Y.map(x => (x-Y_min)/Y_range);
-    
-    window.selectSections_RV1 = [{entity_id: Entity_id_loc, focus: true}];
-    var Entity_id_loc=e.entityId;
-
-     
-
-
-  
- 
-     void 0 !== i && void 0 !== i.molecules && 0 < i.molecules.length && (i.molecules.forEach(function(t) {
-      t.entity_id == "2" && t.chains.forEach(function(t) {
-       t.chain_id == "P" && t.models.forEach(function(t) {
-
-         t.residues.forEach(function(t) {
+      RiboData_Y_norm = RiboData_Y.map(x => (x-Y_min)/Y_range);
+      window.selectSections_RV1 = [{entity_id: Entity_id_loc, focus: true}];
+      var Entity_id_loc=e.entityId;
       
-
-
-         if (RiboData.length > t.residue_number) {
-             //console.log(t.residue_number, RiboData[parseInt(t.residue_number)][1]); 
-
-             RiboData[parseInt(t.residue_number)][1]
-
-
-             var col_tol=palette.tolDivergingColor(RiboData_Y_norm[parseInt(t.residue_number)]);
-
-             var col_tol_rgb= hexToRgb1(col_tol);
-             var col_tol_rgb_s= hexToRgb(col_tol);
-             //console.log(t.residue_number, col_tol, col_tol_rgb, Entity_id_loc);
-
-             window.selectSections_RV1.push({
-                     
-              entity_id: Entity_id_loc,
-                       start_residue_number: t.residue_number, 
-                       end_residue_number: t.residue_number,
-                       color: col_tol_rgb_s,
-                       sideChain: false,
-             
-                     });
-
-         o.defaultColours.qualityRiboVision= "rgb("+String(col_tol_rgb)+")"
-         var e = o.defaultColours.qualityRiboVision,
-
-    
-
-          i = "issue";
-          //console.log(e, t.outlier_types.length)
-         }
-         if ((1 === t.outlier_types.length  ) && RiboData.length > t.residue_number) {
-          //e = "rgb("+String(RiboData[parseInt(t.residue_number)][1]*10)+","+String(RiboData[parseInt(t.residue_number)][1]*100)+",175.71428571428572)", o.drawValidationShape(t.residue_number, "circle", o.defaultColours.qualityRiboVision); 
-          e = "rgb("+String(col_tol_rgb)+")", o.drawValidationShape(t.residue_number, "circle", o.defaultColours.qualityRiboVision); 
-          var l = i.indexOf(t.residue_number);
-          //console.log(l);
-
-         
-          if (l ===-1) {s.push({
-            start: parseInt(t.residue_number),
-            end: parseInt(t.residue_number),
-            color: e,
-            tooltipMsg: Number.parseFloat(RiboData[parseInt(t.residue_number)][1]).toPrecision(3),
-            tooltipPosition: "prefix"
-          }),  h.push(t.residue_number);
-          o.drawValidationShape(t.residue_number, "circle", e);
-      
-          a.push(t.residue_number)
+      if (void 0 !== i && void 0 !== i.molecules && 0 < i.molecules.length){
+        let entity = i.molecules.find(element => element.entity_id == "2")
+        let chain = entity.chains.find(element => element.chain_id == "P")
+        chain.models[0].residues.forEach(function(t) {
+          if (RiboData.length > t.residue_number) {
+            RiboData[parseInt(t.residue_number)][1]
+            var col_tol=palette.tolDivergingColor(RiboData_Y_norm[parseInt(t.residue_number)]);
+            var col_tol_rgb= hexToRgb1(col_tol);
+            var col_tol_rgb_s= hexToRgb(col_tol);
+            window.selectSections_RV1.push({
+                                        entity_id: Entity_id_loc,
+                                        start_residue_number: t.residue_number, 
+                                        end_residue_number: t.residue_number,
+                                        color: col_tol_rgb_s,
+                                        sideChain: false,
+                                      });
+            o.defaultColours.qualityRiboVision= "rgb("+String(col_tol_rgb)+")"
+            var e = o.defaultColours.qualityRiboVision,
+            i = "issue";
+          };
+          if ((1 === t.outlier_types.length  ) && RiboData.length > t.residue_number) {
+            e = "rgb("+String(col_tol_rgb)+")", o.drawValidationShape(t.residue_number, "circle", o.defaultColours.qualityRiboVision); 
+            var l = i.indexOf(t.residue_number);
+            if (l ===-1) {
+              s.push({
+                start: parseInt(t.residue_number),
+                end: parseInt(t.residue_number),
+                color: e,
+                tooltipMsg: Number.parseFloat(RiboData[parseInt(t.residue_number)][1]).toPrecision(3),
+                tooltipPosition: "prefix"
+              }),
+              h.push(t.residue_number);
+              o.drawValidationShape(t.residue_number, "circle", e);
+              a.push(t.residue_number);
+            }
           }
-          
-         } 
+        }),
+        0 < s.length && this.domainTypes.push({
+          label: "RiboVision1",
+          data: s
         })
-       })
-      })
-     }), 0 < s.length && this.domainTypes.push({
-      label: "RiboVision1",
-      data: s
-     }))
+      } else {
+          //catch empty stuff
+      };
     }
-   }, 
-
-   t.prototype.getAnnotationFromRiboVision3 = function() {
+  }, 
+  t.prototype.getAnnotationFromRiboVision3 = function() {
     var e = this,
      o = this,
      t = this.getChainStartAndEnd(),

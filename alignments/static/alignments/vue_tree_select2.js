@@ -79,17 +79,19 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     const topview_item = document.getElementById("topview");
     const molstar_item = document.getElementById("pdbeMolstarView");
     const pdb_input = document.getElementById("pdb_input");
-    if (pdb_input) {
-        if (pdb_input.getAttribute("value") != ""){vueObj.pdbid = null;}
-    }
-    if (vueObj.chains) {vueObj.chains = null;}
     if (menu_item) {menu_item.remove();}
-    if (aln_item) {aln_item.remove(); create_deleted_element("alnif", "alnDiv", aln_text)}
+    if (aln_text != ''){
+        if (pdb_input) {
+            if (pdb_input.getAttribute("value") != ""){vueObj.pdbid = null;}
+        }
+        if (vueObj.chains) {vueObj.chains = null;}
+        if (vueObj.aln_meta_data) {vueObj.aln_meta_data = null;}
+        if (vueObj.fasta_data) {vueObj.fasta_data = null;}
+        if (vueObj.frequency_data) {vueObj.frequency_data = null;}
+        if (aln_item) {aln_item.remove(); create_deleted_element("alnif", "alnDiv", aln_text)}
+    }
     if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Select new chain!")}
     if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Select new structure!")}
-    vueObj.aln_meta_data = null;
-    vueObj.fasta_data = null;
-    vueObj.frequency_data = null;
 }
 
 var loadParaOptions = function (action, callback, vm) {
@@ -299,7 +301,7 @@ var vm = new Vue({
                 });
             })
         }, showTopologyViewer (pdbid, chainid, entropy_address, fasta){
-            if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {return;}
+            if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(vm);}
             const topview_item = document.getElementById("topview");
             const molstar_item = document.getElementById("pdbeMolstarView");
             if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Loading topology viewer and conservation data...")}
