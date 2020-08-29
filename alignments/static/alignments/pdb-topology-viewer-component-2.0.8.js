@@ -6,6 +6,45 @@
     return column;
  }
 
+function enforceBounds(x) {
+  if (x < 0) {
+      return 0;
+  } else if (x > 1){
+      return 1;
+  } else {
+      return x;
+  }
+}
+
+function interpolateLinearly(x, values) {
+  var x_values = [];
+  var r_values = [];
+  var g_values = [];
+  var b_values = [];
+  for (i in values) {
+      x_values.push(values[i][0]);
+      r_values.push(values[i][1][0]);
+      g_values.push(values[i][1][1]);
+      b_values.push(values[i][1][2]);
+  }
+
+  var i = 1;
+  while (x_values[i] < x) {
+      i = i+1;
+  }
+  i = i-1;
+
+  var width = Math.abs(x_values[i] - x_values[i+1]);
+  var scaling_factor = (x - x_values[i]) / width;
+  // Get the new color values though interpolation
+  var r = r_values[i] + scaling_factor * (r_values[i+1] - r_values[i])
+  var g = g_values[i] + scaling_factor * (g_values[i+1] - g_values[i])
+  var b = b_values[i] + scaling_factor * (b_values[i+1] - b_values[i])
+  r255 = Math.round(255*enforceBounds(r));
+  g255 = Math.round(255*enforceBounds(g));
+  b255 = Math.round(255*enforceBounds(b));
+  return [[r255, g255, b255], {r:r255, g:g255, b:b255}];
+}
 
 function hexToRgb(hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -2617,7 +2656,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
     if (this.domainTypes = [{
       label: "Annotation",
       data: null
-     }], this.getAnnotationFromMappings(), this.getAnnotationFromOutliers(),this.getAnnotationFromRiboVision(),this.getAnnotationFromRiboVision1(),this.getAnnotationFromRiboVision2(),this.getAnnotationFromRiboVision3(), this.selectedDomain = this.domainTypes[0], 1 < this.domainTypes.length) {
+     }], this.getAnnotationFromMappings(), this.getAnnotationFromOutliers(),this.getAnnotationFromRiboVision(), this.selectedDomain = this.domainTypes[0], 1 < this.domainTypes.length) {
      var i = "";
 	 this.domainTypes.forEach(function(t, e) {
       i = i + '<option value="' + e + '">' + t.label + "</option>"
@@ -3166,155 +3205,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
     }))
    }
   },
-  
   t.prototype.getAnnotationFromRiboVision = function() {
-    var e = this,
-     o = this,
-     t = this.getChainStartAndEnd(),
- 
-     s = [{
-      start: t.start,
-      end: t.end,
-      color: o.defaultColours.qualityGreen,
-      tooltipMsg: "No validation issue reported for "
-     }],
-     a = [],
-     h = [0];
-     console.log(t);
-     
-    if (void 0 !== this.entropyId) {
-     var i = this.apiData[3]["1b23"];
-     var unParsedTWC = this.entropyId.split(",")
-     var RiboData = new Array();
-     unParsedTWC.forEach(function (item, index) {
-     if (index % 2 == 0){
-         RiboData.push([item, unParsedTWC[index+1]])
-       }
-     });
-     RiboData_Y=getCol(RiboData, 1);
-   
-
-     Y_min=Math.min.apply(Math, RiboData_Y);
-     Y_max=Math.max.apply(Math, RiboData_Y);
-     Y_range=Math.max.apply(Math, RiboData_Y)-Math.min.apply(Math, RiboData_Y);
-
-     console.log(Y_range);
-
-     RiboData_Y_norm = RiboData_Y.map(x => (x-Y_min)/Y_range);
-     RiboData_Y_norm_back = RiboData_Y.map(x => 1-(x-Y_min)/Y_range);
-    
-             
- 
-     void 0 !== i && void 0 !== i.molecules && 0 < i.molecules.length && (i.molecules.forEach(function(t) {
-      t.entity_id == e.entityId && t.chains.forEach(function(t) {
-       t.chain_id == e.chainId && t.models.forEach(function(t) {
-         t.residues.forEach(function(t) {
-         console.log(t.residue_number); 
-         if (RiboData.length > t.residue_number) {console.log(t.residue_number, RiboData[parseInt(t.residue_number)][1]); 
-            
-            var col_tol=palette.tolDivergingColor(RiboData_Y_norm_back[parseInt(t.residue_number)]);
-
-            var col_tol_rgb= hexToRgb1(col_tol);
-
-
-
-            
-
-
-         
-         //o.defaultColours.qualityRiboVision= "rgb(364.2857142857143,364.2857142857143,75.71428571428572)"
-         o.defaultColours.qualityRiboVision= "rgb("+String(col_tol_rgb)+")"
-
-        // o.defaultColours.qualityRiboVision= "rgb("+String(RiboData[parseInt(t.residue_number)][1]*100)+","+String(RiboData[parseInt(t.residue_number)][1]*100)+",175.71428571428572)"
-         var e = o.defaultColours.qualityRiboVision,
-
-    
-         
-
-
-          i = "issue";
-         
-         }
-         if ((1 !== t.outlier_types.length || "RSRZ" !== t.outlier_types[0] ) && RiboData.length > t.residue_number) {
-          1 === t.outlier_types.length ? e = "rgb("+String(col_tol_rgb)+")" : (e = 2 === t.outlier_types.length ? o.defaultColours.qualityOrange : o.defaultColours.qualityRed, i = "issues"), h.push(t.residue_number);
-          var n = "Validation " + i + ": " + t.outlier_types.join(", ") + "<br>"; - 1 < a.indexOf(t.residue_number) && (n = "Validation issues: " + t.outlier_types.join(", ") + ", RSRZ<br>"), s.push({
-           start: parseInt(t.residue_number),
-           end: parseInt(t.residue_number),
-           color: e,
-           tooltipMsg: n,
-           tooltipPosition: "prefix"
-          })
-         } else {
-          e = o.defaultColours.qualityRed, o.drawValidationShape(t.residue_number, "circle", e), a.push(t.residue_number);
-          var r = h.indexOf(t.residue_number); - 1 < r ? s[r].tooltipMsg = s[r].tooltipMsg.replace("<br>", ", RSRZ<br>") : (s.push({
-           start: parseInt(t.residue_number),
-           end: parseInt(t.residue_number),
-           color: o.defaultColours.qualityGreen,
-           tooltipMsg: "Validation issue: RSRZ <br>",
-           tooltipPosition: "prefix"
-          }), h.push(t.residue_number))
-         }
-        })
-       })
-      })
-     }), 0 < s.length && this.domainTypes.push({
-      label: "RiboVision",
-      data: s
-     }))
-    }
-   },
-
-   t.prototype.getAnnotationFromRiboVision2 = function() {
-    var e = this,
-     o = this,
-     t = this.getChainStartAndEnd(),
- 
-     s = [{
-      start: t.start,
-      end: t.end,
-   
-      tooltipMsg: "No validation issue reported for "
-     }],
-     a = [],
-     h = [0];
-     console.log(t);
-    if (void 0 !== this.apiData[3]) {
-     var i = this.apiData[3]["1b23"];
-     void 0 !== i && void 0 !== i.molecules && 0 < i.molecules.length && (i.molecules.forEach(function(t) {
-      t.entity_id == e.entityId && t.chains.forEach(function(t) {
-       t.chain_id == e.chainId && t.models.forEach(function(t) {
-        t.residues.forEach(function(t) {
-         var e = o.defaultColours.qualityYellow,
-          i = "issue2";
-         if (1 !== t.outlier_types.length || "RSRZ" !== t.outlier_types[0]) {
-          1 === t.outlier_types.length ? e = o.defaultColours.qualityOrange : (e = 2 === t.outlier_types.length ? o.defaultColours.qualityOrange : o.defaultColours.qualityRed, i = "issues"), h.push(t.residue_number);
-          var n = "Validation " + i + ": " + t.outlier_types.join(", ") + "<br>"; - 1 < a.indexOf(t.residue_number) && (n = "Validation issues: " + t.outlier_types.join(", ") + ", RSRZ<br>"), s.push({
-           start: parseInt(t.residue_number),
-           end: parseInt(t.residue_number),
-           
-           tooltipMsg: n,
-           tooltipPosition: "prefix"
-          })
-         } else {
-          o.drawValidationShape(t.residue_number, "circle", e), a.push(t.residue_number);
-          var r = h.indexOf(t.residue_number); - 1 < r ? s[r].tooltipMsg = s[r].tooltipMsg.replace("<br>", ", RSRZ<br>") : (s.push({
-           start: parseInt(t.residue_number),
-           end: parseInt(t.residue_number),
-         
-           tooltipMsg: "Validation issue: RSRZ <br>",
-           tooltipPosition: "prefix"
-          }), h.push(t.residue_number))
-         }
-        })
-       })
-      })
-     }), 0 < s.length && this.domainTypes.push({
-      label: "RiboVision2",
-      data: s
-     }))
-    }
-   },
-  t.prototype.getAnnotationFromRiboVision1 = function() {
     var e = this,
     o = this,
     t = this.getChainStartAndEnd(),
@@ -3328,179 +3219,57 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
     h = [0];
 
     if (void 0 !== this.entropyId) {
-      var i = this.apiData[3]["1b23"];
-      var unParsedTWC = this.entropyId.split(",")
-      var RiboData = ["-"];
+      const Y_min = -2.935;
+      const Y_max = 12.065;
+      let unParsedTWC = this.entropyId.split(",");
+      let TWCData = new Map();
+      let TWCrgbMap = new Map();
       unParsedTWC.forEach(function (item, index) {
       if (index % 2 == 0){
-          RiboData.push([item, unParsedTWC[index+1]])
+          TWCData.set(item, unParsedTWC[index+1]);
+          if (unParsedTWC[index+1] < 0){
+            TWCrgbMap.set(item, interpolateLinearly(unParsedTWC[index+1]/Y_min, RdPu));
+          }else{
+            TWCrgbMap.set(item, interpolateLinearly(unParsedTWC[index+1]/Y_max, YlGn));
+          }
+          
         }
       });
-
-     RiboData_Y = getCol(RiboData, 1);
-     console.log(RiboData_Y)
-
-      Y_min=-5.0;
-      Y_max=10;
-      Y_range=15;
-
-      RiboData_Y_norm = RiboData_Y.map(x => (x-Y_min)/Y_range);
-      window.selectSections_RV1 = [{entity_id: Entity_id_loc, focus: true}];
       var Entity_id_loc=e.entityId;
-      
-      if (void 0 !== i && void 0 !== i.molecules && 0 < i.molecules.length){
-        let entity = i.molecules.find(element => element.entity_id == "2")
-        let chain = entity.chains.find(element => element.chain_id == "P")
-        chain.models[0].residues.forEach(function(t) {
-          if (RiboData.length > t.residue_number) {
-            RiboData[parseInt(t.residue_number)][1]
-            var col_tol=palette.tolDivergingColor(RiboData_Y_norm[parseInt(t.residue_number)]);
-            var col_tol_rgb= hexToRgb1(col_tol);
-            var col_tol_rgb_s= hexToRgb(col_tol);
+      window.selectSections_RV1 = [{entity_id: Entity_id_loc, focus: true}];
+
+      if (void 0 !== TWCData){
+        TWCData.forEach(function(value, index) {
+            let rgb_color = TWCrgbMap.get(index);
             window.selectSections_RV1.push({
                                         entity_id: Entity_id_loc,
-                                        start_residue_number: t.residue_number, 
-                                        end_residue_number: t.residue_number,
-                                        color: col_tol_rgb_s,
+                                        start_residue_number: parseInt(index), 
+                                        end_residue_number: parseInt(index),
+                                        color: rgb_color[1],
                                         sideChain: false,
                                       });
-            o.defaultColours.qualityRiboVision= "rgb("+String(col_tol_rgb)+")"
-            var e = o.defaultColours.qualityRiboVision,
-            i = "issue";
-          };
-          if ((1 === t.outlier_types.length  ) && RiboData.length > t.residue_number) {
-            e = "rgb("+String(col_tol_rgb)+")", o.drawValidationShape(t.residue_number, "circle", o.defaultColours.qualityRiboVision); 
-            var l = i.indexOf(t.residue_number);
-            if (l ===-1) {
+            o.defaultColours.qualityRiboVision= "rgb("+String(rgb_color[0].join(','))+")";
+            e = "rgb("+String(rgb_color[0].join(','))+")", o.drawValidationShape(index, "circle", o.defaultColours.qualityRiboVision);
               s.push({
-                start: parseInt(t.residue_number),
-                end: parseInt(t.residue_number),
-                color: e,
-                tooltipMsg: Number.parseFloat(RiboData[parseInt(t.residue_number)][1]).toPrecision(3),
-                tooltipPosition: "prefix"
+                  start: parseInt(index),
+                  end: parseInt(index),
+                  color: e,
+                  tooltipMsg: Number.parseFloat(value).toPrecision(3),
+                  tooltipPosition: "prefix"
               }),
-              h.push(t.residue_number);
-              o.drawValidationShape(t.residue_number, "circle", e);
-              a.push(t.residue_number);
-            }
-          }
+              h.push(index);
+              o.drawValidationShape(index, "circle", e);
+              a.push(index);
         }),
         0 < s.length && this.domainTypes.push({
-          label: "RiboVision1",
+          label: "TwinCons",
           data: s
         })
       } else {
           //catch empty stuff
       };
     }
-  }, 
-  t.prototype.getAnnotationFromRiboVision3 = function() {
-    var e = this,
-     o = this,
-     t = this.getChainStartAndEnd(),
- 
-     s = [{
-      start: t.start,
-      end: t.end,
-      
-      tooltipMsg: "No validation issue reported for "
-     }],
-     a = [],
-     h = [0];
-     //console.log(t);
-
-    if (void 0 !== this.entropyId) {
-     var i = this.apiData[3]["1b23"];
-     var unParsedTWC = this.entropyId.split(",")
-     var RiboData = new Array();
-     unParsedTWC.forEach(function (item, index) {
-     if (index % 2 == 0){
-         RiboData.push([item, unParsedTWC[index+1]])
-       }
-     });
-
-     RiboData_Y=getCol(this.entropyId, 1);
-   
-
-     Y_min=Math.min.apply(Math, RiboData_Y);
-     Y_max=Math.max.apply(Math, RiboData_Y);
-     Y_range=Math.max.apply(Math, RiboData_Y)-Math.min.apply(Math, RiboData_Y);
-
-     //console.log(Y_range);
-
-     RiboData_Y_norm = RiboData_Y.map(x => (x-Y_min)/Y_range);
-    
-
-
-
-
-   
-
-
-  
- 
-     void 0 !== i && void 0 !== i.molecules && 0 < i.molecules.length && (i.molecules.forEach(function(t) {
-      t.entity_id == "2" && t.chains.forEach(function(t) {
-       t.chain_id == "P" && t.models.forEach(function(t) {
-         t.residues.forEach(function(t) {
-        
-         if (RiboData.length > t.residue_number) {
-             //console.log(t.residue_number, RiboData[parseInt(t.residue_number)][1]); 
-
-             RiboData[parseInt(t.residue_number)][1]
-
-
-             var col_tol=palette.tolDivergingColor(RiboData_Y_norm[parseInt(t.residue_number)]);
-
-             var col_tol_rgb= hexToRgb1(col_tol);
-
-             var col_tol_rgb_GB = hexToRgb_GreenBlind2(col_tol);
-            // console.log(col_tol, col_tol_rgb, col_tol_rgb_GB );
-
-          
-            
-            
-         
-         //o.defaultColours.qualityRiboVision= "rgb(364.2857142857143,364.2857142857143,75.71428571428572)"
-        // o.defaultColours.qualityRiboVision= "rgb("+String(RiboData[parseInt(t.residue_number)][1]*100)+","+String(RiboData[parseInt(t.residue_number)][1]*100)+",175.71428571428572)"
-
-         o.defaultColours.qualityRiboVision= "rgb("+String(col_tol_rgb_GB)+")"
-         var e = o.defaultColours.qualityRiboVision,
-
-    
-
-          i = "issue";
-          //console.log(e, t.outlier_types.length)
-         }
-         if ((1 === t.outlier_types.length  ) && RiboData.length > t.residue_number) {
-          //e = "rgb("+String(RiboData[parseInt(t.residue_number)][1]*10)+","+String(RiboData[parseInt(t.residue_number)][1]*100)+",175.71428571428572)", o.drawValidationShape(t.residue_number, "circle", o.defaultColours.qualityRiboVision); 
-          e = "rgb("+String(col_tol_rgb_GB)+")", o.drawValidationShape(t.residue_number, "circle", o.defaultColours.qualityRiboVision); 
-          var l = i.indexOf(t.residue_number);
-          //console.log(l);
-
-         
-          if (l ===-1) {s.push({
-            start: parseInt(t.residue_number),
-            end: parseInt(t.residue_number),
-            color: e,
-            tooltipMsg: "Validation issue: RSRZ1 <br>",
-            tooltipPosition: "prefix"
-          }),  h.push(t.residue_number);
-          o.drawValidationShape(t.residue_number, "circle", e);
-      
-          a.push(t.residue_number)
-          }
-          
-         } 
-        })
-       })
-      })
-     }), 0 < s.length && this.domainTypes.push({
-      label: "RiboVision3",
-      data: s
-     }))
-    }
-   },  
+  },
   t.prototype.resetTheme = function() {
    var o = this;
    this.svgEle.selectAll(".coloured").each(function(t) {
@@ -3542,13 +3311,13 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
     var qq=this;
     //console.log(n.data);
 
-    if ("RiboVision1" === n.label){ 
+    if ("TwinCons" === n.label){ 
       var PdbeMolstarComponent = document.getElementById('PdbeMolstarComponent');
       var viewerInstance3 = PdbeMolstarComponent.viewerInstance;
      
-      console.log(viewerInstance3);
+      //console.log(viewerInstance3);
       var ssRV1 =window.selectSections_RV1;
-      console.log('RiboVision1', ssRV1);
+      //console.log('RiboVision1', ssRV1);
       var selectSections = [{entity_id: qq.entityId, focus: true},
                   {
                      
@@ -3577,7 +3346,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
 					
 
                 ];
-          console.log(selectSections);    
+          //console.log(selectSections);    
           viewerInstance3.visual.select({ data: ssRV1, nonSelectedColor: {r:0,g:0,b:0}})  
 
     };

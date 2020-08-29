@@ -16,6 +16,7 @@ from django.urls import reverse_lazy
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.views.generic import ListView, CreateView, UpdateView
+from django.views.decorators.csrf import csrf_exempt
 
 from alignments.models import *
 from alignments.taxonomy_views import *

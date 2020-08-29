@@ -540,7 +540,7 @@ def main(commandline_arguments):
 
     output_dict = dict()
     output_dict_pml = dict()
-    for x in position_defined_scores.keys():                #If standard deviation is too big, set the result as 0
+    for x in position_defined_scores.keys():
         if extremely_gapped[gp_mapping[x]] == 'True':
             output_dict[gp_mapping[x]] = (position_defined_scores[x], extremely_gapped[gp_mapping[x]])
             output_dict_pml[gp_mapping[x]] = ('NA', extremely_gapped[gp_mapping[x]])
@@ -548,7 +548,7 @@ def main(commandline_arguments):
         output_dict[gp_mapping[x]] = (position_defined_scores[x], extremely_gapped[gp_mapping[x]])
         output_dict_pml[gp_mapping[x]] = (position_defined_scores[x], extremely_gapped[gp_mapping[x]])
     
-    if comm_args.plotit:                                    #for plotting
+    if comm_args.plotit:
         upsidedown_horizontal_gradient_bar(output_dict, list(gapped_sliced_alns.keys()),comm_args)
     elif comm_args.write_pml_script:
         pymol_script_writer(output_dict_pml, gapped_sliced_alns, comm_args)
