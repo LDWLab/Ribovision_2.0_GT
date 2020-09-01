@@ -3366,33 +3366,26 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
 		  return n
 		}
 
-		
+      var svgData1=this.targetEle.querySelector(".topoSvg")
+      var svgParent=this.targetEle.querySelector(".svgSection")
+      let svgData_forsave = svgData1.cloneNode(true);
+      var svg = getNode("svg");
+      svg.appendChild(svgData_forsave);
+      svgParent.appendChild(svgData1);
 
-		  var svgData1=this.targetEle.querySelector(".topoSvg")
-	   
-
-		
-
-
-	    var svg = getNode("svg");
-        document.body.appendChild(svg);
-        
-		svg.appendChild(svgData1);
-		
-		
-		function saveSvg1(svgEl, name) {
-         svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-         var svgData = svgEl.outerHTML;
-         var preface = '<?xml version="1.0" standalone="no"?>\r\n';
+      function saveSvg1(svgEl, name) {
+          svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+          var svgData = svgEl.outerHTML;
+          var preface = '<?xml version="1.0" standalone="no"?>\r\n';
           var svgBlob = new Blob([preface, svgData], {type:"image/svg+xml;charset=utf-8"});
-         var svgUrl = URL.createObjectURL(svgBlob);
-         var downloadLink = document.createElement("a");
+          var svgUrl = URL.createObjectURL(svgBlob);
+          var downloadLink = document.createElement("a");
           downloadLink.href = svgUrl;
           downloadLink.download = name;
           document.body.appendChild(downloadLink);
           downloadLink.click();
           document.body.removeChild(downloadLink);
-        }
+      }
 	    saveSvg1(svg, 'test.svg')	
   },t.prototype.handleSeqViewerEvents = function(t, e) {
    if (void 0 !== t.eventData) {

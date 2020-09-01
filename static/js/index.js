@@ -9,6 +9,10 @@ const options = {
       sequence: "MEEPQSDPSIEP-PLSQETFSDLWKLLPENNVLSPLPS-QA-VDDLMLSPDDLAQWLTED"
     },
     {
+      name: "seq.7",
+      sequence: "MEEPQSDPSIEP-PLSQ------WKLLPENNVLSPLPS-QA-VDDLMLSPDDLAQWLTED"
+    },
+    {
       name: "seq.2",
       sequence: "MEEPQSDLSIEL-PLSQETFSDLWKLLPPNNVLSTLPS-SDSIEE-LFLSENVAGWLEDP"
     },
@@ -170,6 +174,7 @@ function MyMSA() {
   }
   return <SimpleTooltip />;
 };
+
 
 
 ReactDOM.render(<MyMSA />, document.getElementById("target"));
