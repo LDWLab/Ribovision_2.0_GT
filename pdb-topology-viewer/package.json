@@ -24,7 +24,8 @@
     "build": "npm run build-tsc && npm run build-webpack && npm run bundle-package",
     "build-webpack": "webpack --mode production",
     "build-tsc": "tsc",
-    "bundle-package": "gulp"
+    "bundle-package": "gulp",
+    "refresh": "npm run build-tsc && npm run bundle-package"
   },
   "author": {
     "name": "Mandar Deshpande",

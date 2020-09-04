@@ -2,7 +2,7 @@ class PdbTopologyViewerPlugin {
     
     defaultColours = {
         domainSelection: 'rgb(255,0,0)',
-        mouseOver: 'rgb(105,105,105)',
+        mouseOver: 'rgb(255,105,105)',
         borderColor: 'rgb(0,0,0)',
         qualityGreen: 'rgb(0,182.85714285714286,0)',
         qualityRed: 'rgb(291.42857142857144,0,0)',
