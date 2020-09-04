@@ -12,3 +12,4 @@ static/CACHE*
 package-lock.json
 webpack-stats.json
 populate_db/Alignments/missed_seqs/*
+pdb-topology-viewer/node_modules/*

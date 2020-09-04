@@ -69,6 +69,20 @@
 
 	>npm run watch
 
-5. Open a VS Code folder in the root directory of the project.
+5. Installing PDB topology viewer for development
 
-6. The debugger should now work while connected to the GaTech VPN.
+	a. cd into the pdb-topology-viewer directory and execute the following (might need sudo)
+
+	> npm link
+
+	b. cd into the root of the project directory (one up from the previous location) and run:
+
+	> npm link pdb-topology-viewer
+
+	c. After editing the typescript of the Topology viewer run the following command **from the pdb-topology-directory!**
+
+	> npm run refresh
+
+6. Open a VS Code folder in the root directory of the project.
+
+7. The debugger should now work while connected to the GaTech VPN.
