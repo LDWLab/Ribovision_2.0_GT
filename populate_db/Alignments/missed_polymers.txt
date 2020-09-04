@@ -1,41 +1,5 @@
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('aL33','PROMALS3D','a')
-No result for nomgd_id 99 and taxid 1841599 in the MYSQL query!
-
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('aeL18','PROMALS3D','ae')
-No result for nomgd_id 80 and taxid 55529 in the MYSQL query!
-
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('aeL19','PROMALS3D','ae')
-No result for nomgd_id 82 and taxid 55529 in the MYSQL query!
-
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('aeL32','PROMALS3D','ae')
-No result for nomgd_id 98 and taxid 55529 in the MYSQL query!
-
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('aeL33','PROMALS3D','ae')
-No result for nomgd_id 99 and taxid 1841599 in the MYSQL query!
-
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('aeS06','PROMALS3D','ae')
-No result for nomgd_id 272 and taxid 55529 in the MYSQL query!
-
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('aeS31','PROMALS3D','ae')
-No result for nomgd_id 295 and taxid 55529 in the MYSQL query!
-
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('bL12','PROMALS3D','b')
-No result for nomgd_id 26 and taxid 214092 in the MYSQL query!
-
 INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('bL19','PROMALS3D','b')
 L117 Wrong residue name for polymer id 7925 and residue 123. Is there something wrong with the numbering?
-
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('bL20','PROMALS3D','b')
-No result for nomgd_id 44 and taxid 214092 in the MYSQL query!
-
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('bL21','PROMALS3D','b')
-No result for nomgd_id 45 and taxid 214092 in the MYSQL query!
-
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('bL25','PROMALS3D','b')
-No result for nomgd_id 55 and taxid 511145 in the MYSQL query!
-
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('bL27','PROMALS3D','b')
-No result for nomgd_id 56 and taxid 511145 in the MYSQL query!
 
 INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('bL28','PROMALS3D','b')
 No result for nomgd_id 57 and taxid 214092 in the MYSQL query!
@@ -44,47 +8,5 @@ L117 Wrong residue name for polymer id 8246 and residue 1. Is there something wr
 INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('bL31','PROMALS3D','b')
 L117 Wrong residue name for polymer id 8339 and residue 2. Is there something wrong with the numbering?
 
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('bL32','PROMALS3D','b')
-No result for nomgd_id 65 and taxid 511145 in the MYSQL query!
-
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('bL33','PROMALS3D','b')
-No result for nomgd_id 66 and taxid 214092 in the MYSQL query!
-
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('bL34','PROMALS3D','b')
-No result for nomgd_id 67 and taxid 214092 in the MYSQL query!
-
 INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('bL35','PROMALS3D','b')
 L117 Wrong residue name for polymer id 8604 and residue 1. Is there something wrong with the numbering?
-
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('bL36','PROMALS3D','b')
-No result for nomgd_id 69 and taxid 214092 in the MYSQL query!
-
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('bS01','PROMALS3D','b')
-No result for nomgd_id 215 and taxid 214092 in the MYSQL query!
-
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('bS06','PROMALS3D','b')
-No result for nomgd_id 228 and taxid 214092 in the MYSQL query!
-
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('bS16','PROMALS3D','b')
-No result for nomgd_id 256 and taxid 214092 in the MYSQL query!
-
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('bS18','PROMALS3D','b')
-No result for nomgd_id 260 and taxid 511145 in the MYSQL query!
-
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('bS20','PROMALS3D','b')
-No result for nomgd_id 264 and taxid 214092 in the MYSQL query!
-
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('bS21','PROMALS3D','b')
-No result for nomgd_id 265 and taxid 214092 in the MYSQL query!
-
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('eL19','PROMALS3D','e')
-No result for nomgd_id 82 and taxid 55529 in the MYSQL query!
-
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('eL32','PROMALS3D','e')
-No result for nomgd_id 98 and taxid 55529 in the MYSQL query!
-
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('eS06','PROMALS3D','e')
-No result for nomgd_id 272 and taxid 55529 in the MYSQL query!
-
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('eS31','PROMALS3D','e')
-No result for nomgd_id 295 and taxid 55529 in the MYSQL query!

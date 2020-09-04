@@ -31,7 +31,6 @@
   },
   "dependencies": {
     "@plotly/react-msa-viewer": "0.0.12",
-    "pdb-topology-viewer": "^2.0.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1"
   }

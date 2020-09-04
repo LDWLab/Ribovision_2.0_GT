@@ -11,3 +11,4 @@ static/bundles*
 static/CACHE*
 package-lock.json
 webpack-stats.json
+populate_db/Alignments/missed_seqs/*
