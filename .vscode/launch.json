@@ -40,8 +40,10 @@
             "program": "${workspaceFolder}/populate_db/Alignments/upload_aln.py",
             "console": "integratedTerminal",
             "args": [
-                "/home/ppenev/Dropbox-Gatech/ProteinProject/Alignments/rProteins/Archaeal/aeL14_txid_tagged.fas",
-                "ae"
+                "${workspaceFolder}/populate_db/Alignments/missed_seqs/YERPE_bS21.fas",
+                "b",
+                "-aln_id", "122",
+                "-commit"
             ]
         },
         {
@@ -52,7 +54,7 @@
             "console": "integratedTerminal",
             "args": [
                 "-c",
-                "${workspaceFolder}/populate_db/Polymers/CSV/acc_seqs_bact+uL29.csv"
+                "${workspaceFolder}/populate_db/Polymers/CSV/acc_seqs_missed.csv"
             ]
         }
     ]

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import csv, sys, getopt, getpass, mysql.connector
+import re, csv, sys, getopt, getpass, mysql.connector
 
 def usage():
     print (\
@@ -81,6 +81,8 @@ def upload_resi(poldata_id, fullseq):
 def main():
     csv_list = read_csv(csv_path)
     for entry in csv_list:
+        if re.match(r'^#', entry[0]):
+            continue
         superK = superkingdom_info(entry[0])
         nom_id = check_nomo_id(superK[0], entry[3])
         query = "INSERT INTO `SEREB`.`Polymer_Data`(`GI`,`strain_ID`,`nomgd_id`, `GeneDescription`) \
@@ -94,11 +96,11 @@ def main():
         #print(query)
         upload_resi(str(lastrow_id), entry[5])
     
+    cnx.commit()
+    cursor.close()
+    cnx.close()
+    print("Success!")
 
 if __name__ == "__main__":
     main()
 
-cnx.commit()
-cursor.close()
-cnx.close()
-print("Success!")

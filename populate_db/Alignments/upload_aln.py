@@ -11,6 +11,8 @@ def create_and_parse_argument_options(argument_list):
     parser.add_argument('-host','--db_host', help='Defines database host (default: 130.207.36.76)', type=str, default='130.207.36.76')
     parser.add_argument('-schema','--db_schema', help='Defines schema to use (default: SEREB)', type=str, default='SEREB')
     parser.add_argument('-user_name','--uname', help='Defines user name to use (default: ppenev)', type=str, default='ppenev')
+    parser.add_argument('-aln_id','--alignment_id', help='Defines alignment id to add entries to. If not specified makes a new alignment entry.', type=int)
+    parser.add_argument('-commit','--commit_changes', help='Commit the changes to the DB', action="store_true")
     commandline_args = parser.parse_args(argument_list)
     return commandline_args
 
@@ -35,7 +37,7 @@ def superkingdom_info(cursor, ID):
     try:
         superkingdom=(results[0][0])
     except:
-        raise ValueError ("No result for specie "+str(ID)+" in the MYSQL query!")
+        raise ValueError ("No result for species "+str(ID)+" in the MYSQL query!")
     return superkingdom
 
 def check_nomo_id(cursor, occur, name):
@@ -212,7 +214,10 @@ def main(commandline_arguments):
         .replace('_txid_tagged.fas', '')\
         .replace('.fas', '')\
         .replace('.fa', '')    #Fix that with re
-    aln_id = upaln_getid(cursor, aln_name, source_string, comm_args.alignment_method)
+    if comm_args.alignment_id:
+        aln_id = comm_args.alignment_id
+    else:
+        aln_id = upaln_getid(cursor, aln_name, source_string, comm_args.alignment_method)
     for entry in alns:
         taxid = fix_old_taxid(entry.id.split('_')[1])
         superK = superkingdom_info(cursor, taxid)
@@ -225,8 +230,8 @@ def main(commandline_arguments):
         for seq_aln_pos in mapped_resis:
             upload_aln_data(cursor, entry, seq_aln_pos, aln_id, polymer_id)
         #print()
-    
-    cnx.commit()
+    if comm_args.commit_changes:
+        cnx.commit()
     cursor.close()
     cnx.close()
     print("Success!")
