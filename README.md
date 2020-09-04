@@ -73,9 +73,9 @@
 
 	a. cd into the pdb-topology-viewer directory and execute the following (might need sudo)
 
-	> npm link
-	
 	> npm install
+	
+	> npm link
 
 	b. cd into the root of the project directory (one up from the previous location) and run:
 
