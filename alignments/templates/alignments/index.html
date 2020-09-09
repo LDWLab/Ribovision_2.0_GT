@@ -1,10 +1,13 @@
 {% load static %}
 <!-- {% load render_bundle from webpack_loader %} -->
 <head>
-	<!-- d3.js dependency script -->
+	<!-- d3.js dependency script for topology viewer -->
 	<script  src="https://cdn.jsdelivr.net/npm/d3@5.9.2" defer></script>
-	<script type="text/javascript" src={% static 'pdb-topology-viewer-component-2.0.0.js' %} defer></script> 
+	<!-- Colormaps for topology viewer -->
 	<script type="text/javascript" src={% static 'alignments/colormaps.js' %} defer></script>
+	<!-- The topology viewer -->
+	<script type="text/javascript" src={% static 'pdb-topology-viewer-component-2.0.0.js' %} defer></script> 
+	
 </head>
 <body>
 	<!-- <div id="target"></div>
