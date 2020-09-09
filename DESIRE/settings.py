@@ -172,5 +172,8 @@ COMPRESS_PRECOMPILERS = (
 )
 COMPRESS_ENABLED = True
 
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'pdb-topology-viewer/build')
+]
 STATIC_URL = '/static/'
 COMPRESS_ROOT = 'static/'

@@ -1,14 +1,17 @@
 {% load static %}
-{% load render_bundle from webpack_loader %}
+<!-- {% load render_bundle from webpack_loader %} -->
 <head>
 	<!-- d3.js dependency script -->
 	<script  src="https://cdn.jsdelivr.net/npm/d3@5.9.2" defer></script>
+	<script type="text/javascript" src={% static 'pdb-topology-viewer-component-2.0.0.js' %} defer></script> 
 </head>
 <body>
-	
-	<div id="target"></div>
-	{% render_bundle 'main' %}
+	<!-- <div id="target"></div>
+	{% render_bundle 'main' %} -->
 
+	<pdb-topology-viewer entry-id="1aqd" entity-id="1"></pdb-topology-viewer>
+	
+	<!-- 
 	<script>
 	class PdbTopologyViewer extends HTMLElement {
 		static get observedAttributes() {
@@ -53,5 +56,5 @@
 	topview.setAttribute("entry-id", "1aqd")
 	topview.setAttribute("entity-id", "1")
 	document.getElementById("target").appendChild(topview)
-	</script>
+	</script> -->
 </body>
