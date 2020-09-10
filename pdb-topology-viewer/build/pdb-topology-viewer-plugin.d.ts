@@ -6,6 +6,7 @@ declare class PdbTopologyViewerPlugin {
         qualityGreen: string;
         qualityRed: string;
         qualityYellow: string;
+        qualityRiboVision: string;
         qualityOrange: string;
     };
     displayStyle: string;
@@ -14,6 +15,7 @@ declare class PdbTopologyViewerPlugin {
     sequenceArr: string[];
     entityId: string;
     entryId: string;
+    entropyId: string;
     chainId: string;
     apiData: any;
     targetEle: HTMLElement;
@@ -30,6 +32,7 @@ declare class PdbTopologyViewerPlugin {
     render(target: HTMLElement, options: {
         entityId: string;
         entryId: string;
+        entropyId: string;
         chainId?: string;
         subscribeEvents?: boolean;
         displayStyle?: string;
@@ -68,6 +71,7 @@ declare class PdbTopologyViewerPlugin {
         start: number;
         end: number;
     } | undefined;
+    getAnnotationFromRibovision(): void;
     getAnnotationFromOutliers(): void;
     createDomainDropdown: () => void;
     resetTheme(): void;

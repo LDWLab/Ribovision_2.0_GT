@@ -1121,7 +1121,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
         label: s[t],
         data: e
        })
-      }
+      } 
      }
      for (var o = this.apiData[1][this.entryId], s = ["UniProt", "CATH", "Pfam", "SCOP"], a = this, e = 0; e < 3; e++) t(e)
     }

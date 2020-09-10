@@ -1,3 +1,5 @@
+
+
 class PdbTopologyViewerPlugin { 
     
     defaultColours = {
@@ -7,6 +9,7 @@ class PdbTopologyViewerPlugin {
         qualityGreen: 'rgb(0,182.85714285714286,0)',
         qualityRed: 'rgb(291.42857142857144,0,0)',
         qualityYellow: 'rgb(364.2857142857143,364.2857142857143,75.71428571428572)',
+        qualityRiboVision: "rgb(364.2857142857143,364.2857142857143,75.71428571428572)",
         qualityOrange: 'rgb(291.42857142857144,121.42857142857143,0)'
     }
 
@@ -17,6 +20,7 @@ class PdbTopologyViewerPlugin {
     sequenceArr: string[];
     entityId: string;
     entryId: string;
+    entropyId: string;
     chainId: string;
     apiData: any;
     targetEle: HTMLElement;
@@ -35,7 +39,7 @@ class PdbTopologyViewerPlugin {
 
     subscribeEvents = true;
 
-    render(target: HTMLElement, options:{entityId: string, entryId: string, chainId?: string, subscribeEvents?:boolean, displayStyle?: string, errorStyle?: string, menuStyle?: string}) {
+    render(target: HTMLElement, options:{entityId: string, entryId: string, entropyId: string, chainId?: string, subscribeEvents?:boolean, displayStyle?: string, errorStyle?: string, menuStyle?: string}) {
         if(options && typeof options.displayStyle != 'undefined' && options.displayStyle != null) this.displayStyle += options.displayStyle;
         if(options && typeof options.errorStyle != 'undefined' && options.errorStyle != null) this.errorStyle += options.errorStyle;
         if(options && typeof options.menuStyle != 'undefined' && options.menuStyle != null) this.menuStyle += options.menuStyle;
@@ -48,6 +52,7 @@ class PdbTopologyViewerPlugin {
         if(options.subscribeEvents == false) this.subscribeEvents = false;
         this.entityId = options.entityId;
         this.entryId = options.entryId.toLowerCase();
+        this.entropyId = options.entropyId;
         
         //If chain id is not provided then get best chain id from observed residues api
         if(typeof options.chainId == 'undefined' || options.chainId == null){
@@ -341,6 +346,7 @@ class PdbTopologyViewerPlugin {
             type: eleObj.type,
             entryId: this.entryId,
             entityId: this.entityId,
+            entropyId: this.entropyId,
             chainId: this.chainId,
             // structAsymId: this.bestStructAsymId
         });
@@ -366,6 +372,7 @@ class PdbTopologyViewerPlugin {
             type: eleData.type,
             entryId: this.entryId,
             entityId: this.entityId,
+            entropyId: this.entropyId,
             chainId: this.chainId,
             // structAsymId: scope.bestStructAsymId
         });
@@ -1068,7 +1075,7 @@ class PdbTopologyViewerPlugin {
         const mappings = this.apiData[1];
         if(typeof mappings == 'undefined') return;
         const mappingsData = this.apiData[1][this.entryId];
-        const categoryArr = ['UniProt','CATH','Pfam','SCOP'];
+        const categoryArr = ['UniProt','CATH','Pfam','SCOP','RiboVision'];
         for(let catIndex=0; catIndex < 3; catIndex++){
             if(typeof mappingsData[categoryArr[catIndex]] !== 'undefined'){
                 
@@ -1079,7 +1086,7 @@ class PdbTopologyViewerPlugin {
                     for(let accKey in mappingRecords){
 
                         mappingRecords[accKey].mappings.forEach((domainMappings:any) => {
-                            if(domainMappings.entity_id == this.entityId && domainMappings.chain_id == this.chainId){
+                            if(domainMappings.entity_id == this.entityId && domainMappings.chain_id == this.chainId && domainMappings.entropy_id == this.entropy_id){
                                 
                                 residueDetails.push({
                                     start: domainMappings.start.residue_number,
@@ -1141,7 +1148,74 @@ class PdbTopologyViewerPlugin {
         return chainRange;
         
     }
+    getAnnotationFromRibovision() {
+        const _this = this;
+        const chainRange:any = this.getChainStartAndEnd();
+        let residueDetails:any = [{
+            start: chainRange.start,
+            end: chainRange.end,
+            color: _this.defaultColours.qualityGreen,
+            tooltipMsg: 'No validation issue reported for '
+        }];
+        
+        //Two temporary arrays for grouping rsrz and other outliers tooltip message  
+        let rsrzTempArray:any[] = [];
+        let otherOutliersTempArray = [0];
 
+    if (void 0 !== this.entropyId) {
+      const Y_min = -2.935;
+      const Y_max = 12.065;
+      let unParsedTWC = this.entropyId.split(",");
+      let TWCData = new Map();
+      let TWCrgbMap = new Map();
+      unParsedTWC.forEach(function (item, index) {
+      if (index % 2 == 0){
+          TWCData.set(item, unParsedTWC[index+1]);
+          if (Number(unParsedTWC[index+1]) < 0){
+            TWCrgbMap.set(item, interpolateLinearly(Number(unParsedTWC[index+1])/Y_min, RdPu));
+          }else{
+            TWCrgbMap.set(item, interpolateLinearly(Number(unParsedTWC[index+1])/Y_max, YlGn));
+          }
+          
+        }
+      });
+      var Entity_id_loc=_this.entityId;
+      (window as any).selectSections_RV1 = [{entity_id: Entity_id_loc, focus: true}];
+
+      if (void 0 !== TWCData){
+        console.log("boom");
+        TWCData.forEach(function(value, index) {
+            let rgb_color = TWCrgbMap.get(index);
+            (window as any).selectSections_RV1.push({ //3d
+                                        entity_id: Entity_id_loc,
+                                        start_residue_number: parseInt(index), 
+                                        end_residue_number: parseInt(index),
+                                        color: rgb_color[1],
+                                        sideChain: false,
+                                      });
+            _this.defaultColours.qualityRiboVision= "rgb("+String(rgb_color[0].join(','))+")";
+            var colors = "rgb("+String(rgb_color[0].join(','))+")"
+            _this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
+              residueDetails.push({ //2d
+                  start: parseInt(index),
+                  end: parseInt(index),
+                  color: colors,
+                  tooltipMsg: Number.parseFloat(value).toPrecision(3),
+                  tooltipPosition: "prefix"
+              }),
+              otherOutliersTempArray.push(index);
+              _this.drawValidationShape(index, "circle", colors);
+              rsrzTempArray.push(index);
+        }),
+        0 < residueDetails.length && this.domainTypes.push({
+          label: "TwinCons",
+          data: residueDetails
+        })
+      } else {
+          //catch empty stuff
+      };
+    }
+    }
     getAnnotationFromOutliers() {
         const _this = this;
         const chainRange:any = this.getChainStartAndEnd();
@@ -1264,7 +1338,7 @@ class PdbTopologyViewerPlugin {
         
         this.getAnnotationFromMappings();
         this.getAnnotationFromOutliers();
-
+        this.getAnnotationFromRibovision();
         this.selectedDomain = this.domainTypes[0];
 
         if(this.domainTypes.length > 1){

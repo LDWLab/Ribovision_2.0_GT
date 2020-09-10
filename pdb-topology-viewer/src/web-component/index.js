@@ -1,7 +1,7 @@
 class PdbTopologyViewer extends HTMLElement {
 
   static get observedAttributes() {
-    return ['entry-id', 'entity-id', 'chain-id', 'display-style', 'error-style', 'menu-style', 'subscribe-events'];
+    return ['entry-id', 'entity-id', 'entropy-id', 'chain-id', 'display-style', 'error-style', 'menu-style', 'subscribe-events'];
   }
 
   constructor() {
@@ -23,6 +23,7 @@ class PdbTopologyViewer extends HTMLElement {
     let options = {
       entryId: this.entryId,
       entityId: this.entityId,
+      entropyId: this.entropyId
     }
 
     if(typeof this.chainId !== 'undefined' && this.chainId !== null) options['chainId'] = this.chainId;
@@ -38,6 +39,7 @@ class PdbTopologyViewer extends HTMLElement {
   attributeChangedCallback() {
     this.entryId = this.getAttribute("entry-id");
     this.entityId = this.getAttribute("entity-id");
+    this.entropyId = this.getAttribute("entropy-id");
     this.chainId = this.getAttribute("chain-id");
     this.displayStyle = this.getAttribute("display-style");
     this.errorStyle = this.getAttribute("error-style");

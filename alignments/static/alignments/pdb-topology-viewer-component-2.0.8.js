@@ -3241,7 +3241,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
       if (void 0 !== TWCData){
         TWCData.forEach(function(value, index) {
             let rgb_color = TWCrgbMap.get(index);
-            window.selectSections_RV1.push({
+            window.selectSections_RV1.push({ //3d
                                         entity_id: Entity_id_loc,
                                         start_residue_number: parseInt(index), 
                                         end_residue_number: parseInt(index),
@@ -3250,7 +3250,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
                                       });
             o.defaultColours.qualityRiboVision= "rgb("+String(rgb_color[0].join(','))+")";
             e = "rgb("+String(rgb_color[0].join(','))+")", o.drawValidationShape(index, "circle", o.defaultColours.qualityRiboVision);
-              s.push({
+              s.push({ //2d
                   start: parseInt(index),
                   end: parseInt(index),
                   color: e,
@@ -3318,34 +3318,7 @@ var __awaiter = this && this.__awaiter || function(t, s, a, h) {
       //console.log(viewerInstance3);
       var ssRV1 =window.selectSections_RV1;
       //console.log('RiboVision1', ssRV1);
-      var selectSections = [{entity_id: qq.entityId, focus: true},
-                  {
-                     
-					 entity_id: qq.entityId,
-                    start_residue_number: 1, 
-                    end_residue_number: 68,
-                    color:{r:255,g:0,b:255},
-                    sideChain: false,
-					
-                  },
-                  {entity_id: qq.entityId, start_residue_number: 69, end_residue_number: 127, color:{r:255,g:0,b:0}}, 
-					{
-					entity_id: qq.entityId,
-					start_residue_number: 128,
-					end_residue_number: 200,
-					color:{r:99,g:122,b:200},
-                   },
-
-										{
-					entity_id: qq.entityId,
-					start_residue_number: 216,
-					end_residue_number: 216,
-					color:{r:100,g:100,b:0},
-                   } 
-
-					
-
-                ];
+      
           //console.log(selectSections);    
           viewerInstance3.visual.select({ data: ssRV1, nonSelectedColor: {r:0,g:0,b:0}})  
 

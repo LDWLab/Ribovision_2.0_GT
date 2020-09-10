@@ -44,6 +44,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
             qualityGreen: 'rgb(0,182.85714285714286,0)',
             qualityRed: 'rgb(291.42857142857144,0,0)',
             qualityYellow: 'rgb(364.2857142857143,364.2857142857143,75.71428571428572)',
+            qualityRiboVision: "rgb(364.2857142857143,364.2857142857143,75.71428571428572)",
             qualityOrange: 'rgb(291.42857142857144,121.42857142857143,0)'
         };
         this.displayStyle = 'border:1px solid #696969;';
@@ -75,7 +76,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
             if (typeof mappings == 'undefined')
                 return;
             var mappingsData = this.apiData[1][this.entryId];
-            var categoryArr = ['UniProt', 'CATH', 'Pfam', 'SCOP'];
+            var categoryArr = ['UniProt', 'CATH', 'Pfam', 'SCOP', 'RiboVision'];
             var _loop_1 = function (catIndex) {
                 if (typeof mappingsData[categoryArr[catIndex]] !== 'undefined') {
                     if (Object.entries(mappingsData[categoryArr[catIndex]]).length !== 0) {
@@ -84,7 +85,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                         var mappingRecords = mappingsData[categoryArr[catIndex]];
                         for (var accKey in mappingRecords) {
                             mappingRecords[accKey].mappings.forEach(function (domainMappings) {
-                                if (domainMappings.entity_id == _this_1.entityId && domainMappings.chain_id == _this_1.chainId) {
+                                if (domainMappings.entity_id == _this_1.entityId && domainMappings.chain_id == _this_1.chainId && domainMappings.entropy_id == _this_1.entropy_id) {
                                     residueDetails_1.push({
                                         start: domainMappings.start.residue_number,
                                         end: domainMappings.end.residue_number,
@@ -114,6 +115,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 }];
             this.getAnnotationFromMappings();
             this.getAnnotationFromOutliers();
+            this.getAnnotationFromRibovision();
             this.selectedDomain = this.domainTypes[0];
             if (this.domainTypes.length > 1) {
                 var optionList_1 = '';
@@ -150,6 +152,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
             this.subscribeEvents = false;
         this.entityId = options.entityId;
         this.entryId = options.entryId.toLowerCase();
+        this.entropyId = options.entropyId;
         //If chain id is not provided then get best chain id from observed residues api
         if (typeof options.chainId == 'undefined' || options.chainId == null) {
             this.getObservedResidues(this.entryId).then(function (result) {
@@ -407,6 +410,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
             type: eleObj.type,
             entryId: this.entryId,
             entityId: this.entityId,
+            entropyId: this.entropyId,
             chainId: this.chainId,
         });
     };
@@ -428,6 +432,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
             type: eleData.type,
             entryId: this.entryId,
             entityId: this.entityId,
+            entropyId: this.entropyId,
             chainId: this.chainId,
         });
     };
@@ -1106,6 +1111,73 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
             }
         }
         return chainRange;
+    };
+    PdbTopologyViewerPlugin.prototype.getAnnotationFromRibovision = function () {
+        var _this = this;
+        var chainRange = this.getChainStartAndEnd();
+        var residueDetails = [{
+                start: chainRange.start,
+                end: chainRange.end,
+                color: _this.defaultColours.qualityGreen,
+                tooltipMsg: 'No validation issue reported for '
+            }];
+        //Two temporary arrays for grouping rsrz and other outliers tooltip message  
+        var rsrzTempArray = [];
+        var otherOutliersTempArray = [0];
+        if (void 0 !== this.entropyId) {
+            var Y_min_1 = -2.935;
+            var Y_max_1 = 12.065;
+            var unParsedTWC_1 = this.entropyId.split(",");
+            var TWCData_1 = new Map();
+            var TWCrgbMap_1 = new Map();
+            unParsedTWC_1.forEach(function (item, index) {
+                if (index % 2 == 0) {
+                    TWCData_1.set(item, unParsedTWC_1[index + 1]);
+                    if (Number(unParsedTWC_1[index + 1]) < 0) {
+                        TWCrgbMap_1.set(item, interpolateLinearly(Number(unParsedTWC_1[index + 1]) / Y_min_1, RdPu));
+                    }
+                    else {
+                        TWCrgbMap_1.set(item, interpolateLinearly(Number(unParsedTWC_1[index + 1]) / Y_max_1, YlGn));
+                    }
+                }
+            });
+            var Entity_id_loc = _this.entityId;
+            window.selectSections_RV1 = [{ entity_id: Entity_id_loc, focus: true }];
+            if (void 0 !== TWCData_1) {
+                console.log("boom");
+                TWCData_1.forEach(function (value, index) {
+                    var rgb_color = TWCrgbMap_1.get(index);
+                    window.selectSections_RV1.push({
+                        entity_id: Entity_id_loc,
+                        start_residue_number: parseInt(index),
+                        end_residue_number: parseInt(index),
+                        color: rgb_color[1],
+                        sideChain: false,
+                    });
+                    _this.defaultColours.qualityRiboVision = "rgb(" + String(rgb_color[0].join(',')) + ")";
+                    var colors = "rgb(" + String(rgb_color[0].join(',')) + ")";
+                    _this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
+                    residueDetails.push({
+                        start: parseInt(index),
+                        end: parseInt(index),
+                        color: colors,
+                        tooltipMsg: Number.parseFloat(value).toPrecision(3),
+                        tooltipPosition: "prefix"
+                    }),
+                        otherOutliersTempArray.push(index);
+                    _this.drawValidationShape(index, "circle", colors);
+                    rsrzTempArray.push(index);
+                }),
+                    0 < residueDetails.length && this.domainTypes.push({
+                        label: "TwinCons",
+                        data: residueDetails
+                    });
+            }
+            else {
+                //catch empty stuff
+            }
+            ;
+        }
     };
     PdbTopologyViewerPlugin.prototype.getAnnotationFromOutliers = function () {
         var _this_1 = this;
