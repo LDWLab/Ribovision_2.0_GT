@@ -1,3 +1,6 @@
+declare const interpolateLinearly: any;
+declare const RdPu: any;
+declare const YlGn: any;
 declare class PdbTopologyViewerPlugin {
     defaultColours: {
         domainSelection: string;

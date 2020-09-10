@@ -1,5 +1,7 @@
 
-
+const interpolateLinearly = (window as any).interpolateLinearly;
+const RdPu = (window as any).RdPu;
+const YlGn = (window as any).YlGn;
 class PdbTopologyViewerPlugin { 
     
     defaultColours = {

@@ -81,7 +81,11 @@
 
 	> npm link pdb-topology-viewer
 
-	c. After editing the typescript of the Topology viewer run the following command **from the pdb-topology-directory!**
+	c. Go back to the **pdb-topology directory** and update babel
+
+	> npm update --depth 5 @babel/compat-data
+	
+	d. After editing the typescript of the Topology viewer run the following command **from the pdb-topology directory!**
 
 	> npm run refresh
 
