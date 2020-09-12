@@ -39,4 +39,6 @@ urlpatterns = [
 	path('upload-custom-csv/<str:anchor_structure>/<str:chain>', views.twincons_handler, name='custom_csv_data_viewer'),
 	path('custom-csv-data', views.upload_custom_data_for_mapping, name='custom_csv_data_handler'),
 	path('upload-custom-csv/', views.upload_custom_data, name='upload_custom_data'),
+    path('propensities', views.propensities, name = 'propensities'),
+    path('propensity-data', views.propensity_data, name = 'propensity_data'),
 ]

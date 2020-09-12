@@ -1,5 +1,5 @@
 {
-	"python.pythonPath": "env/bin/python",
+	"python.pythonPath": "/home/amaddala/anaconda3/envs/DESIRE/bin/python",
 	"git.ignoreLimitWarning": true,
 	"extensions.ignoreRecommendations": true,
 	"files.autoSave": "off",
