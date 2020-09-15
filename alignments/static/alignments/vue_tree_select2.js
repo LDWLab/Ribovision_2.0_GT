@@ -375,7 +375,7 @@ var vm = new Vue({
                     var range_string = minIndex.concat("-").concat(maxIndex)
                     GetRangeMapping(pdbid, chainid, range_string, mapping)
                     let data_string = JSON.stringify(Array.from(mapped_aa_properties.entries())).replaceAll(",[[", ":").replaceAll("]],",";").replaceAll("],[",",")
-                    let formatted_data_string = data_string.replaceAll("[","").replaceAll("]","")
+                    let formatted_data_string = data_string.replaceAll("[","").replaceAll("]","").replaceAll("\"","")
                     var topology_viewer = `<pdb-topology-viewer entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid}	entropy-id=${formatted_data_string} filter-range=${mapping}></pdb-topology-viewer>`
                     document.getElementById('topview').innerHTML = topology_viewer;
                 })

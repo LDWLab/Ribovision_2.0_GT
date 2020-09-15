@@ -1224,7 +1224,7 @@ class PdbTopologyViewerPlugin {
       const Y_min = -2.935;
       const Y_max = 12.065;
       //let unParsedTWC = this.entropyId.split('":').join(';').split(';');
-      let unParsedTWC = this.entropyId.split('":').join(';').split(';');
+      let unParsedTWC = this.entropyId.split(':').join(';').split(';');
       unParsedTWC.forEach(function (item, index) {
         if(index % 2 === 1) {
             residueDetails = [{
@@ -1235,7 +1235,7 @@ class PdbTopologyViewerPlugin {
             }];
             console.log(_this.domainTypes);
             let separatedData = unParsedTWC[index].split(",");
-            let dataTitle = unParsedTWC[index - 1].split('"')[1];
+            let dataTitle = unParsedTWC[index - 1];
             let TWCData = new Map();
             let TWCrgbMap = new Map();
                 separatedData.forEach(function (item, index) {

@@ -1222,7 +1222,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
             var Y_min_1 = -2.935;
             var Y_max_1 = 12.065;
             //let unParsedTWC = this.entropyId.split('":').join(';').split(';');
-            var unParsedTWC_1 = this.entropyId.split('":').join(';').split(';');
+            var unParsedTWC_1 = this.entropyId.split(':').join(';').split(';');
             unParsedTWC_1.forEach(function (item, index) {
                 if (index % 2 === 1) {
                     residueDetails = [{
@@ -1233,7 +1233,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                         }];
                     console.log(_this.domainTypes);
                     var separatedData_1 = unParsedTWC_1[index].split(",");
-                    var dataTitle = unParsedTWC_1[index - 1].split('"')[1];
+                    var dataTitle = unParsedTWC_1[index - 1];
                     var TWCData_1 = new Map();
                     var TWCrgbMap_1 = new Map();
                     separatedData_1.forEach(function (item, index) {
