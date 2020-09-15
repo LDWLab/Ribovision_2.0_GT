@@ -127,6 +127,45 @@ var loadParaAlns = function (value, vm) {
     });
 }
 
+var calculateFrequencyData = function (frequencies){
+    const multiplyvector = function (a,b){
+        return a.map((e,i) => e * b[i]);
+    }
+    const aaProperties = ["Charge","Hydropathy","Hydrophobicity","Polarity","Mutability"]
+    let aaPropertiesData = new Map([
+                            ["Charge",[0,0,-1,-1,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0]],
+                            ["Hydropathy",[1.8,2.5,-3.5,-3.5,2.8,-0.4,-3.2,4.5,-3.9,3.8,1.9,-3.5,-1.6,-3.5,-4.5,-0.8,-0.7,4.2,-0.9,-1.3]],
+                            ["Hydrophobicity",[0.02,0.77,-1.04,-1.14,1.35,-0.80,0.26,1.81,-0.41,1.14,1,-0.77,-0.09,-1.10,-0.42,-0.97,-0.77,1.13,1.71,1.11]],
+                            ["Polarity",[0,1.48,49.7,49.9,0.35,0,51.6,0.13,49.5,0.13,1.43,3.38,1.58,3.53,52,1.67,1.66,0.13,2.1,1.61]],
+                            ["Mutability",[100,44,86,77,51,50,91,103,72,54,93,104,58,84,83,117,107,98,25,50]]
+                        ]);
+    let outPropertyPosition = new Map();
+    aaProperties.forEach(function (prop){
+        outPropertyPosition.set(prop, [])
+        frequencies.forEach(function (item) {
+            outPropertyPosition.get(prop).push(multiplyvector(aaPropertiesData.get(prop), item));
+        });
+    });
+    return outPropertyPosition;
+}
+
+var mapAAProps = function (aa_properties, mapping){
+    const aaProperties = ["Charge","Hydropathy","Hydrophobicity","Polarity","Mutability"]
+    let outPropertyMappedPosition = new Map();
+    aaProperties.forEach(function (prop){
+        outPropertyMappedPosition.set(prop, [])
+        let currProp = aa_properties.get(prop)
+        currProp.forEach(function (data, aln_ix) {
+            let mappedI0 = mapping[aln_ix+1];
+            if (mappedI0) {
+                outPropertyMappedPosition.get(prop).push([mappedI0, Number(math.sum(data).toFixed(2))]);
+            }
+        });
+    });
+    return outPropertyMappedPosition;
+}
+
+
 Vue.component('treeselect', VueTreeselect.Treeselect, )
 
 var vm = new Vue({
@@ -144,7 +183,8 @@ var vm = new Vue({
         fasta_data: null,
         hide_chains: null,
         type_tree: "orth",
-        frequency_data: null,
+        aa_properties: null,
+        structure_mapping: null
     },
     methods: {
         limiter(e) {
@@ -252,7 +292,7 @@ var vm = new Vue({
                 var url = '/paralog-aln-api/'+aln_id.split(',')[1]}
             ajax(url).then(fasta => {
                 this.fasta_data = fasta[0];
-                this.frequency_data = fasta[3]
+                this.aa_properties = calculateFrequencyData(fasta[3])
                 var main_elmnt = document.querySelector(".alignment_section")
                 var opts = {
                     el: document.getElementById("alnDiv"),
@@ -316,13 +356,16 @@ var vm = new Vue({
             let startIndex = temp["startIndex"];
             // let ebi_sequence = vm.chains[0]["sequence"];
             ajax(entropy_address, optional_data={fasta, ebi_sequence, startIndex}).then(twcDataWithMapping => {
-                twcDataUnmapped = twcDataWithMapping[0]
-                mapping = twcDataWithMapping[1]
                 twcData = []
+                let twcDataUnmapped = twcDataWithMapping[0]
+                this.structure_mapping = twcDataWithMapping[1]
+                let mapped_aa_properties = mapAAProps(this.aa_properties, twcDataWithMapping[1])
+                mapped_aa_properties.set("TwinCons", [])
                 for (i = 0; i < twcDataUnmapped.length; i++) {
-                    let mappedI0 = mapping[twcDataUnmapped[i][0]];
+                    let mappedI0 = this.structure_mapping[twcDataUnmapped[i][0]];
                     if (mappedI0) {
                         twcData.push([mappedI0, twcDataUnmapped[i][1]]);
+                        mapped_aa_properties.get("TwinCons").push([mappedI0, twcDataUnmapped[i][1]]);
                     }
                 }
                 var topology_url = `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdblower}/chain/${chainid}`
@@ -331,6 +374,8 @@ var vm = new Vue({
                     var mapping = []
                     var range_string = minIndex.concat("-").concat(maxIndex)
                     GetRangeMapping(pdbid, chainid, range_string, mapping)
+                    let data_string = JSON.stringify(Array.from(mapped_aa_properties.entries())).replaceAll(",[[", ":").replaceAll("]],",";").replaceAll("],[",",")
+                    let formatted_data_string = data_string.replaceAll("[","").replaceAll("]","")
                     var topology_viewer = `<pdb-topology-viewer entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid}	entropy-id=${twcData} filter-range=${mapping}></pdb-topology-viewer>`
                     document.getElementById('topview').innerHTML = topology_viewer;
                 })
