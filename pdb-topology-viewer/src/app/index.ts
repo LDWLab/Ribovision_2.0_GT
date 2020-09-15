@@ -23,6 +23,7 @@ class PdbTopologyViewerPlugin {
     entityId: string;
     entryId: string;
     entropyId: string;
+    filterRange: string;
     chainId: string;
     apiData: any;
     targetEle: HTMLElement;
@@ -33,7 +34,6 @@ class PdbTopologyViewerPlugin {
     zoom: any;
     scaledPointsArr: any[];
     domainTypes: any[];
-
     svgWidth = 100;
     svgHeight = 100;
 
@@ -41,10 +41,11 @@ class PdbTopologyViewerPlugin {
 
     subscribeEvents = true;
 
-    render(target: HTMLElement, options:{entityId: string, entryId: string, entropyId: string, chainId?: string, subscribeEvents?:boolean, displayStyle?: string, errorStyle?: string, menuStyle?: string}) {
+    render(target: HTMLElement, options:{entityId: string, entryId: string, entropyId: string, filterRange?: string, chainId?: string, subscribeEvents?:boolean, displayStyle?: string, errorStyle?: string, menuStyle?: string}) {
         if(options && typeof options.displayStyle != 'undefined' && options.displayStyle != null) this.displayStyle += options.displayStyle;
         if(options && typeof options.errorStyle != 'undefined' && options.errorStyle != null) this.errorStyle += options.errorStyle;
         if(options && typeof options.menuStyle != 'undefined' && options.menuStyle != null) this.menuStyle += options.menuStyle;
+        if(options && typeof options.filterRange != 'undefined' && options.filterRange != null) this.filterRange = options.filterRange;
         this.targetEle = <HTMLElement> target;
         if(this.targetEle) this.targetEle.innerHTML = '';
         if(!target || !options || !options.entryId || !options.entityId){ 
@@ -55,7 +56,6 @@ class PdbTopologyViewerPlugin {
         this.entityId = options.entityId;
         this.entryId = options.entryId.toLowerCase();
         this.entropyId = options.entropyId;
-        
         //If chain id is not provided then get best chain id from observed residues api
         if(typeof options.chainId == 'undefined' || options.chainId == null){
             this.getObservedResidues(this.entryId).then((result) => {
@@ -175,7 +175,56 @@ class PdbTopologyViewerPlugin {
 
     getDomainRange(){
         let allCordinatesArray: any[] = [];
+         //filtering by a domain
+
+        //update domain start and end positions here
         const topologyData = this.apiData[2][this.entryId][this.entityId][this.chainId];
+        const istart=Number(this.filterRange.split(",")[0]);
+        const iend=Number(this.filterRange.split(",")[1]);
+
+    //if (istart == 0 && iend == 100000) {istart = parseInt (t["terms"][0]["resnum"]); iend = parseInt (t["terms"][1]["resnum"]) }
+
+        if ( iend > 5000) {
+            var tc = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"];
+            //var te = this.apiData[2][this.entryId][this.entityId][this.chainId]["extents"];
+            var th = this.apiData[2][this.entryId][this.entityId][this.chainId]["helices"];
+            var ts = this.apiData[2][this.entryId][this.entityId][this.chainId]["strands"];
+    
+            //var ths = this.apiData[2][this.entryId][this.entityId][this.chainId]["helices"][0]["start"];
+            //var the = this.apiData[2][this.entryId][this.entityId][this.chainId]["helices"][0]["stop"];
+
+    for( var k = 0; k < th.length; k++){ if ((( th[k]["start"] < istart) && ( th[k]["stop"] < istart))||(( th[k]["start"] > iend) && ( th[k]["stop"] > iend))) { this.apiData[2][this.entryId][this.entityId][this.chainId]["helices"].splice(k, 1); k--; }}
+    for( var k = 0; k < ts.length; k++){ if ((( ts[k]["stop"] < istart)) || (( ts[k]["start"] > iend))) { this.apiData[2][this.entryId][this.entityId][this.chainId]["strands"].splice(k, 1); k--; }}
+    for( var k = 0; k < tc.length; k++){ if ((( tc[k]["stop"] < istart) && ( tc[k]["start"] !=-1 ))||(( tc[k]["start"] > iend) && ( tc[k]["stop"] > iend))) { this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"].splice(k, 1); k--; }}
+
+    tc = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"];
+    //console.log(tc);
+
+    for( var k = 0; k < tc.length; k++){ if (( tc[0]["start"] == -1) ) { this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"].splice(0, 1); k--; }}
+    for( var k = tc.length-1; k >= 0; k--){ if (( tc[tc.length-1]["start"] == -1) ) { this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"].splice(tc.length-1, 1); k--; }}
+ 
+
+    tc = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"]; 
+    //var tca = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["start"];
+    //var tco = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["stop"];
+    //var tcp = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["path"];
+
+
+    //for( var k = 0; k < 1; k++){ if ((( tc[0]["start"] < istart) && ( tc[0]["stop"] >= istart) )) { del=istart - tc[0]["start"]-1;  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["path"].splice(0, (del-1)*2);  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"]=this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"]+del;  }}
+    //for( var k = tc.length-1; k > tc.length-2; k--){ if ((( tc[tc.length-1]["start"] <= iend) &&( tc[tc.length-1]["stop"] >= iend) )) { del=tc[tc.length-1]["stop"]-1-iend; path_length=tc[tc.length-1]["path"].length; console.log(del, path_length); this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["path"].splice(path_length-3, 2);  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["stop"]=this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["stop"]-del;  }}
+    
+    for( var k = 0; k < 1; k++){
+         if ((( tc[0]["start"] < istart) && ( tc[0]["stop"] >= istart) )){ 
+            var del=istart - tc[0]["start"]-1;
+            var del1=del;
+            if (del>2){del1=2};  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["path"].splice(0, (del1-1)*2);  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"]=this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"]+del+1;  }}
+    for( var k = tc.length-1; k > tc.length-2; k--){ if ((( tc[tc.length-1]["start"] <= iend) &&( tc[tc.length-1]["stop"] >= iend) )) { del=tc[tc.length-1]["stop"]-1-iend; del1=del; if (del>2){del1=2}; var path_length=tc[tc.length-1]["path"].length; console.log(del, path_length); this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["path"].splice(path_length-(del1-1)*2-1, (del1-1)*2);  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["stop"]=this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["stop"]-del-1;  }}
+   
+    //console.log(tc);
+ 
+    //this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"][0]=54;
+    };
+    //console.log(t);
         for(let secStrType in topologyData){
         
             if(topologyData[secStrType]){
@@ -349,6 +398,7 @@ class PdbTopologyViewerPlugin {
             entryId: this.entryId,
             entityId: this.entityId,
             entropyId: this.entropyId,
+            filterRange: this.filterRange,
             chainId: this.chainId,
             // structAsymId: this.bestStructAsymId
         });
@@ -375,6 +425,7 @@ class PdbTopologyViewerPlugin {
             entryId: this.entryId,
             entityId: this.entityId,
             entropyId: this.entropyId,
+            filterRange: this.filterRange,
             chainId: this.chainId,
             // structAsymId: scope.bestStructAsymId
         });
@@ -407,6 +458,8 @@ class PdbTopologyViewerPlugin {
         
         //Dispatch custom mouseover event
         this.dispatchEvent('PDB.topologyViewer.mouseout', {
+            entropyId: this.entropyId,
+            filterRange: this.filterRange,
             entryId: this.entryId,
             entityId: this.entityId,
             chainId: this.chainId,
@@ -696,6 +749,7 @@ class PdbTopologyViewerPlugin {
                 <a style="color: #efefef;border-bottom:none; cursor:pointer;margin-left: 16px;" target="_blank" href="https://pdbe.org/${this.entryId}">${this.entryId}</a> | <span class="menuDesc">Entity ${this.entityId} | Chain ${this.chainId.toUpperCase()}</span>
                 <div class="menuOptions" style="float:right;margin-right: 20px;">
                     <select class="menuSelectbox" style="margin-right: 10px;"><option value="">Select</option></select>
+                    <img class="saveSVG" src="http://apollo2.chemistry.gatech.edu/RiboVision3/pdb-topology-viewer-master_2/build/Save.png" style="height:15px; width: 15px; border:0;position: relative;margin-right: 15px;cursor:pointer;" title="saveSVG" />\n
                     <img class="resetIcon" src="https://www.ebi.ac.uk/pdbe/pdb-component-library/images/refresh.png" style="height:15px; width: 15px; border:0;position: absolute;margin-top: 11px;cursor:pointer;" title="Reset view" />
                 </div>
             </div>
@@ -1151,8 +1205,10 @@ class PdbTopologyViewerPlugin {
         
     }
     getAnnotationFromRibovision() {
+        //var test_ID = '"Charge":1,0.14,2,0.16,3,-0.01,4,0,5,0,6,0,7,0.38,8,0.99,9,-0.01,10,-0.01,11,0,12,0,13,0.29,14,0,15,-0.02,16,-0.1;"Hydropathy":1,0.95,2,0.48,3,-0.14,4,3.34,5,3.18,6,0.02,7,-2.29,8,-3.9,9,3.36,10,-0.43';
         const _this = this;
         const chainRange:any = this.getChainStartAndEnd();
+        console.log(this.domainTypes);
         let residueDetails:any = [{
             start: chainRange.start,
             end: chainRange.end,
@@ -1163,59 +1219,74 @@ class PdbTopologyViewerPlugin {
         //Two temporary arrays for grouping rsrz and other outliers tooltip message  
         let rsrzTempArray:any[] = [];
         let otherOutliersTempArray = [0];
-
+    //if (void 0 !== this.entropyId) {
     if (void 0 !== this.entropyId) {
       const Y_min = -2.935;
       const Y_max = 12.065;
-      let unParsedTWC = this.entropyId.split(",");
-      let TWCData = new Map();
-      let TWCrgbMap = new Map();
+      //let unParsedTWC = this.entropyId.split('":').join(';').split(';');
+      let unParsedTWC = this.entropyId.split('":').join(';').split(';');
       unParsedTWC.forEach(function (item, index) {
-      if (index % 2 == 0){
-          TWCData.set(item, unParsedTWC[index+1]);
-          if (Number(unParsedTWC[index+1]) < 0){
-            TWCrgbMap.set(item, interpolateLinearly(Number(unParsedTWC[index+1])/Y_min, RdPu));
-          }else{
-            TWCrgbMap.set(item, interpolateLinearly(Number(unParsedTWC[index+1])/Y_max, YlGn));
-          }
+        if(index % 2 === 1) {
+            residueDetails = [{
+                start: chainRange.start,
+                end: chainRange.end,
+                color: _this.defaultColours.qualityGreen,
+                tooltipMsg: 'No validation issue reported for '
+            }];
+            console.log(_this.domainTypes);
+            let separatedData = unParsedTWC[index].split(",");
+            let dataTitle = unParsedTWC[index - 1].split('"')[1];
+            let TWCData = new Map();
+            let TWCrgbMap = new Map();
+                separatedData.forEach(function (item, index) {
+                    if (index % 2 == 0){
+                        TWCData.set(item, separatedData[index+1]);
+                        if (Number(separatedData[index+1]) < 0){
+                            TWCrgbMap.set(item, interpolateLinearly(Number(separatedData[index+1])/Y_min, RdPu));
+                        }else{
+                            TWCrgbMap.set(item, interpolateLinearly(Number(separatedData[index+1])/Y_max, YlGn));
+                        }
           
-        }
-      });
-      var Entity_id_loc=_this.entityId;
-      (window as any).selectSections_RV1 = [{entity_id: Entity_id_loc, focus: true}];
+                    }
+                });
+            var Entity_id_loc=_this.entityId;
+            (window as any).selectSections_RV1 = [{entity_id: Entity_id_loc, focus: true}];
 
-      if (void 0 !== TWCData){
-        console.log("boom");
-        TWCData.forEach(function(value, index) {
-            let rgb_color = TWCrgbMap.get(index);
-            (window as any).selectSections_RV1.push({ //3d
-                                        entity_id: Entity_id_loc,
-                                        start_residue_number: parseInt(index), 
-                                        end_residue_number: parseInt(index),
-                                        color: rgb_color[1],
-                                        sideChain: false,
-                                      });
-            _this.defaultColours.qualityRiboVision= "rgb("+String(rgb_color[0].join(','))+")";
-            var colors = "rgb("+String(rgb_color[0].join(','))+")"
-            _this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
-              residueDetails.push({ //2d
-                  start: parseInt(index),
-                  end: parseInt(index),
-                  color: colors,
-                  tooltipMsg: Number.parseFloat(value).toPrecision(3),
-                  tooltipPosition: "prefix"
-              }),
-              otherOutliersTempArray.push(index);
-              _this.drawValidationShape(index, "circle", colors);
-              rsrzTempArray.push(index);
-        }),
-        0 < residueDetails.length && this.domainTypes.push({
-          label: "TwinCons",
-          data: residueDetails
-        })
-      } else {
-          //catch empty stuff
-      };
+            if (void 0 !== TWCData){
+                    TWCData.forEach(function(value, index) {
+                        let rgb_color = TWCrgbMap.get(index);
+                        (window as any).selectSections_RV1.push({ //3d
+                            entity_id: Entity_id_loc,
+                            start_residue_number: parseInt(index), 
+                            end_residue_number: parseInt(index),
+                            color: rgb_color[1],
+                            sideChain: false,
+                        });
+                        _this.defaultColours.qualityRiboVision= "rgb("+String(rgb_color[0].join(','))+")";
+                        var colors = "rgb("+String(rgb_color[0].join(','))+")"
+                        _this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
+                        residueDetails.push({ //2d
+                            start: parseInt(index),
+                            end: parseInt(index),
+                            color: colors,
+                            tooltipMsg: Number.parseFloat(value).toPrecision(3),
+                            tooltipPosition: "prefix"
+                        }),
+                        otherOutliersTempArray.push(index);
+                        _this.drawValidationShape(index, "circle", colors);
+                        rsrzTempArray.push(index);
+                    })
+                    if(0 < residueDetails.length){
+                        _this.domainTypes.push({
+                        label: dataTitle,
+                        data: residueDetails
+                    })
+                }
+            } else {
+                //catch block
+            };
+        }
+    });
     }
     }
     getAnnotationFromOutliers() {
@@ -1332,12 +1403,10 @@ class PdbTopologyViewerPlugin {
     }
 
     createDomainDropdown = function () {
-        
         this.domainTypes = [{
             label: 'Annotation',
             data: null
         }];
-        
         this.getAnnotationFromMappings();
         this.getAnnotationFromOutliers();
         this.getAnnotationFromRibovision();
@@ -1357,6 +1426,7 @@ class PdbTopologyViewerPlugin {
 
             const resetIconEle = this.targetEle.querySelector('.resetIcon');
             resetIconEle.addEventListener("click", this.resetDisplay.bind(this));
+            this.targetEle.querySelector(".saveSVG").addEventListener("click", this.saveSVG.bind(this))
 
         }else{
             this.targetEle.querySelector('.menuOptions').style.display = 'none';
@@ -1418,6 +1488,38 @@ class PdbTopologyViewerPlugin {
             }
         });
     }
+    saveSVG(){
+        function getNode(n: any, v?: any) {
+		  n = document.createElementNS("http://www.w3.org/2000/svg", n);
+		   for (var p in v) 
+		   n.setAttributeNS(null, p.replace(/[0-9]/g,'o').replace(/\$/g,'d').replace(/\[/g,'b').replace(/[A-Z]/g, function(m, p, o, s) { return "-" + m.toLowerCase(); }), v[p]);
+		  return n
+		}
+
+      var svgData1=this.targetEle.querySelector(".topoSvg");
+      var svgParent=this.targetEle.querySelector(".svgSection");
+      let svgData_forsave = svgData1!.cloneNode(true);
+      var svg = getNode("svg");
+      svg.appendChild(svgData_forsave);
+      if(svgData1 && svgParent) {
+        svgParent.appendChild(svgData1);
+      }
+
+     function saveSvg1(svgEl: any, name: any) {
+          svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+          var svgData = svgEl.outerHTML;
+          var preface = '<?xml version="1.0" standalone="no"?>\r\n';
+          var svgBlob = new Blob([preface, svgData], {type:"image/svg+xml;charset=utf-8"});
+          var svgUrl = URL.createObjectURL(svgBlob);
+          var downloadLink = document.createElement("a");
+          downloadLink.href = svgUrl;
+          downloadLink.download = name;
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+          document.body.removeChild(downloadLink);
+      }
+	    saveSvg1(svg, 'test.svg')	
+  }
 
     displayDomain(invokedFrom?: string) {
 

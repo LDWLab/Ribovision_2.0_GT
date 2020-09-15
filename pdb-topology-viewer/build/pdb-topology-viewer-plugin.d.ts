@@ -19,6 +19,7 @@ declare class PdbTopologyViewerPlugin {
     entityId: string;
     entryId: string;
     entropyId: string;
+    filterRange: string;
     chainId: string;
     apiData: any;
     targetEle: HTMLElement;
@@ -36,6 +37,7 @@ declare class PdbTopologyViewerPlugin {
         entityId: string;
         entryId: string;
         entropyId: string;
+        filterRange?: string;
         chainId?: string;
         subscribeEvents?: boolean;
         displayStyle?: string;
@@ -80,6 +82,7 @@ declare class PdbTopologyViewerPlugin {
     resetTheme(): void;
     changeResidueColor(residueNumber: number, rgbColor: string, tooltipContent: string, tooltipPosition: string): void;
     updateTheme(residueDetails: any): void;
+    saveSVG(): void;
     displayDomain(invokedFrom?: string): void;
     resetDisplay(): void;
     handleSeqViewerEvents(e: any, eType: string): void;

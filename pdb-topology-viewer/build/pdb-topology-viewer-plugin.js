@@ -130,6 +130,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 selectBoxEle.addEventListener("change", this.displayDomain.bind(this));
                 var resetIconEle = this.targetEle.querySelector('.resetIcon');
                 resetIconEle.addEventListener("click", this.resetDisplay.bind(this));
+                this.targetEle.querySelector(".saveSVG").addEventListener("click", this.saveSVG.bind(this));
             }
             else {
                 this.targetEle.querySelector('.menuOptions').style.display = 'none';
@@ -144,6 +145,8 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
             this.errorStyle += options.errorStyle;
         if (options && typeof options.menuStyle != 'undefined' && options.menuStyle != null)
             this.menuStyle += options.menuStyle;
+        if (options && typeof options.filterRange != 'undefined' && options.filterRange != null)
+            this.filterRange = options.filterRange;
         this.targetEle = target;
         if (this.targetEle)
             this.targetEle.innerHTML = '';
@@ -262,7 +265,88 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
     PdbTopologyViewerPlugin.prototype.getDomainRange = function () {
         var _this_1 = this;
         var allCordinatesArray = [];
+        //filtering by a domain
+        //update domain start and end positions here
         var topologyData = this.apiData[2][this.entryId][this.entityId][this.chainId];
+        var istart = Number(this.filterRange.split(",")[0]);
+        var iend = Number(this.filterRange.split(",")[1]);
+        //if (istart == 0 && iend == 100000) {istart = parseInt (t["terms"][0]["resnum"]); iend = parseInt (t["terms"][1]["resnum"]) }
+        if (iend > 5000) {
+            var tc = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"];
+            //var te = this.apiData[2][this.entryId][this.entityId][this.chainId]["extents"];
+            var th = this.apiData[2][this.entryId][this.entityId][this.chainId]["helices"];
+            var ts = this.apiData[2][this.entryId][this.entityId][this.chainId]["strands"];
+            //var ths = this.apiData[2][this.entryId][this.entityId][this.chainId]["helices"][0]["start"];
+            //var the = this.apiData[2][this.entryId][this.entityId][this.chainId]["helices"][0]["stop"];
+            for (var k = 0; k < th.length; k++) {
+                if (((th[k]["start"] < istart) && (th[k]["stop"] < istart)) || ((th[k]["start"] > iend) && (th[k]["stop"] > iend))) {
+                    this.apiData[2][this.entryId][this.entityId][this.chainId]["helices"].splice(k, 1);
+                    k--;
+                }
+            }
+            for (var k = 0; k < ts.length; k++) {
+                if (((ts[k]["stop"] < istart)) || ((ts[k]["start"] > iend))) {
+                    this.apiData[2][this.entryId][this.entityId][this.chainId]["strands"].splice(k, 1);
+                    k--;
+                }
+            }
+            for (var k = 0; k < tc.length; k++) {
+                if (((tc[k]["stop"] < istart) && (tc[k]["start"] != -1)) || ((tc[k]["start"] > iend) && (tc[k]["stop"] > iend))) {
+                    this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"].splice(k, 1);
+                    k--;
+                }
+            }
+            tc = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"];
+            //console.log(tc);
+            for (var k = 0; k < tc.length; k++) {
+                if ((tc[0]["start"] == -1)) {
+                    this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"].splice(0, 1);
+                    k--;
+                }
+            }
+            for (var k = tc.length - 1; k >= 0; k--) {
+                if ((tc[tc.length - 1]["start"] == -1)) {
+                    this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"].splice(tc.length - 1, 1);
+                    k--;
+                }
+            }
+            tc = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"];
+            //var tca = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["start"];
+            //var tco = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["stop"];
+            //var tcp = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["path"];
+            //for( var k = 0; k < 1; k++){ if ((( tc[0]["start"] < istart) && ( tc[0]["stop"] >= istart) )) { del=istart - tc[0]["start"]-1;  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["path"].splice(0, (del-1)*2);  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"]=this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"]+del;  }}
+            //for( var k = tc.length-1; k > tc.length-2; k--){ if ((( tc[tc.length-1]["start"] <= iend) &&( tc[tc.length-1]["stop"] >= iend) )) { del=tc[tc.length-1]["stop"]-1-iend; path_length=tc[tc.length-1]["path"].length; console.log(del, path_length); this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["path"].splice(path_length-3, 2);  this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["stop"]=this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length-1]["stop"]-del;  }}
+            for (var k = 0; k < 1; k++) {
+                if (((tc[0]["start"] < istart) && (tc[0]["stop"] >= istart))) {
+                    var del = istart - tc[0]["start"] - 1;
+                    var del1 = del;
+                    if (del > 2) {
+                        del1 = 2;
+                    }
+                    ;
+                    this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["path"].splice(0, (del1 - 1) * 2);
+                    this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"] = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"] + del + 1;
+                }
+            }
+            for (var k = tc.length - 1; k > tc.length - 2; k--) {
+                if (((tc[tc.length - 1]["start"] <= iend) && (tc[tc.length - 1]["stop"] >= iend))) {
+                    del = tc[tc.length - 1]["stop"] - 1 - iend;
+                    del1 = del;
+                    if (del > 2) {
+                        del1 = 2;
+                    }
+                    ;
+                    var path_length = tc[tc.length - 1]["path"].length;
+                    console.log(del, path_length);
+                    this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length - 1]["path"].splice(path_length - (del1 - 1) * 2 - 1, (del1 - 1) * 2);
+                    this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length - 1]["stop"] = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][tc.length - 1]["stop"] - del - 1;
+                }
+            }
+            //console.log(tc);
+            //this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"][0]["start"][0]=54;
+        }
+        ;
+        //console.log(t);
         for (var secStrType in topologyData) {
             if (topologyData[secStrType]) {
                 // iterating on secondary str data array to get array spliced in x,y 
@@ -414,6 +498,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
             entryId: this.entryId,
             entityId: this.entityId,
             entropyId: this.entropyId,
+            filterRange: this.filterRange,
             chainId: this.chainId,
         });
     };
@@ -436,6 +521,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
             entryId: this.entryId,
             entityId: this.entityId,
             entropyId: this.entropyId,
+            filterRange: this.filterRange,
             chainId: this.chainId,
         });
     };
@@ -465,6 +551,8 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         }
         //Dispatch custom mouseover event
         this.dispatchEvent('PDB.topologyViewer.mouseout', {
+            entropyId: this.entropyId,
+            filterRange: this.filterRange,
             entryId: this.entryId,
             entityId: this.entityId,
             chainId: this.chainId,
@@ -730,7 +818,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
     PdbTopologyViewerPlugin.prototype.drawTopologyStructures = function () {
         var _this_1 = this;
         //Add container elements
-        this.targetEle.innerHTML = "<div style=\"" + this.displayStyle + "\">\n            <div class=\"svgSection\" style=\"position:relative;width:100%;\"></div>\n            <div style=\"" + this.menuStyle + "\">\n                <img src=\"https://www.ebi.ac.uk/pdbe/entry/static/images/logos/PDBe/logo_T_64.png\" style=\"height:15px; width: 15px; border:0;position: absolute;margin-top: 11px;\" />\n                <a style=\"color: #efefef;border-bottom:none; cursor:pointer;margin-left: 16px;\" target=\"_blank\" href=\"https://pdbe.org/" + this.entryId + "\">" + this.entryId + "</a> | <span class=\"menuDesc\">Entity " + this.entityId + " | Chain " + this.chainId.toUpperCase() + "</span>\n                <div class=\"menuOptions\" style=\"float:right;margin-right: 20px;\">\n                    <select class=\"menuSelectbox\" style=\"margin-right: 10px;\"><option value=\"\">Select</option></select>\n                    <img class=\"resetIcon\" src=\"https://www.ebi.ac.uk/pdbe/pdb-component-library/images/refresh.png\" style=\"height:15px; width: 15px; border:0;position: absolute;margin-top: 11px;cursor:pointer;\" title=\"Reset view\" />\n                </div>\n            </div>\n        </div>";
+        this.targetEle.innerHTML = "<div style=\"" + this.displayStyle + "\">\n            <div class=\"svgSection\" style=\"position:relative;width:100%;\"></div>\n            <div style=\"" + this.menuStyle + "\">\n                <img src=\"https://www.ebi.ac.uk/pdbe/entry/static/images/logos/PDBe/logo_T_64.png\" style=\"height:15px; width: 15px; border:0;position: absolute;margin-top: 11px;\" />\n                <a style=\"color: #efefef;border-bottom:none; cursor:pointer;margin-left: 16px;\" target=\"_blank\" href=\"https://pdbe.org/" + this.entryId + "\">" + this.entryId + "</a> | <span class=\"menuDesc\">Entity " + this.entityId + " | Chain " + this.chainId.toUpperCase() + "</span>\n                <div class=\"menuOptions\" style=\"float:right;margin-right: 20px;\">\n                    <select class=\"menuSelectbox\" style=\"margin-right: 10px;\"><option value=\"\">Select</option></select>\n                    <img class=\"saveSVG\" src=\"http://apollo2.chemistry.gatech.edu/RiboVision3/pdb-topology-viewer-master_2/build/Save.png\" style=\"height:15px; width: 15px; border:0;position: relative;margin-right: 15px;cursor:pointer;\" title=\"saveSVG\" />\n\n                    <img class=\"resetIcon\" src=\"https://www.ebi.ac.uk/pdbe/pdb-component-library/images/refresh.png\" style=\"height:15px; width: 15px; border:0;position: absolute;margin-top: 11px;cursor:pointer;\" title=\"Reset view\" />\n                </div>\n            </div>\n        </div>";
         //Get dimenstions
         var targetEleWt = this.targetEle.offsetWidth;
         var targetEleHt = this.targetEle.offsetHeight;
@@ -1116,8 +1204,10 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         return chainRange;
     };
     PdbTopologyViewerPlugin.prototype.getAnnotationFromRibovision = function () {
+        //var test_ID = '"Charge":1,0.14,2,0.16,3,-0.01,4,0,5,0,6,0,7,0.38,8,0.99,9,-0.01,10,-0.01,11,0,12,0,13,0.29,14,0,15,-0.02,16,-0.1;"Hydropathy":1,0.95,2,0.48,3,-0.14,4,3.34,5,3.18,6,0.02,7,-2.29,8,-3.9,9,3.36,10,-0.43';
         var _this = this;
         var chainRange = this.getChainStartAndEnd();
+        console.log(this.domainTypes);
         var residueDetails = [{
                 start: chainRange.start,
                 end: chainRange.end,
@@ -1127,59 +1217,75 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         //Two temporary arrays for grouping rsrz and other outliers tooltip message  
         var rsrzTempArray = [];
         var otherOutliersTempArray = [0];
+        //if (void 0 !== this.entropyId) {
         if (void 0 !== this.entropyId) {
             var Y_min_1 = -2.935;
             var Y_max_1 = 12.065;
-            var unParsedTWC_1 = this.entropyId.split(",");
-            var TWCData_1 = new Map();
-            var TWCrgbMap_1 = new Map();
+            //let unParsedTWC = this.entropyId.split('":').join(';').split(';');
+            var unParsedTWC_1 = this.entropyId.split('":').join(';').split(';');
             unParsedTWC_1.forEach(function (item, index) {
-                if (index % 2 == 0) {
-                    TWCData_1.set(item, unParsedTWC_1[index + 1]);
-                    if (Number(unParsedTWC_1[index + 1]) < 0) {
-                        TWCrgbMap_1.set(item, interpolateLinearly(Number(unParsedTWC_1[index + 1]) / Y_min_1, RdPu));
+                if (index % 2 === 1) {
+                    residueDetails = [{
+                            start: chainRange.start,
+                            end: chainRange.end,
+                            color: _this.defaultColours.qualityGreen,
+                            tooltipMsg: 'No validation issue reported for '
+                        }];
+                    console.log(_this.domainTypes);
+                    var separatedData_1 = unParsedTWC_1[index].split(",");
+                    var dataTitle = unParsedTWC_1[index - 1].split('"')[1];
+                    var TWCData_1 = new Map();
+                    var TWCrgbMap_1 = new Map();
+                    separatedData_1.forEach(function (item, index) {
+                        if (index % 2 == 0) {
+                            TWCData_1.set(item, separatedData_1[index + 1]);
+                            if (Number(separatedData_1[index + 1]) < 0) {
+                                TWCrgbMap_1.set(item, interpolateLinearly(Number(separatedData_1[index + 1]) / Y_min_1, RdPu));
+                            }
+                            else {
+                                TWCrgbMap_1.set(item, interpolateLinearly(Number(separatedData_1[index + 1]) / Y_max_1, YlGn));
+                            }
+                        }
+                    });
+                    var Entity_id_loc = _this.entityId;
+                    window.selectSections_RV1 = [{ entity_id: Entity_id_loc, focus: true }];
+                    if (void 0 !== TWCData_1) {
+                        TWCData_1.forEach(function (value, index) {
+                            var rgb_color = TWCrgbMap_1.get(index);
+                            window.selectSections_RV1.push({
+                                entity_id: Entity_id_loc,
+                                start_residue_number: parseInt(index),
+                                end_residue_number: parseInt(index),
+                                color: rgb_color[1],
+                                sideChain: false,
+                            });
+                            _this.defaultColours.qualityRiboVision = "rgb(" + String(rgb_color[0].join(',')) + ")";
+                            var colors = "rgb(" + String(rgb_color[0].join(',')) + ")";
+                            _this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
+                            residueDetails.push({
+                                start: parseInt(index),
+                                end: parseInt(index),
+                                color: colors,
+                                tooltipMsg: Number.parseFloat(value).toPrecision(3),
+                                tooltipPosition: "prefix"
+                            }),
+                                otherOutliersTempArray.push(index);
+                            _this.drawValidationShape(index, "circle", colors);
+                            rsrzTempArray.push(index);
+                        });
+                        if (0 < residueDetails.length) {
+                            _this.domainTypes.push({
+                                label: dataTitle,
+                                data: residueDetails
+                            });
+                        }
                     }
                     else {
-                        TWCrgbMap_1.set(item, interpolateLinearly(Number(unParsedTWC_1[index + 1]) / Y_max_1, YlGn));
+                        //catch block
                     }
+                    ;
                 }
             });
-            var Entity_id_loc = _this.entityId;
-            window.selectSections_RV1 = [{ entity_id: Entity_id_loc, focus: true }];
-            if (void 0 !== TWCData_1) {
-                console.log("boom");
-                TWCData_1.forEach(function (value, index) {
-                    var rgb_color = TWCrgbMap_1.get(index);
-                    window.selectSections_RV1.push({
-                        entity_id: Entity_id_loc,
-                        start_residue_number: parseInt(index),
-                        end_residue_number: parseInt(index),
-                        color: rgb_color[1],
-                        sideChain: false,
-                    });
-                    _this.defaultColours.qualityRiboVision = "rgb(" + String(rgb_color[0].join(',')) + ")";
-                    var colors = "rgb(" + String(rgb_color[0].join(',')) + ")";
-                    _this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
-                    residueDetails.push({
-                        start: parseInt(index),
-                        end: parseInt(index),
-                        color: colors,
-                        tooltipMsg: Number.parseFloat(value).toPrecision(3),
-                        tooltipPosition: "prefix"
-                    }),
-                        otherOutliersTempArray.push(index);
-                    _this.drawValidationShape(index, "circle", colors);
-                    rsrzTempArray.push(index);
-                }),
-                    0 < residueDetails.length && this.domainTypes.push({
-                        label: "TwinCons",
-                        data: residueDetails
-                    });
-            }
-            else {
-                //catch empty stuff
-            }
-            ;
         }
     };
     PdbTopologyViewerPlugin.prototype.getAnnotationFromOutliers = function () {
@@ -1342,6 +1448,36 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 _this.changeResidueColor(i, residueDetailsObj.color, residueDetailsObj.tooltipMsg, residueDetailsObj.tooltipPosition);
             }
         });
+    };
+    PdbTopologyViewerPlugin.prototype.saveSVG = function () {
+        function getNode(n, v) {
+            n = document.createElementNS("http://www.w3.org/2000/svg", n);
+            for (var p in v)
+                n.setAttributeNS(null, p.replace(/[0-9]/g, 'o').replace(/\$/g, 'd').replace(/\[/g, 'b').replace(/[A-Z]/g, function (m, p, o, s) { return "-" + m.toLowerCase(); }), v[p]);
+            return n;
+        }
+        var svgData1 = this.targetEle.querySelector(".topoSvg");
+        var svgParent = this.targetEle.querySelector(".svgSection");
+        var svgData_forsave = svgData1.cloneNode(true);
+        var svg = getNode("svg");
+        svg.appendChild(svgData_forsave);
+        if (svgData1 && svgParent) {
+            svgParent.appendChild(svgData1);
+        }
+        function saveSvg1(svgEl, name) {
+            svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+            var svgData = svgEl.outerHTML;
+            var preface = '<?xml version="1.0" standalone="no"?>\r\n';
+            var svgBlob = new Blob([preface, svgData], { type: "image/svg+xml;charset=utf-8" });
+            var svgUrl = URL.createObjectURL(svgBlob);
+            var downloadLink = document.createElement("a");
+            downloadLink.href = svgUrl;
+            downloadLink.download = name;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+        saveSvg1(svg, 'test.svg');
     };
     PdbTopologyViewerPlugin.prototype.displayDomain = function (invokedFrom) {
         var selectBoxEle = this.targetEle.querySelector('.menuSelectbox');
