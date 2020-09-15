@@ -1,7 +1,7 @@
 class PdbTopologyViewer extends HTMLElement {
 
   static get observedAttributes() {
-    return ['entry-id', 'entity-id', 'entropy-id', 'chain-id', 'display-style', 'error-style', 'menu-style', 'subscribe-events'];
+    return ['entry-id', 'entity-id', 'entropy-id', 'filter-range', 'chain-id', 'display-style', 'error-style', 'menu-style', 'subscribe-events'];
   }
 
   constructor() {
@@ -23,7 +23,7 @@ class PdbTopologyViewer extends HTMLElement {
     let options = {
       entryId: this.entryId,
       entityId: this.entityId,
-      entropyId: this.entropyId
+      entropyId: this.entropyId,
     }
 
     if(typeof this.chainId !== 'undefined' && this.chainId !== null) options['chainId'] = this.chainId;
@@ -31,7 +31,7 @@ class PdbTopologyViewer extends HTMLElement {
     if(typeof this.errorStyle !== 'undefined' && this.errorStyle !== null) options['errorStyle'] = this.errorStyle;
     if(typeof this.menuStyle !== 'undefined' && this.menuStyle !== null) options['menuStyle'] = this.menuStyle;
     if(typeof this.subscribeEvents !== 'undefined' && this.subscribeEvents !== null) options['subscribeEvents'] = this.subscribeEvents;
-
+    if(typeof this.filterRange !== 'undefined' && this.filterRange !== null) options['filterRange'] = this.filterRange;
     this.pluginInstance.render(this, options);
 
   }
@@ -41,6 +41,7 @@ class PdbTopologyViewer extends HTMLElement {
     this.entityId = this.getAttribute("entity-id");
     this.entropyId = this.getAttribute("entropy-id");
     this.chainId = this.getAttribute("chain-id");
+    this.filterRange = this.getAttribute("filter-range");
     this.displayStyle = this.getAttribute("display-style");
     this.errorStyle = this.getAttribute("error-style");
     this.menuStyle = this.getAttribute("menu-style");
