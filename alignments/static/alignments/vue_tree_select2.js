@@ -1,14 +1,42 @@
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+var csrftoken = getCookie('csrftoken');    function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    }
+});
+
 function ajax(url, optional_data='') {
     if (optional_data != ''){
-        var el = document.getElementsByName("csrfmiddlewaretoken");
-        csrf_value = el[0].getAttribute("value");
+        //var el = document.getElementsByName("csrfmiddlewaretoken");
+        //csrf_value = Cookies.get('csrftoken');
+        //csrf_value = el[0].getAttribute("value");
         return new Promise((resolve, reject) => {
             $.ajax({
                 url: url,
                 type: 'POST',
                 dataType: "json",
                 data: optional_data,
-                headers: {'X-CSRFToken': csrf_value},
+                headers: {'X-CSRFToken': csrftoken},
                 success: function(data) {
                     resolve(data)
                 },

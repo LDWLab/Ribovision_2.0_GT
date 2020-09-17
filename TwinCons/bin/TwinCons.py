@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Calculate and visualize conservation between two groups of sequences from one alignment"""
-import re, os, csv, sys, random, Bio.Align, argparse, random, math
+import re, os, csv, sys, random, argparse, random, math
 import numpy as np
 from datetime import date
 from Bio import AlignIO
@@ -12,6 +12,7 @@ from .AlignmentGroup import AlignmentGroup
 from TwinCons.bin import Sequence_Weight_from_Tree
 from .MatrixLoad import PAMLmatrix
 from Bio.SubsMat import MatrixInfo
+from Bio.Align import MultipleSeqAlignment
 
 def create_and_parse_argument_options(argument_list):
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
@@ -175,7 +176,7 @@ def slice_by_name(unsliced_aln_obj):
         prot_list.append(entry.id.split("_")[0])
     uniq_prot_list=set(prot_list)
     for prot in uniq_prot_list:
-        what = Bio.Align.MultipleSeqAlignment([])
+        what = MultipleSeqAlignment([])
         for entry in unsliced_aln_obj:
             if re.match(prot,entry.id.split("_")[0]):
                 what.append(entry)
@@ -513,7 +514,7 @@ def main(commandline_arguments):
     number_of_aligned_positions, extremely_gapped = count_aligned_positions(alignIO_out_gapped, comm_args.gap_threshold)
     if comm_args.cut_gaps:
         tempaln = alignIO_out_gapped[:,:]
-        alignIO_out_gapped = Bio.Align.MultipleSeqAlignment([])
+        alignIO_out_gapped = MultipleSeqAlignment([])
         gp_mapping, alignIO_out_gapped, alen = remove_extremely_gapped_regions(tempaln, float(comm_args.gap_threshold), gp_mapping)
     else:
         for i in range(1, alignIO_out_gapped.get_alignment_length()+1):
