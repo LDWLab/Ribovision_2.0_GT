@@ -28,18 +28,37 @@ TODO:
                 xArray = [],
                 yArray = [];
             data.forEach(iterationHelper);
-            Plotly.newPlot(
-                'div0', [{
-                    x : xArray,
-                    y : yArray,
-                    type: 'bar',
-                    marker:{
-                        color:'rgba(255,153,51,0.6)', //A list of colors folowing the colormap. Pass from python maybe. ['rgba(204,204,204,1)', 'rgba(222,45,38,0.8)']
-                    }
-                }],
-            );
+            console.log(xArray)
+            console.log(yArray)
+            var trace1 = {
+                y: xArray,
+                type: 'box',
+                boxpoints: 'all',
+                jitter: 0.2,
+                pointpos: 0};
+            var trace2 = {
+                y: yArray,
+                type: 'box',
+                boxpoints: 'all',
+                jitter: 0.2,
+                pointpos: 0};
+            
+            var data = [trace1, trace2];
+
+            Plotly.newPlot('div0', data);
+
+            // Plotly.newPlot(
+            //     'div0', [{
+            //         x : xArray,
+            //         y : yArray,
+            //         type: 'bar',
+            //         marker:{
+            //             color:'rgba(255,153,51,0.6)', //A list of colors folowing the colormap. Pass from python maybe. ['rgba(204,204,204,1)', 'rgba(222,45,38,0.8)']
+            //         }
+            //     }],
+            // );
             function iterationHelper(xyPair) {
-                console.log(xyPair);
+                // console.log(xyPair);
                 xArray.push(xyPair[0]);
                 yArray.push(xyPair[1]);
             }
