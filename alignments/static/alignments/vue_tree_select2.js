@@ -131,7 +131,7 @@ var calculateFrequencyData = function (frequencies){
     const multiplyvector = function (a,b){
         return a.map((e,i) => e * b[i]);
     }
-    const aaProperties = ["Charge","Hydropathy","Hydrophobicity","Polarity","Mutability"]
+    var aaProperties = ["Charge","Hydropathy","Hydrophobicity","Polarity","Mutability"]
     let aaPropertiesData = new Map([
                             ["Charge",[0,0,-1,-1,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0]],
                             ["Hydropathy",[1.8,2.5,-3.5,-3.5,2.8,-0.4,-3.2,4.5,-3.9,3.8,1.9,-3.5,-1.6,-3.5,-4.5,-0.8,-0.7,4.2,-0.9,-1.3]],
