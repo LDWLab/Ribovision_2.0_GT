@@ -8,7 +8,8 @@ TODO:
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
 <body>
-    <div id = "div0"></div>
+    <div id = "reduced"></div>
+    <div id = "total"></div>
 
     <script>
         function get_twc_list_data(propensity_data) {
@@ -17,6 +18,7 @@ TODO:
             type: "GET",
             dataType: "json",
             success: function (data) {
+                console.log(data)
                 build_plotly_graph(data);
             },
             error: function (error) {
@@ -25,42 +27,94 @@ TODO:
         }
         function build_plotly_graph(data){
             var
-                xArray = [],
-                yArray = [];
+                cArray = [],
+                fArray = [],
+                gArray = [],
+                pArray = [],
+                dArray = [],
+                nArray = [],
+                kArray = [],
+                vArray = [];
             data.forEach(iterationHelper);
-            console.log(xArray)
-            console.log(yArray)
-            var trace1 = {
-                y: xArray,
+
+            // traces
+            var ctrace = {
+                y: cArray,
                 type: 'box',
                 boxpoints: 'all',
                 jitter: 0.2,
-                pointpos: 0};
-            var trace2 = {
-                y: yArray,
+                pointpos: 0,
+                name: 'C'};
+                // marker: {color: 'rgb(9,56,125)'},
+                // line: {color: 'rgba(0,0,0,0)'},
+                // fillcolor:{color: 'rgba(0,0,0,0)'}};
+            var ftrace = {
+                y: fArray,
                 type: 'box',
                 boxpoints: 'all',
                 jitter: 0.2,
-                pointpos: 0};
+                pointpos: 0,
+                name: 'F'};
+            var gtrace = {
+                y: gArray,
+                type: 'box',
+                boxpoints: 'all',
+                jitter: 0.2,
+                pointpos: 0,
+                name: 'G'};
+            var ptrace = {
+                y: pArray,
+                type: 'box',
+                boxpoints: 'all',
+                jitter: 0.2,
+                pointpos: 0,
+                name: 'P'};
+            var dtrace = {
+                y: dArray,
+                type: 'box',
+                boxpoints: 'all',
+                jitter: 0.2,
+                pointpos: 0,
+                name: 'D'};
+            var ntrace = {
+                y: nArray,
+                type: 'box',
+                boxpoints: 'all',
+                jitter: 0.2,
+                pointpos: 0,
+                name: 'N'};
+            var ktrace = {
+                y: kArray,
+                type: 'box',
+                boxpoints: 'all',
+                jitter: 0.2,
+                pointpos: 0,
+                name: 'K'};
+            var vtrace = {
+                y: vArray,
+                type: 'box',
+                boxpoints: 'all',
+                jitter: 0.2,
+                pointpos: 0,
+                name: 'V'};
             
-            var data = [trace1, trace2];
+            var layout = {
+                title: 'Reduced Alphabet Propensities for OB Folds',
+                xaxis: {title: 'amino acid group'},
+                yaxis: {title: 'propensity'}};
+            var data = [ctrace, ftrace, gtrace, ptrace, dtrace, ntrace, ktrace, vtrace];
 
-            Plotly.newPlot('div0', data);
+            Plotly.newPlot('reduced', data, layout);
 
-            // Plotly.newPlot(
-            //     'div0', [{
-            //         x : xArray,
-            //         y : yArray,
-            //         type: 'bar',
-            //         marker:{
-            //             color:'rgba(255,153,51,0.6)', //A list of colors folowing the colormap. Pass from python maybe. ['rgba(204,204,204,1)', 'rgba(222,45,38,0.8)']
-            //         }
-            //     }],
-            // );
-            function iterationHelper(xyPair) {
-                // console.log(xyPair);
-                xArray.push(xyPair[0]);
-                yArray.push(xyPair[1]);
+            function iterationHelper(sequence) {
+                cArray.push(sequence[1]);
+                fArray.push(sequence[2]);
+                gArray.push(sequence[3]);
+                pArray.push(sequence[4]);
+                dArray.push(sequence[5]);
+                nArray.push(sequence[6]);
+                kArray.push(sequence[7]);
+                vArray.push(sequence[8]);
             }
         }
     window.onload = get_twc_list_data("{{propensity_data}}")
