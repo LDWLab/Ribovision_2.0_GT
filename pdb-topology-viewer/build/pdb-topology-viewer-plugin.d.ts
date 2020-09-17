@@ -1,6 +1,7 @@
 declare const interpolateLinearly: any;
 declare const RdPu: any;
 declare const YlGn: any;
+declare var selectSections_RV1: Map<any, any>;
 declare class PdbTopologyViewerPlugin {
     defaultColours: {
         domainSelection: string;
@@ -75,7 +76,7 @@ declare class PdbTopologyViewerPlugin {
     getChainStartAndEnd(): {
         start: number;
         end: number;
-    } | undefined;
+    };
     getAnnotationFromRibovision(): void;
     getAnnotationFromOutliers(): void;
     createDomainDropdown: () => void;

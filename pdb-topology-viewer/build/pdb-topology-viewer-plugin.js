@@ -38,16 +38,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var interpolateLinearly = window.interpolateLinearly;
 var RdPu = window.RdPu;
 var YlGn = window.YlGn;
+var selectSections_RV1 = new Map();
 var PdbTopologyViewerPlugin = /** @class */ (function () {
     function PdbTopologyViewerPlugin() {
         this.defaultColours = {
             domainSelection: 'rgb(255,0,0)',
-            mouseOver: 'rgb(255,105,105)',
+            mouseOver: 'rgb(105,105,105)',
             borderColor: 'rgb(0,0,0)',
             qualityGreen: 'rgb(0,182.85714285714286,0)',
             qualityRed: 'rgb(291.42857142857144,0,0)',
             qualityYellow: 'rgb(364.2857142857143,364.2857142857143,75.71428571428572)',
-            qualityRiboVision: "rgb(364.2857142857143,364.2857142857143,75.71428571428572)",
+            qualityRiboVision: "rgb(203,203,203)",
             qualityOrange: 'rgb(291.42857142857144,121.42857142857143,0)'
         };
         this.displayStyle = 'border:1px solid #696969;';
@@ -112,14 +113,16 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
             }
         };
         this.createDomainDropdown = function () {
-            this.domainTypes = [{
-                    label: 'Annotation',
-                    data: null
-                }];
-            this.getAnnotationFromMappings();
-            this.getAnnotationFromOutliers();
-            this.getAnnotationFromRibovision();
-            this.selectedDomain = this.domainTypes[0];
+            if (typeof this.domainTypes == 'undefined') {
+                this.domainTypes = [{
+                        label: 'Annotation',
+                        data: null
+                    }];
+                this.getAnnotationFromMappings();
+                this.getAnnotationFromOutliers();
+                this.getAnnotationFromRibovision();
+                this.selectedDomain = this.domainTypes[0];
+            }
             if (this.domainTypes.length > 1) {
                 var optionList_1 = '';
                 this.domainTypes.forEach(function (opt, i) {
@@ -1204,24 +1207,21 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         return chainRange;
     };
     PdbTopologyViewerPlugin.prototype.getAnnotationFromRibovision = function () {
-        //var test_ID = '"Charge":1,0.14,2,0.16,3,-0.01,4,0,5,0,6,0,7,0.38,8,0.99,9,-0.01,10,-0.01,11,0,12,0,13,0.29,14,0,15,-0.02,16,-0.1;"Hydropathy":1,0.95,2,0.48,3,-0.14,4,3.34,5,3.18,6,0.02,7,-2.29,8,-3.9,9,3.36,10,-0.43';
         var _this = this;
         var chainRange = this.getChainStartAndEnd();
-        console.log(this.domainTypes);
+        //console.log(this.domainTypes);
         var residueDetails = [{
                 start: chainRange.start,
                 end: chainRange.end,
                 color: _this.defaultColours.qualityGreen,
-                tooltipMsg: 'No validation issue reported for '
+                tooltipMsg: 'No data for '
             }];
         //Two temporary arrays for grouping rsrz and other outliers tooltip message  
         var rsrzTempArray = [];
         var otherOutliersTempArray = [0];
-        //if (void 0 !== this.entropyId) {
         if (void 0 !== this.entropyId) {
             var Y_min_1 = -2.935;
             var Y_max_1 = 12.065;
-            //let unParsedTWC = this.entropyId.split('":').join(';').split(';');
             var unParsedTWC_1 = this.entropyId.split(':').join(';').split(';');
             unParsedTWC_1.forEach(function (item, index) {
                 if (index % 2 === 1) {
@@ -1229,11 +1229,11 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                             start: chainRange.start,
                             end: chainRange.end,
                             color: _this.defaultColours.qualityGreen,
-                            tooltipMsg: 'No validation issue reported for '
+                            tooltipMsg: 'No data for '
                         }];
-                    console.log(_this.domainTypes);
                     var separatedData_1 = unParsedTWC_1[index].split(",");
-                    var dataTitle = unParsedTWC_1[index - 1];
+                    var dataTitle_1 = unParsedTWC_1[index - 1];
+                    selectSections_RV1.set(dataTitle_1, []);
                     var TWCData_1 = new Map();
                     var TWCrgbMap_1 = new Map();
                     separatedData_1.forEach(function (item, index) {
@@ -1247,13 +1247,12 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                             }
                         }
                     });
-                    var Entity_id_loc = _this.entityId;
-                    window.selectSections_RV1 = [{ entity_id: Entity_id_loc, focus: true }];
+                    selectSections_RV1.get(dataTitle_1).push({ entity_id: _this.entityId, focus: true });
                     if (void 0 !== TWCData_1) {
                         TWCData_1.forEach(function (value, index) {
                             var rgb_color = TWCrgbMap_1.get(index);
-                            window.selectSections_RV1.push({
-                                entity_id: Entity_id_loc,
+                            selectSections_RV1.get(dataTitle_1).push({
+                                entity_id: _this.entityId,
                                 start_residue_number: parseInt(index),
                                 end_residue_number: parseInt(index),
                                 color: rgb_color[1],
@@ -1274,8 +1273,8 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                             rsrzTempArray.push(index);
                         });
                         if (0 < residueDetails.length) {
-                            _this.domainTypes.push({
-                                label: dataTitle,
+                            _this.domainTypes.splice(1, 0, {
+                                label: dataTitle_1,
                                 data: residueDetails
                             });
                         }
@@ -1483,9 +1482,16 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         var selectBoxEle = this.targetEle.querySelector('.menuSelectbox');
         var selectedValue = parseInt(selectBoxEle.value);
         var selectedDomain = this.domainTypes[selectedValue];
+        var rv3AnnotationLabels = ["Charge", "Hydropathy", "Hydrophobicity", "Polarity", "Mutability", "TwinCons"];
         if (selectedDomain.data !== null) {
             this.resetTheme();
             this.updateTheme(selectedDomain.data);
+            //Handle custom mapping data from RV3
+            if (rv3AnnotationLabels.includes(selectedDomain.label)) {
+                var PdbeMolstarComponent = document.getElementById('PdbeMolstarComponent');
+                var viewerInstance3 = PdbeMolstarComponent.viewerInstance;
+                viewerInstance3.visual.select({ data: selectSections_RV1.get(selectedDomain.label), nonSelectedColor: { r: 0, g: 0, b: 0 } });
+            }
             //show rsrz validation circles if Quality
             if (selectedDomain.label === 'Quality') {
                 this.svgEle.selectAll('.validationResidue').style('display', 'block');
@@ -1596,7 +1602,8 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
             if (e.eventData.entry_id.toLowerCase() != this.entryId.toLowerCase() || e.eventData.entity_id != this.entityId)
                 return;
             //Abort if chain id is different
-            if (e.eventData.label_asym_id.toLowerCase() != this.chainId.toLowerCase())
+            //if(e.eventData.label_asym_id.toLowerCase() != this.chainId.toLowerCase()) return;
+            if (e.eventData.entity_id != this.entityId)
                 return;
             //Apply new selection
             this.highlight(e.eventData.seq_id, e.eventData.seq_id, undefined, eType);

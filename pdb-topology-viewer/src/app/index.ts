@@ -2,16 +2,18 @@
 const interpolateLinearly = (window as any).interpolateLinearly;
 const RdPu = (window as any).RdPu;
 const YlGn = (window as any).YlGn;
+var selectSections_RV1 = new Map();
+
 class PdbTopologyViewerPlugin { 
     
     defaultColours = {
         domainSelection: 'rgb(255,0,0)',
-        mouseOver: 'rgb(255,105,105)',
+        mouseOver: 'rgb(105,105,105)',
         borderColor: 'rgb(0,0,0)',
         qualityGreen: 'rgb(0,182.85714285714286,0)',
         qualityRed: 'rgb(291.42857142857144,0,0)',
         qualityYellow: 'rgb(364.2857142857143,364.2857142857143,75.71428571428572)',
-        qualityRiboVision: "rgb(364.2857142857143,364.2857142857143,75.71428571428572)",
+        qualityRiboVision: "rgb(203,203,203)",
         qualityOrange: 'rgb(291.42857142857144,121.42857142857143,0)'
     }
 
@@ -1205,37 +1207,36 @@ class PdbTopologyViewerPlugin {
         
     }
     getAnnotationFromRibovision() {
-        //var test_ID = '"Charge":1,0.14,2,0.16,3,-0.01,4,0,5,0,6,0,7,0.38,8,0.99,9,-0.01,10,-0.01,11,0,12,0,13,0.29,14,0,15,-0.02,16,-0.1;"Hydropathy":1,0.95,2,0.48,3,-0.14,4,3.34,5,3.18,6,0.02,7,-2.29,8,-3.9,9,3.36,10,-0.43';
-        const _this = this;
-        const chainRange:any = this.getChainStartAndEnd();
-        console.log(this.domainTypes);
-        let residueDetails:any = [{
-            start: chainRange.start,
-            end: chainRange.end,
-            color: _this.defaultColours.qualityGreen,
-            tooltipMsg: 'No validation issue reported for '
-        }];
-        
-        //Two temporary arrays for grouping rsrz and other outliers tooltip message  
-        let rsrzTempArray:any[] = [];
-        let otherOutliersTempArray = [0];
-    //if (void 0 !== this.entropyId) {
+    const _this = this;
+    const chainRange:any = this.getChainStartAndEnd();
+    //console.log(this.domainTypes);
+    let residueDetails:any = [{
+        start: chainRange.start,
+        end: chainRange.end,
+        color: _this.defaultColours.qualityGreen,
+        tooltipMsg: 'No data for '
+    }];
+    
+    //Two temporary arrays for grouping rsrz and other outliers tooltip message  
+    let rsrzTempArray:any[] = [];
+    let otherOutliersTempArray = [0];
     if (void 0 !== this.entropyId) {
+      
       const Y_min = -2.935;
       const Y_max = 12.065;
-      //let unParsedTWC = this.entropyId.split('":').join(';').split(';');
       let unParsedTWC = this.entropyId.split(':').join(';').split(';');
       unParsedTWC.forEach(function (item, index) {
+
         if(index % 2 === 1) {
             residueDetails = [{
                 start: chainRange.start,
                 end: chainRange.end,
                 color: _this.defaultColours.qualityGreen,
-                tooltipMsg: 'No validation issue reported for '
+                tooltipMsg: 'No data for '
             }];
-            console.log(_this.domainTypes);
             let separatedData = unParsedTWC[index].split(",");
             let dataTitle = unParsedTWC[index - 1];
+            selectSections_RV1.set(dataTitle, [])
             let TWCData = new Map();
             let TWCrgbMap = new Map();
                 separatedData.forEach(function (item, index) {
@@ -1249,14 +1250,13 @@ class PdbTopologyViewerPlugin {
           
                     }
                 });
-            var Entity_id_loc=_this.entityId;
-            (window as any).selectSections_RV1 = [{entity_id: Entity_id_loc, focus: true}];
+            selectSections_RV1.get(dataTitle).push({entity_id: _this.entityId, focus: true});
 
             if (void 0 !== TWCData){
                     TWCData.forEach(function(value, index) {
                         let rgb_color = TWCrgbMap.get(index);
-                        (window as any).selectSections_RV1.push({ //3d
-                            entity_id: Entity_id_loc,
+                        selectSections_RV1.get(dataTitle).push({ //3d
+                            entity_id: _this.entityId,
                             start_residue_number: parseInt(index), 
                             end_residue_number: parseInt(index),
                             color: rgb_color[1],
@@ -1277,7 +1277,7 @@ class PdbTopologyViewerPlugin {
                         rsrzTempArray.push(index);
                     })
                     if(0 < residueDetails.length){
-                        _this.domainTypes.push({
+                        _this.domainTypes.splice(1, 0, {
                         label: dataTitle,
                         data: residueDetails
                     })
@@ -1403,15 +1403,17 @@ class PdbTopologyViewerPlugin {
     }
 
     createDomainDropdown = function () {
-        this.domainTypes = [{
-            label: 'Annotation',
-            data: null
-        }];
-        this.getAnnotationFromMappings();
-        this.getAnnotationFromOutliers();
-        this.getAnnotationFromRibovision();
-        this.selectedDomain = this.domainTypes[0];
-
+        
+        if(typeof this.domainTypes == 'undefined'){
+            this.domainTypes = [{
+                label: 'Annotation',
+                data: null
+            }];
+            this.getAnnotationFromMappings();
+            this.getAnnotationFromOutliers();
+            this.getAnnotationFromRibovision();
+            this.selectedDomain = this.domainTypes[0];
+        }
         if(this.domainTypes.length > 1){
 
             let optionList = '';
@@ -1526,11 +1528,18 @@ class PdbTopologyViewerPlugin {
         const selectBoxEle:any = this.targetEle.querySelector('.menuSelectbox');
         const selectedValue = parseInt(selectBoxEle.value);
         const selectedDomain = this.domainTypes[selectedValue];
-        
+        const rv3AnnotationLabels = ["Charge","Hydropathy","Hydrophobicity","Polarity","Mutability","TwinCons"]
         if(selectedDomain.data !== null){
             this.resetTheme();
             this.updateTheme(selectedDomain.data);
             
+            //Handle custom mapping data from RV3
+            if(rv3AnnotationLabels.includes(selectedDomain.label)){
+                let PdbeMolstarComponent = document.getElementById('PdbeMolstarComponent');
+                let viewerInstance3 = (PdbeMolstarComponent as any).viewerInstance;
+                viewerInstance3.visual.select({ data: selectSections_RV1.get(selectedDomain.label), nonSelectedColor: {r:0,g:0,b:0}})
+
+            }
             //show rsrz validation circles if Quality
             if(selectedDomain.label === 'Quality'){
                 this.svgEle.selectAll('.validationResidue').style('display', 'block');
@@ -1648,8 +1657,8 @@ class PdbTopologyViewerPlugin {
             if(e.eventData.entry_id.toLowerCase() != this.entryId.toLowerCase() || e.eventData.entity_id != this.entityId) return;								
             
             //Abort if chain id is different
-            if(e.eventData.label_asym_id.toLowerCase() != this.chainId.toLowerCase()) return;
-
+            //if(e.eventData.label_asym_id.toLowerCase() != this.chainId.toLowerCase()) return;
+            if (e.eventData.entity_id != this.entityId) return;
             //Apply new selection
             this.highlight(e.eventData.seq_id, e.eventData.seq_id, undefined, eType);
         }
