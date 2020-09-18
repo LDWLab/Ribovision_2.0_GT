@@ -13,6 +13,7 @@ import os
 from django.shortcuts import render
 from django.http import HttpResponse, Http404, JsonResponse, HttpResponseServerError
 from django.urls import reverse_lazy
+from django.urls import reverse
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.views.generic import ListView, CreateView, UpdateView
@@ -362,18 +363,23 @@ def rRNA(request, align_name, tax_group):
 	return render(request, 'alignments/rRNA.html', context)
 
 def propensity_data(request):
-    from Bio import SeqIO
+    from io import StringIO
     import alignments.propensities as p
 
-    # step #1: try to deal with strings instead
-    # step #2: substitute this with alignments from the database
-    propensities = p.aa_composition('sample_fasta.fas', reduced = True)
+    # iterable for all alingment objects
+    # alns = Alignments.objects.all()
+
+    # this is slow
+    aln_id = 1
+    tax_group = '2,2157,2759'
+    fastastring = simple_fasta(request, aln_id, tax_group, internal=True).replace('\\n', '\n')
+    fasta = StringIO(fastastring)
+    propensities = p.aa_composition(fasta, reduced = False)
     
     return JsonResponse(propensities.values.tolist(), safe = False)
 
 def propensities(request):
-    # how to not hardcode this?
-    propensity_data = "http://127.0.0.1:8000/propensity-data"
+    propensity_data = reverse('alignments:propensity_data')
 
     # where does the context variable come from? what does it do?
     context = {"propensity_data" : propensity_data}

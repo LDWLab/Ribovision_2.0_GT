@@ -31,7 +31,7 @@ urlpatterns = [
 	path('fold-api/<int:fold_id>', views.fold_info),
 	path('paralog-aln-api/<int:aln_id>', views.para_aln),
 	path('ortholog-aln-api/<int:aln_id>/<int:tax_group>', views.simple_fasta),
-	path('ortholog-aln-api/<int:aln_id>/<str:tax_group>', views.simple_fasta),
+	path('ortholog-aln-api/<int:aln_id>/<str:tax_group>', views.simple_fasta, name ='ortholog_aln_api'),
 	path('orthologs/twc-api/<str:align_name>/<int:tax_group1>/<int:tax_group2>/<str:anchor_structure>', views.api_twc, name='api_twc'),
 	path('orthologs/upload/twincons/<str:anchor_structure>/<str:chain>/<int:minIndex>/<int:maxIndex>', views.twincons_handler, name='twc_with_upload'),
 	path('orthologs/upload/twincons/<str:anchor_structure>/<str:chain>', views.twincons_handler, name='twc_with_upload'),

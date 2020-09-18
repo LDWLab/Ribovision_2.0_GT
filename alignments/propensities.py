@@ -39,7 +39,6 @@ def translate(sequence):
     return translated
 
 # translates an alignment file from modern to reduced alphabet
-# BUG: bash: syntax error near unexpected token `'/mnt/c/Users/Aparna/Dropbox\ \(GaTech\)/AC_shared/rProteins/Alignmnts/phases/new_files/Phase6_uL29b_str_based.fa''
 def translate_fasta(input_file):
     records = []
     for seq in SeqIO.parse(input_file, "fasta"):
