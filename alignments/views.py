@@ -7,7 +7,6 @@ import datetime
 
 import subprocess
 from subprocess import Popen, PIPE
-
 import os
 
 from django.shortcuts import render
@@ -83,8 +82,8 @@ def api_twc_with_upload(request, anchor_structure):
 def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
 	now = datetime.datetime.now()
 	fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
-	alignmentFileName = "./static/alignment" + fileNameSuffix + ".txt"
-	ebiFileName = "./static/ebi_sequence" + fileNameSuffix + ".txt"
+	alignmentFileName = "/home/Desire-Server/DESIRE/static/alignment" + fileNameSuffix + ".txt"
+	ebiFileName = "/home/Desire-Server/DESIRE/static/ebi_sequence" + fileNameSuffix + ".txt"
 	mappingFileName = ebiFileName + ".map"
 
 	fh = open(alignmentFileName, "w")
