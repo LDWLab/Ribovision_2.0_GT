@@ -2,6 +2,7 @@
 const interpolateLinearly = (window as any).interpolateLinearly;
 const RdPu = (window as any).RdPu;
 const YlGn = (window as any).YlGn;
+const mapped_aa_properties = (window as any).mapped_aa_properties;
 var selectSections_RV1 = new Map();
 
 class PdbTopologyViewerPlugin { 
@@ -1206,7 +1207,7 @@ class PdbTopologyViewerPlugin {
         return chainRange;
         
     }
-    getAnnotationFromRibovision() {
+    getAnnotationFromRibovision(mapped_aa_properties: Map<string, Array<Array<number>>>) {
     const _this = this;
     const chainRange:any = this.getChainStartAndEnd();
     //console.log(this.domainTypes);
@@ -1220,6 +1221,7 @@ class PdbTopologyViewerPlugin {
     //Two temporary arrays for grouping rsrz and other outliers tooltip message  
     let rsrzTempArray:any[] = [];
     let otherOutliersTempArray = [0];
+    console.log(mapped_aa_properties);
     if (void 0 !== this.entropyId) {
       
       const Y_min = -2.935;
@@ -1411,7 +1413,7 @@ class PdbTopologyViewerPlugin {
             }];
             this.getAnnotationFromMappings();
             this.getAnnotationFromOutliers();
-            this.getAnnotationFromRibovision();
+            this.getAnnotationFromRibovision(mapped_aa_properties);
             this.selectedDomain = this.domainTypes[0];
         }
         if(this.domainTypes.length > 1){

@@ -1,6 +1,7 @@
 declare const interpolateLinearly: any;
 declare const RdPu: any;
 declare const YlGn: any;
+declare const mapped_aa_properties: any;
 declare var selectSections_RV1: Map<any, any>;
 declare class PdbTopologyViewerPlugin {
     defaultColours: {
@@ -77,7 +78,7 @@ declare class PdbTopologyViewerPlugin {
         start: number;
         end: number;
     };
-    getAnnotationFromRibovision(): void;
+    getAnnotationFromRibovision(mapped_aa_properties: Map<string, Array<Array<number>>>): void;
     getAnnotationFromOutliers(): void;
     createDomainDropdown: () => void;
     resetTheme(): void;

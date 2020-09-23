@@ -134,12 +134,10 @@ def make_map_from_alnix_to_sequenceix(request):
 	return JsonResponse(mapping, safe = False)
 
 def api_twc_parameterless(request):
-	fasta, ebi_sequence, startIndex = request_post_data(request.POST)
-
-	mapping = constructEbiAlignmentString(fasta, ebi_sequence, startIndex)
+	fasta = request.POST["fasta"]
 	concat_fasta = re.sub(r'\\n','\n', fasta,flags=re.M)
 	list_for_topology_viewer = calculate_twincons(concat_fasta)
-	return JsonResponse([list_for_topology_viewer, mapping], safe = False)
+	return JsonResponse(list_for_topology_viewer, safe = False)
 
 def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure=''):
 
@@ -260,27 +258,7 @@ def index(request):
 	return render(request, 'alignments/index.html', context)
 
 def index_orthologs(request):
-	three_d_structures = Threedstructures.objects.all()
-	some_Alignments = Alignment.objects.all()
-	superKingdoms = Taxgroups.objects.raw('SELECT * FROM SEREB.TaxGroups WHERE\
-		 SEREB.TaxGroups.groupLevel = "superkingdom";')
-	context = {
-		'some_Alignments': some_Alignments,
-		'superKingdoms': superKingdoms,
-		'threeDstructures': three_d_structures,
-		'file_name' : None
-	}
-	return render(request, 'alignments/index_orthologs.html', context)
-
-# def visualizerHelper(request, urlSuffix):
-# 	data = json.load(urllib.request.urlopen("http://127.0.0.1:8000/orthologs/twc-api/" + urlSuffix))
-# 	xyPairs = []
-# 	context = {
-# 		"xyPairs" : xyPairs
-# 	}
-# 	for xyPair in data:
-# 		xyPairs.append(xyPair)
-# 	return render(request, 'alignments/simpleVisualization.html', context)
+	return render(request, 'alignments/index_orthologs.html')
 
 def visualizer(request, align_name, tax_group1, tax_group2, anchor_structure = ''):
 	twc_api_url = "http://127.0.0.1:8000/orthologs/twc-api/" + align_name + "/" + str(tax_group1) + "/" + str(tax_group2) + "/" + anchor_structure
@@ -300,7 +278,22 @@ def paralog_display_entropy(request, align_name, fold1, fold2):
 	pass
 	#return render(request, 'alignments/twc_detail.html', context)
 
+def extract_species_list(fastastring):
+	'''Filters out species from a fastastring'''
+	unf_species_list = [x.split('\\')[0] for x in fastastring.split('>')[1:]]
+	filtered_spec_list = [re.sub('_',' ', re.sub(r'^.*?_', '', x)) for x in unf_species_list]
+	return filtered_spec_list
 
+def extract_gap_only_cols(fastastring):
+	'''Extracts positions in the fastastring that are only gaps'''
+	unf_seq_list = [x.split('\\n')[1] for x in fastastring.split('>')[1:]]
+	list_for_intersect = list()
+	for sequence in unf_seq_list:
+		iterator = re.finditer('-', sequence)
+		gap_positions = [m.start(0) for m in iterator]
+		list_for_intersect.append(gap_positions)
+	gap_only_cols = list(set(list_for_intersect[0]).intersection(*list_for_intersect))
+	return gap_only_cols
 
 def simple_fasta(request, aln_id, tax_group, internal=False):
 	rawsqls = []
@@ -316,29 +309,14 @@ def simple_fasta(request, aln_id, tax_group, internal=False):
 		nogap_tupaln, max_alnposition= aqab.query_to_dict_structure(rawsql, parent, nogap_tupaln, max_alnposition)
 	
 	fastastring, frequency_list = aqab.build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_alnposition)
-	unf_species_list = [x.split('\\')[0] for x in fastastring.split('>')[1:]]
-	unf_seq_list = [x.split('\\n')[1] for x in fastastring.split('>')[1:]]
-	list_for_intersect = list()
-	for sequence in unf_seq_list:
-		iterator = re.finditer('-', sequence)
-		gap_positions = [m.start(0) for m in iterator]
-		list_for_intersect.append(gap_positions)
-	gap_only_cols = list(set(list_for_intersect[0]).intersection(*list_for_intersect))
-	filtered_spec_list = [re.sub('_',' ', re.sub(r'^.*?_', '', x)) for x in unf_species_list]
 	if internal:
 		return fastastring
+	
+	gap_only_cols = extract_gap_only_cols(fastastring)
+	filtered_spec_list = extract_species_list(fastastring)
+
 	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
 	return JsonResponse([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list], safe = False)
-
-# def simple_fasta(request, aln_id, tax_group, internal=False):
-# 	rawsql_result = aqab.sql_filtered_aln_query(aln_id, tax_group)
-# 	nogap_tupaln = dict()
-# 	nogap_tupaln, max_aln_length = aqab.query_to_dict_structure(rawsql_result, Taxgroups.objects.get(pk=tax_group).groupname, nogap_tupaln)
-# 	fastastring = aqab.build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_aln_length)
-# 	if internal:
-# 		return fastastring
-# 	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
-# 	return JsonResponse(concat_fasta, safe = False)
 
 def rProtein(request, align_name, tax_group):
 	#if tax_group == 0 - no filter

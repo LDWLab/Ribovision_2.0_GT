@@ -53,6 +53,7 @@ def get_fold_for_raw_result_range(raw_result_range, raw_result):
 
 def para_aln(request, aln_id):
 	from django.db import connection
+	from alignments.views import extract_gap_only_cols, extract_species_list
 	try:
 		alignment = Alignment.objects.get(pk=aln_id)
 	except Alignment.DoesNotExist:
@@ -133,9 +134,12 @@ def para_aln(request, aln_id):
 
 	fastastring, frequency_list = build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_alnposition)
 	
+	gap_only_cols = extract_gap_only_cols(fastastring)
+	filtered_spec_list = extract_species_list(fastastring)
+
 	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
 
-	return JsonResponse([concat_fasta, frequency_list], safe = False)
+	return JsonResponse([concat_fasta, filtered_spec_list, gap_only_cols, frequency_list], safe = False)
 
 def query_to_dict_structure(rawMYSQLresult, filter_element, nogap_tupaln=dict(), max_alnposition=0):
 	for row in rawMYSQLresult:
