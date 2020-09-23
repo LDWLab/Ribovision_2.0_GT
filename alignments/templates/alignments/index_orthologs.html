@@ -1,32 +1,29 @@
 <html>
 <head>
 	{% load static %}
-	<!-- Guide here https://vue-treeselect.js.org/ -->
 	<!-- include Ajax -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	<!-- include Vue 2.x -->
 	<script src="https://cdn.jsdelivr.net/npm/vue@^2"></script>
-	<!-- include vue-treeselect & its styles. you can change the version tag to better suit your needs. -->
+	<!-- include vue-treeselect & styles -->
 	<script src="https://cdn.jsdelivr.net/npm/@riophae/vue-treeselect@^0.4.0/dist/vue-treeselect.umd.min.js"></script>
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@riophae/vue-treeselect@^0.4.0/dist/vue-treeselect.min.css">
 	<link rel="stylesheet" type="text/css" href="{% static 'alignments/style.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'alignments/pdbe-molstar-1.1.0-dev.5.css' %}">
 
 	<!-- Alignment viewer -->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/15.4.2/react-dom.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/prop-types/15.5.2/prop-types.js"></script>
-	<script src="https://unpkg.com/@plotly/react-msa-viewer/dist/index.umd.min.js"></script>
 	<script src="{% static "alignments/msa.min.gz.js" %}"></script>
 
-	<!-- Topology viewer -->
+	<!-- Complied & minified d3 and math libraries -->
 	<script src="https://cdn.jsdelivr.net/npm/d3@5.9.2" defer></script>
 	<script src=https://cdnjs.cloudflare.com/ajax/libs/mathjs/3.3.0/math.min.js></script>
-	<!-- Complied & minified library JS -->
+	
+	<!-- Support scripts for the topology viewer -->
 	<script type="text/javascript" src={% static 'alignments/colormaps.js' %} defer></script>
-	<script type="text/javascript" src={% static 'pdb-topology-viewer-component-2.0.0.js' %} defer></script> 
-	<script type="text/javascript" src={% static 'alignments/palette.js-master/palette.js' %} defer></script> 
 	<script type="text/javascript" src={% static 'alignments/GetRangeMapping.js' %} defer></script> 
+
+	<!-- Topology and Mol* viewers -->
+	<script type="text/javascript" src={% static 'pdb-topology-viewer-component-2.0.0.js' %} defer></script>
 	<script type="text/javascript" src={% static 'alignments/pdbe-molstar-component-1.1.0-dev.5.js' %} defer></script>
 	
 </head>
@@ -43,7 +40,7 @@
 			<treeselect 
 			  :load-options="loadOptions"
 			  v-model="tax_id" 
-			  v-on:input="limiter(tax_id); loadData(tax_id, type_tree)"
+			  v-on:input="loadData(tax_id, type_tree)"
 			  placeholder="Select a group"
 			  no-children-text="Loading... or no children"
 			  :multiple="true" 
@@ -52,14 +49,14 @@
 			  :limit="2"
 			  :default-expand-level="1"
 			  >Loading phylogenetic tree...</treeselect>
-			<p><select v-if="tax_id" v-model="alnobj" @change="showAlignment(alnobj.id, tax_id, type_tree)">
+			<p><select id="selectaln" v-if="tax_id" v-model="alnobj" @change="showAlignment(alnobj.id, tax_id, type_tree)" >
 			  <option :value="null" selected disabled hidden>Select an alignment</option>
 			  <option v-for="aln in alignments" v-bind:value="{ id: aln.value, text: aln.text }">[[ aln.text ]]</option>
 			</select></p>
 			<p><span v-if="alnobj">Selected alignment: [[alnobj.text]].<br>Input PDB and polymer for mapping:</span></p>
 			<p><input id="pdb_input" v-if="alnobj" v-model="pdbid" v-on:input="getPDBchains(pdbid, alnobj.id)" placeholder="4v9d" maxlength="4"></p>
 			<p v-if="hide_chains">Looking for available polymers...</p>
-			<p><select multiple v-if="chains&&fasta_data" v-model="chainid" @click="showTopologyViewer(pdbid, chainid, '/twc-api/', fasta_data); showPDBViewer(pdbid, chainid)">
+			<p><select multiple v-if="chains&&fasta_data" v-model="chainid" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid)">
 				<option :value ="null" selected disabled>Select polymer</option>
 				<option v-for="chain in chains" v-bind:value="chain.value">[[ chain.text ]]</option>
 			</select></p>
@@ -83,7 +80,7 @@
 		</div>
 		<footer >Footer</footer>
 	</div>
-	<!-- include our custom tree Ajax call and tree object. -->
+	<!-- include our custom Vue scripts -->
 	<script src="{% static "alignments/vue_tree_select2.js" %}"></script>
 </body>
 

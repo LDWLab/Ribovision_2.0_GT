@@ -38,6 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var interpolateLinearly = window.interpolateLinearly;
 var RdPu = window.RdPu;
 var YlGn = window.YlGn;
+var mapped_aa_properties = window.mapped_aa_properties;
 var selectSections_RV1 = new Map();
 var PdbTopologyViewerPlugin = /** @class */ (function () {
     function PdbTopologyViewerPlugin() {
@@ -120,7 +121,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                     }];
                 this.getAnnotationFromMappings();
                 this.getAnnotationFromOutliers();
-                this.getAnnotationFromRibovision();
+                this.getAnnotationFromRibovision(mapped_aa_properties);
                 this.selectedDomain = this.domainTypes[0];
             }
             if (this.domainTypes.length > 1) {
@@ -1206,7 +1207,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         }
         return chainRange;
     };
-    PdbTopologyViewerPlugin.prototype.getAnnotationFromRibovision = function () {
+    PdbTopologyViewerPlugin.prototype.getAnnotationFromRibovision = function (mapped_aa_properties) {
         var _this = this;
         var chainRange = this.getChainStartAndEnd();
         //console.log(this.domainTypes);
@@ -1219,6 +1220,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         //Two temporary arrays for grouping rsrz and other outliers tooltip message  
         var rsrzTempArray = [];
         var otherOutliersTempArray = [0];
+        console.log(mapped_aa_properties);
         if (void 0 !== this.entropyId) {
             var Y_min_1 = -2.935;
             var Y_max_1 = 12.065;
