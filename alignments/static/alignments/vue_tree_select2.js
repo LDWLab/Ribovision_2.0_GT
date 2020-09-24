@@ -167,6 +167,15 @@ var calculateFrequencyData = function (frequencies){
                             ["Polarity",[0,1.48,49.7,49.9,0.35,0,51.6,0.13,49.5,0.13,1.43,3.38,1.58,3.53,52,1.67,1.66,0.13,2.1,1.61]],
                             ["Mutability",[100,44,86,77,51,50,91,103,72,54,93,104,58,84,83,117,107,98,25,50]]
                         ]);
+    let aaColorData = new Map([
+                            ["Charge",[Blues, Reds]],
+                            ["Hydropathy",[viridis]],
+                            ["Hydrophobicity",[Reds, Blues]],
+                            ["Polarity",[viridis]],
+                            ["Mutability",[viridis]]
+                        ]);
+    window.aaColorData = aaColorData;
+    window.aaPropertyConstants = aaPropertiesData;
     let outPropertyPosition = new Map();
     aaProperties.forEach(function (prop){
         outPropertyPosition.set(prop, [])

@@ -3,6 +3,8 @@ const interpolateLinearly = (window as any).interpolateLinearly;
 const RdPu = (window as any).RdPu;
 const YlGn = (window as any).YlGn;
 const mapped_aa_properties = (window as any).mapped_aa_properties;
+const aaPropertyConstants = (window as any).aaPropertyConstants;
+const aaColorData = (window as any).aaColorData;
 var selectSections_RV1 = new Map();
 
 class PdbTopologyViewerPlugin { 
@@ -1207,90 +1209,109 @@ class PdbTopologyViewerPlugin {
         return chainRange;
         
     }
-    getAnnotationFromRibovision(mapped_aa_properties: Map<string, Array<Array<number>>>) {
-    const _this = this;
-    const chainRange:any = this.getChainStartAndEnd();
-    //console.log(this.domainTypes);
-    let residueDetails:any = [{
-        start: chainRange.start,
-        end: chainRange.end,
-        color: _this.defaultColours.qualityGreen,
-        tooltipMsg: 'No data for '
-    }];
-    
-    //Two temporary arrays for grouping rsrz and other outliers tooltip message  
-    let rsrzTempArray:any[] = [];
-    let otherOutliersTempArray = [0];
-    console.log(mapped_aa_properties);
-    if (void 0 !== this.entropyId) {
-      
-      const Y_min = -2.935;
-      const Y_max = 12.065;
-      let unParsedTWC = this.entropyId.split(':').join(';').split(';');
-      unParsedTWC.forEach(function (item, index) {
 
-        if(index % 2 === 1) {
-            residueDetails = [{
-                start: chainRange.start,
-                end: chainRange.end,
-                color: _this.defaultColours.qualityGreen,
-                tooltipMsg: 'No data for '
-            }];
-            let separatedData = unParsedTWC[index].split(",");
-            let dataTitle = unParsedTWC[index - 1];
-            selectSections_RV1.set(dataTitle, [])
-            let TWCData = new Map();
-            let TWCrgbMap = new Map();
-                separatedData.forEach(function (item, index) {
-                    if (index % 2 == 0){
-                        TWCData.set(item, separatedData[index+1]);
-                        if (Number(separatedData[index+1]) < 0){
-                            TWCrgbMap.set(item, interpolateLinearly(Number(separatedData[index+1])/Y_min, RdPu));
-                        }else{
-                            TWCrgbMap.set(item, interpolateLinearly(Number(separatedData[index+1])/Y_max, YlGn));
-                        }
-          
+    parseTWCData(separatedData: any[], lowVal: number, highVal: number, colormapArray: any[]) {
+        let TWCData = new Map();
+        let TWCrgbMap = new Map();    
+        separatedData.forEach(function (item, index) {
+            let parsedItem = parseInt(item);
+            if (index % 2 == 0){
+                TWCData.set(parsedItem, separatedData[index+1]);
+                if (colormapArray.length === 1) {
+                    let newValue = Number(separatedData[index+1]) - lowVal;
+                    TWCrgbMap.set(parsedItem, interpolateLinearly(newValue/(highVal - lowVal), colormapArray[0]));
+                }
+                else {
+                    if (Number(separatedData[index+1]) < 0){
+                        TWCrgbMap.set(parsedItem, interpolateLinearly(Number(separatedData[index+1])/lowVal, colormapArray[0]));
+                    }else{
+                        TWCrgbMap.set(parsedItem, interpolateLinearly(Number(separatedData[index+1])/highVal, colormapArray[1]));
                     }
-                });
-            selectSections_RV1.get(dataTitle).push({entity_id: _this.entityId, focus: true});
+                }
+            }
+        });
+        return [TWCrgbMap, TWCData];
+    }
 
-            if (void 0 !== TWCData){
-                    TWCData.forEach(function(value, index) {
-                        let rgb_color = TWCrgbMap.get(index);
-                        selectSections_RV1.get(dataTitle).push({ //3d
-                            entity_id: _this.entityId,
-                            start_residue_number: parseInt(index), 
-                            end_residue_number: parseInt(index),
-                            color: rgb_color[1],
-                            sideChain: false,
-                        });
-                        _this.defaultColours.qualityRiboVision= "rgb("+String(rgb_color[0].join(','))+")";
-                        var colors = "rgb("+String(rgb_color[0].join(','))+")"
-                        _this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
-                        residueDetails.push({ //2d
-                            start: parseInt(index),
-                            end: parseInt(index),
-                            color: colors,
-                            tooltipMsg: Number.parseFloat(value).toPrecision(3),
-                            tooltipPosition: "prefix"
-                        }),
-                        otherOutliersTempArray.push(index);
-                        _this.drawValidationShape(index, "circle", colors);
-                        rsrzTempArray.push(index);
-                    })
+
+    create2D3DAnnotations(name: string, residueDetails: any, TWCrgbMap: Map<number, any>, TWCData: Map<number, string>) {
+        const _this = this;
+        TWCData.forEach(function(value, index) {
+            let rgb_color = TWCrgbMap.get(index);
+            selectSections_RV1.get(name).push({ //3d
+                entity_id: _this.entityId,
+                start_residue_number: index, 
+                end_residue_number: index,
+                color: rgb_color[1],
+                sideChain: false,
+            });
+            _this.defaultColours.qualityRiboVision= "rgb("+String(rgb_color[0].join(','))+")";
+            var colors = "rgb("+String(rgb_color[0].join(','))+")"
+            _this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
+            residueDetails.push({ //2d
+                start: index,
+                end: index,
+                color: colors,
+                tooltipMsg: Number.parseFloat(value).toPrecision(3),
+                tooltipPosition: "prefix"
+            }),
+            _this.drawValidationShape(index, "circle", colors);
+        })
+        return residueDetails;
+    }
+           
+    
+
+    getAnnotationFromRibovision(mapped_aa_properties: Map<string, Array<Array<number>>>) {
+        console.log(mapped_aa_properties);
+        const _this = this;
+        const chainRange:any = this.getChainStartAndEnd();
+        var dataMap = new Map();
+        
+        if (void 0 !== this.entropyId) {
+            let unParsedTWC = this.entropyId.split(':').join(';').split(';');
+            unParsedTWC.forEach(function (item, index) {
+                if(index % 2 == 0) {
+                    dataMap.set(item, unParsedTWC[index + 1]);
+                }
+            });
+        
+
+            dataMap.forEach(function(value, index) {    
+                let residueDetails:any = [{
+                    start: chainRange.start,
+                    end: chainRange.end,
+                    color: _this.defaultColours.qualityGreen,
+                    tooltipMsg: 'No data for '
+                }];
+                let name = index;
+                let separatedData = value.split(",");
+                selectSections_RV1.set(name, [])
+
+                //let min = -2.935;
+               // let max = 12.065;
+                let min = Math.min(...aaPropertyConstants.get(name));
+                let max = Math.max(...aaPropertyConstants.get(name));
+                let colormapArray = aaColorData.get(name); 
+                const [TWCrgbMap, TWCData] = _this.parseTWCData(separatedData, min, max, colormapArray);
+                selectSections_RV1.get(name).push({entity_id: _this.entityId, focus: true});
+                if (void 0 !== TWCData){
+                    residueDetails = _this.create2D3DAnnotations(name, residueDetails, TWCrgbMap, TWCData);
                     if(0 < residueDetails.length){
                         _this.domainTypes.splice(1, 0, {
-                        label: dataTitle,
+                        label: name,
                         data: residueDetails
-                    })
+                        })
+                    }
                 }
-            } else {
-                //catch block
-            };
+            });
         }
-    });
-    }
-    }
+        else {
+        //catch block
+        };     
+      }
+      
+
     getAnnotationFromOutliers() {
         const _this = this;
         const chainRange:any = this.getChainStartAndEnd();
