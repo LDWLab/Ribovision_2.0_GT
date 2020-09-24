@@ -266,6 +266,8 @@ var vm = new Vue({
                 loadParaOptions(action, callback, vm);
             }
         }, loadData: function(value, type_tree) {
+            cleanupOnNewAlignment(vm, "Select new alignment!");
+            if (this.alnobj != null) {this.alnobj = null;}
             if (type_tree == "orth"){
                 this.alignments = null;
                 var url = '/desire-api/taxonomic-groups/?format=json&taxgroup_id__in=' + value
@@ -368,7 +370,7 @@ var vm = new Vue({
                     console.log(data)
                 });
             })
-        }, showTopologyViewer (pdbid, chainid, entropy_address, fasta){
+        }, showTopologyViewer (pdbid, chainid, fasta){
             if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(vm);}
             const topview_item = document.getElementById("topview");
             const molstar_item = document.getElementById("pdbeMolstarView");
@@ -383,19 +385,21 @@ var vm = new Vue({
             let ebi_sequence = temp["sequence"];
             let startIndex = temp["startIndex"];
             // let ebi_sequence = vm.chains[0]["sequence"];
-            ajax(entropy_address, optional_data={fasta, ebi_sequence, startIndex}).then(twcDataWithMapping => {
-                twcData = []
-                let twcDataUnmapped = twcDataWithMapping[0]
-                this.structure_mapping = twcDataWithMapping[1]
-                let mapped_aa_properties = mapAAProps(this.aa_properties, twcDataWithMapping[1])
-                mapped_aa_properties.set("TwinCons", [])
-                for (i = 0; i < twcDataUnmapped.length; i++) {
-                    let mappedI0 = this.structure_mapping[twcDataUnmapped[i][0]];
-                    if (mappedI0) {
-                        twcData.push([mappedI0, twcDataUnmapped[i][1]]);
-                        mapped_aa_properties.get("TwinCons").push([mappedI0, twcDataUnmapped[i][1]]);
-                    }
+            ajax('/mapSeqAln/', optional_data={fasta, ebi_sequence, startIndex}).then(struct_mapping=>{
+                this.structure_mapping = struct_mapping;
+                var mapped_aa_properties = mapAAProps(this.aa_properties, struct_mapping);
+                if (this.tax_id.length == 2) {
+                    ajax('/twc-api/', optional_data={fasta}).then(twcDataUnmapped => {
+                        mapped_aa_properties.set("TwinCons", [])
+                        for (i = 0; i < twcDataUnmapped.length; i++) {
+                            let mappedI0 = this.structure_mapping[twcDataUnmapped[i][0]];
+                            if (mappedI0) {
+                                mapped_aa_properties.get("TwinCons").push([mappedI0, twcDataUnmapped[i][1]]);
+                            }
+                        }
+                    })
                 }
+                window.mapped_aa_properties = mapped_aa_properties;
                 var topology_url = `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdblower}/chain/${chainid}`
                 ajax(topology_url).then(data => {
                     var entityid = Object.keys(data[pdblower])[0];

@@ -14,3 +14,4 @@ webpack-stats.json
 populate_db/Alignments/missed_seqs/*
 pdb-topology-viewer/node_modules/*
 DESIRE/settings.py
+.vscode/settings.json

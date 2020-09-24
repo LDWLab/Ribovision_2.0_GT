@@ -2,6 +2,7 @@
 const interpolateLinearly = (window as any).interpolateLinearly;
 const RdPu = (window as any).RdPu;
 const YlGn = (window as any).YlGn;
+const mapped_aa_properties = (window as any).mapped_aa_properties;
 var selectSections_RV1 = new Map();
 
 class PdbTopologyViewerPlugin { 
@@ -1283,7 +1284,7 @@ class PdbTopologyViewerPlugin {
            
     
 
-    getAnnotationFromRibovision() {
+    getAnnotationFromRibovision(mapped_aa_properties: Map<string, Array<Array<number>>>) {
         const _this = this;
         const chainRange:any = this.getChainStartAndEnd();
         var dataMap = new Map();
@@ -1451,7 +1452,7 @@ class PdbTopologyViewerPlugin {
             }];
             this.getAnnotationFromMappings();
             this.getAnnotationFromOutliers();
-            this.getAnnotationFromRibovision();
+            this.getAnnotationFromRibovision(mapped_aa_properties);
             this.selectedDomain = this.domainTypes[0];
         }
         if(this.domainTypes.length > 1){
