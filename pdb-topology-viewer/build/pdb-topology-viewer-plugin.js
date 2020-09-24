@@ -1206,87 +1206,184 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         }
         return chainRange;
     };
+    PdbTopologyViewerPlugin.prototype.getMin = function (arr) {
+        var separatedData = arr.split(",");
+        var min = Number(separatedData[0]);
+        var i = 1;
+        while (i < separatedData.length) {
+            if (Number(separatedData[i]) < min) {
+                min = Number(separatedData[i]);
+            }
+            i++;
+        }
+        return min;
+    };
+    PdbTopologyViewerPlugin.prototype.getMax = function (arr) {
+        var separatedData = arr.split(",");
+        var max = Number(separatedData[0]);
+        var i = 1;
+        while (i < separatedData.length) {
+            if (Number(separatedData[i]) > max) {
+                max = Number(separatedData[i]);
+            }
+            i++;
+        }
+        return max;
+    };
+    PdbTopologyViewerPlugin.prototype.parseTWCData = function (separatedData, lowVal, highVal, colormap1, colormap2) {
+        var TWCData = new Map();
+        var TWCrgbMap = new Map();
+        separatedData.forEach(function (item, index) {
+            var parsedItem = parseInt(item);
+            if (index % 2 == 0) {
+                TWCData.set(parsedItem, separatedData[index + 1]);
+                if (typeof colormap2 === 'undefined' || colormap2 === null) {
+                    var newValue = Number(separatedData[index + 1]) - lowVal;
+                    TWCrgbMap.set(parsedItem, interpolateLinearly(newValue / (highVal - lowVal), colormap1));
+                }
+                else {
+                    if (Number(separatedData[index + 1]) < 0) {
+                        TWCrgbMap.set(parsedItem, interpolateLinearly(Number(separatedData[index + 1]) / lowVal, colormap1));
+                    }
+                    else {
+                        TWCrgbMap.set(parsedItem, interpolateLinearly(Number(separatedData[index + 1]) / highVal, colormap2));
+                    }
+                }
+            }
+        });
+        return [TWCrgbMap, TWCData];
+    };
+    PdbTopologyViewerPlugin.prototype.create2D3DAnnotations = function (name, residueDetails, TWCrgbMap, TWCData) {
+        var _this = this;
+        TWCData.forEach(function (value, index) {
+            var rgb_color = TWCrgbMap.get(index);
+            selectSections_RV1.get(name).push({
+                entity_id: _this.entityId,
+                start_residue_number: index,
+                end_residue_number: index,
+                color: rgb_color[1],
+                sideChain: false,
+            });
+            _this.defaultColours.qualityRiboVision = "rgb(" + String(rgb_color[0].join(',')) + ")";
+            var colors = "rgb(" + String(rgb_color[0].join(',')) + ")";
+            _this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
+            residueDetails.push({
+                start: index,
+                end: index,
+                color: colors,
+                tooltipMsg: Number.parseFloat(value).toPrecision(3),
+                tooltipPosition: "prefix"
+            }),
+                _this.drawValidationShape(index, "circle", colors);
+        });
+        return residueDetails;
+    };
     PdbTopologyViewerPlugin.prototype.getAnnotationFromRibovision = function () {
         var _this = this;
         var chainRange = this.getChainStartAndEnd();
-        //console.log(this.domainTypes);
-        var residueDetails = [{
-                start: chainRange.start,
-                end: chainRange.end,
-                color: _this.defaultColours.qualityGreen,
-                tooltipMsg: 'No data for '
-            }];
-        //Two temporary arrays for grouping rsrz and other outliers tooltip message  
-        var rsrzTempArray = [];
-        var otherOutliersTempArray = [0];
+        var dataMap = new Map();
         if (void 0 !== this.entropyId) {
-            var Y_min_1 = -2.935;
-            var Y_max_1 = 12.065;
             var unParsedTWC_1 = this.entropyId.split(':').join(';').split(';');
             unParsedTWC_1.forEach(function (item, index) {
-                if (index % 2 === 1) {
-                    residueDetails = [{
-                            start: chainRange.start,
-                            end: chainRange.end,
-                            color: _this.defaultColours.qualityGreen,
-                            tooltipMsg: 'No data for '
-                        }];
-                    var separatedData_1 = unParsedTWC_1[index].split(",");
-                    var dataTitle_1 = unParsedTWC_1[index - 1];
-                    selectSections_RV1.set(dataTitle_1, []);
-                    var TWCData_1 = new Map();
-                    var TWCrgbMap_1 = new Map();
-                    separatedData_1.forEach(function (item, index) {
-                        if (index % 2 == 0) {
-                            TWCData_1.set(item, separatedData_1[index + 1]);
-                            if (Number(separatedData_1[index + 1]) < 0) {
-                                TWCrgbMap_1.set(item, interpolateLinearly(Number(separatedData_1[index + 1]) / Y_min_1, RdPu));
-                            }
-                            else {
-                                TWCrgbMap_1.set(item, interpolateLinearly(Number(separatedData_1[index + 1]) / Y_max_1, YlGn));
-                            }
-                        }
-                    });
-                    selectSections_RV1.get(dataTitle_1).push({ entity_id: _this.entityId, focus: true });
-                    if (void 0 !== TWCData_1) {
-                        TWCData_1.forEach(function (value, index) {
-                            var rgb_color = TWCrgbMap_1.get(index);
-                            selectSections_RV1.get(dataTitle_1).push({
-                                entity_id: _this.entityId,
-                                start_residue_number: parseInt(index),
-                                end_residue_number: parseInt(index),
-                                color: rgb_color[1],
-                                sideChain: false,
-                            });
-                            _this.defaultColours.qualityRiboVision = "rgb(" + String(rgb_color[0].join(',')) + ")";
-                            var colors = "rgb(" + String(rgb_color[0].join(',')) + ")";
-                            _this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
-                            residueDetails.push({
-                                start: parseInt(index),
-                                end: parseInt(index),
-                                color: colors,
-                                tooltipMsg: Number.parseFloat(value).toPrecision(3),
-                                tooltipPosition: "prefix"
-                            }),
-                                otherOutliersTempArray.push(index);
-                            _this.drawValidationShape(index, "circle", colors);
-                            rsrzTempArray.push(index);
+                if (index % 2 == 0) {
+                    dataMap.set(item, unParsedTWC_1[index + 1]);
+                }
+            });
+            dataMap.forEach(function (value, index) {
+                var residueDetails = [{
+                        start: chainRange.start,
+                        end: chainRange.end,
+                        color: _this.defaultColours.qualityGreen,
+                        tooltipMsg: 'No data for '
+                    }];
+                var name = index;
+                var separatedData = value.split(",");
+                selectSections_RV1.set(name, []);
+                var min = -2.935;
+                var max = 12.065;
+                var colormap1 = RdPu;
+                var colormap2 = YlGn;
+                var _a = _this.parseTWCData(separatedData, min, max, colormap1, colormap2), TWCrgbMap = _a[0], TWCData = _a[1];
+                selectSections_RV1.get(name).push({ entity_id: _this.entityId, focus: true });
+                if (void 0 !== TWCData) {
+                    residueDetails = _this.create2D3DAnnotations(name, residueDetails, TWCrgbMap, TWCData);
+                    if (0 < residueDetails.length) {
+                        _this.domainTypes.splice(1, 0, {
+                            label: name,
+                            data: residueDetails
                         });
-                        if (0 < residueDetails.length) {
-                            _this.domainTypes.splice(1, 0, {
-                                label: dataTitle_1,
-                                data: residueDetails
-                            });
-                        }
                     }
-                    else {
-                        //catch block
-                    }
-                    ;
                 }
             });
         }
+        else {
+            //catch block
+        }
+        ;
     };
+    /*
+    unParsedTWC.forEach(function (item, index) {
+      if(index % 2 === 1) {
+          residueDetails = [{
+              start: chainRange.start,
+              end: chainRange.end,
+              color: _this.defaultColours.qualityGreen,
+              tooltipMsg: 'No data for '
+          }];
+          let separatedData = unParsedTWC[index].split(",");
+          let dataTitle = unParsedTWC[index - 1];
+          selectSections_RV1.set(dataTitle, [])
+          let TWCData = new Map();
+          let TWCrgbMap = new Map();
+              separatedData.forEach(function (item, index) {
+                  if (index % 2 == 0){
+                      TWCData.set(item, separatedData[index+1]);
+                      if (Number(separatedData[index+1]) < 0){
+                          TWCrgbMap.set(item, interpolateLinearly(Number(separatedData[index+1])/Y_min, RdPu));
+                      }else{
+                          TWCrgbMap.set(item, interpolateLinearly(Number(separatedData[index+1])/Y_max, YlGn));
+                      }
+        
+                  }
+              });
+          selectSections_RV1.get(dataTitle).push({entity_id: _this.entityId, focus: true});
+
+          if (void 0 !== TWCData){
+                  TWCData.forEach(function(value, index) {
+                      let rgb_color = TWCrgbMap.get(index);
+                      selectSections_RV1.get(dataTitle).push({ //3d
+                          entity_id: _this.entityId,
+                          start_residue_number: parseInt(index),
+                          end_residue_number: parseInt(index),
+                          color: rgb_color[1],
+                          sideChain: false,
+                      });
+                      _this.defaultColours.qualityRiboVision= "rgb("+String(rgb_color[0].join(','))+")";
+                      var colors = "rgb("+String(rgb_color[0].join(','))+")"
+                      _this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
+                      residueDetails.push({ //2d
+                          start: parseInt(index),
+                          end: parseInt(index),
+                          color: colors,
+                          tooltipMsg: Number.parseFloat(value).toPrecision(3),
+                          tooltipPosition: "prefix"
+                      }),
+                      otherOutliersTempArray.push(index);
+                      _this.drawValidationShape(index, "circle", colors);
+                      rsrzTempArray.push(index);
+                  })
+                  if(0 < residueDetails.length){
+                      _this.domainTypes.splice(1, 0, {
+                      label: dataTitle,
+                      data: residueDetails
+                  })
+              }
+          } else {
+              //catch block
+          };
+      }
+  });
+  */
     PdbTopologyViewerPlugin.prototype.getAnnotationFromOutliers = function () {
         var _this_1 = this;
         var _this = this;
