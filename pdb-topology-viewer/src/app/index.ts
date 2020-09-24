@@ -3,6 +3,8 @@ const interpolateLinearly = (window as any).interpolateLinearly;
 const RdPu = (window as any).RdPu;
 const YlGn = (window as any).YlGn;
 const mapped_aa_properties = (window as any).mapped_aa_properties;
+const aaPropertyConstants = (window as any).aaPropertyConstants;
+const aaColorData = (window as any).aaColorData;
 var selectSections_RV1 = new Map();
 
 class PdbTopologyViewerPlugin { 
@@ -1207,47 +1209,23 @@ class PdbTopologyViewerPlugin {
         return chainRange;
         
     }
-    getMin(arr: string) {
-        let separatedData = arr.split(",");
-        var min = Number(separatedData[0]);
-        var i = 1;
-        while (i < separatedData.length) {
-            if(Number(separatedData[i]) < min) {
-                min = Number(separatedData[i]);
-            }  
-            i++;      
-        }
-        return min;
-    }
-    getMax(arr: string) {
-        let separatedData = arr.split(",");
-        var max = Number(separatedData[0]);
-        var i = 1;
-        while (i < separatedData.length) {
-            if(Number(separatedData[i]) > max) {
-                max = Number(separatedData[i]);
-            }      
-            i++;  
-        }
-        return max;
-    }
 
-    parseTWCData(separatedData: any[], lowVal: number, highVal: number, colormap1: any, colormap2?: any) {
+    parseTWCData(separatedData: any[], lowVal: number, highVal: number, colormapArray: any[]) {
         let TWCData = new Map();
         let TWCrgbMap = new Map();    
         separatedData.forEach(function (item, index) {
             let parsedItem = parseInt(item);
             if (index % 2 == 0){
                 TWCData.set(parsedItem, separatedData[index+1]);
-                if (typeof colormap2 === 'undefined' || colormap2 === null) {
+                if (colormapArray.length === 1) {
                     let newValue = Number(separatedData[index+1]) - lowVal;
-                    TWCrgbMap.set(parsedItem, interpolateLinearly(newValue/(highVal - lowVal), colormap1));
+                    TWCrgbMap.set(parsedItem, interpolateLinearly(newValue/(highVal - lowVal), colormapArray[0]));
                 }
                 else {
                     if (Number(separatedData[index+1]) < 0){
-                        TWCrgbMap.set(parsedItem, interpolateLinearly(Number(separatedData[index+1])/lowVal, colormap1));
+                        TWCrgbMap.set(parsedItem, interpolateLinearly(Number(separatedData[index+1])/lowVal, colormapArray[0]));
                     }else{
-                        TWCrgbMap.set(parsedItem, interpolateLinearly(Number(separatedData[index+1])/highVal, colormap2));
+                        TWCrgbMap.set(parsedItem, interpolateLinearly(Number(separatedData[index+1])/highVal, colormapArray[1]));
                     }
                 }
             }
@@ -1285,9 +1263,11 @@ class PdbTopologyViewerPlugin {
     
 
     getAnnotationFromRibovision(mapped_aa_properties: Map<string, Array<Array<number>>>) {
+        console.log(mapped_aa_properties);
         const _this = this;
         const chainRange:any = this.getChainStartAndEnd();
         var dataMap = new Map();
+        
         if (void 0 !== this.entropyId) {
             let unParsedTWC = this.entropyId.split(':').join(';').split(';');
             unParsedTWC.forEach(function (item, index) {
@@ -1295,6 +1275,7 @@ class PdbTopologyViewerPlugin {
                     dataMap.set(item, unParsedTWC[index + 1]);
                 }
             });
+        
 
             dataMap.forEach(function(value, index) {    
                 let residueDetails:any = [{
@@ -1307,11 +1288,12 @@ class PdbTopologyViewerPlugin {
                 let separatedData = value.split(",");
                 selectSections_RV1.set(name, [])
 
-                let min = -2.935;
-                let max = 12.065;
-                let colormap1 = RdPu;
-                let colormap2 = YlGn;
-                const [TWCrgbMap, TWCData] = _this.parseTWCData(separatedData, min, max, colormap1, colormap2);
+                //let min = -2.935;
+               // let max = 12.065;
+                let min = Math.min(...aaPropertyConstants.get(name));
+                let max = Math.max(...aaPropertyConstants.get(name));
+                let colormapArray = aaColorData.get(name); 
+                const [TWCrgbMap, TWCData] = _this.parseTWCData(separatedData, min, max, colormapArray);
                 selectSections_RV1.get(name).push({entity_id: _this.entityId, focus: true});
                 if (void 0 !== TWCData){
                     residueDetails = _this.create2D3DAnnotations(name, residueDetails, TWCrgbMap, TWCData);
