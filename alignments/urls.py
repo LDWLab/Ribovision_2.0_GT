@@ -38,5 +38,6 @@ urlpatterns = [
 	path('upload/twc-api/<str:anchor_structure>', views.api_twc_with_upload, name='api_twc_with_upload'),
 	path('upload-custom-csv/<str:anchor_structure>/<str:chain>', views.twincons_handler, name='custom_csv_data_viewer'),
 	path('custom-csv-data', views.upload_custom_data_for_mapping, name='custom_csv_data_handler'),
+	path('custom-aln-data', views.handle_custom_upload_alignment, name='custom_aln_data_handler'),
 	path('upload-custom-csv/', views.upload_custom_data, name='upload_custom_data'),
 ]
