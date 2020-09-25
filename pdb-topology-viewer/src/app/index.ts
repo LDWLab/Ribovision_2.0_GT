@@ -1214,19 +1214,18 @@ class PdbTopologyViewerPlugin {
         let TWCData = new Map();
         let TWCrgbMap = new Map();    
         separatedData.forEach(function (item, index) {
-            let parsedItem = parseInt(item);
-            if (index % 2 == 0){
-                TWCData.set(parsedItem, separatedData[index+1]);
-                if (colormapArray.length === 1) {
-                    let newValue = Number(separatedData[index+1]) - lowVal;
-                    TWCrgbMap.set(parsedItem, interpolateLinearly(newValue/(highVal - lowVal), colormapArray[0]));
-                }
-                else {
-                    if (Number(separatedData[index+1]) < 0){
-                        TWCrgbMap.set(parsedItem, interpolateLinearly(Number(separatedData[index+1])/lowVal, colormapArray[0]));
-                    }else{
-                        TWCrgbMap.set(parsedItem, interpolateLinearly(Number(separatedData[index+1])/highVal, colormapArray[1]));
-                    }
+            let parsedItem = item[0];
+            let itemValue = item[1];
+            TWCData.set(parsedItem, itemValue);
+            if (colormapArray.length === 1) {
+                let newValue = itemValue - lowVal;
+                TWCrgbMap.set(parsedItem, interpolateLinearly(newValue/(highVal - lowVal), colormapArray[0]));
+            }
+            else {
+                if (itemValue < 0){
+                    TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue/lowVal, colormapArray[0]));
+                }else{
+                    TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue/highVal, colormapArray[1]));
                 }
             }
         });
@@ -1263,7 +1262,6 @@ class PdbTopologyViewerPlugin {
     
 
     getAnnotationFromRibovision(mapped_aa_properties: Map<string, Array<Array<number>>>) {
-        console.log(mapped_aa_properties);
         const _this = this;
         const chainRange:any = this.getChainStartAndEnd();
         var dataMap = new Map();
@@ -1277,7 +1275,7 @@ class PdbTopologyViewerPlugin {
             });
         
 
-            dataMap.forEach(function(value, index) {    
+            mapped_aa_properties.forEach(function(value, index) {    
                 let residueDetails:any = [{
                     start: chainRange.start,
                     end: chainRange.end,
@@ -1285,7 +1283,7 @@ class PdbTopologyViewerPlugin {
                     tooltipMsg: 'No data for '
                 }];
                 let name = index;
-                let separatedData = value.split(",");
+                let separatedData = value;
                 selectSections_RV1.set(name, [])
 
                 //let min = -2.935;

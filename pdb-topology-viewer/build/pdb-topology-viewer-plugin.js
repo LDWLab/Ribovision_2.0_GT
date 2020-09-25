@@ -1213,20 +1213,19 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         var TWCData = new Map();
         var TWCrgbMap = new Map();
         separatedData.forEach(function (item, index) {
-            var parsedItem = parseInt(item);
-            if (index % 2 == 0) {
-                TWCData.set(parsedItem, separatedData[index + 1]);
-                if (colormapArray.length === 1) {
-                    var newValue = Number(separatedData[index + 1]) - lowVal;
-                    TWCrgbMap.set(parsedItem, interpolateLinearly(newValue / (highVal - lowVal), colormapArray[0]));
+            var parsedItem = item[0];
+            var itemValue = item[1];
+            TWCData.set(parsedItem, itemValue);
+            if (colormapArray.length === 1) {
+                var newValue = itemValue - lowVal;
+                TWCrgbMap.set(parsedItem, interpolateLinearly(newValue / (highVal - lowVal), colormapArray[0]));
+            }
+            else {
+                if (itemValue < 0) {
+                    TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue / lowVal, colormapArray[0]));
                 }
                 else {
-                    if (Number(separatedData[index + 1]) < 0) {
-                        TWCrgbMap.set(parsedItem, interpolateLinearly(Number(separatedData[index + 1]) / lowVal, colormapArray[0]));
-                    }
-                    else {
-                        TWCrgbMap.set(parsedItem, interpolateLinearly(Number(separatedData[index + 1]) / highVal, colormapArray[1]));
-                    }
+                    TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue / highVal, colormapArray[1]));
                 }
             }
         });
@@ -1269,7 +1268,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                     dataMap.set(item, unParsedTWC_1[index + 1]);
                 }
             });
-            dataMap.forEach(function (value, index) {
+            mapped_aa_properties.forEach(function (value, index) {
                 var residueDetails = [{
                         start: chainRange.start,
                         end: chainRange.end,
@@ -1277,7 +1276,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                         tooltipMsg: 'No data for '
                     }];
                 var name = index;
-                var separatedData = value.split(",");
+                var separatedData = value;
                 selectSections_RV1.set(name, []);
                 //let min = -2.935;
                 // let max = 12.065;
