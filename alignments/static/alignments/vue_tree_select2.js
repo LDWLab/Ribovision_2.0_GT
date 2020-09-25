@@ -159,43 +159,56 @@ var calculateFrequencyData = function (frequencies){
     const multiplyvector = function (a,b){
         return a.map((e,i) => e * b[i]);
     }
-    var aaProperties = ["Charge","Hydropathy","Hydrophobicity","Polarity","Mutability"]
     let aaPropertiesData = new Map([
                             ["Charge",[0,0,-1,-1,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0]],
                             ["Hydropathy",[1.8,2.5,-3.5,-3.5,2.8,-0.4,-3.2,4.5,-3.9,3.8,1.9,-3.5,-1.6,-3.5,-4.5,-0.8,-0.7,4.2,-0.9,-1.3]],
                             ["Hydrophobicity",[0.02,0.77,-1.04,-1.14,1.35,-0.80,0.26,1.81,-0.41,1.14,1,-0.77,-0.09,-1.10,-0.42,-0.97,-0.77,1.13,1.71,1.11]],
                             ["Polarity",[0,1.48,49.7,49.9,0.35,0,51.6,0.13,49.5,0.13,1.43,3.38,1.58,3.53,52,1.67,1.66,0.13,2.1,1.61]],
-                            ["Mutability",[100,44,86,77,51,50,91,103,72,54,93,104,58,84,83,117,107,98,25,50]]
+                            ["Mutability",[100,44,86,77,51,50,91,103,72,54,93,104,58,84,83,117,107,98,25,50]],
+                            ["Shannon entropy",[0.000000000000001,4.321928094887363]],
+                            ["TwinCons",[-2.935,12.065]]
                         ]);
     let aaColorData = new Map([
                             ["Charge",[Blues, Reds]],
-                            ["Hydropathy",[viridis]],
+                            ["Hydropathy",[Blues, Reds]],
                             ["Hydrophobicity",[Reds, Blues]],
                             ["Polarity",[viridis]],
-                            ["Mutability",[viridis]]
+                            ["Mutability",[viridis]],
+                            ["Shannon entropy",[plasma]],
+                            ["TwinCons",[RdPu, YlGn]],
                         ]);
     window.aaColorData = aaColorData;
     window.aaPropertyConstants = aaPropertiesData;
     let outPropertyPosition = new Map();
-    aaProperties.forEach(function (prop){
-        outPropertyPosition.set(prop, [])
-        frequencies.forEach(function (item) {
-            outPropertyPosition.get(prop).push(multiplyvector(aaPropertiesData.get(prop), item));
+    aaPropertiesData.forEach(function (data, property_name){
+        if (property_name == "TwinCons"){return;}
+        let const_data = data
+        outPropertyPosition.set(property_name, [])
+        frequencies.forEach(function (col_frequency) {
+            if (property_name == "Shannon entropy"){
+                const_data = new Array;
+                col_frequency.forEach( function (single_freq){
+                    if (single_freq == 0){
+                        const_data.push(0)
+                    }else{
+                        const_data.push(Math.log2(single_freq)*-1)
+                    }
+                });
+            }
+            outPropertyPosition.get(property_name).push(multiplyvector(const_data, col_frequency));
         });
     });
     return outPropertyPosition;
 }
 
 var mapAAProps = function (aa_properties, mapping){
-    const aaProperties = ["Charge","Hydropathy","Hydrophobicity","Polarity","Mutability"]
     let outPropertyMappedPosition = new Map();
-    aaProperties.forEach(function (prop){
-        outPropertyMappedPosition.set(prop, [])
-        let currProp = aa_properties.get(prop)
-        currProp.forEach(function (data, aln_ix) {
+    aa_properties.forEach(function (data, property_name){
+        outPropertyMappedPosition.set(property_name, [])
+        data.forEach(function (data, aln_ix) {
             let mappedI0 = mapping[aln_ix+1];
             if (mappedI0) {
-                outPropertyMappedPosition.get(prop).push([mappedI0, Number(math.sum(data).toFixed(2))]);
+                outPropertyMappedPosition.get(property_name).push([mappedI0, Number(math.sum(data).toFixed(2))]);
             }
         });
     });
@@ -222,17 +235,37 @@ var vm = new Vue({
         type_tree: "orth",
         aa_properties: null,
         structure_mapping: null,
-        custom_aln_file: null
+        file: null
     },
     methods: {
-        handleFileUpload(event){
-            this.custom_aln_file = this.$refs.file.custom_aln_file[0];
-            ajax('/custom-aln-data', optional_data=event.target.files)
+        handleFileUpload(){
+            this.file = this.$refs.custom_aln_file.files[0];
+            if (this.tax_id != null){this.tax_id = null;}
+        },
+        submitCustomAlignment(){
+            let formData = new FormData();
+            formData.append('custom_aln_file', this.file)
+            $.ajax({
+                url: '/custom-aln-data',
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                method: 'POST',
+                type: 'POST', // For jQuery < 1.9
+                success: function(data){
+                    cleanupOnNewAlignment(vm, "Loading alignment...");
+                    vm.alnobj = "custom";
+                    vm.showAlignment(null, null, "upload");
+                },
+                error: function(error) {
+                    alert(`${error.responseText}`);
+                }
+            });
         },
         cleanTreeOpts() {
-            this.options = null;
-            this.tax_id = null;
             cleanupOnNewAlignment(vm, "Select new alignment!");
+            [this.options, this.tax_id, this.alnobj] = [null, null, null];
         }, loadOptions({ action, callback }) {
             if (this.type_tree == "orth"){
                 if (action === "LOAD_CHILDREN_OPTIONS") {
@@ -274,7 +307,9 @@ var vm = new Vue({
             if (this.type_tree == "para"){
                 loadParaOptions(action, callback, vm);
             }
-        }, loadData: function(value, type_tree) {
+        }, loadData (value, type_tree) {
+            if (type_tree == "upload"){this.tax_id = null; return;}
+            if (value.length == 0){this.tax_id = null; return;}
             cleanupOnNewAlignment(vm, "Select new alignment!");
             if (this.alnobj != null) {this.alnobj = null;}
             if (type_tree == "orth"){
@@ -316,10 +351,31 @@ var vm = new Vue({
                     .then(struc_data => {
                         var chain_list = struc_data[pdbid.toLowerCase()];
                         if (this.type_tree == "para") {aln_id = aln_id.split(',')[1]}
-                        filterAvailablePolymers(chain_list, aln_id, vm);
-                        this.hide_chains = null;
+                        if (this.type_tree != "upload") {
+                            filterAvailablePolymers(chain_list, aln_id, vm);
+                            this.hide_chains = null;
+                        } else {
+                            let chain_options = []
+                            for (let i = 0; i < chain_list.length; i++) {
+                                let chain_listI = chain_list[i]
+                                if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
+                                if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
+                                if (typeof(chain_listI.source[0]) === "undefined") {continue;}
+                                chain_options.push({
+                                    text: chain_listI["molecule_name"][0],
+                                    value: chain_listI["in_chains"][0],
+                                    sequence: chain_listI["sequence"],
+                                    startIndex: chain_listI.source[0].mappings[0].start.residue_number
+                                })
+                            }
+                            if (chain_options.length === 0) {
+                                chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
+                            }
+                            vm.chains = chain_options;
+                            this.hide_chains = null;
+                        }
                     }).catch(error => {
-                        alert("No such pdb id: " + pdbid + ".", error)
+                        alert("Problem with parsing the chains:\n" + error)
                     })
             }
         },
@@ -329,6 +385,8 @@ var vm = new Vue({
                 var url = `/ortholog-aln-api/${aln_id}/${taxid}`}
             if (type_tree == "para"){
                 var url = '/paralog-aln-api/'+aln_id.split(',')[1]}
+            if (type_tree == "upload"){
+                var url = '/custom-aln-data'}
             ajax(url).then(fasta => {
                 this.fasta_data = fasta[0];
                 this.aa_properties = calculateFrequencyData(fasta[3])
@@ -381,6 +439,7 @@ var vm = new Vue({
             })
         }, showTopologyViewer (pdbid, chainid, fasta){
             if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(vm);}
+            if (chainid.length > 1){this.chainid = chainid[0];}
             const topview_item = document.getElementById("topview");
             const molstar_item = document.getElementById("pdbeMolstarView");
             if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Loading topology viewer and conservation data...")}
@@ -397,16 +456,18 @@ var vm = new Vue({
             ajax('/mapSeqAln/', optional_data={fasta, ebi_sequence, startIndex}).then(struct_mapping=>{
                 this.structure_mapping = struct_mapping;
                 var mapped_aa_properties = mapAAProps(this.aa_properties, struct_mapping);
-                if (this.tax_id.length == 2) {
-                    ajax('/twc-api/', optional_data={fasta}).then(twcDataUnmapped => {
-                        mapped_aa_properties.set("TwinCons", [])
-                        for (i = 0; i < twcDataUnmapped.length; i++) {
-                            let mappedI0 = this.structure_mapping[twcDataUnmapped[i][0]];
-                            if (mappedI0) {
-                                mapped_aa_properties.get("TwinCons").push([mappedI0, twcDataUnmapped[i][1]]);
+                if (this.tax_id != null){
+                    if (this.tax_id.length == 2) {
+                        ajax('/twc-api/', optional_data={fasta}).then(twcDataUnmapped => {
+                            mapped_aa_properties.set("TwinCons", [])
+                            for (i = 0; i < twcDataUnmapped.length; i++) {
+                                let mappedI0 = this.structure_mapping[twcDataUnmapped[i][0]];
+                                if (mappedI0) {
+                                    mapped_aa_properties.get("TwinCons").push([mappedI0, twcDataUnmapped[i][1]]);
+                                }
                             }
-                        }
-                    })
+                        })
+                    }
                 }
                 window.mapped_aa_properties = mapped_aa_properties;
                 var topology_url = `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdblower}/chain/${chainid}`
