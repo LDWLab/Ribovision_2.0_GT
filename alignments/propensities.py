@@ -1,7 +1,3 @@
-import os
-import numpy as np
-import pandas as pd
-
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
@@ -85,7 +81,4 @@ def aa_composition(file_path, reduced = True):
             name = record.name.split('|')[0]
             aa_dict[name] = species_dict
 
-    aa = pd.DataFrame.from_dict(aa_dict, orient = 'index')
-    aa.reset_index(inplace = True)
-
-    return aa
+    return aa_dict

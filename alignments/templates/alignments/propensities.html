@@ -105,6 +105,7 @@ TODO:
             var data = [ctrace, ftrace, gtrace, ptrace, dtrace, ntrace, ktrace, vtrace];
 
             Plotly.newPlot('reduced', data, layout);
+            Plotly.newPlot('total', data, layout);
 
             function iterationHelper(sequence) {
                 cArray.push(sequence[1]);

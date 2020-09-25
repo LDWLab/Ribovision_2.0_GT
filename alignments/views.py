@@ -374,9 +374,18 @@ def propensity_data(request):
     tax_group = '2,2157,2759'
     fastastring = simple_fasta(request, aln_id, tax_group, internal=True).replace('\\n', '\n')
     fasta = StringIO(fastastring)
-    propensities = p.aa_composition(fasta, reduced = False)
-    
-    return JsonResponse(propensities.values.tolist(), safe = False)
+    aa = p.aa_composition(fasta, reduced = False)
+
+    # need to reload the fasta object
+    # fasta = StringIO(fastastring)
+    fasta.seek(0)
+    red_aa = p.aa_composition(fasta, reduced = False)
+
+    data = {
+        'reduced alphabet' : red_aa,
+        'amino acid' : aa
+    }
+    return JsonResponse(data)
 
 def propensities(request):
     propensity_data = reverse('alignments:propensity_data')
