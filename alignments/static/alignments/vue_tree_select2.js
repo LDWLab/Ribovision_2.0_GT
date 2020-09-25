@@ -221,15 +221,15 @@ var vm = new Vue({
         hide_chains: null,
         type_tree: "orth",
         aa_properties: null,
-        structure_mapping: null
+        structure_mapping: null,
+        custom_aln_file: null
     },
     methods: {
-        limiter(e) {
-            if (e.length > 2) {
-                alert('You can only select two groups!')
-                e.pop()
-            }
-        }, cleanTreeOpts() {
+        handleFileUpload(event){
+            this.custom_aln_file = this.$refs.file.custom_aln_file[0];
+            ajax('/custom-aln-data', optional_data=event.target.files)
+        },
+        cleanTreeOpts() {
             this.options = null;
             this.tax_id = null;
             cleanupOnNewAlignment(vm, "Select new alignment!");
