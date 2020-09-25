@@ -32,11 +32,14 @@
 	<div id="phylo_tree_dropdown">
 		<div class="left-sidebar">
 			<p id="tree_type">
-				<input type="radio" id="orthologs" value="orth" v-model="type_tree" @input="cleanTreeOpts()">
-				<label for="orthologs">Orthologs</label>
-				<input type="radio" id="paralogs" value="para" v-model="type_tree" @input="cleanTreeOpts()">
+				<input type="radio" id="orthologs" value="orth" v-model="type_tree" v-on:input="cleanTreeOpts()" checked>
+				<label for="orthologs" >Orthologs</label>
+				<input type="radio" id="paralogs" value="para" v-model="type_tree" v-on:input="cleanTreeOpts()">
 				<label for="paralogs">Paralogs</label>
+				<input type="radio" id="upload" value="upload" v-model="type_tree" v-on:input="cleanTreeOpts()">
+				<label for="upload">Upload</label>
 			</p>
+			<div v-if="type_tree=='para'|type_tree=='orth'">
 			<treeselect 
 			  :load-options="loadOptions"
 			  v-model="tax_id" 
@@ -49,16 +52,27 @@
 			  :limit="2"
 			  :default-expand-level="1"
 			  >Loading phylogenetic tree...</treeselect>
-			<p><select id="selectaln" v-if="tax_id" v-model="alnobj" @change="showAlignment(alnobj.id, tax_id, type_tree)" >
-			  <option :value="null" selected disabled hidden>Select an alignment</option>
-			  <option v-for="aln in alignments" v-bind:value="{ id: aln.value, text: aln.text }">[[ aln.text ]]</option>
-			</select></p>
-			<p><span v-if="alnobj">Selected alignment: [[alnobj.text]].<br>Input PDB and polymer for mapping:</span></p>
+			</div>
+			<div v-else>
+				<p>Select alignment file: </p>
+				<p><input type = "file" accept=".fasta,.fas,.fa" ref="custom_aln_file" v-on:change="handleFileUpload()"/></p>
+				<p><button v-on:click="submitCustomAlignment()">Upload alignment</button></p>
+			</div>
+			<p>
+				<select id="selectaln" v-if="tax_id" v-model="alnobj" @change="showAlignment(alnobj.id, tax_id, type_tree)" >
+				  <option v-if="tax_id" :value="null" selected disabled hidden>Select an alignment</option>
+				  <option v-if="tax_id" v-for="aln in alignments" v-bind:value="{ id: aln.value, text: aln.text }">[[ aln.text ]]</option>
+				</select>
+			</p>
+			<p>
+				<span v-if="alnobj&&alnobj!='custom'">Selected alignment: [[alnobj.text]].<br></span>
+				<span v-if="alnobj">Input PDB and polymer for mapping:</span>
+			</p>
 			<p><input id="pdb_input" v-if="alnobj" v-model="pdbid" v-on:input="getPDBchains(pdbid, alnobj.id)" placeholder="4v9d" maxlength="4"></p>
 			<p v-if="hide_chains">Looking for available polymers...</p>
-			<p><select multiple v-if="chains&&fasta_data" v-model="chainid" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid)">
+			<p><select v-bind:style="{ resize: 'both'}" multiple v-if="chains&&fasta_data" v-model="chainid" >
 				<option :value ="null" selected disabled>Select polymer</option>
-				<option v-for="chain in chains" v-bind:value="chain.value">[[ chain.text ]]</option>
+				<option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid)">[[ chain.text ]]</option>
 			</select></p>
 		</div>
 		<div class="alignment_section">

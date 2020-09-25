@@ -39,6 +39,8 @@ var interpolateLinearly = window.interpolateLinearly;
 var RdPu = window.RdPu;
 var YlGn = window.YlGn;
 var mapped_aa_properties = window.mapped_aa_properties;
+var aaPropertyConstants = window.aaPropertyConstants;
+var aaColorData = window.aaColorData;
 var selectSections_RV1 = new Map();
 var PdbTopologyViewerPlugin = /** @class */ (function () {
     function PdbTopologyViewerPlugin() {
@@ -1207,87 +1209,97 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         }
         return chainRange;
     };
+    PdbTopologyViewerPlugin.prototype.parseTWCData = function (separatedData, lowVal, highVal, colormapArray) {
+        var TWCData = new Map();
+        var TWCrgbMap = new Map();
+        separatedData.forEach(function (item, index) {
+            var parsedItem = item[0];
+            var itemValue = item[1];
+            TWCData.set(parsedItem, itemValue);
+            if (colormapArray.length === 1) {
+                var newValue = itemValue - lowVal;
+                TWCrgbMap.set(parsedItem, interpolateLinearly(newValue / (highVal - lowVal), colormapArray[0]));
+            }
+            else {
+                if (itemValue < 0) {
+                    TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue / lowVal, colormapArray[0]));
+                }
+                else {
+                    TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue / highVal, colormapArray[1]));
+                }
+            }
+        });
+        return [TWCrgbMap, TWCData];
+    };
+    PdbTopologyViewerPlugin.prototype.create2D3DAnnotations = function (name, residueDetails, TWCrgbMap, TWCData) {
+        var _this = this;
+        TWCData.forEach(function (value, index) {
+            var rgb_color = TWCrgbMap.get(index);
+            selectSections_RV1.get(name).push({
+                entity_id: _this.entityId,
+                start_residue_number: index,
+                end_residue_number: index,
+                color: rgb_color[1],
+                sideChain: false,
+            });
+            _this.defaultColours.qualityRiboVision = "rgb(" + String(rgb_color[0].join(',')) + ")";
+            var colors = "rgb(" + String(rgb_color[0].join(',')) + ")";
+            _this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
+            residueDetails.push({
+                start: index,
+                end: index,
+                color: colors,
+                tooltipMsg: Number.parseFloat(value).toPrecision(3),
+                tooltipPosition: "prefix"
+            }),
+                _this.drawValidationShape(index, "circle", colors);
+        });
+        return residueDetails;
+    };
     PdbTopologyViewerPlugin.prototype.getAnnotationFromRibovision = function (mapped_aa_properties) {
+        console.log(mapped_aa_properties);
         var _this = this;
         var chainRange = this.getChainStartAndEnd();
-        //console.log(this.domainTypes);
-        var residueDetails = [{
-                start: chainRange.start,
-                end: chainRange.end,
-                color: _this.defaultColours.qualityGreen,
-                tooltipMsg: 'No data for '
-            }];
-        //Two temporary arrays for grouping rsrz and other outliers tooltip message  
-        var rsrzTempArray = [];
-        var otherOutliersTempArray = [0];
-        console.log(mapped_aa_properties);
+        var dataMap = new Map();
         if (void 0 !== this.entropyId) {
-            var Y_min_1 = -2.935;
-            var Y_max_1 = 12.065;
             var unParsedTWC_1 = this.entropyId.split(':').join(';').split(';');
             unParsedTWC_1.forEach(function (item, index) {
-                if (index % 2 === 1) {
-                    residueDetails = [{
-                            start: chainRange.start,
-                            end: chainRange.end,
-                            color: _this.defaultColours.qualityGreen,
-                            tooltipMsg: 'No data for '
-                        }];
-                    var separatedData_1 = unParsedTWC_1[index].split(",");
-                    var dataTitle_1 = unParsedTWC_1[index - 1];
-                    selectSections_RV1.set(dataTitle_1, []);
-                    var TWCData_1 = new Map();
-                    var TWCrgbMap_1 = new Map();
-                    separatedData_1.forEach(function (item, index) {
-                        if (index % 2 == 0) {
-                            TWCData_1.set(item, separatedData_1[index + 1]);
-                            if (Number(separatedData_1[index + 1]) < 0) {
-                                TWCrgbMap_1.set(item, interpolateLinearly(Number(separatedData_1[index + 1]) / Y_min_1, RdPu));
-                            }
-                            else {
-                                TWCrgbMap_1.set(item, interpolateLinearly(Number(separatedData_1[index + 1]) / Y_max_1, YlGn));
-                            }
-                        }
-                    });
-                    selectSections_RV1.get(dataTitle_1).push({ entity_id: _this.entityId, focus: true });
-                    if (void 0 !== TWCData_1) {
-                        TWCData_1.forEach(function (value, index) {
-                            var rgb_color = TWCrgbMap_1.get(index);
-                            selectSections_RV1.get(dataTitle_1).push({
-                                entity_id: _this.entityId,
-                                start_residue_number: parseInt(index),
-                                end_residue_number: parseInt(index),
-                                color: rgb_color[1],
-                                sideChain: false,
-                            });
-                            _this.defaultColours.qualityRiboVision = "rgb(" + String(rgb_color[0].join(',')) + ")";
-                            var colors = "rgb(" + String(rgb_color[0].join(',')) + ")";
-                            _this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
-                            residueDetails.push({
-                                start: parseInt(index),
-                                end: parseInt(index),
-                                color: colors,
-                                tooltipMsg: Number.parseFloat(value).toPrecision(3),
-                                tooltipPosition: "prefix"
-                            }),
-                                otherOutliersTempArray.push(index);
-                            _this.drawValidationShape(index, "circle", colors);
-                            rsrzTempArray.push(index);
+                if (index % 2 == 0) {
+                    dataMap.set(item, unParsedTWC_1[index + 1]);
+                }
+            });
+            mapped_aa_properties.forEach(function (value, index) {
+                var residueDetails = [{
+                        start: chainRange.start,
+                        end: chainRange.end,
+                        color: _this.defaultColours.qualityGreen,
+                        tooltipMsg: 'No data for '
+                    }];
+                var name = index;
+                var separatedData = value;
+                selectSections_RV1.set(name, []);
+                //let min = -2.935;
+                // let max = 12.065;
+                var min = Math.min.apply(Math, aaPropertyConstants.get(name));
+                var max = Math.max.apply(Math, aaPropertyConstants.get(name));
+                var colormapArray = aaColorData.get(name);
+                var _a = _this.parseTWCData(separatedData, min, max, colormapArray), TWCrgbMap = _a[0], TWCData = _a[1];
+                selectSections_RV1.get(name).push({ entity_id: _this.entityId, focus: true });
+                if (void 0 !== TWCData) {
+                    residueDetails = _this.create2D3DAnnotations(name, residueDetails, TWCrgbMap, TWCData);
+                    if (0 < residueDetails.length) {
+                        _this.domainTypes.splice(1, 0, {
+                            label: name,
+                            data: residueDetails
                         });
-                        if (0 < residueDetails.length) {
-                            _this.domainTypes.splice(1, 0, {
-                                label: dataTitle_1,
-                                data: residueDetails
-                            });
-                        }
                     }
-                    else {
-                        //catch block
-                    }
-                    ;
                 }
             });
         }
+        else {
+            //catch block
+        }
+        ;
     };
     PdbTopologyViewerPlugin.prototype.getAnnotationFromOutliers = function () {
         var _this_1 = this;

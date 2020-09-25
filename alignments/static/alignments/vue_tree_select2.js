@@ -167,6 +167,15 @@ var calculateFrequencyData = function (frequencies){
                             ["Polarity",[0,1.48,49.7,49.9,0.35,0,51.6,0.13,49.5,0.13,1.43,3.38,1.58,3.53,52,1.67,1.66,0.13,2.1,1.61]],
                             ["Mutability",[100,44,86,77,51,50,91,103,72,54,93,104,58,84,83,117,107,98,25,50]]
                         ]);
+    let aaColorData = new Map([
+                            ["Charge",[Blues, Reds]],
+                            ["Hydropathy",[Blues, Reds]],
+                            ["Hydrophobicity",[Reds, Blues]],
+                            ["Polarity",[viridis]],
+                            ["Mutability",[viridis]]
+                        ]);
+    window.aaColorData = aaColorData;
+    window.aaPropertyConstants = aaPropertiesData;
     let outPropertyPosition = new Map();
     aaProperties.forEach(function (prop){
         outPropertyPosition.set(prop, [])
@@ -212,18 +221,38 @@ var vm = new Vue({
         hide_chains: null,
         type_tree: "orth",
         aa_properties: null,
-        structure_mapping: null
+        structure_mapping: null,
+        file: null
     },
     methods: {
-        limiter(e) {
-            if (e.length > 2) {
-                alert('You can only select two groups!')
-                e.pop()
-            }
-        }, cleanTreeOpts() {
-            this.options = null;
-            this.tax_id = null;
+        handleFileUpload(){
+            this.file = this.$refs.custom_aln_file.files[0];
+            if (this.tax_id != null){this.tax_id = null;}
+        },
+        submitCustomAlignment(){
+            let formData = new FormData();
+            formData.append('custom_aln_file', this.file)
+            $.ajax({
+                url: '/custom-aln-data',
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                method: 'POST',
+                type: 'POST', // For jQuery < 1.9
+                success: function(data){
+                    cleanupOnNewAlignment(vm, "Loading alignment...");
+                    vm.alnobj = "custom";
+                    vm.showAlignment(null, null, "upload");
+                },
+                error: function(error) {
+                    alert(`${error.responseText}`);
+                }
+            });
+        },
+        cleanTreeOpts() {
             cleanupOnNewAlignment(vm, "Select new alignment!");
+            [this.options, this.tax_id, this.alnobj] = [null, null, null];
         }, loadOptions({ action, callback }) {
             if (this.type_tree == "orth"){
                 if (action === "LOAD_CHILDREN_OPTIONS") {
@@ -265,7 +294,8 @@ var vm = new Vue({
             if (this.type_tree == "para"){
                 loadParaOptions(action, callback, vm);
             }
-        }, loadData: function(value, type_tree) {
+        }, loadData (value, type_tree) {
+            if (type_tree == "upload"){this.tax_id = null; return;}
             cleanupOnNewAlignment(vm, "Select new alignment!");
             if (this.alnobj != null) {this.alnobj = null;}
             if (type_tree == "orth"){
@@ -307,10 +337,31 @@ var vm = new Vue({
                     .then(struc_data => {
                         var chain_list = struc_data[pdbid.toLowerCase()];
                         if (this.type_tree == "para") {aln_id = aln_id.split(',')[1]}
-                        filterAvailablePolymers(chain_list, aln_id, vm);
-                        this.hide_chains = null;
+                        if (this.type_tree != "upload") {
+                            filterAvailablePolymers(chain_list, aln_id, vm);
+                            this.hide_chains = null;
+                        } else {
+                            let chain_options = []
+                            for (let i = 0; i < chain_list.length; i++) {
+                                let chain_listI = chain_list[i]
+                                if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
+                                if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
+                                if (typeof(chain_listI.source[0]) === "undefined") {continue;}
+                                chain_options.push({
+                                    text: chain_listI["molecule_name"][0],
+                                    value: chain_listI["in_chains"][0],
+                                    sequence: chain_listI["sequence"],
+                                    startIndex: chain_listI.source[0].mappings[0].start.residue_number
+                                })
+                            }
+                            if (chain_options.length === 0) {
+                                chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
+                            }
+                            vm.chains = chain_options;
+                            this.hide_chains = null;
+                        }
                     }).catch(error => {
-                        alert("No such pdb id: " + pdbid + ".", error)
+                        alert("Problem with parsing the chains:\n" + error)
                     })
             }
         },
@@ -320,6 +371,8 @@ var vm = new Vue({
                 var url = `/ortholog-aln-api/${aln_id}/${taxid}`}
             if (type_tree == "para"){
                 var url = '/paralog-aln-api/'+aln_id.split(',')[1]}
+            if (type_tree == "upload"){
+                var url = '/custom-aln-data'}
             ajax(url).then(fasta => {
                 this.fasta_data = fasta[0];
                 this.aa_properties = calculateFrequencyData(fasta[3])
@@ -388,16 +441,18 @@ var vm = new Vue({
             ajax('/mapSeqAln/', optional_data={fasta, ebi_sequence, startIndex}).then(struct_mapping=>{
                 this.structure_mapping = struct_mapping;
                 var mapped_aa_properties = mapAAProps(this.aa_properties, struct_mapping);
-                if (this.tax_id.length == 2) {
-                    ajax('/twc-api/', optional_data={fasta}).then(twcDataUnmapped => {
-                        mapped_aa_properties.set("TwinCons", [])
-                        for (i = 0; i < twcDataUnmapped.length; i++) {
-                            let mappedI0 = this.structure_mapping[twcDataUnmapped[i][0]];
-                            if (mappedI0) {
-                                mapped_aa_properties.get("TwinCons").push([mappedI0, twcDataUnmapped[i][1]]);
+                if (this.tax_id != null){
+                    if (this.tax_id.length == 2) {
+                        ajax('/twc-api/', optional_data={fasta}).then(twcDataUnmapped => {
+                            mapped_aa_properties.set("TwinCons", [])
+                            for (i = 0; i < twcDataUnmapped.length; i++) {
+                                let mappedI0 = this.structure_mapping[twcDataUnmapped[i][0]];
+                                if (mappedI0) {
+                                    mapped_aa_properties.get("TwinCons").push([mappedI0, twcDataUnmapped[i][1]]);
+                                }
                             }
-                        }
-                    })
+                        })
+                    }
                 }
                 window.mapped_aa_properties = mapped_aa_properties;
                 var topology_url = `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdblower}/chain/${chainid}`

@@ -2,6 +2,8 @@ declare const interpolateLinearly: any;
 declare const RdPu: any;
 declare const YlGn: any;
 declare const mapped_aa_properties: any;
+declare const aaPropertyConstants: any;
+declare const aaColorData: any;
 declare var selectSections_RV1: Map<any, any>;
 declare class PdbTopologyViewerPlugin {
     defaultColours: {
@@ -78,6 +80,8 @@ declare class PdbTopologyViewerPlugin {
         start: number;
         end: number;
     };
+    parseTWCData(separatedData: any[], lowVal: number, highVal: number, colormapArray: any[]): Map<any, any>[];
+    create2D3DAnnotations(name: string, residueDetails: any, TWCrgbMap: Map<number, any>, TWCData: Map<number, string>): any;
     getAnnotationFromRibovision(mapped_aa_properties: Map<string, Array<Array<number>>>): void;
     getAnnotationFromOutliers(): void;
     createDomainDropdown: () => void;
