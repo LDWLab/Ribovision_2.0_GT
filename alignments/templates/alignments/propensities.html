@@ -1,9 +1,3 @@
-<!-- I just straight up copied this from simpleVisualization.html 
-TODO:
-- replace all instances of twc_api_url with my own data url
--->
-
-
 <script src="https://cdn.plot.ly/plotly-latest.min.js" charset="utf-8"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
@@ -18,105 +12,51 @@ TODO:
             type: "GET",
             dataType: "json",
             success: function (data) {
-                console.log(data)
-                build_plotly_graph(data);
+                // console.log(data)
+                ra = ['C', 'F', 'G', 'P', 'D', 'N', 'K', 'V'], 
+                full = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y'], 
+                build_propensity_graph(data['reduced alphabet'], ra, 'Reduced Alphabet Propensities', 'reduced');
+                build_propensity_graph(data['amino acid'], full, 'Amino Acid Propensities', 'total');
             },
             error: function (error) {
                 console.log(`Error ${error}`);}
             });
         }
-        function build_plotly_graph(data){
-            var
-                cArray = [],
-                fArray = [],
-                gArray = [],
-                pArray = [],
-                dArray = [],
-                nArray = [],
-                kArray = [],
-                vArray = [];
-            data.forEach(iterationHelper);
+        function build_propensity_graph(data, amino_acids, title, div) {
+            // reformat data
+            var data2 = {};
+            for (aa of amino_acids) {
+                data2[aa] = [];
+            }
+            for (species in data) {
+                // console.log(data[species])
+                for (aa of amino_acids) {
+                    data2[aa].push(data[species][aa])
+                }
+            };
 
-            // traces
-            var ctrace = {
-                y: cArray,
-                type: 'box',
-                boxpoints: 'all',
-                jitter: 0.2,
-                pointpos: 0,
-                name: 'C'};
-                // marker: {color: 'rgb(9,56,125)'},
-                // line: {color: 'rgba(0,0,0,0)'},
-                // fillcolor:{color: 'rgba(0,0,0,0)'}};
-            var ftrace = {
-                y: fArray,
-                type: 'box',
-                boxpoints: 'all',
-                jitter: 0.2,
-                pointpos: 0,
-                name: 'F'};
-            var gtrace = {
-                y: gArray,
-                type: 'box',
-                boxpoints: 'all',
-                jitter: 0.2,
-                pointpos: 0,
-                name: 'G'};
-            var ptrace = {
-                y: pArray,
-                type: 'box',
-                boxpoints: 'all',
-                jitter: 0.2,
-                pointpos: 0,
-                name: 'P'};
-            var dtrace = {
-                y: dArray,
-                type: 'box',
-                boxpoints: 'all',
-                jitter: 0.2,
-                pointpos: 0,
-                name: 'D'};
-            var ntrace = {
-                y: nArray,
-                type: 'box',
-                boxpoints: 'all',
-                jitter: 0.2,
-                pointpos: 0,
-                name: 'N'};
-            var ktrace = {
-                y: kArray,
-                type: 'box',
-                boxpoints: 'all',
-                jitter: 0.2,
-                pointpos: 0,
-                name: 'K'};
-            var vtrace = {
-                y: vArray,
-                type: 'box',
-                boxpoints: 'all',
-                jitter: 0.2,
-                pointpos: 0,
-                name: 'V'};
+            // build traces
+            traces = []
+            for (aa of amino_acids) {
+                var newtrace = {
+                    y: data2[aa],
+                    type: 'box',
+                    boxpoints: 'all',
+                    jitter: 0.2,
+                    pointpos: 0,
+                    name: aa}; 
+                    // marker: {color: 'rgb(9,56,125)'},
+                    // line: {color: 'rgba(0,0,0,0)'},
+                    // fillcolor:{color: 'rgba(0,0,0,0)'}};
+                traces.push(newtrace)
+            };
             
             var layout = {
-                title: 'Reduced Alphabet Propensities for OB Folds',
+                title: title,
                 xaxis: {title: 'amino acid group'},
                 yaxis: {title: 'propensity'}};
-            var data = [ctrace, ftrace, gtrace, ptrace, dtrace, ntrace, ktrace, vtrace];
 
-            Plotly.newPlot('reduced', data, layout);
-            Plotly.newPlot('total', data, layout);
-
-            function iterationHelper(sequence) {
-                cArray.push(sequence[1]);
-                fArray.push(sequence[2]);
-                gArray.push(sequence[3]);
-                pArray.push(sequence[4]);
-                dArray.push(sequence[5]);
-                nArray.push(sequence[6]);
-                kArray.push(sequence[7]);
-                vArray.push(sequence[8]);
-            }
+            Plotly.newPlot(div, traces, layout);
         }
     window.onload = get_twc_list_data("{{propensity_data}}")
     </script>
