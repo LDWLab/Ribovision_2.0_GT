@@ -1549,7 +1549,7 @@ class PdbTopologyViewerPlugin {
         const selectBoxEle:any = this.targetEle.querySelector('.menuSelectbox');
         const selectedValue = parseInt(selectBoxEle.value);
         const selectedDomain = this.domainTypes[selectedValue];
-        const rv3AnnotationLabels = ["Charge","Hydropathy","Hydrophobicity","Polarity","Mutability","TwinCons"]
+        const rv3AnnotationLabels = Array.from(aaPropertyConstants.keys())
         if(selectedDomain.data !== null){
             this.resetTheme();
             this.updateTheme(selectedDomain.data);
