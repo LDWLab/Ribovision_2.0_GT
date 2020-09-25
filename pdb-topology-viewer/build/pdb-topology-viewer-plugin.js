@@ -1257,7 +1257,6 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         return residueDetails;
     };
     PdbTopologyViewerPlugin.prototype.getAnnotationFromRibovision = function (mapped_aa_properties) {
-        console.log(mapped_aa_properties);
         var _this = this;
         var chainRange = this.getChainStartAndEnd();
         var dataMap = new Map();
@@ -1496,7 +1495,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         var selectBoxEle = this.targetEle.querySelector('.menuSelectbox');
         var selectedValue = parseInt(selectBoxEle.value);
         var selectedDomain = this.domainTypes[selectedValue];
-        var rv3AnnotationLabels = ["Charge", "Hydropathy", "Hydrophobicity", "Polarity", "Mutability", "TwinCons"];
+        var rv3AnnotationLabels = Array.from(aaPropertyConstants.keys());
         if (selectedDomain.data !== null) {
             this.resetTheme();
             this.updateTheme(selectedDomain.data);
