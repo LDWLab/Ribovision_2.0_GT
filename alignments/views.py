@@ -300,6 +300,24 @@ def extract_gap_only_cols(fastastring):
 	gap_only_cols = list(set(list_for_intersect[0]).intersection(*list_for_intersect))
 	return gap_only_cols
 
+def construct_dict_for_json_response(response_data):
+	'''Takes list of datas for Json response.
+	Check their tyupes and assigns names to each.
+	Returns them as a dictionary.'''
+	response_dict = dict()
+	for entry in response_data:
+		if re.search(r'>', entry):
+			response_dict['Alignment'] = entry
+			continue
+		if type(entry) == list:
+			if all(isinstance(item, int) for item in entry):
+				response_dict['Gap-only columns'] = entry
+			if all(isinstance(item, list) for item in entry):
+				response_dict['AA frequencies'] = entry
+			if all(isinstance(item, str) for item in entry):
+				response_dict['Sequence names'] = entry
+	return response_dict
+
 def simple_fasta(request, aln_id, tax_group, internal=False):
 	rawsqls = []
 	if type(tax_group) == int:
@@ -321,7 +339,9 @@ def simple_fasta(request, aln_id, tax_group, internal=False):
 	filtered_spec_list = extract_species_list(fastastring)
 
 	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
-	return JsonResponse([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list], safe = False)
+	response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list])
+
+	return JsonResponse(response_dict, safe = False)
 
 def rProtein(request, align_name, tax_group):
 	#if tax_group == 0 - no filter
