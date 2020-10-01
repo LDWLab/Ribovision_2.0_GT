@@ -56,7 +56,7 @@
 			<div v-else>
 				<p>Select alignment file: </p>
 				<p><input type = "file" accept=".fasta,.fas,.fa" ref="custom_aln_file" v-on:change="handleFileUpload()"/></p>
-				<p><button v-on:click="submitCustomAlignment()">Upload alignment</button></p>
+				<p><button v-on:click="submitCustomAlignment()">Upload alignment</button>{% csrf_token %}</p>
 			</div>
 			<p>
 				<select id="selectaln" v-if="tax_id" v-model="alnobj" @change="showAlignment(alnobj.id, tax_id, type_tree)" >
