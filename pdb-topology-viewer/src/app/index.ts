@@ -1264,17 +1264,8 @@ class PdbTopologyViewerPlugin {
     getAnnotationFromRibovision(mapped_aa_properties: Map<string, Array<Array<number>>>) {
         const _this = this;
         const chainRange:any = this.getChainStartAndEnd();
-        var dataMap = new Map();
         
         if (void 0 !== this.entropyId) {
-            let unParsedTWC = this.entropyId.split(':').join(';').split(';');
-            unParsedTWC.forEach(function (item, index) {
-                if(index % 2 == 0) {
-                    dataMap.set(item, unParsedTWC[index + 1]);
-                }
-            });
-        
-
             mapped_aa_properties.forEach(function(value, index) {    
                 let residueDetails:any = [{
                     start: chainRange.start,
