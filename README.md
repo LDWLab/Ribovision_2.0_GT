@@ -92,3 +92,11 @@
 6. Open a VS Code folder in the root directory of the project.
 
 7. The debugger should now work while connected to the GaTech VPN.
+
+## Public Set-up
+
+...
+
+n. After updating python/html files within the django project make sure to execute
+
+	> touch /home/Desire-Server/DESIRE/DESIRE/wsgi.py
