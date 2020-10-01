@@ -235,7 +235,8 @@ var vm = new Vue({
         type_tree: "orth",
         aa_properties: null,
         structure_mapping: null,
-        file: null
+        file: null,
+        custom_aln_twc_flag: null
     },
     methods: {
         handleFileUpload(){
@@ -388,17 +389,20 @@ var vm = new Vue({
             if (type_tree == "upload"){
                 var url = '/custom-aln-data'}
             ajax(url).then(fasta => {
-                this.fasta_data = fasta[0];
-                this.aa_properties = calculateFrequencyData(fasta[3])
+                if (fasta['TwinCons'] != null){
+                    this.custom_aln_twc_flag = fasta['TwinCons']
+                }
+                this.fasta_data = fasta['Alignment'];
+                this.aa_properties = calculateFrequencyData(fasta['AA frequencies'])
                 var main_elmnt = document.querySelector(".alignment_section")
                 var opts = {
                     el: document.getElementById("alnDiv"),
-                    seqs: msa.io.fasta.parse(fasta[0]),
+                    seqs: msa.io.fasta.parse(fasta['Alignment']),
                     colorscheme: {
                         scheme: "clustal2",
                     },
                     //columns: {
-                    //    hidden: fasta[2] // hidden columns
+                    //    hidden: fasta['Gap-only columns'] // hidden columns
                     //},
                     zoomer: {
                         // general
@@ -422,14 +426,14 @@ var vm = new Vue({
                 m.g.on("residue:click", function(data) {
                     vm.aln_meta_data = null;
                     const strainQuery = '&res__poldata__strain__strain=';
-                    var url = `/desire-api/residue-alignment/?format=json&aln_pos=${String(Number(data["rowPos"]) + 1)}&aln=${aln_id}${strainQuery}${fasta[1][Number(data["seqId"])]}`
+                    var url = `/desire-api/residue-alignment/?format=json&aln_pos=${String(Number(data["rowPos"]) + 1)}&aln=${aln_id}${strainQuery}${fasta['Sequence names'][Number(data["seqId"])]}`
                     ajax(url).then(alnpos_data => {
                         ajax('/resi-api/' + alnpos_data["results"][0]["res"].split("/")[5]).then(resiData => {
                             vm.aln_meta_data = resiData;
                         });
                     }).catch(error => {
                         vm.aln_meta_data = null;
-                        console.log("No residue with alignment position: " + data["rowPos"] + ". In alignment " + aln_id + ". Of species " + fasta[1][Number(data["seqId"])]);
+                        console.log("No residue with alignment position: " + data["rowPos"] + ". In alignment " + aln_id + ". Of species " + fasta['Sequence names'][Number(data["seqId"])]);
                         console.log(error);
                     })
                 });
@@ -456,18 +460,16 @@ var vm = new Vue({
             ajax('/mapSeqAln/', optional_data={fasta, ebi_sequence, startIndex}).then(struct_mapping=>{
                 this.structure_mapping = struct_mapping;
                 var mapped_aa_properties = mapAAProps(this.aa_properties, struct_mapping);
-                if (this.tax_id != null){
-                    if (this.tax_id.length == 2) {
-                        ajax('/twc-api/', optional_data={fasta}).then(twcDataUnmapped => {
-                            mapped_aa_properties.set("TwinCons", [])
-                            for (i = 0; i < twcDataUnmapped.length; i++) {
-                                let mappedI0 = this.structure_mapping[twcDataUnmapped[i][0]];
-                                if (mappedI0) {
-                                    mapped_aa_properties.get("TwinCons").push([mappedI0, twcDataUnmapped[i][1]]);
-                                }
+                if ((this.tax_id != null && this.tax_id.length == 2) || (this.custom_aln_twc_flag != null && this.custom_aln_twc_flag == true)) {
+                    ajax('/twc-api/', optional_data={fasta}).then(twcDataUnmapped => {
+                        mapped_aa_properties.set("TwinCons", [])
+                        for (i = 0; i < twcDataUnmapped.length; i++) {
+                            let mappedI0 = this.structure_mapping[twcDataUnmapped[i][0]];
+                            if (mappedI0) {
+                                mapped_aa_properties.get("TwinCons").push([mappedI0, twcDataUnmapped[i][1]]);
                             }
-                        })
-                    }
+                        }
+                    })
                 }
                 window.mapped_aa_properties = mapped_aa_properties;
                 var topology_url = `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdblower}/chain/${chainid}`

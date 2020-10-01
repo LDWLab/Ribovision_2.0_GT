@@ -53,7 +53,7 @@ def get_fold_for_raw_result_range(raw_result_range, raw_result):
 
 def para_aln(request, aln_id):
 	from django.db import connection
-	from alignments.views import extract_gap_only_cols, extract_species_list
+	from alignments.views import extract_gap_only_cols, extract_species_list, construct_dict_for_json_response
 	try:
 		alignment = Alignment.objects.get(pk=aln_id)
 	except Alignment.DoesNotExist:
@@ -139,7 +139,8 @@ def para_aln(request, aln_id):
 
 	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
 
-	return JsonResponse([concat_fasta, filtered_spec_list, gap_only_cols, frequency_list], safe = False)
+	response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list])
+	return JsonResponse(response_dict, safe = False)
 
 def query_to_dict_structure(rawMYSQLresult, filter_element, nogap_tupaln=dict(), max_alnposition=0):
 	for row in rawMYSQLresult:

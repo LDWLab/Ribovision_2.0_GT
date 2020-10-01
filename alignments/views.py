@@ -306,16 +306,22 @@ def construct_dict_for_json_response(response_data):
 	Returns them as a dictionary.'''
 	response_dict = dict()
 	for entry in response_data:
-		if re.search(r'>', entry):
+		if type(entry) == str:
 			response_dict['Alignment'] = entry
+			continue
+		if type(entry) == bool:
+			response_dict['TwinCons'] = entry
 			continue
 		if type(entry) == list:
 			if all(isinstance(item, int) for item in entry):
 				response_dict['Gap-only columns'] = entry
+				continue
 			if all(isinstance(item, list) for item in entry):
 				response_dict['AA frequencies'] = entry
+				continue
 			if all(isinstance(item, str) for item in entry):
 				response_dict['Sequence names'] = entry
+				continue
 	return response_dict
 
 def simple_fasta(request, aln_id, tax_group, internal=False):
@@ -379,8 +385,13 @@ def handle_custom_upload_alignment(request):
 		return HttpResponse('Success!')
 	if request.method == 'GET':
 		from alignments.Shannon import gap_adjusted_frequency
+		from TwinCons.bin.TwinCons import slice_by_name
 		fastastring = request.session.get('custom_alignment_file')
 		alignment_obj = AlignIO.read(StringIO(fastastring), 'fasta')
+		sliced_alns = slice_by_name(alignment_obj)
+		twc = False
+		if len(sliced_alns.keys()) == 2:
+			twc = True			
 		fastastring = fastastring.replace('\n','\\n')
 		gap_only_cols = extract_gap_only_cols(fastastring)
 		filtered_spec_list = extract_species_list(fastastring)
@@ -388,4 +399,6 @@ def handle_custom_upload_alignment(request):
 		frequency_list = list()
 		for i in range(0, alignment_obj.get_alignment_length()):
 			frequency_list.append(gap_adjusted_frequency(alignment_obj[:,i], IUPACData.protein_letters))
-		return JsonResponse([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list], safe = False)
+		
+		response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc])
+		return JsonResponse(response_dict, safe = False)
