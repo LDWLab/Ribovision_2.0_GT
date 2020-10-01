@@ -1259,14 +1259,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
     PdbTopologyViewerPlugin.prototype.getAnnotationFromRibovision = function (mapped_aa_properties) {
         var _this = this;
         var chainRange = this.getChainStartAndEnd();
-        var dataMap = new Map();
         if (void 0 !== this.entropyId) {
-            var unParsedTWC_1 = this.entropyId.split(':').join(';').split(';');
-            unParsedTWC_1.forEach(function (item, index) {
-                if (index % 2 == 0) {
-                    dataMap.set(item, unParsedTWC_1[index + 1]);
-                }
-            });
             mapped_aa_properties.forEach(function (value, index) {
                 var residueDetails = [{
                         start: chainRange.start,
