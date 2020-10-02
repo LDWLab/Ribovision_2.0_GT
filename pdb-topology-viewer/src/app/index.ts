@@ -1546,18 +1546,16 @@ class PdbTopologyViewerPlugin {
             this.updateTheme(selectedDomain.data);
             
             //Handle custom mapping data from RV3
-            if(rv3AnnotationLabels.includes(selectedDomain.label)){
+            if(rv3AnnotationLabels.includes(selectedDomain.label) && invokedFrom !== 'zoom'){
                 let PdbeMolstarComponent = document.getElementById('PdbeMolstarComponent');
                 let viewerInstance3 = (PdbeMolstarComponent as any).viewerInstance;
                 viewerInstance3.visual.select({ data: selectSections_RV1.get(selectedDomain.label), nonSelectedColor: {r:0,g:0,b:0}})
-
             }
             //show rsrz validation circles if Quality
             if(selectedDomain.label === 'Quality'){
                 this.svgEle.selectAll('.validationResidue').style('display', 'block');
             }
         }else{
-        
             if(invokedFrom !== 'zoom'){
                 this.resetTheme();
             }

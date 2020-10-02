@@ -1493,7 +1493,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
             this.resetTheme();
             this.updateTheme(selectedDomain.data);
             //Handle custom mapping data from RV3
-            if (rv3AnnotationLabels.includes(selectedDomain.label)) {
+            if (rv3AnnotationLabels.includes(selectedDomain.label) && invokedFrom !== 'zoom') {
                 var PdbeMolstarComponent = document.getElementById('PdbeMolstarComponent');
                 var viewerInstance3 = PdbeMolstarComponent.viewerInstance;
                 viewerInstance3.visual.select({ data: selectSections_RV1.get(selectedDomain.label), nonSelectedColor: { r: 0, g: 0, b: 0 } });
