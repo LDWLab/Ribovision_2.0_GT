@@ -480,7 +480,7 @@ var vm = new Vue({
                     GetRangeMapping(pdbid, chainid, range_string, mapping)
                     let data_string = JSON.stringify(Array.from(mapped_aa_properties.entries())).replaceAll(",[[", ":").replaceAll("]],",";").replaceAll("],[",",")
                     let formatted_data_string = data_string.replaceAll("[","").replaceAll("]","").replaceAll("\"","")
-                    var topology_viewer = `<pdb-topology-viewer entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid}	entropy-id=${formatted_data_string} filter-range=${mapping}></pdb-topology-viewer>`
+                    var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid}	entropy-id=${formatted_data_string} filter-range=${mapping}></pdb-topology-viewer>`
                     document.getElementById('topview').innerHTML = topology_viewer;
                 })
             });
@@ -558,3 +558,12 @@ var vm = new Vue({
         }
     }
 })
+
+//Updating topology viewer coloring externally
+//var topviewer = document.getElementById("PdbeTopViewer")
+//let data_index = topviewer.pluginInstance.domainTypes.findIndex(p => p.label == "Charge")
+//topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[data_index].data)
+
+//Updating MolStar viewer coloring externally
+//var molstarviewer = document.getElementById("PdbeMolstarComponent")
+//molstarviewer.viewerInstance.visual.select({data: selectSections_RV1.get("Charge"), nonSelectedColor: {r:0,g:0,b:0}})

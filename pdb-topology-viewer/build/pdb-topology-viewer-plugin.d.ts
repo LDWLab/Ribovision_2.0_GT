@@ -81,7 +81,7 @@ declare class PdbTopologyViewerPlugin {
         end: number;
     };
     parseTWCData(separatedData: any[], lowVal: number, highVal: number, colormapArray: any[]): Map<any, any>[];
-    create2D3DAnnotations(name: string, residueDetails: any, TWCrgbMap: Map<number, any>, TWCData: Map<number, string>): any;
+    create2D3DAnnotations(name: string, residueDetails: any, TWCrgbMap: Map<number, any>, TWCData: Map<number, string>, chain_start: number, chain_end: number): any;
     getAnnotationFromRibovision(mapped_aa_properties: Map<string, Array<Array<number>>>): void;
     getAnnotationFromOutliers(): void;
     createDomainDropdown: () => void;
