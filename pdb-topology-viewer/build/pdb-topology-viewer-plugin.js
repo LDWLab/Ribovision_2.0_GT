@@ -1231,28 +1231,30 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         });
         return [TWCrgbMap, TWCData];
     };
-    PdbTopologyViewerPlugin.prototype.create2D3DAnnotations = function (name, residueDetails, TWCrgbMap, TWCData) {
+    PdbTopologyViewerPlugin.prototype.create2D3DAnnotations = function (name, residueDetails, TWCrgbMap, TWCData, chain_start, chain_end) {
         var _this = this;
         TWCData.forEach(function (value, index) {
-            var rgb_color = TWCrgbMap.get(index);
-            selectSections_RV1.get(name).push({
-                entity_id: _this.entityId,
-                start_residue_number: index,
-                end_residue_number: index,
-                color: rgb_color[1],
-                sideChain: false,
-            });
-            _this.defaultColours.qualityRiboVision = "rgb(" + String(rgb_color[0].join(',')) + ")";
-            var colors = "rgb(" + String(rgb_color[0].join(',')) + ")";
-            _this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
-            residueDetails.push({
-                start: index,
-                end: index,
-                color: colors,
-                tooltipMsg: Number.parseFloat(value).toPrecision(3),
-                tooltipPosition: "prefix"
-            }),
-                _this.drawValidationShape(index, "circle", colors);
+            if (chain_start <= index && index <= chain_end) {
+                var rgb_color = TWCrgbMap.get(index);
+                selectSections_RV1.get(name).push({
+                    entity_id: _this.entityId,
+                    start_residue_number: index,
+                    end_residue_number: index,
+                    color: rgb_color[1],
+                    sideChain: false,
+                });
+                _this.defaultColours.qualityRiboVision = "rgb(" + String(rgb_color[0].join(',')) + ")";
+                var colors = "rgb(" + String(rgb_color[0].join(',')) + ")";
+                _this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
+                residueDetails.push({
+                    start: index,
+                    end: index,
+                    color: colors,
+                    tooltipMsg: Number.parseFloat(value).toPrecision(3),
+                    tooltipPosition: "prefix"
+                }),
+                    _this.drawValidationShape(index, "circle", colors);
+            }
         });
         return residueDetails;
     };
@@ -1278,7 +1280,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 var _a = _this.parseTWCData(separatedData, min, max, colormapArray), TWCrgbMap = _a[0], TWCData = _a[1];
                 selectSections_RV1.get(name).push({ entity_id: _this.entityId, focus: true });
                 if (void 0 !== TWCData) {
-                    residueDetails = _this.create2D3DAnnotations(name, residueDetails, TWCrgbMap, TWCData);
+                    residueDetails = _this.create2D3DAnnotations(name, residueDetails, TWCrgbMap, TWCData, chainRange.start, chainRange.end);
                     if (0 < residueDetails.length) {
                         _this.domainTypes.splice(1, 0, {
                             label: name,

@@ -1233,33 +1233,35 @@ class PdbTopologyViewerPlugin {
     }
 
 
-    create2D3DAnnotations(name: string, residueDetails: any, TWCrgbMap: Map<number, any>, TWCData: Map<number, string>) {
+    create2D3DAnnotations(name: string, residueDetails: any, 
+                        TWCrgbMap: Map<number, any>, TWCData: Map<number, string>,
+                        chain_start: number, chain_end: number) {
         const _this = this;
         TWCData.forEach(function(value, index) {
-            let rgb_color = TWCrgbMap.get(index);
-            selectSections_RV1.get(name).push({ //3d
-                entity_id: _this.entityId,
-                start_residue_number: index, 
-                end_residue_number: index,
-                color: rgb_color[1],
-                sideChain: false,
-            });
-            _this.defaultColours.qualityRiboVision= "rgb("+String(rgb_color[0].join(','))+")";
-            var colors = "rgb("+String(rgb_color[0].join(','))+")"
-            _this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
-            residueDetails.push({ //2d
-                start: index,
-                end: index,
-                color: colors,
-                tooltipMsg: Number.parseFloat(value).toPrecision(3),
-                tooltipPosition: "prefix"
-            }),
-            _this.drawValidationShape(index, "circle", colors);
+            if (chain_start <= index && index <= chain_end){
+                let rgb_color = TWCrgbMap.get(index);
+                selectSections_RV1.get(name).push({ //3d
+                    entity_id: _this.entityId,
+                    start_residue_number: index, 
+                    end_residue_number: index,
+                    color: rgb_color[1],
+                    sideChain: false,
+                });
+                _this.defaultColours.qualityRiboVision= "rgb("+String(rgb_color[0].join(','))+")";
+                var colors = "rgb("+String(rgb_color[0].join(','))+")"
+                _this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
+                residueDetails.push({ //2d
+                    start: index,
+                    end: index,
+                    color: colors,
+                    tooltipMsg: Number.parseFloat(value).toPrecision(3),
+                    tooltipPosition: "prefix"
+                }),
+                _this.drawValidationShape(index, "circle", colors);
+            }
         })
         return residueDetails;
     }
-           
-    
 
     getAnnotationFromRibovision(mapped_aa_properties: Map<string, Array<Array<number>>>) {
         const _this = this;
@@ -1285,7 +1287,9 @@ class PdbTopologyViewerPlugin {
                 const [TWCrgbMap, TWCData] = _this.parseTWCData(separatedData, min, max, colormapArray);
                 selectSections_RV1.get(name).push({entity_id: _this.entityId, focus: true});
                 if (void 0 !== TWCData){
-                    residueDetails = _this.create2D3DAnnotations(name, residueDetails, TWCrgbMap, TWCData);
+                    residueDetails = _this.create2D3DAnnotations(name, residueDetails, 
+                                                                TWCrgbMap, TWCData, 
+                                                                chainRange.start, chainRange.end);
                     if(0 < residueDetails.length){
                         _this.domainTypes.splice(1, 0, {
                         label: name,
