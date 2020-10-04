@@ -462,12 +462,28 @@ var vm = new Vue({
                 var mapped_aa_properties = mapAAProps(this.aa_properties, struct_mapping);
                 if ((this.tax_id != null && this.tax_id.length == 2) || (this.custom_aln_twc_flag != null && this.custom_aln_twc_flag == true)) {
                     ajax('/twc-api/', optional_data={fasta}).then(twcDataUnmapped => {
-                        mapped_aa_properties.set("TwinCons", [])
-                        for (i = 0; i < twcDataUnmapped.length; i++) {
-                            let mappedI0 = this.structure_mapping[twcDataUnmapped[i][0]];
-                            if (mappedI0) {
-                                mapped_aa_properties.get("TwinCons").push([mappedI0, twcDataUnmapped[i][1]]);
+                        const build_mapped_props = function(mapped_props, twcDataUnmapped, structure_mapping){
+                            mapped_props.set("TwinCons", [])
+                            for (i = 0; i < twcDataUnmapped.length; i++) {
+                                let mappedI0 = structure_mapping[twcDataUnmapped[i][0]];
+                                if (mappedI0) {
+                                    mapped_props.get("TwinCons").push([mappedI0, twcDataUnmapped[i][1]]);
+                                }
                             }
+                            return mapped_props;
+                        }
+                        var topviewer = document.getElementById("PdbeTopViewer")
+                        if (topviewer.pluginInstance.domainTypes == null){
+                            mapped_aa_properties = build_mapped_props(mapped_aa_properties, twcDataUnmapped, this.structure_mapping);
+                        }else{
+                            empty_props = new Map();
+                            let twc_props = build_mapped_props(empty_props, twcDataUnmapped, this.structure_mapping);
+                            topviewer.pluginInstance.getAnnotationFromRibovision(twc_props);
+                            var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
+                            var twc_option = document.createElement("option");
+                            twc_option.setAttribute("value", 10);
+                            twc_option.appendChild(document.createTextNode("TwinCons"));
+                            selectBoxEle.appendChild(twc_option);
                         }
                     })
                 }
