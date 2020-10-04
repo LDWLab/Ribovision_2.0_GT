@@ -1291,7 +1291,7 @@ class PdbTopologyViewerPlugin {
                                                                 TWCrgbMap, TWCData, 
                                                                 chainRange.start, chainRange.end);
                     if(0 < residueDetails.length){
-                        _this.domainTypes.splice(1, 0, {
+                        _this.domainTypes.push({
                         label: name,
                         data: residueDetails
                         })

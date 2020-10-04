@@ -1282,7 +1282,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 if (void 0 !== TWCData) {
                     residueDetails = _this.create2D3DAnnotations(name, residueDetails, TWCrgbMap, TWCData, chainRange.start, chainRange.end);
                     if (0 < residueDetails.length) {
-                        _this.domainTypes.splice(1, 0, {
+                        _this.domainTypes.push({
                             label: name,
                             data: residueDetails
                         });
