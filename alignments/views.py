@@ -383,10 +383,14 @@ def propensity_data(request, aln_id, tax_group):
     }
     return JsonResponse(data)
 
-def propensities(request, aln_id, tax_group):
+def propensities(request, align_name, tax_group):
+    aln_id = Alignment.objects.filter(name = align_name)[0].aln_id
+    tax_name = Taxgroups.objects.get(pk=tax_group).groupname
     propensity_data = reverse('alignments:propensity_data', kwargs={'aln_id': aln_id, 'tax_group' : tax_group})
 
     # where does the context variable come from? what does it do?
-    context = {"propensity_data" : propensity_data}
+    context = {"propensity_data" : propensity_data, 
+    "align_name" : align_name,
+    "tax_name" : tax_name}
     
     return render(request, 'alignments/propensities.html', context)

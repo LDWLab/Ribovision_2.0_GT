@@ -40,5 +40,5 @@ urlpatterns = [
 	path('custom-csv-data', views.upload_custom_data_for_mapping, name='custom_csv_data_handler'),
 	path('upload-custom-csv/', views.upload_custom_data, name='upload_custom_data'),
     path('propensity-data/<int:aln_id>/<int:tax_group>', views.propensity_data, name = 'propensity_data'),
-    path('propensities/<int:aln_id>/<int:tax_group>', views.propensities, name = 'propensities'),
+    path('propensities/<str:align_name>/<int:tax_group>', views.propensities, name = 'propensities'),
 ]

@@ -6,6 +6,8 @@
     <div id = "total"></div>
 
     <script>
+        var align_name = "{{align_name}}";
+        var tax_name = "{{tax_name}}";
         function get_twc_list_data(propensity_data) {
             $.ajax({
             url: propensity_data,
@@ -15,8 +17,8 @@
                 // console.log(data)
                 ra = ['C', 'F', 'G', 'P', 'D', 'N', 'K', 'V'], 
                 full = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y'], 
-                build_propensity_graph(data['reduced alphabet'], ra, 'Reduced Alphabet Propensities for ' + data['aln_id'] + data['tax_group'], 'reduced');
-                build_propensity_graph(data['amino acid'], full, 'Amino Acid Propensities for ' + data['aln_id'] + data['tax_group'], 'total');
+                build_propensity_graph(data['reduced alphabet'], ra, align_name + ' ' + 'Reduced Alphabet Propensities for ' + tax_name, 'reduced');
+                build_propensity_graph(data['amino acid'], full, align_name + ' ' + 'Amino Acid Propensities for ' + tax_name, 'total');
             },
             error: function (error) {
                 console.log(`Error ${error}`);}
