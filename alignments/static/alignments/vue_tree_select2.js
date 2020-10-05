@@ -107,6 +107,8 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     const topview_item = document.getElementById("topview");
     const molstar_item = document.getElementById("pdbeMolstarView");
     const pdb_input = document.getElementById("pdb_input");
+    vueObj.custom_aln_twc_flag == null;
+    window.mapped_aa_properties == null;
     if (menu_item) {menu_item.remove();}
     if (aln_text != ''){
         if (pdb_input) {
@@ -472,10 +474,10 @@ var vm = new Vue({
                             }
                             return mapped_props;
                         }
-                        var topviewer = document.getElementById("PdbeTopViewer")
-                        if (topviewer.pluginInstance.domainTypes == null){
-                            mapped_aa_properties = build_mapped_props(mapped_aa_properties, twcDataUnmapped, this.structure_mapping);
-                        }else{
+                        var topviewer = document.getElementById("PdbeTopViewer");
+                        mapped_aa_properties = build_mapped_props(mapped_aa_properties, twcDataUnmapped, this.structure_mapping);
+                        window.mapped_aa_properties = mapped_aa_properties;
+                        if (topviewer != null && topviewer.pluginInstance.domainTypes != undefined){
                             empty_props = new Map();
                             let twc_props = build_mapped_props(empty_props, twcDataUnmapped, this.structure_mapping);
                             topviewer.pluginInstance.getAnnotationFromRibovision(twc_props);

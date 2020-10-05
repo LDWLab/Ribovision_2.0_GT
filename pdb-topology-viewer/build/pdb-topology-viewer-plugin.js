@@ -1261,11 +1261,17 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
     PdbTopologyViewerPlugin.prototype.getAnnotationFromRibovision = function (mapped_aa_properties) {
         var _this = this;
         var chainRange = this.getChainStartAndEnd();
+        var observed_start = chainRange.start;
+        var observed_end = chainRange.end;
+        if (observed_end - observed_start <= 0) {
+            observed_start = 0;
+            observed_end = 10000;
+        }
         if (void 0 !== this.entropyId) {
             mapped_aa_properties.forEach(function (value, index) {
                 var residueDetails = [{
-                        start: chainRange.start,
-                        end: chainRange.end,
+                        start: observed_start,
+                        end: observed_end,
                         color: _this.defaultColours.qualityGreen,
                         tooltipMsg: 'No data for '
                     }];
@@ -1280,7 +1286,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 var _a = _this.parseTWCData(separatedData, min, max, colormapArray), TWCrgbMap = _a[0], TWCData = _a[1];
                 selectSections_RV1.get(name).push({ entity_id: _this.entityId, focus: true });
                 if (void 0 !== TWCData) {
-                    residueDetails = _this.create2D3DAnnotations(name, residueDetails, TWCrgbMap, TWCData, chainRange.start, chainRange.end);
+                    residueDetails = _this.create2D3DAnnotations(name, residueDetails, TWCrgbMap, TWCData, observed_start, observed_end);
                     if (0 < residueDetails.length) {
                         _this.domainTypes.push({
                             label: name,
