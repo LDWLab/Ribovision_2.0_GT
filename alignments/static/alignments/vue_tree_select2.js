@@ -107,10 +107,10 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     const topview_item = document.getElementById("topview");
     const molstar_item = document.getElementById("pdbeMolstarView");
     const pdb_input = document.getElementById("pdb_input");
-    vueObj.custom_aln_twc_flag == null;
-    window.mapped_aa_properties == null;
     if (menu_item) {menu_item.remove();}
     if (aln_text != ''){
+        vueObj.custom_aln_twc_flag == null;
+        window.mapped_aa_properties == null;
         if (pdb_input) {
             if (pdb_input.getAttribute("value") != ""){vueObj.pdbid = null;}
         }
