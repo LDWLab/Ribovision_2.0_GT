@@ -1264,8 +1264,8 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         var observed_start = chainRange.start;
         var observed_end = chainRange.end;
         if (observed_end - observed_start <= 0) {
-            observed_start = 0;
-            observed_end = 10000;
+            observed_start = 1;
+            observed_end = 100000;
         }
         if (void 0 !== this.entropyId) {
             mapped_aa_properties.forEach(function (value, index) {
