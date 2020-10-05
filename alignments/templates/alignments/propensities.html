@@ -15,8 +15,8 @@
                 // console.log(data)
                 ra = ['C', 'F', 'G', 'P', 'D', 'N', 'K', 'V'], 
                 full = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y'], 
-                build_propensity_graph(data['reduced alphabet'], ra, 'Reduced Alphabet Propensities', 'reduced');
-                build_propensity_graph(data['amino acid'], full, 'Amino Acid Propensities', 'total');
+                build_propensity_graph(data['reduced alphabet'], ra, 'Reduced Alphabet Propensities for ' + data['aln_id'] + data['tax_group'], 'reduced');
+                build_propensity_graph(data['amino acid'], full, 'Amino Acid Propensities for ' + data['aln_id'] + data['tax_group'], 'total');
             },
             error: function (error) {
                 console.log(`Error ${error}`);}

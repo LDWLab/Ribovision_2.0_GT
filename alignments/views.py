@@ -362,16 +362,10 @@ def rRNA(request, align_name, tax_group):
 	context = {'fastastring': fastastring, 'aln_name':str(Alignment.objects.filter(aln_id = align_id)[0].name)}
 	return render(request, 'alignments/rRNA.html', context)
 
-def propensity_data(request):
+def propensity_data(request, aln_id, tax_group):
     from io import StringIO
     import alignments.propensities as p
 
-    # iterable for all alingment objects
-    # alns = Alignments.objects.all()
-
-    # this is slow
-    aln_id = 1
-    tax_group = '2,2157,2759'
     fastastring = simple_fasta(request, aln_id, tax_group, internal=True).replace('\\n', '\n')
     fasta = StringIO(fastastring)
     aa = p.aa_composition(fasta, reduced = False)
@@ -382,13 +376,15 @@ def propensity_data(request):
     red_aa = p.aa_composition(fasta, reduced = False)
 
     data = {
+        'aln_id' : aln_id,
+        'tax_group' : tax_group,
         'reduced alphabet' : red_aa,
         'amino acid' : aa
     }
     return JsonResponse(data)
 
-def propensities(request):
-    propensity_data = reverse('alignments:propensity_data')
+def propensities(request, aln_id, tax_group):
+    propensity_data = reverse('alignments:propensity_data', kwargs={'aln_id': aln_id, 'tax_group' : tax_group})
 
     # where does the context variable come from? what does it do?
     context = {"propensity_data" : propensity_data}
