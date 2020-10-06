@@ -572,6 +572,12 @@ var vm = new Vue({
                         ],
                     })
                 })
+                document.addEventListener('PDB.molstar.mouseover', (e) => {
+                    var eventData = e.eventData;
+                    let resi_id = eventData.auth_seq_id;
+                    var molstarviewer = document.getElementById("PdbeMolstarComponent")
+                    molstarviewer.viewerInstance.plugin.behaviors.interaction.hover._value.current.loci.kind = "empty-loci"
+                });
             });
         }
     }
