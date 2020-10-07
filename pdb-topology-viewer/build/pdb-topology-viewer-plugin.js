@@ -1221,7 +1221,10 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 TWCrgbMap.set(parsedItem, interpolateLinearly(newValue / (highVal - lowVal), colormapArray[0]));
             }
             else {
-                if (itemValue < 0) {
+                if (itemValue === 'NA') {
+                    TWCrgbMap.set(parsedItem, [[192, 192, 192], { r: 192, g: 192, b: 192 }]);
+                }
+                else if (itemValue < 0) {
                     TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue / lowVal, colormapArray[0]));
                 }
                 else {
