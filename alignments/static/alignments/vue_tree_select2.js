@@ -1,3 +1,4 @@
+var testDataArray = window.testDataArray;
 function getCookie(name) {
     var cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -576,7 +577,9 @@ var vm = new Vue({
                     var eventData = e.eventData;
                     let resi_id = eventData.auth_seq_id;
                     var molstarviewer = document.getElementById("PdbeMolstarComponent")
-                    molstarviewer.viewerInstance.plugin.behaviors.interaction.hover._value.current.loci.kind = "empty-loci"
+                    if(!testDataArray[resi_id - 1] || testDataArray[resi_id - 1] != true) {
+                        molstarviewer.viewerInstance.plugin.behaviors.interaction.hover._value.current.loci.kind = "empty-loci"
+                    }
                 });
             });
         }
