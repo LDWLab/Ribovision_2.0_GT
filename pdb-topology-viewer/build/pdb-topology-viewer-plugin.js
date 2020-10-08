@@ -42,6 +42,7 @@ var mapped_aa_properties = window.mapped_aa_properties;
 var aaPropertyConstants = window.aaPropertyConstants;
 var aaColorData = window.aaColorData;
 var selectSections_RV1 = new Map();
+var testDataArray;
 var PdbTopologyViewerPlugin = /** @class */ (function () {
     function PdbTopologyViewerPlugin() {
         this.defaultColours = {
@@ -52,7 +53,8 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
             qualityRed: 'rgb(291.42857142857144,0,0)',
             qualityYellow: 'rgb(364.2857142857143,364.2857142857143,75.71428571428572)',
             qualityRiboVision: "rgb(203,203,203)",
-            qualityOrange: 'rgb(291.42857142857144,121.42857142857143,0)'
+            qualityOrange: 'rgb(291.42857142857144,121.42857142857143,0)',
+            qualityBlank: 'rgb(255,255,255)'
         };
         this.displayStyle = 'border:1px solid #696969;';
         this.errorStyle = 'border:1px solid #696969; height:54%; padding-top:46%; text-align:center; font-weight:bold;';
@@ -498,38 +500,44 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
     ;
     PdbTopologyViewerPlugin.prototype.clickAction = function (eleObj) {
         //Dispatch custom click event
-        this.dispatchEvent('PDB.topologyViewer.click', {
-            residueNumber: eleObj.residue_number,
-            type: eleObj.type,
-            entryId: this.entryId,
-            entityId: this.entityId,
-            entropyId: this.entropyId,
-            filterRange: this.filterRange,
-            chainId: this.chainId,
-        });
+        console.log(eleObj);
+        if (testDataArray[eleObj.residue_number - 1] == true) {
+            this.dispatchEvent('PDB.topologyViewer.click', {
+                residueNumber: eleObj.residue_number,
+                type: eleObj.type,
+                entryId: this.entryId,
+                entityId: this.entityId,
+                entropyId: this.entropyId,
+                filterRange: this.filterRange,
+                chainId: this.chainId,
+            });
+        }
     };
     PdbTopologyViewerPlugin.prototype.mouseoverAction = function (eleObj, eleData) {
         var selectedPath = d3.select(eleObj);
         //var selectedPathData = selectedPath.data();
-        //Show Tooltip
-        this.renderTooltip(eleData, 'show');
         //Highlight Residue
-        if (eleData.type === 'strands' || eleData.type === 'helices') {
-            selectedPath.attr('fill', this.defaultColours.mouseOver).attr('fill-opacity', '0.3');
+        //Check if residue is not masked
+        if (eleData.tooltipMsg != 'NaN') {
+            //Show Tooltip
+            this.renderTooltip(eleData, 'show');
+            if (eleData.type === 'strands' || eleData.type === 'helices') {
+                selectedPath.attr('fill', this.defaultColours.mouseOver).attr('fill-opacity', '0.3');
+            }
+            if (eleData.type === 'coils') {
+                selectedPath.attr('stroke', this.defaultColours.mouseOver).attr('stroke-width', 1);
+            }
+            //Dispatch custom mouseover event
+            this.dispatchEvent('PDB.topologyViewer.mouseover', {
+                residueNumber: eleData.residue_number,
+                type: eleData.type,
+                entryId: this.entryId,
+                entityId: this.entityId,
+                entropyId: this.entropyId,
+                filterRange: this.filterRange,
+                chainId: this.chainId,
+            });
         }
-        if (eleData.type === 'coils') {
-            selectedPath.attr('stroke', this.defaultColours.mouseOver).attr('stroke-width', 1);
-        }
-        //Dispatch custom mouseover event
-        this.dispatchEvent('PDB.topologyViewer.mouseover', {
-            residueNumber: eleData.residue_number,
-            type: eleData.type,
-            entryId: this.entryId,
-            entityId: this.entityId,
-            entropyId: this.entropyId,
-            filterRange: this.filterRange,
-            chainId: this.chainId,
-        });
     };
     PdbTopologyViewerPlugin.prototype.mouseoutAction = function (eleObj, eleData) {
         var mouseOverColor = 'white';
@@ -1209,27 +1217,30 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         }
         return chainRange;
     };
-    PdbTopologyViewerPlugin.prototype.parseTWCData = function (separatedData, lowVal, highVal, colormapArray) {
+    PdbTopologyViewerPlugin.prototype.parseTWCData = function (separatedData, lowVal, highVal, colormapArray, masking) {
         var TWCData = new Map();
         var TWCrgbMap = new Map();
         separatedData.forEach(function (item, index) {
             var parsedItem = item[0];
-            var itemValue = item[1];
-            TWCData.set(parsedItem, itemValue);
-            if (colormapArray.length === 1) {
-                var newValue = itemValue - lowVal;
-                TWCrgbMap.set(parsedItem, interpolateLinearly(newValue / (highVal - lowVal), colormapArray[0]));
-            }
-            else {
-                if (itemValue === 'NA') {
-                    TWCrgbMap.set(parsedItem, [[192, 192, 192], { r: 192, g: 192, b: 192 }]);
-                }
-                else if (itemValue < 0) {
-                    TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue / lowVal, colormapArray[0]));
+            if (!masking || masking[index]) {
+                var itemValue = item[1];
+                TWCData.set(parsedItem, itemValue);
+                if (colormapArray.length === 1) {
+                    var newValue = itemValue - lowVal;
+                    TWCrgbMap.set(parsedItem, interpolateLinearly(newValue / (highVal - lowVal), colormapArray[0]));
                 }
                 else {
-                    TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue / highVal, colormapArray[1]));
+                    if (itemValue < 0) {
+                        TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue / lowVal, colormapArray[0]));
+                    }
+                    else {
+                        TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue / highVal, colormapArray[1]));
+                    }
                 }
+            }
+            else {
+                TWCrgbMap.set(parsedItem, [[255, 255, 255], { r: 0, g: 0, b: 0, a: .4 }]);
+                TWCData.set(parsedItem, null);
             }
         });
         return [TWCrgbMap, TWCData];
@@ -1264,32 +1275,40 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
     PdbTopologyViewerPlugin.prototype.getAnnotationFromRibovision = function (mapped_aa_properties) {
         var _this = this;
         var chainRange = this.getChainStartAndEnd();
-        var observed_start = chainRange.start;
-        var observed_end = chainRange.end;
-        if (observed_end - observed_start <= 0) {
-            observed_start = 1;
-            observed_end = 100000;
-        }
         if (void 0 !== this.entropyId) {
             mapped_aa_properties.forEach(function (value, index) {
                 var residueDetails = [{
-                        start: observed_start,
-                        end: observed_end,
-                        color: _this.defaultColours.qualityGreen,
+                        start: chainRange.start,
+                        end: chainRange.end,
+                        color: _this.defaultColours.qualityBlank,
                         tooltipMsg: 'No data for '
                     }];
                 var name = index;
                 var separatedData = value;
+                //dummy data to test masking
+                testDataArray = [];
+                separatedData.forEach(function (item, index) {
+                    if (index < 100 && index > 23) {
+                        testDataArray[index] = true;
+                    }
+                    else if (index % 2 == 0) {
+                        testDataArray[index] = false;
+                    }
+                    else {
+                        testDataArray[index] = null;
+                    }
+                });
+                //end dummy data
                 selectSections_RV1.set(name, []);
                 //let min = -2.935;
                 // let max = 12.065;
                 var min = Math.min.apply(Math, aaPropertyConstants.get(name));
                 var max = Math.max.apply(Math, aaPropertyConstants.get(name));
                 var colormapArray = aaColorData.get(name);
-                var _a = _this.parseTWCData(separatedData, min, max, colormapArray), TWCrgbMap = _a[0], TWCData = _a[1];
+                var _a = _this.parseTWCData(separatedData, min, max, colormapArray, testDataArray), TWCrgbMap = _a[0], TWCData = _a[1];
                 selectSections_RV1.get(name).push({ entity_id: _this.entityId, focus: true });
                 if (void 0 !== TWCData) {
-                    residueDetails = _this.create2D3DAnnotations(name, residueDetails, TWCrgbMap, TWCData, observed_start, observed_end);
+                    residueDetails = _this.create2D3DAnnotations(name, residueDetails, TWCrgbMap, TWCData, chainRange.start, chainRange.end);
                     if (0 < residueDetails.length) {
                         _this.domainTypes.push({
                             label: name,
@@ -1608,7 +1627,9 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         }
     };
     PdbTopologyViewerPlugin.prototype.handleMolstarEvents = function (e, eType) {
-        if (typeof e.eventData !== 'undefined' && Object.keys(e.eventData).length > 0) {
+        if (typeof e.eventData !== 'undefined' && Object.keys(e.eventData).length > 0 && testDataArray[e.eventData.seq_id - 1] == true) {
+            console.log("Event passed");
+            console.log(e.eventData);
             //Remove previous selection / highlight
             var selectionPathClass = 'residueSelection';
             if (eType == 'mouseover') {
