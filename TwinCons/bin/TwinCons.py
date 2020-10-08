@@ -554,7 +554,7 @@ def main(commandline_arguments):
     elif comm_args.write_pml_script:
         pymol_script_writer(output_dict_pml, gapped_sliced_alns, comm_args)
     elif comm_args.return_within:
-        return output_dict, gapped_sliced_alns, number_of_aligned_positions, gp_mapping
+        return output_dict_pml, gapped_sliced_alns, number_of_aligned_positions, gp_mapping
     elif comm_args.return_csv:
         with open(comm_args.output_path+".csv", mode='w') as output_csv:
             csv_writer = csv.writer(output_csv, delimiter=',')
