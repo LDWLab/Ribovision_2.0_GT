@@ -74,6 +74,8 @@
 				<option :value ="null" selected disabled>Select polymer</option>
 				<option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid)">[[ chain.text ]]</option>
 			</select></p>
+			<p><input v-if="chains&&fasta_data" v-model="masking_range" v-on:input="handleMaskingRanges(masking_range)"></p>
+			<p v-if="correct_mask!='True'&&chains&&fasta_data">Fix the syntax!</p>
 		</div>
 		<div class="alignment_section">
 			<p></p>

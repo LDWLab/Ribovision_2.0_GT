@@ -238,7 +238,9 @@ var vm = new Vue({
         aa_properties: null,
         structure_mapping: null,
         file: null,
-        custom_aln_twc_flag: null
+        custom_aln_twc_flag: null,
+        masking_range: null,
+        correct_mask: null
     },
     methods: {
         handleFileUpload(){
@@ -579,6 +581,12 @@ var vm = new Vue({
                     molstarviewer.viewerInstance.plugin.behaviors.interaction.hover._value.current.loci.kind = "empty-loci"
                 });
             });
+        },handleMaskingRanges(mask_range){
+            if (mask_range.match(";")){
+                this.correct_mask = 'True';
+            }else{
+                this.correct_mask = 'False';
+            }
         }
     }
 })
