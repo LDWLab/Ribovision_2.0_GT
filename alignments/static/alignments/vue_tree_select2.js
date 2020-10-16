@@ -121,6 +121,9 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
         if (vueObj.frequency_data) {vueObj.frequency_data = null;}
         if (aln_item) {aln_item.remove(); create_deleted_element("alnif", "alnDiv", aln_text)}
     }
+    if (vueObj.masking_range) {vueObj.masking_range = null;}
+    if (window.masked_array.length > 0) {window.masked_array = [];}
+    if (vueObj.checked_filter) {vueObj.checked_filter = false;}
     if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Select new chain!")}
     if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Select new structure!")}
 }
@@ -229,7 +232,7 @@ var filterCoilResidues = function (coil_data){
     })
     return coilResidues.flat()
 }
-
+var masked_array = [];
 Vue.component('treeselect', VueTreeselect.Treeselect, )
 
 var vm = new Vue({
@@ -252,10 +255,9 @@ var vm = new Vue({
         file: null,
         custom_aln_twc_flag: null,
         masking_range: null,
-        masking_range_array: null,
         correct_mask: false,
-        masked_array: null,
         coil_residues: null,
+        checked_filter: false,
     },
     methods: {
         handleFileUpload(){
@@ -365,6 +367,7 @@ var vm = new Vue({
             }
         }, getPDBchains(pdbid, aln_id) {
             if (pdbid.length === 4) {
+                if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(vm);}
                 this.chains = null
                 this.hide_chains = true
                 ajax('https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/' + pdbid.toLowerCase())
@@ -594,15 +597,22 @@ var vm = new Vue({
                     var eventData = e.eventData;
                     let resi_id = eventData.auth_seq_id;
                     var molstarviewer = document.getElementById("PdbeMolstarComponent")
-                    if(!masked_array[resi_id - 1] || masked_array[resi_id - 1] != true) {
+                    if(masked_array && masked_array[resi_id - 1] == false) {
                         molstarviewer.viewerInstance.plugin.behaviors.interaction.hover._value.current.loci.kind = "empty-loci"
                     }
                 });
             });
+        },cleanFilter(checked_filter){
+            if (checked_filter){return;}
+            window.masked_array = [];
+            this.masking_range = null;
+            var topviewer = document.getElementById("PdbeTopViewer");
+            topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);
         },handleMaskingRanges(mask_range){
             window.masking_range_array = null;
             if (mask_range.match(/^(\d+-\d+;)+$/)) {
                 var temp_array = mask_range.split(';').join('-').split('-');
+                temp_array = temp_array.slice(0, -1)
                 var i = 0;
                 var isCorrect = true;
                 while(i < temp_array.length) {
@@ -614,7 +624,7 @@ var vm = new Vue({
                     i = i + 1;
                 }
 
-                if(isCorrect) {                  
+                if(isCorrect) {
                     window.masking_range_array = temp_array;
                     var j = 0;
                     var masked_array = [];
@@ -646,6 +656,7 @@ var vm = new Vue({
                         }
                         j++;
                     }
+                    window.masked_array = masked_array;
                     this.correct_mask = 'True';
                     //topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[data_index].data); (find current active selection)
                 }
