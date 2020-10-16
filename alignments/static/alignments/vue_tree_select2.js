@@ -218,6 +218,16 @@ var mapAAProps = function (aa_properties, mapping){
     return outPropertyMappedPosition;
 }
 
+var filterCoilResidues = function (coil_data){
+    const range = (start, stop, step) => Array.from({ length: (stop - start) / step + 1}, (_, i) => start + (i * step));
+    let coilResidues = [];
+    coil_data.forEach(function (coilRange){
+        if (coilRange.start < coilRange.stop){
+            coilResidues.push(range(coilRange.start, coilRange.stop, 1))
+        }
+    })
+    return coilResidues.flat()
+}
 
 Vue.component('treeselect', VueTreeselect.Treeselect, )
 
@@ -241,7 +251,8 @@ var vm = new Vue({
         file: null,
         custom_aln_twc_flag: null,
         masking_range: null,
-        correct_mask: null
+        correct_mask: null,
+        coil_residues: null
     },
     methods: {
         handleFileUpload(){
@@ -496,11 +507,12 @@ var vm = new Vue({
                 var topology_url = `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdblower}/chain/${chainid}`
                 ajax(topology_url).then(data => {
                     var entityid = Object.keys(data[pdblower])[0];
-                    var mapping = []
-                    var range_string = minIndex.concat("-").concat(maxIndex)
-                    GetRangeMapping(pdbid, chainid, range_string, mapping)
-                    let data_string = JSON.stringify(Array.from(mapped_aa_properties.entries())).replaceAll(",[[", ":").replaceAll("]],",";").replaceAll("],[",",")
-                    let formatted_data_string = data_string.replaceAll("[","").replaceAll("]","").replaceAll("\"","")
+                    vm.coil_residues = filterCoilResidues(data[pdblower][entityid][chainid]["coils"])
+                    var mapping = [];
+                    var range_string = minIndex.concat("-").concat(maxIndex);
+                    GetRangeMapping(pdbid, chainid, range_string, mapping);
+                    let data_string = JSON.stringify(Array.from(mapped_aa_properties.entries())).replaceAll(",[[", ":").replaceAll("]],",";").replaceAll("],[",",");
+                    let formatted_data_string = data_string.replaceAll("[","").replaceAll("]","").replaceAll("\"","");
                     var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid}	entropy-id=${formatted_data_string} filter-range=${mapping}></pdb-topology-viewer>`
                     document.getElementById('topview').innerHTML = topology_viewer;
                 })
