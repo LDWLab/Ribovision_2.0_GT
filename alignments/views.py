@@ -17,6 +17,7 @@ import os
 from django.shortcuts import render
 from django.http import HttpResponse, Http404, JsonResponse, HttpResponseServerError
 from django.urls import reverse_lazy
+from django.urls import reverse
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.views.generic import ListView, CreateView, UpdateView
@@ -402,3 +403,35 @@ def handle_custom_upload_alignment(request):
 		
 		response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc])
 		return JsonResponse(response_dict, safe = False)
+def propensity_data(request, aln_id, tax_group):
+    from io import StringIO
+    import alignments.propensities as p
+
+    fastastring = simple_fasta(request, aln_id, tax_group, internal=True).replace('\\n', '\n')
+    fasta = StringIO(fastastring)
+    aa = p.aa_composition(fasta, reduced = False)
+
+    # need to reload the fasta object
+    # fasta = StringIO(fastastring)
+    fasta.seek(0)
+    red_aa = p.aa_composition(fasta, reduced = False)
+
+    data = {
+        'aln_id' : aln_id,
+        'tax_group' : tax_group,
+        'reduced alphabet' : red_aa,
+        'amino acid' : aa
+    }
+    return JsonResponse(data)
+
+def propensities(request, align_name, tax_group):
+    aln_id = Alignment.objects.filter(name = align_name)[0].aln_id
+    tax_name = Taxgroups.objects.get(pk=tax_group).groupname
+    propensity_data = reverse('alignments:propensity_data', kwargs={'aln_id': aln_id, 'tax_group' : tax_group})
+
+    # where does the context variable come from? what does it do?
+    context = {"propensity_data" : propensity_data, 
+    "align_name" : align_name,
+    "tax_name" : tax_name}
+    
+    return render(request, 'alignments/propensities.html', context)
