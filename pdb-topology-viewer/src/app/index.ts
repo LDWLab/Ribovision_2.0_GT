@@ -5,8 +5,9 @@ const YlGn = (window as any).YlGn;
 const mapped_aa_properties = (window as any).mapped_aa_properties;
 const aaPropertyConstants = (window as any).aaPropertyConstants;
 const aaColorData = (window as any).aaColorData;
-var selectSections_RV1 = new Map();
-var testDataArray: boolean[];
+const masking_range_array = (window as any).masking_range_array;
+var masked_array: boolean[] = [];
+var selectSections_RV1 = (window as any).selectSections_RV1;
 
 class PdbTopologyViewerPlugin { 
     
@@ -400,7 +401,7 @@ class PdbTopologyViewerPlugin {
     clickAction(eleObj:any) {
         //Dispatch custom click event
         console.log(eleObj);
-        if(testDataArray[eleObj.residue_number - 1] == true) {
+        if(masked_array[eleObj.residue_number - 1] == true) {
             this.dispatchEvent('PDB.topologyViewer.click', {
                 residueNumber: eleObj.residue_number,
                 type: eleObj.type,
@@ -1223,7 +1224,7 @@ class PdbTopologyViewerPlugin {
         let TWCrgbMap = new Map();    
         separatedData.forEach(function (item, index) {
             let parsedItem = item[0];
-            if(!masking || masking[index]) {
+            //if(!masking || masking[index]) {
                 let itemValue = item[1];
                 TWCData.set(parsedItem, itemValue);
                 if (colormapArray.length === 1) {
@@ -1239,11 +1240,11 @@ class PdbTopologyViewerPlugin {
                         TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue/highVal, colormapArray[1]));
                     }
                 }
-            }
-            else {
+            //}
+            /*else {
                 TWCrgbMap.set(parsedItem, [[255, 255, 255], {r:0, g:0, b:0, a:.4}]);
                 TWCData.set(parsedItem, null);
-            }
+            }*/
         });
         return [TWCrgbMap, TWCData];
     }
@@ -1294,40 +1295,29 @@ class PdbTopologyViewerPlugin {
                 let name = index;
                 let separatedData = value;
 
-                //dummy data to test masking
-                testDataArray = [];
-                separatedData.forEach(function (item, index) {
-                    if(index < 100 && index > 23) {
-                        testDataArray[index] = true;
-                    }
-                    else if(index % 2 == 0){
-                        testDataArray[index] = false;
-                    }
-                    else {
-                        testDataArray[index] = null;
-                    }
-                });
-                window.testDataArray = testDataArray;
-                //end dummy data
-
                 selectSections_RV1.set(name, [])
 
-                //let min = -2.935;
-               // let max = 12.065;
                 let min = Math.min(...aaPropertyConstants.get(name));
                 let max = Math.max(...aaPropertyConstants.get(name));
                 let colormapArray = aaColorData.get(name); 
-                const [TWCrgbMap, TWCData] = _this.parseTWCData(separatedData, min, max, colormapArray, testDataArray);
+                const [TWCrgbMap, TWCData] = _this.parseTWCData(separatedData, min, max, colormapArray);
+
                 selectSections_RV1.get(name).push({entity_id: _this.entityId, focus: true});
+                
                 if (void 0 !== TWCData){
                     residueDetails = _this.create2D3DAnnotations(name, residueDetails, 
                                                                 TWCrgbMap, TWCData, 
                                                                 chainRange.start, chainRange.end);
                     if(0 < residueDetails.length){
-                        _this.domainTypes.push({
-                        label: name,
-                        data: residueDetails
-                        })
+                        var current = _this.domainTypes.filter(order => (order.label === name))[0];
+                        if(current && current != null) {
+                            current.data = residueDetails;
+                        } else {
+                             _this.domainTypes.push({
+                            label: name,
+                            data: residueDetails
+                            })
+                        }
                     }
                 }
             });
@@ -1693,9 +1683,7 @@ class PdbTopologyViewerPlugin {
     handleMolstarEvents(e:any, eType:string){
         
 
-        if(typeof e.eventData !== 'undefined' && Object.keys(e.eventData).length > 0 && testDataArray[e.eventData.seq_id - 1] == true){
-            console.log("Event passed");
-            console.log(e.eventData);
+        if(typeof e.eventData !== 'undefined' && Object.keys(e.eventData).length > 0 && masked_array[e.eventData.seq_id - 1] == true){
             //Remove previous selection / highlight
             let selectionPathClass = 'residueSelection';
             if(eType == 'mouseover'){
