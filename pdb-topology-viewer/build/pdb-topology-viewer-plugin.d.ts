@@ -4,8 +4,9 @@ declare const YlGn: any;
 declare const mapped_aa_properties: any;
 declare const aaPropertyConstants: any;
 declare const aaColorData: any;
-declare var selectSections_RV1: Map<any, any>;
-declare var testDataArray: boolean[];
+declare const masking_range_array: any;
+declare var masked_array: boolean[];
+declare var selectSections_RV1: any;
 declare class PdbTopologyViewerPlugin {
     defaultColours: {
         domainSelection: string;
