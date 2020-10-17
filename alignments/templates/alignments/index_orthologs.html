@@ -83,6 +83,12 @@
 					<input v-if="checked_filter" v-model="masking_range" v-on:input="handleMaskingRanges(masking_range)">
 				</p>
 				<p v-if="correct_mask!='True'&&masking_range!=null">Incorrect range syntax!</p>
+				<p>
+					<div class="checkbox">
+						<label><input type="checkbox" v-model="checked_customMap" v-on:change="cleanCustomMap(checked_customMap)">Custom Data</label>
+						<p><input v-if="checked_customMap" type="file" accept=".csv" ref="custom_csv_file" v-on:change="handleCustomMappingData()"/></p>
+					</div>
+				</p>
 			</div>
 		</div>
 		<div class="alignment_section">
