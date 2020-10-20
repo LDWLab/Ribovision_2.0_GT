@@ -467,7 +467,7 @@ class PdbTopologyViewerPlugin {
         if(eleData.type === 'strands' || eleData.type === 'helices'){
             pathElement.attr('fill',mouseOverColor).attr('fill-opacity', fillOpacity)
         }if(eleData.type === 'coils'){
-            pathElement.attr('stroke',mouseOverColor).attr('stroke-width', strokeOpacity);
+            pathElement.attr('stroke',mouseOverColor).attr('stroke-opacity', strokeOpacity);
         }
         
         //Dispatch custom mouseover event
@@ -1514,7 +1514,15 @@ class PdbTopologyViewerPlugin {
         residueEle.data()[0]['tooltipPosition'] = tooltipPosition;
         residueEle
             .attr('stroke', function(d:any){ if(d.type === 'coils'){ return rgbColor; }else{ return '#111'; }})
-            .attr('stroke-width', function(d:any){ if(d.type === 'coils'){ return 1; }else{ return 0; }})
+            .attr('stroke-width', function(d:any){
+                 if(d.type === 'coils' && masked_array[residueNumber] === false){
+                    return .3;
+                 }else if (d.type === 'coils'){
+                     return 1;
+                 }else{
+                     return 0;
+                }
+             })
             .attr('fill', function(d:any){ if(d.type === 'coils'){ return 'none'; }else{ return rgbColor; }})
             .attr('fill-opacity', function(d:any){ if(d.type === 'coils'){ return 0; }else{ return 1; }})
             .classed("coloured", true)

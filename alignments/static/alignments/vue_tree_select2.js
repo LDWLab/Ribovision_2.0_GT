@@ -674,6 +674,7 @@ var vm = new Vue({
                 }
                 j = j+1;
             }
+            window.masked_array = masked_array;
             return masked_array;
         },
         handleMaskingRanges(mask_range){
@@ -696,7 +697,7 @@ var vm = new Vue({
 
                         } if(!masked_array[f] && vm.coil_residues.includes(f)) {
                             topviewer.pluginInstance.domainTypes[j].data[f].color = "rgb(0,0,0)";
-                            topviewer.pluginInstance.domainTypes[j].data[f].tooltipMsg = "NaN";       
+                            topviewer.pluginInstance.domainTypes[j].data[f].tooltipMsg = "NaN";    
                         }
                             
                         f++;
