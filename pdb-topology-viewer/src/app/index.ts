@@ -5,7 +5,9 @@ const YlGn = (window as any).YlGn;
 const mapped_aa_properties = (window as any).mapped_aa_properties;
 const aaPropertyConstants = (window as any).aaPropertyConstants;
 const aaColorData = (window as any).aaColorData;
-var selectSections_RV1 = new Map();
+const masking_range_array = (window as any).masking_range_array;
+var masked_array = (window as any).masked_array;
+var selectSections_RV1 = (window as any).selectSections_RV1;
 
 class PdbTopologyViewerPlugin { 
     
@@ -17,7 +19,8 @@ class PdbTopologyViewerPlugin {
         qualityRed: 'rgb(291.42857142857144,0,0)',
         qualityYellow: 'rgb(364.2857142857143,364.2857142857143,75.71428571428572)',
         qualityRiboVision: "rgb(203,203,203)",
-        qualityOrange: 'rgb(291.42857142857144,121.42857142857143,0)'
+        qualityOrange: 'rgb(291.42857142857144,121.42857142857143,0)',
+        qualityBlank: 'rgb(255,255,255)'
     }
 
     displayStyle = 'border:1px solid #696969;';
@@ -397,43 +400,49 @@ class PdbTopologyViewerPlugin {
     };
     clickAction(eleObj:any) {
         //Dispatch custom click event
-        this.dispatchEvent('PDB.topologyViewer.click', {
-            residueNumber: eleObj.residue_number,
-            type: eleObj.type,
-            entryId: this.entryId,
-            entityId: this.entityId,
-            entropyId: this.entropyId,
-            filterRange: this.filterRange,
-            chainId: this.chainId,
-            // structAsymId: this.bestStructAsymId
-        });
+        console.log(eleObj);
+        if(masked_array[eleObj.residue_number - 1] == true) {
+            this.dispatchEvent('PDB.topologyViewer.click', {
+                residueNumber: eleObj.residue_number,
+                type: eleObj.type,
+                entryId: this.entryId,
+                entityId: this.entityId,
+                entropyId: this.entropyId,
+                filterRange: this.filterRange,
+                chainId: this.chainId,
+                // structAsymId: this.bestStructAsymId
+            });
+        }
     }
     mouseoverAction(eleObj:any|this, eleData:any) {
 
         const selectedPath = d3.select(eleObj);
         //var selectedPathData = selectedPath.data();
 
-        //Show Tooltip
-        this.renderTooltip(eleData, 'show');
-        
         //Highlight Residue
-        if(eleData.type === 'strands' || eleData.type === 'helices'){
-            selectedPath.attr('fill', this.defaultColours.mouseOver).attr('fill-opacity','0.3')
-        }if(eleData.type === 'coils'){
-            selectedPath.attr('stroke', this.defaultColours.mouseOver).attr('stroke-width', 1);
-        }
+        //Check if residue is not masked
+        if(eleData.tooltipMsg != 'NaN') {
+            //Show Tooltip
+            this.renderTooltip(eleData, 'show');
+            if(eleData.type === 'strands' || eleData.type === 'helices'){
+                selectedPath.attr('fill', this.defaultColours.mouseOver).attr('fill-opacity','0.3')
+            }if(eleData.type === 'coils'){
+                selectedPath.attr('stroke', this.defaultColours.mouseOver).attr('stroke-width', 1);
+            }
         
-        //Dispatch custom mouseover event
-        this.dispatchEvent('PDB.topologyViewer.mouseover', {
-            residueNumber: eleData.residue_number,
-            type: eleData.type,
-            entryId: this.entryId,
-            entityId: this.entityId,
-            entropyId: this.entropyId,
-            filterRange: this.filterRange,
-            chainId: this.chainId,
-            // structAsymId: scope.bestStructAsymId
-        });
+        
+            //Dispatch custom mouseover event
+            this.dispatchEvent('PDB.topologyViewer.mouseover', {
+                residueNumber: eleData.residue_number,
+                type: eleData.type,
+                entryId: this.entryId,
+                entityId: this.entityId,
+                entropyId: this.entropyId,
+                filterRange: this.filterRange,
+                chainId: this.chainId,
+                // structAsymId: scope.bestStructAsymId
+            });
+        }
     }
     mouseoutAction(eleObj:any, eleData:any) {
         let mouseOverColor = 'white';
@@ -458,7 +467,7 @@ class PdbTopologyViewerPlugin {
         if(eleData.type === 'strands' || eleData.type === 'helices'){
             pathElement.attr('fill',mouseOverColor).attr('fill-opacity', fillOpacity)
         }if(eleData.type === 'coils'){
-            pathElement.attr('stroke',mouseOverColor).attr('stroke-width', strokeOpacity);
+            pathElement.attr('stroke',mouseOverColor).attr('stroke-opacity', strokeOpacity);
         }
         
         //Dispatch custom mouseover event
@@ -1210,24 +1219,32 @@ class PdbTopologyViewerPlugin {
         
     }
 
-    parseTWCData(separatedData: any[], lowVal: number, highVal: number, colormapArray: any[]) {
+    parseTWCData(separatedData: any[], lowVal: number, highVal: number, colormapArray: any[], masking?: boolean[]) {
         let TWCData = new Map();
         let TWCrgbMap = new Map();    
         separatedData.forEach(function (item, index) {
             let parsedItem = item[0];
-            let itemValue = item[1];
-            TWCData.set(parsedItem, itemValue);
-            if (colormapArray.length === 1) {
-                let newValue = itemValue - lowVal;
-                TWCrgbMap.set(parsedItem, interpolateLinearly(newValue/(highVal - lowVal), colormapArray[0]));
-            }
-            else {
-                if (itemValue < 0){
-                    TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue/lowVal, colormapArray[0]));
-                }else{
-                    TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue/highVal, colormapArray[1]));
+            //if(!masking || masking[index]) {
+                let itemValue = item[1];
+                TWCData.set(parsedItem, itemValue);
+                if (colormapArray.length === 1) {
+                    let newValue = itemValue - lowVal;
+                    TWCrgbMap.set(parsedItem, interpolateLinearly(newValue/(highVal - lowVal), colormapArray[0]));
                 }
-            }
+                else {
+                    if (itemValue === 'NA'){
+                        TWCrgbMap.set(parsedItem, [[192, 192, 192], {r:192, g:192, b:192}]);
+                    } else if (itemValue < 0){
+                        TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue/lowVal, colormapArray[0]));
+                    } else {
+                        TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue/highVal, colormapArray[1]));
+                    }
+                }
+            //}
+            /*else {
+                TWCrgbMap.set(parsedItem, [[255, 255, 255], {r:0, g:0, b:0, a:.4}]);
+                TWCData.set(parsedItem, null);
+            }*/
         });
         return [TWCrgbMap, TWCData];
     }
@@ -1266,40 +1283,41 @@ class PdbTopologyViewerPlugin {
     getAnnotationFromRibovision(mapped_aa_properties: Map<string, Array<Array<number>>>) {
         const _this = this;
         const chainRange:any = this.getChainStartAndEnd();
-        let observed_start = chainRange.start;
-        let observed_end = chainRange.end;
-        if (observed_end - observed_start <= 0){
-            observed_start = 1;
-            observed_end = 100000;
-        }
+        
         if (void 0 !== this.entropyId) {
             mapped_aa_properties.forEach(function(value, index) {    
                 let residueDetails:any = [{
-                    start: observed_start,
-                    end: observed_end,
-                    color: _this.defaultColours.qualityGreen,
+                    start: chainRange.start,
+                    end: chainRange.end,
+                    color: _this.defaultColours.qualityBlank,
                     tooltipMsg: 'No data for '
                 }];
                 let name = index;
                 let separatedData = value;
+
                 selectSections_RV1.set(name, [])
 
-                //let min = -2.935;
-               // let max = 12.065;
                 let min = Math.min(...aaPropertyConstants.get(name));
                 let max = Math.max(...aaPropertyConstants.get(name));
                 let colormapArray = aaColorData.get(name); 
                 const [TWCrgbMap, TWCData] = _this.parseTWCData(separatedData, min, max, colormapArray);
+
                 selectSections_RV1.get(name).push({entity_id: _this.entityId, focus: true});
+                
                 if (void 0 !== TWCData){
                     residueDetails = _this.create2D3DAnnotations(name, residueDetails, 
                                                                 TWCrgbMap, TWCData, 
-                                                                observed_start, observed_end);
+                                                                chainRange.start, chainRange.end);
                     if(0 < residueDetails.length){
-                        _this.domainTypes.push({
-                        label: name,
-                        data: residueDetails
-                        })
+                        var current = _this.domainTypes.filter(order => (order.label === name))[0];
+                        if(current && current != null) {
+                            current.data = residueDetails;
+                        } else {
+                             _this.domainTypes.push({
+                            label: name,
+                            data: residueDetails
+                            })
+                        }
                     }
                 }
             });
@@ -1496,7 +1514,15 @@ class PdbTopologyViewerPlugin {
         residueEle.data()[0]['tooltipPosition'] = tooltipPosition;
         residueEle
             .attr('stroke', function(d:any){ if(d.type === 'coils'){ return rgbColor; }else{ return '#111'; }})
-            .attr('stroke-width', function(d:any){ if(d.type === 'coils'){ return 1; }else{ return 0; }})
+            .attr('stroke-width', function(d:any){
+                 if(d.type === 'coils' && masked_array[residueNumber] === false){
+                    return .3;
+                 }else if (d.type === 'coils'){
+                     return 1;
+                 }else{
+                     return 0;
+                }
+             })
             .attr('fill', function(d:any){ if(d.type === 'coils'){ return 'none'; }else{ return rgbColor; }})
             .attr('fill-opacity', function(d:any){ if(d.type === 'coils'){ return 0; }else{ return 1; }})
             .classed("coloured", true)
@@ -1578,6 +1604,7 @@ class PdbTopologyViewerPlugin {
     }
 
     handleSeqViewerEvents(e:any, eType:string){
+        
         if(typeof e.eventData !== 'undefined'){
             //Abort if entryid and entityid do not match
             if(e.eventData.entryId.toLowerCase() != this.entryId.toLowerCase() || e.eventData.entityId != this.entityId) return;
@@ -1612,7 +1639,7 @@ class PdbTopologyViewerPlugin {
                 this.highlight(startResidue, endResidue, color, eType);
             }
         }
-
+        
     }
 
     handleProtvistaEvents(e:any, eType:string){
@@ -1662,9 +1689,9 @@ class PdbTopologyViewerPlugin {
     }
 
     handleMolstarEvents(e:any, eType:string){
+        
 
-        if(typeof e.eventData !== 'undefined' && Object.keys(e.eventData).length > 0){
-           
+        if(typeof e.eventData !== 'undefined' && Object.keys(e.eventData).length > 0 && (masked_array[e.eventData.seq_id - 1] == true || masked_array[e.eventData.seq_id - 1] == undefined)){
             //Remove previous selection / highlight
             let selectionPathClass = 'residueSelection';
             if(eType == 'mouseover'){
@@ -1673,7 +1700,7 @@ class PdbTopologyViewerPlugin {
             this.svgEle.selectAll('.'+selectionPathClass).remove();
 
             //Abort if entryid and entityid do not match or viewer type is unipdb
-            if(e.eventData.entry_id.toLowerCase() != this.entryId.toLowerCase() || e.eventData.entity_id != this.entityId) return;								
+            if(e.eventData.entry_id.toLowerCase() != this.entryId.toLowerCase() || e.eventData.entity_id != this.entityId) return;
             
             //Abort if chain id is different
             //if(e.eventData.label_asym_id.toLowerCase() != this.chainId.toLowerCase()) return;
@@ -1681,6 +1708,7 @@ class PdbTopologyViewerPlugin {
             //Apply new selection
             this.highlight(e.eventData.seq_id, e.eventData.seq_id, undefined, eType);
         }
+        
     }
 
     subscribeWcEvents(){

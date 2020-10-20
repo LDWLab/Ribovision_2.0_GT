@@ -60,10 +60,10 @@ def required_length(nmin,nmax):
 def read_align(aln_path):
     '''Reads the fasta file and gets the sequences.
     '''
-    alignments = AlignIO.read(open(aln_path), "fasta")
-    for record in alignments:
+    alignment = AlignIO.read(open(aln_path), "fasta")
+    for record in alignment:
         record.seq = record.seq.upper()
-    return alignments
+    return alignment
 
 def deletefile(file_loc):
     '''Tries to delete provided file path.
@@ -121,6 +121,23 @@ def count_aligned_positions(aln_obj, gap_threshold):
         raise ValueError('Alignment:\n'+str(aln_obj)+'\nhas no positions with less than '+str(gap_threshold*100)+'% gaps!')
     return aligned_positions, extremely_gapped
 
+def count_extremely_gapped_positions_for_group(aln_obj_groups, gap_threshold, group_lengths):
+    '''Detects alignment positions that are heavily gapped in one group only.
+    Uses the gap_threshold to determine whether either group has less residues in the alignment columns.
+    '''
+    aln_names, group_gapped, output_group_gapped = list(), dict(), dict()
+    for aln in aln_obj_groups:
+        aln_names.append(aln)
+        aligned_positions, extremely_gapped = count_aligned_positions(aln_obj_groups[aln], gap_threshold)
+        group_gapped[aln] = extremely_gapped
+    for pos in group_gapped[aln_names[0]]:
+        output_group_gapped[pos] = 'Ungapped'
+        if group_gapped[aln_names[0]][pos] == group_gapped[aln_names[1]][pos] == 'True':
+            output_group_gapped[pos] = 'AllGap'
+        if group_gapped[aln_names[0]][pos] != group_gapped[aln_names[1]][pos]:
+            output_group_gapped[pos] = 'GroupGap'
+    return output_group_gapped
+
 def remove_extremely_gapped_regions(align, gap_perc, gap_mapping):
     '''Removes columns of alignment with more than gap_perc gaps.
     '''
@@ -162,7 +179,6 @@ def uniq_resi_list(aln_obj):
         raise ValueError("Alignment has non-standard AAs:\n"+' ,'.join(hash_resi.keys()))
     return default_aa_sequence
 
-
 def slice_by_name(unsliced_aln_obj):
     '''
     Slices an alignment into different alignments
@@ -183,21 +199,22 @@ def slice_by_name(unsliced_aln_obj):
         sliced_dict[prot]=what
     return sliced_dict            #Iterate over the dict and create instances of AlignmentGroup
 
-def upsidedown_horizontal_gradient_bar(out_dict,group_names,comm_args):
-    plt.rcParams['image.composite_image'] = False                    #So that bars are separate images
-    plt.rcParams["figure.figsize"] = (8,8)
-    fig, ax = plt.subplots()
-    data=[]
-    stdevdata=[]
-    for x in sorted(out_dict.keys()):
-        data.append(out_dict[x][0])
-        if out_dict[x][1] == 'True':
-            stdevdata.append(0.5)
-        else:
-            stdevdata.append(0)
-    bar = ax.bar(range(1,len(data)+1),data, yerr=stdevdata,error_kw=dict(ecolor='gray', lw=0.25))
+def determine_subs_matrix(comm_args):
+    if comm_args.nucleotide and comm_args.substitution_matrix:
+        mx = nucl_matrix(comm_args.substitution_matrix)
+    elif comm_args.nucleotide and (comm_args.shannon_entropy or comm_args.reflected_shannon):
+        mx = np.array([2, 0])
+    elif not comm_args.nucleotide and (comm_args.shannon_entropy or comm_args.reflected_shannon):
+        mx = np.array([4.322, 0])
+    elif comm_args.leegascuel or comm_args.structure_paths:
+        mx = np.array(PAMLmatrix(str(os.path.dirname(__file__))+'/../matrices/LG.dat').lodd)
+    elif not comm_args.nucleotide and comm_args.substitution_matrix:
+        mx = subs_matrix(comm_args.substitution_matrix)
+    else:
+        raise IOError("Impossible combination of arguments!")
+    return mx, mx.min(), mx.max()
 
-    def gradientbars(bars,positivegradient,negativegradient):
+def gradientbars(bars, positivegradient, negativegradient, mx_min, mx_max):
         ax = bars[0].axes
         lim = ax.get_xlim()+ax.get_ylim()
         for bar in bars:
@@ -206,21 +223,35 @@ def upsidedown_horizontal_gradient_bar(out_dict,group_names,comm_args):
             x,y = bar.get_xy()
             w, h = bar.get_width(), bar.get_height()
             if h >= 0:
-                grad = np.atleast_2d(np.linspace(0,h/max(data),256)).T
+                grad = np.atleast_2d(np.linspace(0,h/mx_max,256)).T
                 ax.imshow(grad, extent=[x,x+w,y,y+h], cmap=plt.get_cmap(positivegradient), aspect="auto", norm=matplotlib.colors.NoNorm(vmin=0,vmax=1))
             else:            #different gradient for negative values
-                grad = np.atleast_2d(np.linspace(0,h/min(data),256)).T
+                grad = np.atleast_2d(np.linspace(0,h/mx_min,256)).T
                 ax.imshow(grad, extent=[x,x+w,y,y+h], cmap=plt.get_cmap(negativegradient), aspect="auto", norm=matplotlib.colors.NoNorm(vmin=0,vmax=1))
         #ax.set_facecolor('Gray')
         ax.axis(lim)
 
+def upsidedown_horizontal_gradient_bar(out_dict,group_names,comm_args, mx_min, mx_max):
+    plt.rcParams['image.composite_image'] = False                    #So that bars are separate images
+    plt.rcParams["figure.figsize"] = (8,8)
+    fig, ax = plt.subplots()
+    data=[]
+    stdevdata=[]
+    for x in sorted(out_dict.keys()):
+        data.append(out_dict[x][0])
+        if out_dict[x][1] == 'GroupGap' or out_dict[x][1] == 'AllGap':
+            stdevdata.append(0.5)
+        else:
+            stdevdata.append(0)
+    bar = ax.bar(range(1,len(data)+1),data, yerr=stdevdata,error_kw=dict(ecolor='gray', lw=0.25))
+
     #In case of no negative values BUG!
     if comm_args.reflected_shannon or comm_args.shannon_entropy:
         plt.yticks(np.arange(0,4.2, step=0.5))
-        gradientbars(bar,'viridis','binary')
+        gradientbars(bar,'viridis','binary', mx_min, mx_max)
     else:
         plt.plot((0, len(data)+1), (1, 1), 'k-', linewidth=0.5)       #Horizontal line
-        gradientbars(bar,'Greens','Purples')
+        gradientbars(bar,'Greens','Purples', mx_min, mx_max)
     dpi_scaling = 3*len(out_dict)
     plt.savefig(comm_args.output_path+'.svg',format = 'svg',dpi=dpi_scaling)
     return True
@@ -239,45 +270,37 @@ def data_to_diverging_gradients(datapoint, maxdata, mindata, positivegradient, n
         rgb = plt.get_cmap(negativegradient)(grad[len(grad)-1])[0][:3]
     return matplotlib.colors.rgb2hex(rgb)
 
-def pymol_script_writer(out_dict,gapped_sliced_alns,comm_args):
+def gradients(data, positivegradient, negativegradient, mx_maxval, mx_minval):
+    """Creates a dictionary with keys the alignment index and values a hex code for the color.
+    """
+    aln_index_hexcmap = {}
+    aln_index=1
+    for datapoint in data:
+        aln_index_hexcmap[aln_index] = data_to_diverging_gradients(datapoint,
+                                                                    mx_maxval,
+                                                                    mx_minval,
+                                                                    positivegradient,
+                                                                    negativegradient)
+        aln_index+=1
+    return aln_index_hexcmap
+
+def pymol_script_writer(out_dict, gapped_sliced_alns, comm_args, mx_minval, mx_maxval):
     """Creates the same gradients used for svg output and writes out a .pml file for PyMOL visualization.
     """
-    def isfloat(value):
-        try:
-            float(value)
-            return True
-        except ValueError:
-            return False
-    #Similarly to upsidedown_horizontal_gradient_bar but it doesn't write out figures or plots.
-    fig, ax = plt.subplots()
+    from pathlib import Path, PureWindowsPath, PurePosixPath
+    
     data = []
     for x in sorted(out_dict.keys()):
         data.append(out_dict[x][0])
-    def gradients(data,positivegradient,negativegradient):
-        """Creates a dictionary with keys the alignment index and values a hex code for the color.
-        """
-        aln_index_hexcmap = {}
-        aln_index=1
-        for h in data:
-            aln_index_hexcmap[aln_index] = data_to_diverging_gradients(h, 
-                                max([float(x) for x in data if isfloat(x)]), 
-                                min([float(x) for x in data if isfloat(x)]),
-                                positivegradient, 
-                                negativegradient)
-            aln_index+=1
-        return aln_index_hexcmap
-    if comm_args.leegascuel or comm_args.nucleotide or comm_args.substitution_matrix:
-        #alnindex_to_hexcolors = gradientbars(data,'Blues','Reds')
-        alnindex_to_hexcolors = gradients(data,'Greens','Purples')
-    elif comm_args.reflected_shannon or comm_args.shannon_entropy:
-        alnindex_to_hexcolors = gradients(data,'viridis','binary')
+    
+    if comm_args.reflected_shannon or comm_args.shannon_entropy:
+        alnindex_to_hexcolors = gradients(data,'viridis','binary', mx_maxval, mx_minval)
     else:
-        alnindex_to_hexcolors = gradients(data,'Greens','Purples')
+        alnindex_to_hexcolors = gradients(data,'Greens','Purples', mx_maxval, mx_minval)
 
     group_names = list(gapped_sliced_alns.keys())
     #Open .pml file for structure coloring
     pml_output = open(comm_args.output_path+".pml","w")
-    #pml_output = open("./"+'-'.join(sorted(group_names))+'.pml',"w")
     pml_output.write("set hash_max, 500\n\
         set cartoon_loop_radius,0.4\n\
         set cartoon_tube_radius,1\n\
@@ -294,23 +317,29 @@ def pymol_script_writer(out_dict,gapped_sliced_alns,comm_args):
         #Match groupnames with structure files
         current_path = [s for s in comm_args.structure_pymol if alngroup_name in s]
         
-        if len(current_path) < 1:
-            pass        #Gotta fix this
-            #raise ValueError("Cannot write PyMOL coloring script without at least single matching structure \
-            #    and sequence!\nSequence:\t"+alngroup_name+"\nStructure:\t"+str(current_path))
+        if len(current_path) == 0:
+            raise IOError("Cannot write PyMOL coloring script without at least single matching structure \
+               and sequence!\nSequence:\t"+alngroup_name+"\nStructure:\t"+str(current_path))
         else:
             #We have to recalculate the structure to alignment mapping
             alngroup_name_object = AlignmentGroup(gapped_sliced_alns[alngroup_name],current_path[0])
             AlignmentGroup.add_struc_path(alngroup_name_object, current_path[0])
             struc_to_aln_index_mapping=AlignmentGroup.create_aln_struc_mapping_with_mafft(alngroup_name_object)
             #Open the structure file
-            pml_output.write("load "+current_path[0]+", "+alngroup_name+"\n")
+            output_parent_dir = ntpath.dirname(comm_args.output_path)
+            if output_parent_dir == '.':
+                output_parent_dir = str(Path(__file__).parent.absolute())
+            if comm_args.write_pml_script == 'unix':
+                pml_path = PurePosixPath(current_path[0])
+            if comm_args.write_pml_script == 'windows':
+                pml_path = PureWindowsPath(current_path[0])
+            pml_output.write(f"load {pml_path}, {alngroup_name}\n")
             #For each alignment position, color the appropriate residue with the hex transformed color from the gradient
             for aln_index in alnindex_to_hexcolors.keys():
                 if aln_index in struc_to_aln_index_mapping:
                     hexcolors_appropriate_for_pml = alnindex_to_hexcolors[aln_index].replace('#','0x')
-                    pml_output.write("color "+hexcolors_appropriate_for_pml+", "+alngroup_name+" and resi "+str(struc_to_aln_index_mapping[aln_index])+"\n")
-    pml_output.write("super "+group_names[0]+","+group_names[1]+"\n")
+                    pml_output.write(f"color {hexcolors_appropriate_for_pml}, {alngroup_name} and resi {str(struc_to_aln_index_mapping[aln_index])}\n")
+    pml_output.write(f"super {group_names[0]}, {group_names[1]}\n")
     return True
 
 def jalview_output(output_dict, comm_args):
@@ -413,7 +442,7 @@ def compute_score(aln_index_dict, groupnames, mx=None, struc_annotation=None):
     Returns a dictionary with key the alignment index and value the computed score.
     '''
     if struc_annotation and mx:
-        raise ValueError("Do not use structure defined matrices and sequence based matrices at the same time.")
+        raise IOError("Do not use structure defined matrices and sequence based matrices at the same time.")
     alnindex_score = defaultdict(dict)
     for aln_index in aln_index_dict:
         vr1 = np.array(aln_index_dict[aln_index][groupnames[0]])
@@ -427,17 +456,11 @@ def compute_score(aln_index_dict, groupnames, mx=None, struc_annotation=None):
         alnindex_score[aln_index] = vr1@mx@vr2.T
     return alnindex_score
 
-def decision_maker(comm_args, alignIO_out_gapped, deepestanc_to_child, aa_list, alngroup_to_sequence_weight):
-    '''Checks through the commandline options and does the appropriate calculations; gap randomizations.
+def decision_maker(comm_args, alignIO_out, sliced_alns, aa_list, alngroup_to_sequence_weight, mx):
+    '''Checks through the commandline options and does the appropriate frequency and score calculations.
     Returns a dictionary of alignment position -> computed score.
     '''
-    alignIO_out = alignIO_out_gapped[:,:]
-    if comm_args.phylo_split:
-        sliced_alns = Sequence_Weight_from_Tree.slice_by_anc(alignIO_out, deepestanc_to_child)
-    else:
-        sliced_alns = slice_by_name(alignIO_out)
-    if len(sliced_alns.keys()) != 2:
-        raise ValueError("For now does not support more than two groups! Offending groups are "+str(sliced_alns.keys()))
+
     if comm_args.shannon_entropy or comm_args.reflected_shannon:
         return shannon_entropy(alignIO_out, aa_list, comm_args, alngroup_to_sequence_weight)
     
@@ -446,7 +469,6 @@ def decision_maker(comm_args, alignIO_out_gapped, deepestanc_to_child, aa_list, 
     for alngroup_name in sliced_alns:
         alngroup_name_object = AlignmentGroup(sliced_alns[alngroup_name])
         if comm_args.structure_paths:
-            import ntpath
             current_path = [s for s in comm_args.structure_paths if alngroup_name in ntpath.basename(s)]
             if len(current_path) == 0:
                 raise IOError(f"When using structure-defined matrices the provided structure files must contain the name of the alignment group.\n\
@@ -470,13 +492,10 @@ def decision_maker(comm_args, alignIO_out_gapped, deepestanc_to_child, aa_list, 
     if comm_args.structure_paths:
         return compute_score(aln_index_dict, list(struc_annotation.keys()), struc_annotation=struc_annotation)
     if comm_args.nucleotide:
-        mx = nucl_matrix(comm_args.nucleotide)
         return compute_score(aln_index_dict, list(sliced_alns.keys()), mx=mx)
     if comm_args.leegascuel:
-        mx = np.array(PAMLmatrix(str(os.path.dirname(__file__))+'/../matrices/LG.dat').lodd)
         return compute_score(aln_index_dict, list(sliced_alns.keys()), mx=mx)
     if comm_args.substitution_matrix:
-        mx = subs_matrix(comm_args.substitution_matrix)
         return compute_score(aln_index_dict, list(sliced_alns.keys()), mx=mx)
 
 def main(commandline_arguments):
@@ -485,6 +504,13 @@ def main(commandline_arguments):
     if comm_args.cut_gaps and (comm_args.structure_pymol or comm_args.structure_paths):
         raise IOError("TwinCons can not take in this combination of arguments!\
     \nCombining gap removal (-cg) and structural mapping (-sy) or structure based matrices (-s) produces inconsistent alignment mapping!")
+    if comm_args.nucleotide and not ((comm_args.substitution_matrix in ['blastn', 'identity', 'trans']) or comm_args.reflected_shannon or comm_args.shannon_entropy):
+        raise IOError("TwinCons can not take in this combination of arguments!\
+    \nCombining nucleotide (-nc) requires either -rs or -e or -mx blastn or -mx identity or -mx trans arguments!")
+    if comm_args.nucleotide and comm_args.structure_paths:
+        raise IOError("TwinCons can not take in this combination of arguments!\
+    \nDefining structures for calculating substitution matrices only works with proteins!")
+
     if comm_args.alignment_string:
         alignIO_out_gapped = list(AlignIO.parse(StringIO(comm_args.alignment_string), 'fasta'))[0]
     elif len(comm_args.alignment_paths) == 1:
@@ -493,6 +519,8 @@ def main(commandline_arguments):
         alignIO_out_gapped = run_mafft(comm_args.alignment_paths)
     randindex_norm = defaultdict(dict)
     gp_mapping = dict()
+
+    subs_matrix, mx_minval, mx_maxval = determine_subs_matrix(comm_args)
 
     if comm_args.phylo_split:
         tree = Sequence_Weight_from_Tree.tree_construct(alignIO_out_gapped)
@@ -505,13 +533,15 @@ def main(commandline_arguments):
     if len(gapped_sliced_alns.keys()) != 2:
         raise ValueError("For now does not support more than two groups! Offending groups are "+str(gapped_sliced_alns.keys()))
 
+    num_seqs_per_group, num_seqs_per_group_dict  = list(), dict()
+    for aln in gapped_sliced_alns:
+        num_seqs_per_group.append(gapped_sliced_alns[aln].__len__())
+        num_seqs_per_group_dict[aln] = gapped_sliced_alns[aln].__len__()
     if comm_args.gap_threshold is None:
-        seq_records = list()
-        for aln in gapped_sliced_alns:
-            seq_records.append(gapped_sliced_alns[aln].__len__())
-        comm_args.gap_threshold = round(min([seq_records[0]/(seq_records[0]+seq_records[1]),seq_records[1]/(seq_records[0]+seq_records[1])])-0.05,2)
+        comm_args.gap_threshold = round(min([num_seqs_per_group[0]/(num_seqs_per_group[0]+num_seqs_per_group[1]),num_seqs_per_group[1]/(num_seqs_per_group[0]+num_seqs_per_group[1])])-0.05,2)
     
     number_of_aligned_positions, extremely_gapped = count_aligned_positions(alignIO_out_gapped, comm_args.gap_threshold)
+    group_gapped = count_extremely_gapped_positions_for_group(gapped_sliced_alns, 2*comm_args.gap_threshold, num_seqs_per_group_dict)
     if comm_args.cut_gaps:
         tempaln = alignIO_out_gapped[:,:]
         alignIO_out_gapped = MultipleSeqAlignment([])
@@ -534,27 +564,40 @@ def main(commandline_arguments):
     uniq_resis = uniq_resi_list(alignIO_out_gapped)
     if comm_args.nucleotide:
         for sequence in alignIO_out_gapped:
-            if re.search('T', sequence.seq):
+            if re.search('T', str(sequence.seq)):
                 sequence.seq = sequence.seq.transcribe()
         uniq_resis = ['A','U','C','G']
-    position_defined_scores = decision_maker(comm_args, alignIO_out_gapped, deepestanc_to_child, uniq_resis, alngroup_to_sequence_weight)
-
+    
+    if comm_args.phylo_split:
+        sliced_alns = Sequence_Weight_from_Tree.slice_by_anc(alignIO_out_gapped, deepestanc_to_child)
+    else:
+        sliced_alns = slice_by_name(alignIO_out_gapped)
+    if len(sliced_alns.keys()) != 2:
+        raise IOError("For now does not support more than two groups! Offending groups are "+str(sliced_alns.keys()))
+    
+    
+    
+    position_defined_scores = decision_maker(comm_args, 
+                                            alignIO_out_gapped, 
+                                            sliced_alns, 
+                                            uniq_resis, 
+                                            alngroup_to_sequence_weight, 
+                                            subs_matrix)
     output_dict = dict()
     output_dict_pml = dict()
-    for x in position_defined_scores.keys():
-        if extremely_gapped[gp_mapping[x]] == 'True':
-            output_dict[gp_mapping[x]] = (position_defined_scores[x], extremely_gapped[gp_mapping[x]])
-            output_dict_pml[gp_mapping[x]] = ('NA', extremely_gapped[gp_mapping[x]])
+    for x in position_defined_scores.keys():                #If standard deviation is too big, set the result as 0
+        output_dict[gp_mapping[x]] = (position_defined_scores[x], group_gapped[gp_mapping[x]])
+        if group_gapped[gp_mapping[x]] == 'GroupGap' or group_gapped[gp_mapping[x]] == 'AllGap':
+            output_dict_pml[gp_mapping[x]] = ('NA', group_gapped[gp_mapping[x]])
             continue
-        output_dict[gp_mapping[x]] = (position_defined_scores[x], extremely_gapped[gp_mapping[x]])
-        output_dict_pml[gp_mapping[x]] = (position_defined_scores[x], extremely_gapped[gp_mapping[x]])
+        output_dict_pml[gp_mapping[x]] = (position_defined_scores[x], group_gapped[gp_mapping[x]])
     
-    if comm_args.plotit:
-        upsidedown_horizontal_gradient_bar(output_dict, list(gapped_sliced_alns.keys()),comm_args)
+    if comm_args.plotit:                                    #for plotting
+        upsidedown_horizontal_gradient_bar(output_dict, list(gapped_sliced_alns.keys()), comm_args, mx_minval, mx_maxval)
     elif comm_args.write_pml_script:
-        pymol_script_writer(output_dict_pml, gapped_sliced_alns, comm_args)
+        pymol_script_writer(output_dict_pml, gapped_sliced_alns, comm_args, mx_minval, mx_maxval)
     elif comm_args.return_within:
-        return output_dict, gapped_sliced_alns, number_of_aligned_positions, gp_mapping
+        return output_dict_pml, gapped_sliced_alns, number_of_aligned_positions, gp_mapping
     elif comm_args.return_csv:
         with open(comm_args.output_path+".csv", mode='w') as output_csv:
             csv_writer = csv.writer(output_csv, delimiter=',')

@@ -118,8 +118,14 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
         if (vueObj.aln_meta_data) {vueObj.aln_meta_data = null;}
         if (vueObj.fasta_data) {vueObj.fasta_data = null;}
         if (vueObj.frequency_data) {vueObj.frequency_data = null;}
+        if (vueObj.topology_loaded) {vueObj.topology_loaded = 'False';}
         if (aln_item) {aln_item.remove(); create_deleted_element("alnif", "alnDiv", aln_text)}
     }
+    if (vueObj.masking_range) {vueObj.masking_range = null;}
+    if (window.masked_array.length > 0) {window.masked_array = [];}
+    if (vueObj.checked_filter) {vueObj.checked_filter = false;}
+    if (vueObj.checked_customMap) {vueObj.checked_customMap = false;}
+    if (vueObj.csv_data) {vueObj.csv_data = null;}
     if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Select new chain!")}
     if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Select new structure!")}
 }
@@ -181,6 +187,7 @@ var calculateFrequencyData = function (frequencies){
                         ]);
     window.aaColorData = aaColorData;
     window.aaPropertyConstants = aaPropertiesData;
+    window.selectSections_RV1 = new Map();
     let outPropertyPosition = new Map();
     aaPropertiesData.forEach(function (data, property_name){
         if (property_name == "TwinCons"){return;}
@@ -217,7 +224,17 @@ var mapAAProps = function (aa_properties, mapping){
     return outPropertyMappedPosition;
 }
 
-
+var filterCoilResidues = function (coil_data){
+    const range = (start, stop, step) => Array.from({ length: (stop - start) / step + 1}, (_, i) => start + (i * step));
+    let coilResidues = [];
+    coil_data.forEach(function (coilRange){
+        if (coilRange.start < coilRange.stop){
+            coilResidues.push(range(coilRange.start, coilRange.stop, 1))
+        }
+    })
+    return coilResidues.flat()
+}
+var masked_array = [];
 Vue.component('treeselect', VueTreeselect.Treeselect, )
 
 var vm = new Vue({
@@ -238,7 +255,36 @@ var vm = new Vue({
         aa_properties: null,
         structure_mapping: null,
         file: null,
-        custom_aln_twc_flag: null
+        custom_aln_twc_flag: null,
+        topology_loaded: 'False',
+        masking_range: null,
+        correct_mask: false,
+        coil_residues: null,
+        checked_filter: false,
+        checked_customMap: false,
+        csv_data: null,
+    },
+    watch: {
+        csv_data: function (csv_data) {
+            if (csv_data == null){return;}
+            let custom_data = csv_data.split('\n').map(function(e){
+                return e.split(',').map(Number);
+            })
+            var topviewer = document.getElementById("PdbeTopViewer");
+            if (topviewer != null && topviewer.pluginInstance.domainTypes != undefined){
+                let vals = custom_data.map(function(v){ return v[1] });
+                window.aaColorData.set("CustomData", [viridis]);
+                window.aaPropertyConstants.set("CustomData", [Math.min(...vals), Math.max(...vals)]);
+                var custom_prop = new Map();
+                custom_prop.set("CustomData", custom_data);
+                topviewer.pluginInstance.getAnnotationFromRibovision(custom_prop);
+                var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
+                var twc_option = document.createElement("option");
+                twc_option.setAttribute("value", selectBoxEle.options.length);
+                twc_option.appendChild(document.createTextNode("Custom Data"));
+                selectBoxEle.appendChild(twc_option);
+            }
+        },
     },
     methods: {
         handleFileUpload(){
@@ -348,6 +394,7 @@ var vm = new Vue({
             }
         }, getPDBchains(pdbid, aln_id) {
             if (pdbid.length === 4) {
+                if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(vm);}
                 this.chains = null
                 this.hide_chains = true
                 ajax('https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/' + pdbid.toLowerCase())
@@ -478,12 +525,12 @@ var vm = new Vue({
                         mapped_aa_properties = build_mapped_props(mapped_aa_properties, twcDataUnmapped, this.structure_mapping);
                         window.mapped_aa_properties = mapped_aa_properties;
                         if (topviewer != null && topviewer.pluginInstance.domainTypes != undefined){
-                            empty_props = new Map();
+                            var empty_props = new Map();
                             let twc_props = build_mapped_props(empty_props, twcDataUnmapped, this.structure_mapping);
                             topviewer.pluginInstance.getAnnotationFromRibovision(twc_props);
                             var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
                             var twc_option = document.createElement("option");
-                            twc_option.setAttribute("value", 10);
+                            twc_option.setAttribute("value", selectBoxEle.options.length);
                             twc_option.appendChild(document.createTextNode("TwinCons"));
                             selectBoxEle.appendChild(twc_option);
                         }
@@ -493,15 +540,17 @@ var vm = new Vue({
                 var topology_url = `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdblower}/chain/${chainid}`
                 ajax(topology_url).then(data => {
                     var entityid = Object.keys(data[pdblower])[0];
-                    var mapping = []
-                    var range_string = minIndex.concat("-").concat(maxIndex)
-                    GetRangeMapping(pdbid, chainid, range_string, mapping)
-                    let data_string = JSON.stringify(Array.from(mapped_aa_properties.entries())).replaceAll(",[[", ":").replaceAll("]],",";").replaceAll("],[",",")
-                    let formatted_data_string = data_string.replaceAll("[","").replaceAll("]","").replaceAll("\"","")
+                    vm.coil_residues = filterCoilResidues(data[pdblower][entityid][chainid]["coils"])
+                    var mapping = [];
+                    var range_string = minIndex.concat("-").concat(maxIndex);
+                    GetRangeMapping(pdbid, chainid, range_string, mapping);
+                    let data_string = JSON.stringify(Array.from(mapped_aa_properties.entries())).replaceAll(",[[", ":").replaceAll("]],",";").replaceAll("],[",",");
+                    let formatted_data_string = data_string.replaceAll("[","").replaceAll("]","").replaceAll("\"","");
                     var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid}	entropy-id=${formatted_data_string} filter-range=${mapping}></pdb-topology-viewer>`
                     document.getElementById('topview').innerHTML = topology_viewer;
                 })
             });
+            this.topology_loaded = 'True';
         }, showPDBViewer(pdbid, chainid){
             if (document.querySelector("pdbe-molstar")) {return;}
             var minIndex = String(0)
@@ -572,7 +621,109 @@ var vm = new Vue({
                         ],
                     })
                 })
+                document.addEventListener('PDB.molstar.mouseover', (e) => {
+                    var eventData = e.eventData;
+                    let resi_id = eventData.auth_seq_id;
+                    var molstarviewer = document.getElementById("PdbeMolstarComponent")
+                    if(masked_array && masked_array[resi_id - 1] == false) {
+                        molstarviewer.viewerInstance.plugin.behaviors.interaction.hover._value.current.loci.kind = "empty-loci"
+                    }
+                });
             });
+        },cleanFilter(checked_filter){
+            if (checked_filter){return;}
+            if (this.masking_range == null){return;}
+            window.masked_array = [];
+            this.masking_range = null;
+            var topviewer = document.getElementById("PdbeTopViewer");
+            topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);
+            var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
+            topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data); 
+            molstarviewer.viewerInstance.visual.select({data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), nonSelectedColor: {r:0,g:0,b:0}});
+        },isCorrectMask(mask_range){
+            window.masking_range_array = null;
+            if (mask_range.match(/^(\d+-\d+;)+$/)) {
+                var temp_array = mask_range.split(';').join('-').split('-');
+                temp_array = temp_array.slice(0, -1)
+                var i = 0;
+                var isCorrect = true;
+                while(i < temp_array.length) {
+                    if(i % 2 == 0) {
+                        if(Number(temp_array[i]) > Number(temp_array[i + 1])) {
+                            isCorrect = false;
+                        }
+                    }
+                    i = i + 1;
+                }
+                window.masking_range_array = temp_array;
+            }
+            if(isCorrect) {
+                this.correct_mask = 'True';
+            }
+            return isCorrect;
+        },
+        initializeMaskedArray() {
+            var topviewer = document.getElementById("PdbeTopViewer");
+            var masked_array = [];
+            var j = 0;
+            while(j < mapped_aa_properties.get(topviewer.pluginInstance.domainTypes[4].label).length) {
+                masked_array[j] = false;
+                i = 0;
+                while(i < window.masking_range_array.length && !masked_array[j]) {
+                    if(j >= window.masking_range_array[i] && j <= window.masking_range_array[i + 1]) {
+                        masked_array[j] = true;
+                    }
+                    i = i+2;
+                }
+                j = j+1;
+            }
+            window.masked_array = masked_array;
+            return masked_array;
+        },
+        handleMaskingRanges(mask_range){
+            window.masking_range_array = null;
+            if (this.isCorrectMask(mask_range)) {   
+                var topviewer = document.getElementById("PdbeTopViewer");
+                var molstarviewer = document.getElementById("PdbeMolstarComponent");
+                topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);   
+                var masked_array = this.initializeMaskedArray();          
+                var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
+
+                var j = 4;
+                while(j < topviewer.pluginInstance.domainTypes.length) {
+                    var f = 0;
+                    while(f < topviewer.pluginInstance.domainTypes[4].data.length) {
+                        if(!masked_array[f]) {
+                            topviewer.pluginInstance.domainTypes[j].data[f].color = "rgb(255,255,255)";
+                            topviewer.pluginInstance.domainTypes[j].data[f].tooltipMsg = "NaN";                   
+                            selectSections_RV1.get(topviewer.pluginInstance.domainTypes[j].label)[f].color = {r: 0, g: 0, b: 0};
+
+                        } if(!masked_array[f] && vm.coil_residues.includes(f)) {
+                            topviewer.pluginInstance.domainTypes[j].data[f].color = "rgb(0,0,0)";
+                            topviewer.pluginInstance.domainTypes[j].data[f].tooltipMsg = "NaN";    
+                        }
+                            
+                        f++;
+                    }
+                    j++;
+                    window.masked_array = masked_array;
+                    this.correct_mask = 'True';
+                }
+                topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data); 
+                molstarviewer.viewerInstance.visual.select({data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), nonSelectedColor: {r:0,g:0,b:0}});
+            }
+        }, cleanCustomMap(checked_customMap){
+            if (checked_customMap){return;}
+            this.csv_data = null;
+        }, handleCustomMappingData(){
+            const readFile = function (fileInput) {
+                var reader = new FileReader();
+                reader.onload = function () {
+                    vm.csv_data = reader.result;
+                };
+                reader.readAsBinaryString(fileInput);
+            };
+            readFile(this.$refs.custom_csv_file.files[0]);
         }
     }
 })
