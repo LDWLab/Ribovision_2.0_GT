@@ -1,4 +1,3 @@
-
 function getCookie(name) {
     var cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -119,6 +118,7 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
         if (vueObj.aln_meta_data) {vueObj.aln_meta_data = null;}
         if (vueObj.fasta_data) {vueObj.fasta_data = null;}
         if (vueObj.frequency_data) {vueObj.frequency_data = null;}
+        if (vueObj.topology_loaded) {vueObj.topology_loaded = 'False';}
         if (aln_item) {aln_item.remove(); create_deleted_element("alnif", "alnDiv", aln_text)}
     }
     if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Select new chain!")}
@@ -251,6 +251,7 @@ var vm = new Vue({
         structure_mapping: null,
         file: null,
         custom_aln_twc_flag: null,
+        topology_loaded: 'False',
         masking_range: null,
         masking_range_array: null,
         correct_mask: false,
@@ -520,6 +521,7 @@ var vm = new Vue({
                     document.getElementById('topview').innerHTML = topology_viewer;
                 })
             });
+            this.topology_loaded = 'True';
         }, showPDBViewer(pdbid, chainid){
             if (document.querySelector("pdbe-molstar")) {return;}
             var minIndex = String(0)
@@ -594,13 +596,13 @@ var vm = new Vue({
                     var eventData = e.eventData;
                     let resi_id = eventData.auth_seq_id;
                     var molstarviewer = document.getElementById("PdbeMolstarComponent")
-                    if(!masked_array[resi_id - 1] || masked_array[resi_id - 1] != true) {
+                    if(masked_array && masked_array[resi_id - 1] == false) {
                         molstarviewer.viewerInstance.plugin.behaviors.interaction.hover._value.current.loci.kind = "empty-loci"
                     }
                 });
             });
-        },handleMaskingRanges(mask_range){
-            window.masking_range_array = null;
+        },
+        isCorrectMask(mask_range){
             if (mask_range.match(/^(\d+-\d+;)+$/)) {
                 var temp_array = mask_range.split(';').join('-').split('-');
                 var i = 0;
@@ -613,44 +615,59 @@ var vm = new Vue({
                     }
                     i = i + 1;
                 }
-
-                if(isCorrect) {                  
-                    window.masking_range_array = temp_array;
-                    var j = 0;
-                    var masked_array = [];
-                    while(j < mapped_aa_properties.get("Hydrophobicity").length) {
-                        masked_array[j] = false;
-                        i = 0;
-                        while(i < window.masking_range_array.length && !masked_array[j]) {
-                                if(j >= window.masking_range_array[i] && j <= window.masking_range_array[i + 1]) {
-                                    masked_array[j] = true;
-                                }
-                            i = i+2;
-                        }
-                        j = j+1;
+                window.masking_range_array = temp_array;
+            }
+            if(isCorrect) {
+                this.correct_mask = 'True';
+            }
+            return isCorrect;
+        },
+        initializeMaskedArray() {
+            var topviewer = document.getElementById("PdbeTopViewer");
+            var masked_array = [];
+            var j = 0;
+            while(j < mapped_aa_properties.get(topviewer.pluginInstance.domainTypes[4].label).length) {
+                masked_array[j] = false;
+                i = 0;
+                while(i < window.masking_range_array.length && !masked_array[j]) {
+                    if(j >= window.masking_range_array[i] && j <= window.masking_range_array[i + 1]) {
+                        masked_array[j] = true;
                     }
-                    j = 4;
-                    var topviewer = document.getElementById("PdbeTopViewer");
-                    topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);
-                    while(j < topviewer.pluginInstance.domainTypes.length) {
-                        var f = 0;
-                        while(f < topviewer.pluginInstance.domainTypes[4].data.length) {
-                            if(!masked_array[f]) {
-                                topviewer.pluginInstance.domainTypes[j].data[f].color = "rgb(255,255,255)";
-                                topviewer.pluginInstance.domainTypes[j].data[f].tooltipMsg = "NaN";                   
-                                selectSections_RV1.get(topviewer.pluginInstance.domainTypes[j].label)[f].color = {r: 0, g: 0, b: 0};
-
-                            }
-                            
-                            f++;
-                        }
-                        j++;
-                    }
-                    this.correct_mask = 'True';
-                    //topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[data_index].data); (find current active selection)
+                    i = i+2;
                 }
-            } else{
-                this.correct_mask = 'False';
+                j = j+1;
+            }
+            return masked_array;
+        },
+        handleMaskingRanges(mask_range){
+            window.masking_range_array = null;
+            if (this.isCorrectMask(mask_range)) {   
+                var topviewer = document.getElementById("PdbeTopViewer");
+                var molstarviewer = document.getElementById("PdbeMolstarComponent");
+                topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);   
+                var masked_array = this.initializeMaskedArray();          
+                var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
+
+                var j = 4;
+                while(j < topviewer.pluginInstance.domainTypes.length) {
+                    var f = 0;
+                    while(f < topviewer.pluginInstance.domainTypes[4].data.length) {
+                        if(!masked_array[f]) {
+                            topviewer.pluginInstance.domainTypes[j].data[f].color = "rgb(255,255,255)";
+                            topviewer.pluginInstance.domainTypes[j].data[f].tooltipMsg = "NaN";                   
+                            selectSections_RV1.get(topviewer.pluginInstance.domainTypes[j].label)[f].color = {r: 0, g: 0, b: 0};
+
+                        } if(!masked_array[f] && vm.coil_residues.includes(f)) {
+                            topviewer.pluginInstance.domainTypes[j].data[f].color = "rgb(0,0,0)";
+                            topviewer.pluginInstance.domainTypes[j].data[f].tooltipMsg = "NaN";       
+                        }
+                            
+                        f++;
+                    }
+                    j++;
+                }
+                topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data); 
+                molstarviewer.viewerInstance.visual.select({data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), nonSelectedColor: {r:0,g:0,b:0}});
             }
         }
     }

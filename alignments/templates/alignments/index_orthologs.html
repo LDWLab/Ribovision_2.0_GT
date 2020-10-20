@@ -75,10 +75,10 @@
 				<option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid)">[[ chain.text ]]</option>
 			</select></p>
 			<p>
-				<span v-if="chains&&fasta_data">(Optional) Type ranges separated by semicolon (ex: 1-80;91-111;) and hit enter.</span>
+				<span v-if="chains&&fasta_data&&topology_loaded!='False'">(Optional) Type ranges separated by semicolon (ex: 1-80;91-111;) and hit enter.</span>
 			</p>
-			<p><input v-if="chains&&fasta_data" v-model="masking_range" v-on:keyup.enter="handleMaskingRanges(masking_range)"></p>
-			<p v-if="correct_mask!='True'&&chains&&fasta_data">Fix the syntax!</p>
+			<p><input v-if="topology_loaded !='False'" v-model="masking_range" v-on:keyup.enter="handleMaskingRanges(masking_range)"></p>
+			<p v-if="correct_mask!='True'&&topology_loaded !='False'">Fix the syntax!</p>
 		</div>
 		<div class="alignment_section">
 			<p></p>
