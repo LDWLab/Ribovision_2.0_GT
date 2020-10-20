@@ -42,7 +42,7 @@ var mapped_aa_properties = window.mapped_aa_properties;
 var aaPropertyConstants = window.aaPropertyConstants;
 var aaColorData = window.aaColorData;
 var masking_range_array = window.masking_range_array;
-var masked_array = [];
+var masked_array = window.masked_array;
 var selectSections_RV1 = window.selectSections_RV1;
 var PdbTopologyViewerPlugin = /** @class */ (function () {
     function PdbTopologyViewerPlugin() {
@@ -1621,7 +1621,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         }
     };
     PdbTopologyViewerPlugin.prototype.handleMolstarEvents = function (e, eType) {
-        if (typeof e.eventData !== 'undefined' && Object.keys(e.eventData).length > 0 && masked_array[e.eventData.seq_id - 1] == true) {
+        if (typeof e.eventData !== 'undefined' && Object.keys(e.eventData).length > 0 && (masked_array[e.eventData.seq_id - 1] == true || masked_array[e.eventData.seq_id - 1] == undefined)) {
             //Remove previous selection / highlight
             var selectionPathClass = 'residueSelection';
             if (eType == 'mouseover') {

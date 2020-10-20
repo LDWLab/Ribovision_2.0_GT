@@ -121,6 +121,11 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
         if (vueObj.topology_loaded) {vueObj.topology_loaded = 'False';}
         if (aln_item) {aln_item.remove(); create_deleted_element("alnif", "alnDiv", aln_text)}
     }
+    if (vueObj.masking_range) {vueObj.masking_range = null;}
+    if (window.masked_array.length > 0) {window.masked_array = [];}
+    if (vueObj.checked_filter) {vueObj.checked_filter = false;}
+    if (vueObj.checked_customMap) {vueObj.checked_customMap = false;}
+    if (vueObj.csv_data) {vueObj.csv_data = null;}
     if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Select new chain!")}
     if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Select new structure!")}
 }
@@ -229,7 +234,7 @@ var filterCoilResidues = function (coil_data){
     })
     return coilResidues.flat()
 }
-
+var masked_array = [];
 Vue.component('treeselect', VueTreeselect.Treeselect, )
 
 var vm = new Vue({
@@ -253,10 +258,33 @@ var vm = new Vue({
         custom_aln_twc_flag: null,
         topology_loaded: 'False',
         masking_range: null,
-        masking_range_array: null,
         correct_mask: false,
-        masked_array: null,
         coil_residues: null,
+        checked_filter: false,
+        checked_customMap: false,
+        csv_data: null,
+    },
+    watch: {
+        csv_data: function (csv_data) {
+            if (csv_data == null){return;}
+            let custom_data = csv_data.split('\n').map(function(e){
+                return e.split(',').map(Number);
+            })
+            var topviewer = document.getElementById("PdbeTopViewer");
+            if (topviewer != null && topviewer.pluginInstance.domainTypes != undefined){
+                let vals = custom_data.map(function(v){ return v[1] });
+                window.aaColorData.set("CustomData", [viridis]);
+                window.aaPropertyConstants.set("CustomData", [Math.min(...vals), Math.max(...vals)]);
+                var custom_prop = new Map();
+                custom_prop.set("CustomData", custom_data);
+                topviewer.pluginInstance.getAnnotationFromRibovision(custom_prop);
+                var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
+                var twc_option = document.createElement("option");
+                twc_option.setAttribute("value", selectBoxEle.options.length);
+                twc_option.appendChild(document.createTextNode("Custom Data"));
+                selectBoxEle.appendChild(twc_option);
+            }
+        },
     },
     methods: {
         handleFileUpload(){
@@ -366,6 +394,7 @@ var vm = new Vue({
             }
         }, getPDBchains(pdbid, aln_id) {
             if (pdbid.length === 4) {
+                if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(vm);}
                 this.chains = null
                 this.hide_chains = true
                 ajax('https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/' + pdbid.toLowerCase())
@@ -496,12 +525,12 @@ var vm = new Vue({
                         mapped_aa_properties = build_mapped_props(mapped_aa_properties, twcDataUnmapped, this.structure_mapping);
                         window.mapped_aa_properties = mapped_aa_properties;
                         if (topviewer != null && topviewer.pluginInstance.domainTypes != undefined){
-                            empty_props = new Map();
+                            var empty_props = new Map();
                             let twc_props = build_mapped_props(empty_props, twcDataUnmapped, this.structure_mapping);
                             topviewer.pluginInstance.getAnnotationFromRibovision(twc_props);
                             var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
                             var twc_option = document.createElement("option");
-                            twc_option.setAttribute("value", 10);
+                            twc_option.setAttribute("value", selectBoxEle.options.length);
                             twc_option.appendChild(document.createTextNode("TwinCons"));
                             selectBoxEle.appendChild(twc_option);
                         }
@@ -601,10 +630,18 @@ var vm = new Vue({
                     }
                 });
             });
-        },
-        isCorrectMask(mask_range){
+        },cleanFilter(checked_filter){
+            if (checked_filter){return;}
+            if (this.masking_range == null){return;}
+            window.masked_array = [];
+            this.masking_range = null;
+            var topviewer = document.getElementById("PdbeTopViewer");
+            topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);
+        },isCorrectMask(mask_range){
+            window.masking_range_array = null;
             if (mask_range.match(/^(\d+-\d+;)+$/)) {
                 var temp_array = mask_range.split(';').join('-').split('-');
+                temp_array = temp_array.slice(0, -1)
                 var i = 0;
                 var isCorrect = true;
                 while(i < temp_array.length) {
@@ -665,10 +702,24 @@ var vm = new Vue({
                         f++;
                     }
                     j++;
+                    window.masked_array = masked_array;
+                    this.correct_mask = 'True';
                 }
                 topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data); 
                 molstarviewer.viewerInstance.visual.select({data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), nonSelectedColor: {r:0,g:0,b:0}});
             }
+        }, cleanCustomMap(checked_customMap){
+            if (checked_customMap){return;}
+            this.csv_data = null;
+        }, handleCustomMappingData(){
+            const readFile = function (fileInput) {
+                var reader = new FileReader();
+                reader.onload = function () {
+                    vm.csv_data = reader.result;
+                };
+                reader.readAsBinaryString(fileInput);
+            };
+            readFile(this.$refs.custom_csv_file.files[0]);
         }
     }
 })

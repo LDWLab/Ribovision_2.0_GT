@@ -6,7 +6,7 @@ const mapped_aa_properties = (window as any).mapped_aa_properties;
 const aaPropertyConstants = (window as any).aaPropertyConstants;
 const aaColorData = (window as any).aaColorData;
 const masking_range_array = (window as any).masking_range_array;
-var masked_array: boolean[] = [];
+var masked_array = (window as any).masked_array;
 var selectSections_RV1 = (window as any).selectSections_RV1;
 
 class PdbTopologyViewerPlugin { 
@@ -1683,7 +1683,7 @@ class PdbTopologyViewerPlugin {
     handleMolstarEvents(e:any, eType:string){
         
 
-        if(typeof e.eventData !== 'undefined' && Object.keys(e.eventData).length > 0 && masked_array[e.eventData.seq_id - 1] == true){
+        if(typeof e.eventData !== 'undefined' && Object.keys(e.eventData).length > 0 && (masked_array[e.eventData.seq_id - 1] == true || masked_array[e.eventData.seq_id - 1] == undefined)){
             //Remove previous selection / highlight
             let selectionPathClass = 'residueSelection';
             if(eType == 'mouseover'){
@@ -1692,7 +1692,7 @@ class PdbTopologyViewerPlugin {
             this.svgEle.selectAll('.'+selectionPathClass).remove();
 
             //Abort if entryid and entityid do not match or viewer type is unipdb
-            if(e.eventData.entry_id.toLowerCase() != this.entryId.toLowerCase() || e.eventData.entity_id != this.entityId) return;								
+            if(e.eventData.entry_id.toLowerCase() != this.entryId.toLowerCase() || e.eventData.entity_id != this.entityId) return;
             
             //Abort if chain id is different
             //if(e.eventData.label_asym_id.toLowerCase() != this.chainId.toLowerCase()) return;
