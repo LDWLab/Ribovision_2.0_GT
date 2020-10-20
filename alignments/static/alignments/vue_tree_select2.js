@@ -637,6 +637,9 @@ var vm = new Vue({
             this.masking_range = null;
             var topviewer = document.getElementById("PdbeTopViewer");
             topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);
+            var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
+            topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data); 
+            molstarviewer.viewerInstance.visual.select({data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), nonSelectedColor: {r:0,g:0,b:0}});
         },isCorrectMask(mask_range){
             window.masking_range_array = null;
             if (mask_range.match(/^(\d+-\d+;)+$/)) {
