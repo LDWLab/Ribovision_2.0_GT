@@ -562,7 +562,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
             pathElement.attr('fill', mouseOverColor).attr('fill-opacity', fillOpacity);
         }
         if (eleData.type === 'coils') {
-            pathElement.attr('stroke', mouseOverColor).attr('stroke-width', strokeOpacity);
+            pathElement.attr('stroke', mouseOverColor).attr('stroke-opacity', strokeOpacity);
         }
         //Dispatch custom mouseover event
         this.dispatchEvent('PDB.topologyViewer.mouseout', {
@@ -1449,12 +1449,17 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         else {
             return '#111';
         } })
-            .attr('stroke-width', function (d) { if (d.type === 'coils') {
-            return 1;
-        }
-        else {
-            return 0;
-        } })
+            .attr('stroke-width', function (d) {
+            if (d.type === 'coils' && masked_array[residueNumber] === false) {
+                return .3;
+            }
+            else if (d.type === 'coils') {
+                return 1;
+            }
+            else {
+                return 0;
+            }
+        })
             .attr('fill', function (d) { if (d.type === 'coils') {
             return 'none';
         }
