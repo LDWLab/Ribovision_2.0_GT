@@ -24,7 +24,7 @@
 
 	<!-- Topology and Mol* viewers -->
 	<script type="text/javascript" src={% static 'pdb-topology-viewer-component-2.0.0.js' %} defer></script>
-	<script type="text/javascript" src="https://www.ebi.ac.uk/pdbe/pdb-component-library/js/pdbe-molstar-component-1.1.0.js"></script>
+	<script type="text/javascript" src={% static 'alignments/pdbe-molstar-plugin-1.1.0.js' %}></script>
 	
 </head>
 <body>
@@ -72,7 +72,7 @@
 			<p v-if="hide_chains">Looking for available polymers...</p>
 			<p><select v-bind:style="{ resize: 'both'}" multiple v-if="chains&&fasta_data" v-model="chainid" >
 				<option :value ="null" selected disabled>Select polymer</option>
-				<option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid)">[[ chain.text ]]</option>
+				<option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid, chain.entityID)">[[ chain.text ]]</option>
 			</select></p>
 			<div v-if="topology_loaded != 'False'">
 				<p>

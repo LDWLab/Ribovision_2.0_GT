@@ -43,6 +43,7 @@ var aaPropertyConstants = window.aaPropertyConstants;
 var aaColorData = window.aaColorData;
 var masking_range_array = window.masking_range_array;
 var masked_array = window.masked_array;
+var viewerInstance = window.viewerInstance;
 var selectSections_RV1 = window.selectSections_RV1;
 var PdbTopologyViewerPlugin = /** @class */ (function () {
     function PdbTopologyViewerPlugin() {
@@ -1263,15 +1264,15 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 });
                 _this.defaultColours.qualityRiboVision = "rgb(" + String(rgb_color[0].join(',')) + ")";
                 var colors = "rgb(" + String(rgb_color[0].join(',')) + ")";
-                _this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
+                //_this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
                 residueDetails.push({
                     start: index,
                     end: index,
                     color: colors,
                     tooltipMsg: Number.parseFloat(value).toPrecision(3),
                     tooltipPosition: "prefix"
-                }),
-                    _this.drawValidationShape(index, "circle", colors);
+                });
+                //_this.drawValidationShape(index, "circle", colors);
             }
         });
         return residueDetails;
@@ -1523,9 +1524,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
             this.updateTheme(selectedDomain.data);
             //Handle custom mapping data from RV3
             if (rv3AnnotationLabels.includes(selectedDomain.label) && invokedFrom !== 'zoom') {
-                var PdbeMolstarComponent = document.getElementById('PdbeMolstarComponent');
-                var viewerInstance3 = PdbeMolstarComponent.viewerInstance;
-                viewerInstance3.visual.select({ data: selectSections_RV1.get(selectedDomain.label), nonSelectedColor: { r: 0, g: 0, b: 0 } });
+                viewerInstance.visual.select({ data: selectSections_RV1.get(selectedDomain.label), nonSelectedColor: { r: 0, g: 0, b: 0 } });
             }
             //show rsrz validation circles if Quality
             if (selectedDomain.label === 'Quality') {

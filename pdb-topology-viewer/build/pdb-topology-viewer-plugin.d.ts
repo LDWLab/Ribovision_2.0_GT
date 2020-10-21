@@ -6,6 +6,7 @@ declare const aaPropertyConstants: any;
 declare const aaColorData: any;
 declare const masking_range_array: any;
 declare var masked_array: any;
+declare var viewerInstance: any;
 declare var selectSections_RV1: any;
 declare class PdbTopologyViewerPlugin {
     defaultColours: {

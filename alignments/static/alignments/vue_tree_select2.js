@@ -77,6 +77,7 @@ var filterAvailablePolymers = function(chain_list, aln_id, vueObj) {
                         text: chain_listI["molecule_name"][0],
                         value: chain_listI["in_chains"][0],
                         sequence: chain_listI["sequence"],
+                        entityID: chain_listI["entity_id"],
                         startIndex: chain_listI.source[0].mappings[0].start.residue_number
                     })
                 }
@@ -121,8 +122,8 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
         if (vueObj.topology_loaded) {vueObj.topology_loaded = 'False';}
         if (aln_item) {aln_item.remove(); create_deleted_element("alnif", "alnDiv", aln_text)}
     }
-    if (vueObj.masking_range) {vueObj.masking_range = null;}
     if (window.masked_array.length > 0) {window.masked_array = [];}
+    if (vueObj.masking_range) {vueObj.masking_range = null;}
     if (vueObj.checked_filter) {vueObj.checked_filter = false;}
     if (vueObj.checked_customMap) {vueObj.checked_customMap = false;}
     if (vueObj.csv_data) {vueObj.csv_data = null;}
@@ -548,87 +549,70 @@ var vm = new Vue({
                     let formatted_data_string = data_string.replaceAll("[","").replaceAll("]","").replaceAll("\"","");
                     var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid}	entropy-id=${formatted_data_string} filter-range=${mapping}></pdb-topology-viewer>`
                     document.getElementById('topview').innerHTML = topology_viewer;
+                    this.topology_loaded = 'True';
                 })
             });
-            this.topology_loaded = 'True';
-        }, showPDBViewer(pdbid, chainid){
+        }, showPDBViewer(pdbid, chainid, entityid){
             if (document.querySelector("pdbe-molstar")) {return;}
             var minIndex = String(0)
             var maxIndex = String(100000)
             var pdblower = pdbid.toLocaleLowerCase();
-            console.log('PDBV');
-            var coordinates_url=`https://www.ebi.ac.uk/pdbe/coordinates/${pdblower}/chains?entityId=27&encoding=bcif`;
-            var topology_url = `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdblower}/chain/${chainid}`
-            console.log(coordinates_url);
+            var viewerInstance = new PDBeMolstarPlugin();
+            var options = {
+                customData: { url: `https://www.ebi.ac.uk/pdbe/coordinates/${pdblower}/chains?entityId=${entityid}&encoding=bcif`, 
+                                format: 'cif', 
+                                binary:true },
+                hideCanvasControls: ["expand", "selection", " animation"],
+                assemblyId: '1',
+                hideControls: true,
+                subscribeEvents: true,
+                bgColor: {r:255,g:255,b:255},
+            }
+            var viewerContainer = document.getElementById('pdbeMolstarView');
+            viewerInstance.render(viewerContainer, options);
+            window.viewerInstance = viewerInstance;
 
-            ajax(topology_url).then (data => {
-                var entityid = Object.keys(data[pdblower])[0];
-                var coordinates_url=`https://www.ebi.ac.uk/pdbe/coordinates/${pdblower}/chains?${entityid}&encoding=bcif`;
-                console.log(entityid);
-                var mapping = []
-                var range_string = minIndex.concat("-").concat(maxIndex)
-                GetRangeMapping(pdbid, chainid, range_string, mapping)
-                console.log(mapping)
-
-                var PDBMolstar_viewer = `<pdbe-molstar id="PdbeMolstarComponent" molecule-id="1cbs" hide-controls="true" subscribe-events="true" ></pdbe-molstar>`
-                document.getElementById('pdbeMolstarView').innerHTML = PDBMolstar_viewer;
-                var PdbeMolstarComponent = document.getElementById('PdbeMolstarComponent');
-                var viewerInstance2 = PdbeMolstarComponent.viewerInstance;
-
-                viewerInstance2.visual.update({
-                    customData: { url: `https://www.ebi.ac.uk/pdbe/coordinates/${pdblower}/chains?entityId=${entityid}&encoding=bcif`, format: 'cif', binary:true },
-                        hideCanvasControls: ["expand", "selection", " animation"],
-                        assemblyId: '1',                    
-                        hideControls: true,                   
-                        subscribeEvents: true
-                });
-
-                document.addEventListener('PDB.topologyViewer.click', (e) => {
-                    var pdbeMolstar=document.getElementById("PdbeMolstarComponent")
-                    var molstar= pdbeMolstar.viewerInstance;                            
-                    var chainId=e.eventData.chainId;
-                    var entityId=e.eventData.entityId;
-                    var residueNumber=e.eventData.residueNumber;
-                    var types=e.eventData.type;                            
-                    molstar.visual.select({
-                        data:[
-                            {
-                                entity_id:entityId,
-                                start_residue_number:residueNumber,
-                                end_residue_number:residueNumber,
-                                color:{r:20, y:100, b:200},
-                                focus:false
-                            },
-                        ],
-                    })
+            document.addEventListener('PDB.topologyViewer.click', (e) => {
+                var molstar= viewerInstance;                            
+                var chainId=e.eventData.chainId;
+                var entityId=e.eventData.entityId;
+                var residueNumber=e.eventData.residueNumber;
+                var types=e.eventData.type;                            
+                molstar.visual.select({
+                    data:[
+                        {
+                            entity_id:entityId,
+                            start_residue_number:residueNumber,
+                            end_residue_number:residueNumber,
+                            color:{r:20, y:100, b:200},
+                            focus:false
+                        },
+                    ],
                 })
-
-                document.addEventListener('PDB.topologyViewer.mouseover', (e) => {
-                    var pdbeMolstar=document.getElementById("PdbeMolstarComponent")
-                    var molstar= pdbeMolstar.viewerInstance;                            
-                    var chainId=e.eventData.chainId;
-                    var entityId=e.eventData.entityId;
-                    var residueNumber=e.eventData.residueNumber;
-                    var types=e.eventData.type;
-                    
-                    molstar.visual.highlight({
-                        data:[
-                            {
-                                entity_id:entityId,
-                                start_residue_number:residueNumber,
-                                end_residue_number:residueNumber,
-                            },
-                        ],
-                    })
+            })
+            document.addEventListener('PDB.topologyViewer.mouseover', (e) => {
+                var molstar= viewerInstance;                            
+                var chainId=e.eventData.chainId;
+                var entityId=e.eventData.entityId;
+                var residueNumber=e.eventData.residueNumber;
+                var types=e.eventData.type;
+                
+                molstar.visual.highlight({
+                    data:[
+                        {
+                            entity_id:entityId,
+                            start_residue_number:residueNumber,
+                            end_residue_number:residueNumber,
+                        },
+                    ],
                 })
-                document.addEventListener('PDB.molstar.mouseover', (e) => {
-                    var eventData = e.eventData;
-                    let resi_id = eventData.auth_seq_id;
-                    var molstarviewer = document.getElementById("PdbeMolstarComponent")
-                    if(masked_array && masked_array[resi_id - 1] == false) {
-                        molstarviewer.viewerInstance.plugin.behaviors.interaction.hover._value.current.loci.kind = "empty-loci"
-                    }
-                });
+            })
+            document.addEventListener('PDB.molstar.mouseover', (e) => {
+                var eventData = e.eventData;
+                let resi_id = eventData.auth_seq_id;
+                if(masked_array && masked_array[resi_id - 1] == false) {
+                    viewerInstance.plugin.behaviors.interaction.hover._value.current.loci.kind = "empty-loci"
+                }
             });
         },cleanFilter(checked_filter){
             if (checked_filter){return;}
@@ -639,7 +623,7 @@ var vm = new Vue({
             topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);
             var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
             topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data); 
-            molstarviewer.viewerInstance.visual.select({data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), nonSelectedColor: {r:0,g:0,b:0}});
+            window.viewerInstance.visual.select({data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), nonSelectedColor: {r:255,g:255,b:255}});
         },isCorrectMask(mask_range){
             window.masking_range_array = null;
             if (mask_range.match(/^(\d+-\d+;)+$/)) {
@@ -684,7 +668,6 @@ var vm = new Vue({
             window.masking_range_array = null;
             if (this.isCorrectMask(mask_range)) {   
                 var topviewer = document.getElementById("PdbeTopViewer");
-                var molstarviewer = document.getElementById("PdbeMolstarComponent");
                 topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);   
                 var masked_array = this.initializeMaskedArray();          
                 var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
@@ -696,7 +679,7 @@ var vm = new Vue({
                         if(!masked_array[f]) {
                             topviewer.pluginInstance.domainTypes[j].data[f].color = "rgb(255,255,255)";
                             topviewer.pluginInstance.domainTypes[j].data[f].tooltipMsg = "NaN";                   
-                            selectSections_RV1.get(topviewer.pluginInstance.domainTypes[j].label)[f].color = {r: 0, g: 0, b: 0};
+                            selectSections_RV1.get(topviewer.pluginInstance.domainTypes[j].label)[f].color = {r: 255, g: 255, b: 255};
 
                         } if(!masked_array[f] && vm.coil_residues.includes(f)) {
                             topviewer.pluginInstance.domainTypes[j].data[f].color = "rgb(0,0,0)";
@@ -710,7 +693,7 @@ var vm = new Vue({
                     this.correct_mask = 'True';
                 }
                 topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data); 
-                molstarviewer.viewerInstance.visual.select({data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), nonSelectedColor: {r:0,g:0,b:0}});
+                window.viewerInstance.visual.select({data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), nonSelectedColor: {r:255,g:255,b:255}});
             }
         }, cleanCustomMap(checked_customMap){
             if (checked_customMap){return;}
@@ -727,12 +710,3 @@ var vm = new Vue({
         }
     }
 })
-
-//Updating topology viewer coloring externally
-//var topviewer = document.getElementById("PdbeTopViewer")
-//let data_index = topviewer.pluginInstance.domainTypes.findIndex(p => p.label == "Charge")
-//topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[data_index].data)
-
-//Updating MolStar viewer coloring externally
-//var molstarviewer = document.getElementById("PdbeMolstarComponent")
-//molstarviewer.viewerInstance.visual.select({data: selectSections_RV1.get("Charge"), nonSelectedColor: {r:0,g:0,b:0}})

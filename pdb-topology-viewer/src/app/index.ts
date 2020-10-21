@@ -7,6 +7,7 @@ const aaPropertyConstants = (window as any).aaPropertyConstants;
 const aaColorData = (window as any).aaColorData;
 const masking_range_array = (window as any).masking_range_array;
 var masked_array = (window as any).masked_array;
+var viewerInstance = (window as any).viewerInstance;
 var selectSections_RV1 = (window as any).selectSections_RV1;
 
 class PdbTopologyViewerPlugin { 
@@ -1266,15 +1267,15 @@ class PdbTopologyViewerPlugin {
                 });
                 _this.defaultColours.qualityRiboVision= "rgb("+String(rgb_color[0].join(','))+")";
                 var colors = "rgb("+String(rgb_color[0].join(','))+")"
-                _this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
+                //_this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
                 residueDetails.push({ //2d
                     start: index,
                     end: index,
                     color: colors,
                     tooltipMsg: Number.parseFloat(value).toPrecision(3),
                     tooltipPosition: "prefix"
-                }),
-                _this.drawValidationShape(index, "circle", colors);
+                });
+                //_this.drawValidationShape(index, "circle", colors);
             }
         })
         return residueDetails;
@@ -1582,9 +1583,7 @@ class PdbTopologyViewerPlugin {
             
             //Handle custom mapping data from RV3
             if(rv3AnnotationLabels.includes(selectedDomain.label) && invokedFrom !== 'zoom'){
-                let PdbeMolstarComponent = document.getElementById('PdbeMolstarComponent');
-                let viewerInstance3 = (PdbeMolstarComponent as any).viewerInstance;
-                viewerInstance3.visual.select({ data: selectSections_RV1.get(selectedDomain.label), nonSelectedColor: {r:0,g:0,b:0}})
+                viewerInstance.visual.select({ data: selectSections_RV1.get(selectedDomain.label), nonSelectedColor: {r:0,g:0,b:0}})
             }
             //show rsrz validation circles if Quality
             if(selectedDomain.label === 'Quality'){
