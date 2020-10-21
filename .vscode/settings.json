@@ -1,4 +1,7 @@
 {
 	"python.pythonPath": "env/bin/python",
-	"git.ignoreLimitWarning": true
+	"git.ignoreLimitWarning": true,
+	"extensions.ignoreRecommendations": true,
+	"files.autoSave": "off",
+	"debug.allowBreakpointsEverywhere": true
 }

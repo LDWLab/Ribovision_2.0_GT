@@ -10,7 +10,7 @@ def get_lowest_level_folds(fold_id, reqest_fold):
 	(\
 	select struc_fold_id, name, parent, level\
 		from Structural_Folds\
-		where parent = 2\
+		where parent = "+str(fold_id)+"\
 		union all\
 		select p.struc_fold_id, p.name, p.parent, p.level\
 		from Structural_Folds p\

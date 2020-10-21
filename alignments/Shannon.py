@@ -19,6 +19,7 @@ Shannon's entropy equation (latex format):
 """
 import os
 import sys
+import math
 import warnings
 import traceback
 
@@ -53,6 +54,12 @@ def parseArgs(argument_list):
                             action='store',
                             default='fasta',
                             help='Specify the format of the input MSA to be passed in to AlignIO.')
+        parser.add_argument('-t',
+                            '--alntype',
+                            action='store',
+                            choices=['aa', 'nucl'],
+                            default='aa',
+                            help='Specify the type of the input MSA (default = aa).')
         parser.add_argument('-v',
                             '--verbose',
                             action='count',
@@ -160,32 +167,55 @@ def parseMSA(msa, alnformat, verbose, *args, **kwargs):
 # Gaps and N's are included in the calculation
 ##################################################################
 
-def shannon_entropy(list_input):
-    """Calculate Shannon's Entropy per column of the alignment (H=-\sum_{i=1}^{M} P_i\,log_2\,P_i)"""
+def gap_adjusted_frequency(column_list, all_residues):
+    
+    #Still doesn't handle ambiguous letters well
+    if len(all_residues) >= 20:
+        abs_length = 20
+        adjsuted_column_list = ['-' if resi=='X' else resi for resi in column_list]
+        all_residues = all_residues.replace('X', '')
+    else:
+        abs_length = 4
+        adjsuted_column_list = ['-' if resi=='N' else resi for resi in column_list]
+        all_residues.replace('N', '')
+    
+    #Gap adjustment
+    num_gaps = adjsuted_column_list.count('-')
+    gap_freq = num_gaps/abs_length
 
-    import math
-    unique_base = set(list_input)
-    M   =  len(list_input)
-    entropy_list = []
+    M   =  len(adjsuted_column_list)
+    frequency_list = list()
     # Number of residues in column
-    for base in unique_base:
-        n_i = list_input.count(base) # Number of residues of type i
+    for base in all_residues:
+        n_i = adjsuted_column_list.count(base) # Number of residues of type i
+        n_i += gap_freq
         P_i = n_i/float(M) # n_i(Number of residues of type i) / M(Number of residues in column)
+        frequency_list.append(P_i)
+    return frequency_list
+
+def shannon_entropy(list_input, all_residues):
+    """Calculate Shannon's Entropy per column of the alignment (H=-\sum_{i=1}^{M} P_i\,log_2\,P_i)"""
+    entropy_list = []
+    frequency_list = gap_adjusted_frequency(list_input, all_residues)
+    for P_i in frequency_list:
+        if P_i == 0:
+            continue
         entropy_i = P_i*(math.log(P_i,2))
         entropy_list.append(entropy_i)
-
     sh_entropy = -(sum(entropy_list))
-
     return sh_entropy
 
-
-def shannon_entropy_list_msa(alignment):
+def shannon_entropy_list_msa(alignment, alntype):
     """Calculate Shannon Entropy across the whole MSA"""
-
+    from Bio.SeqUtils import IUPACData
+    if alntype == 'aa':
+        all_residues = IUPACData.protein_letters
+    if alntype == 'nucl':
+        all_residues = IUPACData.unambiguous_rna_letters
     shannon_entropy_list = []
     for col_no in range(len(list(alignment[0]))):
         list_input = list(alignment[:, col_no])
-        shannon_entropy_list.append(shannon_entropy(list_input))
+        shannon_entropy_list.append(shannon_entropy(list_input, all_residues))
 
     return shannon_entropy_list
 
@@ -216,6 +246,7 @@ def main(commandline_arguments):
     return_within = args.return_within
     runningmean = args.runningmean
     anchorseq = args.anchor_sequence.replace(" ", "_")
+    alntype = args.alntype
 
 # Start calling functions to do the heavy lifting
 
@@ -225,7 +256,7 @@ def main(commandline_arguments):
 
     else:
         alignment, seq_lengths, index, ix_seq = parseMSA(msa, alnformat, verbose)
-    sel = shannon_entropy_list_msa(alignment)
+    sel = shannon_entropy_list_msa(alignment, alntype)
 
     if runningmean > 0:
         sel = running_mean(sel, runningmean)

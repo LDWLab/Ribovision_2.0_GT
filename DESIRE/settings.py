@@ -39,6 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'desire_api.apps.DesireApiConfig',
+    'webpack_loader',
 ]
 
 MIDDLEWARE = [
@@ -89,6 +92,7 @@ DATABASES = {
         'PORT': '3306',
         'OPTIONS': {
           'autocommit': True,
+          'use_pure': True,
         },
     }
 }
@@ -130,4 +134,46 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
+# REST framework settings
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 100
+}
+
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'BUNDLE_DIR_NAME': 'bundles/',
+        'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json'),
+    }
+}
+
+INSTALLED_APPS += (
+    'compressor',
+    'compressor_toolkit',
+)
+
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder',
+]
+
+COMPRESS_CSS_FILTERS = [
+    'compressor.filters.css_default.CssAbsoluteFilter',
+    'compressor.filters.cssmin.CSSMinFilter',
+    'compressor.filters.template.TemplateFilter'
+]
+COMPRESS_JS_FILTERS = [
+    'compressor.filters.jsmin.JSMinFilter',
+]
+COMPRESS_PRECOMPILERS = (
+    ('module', 'compressor_toolkit.precompilers.ES6Compiler'),
+    ('css', 'compressor_toolkit.precompilers.SCSSCompiler'),
+)
+COMPRESS_ENABLED = True
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'pdb-topology-viewer/build')
+]
 STATIC_URL = '/static/'
+COMPRESS_ROOT = 'static/'

@@ -7,3 +7,12 @@ venv/*
 jalview-js/*
 alignments/static/alignments/swingjs/*
 populate_db/Struc_Folds/*.txt
+node_modules/*
+static/bundles*
+static/CACHE*
+package-lock.json
+webpack-stats.json
+populate_db/Alignments/missed_seqs/*
+pdb-topology-viewer/node_modules/*
+DESIRE/settings.py
+.vscode/settings.json

@@ -5,14 +5,45 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Django",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "args": [
+                "runserver",
+                "--noreload"
+            ],
+            "django": true
+        },
+        {
+            "name": "Launch Chrome",
+            "request": "launch",
+            "type": "chrome",
+            "url": "http://127.0.0.1:8000/",
+            "webRoot": "${workspaceFolder}"
+        },
+        {
+            "name": "Upload structural folds",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/populate_db/Struc_Folds/update_strucfold_by_pdb.py",
+            "console": "integratedTerminal",
+            "args": [
+                "4v6u",
+                "ppenev"
+            ]
+        },
+        {
             "name": "Upload alignment",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/populate_db/Alignments/upload_aln.py",
             "console": "integratedTerminal",
             "args": [
-                "/home/ppenev/Dropbox-Gatech/ProteinProject/Alignments/rProteins/Archaeal/aeL14_txid_tagged.fas",
-                "ae"
+                "${workspaceFolder}/populate_db/Alignments/missed_seqs/YERPE_bS21.fas",
+                "b",
+                "-aln_id", "122",
+                "-commit"
             ]
         },
         {
@@ -23,19 +54,8 @@
             "console": "integratedTerminal",
             "args": [
                 "-c",
-                "${workspaceFolder}/populate_db/Polymers/CSV/acc_seqs_bact+uL29.csv"
+                "${workspaceFolder}/populate_db/Polymers/CSV/acc_seqs_missed.csv"
             ]
-        },
-        {
-            "name": "Python: Django",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/manage.py",
-            "args": [
-                "runserver",
-                "--noreload"
-            ],
-            "django": true
         }
     ]
 }

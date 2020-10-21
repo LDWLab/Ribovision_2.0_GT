@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(
-	name='PhyMeas',
+	name='TwinCons',
 	version='0.1dev',
 	packages=['single_cons_comp',],
 	license='Creative Commons Attribution-Noncommercial-Share Alike license',
