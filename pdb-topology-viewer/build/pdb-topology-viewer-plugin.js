@@ -544,15 +544,21 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
     PdbTopologyViewerPlugin.prototype.mouseoutAction = function (eleObj, eleData) {
         var mouseOverColor = 'white';
         var fillOpacity = 0;
-        var strokeOpacity = 0.3;
+        var strokeOpacity = 1;
+        var strokeWidth = 0.3;
         var pathElement = d3.select(eleObj);
         //Hide Tooltip
         this.renderTooltip('', 'hide');
         //if path colour is changed then get the colour
         if (pathElement.classed('coloured')) {
-            mouseOverColor = pathElement.attr('data-color');
-            fillOpacity = 1;
-            strokeOpacity = 1;
+            if (eleData.type === 'coils' && (masked_array.length != 0 && masked_array[eleData.residue_number] == false)) {
+                mouseOverColor = this.defaultColours.borderColor;
+            }
+            else {
+                mouseOverColor = pathElement.attr('data-color');
+                fillOpacity = 1;
+                strokeWidth = 1;
+            }
         }
         else {
             if (eleData.type === 'coils') {
@@ -564,6 +570,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         }
         if (eleData.type === 'coils') {
             pathElement.attr('stroke', mouseOverColor).attr('stroke-opacity', strokeOpacity);
+            pathElement.attr('stroke', mouseOverColor).attr('stroke-width', strokeWidth);
         }
         //Dispatch custom mouseover event
         this.dispatchEvent('PDB.topologyViewer.mouseout', {

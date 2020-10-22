@@ -267,19 +267,28 @@ var vm = new Vue({
     },
     watch: {
         csv_data: function (csv_data) {
-            if (csv_data == null){return;}
+            var topviewer = document.getElementById("PdbeTopViewer");
+            var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
+            if (csv_data == null){
+                selectBoxEle.removeChild(selectBoxEle.childNodes[selectBoxEle.options.length-1]);
+                topviewer.pluginInstance.resetDisplay();
+                return;
+            }
             let custom_data = csv_data.split('\n').map(function(e){
                 return e.split(',').map(Number);
             })
-            var topviewer = document.getElementById("PdbeTopViewer");
+            if (custom_data[custom_data.length-1] == 0){custom_data.splice(-1,1)}
             if (topviewer != null && topviewer.pluginInstance.domainTypes != undefined){
                 let vals = custom_data.map(function(v){ return v[1] });
+                let indexes = custom_data.map(function(v){ return v[0] });
                 window.aaColorData.set("CustomData", [viridis]);
                 window.aaPropertyConstants.set("CustomData", [Math.min(...vals), Math.max(...vals)]);
+                let coilsOutOfCustom = this.coil_residues.filter(value => !indexes.includes(value));
+                window.coilsOutOfCustom = coilsOutOfCustom;
+                //somehow (coilsOutOfCustom && coilsOutOfCustom.includes(residueNumber)) in changeResidueColor
                 var custom_prop = new Map();
                 custom_prop.set("CustomData", custom_data);
                 topviewer.pluginInstance.getAnnotationFromRibovision(custom_prop);
-                var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
                 var twc_option = document.createElement("option");
                 twc_option.setAttribute("value", selectBoxEle.options.length);
                 twc_option.appendChild(document.createTextNode("Custom Data"));
@@ -683,7 +692,7 @@ var vm = new Vue({
 
                         } if(!masked_array[f] && vm.coil_residues.includes(f)) {
                             topviewer.pluginInstance.domainTypes[j].data[f].color = "rgb(0,0,0)";
-                            topviewer.pluginInstance.domainTypes[j].data[f].tooltipMsg = "NaN";    
+                            topviewer.pluginInstance.domainTypes[j].data[f].tooltipMsg = "NaN";
                         }
                             
                         f++;
@@ -692,11 +701,15 @@ var vm = new Vue({
                     window.masked_array = masked_array;
                     this.correct_mask = 'True';
                 }
-                topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data); 
-                window.viewerInstance.visual.select({data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), nonSelectedColor: {r:255,g:255,b:255}});
-            }
+                let selectedData = topviewer.pluginInstance.domainTypes[selectedIndex]
+                if (selectedData.data){
+                    topviewer.pluginInstance.updateTheme(selectedData.data); 
+                    window.viewerInstance.visual.select({data: selectSections_RV1.get(selectedData.label), nonSelectedColor: {r:255,g:255,b:255}});
+                    }
+                }
         }, cleanCustomMap(checked_customMap){
             if (checked_customMap){return;}
+            window.coilsOutOfCustom = null;
             this.csv_data = null;
         }, handleCustomMappingData(){
             const readFile = function (fileInput) {
