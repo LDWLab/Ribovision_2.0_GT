@@ -14,9 +14,11 @@
             type: "GET",
             dataType: "json",
             success: function (data) {
-                // console.log(data)
-                ra = ['C', 'F', 'G', 'P', 'D', 'N', 'K', 'V'], 
-                full = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y'], 
+                // supply order of amino acids
+                ra = ['C', 'F', 'G', 'P', 'D', 'N', 'K', 'V'];
+                full = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y']; 
+
+                // arguments: data, amino acids, title of graph, div to be displayed in
                 build_propensity_graph(data['reduced alphabet'], ra, align_name + ' ' + 'Reduced Alphabet Propensities for ' + tax_name, 'reduced');
                 build_propensity_graph(data['amino acid'], full, align_name + ' ' + 'Amino Acid Propensities for ' + tax_name, 'total');
             },
@@ -25,13 +27,16 @@
             });
         }
         function build_propensity_graph(data, amino_acids, title, div) {
-            // reformat data
+            // reformat data into trace format
             var data2 = {};
+
+            // initialize arrays for each amino acid in the JavaScript object
             for (aa of amino_acids) {
                 data2[aa] = [];
             }
+
+            // for a species, add the propensities for each amino acid to their respective arrays
             for (species in data) {
-                // console.log(data[species])
                 for (aa of amino_acids) {
                     data2[aa].push(data[species][aa])
                 }
@@ -40,6 +45,7 @@
             // build traces
             traces = []
             for (aa of amino_acids) {
+                // styling - can we make this a stripplot?
                 var newtrace = {
                     y: data2[aa],
                     type: 'box',
