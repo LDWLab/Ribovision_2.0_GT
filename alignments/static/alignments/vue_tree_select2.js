@@ -264,6 +264,7 @@ var vm = new Vue({
         checked_filter: false,
         checked_customMap: false,
         csv_data: null,
+        checked_propensities: false,
     },
     watch: {
         csv_data: function (csv_data) {
@@ -709,6 +710,11 @@ var vm = new Vue({
                 }
         }, cleanCustomMap(checked_customMap){
             if (checked_customMap){return;}
+            var topviewer = document.getElementById("PdbeTopViewer");
+            var customData = topviewer.pluginInstance.domainTypes.filter(obj => {return obj.label == "CustomData"})
+            if (customData) {
+                //remove customData from topviewer.pluginInstance.domainTypes;
+            }
             window.coilsOutOfCustom = null;
             this.csv_data = null;
         }, handleCustomMappingData(){
@@ -720,6 +726,13 @@ var vm = new Vue({
                 reader.readAsBinaryString(fileInput);
             };
             readFile(this.$refs.custom_csv_file.files[0]);
+        }, handlePropensities(checked_propensities){
+            if (checked_propensities){
+                console.log("Checked")
+            }else{
+                console.log("UnChecked")
+            }
+            
         }
     }
 })
