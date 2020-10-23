@@ -235,6 +235,34 @@ var filterCoilResidues = function (coil_data){
     })
     return coilResidues.flat()
 }
+
+var generateCSVstring = function (mapped_data){
+    let properties = Array.from(mapped_data.keys());
+    let csv = 'Index,'
+    csv += properties.join(',');
+    csv += '\n';
+    let csv_ix = [];
+    
+    mapped_data.get(properties[0]).forEach((datapoint) =>{
+        csv_ix.push([datapoint[0]]);
+    })
+
+    properties.forEach((prop) => {
+        let ix = 0;
+        mapped_data.get(prop).forEach((datapoint) =>{
+            csv_ix[ix].push(datapoint[1]);
+            ix += 1;
+        })
+    })
+
+    csv_ix.forEach((row) => {
+        csv += row.join(',');
+        csv += '\n';
+    })
+
+    return csv;
+}
+
 var masked_array = [];
 Vue.component('treeselect', VueTreeselect.Treeselect, )
 
@@ -711,10 +739,7 @@ var vm = new Vue({
         }, cleanCustomMap(checked_customMap){
             if (checked_customMap){return;}
             var topviewer = document.getElementById("PdbeTopViewer");
-            var customData = topviewer.pluginInstance.domainTypes.filter(obj => {return obj.label == "CustomData"})
-            if (customData) {
-                //remove customData from topviewer.pluginInstance.domainTypes;
-            }
+            topviewer.pluginInstance.domainTypes = topviewer.pluginInstance.domainTypes.filter(obj => {return obj.label !== "CustomData"})
             window.coilsOutOfCustom = null;
             this.csv_data = null;
         }, handleCustomMappingData(){
@@ -726,6 +751,17 @@ var vm = new Vue({
                 reader.readAsBinaryString(fileInput);
             };
             readFile(this.$refs.custom_csv_file.files[0]);
+
+        }, downloadCSVData() {
+
+            csv = generateCSVstring(mapped_aa_properties);
+
+            let anchor = document.createElement('a');
+            anchor.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+            anchor.target = '_blank';
+            anchor.download = 'rv3data.csv';
+            anchor.click();
+
         }, handlePropensities(checked_propensities){
             if (checked_propensities){
                 console.log("Checked")
