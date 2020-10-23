@@ -63,6 +63,18 @@ function ajax(url, optional_data='') {
         })
     }
 }
+
+var pushChainData = function(temp_arr, chain_listI){
+    temp_arr.push({
+        text: chain_listI["molecule_name"][0],
+        value: chain_listI["in_chains"][0],
+        sequence: chain_listI["sequence"],
+        entityID: chain_listI["entity_id"],
+        startIndex: chain_listI.source[0].mappings[0].start.residue_number
+    })
+    return temp_arr;
+}
+
 var filterAvailablePolymers = function(chain_list, aln_id, vueObj) {
     let temp_arr = [];
     let url = `/desire-api/alignments/${aln_id}/?format=json`;
@@ -73,13 +85,7 @@ var filterAvailablePolymers = function(chain_list, aln_id, vueObj) {
             if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
             for (let ix =0; ix < aln_data["polymers"].length; ix++){
                 if (aln_data["polymers"][ix]["genedescription"].trim() == chain_list[i]["molecule_name"][0]){
-                    temp_arr.push({
-                        text: chain_listI["molecule_name"][0],
-                        value: chain_listI["in_chains"][0],
-                        sequence: chain_listI["sequence"],
-                        entityID: chain_listI["entity_id"],
-                        startIndex: chain_listI.source[0].mappings[0].start.residue_number
-                    })
+                    temp_arr = pushChainData(temp_arr, chain_listI);
                 }
             }
         }
@@ -124,6 +130,7 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     }
     if (window.masked_array.length > 0) {window.masked_array = [];}
     if (vueObj.masking_range) {vueObj.masking_range = null;}
+    if (vueObj.chainid) {vueObj.chainid = null;}
     if (vueObj.checked_filter) {vueObj.checked_filter = false;}
     if (vueObj.checked_customMap) {vueObj.checked_customMap = false;}
     if (vueObj.csv_data) {vueObj.csv_data = null;}
@@ -314,14 +321,13 @@ var vm = new Vue({
                 window.aaPropertyConstants.set("CustomData", [Math.min(...vals), Math.max(...vals)]);
                 let coilsOutOfCustom = this.coil_residues.filter(value => !indexes.includes(value));
                 window.coilsOutOfCustom = coilsOutOfCustom;
-                //somehow (coilsOutOfCustom && coilsOutOfCustom.includes(residueNumber)) in changeResidueColor
                 var custom_prop = new Map();
                 custom_prop.set("CustomData", custom_data);
                 topviewer.pluginInstance.getAnnotationFromRibovision(custom_prop);
-                var twc_option = document.createElement("option");
-                twc_option.setAttribute("value", selectBoxEle.options.length);
-                twc_option.appendChild(document.createTextNode("Custom Data"));
-                selectBoxEle.appendChild(twc_option);
+                var custom_option = document.createElement("option");
+                custom_option.setAttribute("value", selectBoxEle.options.length);
+                custom_option.appendChild(document.createTextNode("Custom Data"));
+                selectBoxEle.appendChild(custom_option);
             }
         },
     },
@@ -450,12 +456,7 @@ var vm = new Vue({
                                 if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
                                 if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
                                 if (typeof(chain_listI.source[0]) === "undefined") {continue;}
-                                chain_options.push({
-                                    text: chain_listI["molecule_name"][0],
-                                    value: chain_listI["in_chains"][0],
-                                    sequence: chain_listI["sequence"],
-                                    startIndex: chain_listI.source[0].mappings[0].start.residue_number
-                                })
+                                chain_options = pushChainData(chain_options, chain_listI);
                             }
                             if (chain_options.length === 0) {
                                 chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
