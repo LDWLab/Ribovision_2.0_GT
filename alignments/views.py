@@ -405,16 +405,16 @@ def handle_custom_upload_alignment(request):
 		return JsonResponse(response_dict, safe = False)
 def propensity_data(request, aln_id, tax_group):
     from io import StringIO
-    import alignments.propensities as p
+    import alignments.propensities as propensities
 
     fastastring = simple_fasta(request, aln_id, tax_group, internal=True).replace('\\n', '\n')
     fasta = StringIO(fastastring)
-    aa = p.aa_composition(fasta, reduced = False)
+    aa = propensities.aa_composition(fasta, reduced = False)
 
     # need to reload the fasta object
     # fasta = StringIO(fastastring)
     fasta.seek(0)
-    red_aa = p.aa_composition(fasta, reduced = False)
+    red_aa = propensities.aa_composition(fasta, reduced = False)
 
     data = {
         'aln_id' : aln_id,
@@ -426,12 +426,17 @@ def propensity_data(request, aln_id, tax_group):
 
 def propensities(request, align_name, tax_group):
     aln_id = Alignment.objects.filter(name = align_name)[0].aln_id
-    tax_name = Taxgroups.objects.get(pk=tax_group).groupname
     propensity_data = reverse('alignments:propensity_data', kwargs={'aln_id': aln_id, 'tax_group' : tax_group})
+
+    names = []
+    if type(tax_group) == int:
+	    tax_group = str(tax_group)
+    for group in tax_group.split(','):
+        names.append(Taxgroups.objects.get(pk=group).groupname)
 
     # where does the context variable come from? what does it do?
     context = {"propensity_data" : propensity_data, 
     "align_name" : align_name,
-    "tax_name" : tax_name}
+    "tax_name" : ', '.join(names)}
     
     return render(request, 'alignments/propensities.html', context)

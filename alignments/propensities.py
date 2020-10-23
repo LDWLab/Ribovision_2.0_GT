@@ -77,10 +77,10 @@ def aa_composition(file_path, reduced = True):
         length += (len(seq) - seq.count('-'))
         for aa in aa_counts:
             aa_counts[aa] += seq.count(aa)
-            species_dict = {}
+            name = record.name.split('|')[0]
+            species_dict = {'name' : name}
             for aa in aa_counts:
                 species_dict[aa] = aa_counts[aa] / length
-            name = record.name.split('|')[0]
             aa_dict[name] = species_dict
 
     return aa_dict

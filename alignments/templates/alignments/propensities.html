@@ -1,6 +1,8 @@
 <script src="https://cdn.plot.ly/plotly-latest.min.js" charset="utf-8"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
+<!-- reference: https://plotly.com/javascript/hover-events/#coupled-hover-events -->
+
 <body>
     <div id = "reduced"></div>
     <div id = "total"></div>
@@ -29,16 +31,19 @@
         function build_propensity_graph(data, amino_acids, title, div) {
             // reformat data into trace format
             var data2 = {};
+            var hover = {};
 
             // initialize arrays for each amino acid in the JavaScript object
             for (aa of amino_acids) {
                 data2[aa] = [];
+                hover[aa] = [];
             }
 
             // for a species, add the propensities for each amino acid to their respective arrays
             for (species in data) {
                 for (aa of amino_acids) {
                     data2[aa].push(data[species][aa])
+                    hover[aa].push(data[species]['name'])
                 }
             };
 
@@ -52,7 +57,9 @@
                     boxpoints: 'all',
                     jitter: 0.2,
                     pointpos: 0,
-                    name: aa}; 
+                    name: aa,
+                    text: hover[aa]};
+                    // hovertemplate: "%{species}<extra></extra>"}
                     // marker: {color: 'rgb(9,56,125)'},
                     // line: {color: 'rgba(0,0,0,0)'},
                     // fillcolor:{color: 'rgba(0,0,0,0)'}};
@@ -62,7 +69,8 @@
             var layout = {
                 title: title,
                 xaxis: {title: 'amino acid group'},
-                yaxis: {title: 'propensity'}};
+                yaxis: {title: 'propensity'},
+                hovermode: 'closest'};
 
             Plotly.newPlot(div, traces, layout);
         }
