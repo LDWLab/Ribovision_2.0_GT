@@ -68,12 +68,21 @@
 				<span v-if="alnobj&&alnobj!='custom'">Selected alignment: [[alnobj.text]].<br></span>
 				<span v-if="alnobj">Input PDB and polymer for mapping:</span>
 			</p>
-			<p><input id="pdb_input" v-if="alnobj" v-model="pdbid" v-on:input="getPDBchains(pdbid, alnobj.id)" placeholder="4v9d" maxlength="4"></p>
+			<p><input id="pdb_input" v-if="alnobj" v-model="pdbid" v-on:input="getPDBchains(pdbid, alnobj.id)" placeholder="4v9d" maxlength="4">
+				<div v-if="alnobj" class="checkbox">
+					<label><input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">Propensities</label>
+				</div>
+			</p>
 			<p v-if="hide_chains">Looking for available polymers...</p>
 			<p><select v-bind:style="{ resize: 'both'}" multiple v-if="chains&&fasta_data" v-model="chainid" >
 				<option :value ="null" selected disabled>Select polymer</option>
 				<option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid, chain.entityID)">[[ chain.text ]]</option>
 			</select></p>
+			<div v-if="chainid">
+				<button type="button" v-on:click="downloadCSVData()">
+					Download mapped data
+				</button>
+			</div>
 			<div v-if="topology_loaded != 'False'">
 				<p>
 					<div class="checkbox">

@@ -1290,10 +1290,10 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         if (void 0 !== this.entropyId) {
             mapped_aa_properties.forEach(function (value, index) {
                 var residueDetails = [{
-                        start: chainRange.start,
-                        end: chainRange.end,
-                        color: _this.defaultColours.qualityBlank,
-                        tooltipMsg: 'No data for '
+                    //start: chainRange.start,
+                    //end: chainRange.end,
+                    //color: _this.defaultColours.qualityBlank,
+                    //tooltipMsg: 'No data for '
                     }];
                 var name = index;
                 var separatedData = value;

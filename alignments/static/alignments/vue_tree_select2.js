@@ -63,6 +63,18 @@ function ajax(url, optional_data='') {
         })
     }
 }
+
+var pushChainData = function(temp_arr, chain_listI){
+    temp_arr.push({
+        text: chain_listI["molecule_name"][0],
+        value: chain_listI["in_chains"][0],
+        sequence: chain_listI["sequence"],
+        entityID: chain_listI["entity_id"],
+        startIndex: chain_listI.source[0].mappings[0].start.residue_number
+    })
+    return temp_arr;
+}
+
 var filterAvailablePolymers = function(chain_list, aln_id, vueObj) {
     let temp_arr = [];
     let url = `/desire-api/alignments/${aln_id}/?format=json`;
@@ -73,13 +85,7 @@ var filterAvailablePolymers = function(chain_list, aln_id, vueObj) {
             if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
             for (let ix =0; ix < aln_data["polymers"].length; ix++){
                 if (aln_data["polymers"][ix]["genedescription"].trim() == chain_list[i]["molecule_name"][0]){
-                    temp_arr.push({
-                        text: chain_listI["molecule_name"][0],
-                        value: chain_listI["in_chains"][0],
-                        sequence: chain_listI["sequence"],
-                        entityID: chain_listI["entity_id"],
-                        startIndex: chain_listI.source[0].mappings[0].start.residue_number
-                    })
+                    temp_arr = pushChainData(temp_arr, chain_listI);
                 }
             }
         }
@@ -124,6 +130,7 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     }
     if (window.masked_array.length > 0) {window.masked_array = [];}
     if (vueObj.masking_range) {vueObj.masking_range = null;}
+    if (vueObj.chainid) {vueObj.chainid = null;}
     if (vueObj.checked_filter) {vueObj.checked_filter = false;}
     if (vueObj.checked_customMap) {vueObj.checked_customMap = false;}
     if (vueObj.csv_data) {vueObj.csv_data = null;}
@@ -235,6 +242,34 @@ var filterCoilResidues = function (coil_data){
     })
     return coilResidues.flat()
 }
+
+var generateCSVstring = function (mapped_data){
+    let properties = Array.from(mapped_data.keys());
+    let csv = 'Index,'
+    csv += properties.join(',');
+    csv += '\n';
+    let csv_ix = [];
+    
+    mapped_data.get(properties[0]).forEach((datapoint) =>{
+        csv_ix.push([datapoint[0]]);
+    })
+
+    properties.forEach((prop) => {
+        let ix = 0;
+        mapped_data.get(prop).forEach((datapoint) =>{
+            csv_ix[ix].push(datapoint[1]);
+            ix += 1;
+        })
+    })
+
+    csv_ix.forEach((row) => {
+        csv += row.join(',');
+        csv += '\n';
+    })
+
+    return csv;
+}
+
 var masked_array = [];
 Vue.component('treeselect', VueTreeselect.Treeselect, )
 
@@ -264,6 +299,7 @@ var vm = new Vue({
         checked_filter: false,
         checked_customMap: false,
         csv_data: null,
+        checked_propensities: false,
     },
     watch: {
         csv_data: function (csv_data) {
@@ -285,14 +321,13 @@ var vm = new Vue({
                 window.aaPropertyConstants.set("CustomData", [Math.min(...vals), Math.max(...vals)]);
                 let coilsOutOfCustom = this.coil_residues.filter(value => !indexes.includes(value));
                 window.coilsOutOfCustom = coilsOutOfCustom;
-                //somehow (coilsOutOfCustom && coilsOutOfCustom.includes(residueNumber)) in changeResidueColor
                 var custom_prop = new Map();
                 custom_prop.set("CustomData", custom_data);
                 topviewer.pluginInstance.getAnnotationFromRibovision(custom_prop);
-                var twc_option = document.createElement("option");
-                twc_option.setAttribute("value", selectBoxEle.options.length);
-                twc_option.appendChild(document.createTextNode("Custom Data"));
-                selectBoxEle.appendChild(twc_option);
+                var custom_option = document.createElement("option");
+                custom_option.setAttribute("value", selectBoxEle.options.length);
+                custom_option.appendChild(document.createTextNode("Custom Data"));
+                selectBoxEle.appendChild(custom_option);
             }
         },
     },
@@ -421,12 +456,7 @@ var vm = new Vue({
                                 if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
                                 if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
                                 if (typeof(chain_listI.source[0]) === "undefined") {continue;}
-                                chain_options.push({
-                                    text: chain_listI["molecule_name"][0],
-                                    value: chain_listI["in_chains"][0],
-                                    sequence: chain_listI["sequence"],
-                                    startIndex: chain_listI.source[0].mappings[0].start.residue_number
-                                })
+                                chain_options = pushChainData(chain_options, chain_listI);
                             }
                             if (chain_options.length === 0) {
                                 chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
@@ -709,6 +739,8 @@ var vm = new Vue({
                 }
         }, cleanCustomMap(checked_customMap){
             if (checked_customMap){return;}
+            var topviewer = document.getElementById("PdbeTopViewer");
+            topviewer.pluginInstance.domainTypes = topviewer.pluginInstance.domainTypes.filter(obj => {return obj.label !== "CustomData"})
             window.coilsOutOfCustom = null;
             this.csv_data = null;
         }, handleCustomMappingData(){
@@ -720,6 +752,24 @@ var vm = new Vue({
                 reader.readAsBinaryString(fileInput);
             };
             readFile(this.$refs.custom_csv_file.files[0]);
+
+        }, downloadCSVData() {
+
+            csv = generateCSVstring(mapped_aa_properties);
+
+            let anchor = document.createElement('a');
+            anchor.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+            anchor.target = '_blank';
+            anchor.download = 'rv3data.csv';
+            anchor.click();
+
+        }, handlePropensities(checked_propensities){
+            if (checked_propensities){
+                console.log("Checked")
+            }else{
+                console.log("UnChecked")
+            }
+            
         }
     }
 })
