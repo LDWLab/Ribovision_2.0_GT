@@ -7,6 +7,7 @@ const aaPropertyConstants = (window as any).aaPropertyConstants;
 const aaColorData = (window as any).aaColorData;
 const masking_range_array = (window as any).masking_range_array;
 var masked_array = (window as any).masked_array;
+var viewerInstance = (window as any).viewerInstance;
 var selectSections_RV1 = (window as any).selectSections_RV1;
 
 class PdbTopologyViewerPlugin { 
@@ -447,7 +448,8 @@ class PdbTopologyViewerPlugin {
     mouseoutAction(eleObj:any, eleData:any) {
         let mouseOverColor = 'white';
         let fillOpacity = 0;
-        let strokeOpacity = 0.3;
+        let strokeOpacity = 1;
+        let strokeWidth = 0.3;
         const pathElement = d3.select(eleObj);
         
         //Hide Tooltip
@@ -455,9 +457,13 @@ class PdbTopologyViewerPlugin {
         
         //if path colour is changed then get the colour
         if(pathElement.classed('coloured')){
-            mouseOverColor = pathElement.attr('data-color');
-            fillOpacity = 1;
-            strokeOpacity = 1;
+            if(eleData.type === 'coils' && (masked_array.length != 0 && masked_array[eleData.residue_number] == false)){
+                mouseOverColor = this.defaultColours.borderColor;
+            }else{
+                mouseOverColor = pathElement.attr('data-color');
+                fillOpacity = 1;
+                strokeWidth = 1;
+            }
         }else{
             if(eleData.type === 'coils'){
                 mouseOverColor = this.defaultColours.borderColor;
@@ -468,6 +474,7 @@ class PdbTopologyViewerPlugin {
             pathElement.attr('fill',mouseOverColor).attr('fill-opacity', fillOpacity)
         }if(eleData.type === 'coils'){
             pathElement.attr('stroke',mouseOverColor).attr('stroke-opacity', strokeOpacity);
+            pathElement.attr('stroke',mouseOverColor).attr('stroke-width', strokeWidth);
         }
         
         //Dispatch custom mouseover event
@@ -1266,15 +1273,15 @@ class PdbTopologyViewerPlugin {
                 });
                 _this.defaultColours.qualityRiboVision= "rgb("+String(rgb_color[0].join(','))+")";
                 var colors = "rgb("+String(rgb_color[0].join(','))+")"
-                _this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
+                //_this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
                 residueDetails.push({ //2d
                     start: index,
                     end: index,
                     color: colors,
                     tooltipMsg: Number.parseFloat(value).toPrecision(3),
                     tooltipPosition: "prefix"
-                }),
-                _this.drawValidationShape(index, "circle", colors);
+                });
+                //_this.drawValidationShape(index, "circle", colors);
             }
         })
         return residueDetails;
@@ -1287,10 +1294,10 @@ class PdbTopologyViewerPlugin {
         if (void 0 !== this.entropyId) {
             mapped_aa_properties.forEach(function(value, index) {    
                 let residueDetails:any = [{
-                    start: chainRange.start,
-                    end: chainRange.end,
-                    color: _this.defaultColours.qualityBlank,
-                    tooltipMsg: 'No data for '
+                    //start: chainRange.start,
+                    //end: chainRange.end,
+                    //color: _this.defaultColours.qualityBlank,
+                    //tooltipMsg: 'No data for '
                 }];
                 let name = index;
                 let separatedData = value;
@@ -1582,9 +1589,7 @@ class PdbTopologyViewerPlugin {
             
             //Handle custom mapping data from RV3
             if(rv3AnnotationLabels.includes(selectedDomain.label) && invokedFrom !== 'zoom'){
-                let PdbeMolstarComponent = document.getElementById('PdbeMolstarComponent');
-                let viewerInstance3 = (PdbeMolstarComponent as any).viewerInstance;
-                viewerInstance3.visual.select({ data: selectSections_RV1.get(selectedDomain.label), nonSelectedColor: {r:0,g:0,b:0}})
+                viewerInstance.visual.select({ data: selectSections_RV1.get(selectedDomain.label), nonSelectedColor: {r:0,g:0,b:0}})
             }
             //show rsrz validation circles if Quality
             if(selectedDomain.label === 'Quality'){

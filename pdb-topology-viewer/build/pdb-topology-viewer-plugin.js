@@ -43,6 +43,7 @@ var aaPropertyConstants = window.aaPropertyConstants;
 var aaColorData = window.aaColorData;
 var masking_range_array = window.masking_range_array;
 var masked_array = window.masked_array;
+var viewerInstance = window.viewerInstance;
 var selectSections_RV1 = window.selectSections_RV1;
 var PdbTopologyViewerPlugin = /** @class */ (function () {
     function PdbTopologyViewerPlugin() {
@@ -543,15 +544,21 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
     PdbTopologyViewerPlugin.prototype.mouseoutAction = function (eleObj, eleData) {
         var mouseOverColor = 'white';
         var fillOpacity = 0;
-        var strokeOpacity = 0.3;
+        var strokeOpacity = 1;
+        var strokeWidth = 0.3;
         var pathElement = d3.select(eleObj);
         //Hide Tooltip
         this.renderTooltip('', 'hide');
         //if path colour is changed then get the colour
         if (pathElement.classed('coloured')) {
-            mouseOverColor = pathElement.attr('data-color');
-            fillOpacity = 1;
-            strokeOpacity = 1;
+            if (eleData.type === 'coils' && (masked_array.length != 0 && masked_array[eleData.residue_number] == false)) {
+                mouseOverColor = this.defaultColours.borderColor;
+            }
+            else {
+                mouseOverColor = pathElement.attr('data-color');
+                fillOpacity = 1;
+                strokeWidth = 1;
+            }
         }
         else {
             if (eleData.type === 'coils') {
@@ -563,6 +570,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         }
         if (eleData.type === 'coils') {
             pathElement.attr('stroke', mouseOverColor).attr('stroke-opacity', strokeOpacity);
+            pathElement.attr('stroke', mouseOverColor).attr('stroke-width', strokeWidth);
         }
         //Dispatch custom mouseover event
         this.dispatchEvent('PDB.topologyViewer.mouseout', {
@@ -1263,15 +1271,15 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 });
                 _this.defaultColours.qualityRiboVision = "rgb(" + String(rgb_color[0].join(',')) + ")";
                 var colors = "rgb(" + String(rgb_color[0].join(',')) + ")";
-                _this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
+                //_this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
                 residueDetails.push({
                     start: index,
                     end: index,
                     color: colors,
                     tooltipMsg: Number.parseFloat(value).toPrecision(3),
                     tooltipPosition: "prefix"
-                }),
-                    _this.drawValidationShape(index, "circle", colors);
+                });
+                //_this.drawValidationShape(index, "circle", colors);
             }
         });
         return residueDetails;
@@ -1282,10 +1290,10 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         if (void 0 !== this.entropyId) {
             mapped_aa_properties.forEach(function (value, index) {
                 var residueDetails = [{
-                        start: chainRange.start,
-                        end: chainRange.end,
-                        color: _this.defaultColours.qualityBlank,
-                        tooltipMsg: 'No data for '
+                    //start: chainRange.start,
+                    //end: chainRange.end,
+                    //color: _this.defaultColours.qualityBlank,
+                    //tooltipMsg: 'No data for '
                     }];
                 var name = index;
                 var separatedData = value;
@@ -1523,9 +1531,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
             this.updateTheme(selectedDomain.data);
             //Handle custom mapping data from RV3
             if (rv3AnnotationLabels.includes(selectedDomain.label) && invokedFrom !== 'zoom') {
-                var PdbeMolstarComponent = document.getElementById('PdbeMolstarComponent');
-                var viewerInstance3 = PdbeMolstarComponent.viewerInstance;
-                viewerInstance3.visual.select({ data: selectSections_RV1.get(selectedDomain.label), nonSelectedColor: { r: 0, g: 0, b: 0 } });
+                viewerInstance.visual.select({ data: selectSections_RV1.get(selectedDomain.label), nonSelectedColor: { r: 0, g: 0, b: 0 } });
             }
             //show rsrz validation circles if Quality
             if (selectedDomain.label === 'Quality') {
