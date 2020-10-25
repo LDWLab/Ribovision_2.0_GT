@@ -1,8 +1,10 @@
 import { actions, MSAViewer, SequenceViewer } from '@plotly/react-msa-viewer';
 import React, { Component } from "react";
 import ReactDOM, { render } from 'react-dom';
-//import PdbTopologyViewer from 'pdb-topology-viewer/src/web-component/index'
-import {PdbTopologyViewerPlugin} from 'pdb-topology-viewer/build/pdb-topology-viewer-plugin-2.0.0'
+import Vue from 'vue';
+import App from './App.vue';
+import VueTour from 'vue-tour';
+
 
 const options = {
   sequences: [
@@ -176,3 +178,12 @@ function MyMSA() {
   }
   return <SimpleTooltip />;
 };
+
+//From here https://github.com/pulsardev/vue-tour
+Vue.use(VueTour)
+
+new Vue({
+  render: h => h(App)
+}).$mount('#app')
+
+ReactDOM.render(<MyMSA />, document.getElementById("target"));
