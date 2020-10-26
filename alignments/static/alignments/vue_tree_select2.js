@@ -549,7 +549,7 @@ var vm = new Vue({
             ajax('/mapSeqAln/', optional_data={fasta, ebi_sequence, startIndex}).then(struct_mapping=>{
                 this.structure_mapping = struct_mapping;
                 var mapped_aa_properties = mapAAProps(this.aa_properties, struct_mapping);
-                if ((this.tax_id != null && this.tax_id.length == 2) || (this.custom_aln_twc_flag != null && this.custom_aln_twc_flag == true)) {
+                if ((this.tax_id != null && this.tax_id.length == 2) || (this.custom_aln_twc_flag != null && this.custom_aln_twc_flag == true) || (this.type_tree == 'para')) {
                     ajax('/twc-api/', optional_data={fasta}).then(twcDataUnmapped => {
                         const build_mapped_props = function(mapped_props, twcDataUnmapped, structure_mapping){
                             mapped_props.set("TwinCons", [])
