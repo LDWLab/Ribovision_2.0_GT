@@ -1,8 +1,37 @@
 import { actions, MSAViewer, SequenceViewer } from '@plotly/react-msa-viewer';
 import React, { Component } from "react";
 import ReactDOM, { render } from 'react-dom';
-//import PdbTopologyViewer from 'pdb-topology-viewer/src/web-component/index'
-import {PdbTopologyViewerPlugin} from 'pdb-topology-viewer/build/pdb-topology-viewer-plugin-2.0.0'
+import Vue from 'vue';
+import App from './App.vue';
+import VueTour from 'vue-tour';
+
+(function() {
+  var mousePos;
+  document.onmousemove = handleMouseMove;
+  function handleMouseMove(event) {
+      var eventDoc, doc, body;
+      event = event || window.event; // IE-ism
+      // If pageX/Y aren't available and clientX/Y are,
+      // calculate pageX/Y - logic taken from jQuery.
+      // (This is to support old IE)
+      if (event.pageX == null && event.clientX != null) {
+          eventDoc = (event.target && event.target.ownerDocument) || document;
+          doc = eventDoc.documentElement;
+          body = eventDoc.body;
+          event.pageX = event.clientX +
+            (doc && doc.scrollLeft || body && body.scrollLeft || 0) -
+            (doc && doc.clientLeft || body && body.clientLeft || 0);
+          event.pageY = event.clientY +
+            (doc && doc.scrollTop  || body && body.scrollTop  || 0) -
+            (doc && doc.clientTop  || body && body.clientTop  || 0 );
+      }
+      mousePos = {
+        x: event.pageX,
+        y: event.pageY
+    };
+    window.mousePos = mousePos;
+  }
+})();
 
 const options = {
   sequences: [
@@ -11,12 +40,8 @@ const options = {
       sequence: "MEEPQSDPSIEP-PLSQETFSDLWKLLPENNVLSPLPS-QA-VDDLMLSPDDLAQWLTED"
     },
     {
-      name: "seq.7",
-      sequence: "MEEPQSDPSIEP-PLSQ------WKLLPENNVLSPLPS-QA-VDDLMLSPDDLAQWLTED"
-    },
-    {
       name: "seq.2",
-      sequence: "MEEPQSDLSIEL-PLSQETFSDLWKLLPPNNVLSTLPS-SDSIEE-LFLSENVAGWLEDP"
+      sequence: "MEEPQSDPSIEP-PLSQ------WKLLPENNVLSPLPS-QA-VDDLMLSPDDLAQWLTED"
     },
     {
       name: "seq.3",
@@ -24,22 +49,26 @@ const options = {
     },
     {
       name: "seq.4",
-      sequence: "MEEPQSDPSIEP-PLSQETFSDLWKLLPENNVLSPLPS-QA-VDDLMLSPDDLAQWLTED"
+      sequence: "MEEPQSDLSIEL-PLSQETFSDLWKLLPPNNVLSTLPS-SDSIEE-LFLSENVAGWLEDP"
     },
     {
       name: "seq.5",
-      sequence: "MEEPQSDLSIEL-PLSQETFSDLWKLLPPNNVLSTLPS-SDSIEE-LFLSENVAGWLEDP"
+      sequence: "MEEPQSDPSIEP-PLSQETFSDLWKLLPENNVLSPLPS-QA-VDDLMLSPDDLAQWLTED"
     },
     {
       name: "seq.6",
       sequence: "MEEPQSDLSIEL-PLSQETFSDLWKLLPPNNVLSTLPS-SDSIEE-LFLSENVAGWLEDP"
+    },
+    {
+      name: "seq.7",
+      sequence: "MEEPQSDLSIEL-PLSQETFSDLWKLLPPNNVLSTLPS-SDSIEE-LFLSENVAGWLEDP"
     }
   ],
-  height: 60,
+  height: 120,
 };
 
 function Tooltip(props) {
-  const { direction, style, children, ...otherProps } = props;
+  const { style, children, ...otherProps } = props;
   const containerStyle = {
     display: "inline-block"
   };
@@ -56,95 +85,85 @@ function Tooltip(props) {
     borderRadius: "3px",
     padding: "7px"
   };
-  const triangleStyle = {
-    position: "absolute",
-    width: 0,
-    fontSize: 0,
-    lineHeight: 0,
-    visibility: "visible",
-    opacity: 1
-  };
-  switch (direction) {
-    case "up":
-    case "down":
-      triangleStyle.borderLeft = "5px solid transparent";
-      triangleStyle.borderRight = "5px solid transparent";
-      triangleStyle.left = "50%";
-      triangleStyle.marginLeft = "-5px";
-      break;
-    case "left":
-    case "right":
-      triangleStyle.borderTop = "5px solid transparent";
-      triangleStyle.borderBottom = "5px solid transparent";
-      triangleStyle.top = "50%";
-      triangleStyle.marginTop = "-5px";
-      break;
-    default:
-  }
-  switch (direction) {
-    case "down":
-      triangleStyle.borderTop = "5px solid #000";
-      triangleStyle.top = "100%";
-      containerStyle.paddingBottom = "5px";
-      break;
-    case "up":
-      triangleStyle.borderBottom = "5px solid #000";
-      triangleStyle.top = "0%";
-      triangleStyle.marginTop = "-5px";
-      containerStyle.paddingTop = "5px";
-      break;
-    case "left":
-      triangleStyle.borderRight = "5px solid #000";
-      triangleStyle.marginLeft = "-5px";
-      containerStyle.paddingLeft = "5px";
-      break;
-    case "right":
-      triangleStyle.left = "100%";
-      triangleStyle.borderLeft = "5px solid #000";
-      containerStyle.paddingRight = "5px";
-      break;
-    default:
-  }
   return (
     <div style={{ ...containerStyle, ...style }} {...otherProps}>
       <div style={tooltipStyle}>
         <div style={textStyle}>{children}</div>
-        <div style={triangleStyle} />
       </div>
     </div>
   );
 }
 Tooltip.defaultProps = {
   style: {},
-  direction: "down"
 };
+function ajax(url) {
+  return new Promise((resolve, reject) => {
+      $.ajax({
+          url: url,
+          type: 'GET',
+          dataType: "json",
+          success: function(data) {
+              resolve(data)
+          },
+          error: function(error) {
+              console.log(`Error ${error}`);
+              reject(error)
+          }
+      })
+  })
+}
 
+
+window.ajaxRun = false;
 function MyMSA() {
   class SimpleTooltip extends Component {
       state = {};
       onResidueMouseEnter = e => {
-        let direction, tooltipPosition;
-        if (e.position < 10) {
-          direction = "left";
-          tooltipPosition = {
-            top: (e.i - 0.3) * 20 + "px",
-            left: (e.position + 1) * 20 + "px"
-          };
-        } else {
-          direction = "right";
-          tooltipPosition = {
-            top: (e.i - 0.3) * 20 + "px",
-            left: e.position * 20 - 165 + "px"
-          };
+        if (!window.ajaxRun){
+        window.ajaxRun = true;
+        const strainQuery = '&res__poldata__strain__strain=';
+        if (e.position !== undefined){
+          var url = `/desire-api/residue-alignment/?format=json&aln_pos=${String(Number(e.position) + 1)}&aln=10${strainQuery}Escherichia coli str. K-12 substr. MG1655`
+            ajax(url).then(alnpos_data => {
+                if (alnpos_data.count != 0){
+                  ajax('/resi-api/' + alnpos_data["results"][0]["res"].split("/")[5]).then(resiData => {
+                    var alnViewEle = document.querySelector("canvas");
+                    let boundingBox = alnViewEle.getBoundingClientRect();
+                    if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right){
+                      let tooltipPosition;
+                      tooltipPosition = {
+                        top: mousePos.y +"px",
+                        left: mousePos.x +"px",
+                      };
+                      if (resiData["Structural fold"][0] !== undefined && resiData["Associated data"][0] !== undefined){
+                        this.setState({
+                          fold: resiData["Structural fold"][0][1],
+                          phase: resiData["Associated data"][0][1],
+                          tooltipPosition,
+                        });
+                      }else{
+                        this.setState({
+                          fold: 'NA',
+                          phase: 'NA',
+                          tooltipPosition,
+                        });
+                      }
+                    }
+                    window.ajaxRun = false;
+                  });
+                }else{
+                  window.ajaxRun = false;
+                }
+            }).catch(error => {
+                console.log(error);
+            })
+          }
+        }else{
+          this.setState({ fold: undefined, phase: undefined });
         }
-        this.setState({
-          lastEvent: e,
-          tooltipPosition,
-          direction
-        });
       };
       onResidueMouseLeave = e => {
-        this.setState({ lastEvent: undefined });
+        this.setState({ fold: undefined, phase: undefined });
       };
       render() {
         return (
@@ -155,7 +174,7 @@ function MyMSA() {
                   onResidueMouseEnter={this.onResidueMouseEnter}
                   onResidueMouseLeave={this.onResidueMouseLeave}
                 />
-                {this.state.lastEvent && (
+                {this.state.fold && (
                   <div
                     style={{
                       position: "absolute",
@@ -163,8 +182,9 @@ function MyMSA() {
                       ...this.state.tooltipPosition
                     }}
                   >
-                    <Tooltip direction={this.state.direction}>
-                      {this.state.lastEvent.residue}
+                    <Tooltip>
+                      Fold: {this.state.fold} <br></br>
+                      Phase: {this.state.phase}
                     </Tooltip>
                   </div>
                 )}
@@ -176,3 +196,12 @@ function MyMSA() {
   }
   return <SimpleTooltip />;
 };
+
+//From here https://github.com/pulsardev/vue-tour
+Vue.use(VueTour)
+
+new Vue({
+  render: h => h(App)
+}).$mount('#app')
+
+ReactDOM.render(<MyMSA />, document.getElementById("target"));

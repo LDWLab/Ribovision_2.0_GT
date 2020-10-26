@@ -1,6 +1,7 @@
 var path = require("path");
 var webpack = require('webpack');
 var BundleTracker = require('webpack-bundle-tracker');
+const VueLoaderPlugin = require('vue-loader/lib/plugin')
 
 module.exports = {
   context: __dirname,
@@ -14,6 +15,7 @@ module.exports = {
 
   plugins: [
     new BundleTracker({filename: './webpack-stats.json'}),
+    new VueLoaderPlugin(),
   ],
   module: {
     rules: [
@@ -21,7 +23,10 @@ module.exports = {
         test: /\.js$/,
         exclude: /node_modules/,
         use: ['babel-loader']
-      }
+      },{
+        test: /\.vue$/,
+        loader: 'vue-loader'
+      },
     ]
   },
   resolve: {

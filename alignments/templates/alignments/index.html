@@ -1,20 +1,27 @@
 {% load static %}
-<!-- {% load render_bundle from webpack_loader %} -->
+{% load render_bundle from webpack_loader %}
 <head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	<!-- d3.js dependency script for topology viewer -->
 	<script  src="https://cdn.jsdelivr.net/npm/d3@5.9.2" defer></script>
 	<!-- Colormaps for topology viewer -->
 	<script type="text/javascript" src={% static 'alignments/colormaps.js' %} defer></script>
+	
 	<!-- The topology viewer -->
 	<script type="text/javascript" src={% static 'pdb-topology-viewer-component-2.0.0.js' %} defer></script> 
 	
 </head>
 <body>
-	<!-- <div id="target"></div>
-	{% render_bundle 'main' %} -->
+	<p>
+		<div id="target"></div>
+	</p>
+	
+	<div id="app"></div>
 
+	{% render_bundle 'main' %}
+	<link rel="stylesheet" href={% static 'alignments/vue-tour.css' %}>
 	<!-- <pdb-topology-viewer entry-id="1aqd" entity-id="1" entropy-id='"TwinCons":1,0.042932976626302605,2,0.15296113770768818;"Shannon":1,0,2,4"'></pdb-topology-viewer> -->
-	<pdb-topology-viewer entry-id="1aqd" entity-id="1" filter-range= "5, 6" entropy-id='&#34Hydrophobicity&#34:1,2,3,4,5,6,7,8,9,10,11,12,12,-6,13,-3,14,-1;&#34Charge&#34:1,7,2,5,3,4,4,9,5,-3,6,-8,7,0,8,5'></pdb-topology-viewer>
+	<!-- <pdb-topology-viewer entry-id="1aqd" entity-id="1" filter-range= "5, 6" entropy-id='&#34Hydrophobicity&#34:1,2,3,4,5,6,7,8,9,10,11,12,12,-6,13,-3,14,-1;&#34Charge&#34:1,7,2,5,3,4,4,9,5,-3,6,-8,7,0,8,5'></pdb-topology-viewer> -->
 	
 	<!-- 
 	<script>
