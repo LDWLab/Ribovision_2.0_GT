@@ -298,6 +298,7 @@ var vm = new Vue({
         coil_residues: null,
         checked_filter: false,
         checked_customMap: false,
+        custom_prop: null,
         csv_data: null,
         checked_propensities: false,
     },
@@ -324,10 +325,27 @@ var vm = new Vue({
                 var custom_prop = new Map();
                 custom_prop.set("CustomData", custom_data);
                 topviewer.pluginInstance.getAnnotationFromRibovision(custom_prop);
+                window.custom_prop = custom_prop;
                 var custom_option = document.createElement("option");
                 custom_option.setAttribute("value", selectBoxEle.options.length);
                 custom_option.appendChild(document.createTextNode("Custom Data"));
                 selectBoxEle.appendChild(custom_option);
+                var masked_array = window.masked_array;
+                var j = topviewer.pluginInstance.domainTypes.length-1;
+                var f = 0;
+                while(f < topviewer.pluginInstance.domainTypes[4].data.length) {
+                    if(!masked_array[f] && topviewer.pluginInstance.domainTypes[j].data[f]) {
+                        topviewer.pluginInstance.domainTypes[j].data[f].color = "rgb(255,255,255)";
+                        topviewer.pluginInstance.domainTypes[j].data[f].tooltipMsg = "NaN";                   
+                        selectSections_RV1.get(topviewer.pluginInstance.domainTypes[j].label)[f].color = {r: 255, g: 255, b: 255};
+
+                    } if(!masked_array[f] && vm.coil_residues.includes(f) && topviewer.pluginInstance.domainTypes[j].data[f]) {
+                        topviewer.pluginInstance.domainTypes[j].data[f].color = "rgb(0,0,0)";
+                        topviewer.pluginInstance.domainTypes[j].data[f].tooltipMsg = "NaN";
+                    }
+                        
+                    f++;
+                }
             }
         },
     },
@@ -649,7 +667,7 @@ var vm = new Vue({
             document.addEventListener('PDB.molstar.mouseover', (e) => {
                 var eventData = e.eventData;
                 let resi_id = eventData.auth_seq_id;
-                if(masked_array && masked_array[resi_id - 1] == false) {
+                if(masked_array && masked_array[resi_id] == false) {
                     viewerInstance.plugin.behaviors.interaction.hover._value.current.loci.kind = "empty-loci"
                 }
             });
@@ -704,10 +722,14 @@ var vm = new Vue({
             return masked_array;
         },
         handleMaskingRanges(mask_range){
+            window.masking_range = mask_range;
             window.masking_range_array = null;
             if (this.isCorrectMask(mask_range)) {   
                 var topviewer = document.getElementById("PdbeTopViewer");
                 topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);   
+                if(window.custom_prop) {
+                    topviewer.pluginInstance.getAnnotationFromRibovision(custom_prop); 
+                }
                 var masked_array = this.initializeMaskedArray();          
                 var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
 
@@ -715,12 +737,12 @@ var vm = new Vue({
                 while(j < topviewer.pluginInstance.domainTypes.length) {
                     var f = 0;
                     while(f < topviewer.pluginInstance.domainTypes[4].data.length) {
-                        if(!masked_array[f]) {
+                        if(!masked_array[f] && topviewer.pluginInstance.domainTypes[j].data[f]) {
                             topviewer.pluginInstance.domainTypes[j].data[f].color = "rgb(255,255,255)";
                             topviewer.pluginInstance.domainTypes[j].data[f].tooltipMsg = "NaN";                   
                             selectSections_RV1.get(topviewer.pluginInstance.domainTypes[j].label)[f].color = {r: 255, g: 255, b: 255};
 
-                        } if(!masked_array[f] && vm.coil_residues.includes(f)) {
+                        } if(!masked_array[f] && vm.coil_residues.includes(f) && topviewer.pluginInstance.domainTypes[j].data[f]) {
                             topviewer.pluginInstance.domainTypes[j].data[f].color = "rgb(0,0,0)";
                             topviewer.pluginInstance.domainTypes[j].data[f].tooltipMsg = "NaN";
                         }
@@ -732,6 +754,7 @@ var vm = new Vue({
                     this.correct_mask = 'True';
                 }
                 let selectedData = topviewer.pluginInstance.domainTypes[selectedIndex]
+                
                 if (selectedData.data){
                     topviewer.pluginInstance.updateTheme(selectedData.data); 
                     window.viewerInstance.visual.select({data: selectSections_RV1.get(selectedData.label), nonSelectedColor: {r:255,g:255,b:255}});
