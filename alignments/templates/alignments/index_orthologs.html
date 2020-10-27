@@ -1,6 +1,10 @@
 <html>
 <head>
 	{% load static %}
+	<script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+	<script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prop-types/15.5.2/prop-types.js"></script>
+	<script src="https://unpkg.com/@plotly/react-msa-viewer/dist/index.umd.min.js"></script>
 	<!-- include Ajax -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	<!-- include Vue 2.x -->
@@ -119,6 +123,7 @@
 		</div>
 		<footer >Footer</footer>
 	</div>
+	<div id="testaln"></div>
 	<!-- include our custom Vue scripts -->
 	<script src="{% static "alignments/vue_tree_select2.js" %}"></script>
 </body>

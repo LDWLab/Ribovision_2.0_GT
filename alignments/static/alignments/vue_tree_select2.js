@@ -499,6 +499,10 @@ var vm = new Vue({
                 if (fasta['TwinCons'] != null){
                     this.custom_aln_twc_flag = fasta['TwinCons']
                 }
+                ReactDOM.render(
+                    React.createElement(ReactMSAViewer.MSAViewer, options),
+                    document.getElementById('testaln')
+                  );
                 this.fasta_data = fasta['Alignment'];
                 this.aa_properties = calculateFrequencyData(fasta['AA frequencies'])
                 var main_elmnt = document.querySelector(".alignment_section")
@@ -796,3 +800,22 @@ var vm = new Vue({
         }
     }
 })
+
+var options = {
+    sequences: [
+      {
+        name: "seq.1",
+        sequence: "MEEPQSDPSIEP-PLSQETFSDLWKLLPENNVLSPLPS-QA-VDDLMLSPDDLAQWLTED"
+      },
+      {
+        name: "seq.2",
+        sequence: "MEEPQSDLSIEL-PLSQETFSDLWKLLPPNNVLSTLPS-SDSIEE-LFLSENVAGWLEDP"
+      },
+      {
+        name: "seq.3",
+        sequence: "MEEPQSDLSIEL-PLSQETFSDLWKLLPPNNVLSTLPS-SDSIEE-LFLSENVAGWLEDP"
+      },
+    ],
+    colorScheme: "zappo",
+   };
+  
