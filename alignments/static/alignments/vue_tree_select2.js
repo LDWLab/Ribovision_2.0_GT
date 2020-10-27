@@ -130,7 +130,7 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     }
     if (window.masked_array.length > 0) {window.masked_array = [];}
     if (vueObj.masking_range) {vueObj.masking_range = null;}
-    if (vueObj.chainid) {vueObj.chainid = null;}
+    //if (vueObj.chainid) {vueObj.chainid = null;}
     if (vueObj.checked_filter) {vueObj.checked_filter = false;}
     if (vueObj.checked_customMap) {vueObj.checked_customMap = false;}
     if (vueObj.csv_data) {vueObj.csv_data = null;}

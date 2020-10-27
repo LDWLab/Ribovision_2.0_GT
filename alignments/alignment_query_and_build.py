@@ -106,7 +106,7 @@ def para_aln(request, aln_id):
 	if len(set(fold_pattern_over_ranges)) == 1:
 		last_nom = ''
 		for i, single_range in enumerate(ranges_of_permutation):
-			if last_nom == '':
+			if last_nom != '':
 				if raw_result[single_range[0]]['nomgd_id'] != last_nom:
 					last_fold = get_fold_for_raw_result_range(single_range, raw_result)
 					last_nom = raw_result[single_range[0]]['nomgd_id']
