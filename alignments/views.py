@@ -303,7 +303,7 @@ def extract_gap_only_cols(fastastring):
 
 def construct_dict_for_json_response(response_data):
 	'''Takes list of datas for Json response.
-	Check their tyupes and assigns names to each.
+	Check their types and assigns names to each.
 	Returns them as a dictionary.'''
 	response_dict = dict()
 	for entry in response_data:
