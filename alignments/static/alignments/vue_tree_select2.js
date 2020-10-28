@@ -90,7 +90,7 @@ var filterAvailablePolymers = function(chain_list, aln_id, vueObj) {
             }
         }
     // console.log("___" + temp_arr[temp_arr.length - 1]["sequence"] + "___");
-    chain_options = Array.from(new Set(temp_arr.map(JSON.stringify))).map(JSON.parse);
+    let chain_options = Array.from(new Set(temp_arr.map(JSON.stringify))).map(JSON.parse);
     if (chain_options.length === 0) {
         chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
     }
@@ -124,6 +124,7 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
         if (vueObj.chains) {vueObj.chains = null;}
         if (vueObj.aln_meta_data) {vueObj.aln_meta_data = null;}
         if (vueObj.fasta_data) {vueObj.fasta_data = null;}
+        if (vueObj.fastaSeqNames) {vueObj.fastaSeqNames = null;}
         if (vueObj.frequency_data) {vueObj.frequency_data = null;}
         if (vueObj.topology_loaded) {vueObj.topology_loaded = 'False';}
         if (aln_item) {aln_item.remove(); create_deleted_element("alnif", "alnDiv", aln_text)}
@@ -286,6 +287,7 @@ var vm = new Vue({
         chainid: null,
         aln_meta_data: null,
         fasta_data: null,
+        fastaSeqNames: null,
         hide_chains: null,
         type_tree: "orth",
         aa_properties: null,
@@ -499,58 +501,70 @@ var vm = new Vue({
                 if (fasta['TwinCons'] != null){
                     this.custom_aln_twc_flag = fasta['TwinCons']
                 }
+                vm.fastaSeqNames = fasta['Sequence names']
+                var main_elmnt = document.querySelector(".alignment_section")
+                window.main_elmnt = main_elmnt;
+                let seqsForMSAViewer = parseFastaSeqForMSAViewer(fasta['Alignment'])
+                let msaOptions = {
+                    sequences: seqsForMSAViewer,
+                    colorScheme: "clustal2",
+                    height: main_elmnt.offsetHeight * 0.9,
+                    width: main_elmnt.offsetWidth * 0.75,
+                    tileHeight: 18,
+                    tileWidth: 18,
+                }
+                window.msaOptions = msaOptions;
                 ReactDOM.render(
-                    msaElement,
-                    document.getElementById('testaln')
+                    React.createElement(MyMSA, msaOptions),
+                    document.getElementById('alnDiv')
                   );
                 this.fasta_data = fasta['Alignment'];
                 this.aa_properties = calculateFrequencyData(fasta['AA frequencies'])
-                var main_elmnt = document.querySelector(".alignment_section")
-                var opts = {
-                    el: document.getElementById("alnDiv"),
-                    seqs: msa.io.fasta.parse(fasta['Alignment']),
-                    colorscheme: {
-                        scheme: "clustal2",
-                    },
-                    //columns: {
-                    //    hidden: fasta['Gap-only columns'] // hidden columns
-                    //},
-                    zoomer: {
-                        // general
-                        alignmentWidth: main_elmnt.offsetWidth * 0.75,
-                        alignmentHeight: main_elmnt.offsetHeight * 0.9,
-                        columnWidth: 15,
-                        rowHeight: 15,
-                        labelNameLength: main_elmnt.offsetWidth * 0.18,
-                        autoResize: false, // only for the width
-                    },
-                    conf: {
-                        registerMouseHover: true,
-                        registerMouseClicks: true,
-                    },
-                    // smaller menu for JSBin
-                    menu: "small",
-                    bootstrapMenu: true
-                };
-                var m = new msa.msa(opts);
-                m.render();
-                m.g.on("residue:click", function(data) {
-                    vm.aln_meta_data = null;
-                    const strainQuery = '&res__poldata__strain__strain=';
-                    var url = `/desire-api/residue-alignment/?format=json&aln_pos=${String(Number(data["rowPos"]) + 1)}&aln=${aln_id}${strainQuery}${fasta['Sequence names'][Number(data["seqId"])]}`
-                    ajax(url).then(alnpos_data => {
-                        ajax('/resi-api/' + alnpos_data["results"][0]["res"].split("/")[5]).then(resiData => {
-                            vm.aln_meta_data = resiData;
-                        });
-                    }).catch(error => {
-                        vm.aln_meta_data = null;
-                        console.log("No residue with alignment position: " + data["rowPos"] + ". In alignment " + aln_id + ". Of species " + fasta['Sequence names'][Number(data["seqId"])]);
-                        console.log(error);
-                    })
-                });
-                m.g.on("residue:mousein", function(data) {
-                    console.log(data)
-                });
+                //var opts = {
+                //    el: document.getElementById("alnDiv"),
+                //    seqs: msa.io.fasta.parse(fasta['Alignment']),
+                //    colorscheme: {
+                //        scheme: "clustal2",
+                //    },
+                //    //columns: {
+                //    //    hidden: fasta['Gap-only columns'] // hidden columns
+                //    //},
+                //    zoomer: {
+                //        // general
+                //        alignmentWidth: main_elmnt.offsetWidth * 0.75,
+                //        alignmentHeight: main_elmnt.offsetHeight * 0.9,
+                //        columnWidth: 15,
+                //        rowHeight: 15,
+                //        labelNameLength: main_elmnt.offsetWidth * 0.18,
+                //        autoResize: false, // only for the width
+                //    },
+                //    conf: {
+                //        registerMouseHover: true,
+                //        registerMouseClicks: true,
+                //    },
+                //    // smaller menu for JSBin
+                //    menu: "small",
+                //    bootstrapMenu: true
+                //};
+                //var m = new msa.msa(opts);
+                //m.render();
+                //m.g.on("residue:click", function(data) {
+                //    vm.aln_meta_data = null;
+                //    const strainQuery = '&res__poldata__strain__strain=';
+                //    var url = `/desire-api/residue-alignment/?format=json&aln_pos=${String(Number(data["rowPos"]) + 1)}&aln=${aln_id}${strainQuery}${fasta['Sequence names'][Number(data["seqId"])]}`
+                //    ajax(url).then(alnpos_data => {
+                //        ajax('/resi-api/' + alnpos_data["results"][0]["res"].split("/")[5]).then(resiData => {
+                //            vm.aln_meta_data = resiData;
+                //        });
+                //    }).catch(error => {
+                //        vm.aln_meta_data = null;
+                //        console.log("No residue with alignment position: " + data["rowPos"] + ". In alignment " + aln_id + ". Of species " + fasta['Sequence names'][Number(data["seqId"])]);
+                //        console.log(error);
+                //    })
+                //});
+                //m.g.on("residue:mousein", function(data) {
+                //    console.log(data)
+                //});
             })
         }, showTopologyViewer (pdbid, chainid, fasta){
             if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(vm);}
@@ -568,14 +582,14 @@ var vm = new Vue({
             let ebi_sequence = temp["sequence"];
             let startIndex = temp["startIndex"];
             // let ebi_sequence = vm.chains[0]["sequence"];
-            ajax('/mapSeqAln/', optional_data={fasta, ebi_sequence, startIndex}).then(struct_mapping=>{
+            ajax('/mapSeqAln/', {fasta, ebi_sequence, startIndex}).then(struct_mapping=>{
                 this.structure_mapping = struct_mapping;
                 var mapped_aa_properties = mapAAProps(this.aa_properties, struct_mapping);
                 if ((this.tax_id != null && this.tax_id.length == 2) || (this.custom_aln_twc_flag != null && this.custom_aln_twc_flag == true) || (this.type_tree == 'para')) {
-                    ajax('/twc-api/', optional_data={fasta}).then(twcDataUnmapped => {
+                    ajax('/twc-api/', {fasta}).then(twcDataUnmapped => {
                         const build_mapped_props = function(mapped_props, twcDataUnmapped, structure_mapping){
                             mapped_props.set("TwinCons", [])
-                            for (i = 0; i < twcDataUnmapped.length; i++) {
+                            for (let i = 0; i < twcDataUnmapped.length; i++) {
                                 let mappedI0 = structure_mapping[twcDataUnmapped[i][0]];
                                 if (mappedI0) {
                                     mapped_props.get("TwinCons").push([mappedI0, twcDataUnmapped[i][1]]);
@@ -610,6 +624,7 @@ var vm = new Vue({
                     let formatted_data_string = data_string.replaceAll("[","").replaceAll("]","").replaceAll("\"","");
                     var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid}	entropy-id=${formatted_data_string} filter-range=${mapping}></pdb-topology-viewer>`
                     document.getElementById('topview').innerHTML = topology_viewer;
+                    window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
                     this.topology_loaded = 'True';
                 })
             });
@@ -799,41 +814,8 @@ var vm = new Vue({
             
         }
     }
-})
+});
 
-const options = {
-    sequences: [
-      {
-        name: "seq.1",
-        sequence: "MEEPQSDPSIEP-PLSQETFSDLWKLLPENNVLSPLPS-QA-VDDLMLSPDDLAQWLTED"
-      },
-      {
-        name: "seq.2",
-        sequence: "MEEPQSDPSIEP-PLSQ------WKLLPENNVLSPLPS-QA-VDDLMLSPDDLAQWLTED"
-      },
-      {
-        name: "seq.3",
-        sequence: "MEEPQSDLSIEL-PLSQETFSDLWKLLPPNNVLSTLPS-SDSIEE-LFLSENVAGWLEDP"
-      },
-      {
-        name: "seq.4",
-        sequence: "MEEPQSDLSIEL-PLSQETFSDLWKLLPPNNVLSTLPS-SDSIEE-LFLSENVAGWLEDP"
-      },
-      {
-        name: "seq.5",
-        sequence: "MEEPQSDPSIEP-PLSQETFSDLWKLLPENNVLSPLPS-QA-VDDLMLSPDDLAQWLTED"
-      },
-      {
-        name: "seq.6",
-        sequence: "MEEPQSDLSIEL-PLSQETFSDLWKLLPPNNVLSTLPS-SDSIEE-LFLSENVAGWLEDP"
-      },
-      {
-        name: "seq.7",
-        sequence: "MEEPQSDLSIEL-PLSQETFSDLWKLLPPNNVLSTLPS-SDSIEE-LFLSENVAGWLEDP"
-      }
-    ],
-    height: 120,
-  };
   (function() {
     var mousePos;
     document.onmousemove = handleMouseMove;
@@ -865,7 +847,7 @@ const options = {
 var Tooltip = function (props) {
     const { style, children, ...otherProps } = props;
     const containerStyle = {
-      display: "inline-grid"
+      display: "inline-block"
     };
     const tooltipStyle = {
       position: "relative",
@@ -891,86 +873,212 @@ var Tooltip = function (props) {
   Tooltip.defaultProps = {
     style: {},
   };
-  window.ajaxRun = false;
+
+window.ajaxRun = false;
 function MyMSA() {
- class SimpleTooltip extends React.Component {
-     state = {};
-     onResidueMouseEnter = e => {
-       if (!window.ajaxRun){
-       window.ajaxRun = true;
-       const strainQuery = '&res__poldata__strain__strain=';
-       if (e.position !== undefined){
-         var url = `/desire-api/residue-alignment/?format=json&aln_pos=${String(Number(e.position) + 1)}&aln=10${strainQuery}Escherichia coli str. K-12 substr. MG1655`
-           ajax(url).then(alnpos_data => {
-               if (alnpos_data.count != 0){
-                 ajax('/resi-api/' + alnpos_data["results"][0]["res"].split("/")[5]).then(resiData => {
-                   var alnViewEle = document.querySelector("#testaln");
-                   let boundingBox = alnViewEle.getBoundingClientRect();
-                   if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right){
-                     let tooltipPosition = {
-                       top: mousePos.y +"px",
-                       left: mousePos.x +"px",
-                     };
-                     if (resiData["Structural fold"][0] !== undefined && resiData["Associated data"][0] !== undefined){
-                       this.setState({
-                         fold: resiData["Structural fold"][0][1],
-                         phase: resiData["Associated data"][0][1],
-                         tooltipPosition,
-                       });
-                     }else{
-                       this.setState({
-                         fold: 'NA',
-                         phase: 'NA',
-                         tooltipPosition,
-                       });
-                     }
-                   }
-                   window.ajaxRun = false;
-                 });
-               }else{
-                 window.ajaxRun = false;
-               }
-           }).catch(error => {
-               console.log(error);
-           })
-         }
-       }else{
-         this.setState({ fold: undefined, phase: undefined });
-       }
-     };
-     onResidueMouseLeave = e => {
-       this.setState({ fold: undefined, phase: undefined });
-     };
-     render() {
-       return (
-         <div>
-           <ReactMSAViewer.MSAViewer {...options}>
-             <div style={{ position: "relative" }}>
-               <ReactMSAViewer.SequenceViewer
-                 onResidueMouseEnter={this.onResidueMouseEnter}
-                 onResidueMouseLeave={this.onResidueMouseLeave}
-               />
-               {this.state.fold && (
-                 <div
-                   style={{
-                     position: "absolute",
-                     opacity: 0.8,
-                     ...this.state.tooltipPosition
-                   }}
-                 >
-                   <Tooltip>
-                     Fold: {this.state.fold} <br></br>
-                     Phase: {this.state.phase}
-                   </Tooltip>
-                 </div>
-               )}
-             </div>
-           </ReactMSAViewer.MSAViewer>
-         </div>
-       );
-     }
- }
- return <SimpleTooltip />;
+    class SimpleTooltip extends React.Component {
+        state = {highlight: null};
+        onResidueMouseEnter = e => {
+            if (vm.topology_loaded == 'True'){
+                let resiPos = vm.structure_mapping[e.position];
+                if (resiPos !== undefined){
+                    viewerInstanceTop.pluginInstance.highlight(resiPos, resiPos);
+                    viewerInstance.visual.highlight({
+                        data:[{
+                                entity_id:vm.entityId,
+                                start_residue_number:resiPos,
+                                end_residue_number:resiPos,
+                            },],
+                    });
+                }
+            }
+            if (!window.ajaxRun){
+                window.ajaxRun = true;
+                if (e.position !== undefined){
+                    registerHoverResiData(e, this);
+                }
+            } else {
+                this.setState({ fold: undefined, phase: undefined });
+            }
+         };
+        onResidueMouseLeave = e => {
+            if (vm.topology_loaded == 'True'){
+                viewerInstanceTop.pluginInstance.clearHighlight();
+                viewerInstance.visual.clearHighlight();
+            }
+            this.setState({ fold: undefined, phase: undefined });
+        };
+        highlightRegion = n => {
+            console.log("DOING SOMETHING")
+            const highlight = {
+                sequences: {
+                  from: 0,
+                  to: 2
+                },
+                residues: {
+                  from: 2,
+                  to: 13
+                }
+              };
+      
+              if (n === 1) this.setState({ highlight });
+              else
+                this.setState({
+                  highlight: [
+                    highlight,
+                    {
+                      ...highlight,
+                      residues: {
+                        from: 20,
+                        to: 25
+                      }
+                    }
+                  ]
+                });
+        };
+        removeHighlightRegion = () => {
+            this.setState({ highlight: null });
+        };                
+        render() {
+            return (
+            <div>
+                <ReactMSAViewer.MSAViewer 
+                {...msaOptions}
+                ref={ref => (this.el = ref)}
+                highlight={this.state.highlight}
+                >
+                <div style={{ position: "relative", display: "flex", }}>
+                <ReactMSAViewer.Labels style={{width: main_elmnt.offsetWidth * 0.2}}/>
+                <div>
+                    <ReactMSAViewer.SequenceViewer
+                      onResidueMouseEnter={this.onResidueMouseEnter}
+                      onResidueMouseLeave={this.onResidueMouseLeave}
+                    />
+                    {this.state.fold && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          opacity: 0.8,
+                          ...this.state.tooltipPosition
+                        }}
+                      >
+                        <Tooltip>
+                          Fold: {this.state.fold} <br></br>
+                          Phase: {this.state.phase}
+                        </Tooltip>
+                      </div>
+                    )}
+                    </div>
+                </div>
+                <button onClick={() => this.highlightRegion(1)}>
+                Highlight Region [2-13]{" "}
+              </button>
+              <button onClick={() => this.highlightRegion(2)}>
+                Highlight Region [2-13] [20-25]{" "}
+              </button>
+                <div id="highlightMSACol" onClick={() => this.highlightRegion()}></div>
+                </ReactMSAViewer.MSAViewer>
+            </div>
+            );
+        }
+    }
+return <SimpleTooltip />;
 };
 
-var msaElement = React.createElement(MyMSA, options)
+var absolutePosition = function (el) {
+    var
+        found,
+        left = 0,
+        top = 0,
+        width = 0,
+        height = 0,
+        offsetBase = absolutePosition.offsetBase;
+    if (!offsetBase && document.body) {
+        offsetBase = absolutePosition.offsetBase = document.createElement('div');
+        offsetBase.style.cssText = 'position:absolute;left:0;top:0';
+        document.body.appendChild(offsetBase);
+    }
+    if (el && el.ownerDocument === document && 'getBoundingClientRect' in el && offsetBase) {
+        var boundingRect = el.getBoundingClientRect();
+        var baseRect = offsetBase.getBoundingClientRect();
+        found = true;
+        left = boundingRect.left - baseRect.left;
+        top = boundingRect.top - baseRect.top;
+        width = boundingRect.right - boundingRect.left;
+        height = boundingRect.bottom - boundingRect.top;
+    }
+    return {
+        found: found,
+        left: left,
+        top: top,
+        width: width,
+        height: height,
+        right: left + width,
+        bottom: top + height
+    };
+}
+
+var parseFastaSeqForMSAViewer = function (fasta){
+    let outSeqs = [];
+    let arrayFasta = fasta.split('\n').slice(0, -1);
+    arrayFasta.map(function(element, index) {
+        if (index % 2 == 0){
+            let seqName = element.replaceAll('_', ' ').replaceAll('>', '');
+            let seqObj = {'name': seqName, 'sequence': arrayFasta[index+1]}
+            outSeqs.push(seqObj);
+        }
+    });
+    return outSeqs;
+}
+
+var registerHoverResiData = function (e, tooltipObj){
+    const strainQuery = '&res__poldata__strain__strain=';
+    var url = `/desire-api/residue-alignment/?format=json&aln_pos=${String(Number(e.position) + 1)}&aln=${vm.alnobj.id}${strainQuery}${vm.fastaSeqNames[Number(e.i)]}`
+    ajax(url).then(alnpos_data => {
+        var alnViewCanvasEle = document.querySelector("#alnDiv canvas:nth-of-type(1)");
+        var alnViewLabelsEle = document.querySelector("#alnDiv div:nth-of-type(2)");
+        let boundLabelBox = alnViewLabelsEle.getBoundingClientRect();
+        let boundingBox = absolutePosition(alnViewCanvasEle);
+        let relativeBox = alnViewCanvasEle.getBoundingClientRect();
+        if (alnpos_data.count != 0){
+        ajax('/resi-api/' + alnpos_data["results"][0]["res"].split("/")[5]).then(resiData => {
+            if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right){
+                let tooltipPosition = {
+                  top: mousePos.y-boundingBox.top+5 +"px",
+                  left: mousePos.x-relativeBox.left+boundLabelBox.right-boundLabelBox.left+5 +"px",
+                };
+                if (resiData["Structural fold"][0] !== undefined && resiData["Associated data"][0] !== undefined){
+                    tooltipObj.setState({
+                    fold: resiData["Structural fold"][0][1],
+                    phase: resiData["Associated data"][0][1],
+                    tooltipPosition,
+                  });
+                }else{
+                    tooltipObj.setState({
+                    fold: 'NA',
+                    phase: 'NA',
+                    tooltipPosition,
+                  });
+                }
+           }
+           window.ajaxRun = false;
+        });
+        }else{
+            if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right){
+                let tooltipPosition = {
+                    top: mousePos.y-boundingBox.top+5 +"px",
+                    left: mousePos.x-relativeBox.left+boundLabelBox.right-boundLabelBox.left+5 +"px",
+                };
+                window.ajaxRun = false;
+                tooltipObj.setState({
+                    fold: 'NA',
+                    phase: 'NA',
+                    tooltipPosition,
+                });
+            }
+        }
+    }).catch(error => {
+       console.log(error);
+    })
+    return true;
+}
