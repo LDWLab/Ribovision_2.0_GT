@@ -298,7 +298,6 @@ var vm = new Vue({
         coil_residues: null,
         checked_filter: false,
         checked_customMap: false,
-        custom_prop: null,
         csv_data: null,
         checked_propensities: false,
     },
@@ -330,21 +329,23 @@ var vm = new Vue({
                 custom_option.setAttribute("value", selectBoxEle.options.length);
                 custom_option.appendChild(document.createTextNode("Custom Data"));
                 selectBoxEle.appendChild(custom_option);
-                var masked_array = window.masked_array;
-                var j = topviewer.pluginInstance.domainTypes.length-1;
-                var f = 0;
-                while(f < topviewer.pluginInstance.domainTypes[4].data.length) {
-                    if(!masked_array[f] && topviewer.pluginInstance.domainTypes[j].data[f]) {
-                        topviewer.pluginInstance.domainTypes[j].data[f].color = "rgb(255,255,255)";
-                        topviewer.pluginInstance.domainTypes[j].data[f].tooltipMsg = "NaN";                   
-                        selectSections_RV1.get(topviewer.pluginInstance.domainTypes[j].label)[f].color = {r: 255, g: 255, b: 255};
+                if(this.correct_mask == 'True') {
+                    var masked_array = window.masked_array;
+                    var j = topviewer.pluginInstance.domainTypes.length-1;
+                    var f = 0;
+                    while(f < topviewer.pluginInstance.domainTypes[4].data.length) {
+                        if(!masked_array[f] && topviewer.pluginInstance.domainTypes[j].data[f]) {
+                            topviewer.pluginInstance.domainTypes[j].data[f].color = "rgb(255,255,255)";
+                            topviewer.pluginInstance.domainTypes[j].data[f].tooltipMsg = "NaN";                   
+                            selectSections_RV1.get(topviewer.pluginInstance.domainTypes[j].label)[f].color = {r: 255, g: 255, b: 255};
 
-                    } if(!masked_array[f] && vm.coil_residues.includes(f) && topviewer.pluginInstance.domainTypes[j].data[f]) {
-                        topviewer.pluginInstance.domainTypes[j].data[f].color = "rgb(0,0,0)";
-                        topviewer.pluginInstance.domainTypes[j].data[f].tooltipMsg = "NaN";
+                        } if(!masked_array[f] && vm.coil_residues.includes(f) && topviewer.pluginInstance.domainTypes[j].data[f]) {
+                            topviewer.pluginInstance.domainTypes[j].data[f].color = "rgb(0,0,0)";
+                            topviewer.pluginInstance.domainTypes[j].data[f].tooltipMsg = "NaN";
+                        }
+                            
+                        f++;
                     }
-                        
-                    f++;
                 }
             }
         },
@@ -678,6 +679,9 @@ var vm = new Vue({
             this.masking_range = null;
             var topviewer = document.getElementById("PdbeTopViewer");
             topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);
+            if(window.custom_prop) {
+                topviewer.pluginInstance.getAnnotationFromRibovision(window.custom_prop);
+            }
             var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
             topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data); 
             window.viewerInstance.visual.select({data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), nonSelectedColor: {r:255,g:255,b:255}});
@@ -728,7 +732,7 @@ var vm = new Vue({
                 var topviewer = document.getElementById("PdbeTopViewer");
                 topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);   
                 if(window.custom_prop) {
-                    topviewer.pluginInstance.getAnnotationFromRibovision(custom_prop); 
+                    topviewer.pluginInstance.getAnnotationFromRibovision(window.custom_prop); 
                 }
                 var masked_array = this.initializeMaskedArray();          
                 var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
@@ -765,6 +769,7 @@ var vm = new Vue({
             var topviewer = document.getElementById("PdbeTopViewer");
             topviewer.pluginInstance.domainTypes = topviewer.pluginInstance.domainTypes.filter(obj => {return obj.label !== "CustomData"})
             window.coilsOutOfCustom = null;
+            //window.custom_prop = null;
             this.csv_data = null;
         }, handleCustomMappingData(){
             const readFile = function (fileInput) {
