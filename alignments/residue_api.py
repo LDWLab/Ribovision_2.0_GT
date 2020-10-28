@@ -38,7 +38,8 @@ def get_anno_strain(resid, residue_alignments, superk, assoc_or_struc):
 	else:
 		raise Http404("This species is not part of either of the three superkingdoms?")
 	
-	annoaln = Alignment.objects.filter(alndata__res = resid, source = 'abe')
+	#annoaln = Alignment.objects.filter(alndata__res = resid, source = 'abe')
+	annoaln = Alignment.objects.filter(alndata__res = resid)
 	if len(annoaln) == 0:
 		return None
 	annoaln = annoaln[0].aln_id

@@ -130,7 +130,7 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     }
     if (window.masked_array.length > 0) {window.masked_array = [];}
     if (vueObj.masking_range) {vueObj.masking_range = null;}
-    if (vueObj.chainid) {vueObj.chainid = null;}
+    //if (vueObj.chainid) {vueObj.chainid = null;}
     if (vueObj.checked_filter) {vueObj.checked_filter = false;}
     if (vueObj.checked_customMap) {vueObj.checked_customMap = false;}
     if (vueObj.csv_data) {vueObj.csv_data = null;}
@@ -568,7 +568,7 @@ var vm = new Vue({
             ajax('/mapSeqAln/', optional_data={fasta, ebi_sequence, startIndex}).then(struct_mapping=>{
                 this.structure_mapping = struct_mapping;
                 var mapped_aa_properties = mapAAProps(this.aa_properties, struct_mapping);
-                if ((this.tax_id != null && this.tax_id.length == 2) || (this.custom_aln_twc_flag != null && this.custom_aln_twc_flag == true)) {
+                if ((this.tax_id != null && this.tax_id.length == 2) || (this.custom_aln_twc_flag != null && this.custom_aln_twc_flag == true) || (this.type_tree == 'para')) {
                     ajax('/twc-api/', optional_data={fasta}).then(twcDataUnmapped => {
                         const build_mapped_props = function(mapped_props, twcDataUnmapped, structure_mapping){
                             mapped_props.set("TwinCons", [])

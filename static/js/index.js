@@ -204,4 +204,4 @@ new Vue({
   render: h => h(App)
 }).$mount('#app')
 
-ReactDOM.render(<MyMSA />, document.getElementById("target"));
+ReactDOM.render(<MyMSA />, document.getElementById("v-step-0"));
