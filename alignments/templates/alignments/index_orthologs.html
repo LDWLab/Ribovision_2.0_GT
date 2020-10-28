@@ -108,6 +108,7 @@
 			<p></p>
 			<span id="alnif" v-if="alnobj">
 				<div id="alnDiv">Loading alignment...</div>
+				<div id="testaln"></div>
 			</span><br>
 			<span v-if="aln_meta_data">Selected residue: [[aln_meta_data]]</span>
 		</div>
@@ -123,9 +124,10 @@
 		</div>
 		<footer >Footer</footer>
 	</div>
-	<div id="testaln"></div>
+
 	<!-- include our custom Vue scripts -->
-	<script src="{% static "alignments/vue_tree_select2.js" %}"></script>
+	<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+	<script type="text/babel" src="{% static "alignments/vue_tree_select2.js" %}"></script>
 </body>
 
 </html>

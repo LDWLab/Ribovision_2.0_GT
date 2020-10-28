@@ -500,7 +500,7 @@ var vm = new Vue({
                     this.custom_aln_twc_flag = fasta['TwinCons']
                 }
                 ReactDOM.render(
-                    React.createElement(ReactMSAViewer.MSAViewer, options),
+                    msaElement,
                     document.getElementById('testaln')
                   );
                 this.fasta_data = fasta['Alignment'];
@@ -801,7 +801,7 @@ var vm = new Vue({
     }
 })
 
-var options = {
+const options = {
     sequences: [
       {
         name: "seq.1",
@@ -809,13 +809,168 @@ var options = {
       },
       {
         name: "seq.2",
-        sequence: "MEEPQSDLSIEL-PLSQETFSDLWKLLPPNNVLSTLPS-SDSIEE-LFLSENVAGWLEDP"
+        sequence: "MEEPQSDPSIEP-PLSQ------WKLLPENNVLSPLPS-QA-VDDLMLSPDDLAQWLTED"
       },
       {
         name: "seq.3",
         sequence: "MEEPQSDLSIEL-PLSQETFSDLWKLLPPNNVLSTLPS-SDSIEE-LFLSENVAGWLEDP"
       },
+      {
+        name: "seq.4",
+        sequence: "MEEPQSDLSIEL-PLSQETFSDLWKLLPPNNVLSTLPS-SDSIEE-LFLSENVAGWLEDP"
+      },
+      {
+        name: "seq.5",
+        sequence: "MEEPQSDPSIEP-PLSQETFSDLWKLLPENNVLSPLPS-QA-VDDLMLSPDDLAQWLTED"
+      },
+      {
+        name: "seq.6",
+        sequence: "MEEPQSDLSIEL-PLSQETFSDLWKLLPPNNVLSTLPS-SDSIEE-LFLSENVAGWLEDP"
+      },
+      {
+        name: "seq.7",
+        sequence: "MEEPQSDLSIEL-PLSQETFSDLWKLLPPNNVLSTLPS-SDSIEE-LFLSENVAGWLEDP"
+      }
     ],
-    colorScheme: "zappo",
-   };
-  
+    height: 120,
+  };
+  (function() {
+    var mousePos;
+    document.onmousemove = handleMouseMove;
+    function handleMouseMove(event) {
+        var eventDoc, doc, body;
+        event = event || window.event; // IE-ism
+        // If pageX/Y aren't available and clientX/Y are,
+        // calculate pageX/Y - logic taken from jQuery.
+        // (This is to support old IE)
+        if (event.pageX == null && event.clientX != null) {
+            eventDoc = (event.target && event.target.ownerDocument) || document;
+            doc = eventDoc.documentElement;
+            body = eventDoc.body;
+            event.pageX = event.clientX +
+              (doc && doc.scrollLeft || body && body.scrollLeft || 0) -
+              (doc && doc.clientLeft || body && body.clientLeft || 0);
+            event.pageY = event.clientY +
+              (doc && doc.scrollTop  || body && body.scrollTop  || 0) -
+              (doc && doc.clientTop  || body && body.clientTop  || 0 );
+        }
+        mousePos = {
+          x: event.pageX,
+          y: event.pageY
+      };
+      window.mousePos = mousePos;
+    }
+  })();
+
+var Tooltip = function (props) {
+    const { style, children, ...otherProps } = props;
+    const containerStyle = {
+      display: "inline-grid"
+    };
+    const tooltipStyle = {
+      position: "relative",
+      width: "160px"
+    };
+    const textStyle = {
+      color: "#fff",
+      fontSize: "14px",
+      lineHeight: 1.2,
+      textAlign: "center",
+      backgroundColor: "#000",
+      borderRadius: "3px",
+      padding: "7px"
+    };
+    return (
+      <div id="tooltip" style={{ ...containerStyle, ...style }} {...otherProps}>
+        <div style={tooltipStyle}>
+          <div style={textStyle}>{children}</div>
+        </div>
+      </div>
+    );
+  }
+  Tooltip.defaultProps = {
+    style: {},
+  };
+  window.ajaxRun = false;
+function MyMSA() {
+ class SimpleTooltip extends React.Component {
+     state = {};
+     onResidueMouseEnter = e => {
+       if (!window.ajaxRun){
+       window.ajaxRun = true;
+       const strainQuery = '&res__poldata__strain__strain=';
+       if (e.position !== undefined){
+         var url = `/desire-api/residue-alignment/?format=json&aln_pos=${String(Number(e.position) + 1)}&aln=10${strainQuery}Escherichia coli str. K-12 substr. MG1655`
+           ajax(url).then(alnpos_data => {
+               if (alnpos_data.count != 0){
+                 ajax('/resi-api/' + alnpos_data["results"][0]["res"].split("/")[5]).then(resiData => {
+                   var alnViewEle = document.querySelector("#testaln");
+                   let boundingBox = alnViewEle.getBoundingClientRect();
+                   if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right){
+                     let tooltipPosition = {
+                       top: mousePos.y +"px",
+                       left: mousePos.x +"px",
+                     };
+                     if (resiData["Structural fold"][0] !== undefined && resiData["Associated data"][0] !== undefined){
+                       this.setState({
+                         fold: resiData["Structural fold"][0][1],
+                         phase: resiData["Associated data"][0][1],
+                         tooltipPosition,
+                       });
+                     }else{
+                       this.setState({
+                         fold: 'NA',
+                         phase: 'NA',
+                         tooltipPosition,
+                       });
+                     }
+                   }
+                   window.ajaxRun = false;
+                 });
+               }else{
+                 window.ajaxRun = false;
+               }
+           }).catch(error => {
+               console.log(error);
+           })
+         }
+       }else{
+         this.setState({ fold: undefined, phase: undefined });
+       }
+     };
+     onResidueMouseLeave = e => {
+       this.setState({ fold: undefined, phase: undefined });
+     };
+     render() {
+       return (
+         <div>
+           <ReactMSAViewer.MSAViewer {...options}>
+             <div style={{ position: "relative" }}>
+               <ReactMSAViewer.SequenceViewer
+                 onResidueMouseEnter={this.onResidueMouseEnter}
+                 onResidueMouseLeave={this.onResidueMouseLeave}
+               />
+               {this.state.fold && (
+                 <div
+                   style={{
+                     position: "absolute",
+                     opacity: 0.8,
+                     ...this.state.tooltipPosition
+                   }}
+                 >
+                   <Tooltip>
+                     Fold: {this.state.fold} <br></br>
+                     Phase: {this.state.phase}
+                   </Tooltip>
+                 </div>
+               )}
+             </div>
+           </ReactMSAViewer.MSAViewer>
+         </div>
+       );
+     }
+ }
+ return <SimpleTooltip />;
+};
+
+var msaElement = React.createElement(MyMSA, options)
