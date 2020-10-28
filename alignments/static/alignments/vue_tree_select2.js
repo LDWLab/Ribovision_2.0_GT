@@ -732,7 +732,7 @@ var vm = new Vue({
             var j = 0;
             while(j < mapped_aa_properties.get(topviewer.pluginInstance.domainTypes[4].label).length) {
                 masked_array[j] = false;
-                i = 0;
+                let i = 0;
                 while(i < window.masking_range_array.length && !masked_array[j]) {
                     if(j >= window.masking_range_array[i] && j <= window.masking_range_array[i + 1]) {
                         masked_array[j] = true;
@@ -975,12 +975,12 @@ function MyMSA() {
                     )}
                     </div>
                 </div>
-                <button onClick={() => this.highlightRegion(1)}>
+                {/* <button onClick={() => this.highlightRegion(1)}>
                 Highlight Region [2-13]{" "}
               </button>
               <button onClick={() => this.highlightRegion(2)}>
                 Highlight Region [2-13] [20-25]{" "}
-              </button>
+              </button> */}
                 <div id="highlightMSACol" onClick={() => this.highlightRegion()}></div>
                 </ReactMSAViewer.MSAViewer>
             </div>
