@@ -86,7 +86,7 @@
 			<div v-if="topology_loaded != 'False'">
 				<p>
 					<div class="checkbox">
-						<label><input type="checkbox" v-model="checked_filter" v-on:change="cleanFilter(checked_filter)">Masking ranges</label>
+						<label><input type="checkbox" v-model="checked_filter" v-on:change="cleanFilter(checked_filter, masking_range)">Masking ranges</label>
 					</div>
 					<span v-if="checked_filter">Residue ranges to show, separated by semicolon. <br> For example: 1-80;91-111;</span>
 					<input v-if="checked_filter" v-model="masking_range" v-on:input="handleMaskingRanges(masking_range)">
