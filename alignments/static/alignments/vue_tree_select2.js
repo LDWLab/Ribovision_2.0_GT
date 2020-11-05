@@ -506,13 +506,14 @@ var vm = new Vue({
                 var main_elmnt = document.querySelector(".alignment_section")
                 window.main_elmnt = main_elmnt;
                 let seqsForMSAViewer = parseFastaSeqForMSAViewer(fasta['Alignment'])
-                let msaOptions = {
+                var msaOptions = {
                     sequences: seqsForMSAViewer,
                     colorScheme: "clustal2",
                     height: main_elmnt.offsetHeight * 0.9,
                     width: main_elmnt.offsetWidth * 0.75,
                     tileHeight: 18,
                     tileWidth: 18,
+                    overflow: "auto",
                 }
                 window.msaOptions = msaOptions;
                 ReactDOM.render(
@@ -521,51 +522,6 @@ var vm = new Vue({
                   );
                 this.fasta_data = fasta['Alignment'];
                 this.aa_properties = calculateFrequencyData(fasta['AA frequencies'])
-                //var opts = {
-                //    el: document.getElementById("alnDiv"),
-                //    seqs: msa.io.fasta.parse(fasta['Alignment']),
-                //    colorscheme: {
-                //        scheme: "clustal2",
-                //    },
-                //    //columns: {
-                //    //    hidden: fasta['Gap-only columns'] // hidden columns
-                //    //},
-                //    zoomer: {
-                //        // general
-                //        alignmentWidth: main_elmnt.offsetWidth * 0.75,
-                //        alignmentHeight: main_elmnt.offsetHeight * 0.9,
-                //        columnWidth: 15,
-                //        rowHeight: 15,
-                //        labelNameLength: main_elmnt.offsetWidth * 0.18,
-                //        autoResize: false, // only for the width
-                //    },
-                //    conf: {
-                //        registerMouseHover: true,
-                //        registerMouseClicks: true,
-                //    },
-                //    // smaller menu for JSBin
-                //    menu: "small",
-                //    bootstrapMenu: true
-                //};
-                //var m = new msa.msa(opts);
-                //m.render();
-                //m.g.on("residue:click", function(data) {
-                //    vm.aln_meta_data = null;
-                //    const strainQuery = '&res__poldata__strain__strain=';
-                //    var url = `/desire-api/residue-alignment/?format=json&aln_pos=${String(Number(data["rowPos"]) + 1)}&aln=${aln_id}${strainQuery}${fasta['Sequence names'][Number(data["seqId"])]}`
-                //    ajax(url).then(alnpos_data => {
-                //        ajax('/resi-api/' + alnpos_data["results"][0]["res"].split("/")[5]).then(resiData => {
-                //            vm.aln_meta_data = resiData;
-                //        });
-                //    }).catch(error => {
-                //        vm.aln_meta_data = null;
-                //        console.log("No residue with alignment position: " + data["rowPos"] + ". In alignment " + aln_id + ". Of species " + fasta['Sequence names'][Number(data["seqId"])]);
-                //        console.log(error);
-                //    })
-                //});
-                //m.g.on("residue:mousein", function(data) {
-                //    console.log(data)
-                //});
             })
         }, showTopologyViewer (pdbid, chainid, fasta){
             if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(vm);}
@@ -952,8 +908,10 @@ function MyMSA() {
                 ref={ref => (this.el = ref)}
                 highlight={this.state.highlight}
                 >
-                <div style={{ position: "relative", display: "flex", }}>
-                <ReactMSAViewer.Labels style={{width: main_elmnt.offsetWidth * 0.2}}/>
+                <div style={{ position: "relative", display: "flex"}}>
+                <ReactMSAViewer.Labels style={{
+                    width: main_elmnt.offsetWidth * 0.2
+                    }}/>
                 <div>
                     <ReactMSAViewer.SequenceViewer
                       onResidueMouseEnter={this.onResidueMouseEnter}
@@ -964,7 +922,7 @@ function MyMSA() {
                         style={{
                           position: "absolute",
                           opacity: 0.8,
-                          ...this.state.tooltipPosition
+                          ...this.state.tooltipPosition,
                         }}
                       >
                         <Tooltip>
