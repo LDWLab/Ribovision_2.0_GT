@@ -435,6 +435,7 @@ var vm = new Vue({
         checked_customMap: false,
         csv_data: null,
         checked_propensities: false,
+        helix_residues: null,
     },
     watch: {
         csv_data: function (csv_data) {
@@ -693,6 +694,7 @@ var vm = new Vue({
                 ajax(topology_url).then(data => {
                     var entityid = Object.keys(data[pdblower])[0];
                     vm.coil_residues = filterCoilResidues(data[pdblower][entityid][chainid]["coils"])
+                    vm.helix_residues = filterCoilResidues(data[pdblower][entityid][chainid]["helices"])
                     var mapping = [];
                     var range_string = minIndex.concat("-").concat(maxIndex);
                     GetRangeMapping(pdbid, chainid, range_string, mapping);
@@ -831,7 +833,7 @@ var Tooltip = function (props) {
 window.ajaxRun = false;
 function MyMSA() {
     class SimpleTooltip extends React.Component {
-        state = {highlight: null};
+        state = { tileWidth: 18, tileHeight: 18, aaPos: 0, seqPos: 0, highlight: null };
         onResidueMouseEnter = e => {
             if (vm.topology_loaded == 'True'){
                 let resiPos = vm.structure_mapping[e.position];
@@ -862,8 +864,7 @@ function MyMSA() {
             }
             this.setState({ fold: undefined, phase: undefined });
         };
-        highlightRegion = n => {
-            console.log("DOING SOMETHING")
+        highlightRegion = () => {
             const highlight = {
                 sequences: {
                   from: 0,
@@ -874,32 +875,38 @@ function MyMSA() {
                   to: 13
                 }
               };
-      
-              if (n === 1) this.setState({ highlight });
-              else
-                this.setState({
-                  highlight: [
-                    highlight,
-                    {
-                      ...highlight,
-                      residues: {
-                        from: 20,
-                        to: 25
-                      }
-                    }
-                  ]
-                });
+            this.setState({ highlight });
         };
         removeHighlightRegion = () => {
             this.setState({ highlight: null });
         };                
         render() {
+            const xPos = this.state.tileWidth * (this.state.aaPos - 1);
+            const yPos = this.state.tileHeight * (this.state.seqPos - 1);
             return (
-            <div>
+            <div style={{ display: "flex" }}>
+                <div>
+                  <input
+                    style = {{ 
+                        width: main_elmnt.offsetWidth * 0.75+"px",
+                        position: "relative",
+                        left: main_elmnt.offsetWidth * 0.2+"px"
+                    }}
+                    type="range"
+                    min="0"
+                    max="40" //Needs position on the left edge of the viewer. len(aln) - len(aas in viewport)
+                    value={this.state.aaPos}
+                    onChange={(evt) => this.setState({ aaPos: evt.target.value })}
+                    class="slider"
+                    id="xPosSlider"
+                    />
                 <ReactMSAViewer.MSAViewer 
                 {...msaOptions}
-                ref={ref => (this.el = ref)}
+                ref={(ref) => (this.el = ref)}
                 highlight={this.state.highlight}
+                tileWidth={this.state.tileWidth}
+                tileHeight={this.state.tileHeight}
+                position={{ xPos, yPos }}
                 >
                 <div style={{ position: "relative", display: "flex"}}>
                 <ReactMSAViewer.Labels style={{
@@ -926,14 +933,23 @@ function MyMSA() {
                     )}
                     </div>
                 </div>
-                {/* <button onClick={() => this.highlightRegion(1)}>
-                Highlight Region [2-13]{" "}
-              </button>
-              <button onClick={() => this.highlightRegion(2)}>
-                Highlight Region [2-13] [20-25]{" "}
+                {/* <button onClick={() => this.highlightRegion()}>
+                Highlight Region {" "}
               </button> */}
-                <div id="highlightMSACol" onClick={() => this.highlightRegion()}></div>
                 </ReactMSAViewer.MSAViewer>
+            </div>
+            <input
+                style={{ 
+                    width: main_elmnt.offsetHeight*0.8+"px",
+                }}
+                type="range"
+                min="0"
+                max="40" //Needs position on the top edge of the viewer. total(seqs) - len(seqs in viewport)
+                value={this.state.seqPos}
+                onChange={(evt) => this.setState({ seqPos: evt.target.value })}
+                class="slider"
+                id="yPosSlider"
+                />
             </div>
             );
         }
