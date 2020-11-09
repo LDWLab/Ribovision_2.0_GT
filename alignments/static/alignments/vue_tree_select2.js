@@ -904,8 +904,8 @@ function MyMSA() {
         render() {
             const xPos = this.state.tileWidth * (this.state.aaPos - 1);
             const yPos = this.state.tileHeight * (this.state.seqPos - 1);
-            const maxXpos = window.aaFreqs.length - ((main_elmnt.offsetWidth * 0.7)/this.state.tileWidth);
-            const maxYpos = vm.fastaSeqNames.length - ((main_elmnt.offsetHeight * 0.9)/this.state.tileHeight);
+            const maxXpos = window.aaFreqs.length - Math.round(((main_elmnt.offsetWidth * 0.7)/this.state.tileWidth));
+            const maxYpos = vm.fastaSeqNames.length - Math.round(((main_elmnt.offsetHeight * 0.9)/this.state.tileHeight));
             return (
             <div style={{ display: "flex" }}>
                 <div>
