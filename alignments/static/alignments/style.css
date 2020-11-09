@@ -120,7 +120,7 @@
   }
   #yPosSlider {
     position: relative;
-    top: 20px;
+    top: 30px;
     -webkit-transform: rotate(90deg);
     -moz-transform: rotate(90deg);
     -ms-transform: rotate(90deg);
