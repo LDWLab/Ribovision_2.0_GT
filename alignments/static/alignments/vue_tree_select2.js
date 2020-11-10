@@ -39,17 +39,18 @@ function handleFilterRange(filter_range) {
                 format: 'cif',
                 binary:true },
             assemblyId: '1',
-            subscribeEvents: true});
-          
-          let selectedData = topviewer.pluginInstance.domainTypes[selectedIndex];
-          let select_sections = selectSections_RV1.get(selectedData.label).slice(Number(temp_array[0]), Number(temp_array[1])+1);
-          window.viewerInstance.visual.select({
+            subscribeEvents: true
+        });
+        viewerInstance.events.loadComplete.subscribe(() => { 
+            let selectedData = topviewer.pluginInstance.domainTypes[selectedIndex];
+            let select_sections = selectSections_RV1.get(selectedData.label).slice(Number(temp_array[0]), Number(temp_array[1])+1);
+            window.viewerInstance.visual.select({
             data: select_sections,
             nonSelectedColor: {r:255,g:255,b:255}});
             //var selectedDomain = topviewer.pluginInstance.domainTypes[selectedIndex];
             //topviewer.updateTheme(selectedDomain.data);
-            
-    }          
+         });
+    }
 }
 function isCorrectMask(mask_range){
     window.masking_range_array = null;
