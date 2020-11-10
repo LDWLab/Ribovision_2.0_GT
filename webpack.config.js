@@ -2,6 +2,7 @@ var path = require("path");
 var webpack = require('webpack');
 var BundleTracker = require('webpack-bundle-tracker');
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
+var CleanObsoleteChunks = require('webpack-clean-obsolete-chunks');
 
 module.exports = {
   context: __dirname,
@@ -17,6 +18,7 @@ module.exports = {
   plugins: [
     new BundleTracker({filename: './webpack-stats.json'}),
     new VueLoaderPlugin(),
+    new CleanObsoleteChunks({verbose: false,})
   ],
   module: {
     rules: [

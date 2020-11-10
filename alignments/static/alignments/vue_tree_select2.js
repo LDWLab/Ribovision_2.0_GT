@@ -474,6 +474,7 @@ var vm = new Vue({
         checked_customMap: false,
         csv_data: null,
         checked_propensities: false,
+        helix_residues: null,
     },
     watch: {
         csv_data: function (csv_data) {
@@ -660,70 +661,27 @@ var vm = new Vue({
                 if (fasta['TwinCons'] != null){
                     this.custom_aln_twc_flag = fasta['TwinCons']
                 }
-                vm.fastaSeqNames = fasta['Sequence names']
-                var main_elmnt = document.querySelector(".alignment_section")
+                vm.fastaSeqNames = fasta['Sequence names'];
+                window.aaFreqs = fasta['AA frequencies'];
+                var main_elmnt = document.querySelector(".alignment_section");
                 window.main_elmnt = main_elmnt;
-                let seqsForMSAViewer = parseFastaSeqForMSAViewer(fasta['Alignment'])
-                let msaOptions = {
+                let seqsForMSAViewer = parseFastaSeqForMSAViewer(fasta['Alignment']);
+                var msaOptions = {
                     sequences: seqsForMSAViewer,
                     colorScheme: "clustal2",
                     height: main_elmnt.offsetHeight * 0.9,
                     width: main_elmnt.offsetWidth * 0.75,
                     tileHeight: 18,
                     tileWidth: 18,
-                }
+                    overflow: "auto",
+                };
                 window.msaOptions = msaOptions;
                 ReactDOM.render(
                     React.createElement(MyMSA, msaOptions),
                     document.getElementById('alnDiv')
                   );
                 this.fasta_data = fasta['Alignment'];
-                this.aa_properties = calculateFrequencyData(fasta['AA frequencies'])
-                //var opts = {
-                //    el: document.getElementById("alnDiv"),
-                //    seqs: msa.io.fasta.parse(fasta['Alignment']),
-                //    colorscheme: {
-                //        scheme: "clustal2",
-                //    },
-                //    //columns: {
-                //    //    hidden: fasta['Gap-only columns'] // hidden columns
-                //    //},
-                //    zoomer: {
-                //        // general
-                //        alignmentWidth: main_elmnt.offsetWidth * 0.75,
-                //        alignmentHeight: main_elmnt.offsetHeight * 0.9,
-                //        columnWidth: 15,
-                //        rowHeight: 15,
-                //        labelNameLength: main_elmnt.offsetWidth * 0.18,
-                //        autoResize: false, // only for the width
-                //    },
-                //    conf: {
-                //        registerMouseHover: true,
-                //        registerMouseClicks: true,
-                //    },
-                //    // smaller menu for JSBin
-                //    menu: "small",
-                //    bootstrapMenu: true
-                //};
-                //var m = new msa.msa(opts);
-                //m.render();
-                //m.g.on("residue:click", function(data) {
-                //    vm.aln_meta_data = null;
-                //    const strainQuery = '&res__poldata__strain__strain=';
-                //    var url = `/desire-api/residue-alignment/?format=json&aln_pos=${String(Number(data["rowPos"]) + 1)}&aln=${aln_id}${strainQuery}${fasta['Sequence names'][Number(data["seqId"])]}`
-                //    ajax(url).then(alnpos_data => {
-                //        ajax('/resi-api/' + alnpos_data["results"][0]["res"].split("/")[5]).then(resiData => {
-                //            vm.aln_meta_data = resiData;
-                //        });
-                //    }).catch(error => {
-                //        vm.aln_meta_data = null;
-                //        console.log("No residue with alignment position: " + data["rowPos"] + ". In alignment " + aln_id + ". Of species " + fasta['Sequence names'][Number(data["seqId"])]);
-                //        console.log(error);
-                //    })
-                //});
-                //m.g.on("residue:mousein", function(data) {
-                //    console.log(data)
-                //});
+                this.aa_properties = calculateFrequencyData(fasta['AA frequencies']);
             })
         }, showTopologyViewer (pdbid, chainid, fasta){
             if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(vm);}
@@ -777,6 +735,7 @@ var vm = new Vue({
                 ajax(topology_url).then(data => {
                     var entityid = Object.keys(data[pdblower])[0];
                     vm.coil_residues = filterCoilResidues(data[pdblower][entityid][chainid]["coils"])
+                    vm.helix_residues = filterCoilResidues(data[pdblower][entityid][chainid]["helices"])
                     var mapping = [];
                     var range_string = minIndex.concat("-").concat(maxIndex);
                     GetRangeMapping(pdbid, chainid, range_string, mapping);
@@ -916,7 +875,27 @@ var Tooltip = function (props) {
 window.ajaxRun = false;
 function MyMSA() {
     class SimpleTooltip extends React.Component {
-        state = {highlight: null};
+        state = { 
+            tileWidth: 18,
+            tileHeight: 18,
+            aaPos: 0,
+            seqPos: 0,
+            width: main_elmnt.offsetWidth * 0.7,
+            height: main_elmnt.offsetHeight * 0.9,
+            highlight: null 
+        };
+        handleResize = () => {
+            this.setState({
+                width: main_elmnt.offsetWidth * 0.7,
+                height: main_elmnt.offsetHeight * 0.9
+            })
+        };
+        componentDidMount() {
+            window.addEventListener("resize", this.handleResize);
+        };
+        componentWillUnmount() {
+            window.removeEventListener("resize", this.handleResize);
+        };
         onResidueMouseEnter = e => {
             if (vm.topology_loaded == 'True'){
                 let resiPos = vm.structure_mapping[e.position];
@@ -947,8 +926,7 @@ function MyMSA() {
             }
             this.setState({ fold: undefined, phase: undefined });
         };
-        highlightRegion = n => {
-            console.log("DOING SOMETHING")
+        highlightRegion = () => {
             const highlight = {
                 sequences: {
                   from: 0,
@@ -959,35 +937,47 @@ function MyMSA() {
                   to: 13
                 }
               };
-      
-              if (n === 1) this.setState({ highlight });
-              else
-                this.setState({
-                  highlight: [
-                    highlight,
-                    {
-                      ...highlight,
-                      residues: {
-                        from: 20,
-                        to: 25
-                      }
-                    }
-                  ]
-                });
+            this.setState({ highlight });
         };
         removeHighlightRegion = () => {
             this.setState({ highlight: null });
         };                
         render() {
+            const xPos = this.state.tileWidth * (this.state.aaPos - 1);
+            const yPos = this.state.tileHeight * (this.state.seqPos - 1);
+            const maxXpos = window.aaFreqs.length - Math.round(((main_elmnt.offsetWidth * 0.7)/this.state.tileWidth));
+            const maxYpos = vm.fastaSeqNames.length - Math.round(((main_elmnt.offsetHeight * 0.9)/this.state.tileHeight));
             return (
-            <div>
+            <div style={{ display: "flex" }}>
+                <div>
+                  <input
+                    style = {{ 
+                        width: main_elmnt.offsetWidth * 0.7+"px",
+                        position: "relative",
+                        left: main_elmnt.offsetWidth * 0.2+"px"
+                    }}
+                    type="range"
+                    min="0"
+                    max={maxXpos}
+                    value={this.state.aaPos}
+                    onChange={(evt) => this.setState({ aaPos: evt.target.value })}
+                    class="slider"
+                    id="xPosSlider"
+                    />
                 <ReactMSAViewer.MSAViewer 
                 {...msaOptions}
-                ref={ref => (this.el = ref)}
+                ref={(ref) => (this.el = ref)}
                 highlight={this.state.highlight}
+                width={this.state.width}
+                height={this.state.height}
+                tileWidth={this.state.tileWidth}
+                tileHeight={this.state.tileHeight}
+                position={{ xPos, yPos }}
                 >
-                <div style={{ position: "relative", display: "flex", }}>
-                <ReactMSAViewer.Labels style={{width: main_elmnt.offsetWidth * 0.2}}/>
+                <div style={{ position: "relative", display: "flex"}}>
+                <ReactMSAViewer.Labels style={{
+                    width: main_elmnt.offsetWidth * 0.2
+                    }}/>
                 <div>
                     <ReactMSAViewer.SequenceViewer
                       onResidueMouseEnter={this.onResidueMouseEnter}
@@ -998,7 +988,7 @@ function MyMSA() {
                         style={{
                           position: "absolute",
                           opacity: 0.8,
-                          ...this.state.tooltipPosition
+                          ...this.state.tooltipPosition,
                         }}
                       >
                         <Tooltip>
@@ -1009,14 +999,23 @@ function MyMSA() {
                     )}
                     </div>
                 </div>
-                {/* <button onClick={() => this.highlightRegion(1)}>
-                Highlight Region [2-13]{" "}
-              </button>
-              <button onClick={() => this.highlightRegion(2)}>
-                Highlight Region [2-13] [20-25]{" "}
+                {/* <button onClick={() => this.highlightRegion()}>
+                Highlight Region {" "}
               </button> */}
-                <div id="highlightMSACol" onClick={() => this.highlightRegion()}></div>
                 </ReactMSAViewer.MSAViewer>
+            </div>
+            <input
+                style={{ 
+                    width: main_elmnt.offsetHeight*0.9+"px",
+                }}
+                type="range"
+                min="0"
+                max={maxYpos}
+                value={this.state.seqPos}
+                onChange={(evt) => this.setState({ seqPos: evt.target.value })}
+                class="slider"
+                id="yPosSlider"
+                />
             </div>
             );
         }
