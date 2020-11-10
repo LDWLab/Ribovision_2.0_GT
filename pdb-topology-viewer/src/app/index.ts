@@ -259,7 +259,7 @@ class PdbTopologyViewerPlugin {
                     .on("zoom", () => this.zoomDraw())
                     //.scaleExtent([.5, 20])  // This control how much you can unzoom (x0.5) and zoom (x20)
                     // .transform(this.xScale, this.yScale)
-        
+                      
     }
 
     drawStrandSubpaths(startResidueNumber:number, stopResidueNumber:number, index:number) {
@@ -488,7 +488,7 @@ class PdbTopologyViewerPlugin {
         });
     }
 
-    drawHelicesSubpaths(startResidueNumber:number, stopResidueNumber:number, index:number, curveYdiff:number) {
+    drawHelicesSubpaths(startResidueNumber:number, stopResidueNumber:number, index:number, curveYdiff:number) { 
         const _this = this;
         curveYdiff = 0;
         const diffVal = 5;
@@ -776,7 +776,7 @@ class PdbTopologyViewerPlugin {
             </div>
         </div>`;
 
-        //Get dimenstions
+        //Get dimensions
         let targetEleWt = this.targetEle.offsetWidth;
         let targetEleHt = this.targetEle.offsetHeight;
         if(targetEleWt == 0) targetEleWt = (this.targetEle.parentElement as HTMLElement).offsetWidth;
@@ -883,7 +883,7 @@ class PdbTopologyViewerPlugin {
                         if(secStrType === 'strands'){
                             //create subsections/paths
                             this.drawStrandSubpaths(secStrData.start, secStrData.stop, secStrDataIndex)
-                            
+
                             //Create mask to restore shape
                             this.drawStrandMaskShape(secStrDataIndex);
                             
@@ -896,7 +896,7 @@ class PdbTopologyViewerPlugin {
                         if(secStrType === 'helices'){
                             //create subsections/paths
                             this.drawHelicesSubpaths(secStrData.start, secStrData.stop, secStrDataIndex, curveYdiff)
-                            
+
                             //Create mask to restore shape
                             this.drawHelicesMaskShape(secStrDataIndex);
                             
@@ -908,7 +908,7 @@ class PdbTopologyViewerPlugin {
                         //for coils
                         if(secStrType === 'coils'){
                             //create subsections/paths
-                            this.drawCoilsSubpaths(secStrData.start, secStrData.stop, secStrDataIndex);
+                            this.drawCoilsSubpaths(secStrData.start, secStrData.stop, secStrDataIndex);                       
                         }
                     
                         this.scaledPointsArr = []; //empty the arr for next iteration
@@ -1578,7 +1578,6 @@ class PdbTopologyViewerPlugin {
   }
 
     displayDomain(invokedFrom?: string) {
-
         const selectBoxEle:any = this.targetEle.querySelector('.menuSelectbox');
         const selectedValue = parseInt(selectBoxEle.value);
         const selectedDomain = this.domainTypes[selectedValue];

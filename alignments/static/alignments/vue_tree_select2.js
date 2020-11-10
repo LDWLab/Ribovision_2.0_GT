@@ -26,6 +26,31 @@ function handleMaskingRanges(mask_range){
         vm.correct_mask = 'False';
     }
 }
+function handleFilterRange(filter_range) {
+    const temp_array = filter_range.split('-');
+    if (filter_range.match(/^\d+-\d+/) && Number(temp_array[0]) < Number(temp_array[1])) {
+        vm.filter_range = filter_range;
+        var topviewer = document.getElementById("PdbeTopViewer");
+        var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
+        topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);   
+        viewerInstance.visual.update({
+            customData: {
+                url: `https://www.ebi.ac.uk/pdbe/coordinates/${window.pdblower}/residueRange?entityId=${topviewer.entityId}&range=${filter_range}&encoding=bcif`,
+                format: 'cif',
+                binary:true },
+            assemblyId: '1',
+            subscribeEvents: true});
+          
+          let selectedData = topviewer.pluginInstance.domainTypes[selectedIndex];
+          let select_sections = selectSections_RV1.get(selectedData.label).slice(Number(temp_array[0]), Number(temp_array[1])+1);
+          window.viewerInstance.visual.select({
+            data: select_sections,
+            nonSelectedColor: {r:255,g:255,b:255}});
+            //var selectedDomain = topviewer.pluginInstance.domainTypes[selectedIndex];
+            //topviewer.updateTheme(selectedDomain.data);
+            
+    }          
+}
 function isCorrectMask(mask_range){
     window.masking_range_array = null;
     if (mask_range.match(/^(\d+-\d+;)+$/)) {
@@ -51,7 +76,7 @@ function initializeMaskedArray() {
     var j = 0;
     while(j < mapped_aa_properties.get(topviewer.pluginInstance.domainTypes[4].label).length) {
         masked_array[j] = false;
-        i = 0;
+        var i = 0;
         while(i < window.masking_range_array.length && !masked_array[j]) {
             if(j >= window.masking_range_array[i] && j <= window.masking_range_array[i + 1]) {
                 masked_array[j] = true;
@@ -129,6 +154,18 @@ function cleanFilter(checked_filter, masking_range){
     var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
     topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data); 
     window.viewerInstance.visual.select({data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), nonSelectedColor: {r:255,g:255,b:255}});
+}
+function cleanSelection(checked_selection, filter_range){
+    if (checked_selection){return;}
+    if (filter_range == null){return;}
+    vm.filter_range = null;
+    viewerInstance.visual.update({
+        customData: {
+            url: `https://www.ebi.ac.uk/pdbe/coordinates/${window.pdblower}/chains?entityId=${topviewer.entityId}&encoding=bcif`,
+            format: 'cif',
+            binary:true },
+        assemblyId: '1',
+        subscribeEvents: true});
 }
 function getCookie(name) {
     var cookieValue = null;
@@ -429,9 +466,11 @@ var vm = new Vue({
         topology_loaded: 'False',
         twc_loaded: false,
         masking_range: null,
+        filter_range: null,
         correct_mask: false,
         coil_residues: null,
         checked_filter: false,
+        checked_selection: false,
         checked_customMap: false,
         csv_data: null,
         checked_propensities: false,
@@ -696,6 +735,7 @@ var vm = new Vue({
             var minIndex = String(0)
             var maxIndex = String(100000)
             var pdblower = pdbid.toLocaleLowerCase();
+            window.pdblower = pdblower;
             let temp = vm.chains.filter(obj => {
                 return obj["value"] == chainid;
             })[0];
@@ -753,6 +793,7 @@ var vm = new Vue({
             var minIndex = String(0)
             var maxIndex = String(100000)
             var pdblower = pdbid.toLocaleLowerCase();
+            window.pdblower = pdblower;
             var viewerInstance = new PDBeMolstarPlugin();
             var options = {
                 customData: { url: `https://www.ebi.ac.uk/pdbe/coordinates/${pdblower}/chains?entityId=${entityid}&encoding=bcif`, 
