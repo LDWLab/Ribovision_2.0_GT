@@ -889,10 +889,14 @@ function MyMSA() {
             this.setState({
                 width: main_elmnt.offsetWidth * 0.7,
                 height: main_elmnt.offsetHeight * 0.9
-            })
+            });
+            //var style = document.querySelector('[data="rv3_style"]');
+            //style.innerHTML = ".slider::-webkit-slider-thumb { width: "+main_elmnt.offsetWidth*0.05+"px}"
         };
         componentDidMount() {
             window.addEventListener("resize", this.handleResize);
+            //var style = document.querySelector('[data="rv3_style"]');
+            //style.innerHTML = ".slider::-webkit-slider-thumb { width: "+main_elmnt.offsetWidth*0.05+"px}"
         };
         componentWillUnmount() {
             window.removeEventListener("resize", this.handleResize);
@@ -946,8 +950,8 @@ function MyMSA() {
         render() {
             const xPos = this.state.tileWidth * (this.state.aaPos - 1);
             const yPos = this.state.tileHeight * (this.state.seqPos - 1);
-            const maxXpos = window.aaFreqs.length - Math.round(((main_elmnt.offsetWidth * 0.7)/this.state.tileWidth));
-            const maxYpos = vm.fastaSeqNames.length - Math.round(((main_elmnt.offsetHeight * 0.9)/this.state.tileHeight));
+            const maxXpos = window.aaFreqs.length - Math.round(((main_elmnt.offsetWidth * 0.7)/this.state.tileWidth))+2;
+            const maxYpos = vm.fastaSeqNames.length - Math.round(((main_elmnt.offsetHeight * 0.9)/this.state.tileHeight))+2;
             return (
             <div style={{ display: "flex" }}>
                 <div>
