@@ -9,7 +9,7 @@ const masking_range_array = (window as any).masking_range_array;
 var masked_array = (window as any).masked_array;
 var viewerInstance = (window as any).viewerInstance;
 var selectSections_RV1 = (window as any).selectSections_RV1;
-var filterRange = (window as any).filter_range?(window as any).filter_range: "-10000,10000";
+var filterRange = (window as any).filterRange?(window as any).filterRange: "-10000,10000";
 
 class PdbTopologyViewerPlugin { 
     
@@ -1610,7 +1610,13 @@ class PdbTopologyViewerPlugin {
                 
                 //Handle custom mapping data from RV3
                 if(rv3AnnotationLabels.includes(selectedDomain.label) && invokedFrom !== 'zoom'){
-                    viewerInstance.visual.select({ data: selectSections_RV1.get(selectedDomain.label), nonSelectedColor: {r:0,g:0,b:0}})
+                    if (filterRange != "-10000,10000"){
+                        let filterRangeArr = filterRange.split(",")
+                        var select_sections = selectSections_RV1.get(selectedDomain.label).slice(Number(filterRangeArr[0]), Number(filterRangeArr[1])+1);
+                    } else {
+                        var select_sections = selectSections_RV1.get(selectedDomain.label)
+                    }
+                    viewerInstance.visual.select({ data: select_sections, nonSelectedColor: {r:0,g:0,b:0}})
                 }
                 //show rsrz validation circles if Quality
                 if(selectedDomain.label === 'Quality'){
