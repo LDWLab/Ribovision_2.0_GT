@@ -125,7 +125,7 @@ function handleCustomMappingData(){
 }
 function downloadCSVData() {
 
-    csv = generateCSVstring(mapped_aa_properties);
+    let csv = generateCSVstring(mapped_aa_properties);
 
     let anchor = document.createElement('a');
     anchor.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
@@ -299,6 +299,7 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
         if (vueObj.topology_loaded) {vueObj.topology_loaded = 'False';}
         if (aln_item) {aln_item.remove(); create_deleted_element("alnif", "alnDiv", aln_text)}
     }
+    window.ajaxRun = false;
     if (window.masked_array.length > 0) {window.masked_array = [];}
     if (vueObj.masking_range) {vueObj.masking_range = null;}
     //if (vueObj.chainid) {vueObj.chainid = null;}
