@@ -30,7 +30,7 @@ function handleFilterRange(filter_range) {
     const temp_array = filter_range.split('-');
     if (filter_range.match(/^\d+-\d+/) && Number(temp_array[0]) < Number(temp_array[1])) {
         vm.filter_range = filter_range;
-        window.filter_range = temp_array.join(",");
+        window.filterRange = temp_array.join(",");
         var topviewer = document.getElementById("PdbeTopViewer");
         var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
         topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);   
@@ -51,10 +51,12 @@ function handleFilterRange(filter_range) {
             //var selectedDomain = topviewer.pluginInstance.domainTypes[selectedIndex];
             //topviewer.updateTheme(selectedDomain.data);
          });
-         topviewer.pluginInstance.initPainting(window.filter_range);
+         topviewer.pluginInstance.initPainting(window.select_sections)
          /*let selectedData = topviewer.pluginInstance.domainTypes[selectedIndex];
          topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);   
          topviewer.pluginInstance.updateTheme(selectedData.data); */
+    }else{
+        //
     }
 }
 function isCorrectMask(mask_range){
@@ -130,7 +132,7 @@ function handleCustomMappingData(){
 }
 function downloadCSVData() {
 
-    csv = generateCSVstring(mapped_aa_properties);
+    let csv = generateCSVstring(mapped_aa_properties);
 
     let anchor = document.createElement('a');
     anchor.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
@@ -165,9 +167,7 @@ function cleanSelection(checked_selection, filter_range){
     if (checked_selection){return;}
     if (filter_range == null){return;}
     vm.filter_range = null;
-    var topviewer = document.getElementById("PdbeTopViewer");
-    window.filter_range = "-1000,10000";
-    topviewer.pluginInstance.initPainting(window.filter_range);
+    window.filterRange = "-10000,10000";
     viewerInstance.visual.update({
         customData: {
             url: `https://www.ebi.ac.uk/pdbe/coordinates/${window.pdblower}/chains?entityId=${topviewer.entityId}&encoding=bcif`,
@@ -307,6 +307,7 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
         if (vueObj.topology_loaded) {vueObj.topology_loaded = 'False';}
         if (aln_item) {aln_item.remove(); create_deleted_element("alnif", "alnDiv", aln_text)}
     }
+    window.ajaxRun = false;
     if (window.masked_array.length > 0) {window.masked_array = [];}
     if (vueObj.masking_range) {vueObj.masking_range = null;}
     //if (vueObj.chainid) {vueObj.chainid = null;}
@@ -693,7 +694,7 @@ var vm = new Vue({
                 this.aa_properties = calculateFrequencyData(fasta['AA frequencies']);
             })
         }, showTopologyViewer (pdbid, chainid, fasta){
-            window.filter_range = "-10000,10000";
+            window.filterRange = "-10000,10000";
             if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(vm);}
             if (chainid.length > 1){this.chainid = chainid[0];}
             const topview_item = document.getElementById("topview");
@@ -898,10 +899,14 @@ function MyMSA() {
             this.setState({
                 width: main_elmnt.offsetWidth * 0.7,
                 height: main_elmnt.offsetHeight * 0.9
-            })
+            });
+            //var style = document.querySelector('[data="rv3_style"]');
+            //style.innerHTML = ".slider::-webkit-slider-thumb { width: "+main_elmnt.offsetWidth*0.05+"px}"
         };
         componentDidMount() {
             window.addEventListener("resize", this.handleResize);
+            //var style = document.querySelector('[data="rv3_style"]');
+            //style.innerHTML = ".slider::-webkit-slider-thumb { width: "+main_elmnt.offsetWidth*0.05+"px}"
         };
         componentWillUnmount() {
             window.removeEventListener("resize", this.handleResize);
@@ -955,8 +960,8 @@ function MyMSA() {
         render() {
             const xPos = this.state.tileWidth * (this.state.aaPos - 1);
             const yPos = this.state.tileHeight * (this.state.seqPos - 1);
-            const maxXpos = window.aaFreqs.length - Math.round(((main_elmnt.offsetWidth * 0.7)/this.state.tileWidth));
-            const maxYpos = vm.fastaSeqNames.length - Math.round(((main_elmnt.offsetHeight * 0.9)/this.state.tileHeight));
+            const maxXpos = window.aaFreqs.length - Math.round(((main_elmnt.offsetWidth * 0.7)/this.state.tileWidth))+2;
+            const maxYpos = vm.fastaSeqNames.length - Math.round(((main_elmnt.offsetHeight * 0.9)/this.state.tileHeight))+2;
             return (
             <div style={{ display: "flex" }}>
                 <div>

@@ -109,12 +109,12 @@
   .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 10px;
+    width: 20px;
     height: 10px;
     background: #4c90af;
   }
   .slider::-moz-range-thumb {
-    width: 10px;
+    width: 20px;
     height: 10px;
     background: #4c90af;
   }

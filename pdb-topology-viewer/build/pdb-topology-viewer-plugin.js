@@ -45,6 +45,7 @@ var masking_range_array = window.masking_range_array;
 var masked_array = window.masked_array;
 var viewerInstance = window.viewerInstance;
 var selectSections_RV1 = window.selectSections_RV1;
+var filterRange = window.filterRange ? window.filterRange : "-10000,10000";
 var PdbTopologyViewerPlugin = /** @class */ (function () {
     function PdbTopologyViewerPlugin() {
         this.defaultColours = {
@@ -155,8 +156,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
             this.errorStyle += options.errorStyle;
         if (options && typeof options.menuStyle != 'undefined' && options.menuStyle != null)
             this.menuStyle += options.menuStyle;
-        if (options && typeof options.filterRange != 'undefined' && options.filterRange != null)
-            this.filterRange = options.filterRange;
+        //if(options && typeof options.filterRange != 'undefined' && options.filterRange != null) filterRange = options.filterRange;
         this.targetEle = target;
         if (this.targetEle)
             this.targetEle.innerHTML = '';
@@ -186,8 +186,12 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
             this.initPainting();
         }
     };
-    PdbTopologyViewerPlugin.prototype.initPainting = function () {
+    PdbTopologyViewerPlugin.prototype.initPainting = function (filter_range) {
         var _this_1 = this;
+        if (filter_range) {
+            filterRange = filter_range;
+            console.log("Filter:" + filterRange);
+        }
         this.getApiData(this.entryId, this.chainId).then(function (result) {
             if (result) {
                 //Validate required data in the API result set (0, 2, 4)
@@ -278,8 +282,8 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         //filtering by a domain
         //update domain start and end positions here
         var topologyData = this.apiData[2][this.entryId][this.entityId][this.chainId];
-        var istart = Number(this.filterRange.split(",")[0]);
-        var iend = Number(this.filterRange.split(",")[1]);
+        var istart = Number(filterRange.split(",")[0]);
+        var iend = Number(filterRange.split(",")[1]);
         //if (istart == 0 && iend == 100000) {istart = parseInt (t["terms"][0]["resnum"]); iend = parseInt (t["terms"][1]["resnum"]) }
         if (iend > 5000) {
             var tc = this.apiData[2][this.entryId][this.entityId][this.chainId]["coils"];
@@ -510,7 +514,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 entryId: this.entryId,
                 entityId: this.entityId,
                 entropyId: this.entropyId,
-                filterRange: this.filterRange,
+                filterRange: filterRange,
                 chainId: this.chainId,
             });
         }
@@ -536,7 +540,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 entryId: this.entryId,
                 entityId: this.entityId,
                 entropyId: this.entropyId,
-                filterRange: this.filterRange,
+                filterRange: filterRange,
                 chainId: this.chainId,
             });
         }
@@ -575,7 +579,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         //Dispatch custom mouseover event
         this.dispatchEvent('PDB.topologyViewer.mouseout', {
             entropyId: this.entropyId,
-            filterRange: this.filterRange,
+            filterRange: filterRange,
             entryId: this.entryId,
             entityId: this.entityId,
             chainId: this.chainId,
@@ -838,11 +842,29 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 .attr('style', "-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; line-height: normal; font-family: Arial;");
         }
     };
+    PdbTopologyViewerPlugin.prototype.getAdjustedStartAndStop = function (secStrType, secStrData) {
+        if (secStrType != 'helices' && secStrType != 'coils' && secStrType != 'strands') {
+            return [secStrData.start, secStrData.stop];
+        }
+        if ((secStrData.stop < Number(filterRange.split(",")[0]) || (secStrData.start > Number(filterRange.split(",")[1])))) {
+            return null;
+        }
+        else if (secStrType === 'helices' || secStrType === 'strands') {
+            return [secStrData.start, secStrData.stop];
+        }
+        else if (secStrData.stop > Number(filterRange.split(",")[1])) {
+            return [secStrData.start, Number(filterRange.split(",")[1])];
+        }
+        else if (secStrData.start < Number(filterRange.split(",")[0])) {
+            return [Number(filterRange.split(",")[0]), secStrData.stop];
+        }
+        return [secStrData.start, secStrData.stop];
+    };
     PdbTopologyViewerPlugin.prototype.drawTopologyStructures = function () {
         var _this_1 = this;
         //Add container elements
         this.targetEle.innerHTML = "<div style=\"" + this.displayStyle + "\">\n            <div class=\"svgSection\" style=\"position:relative;width:100%;\"></div>\n            <div style=\"" + this.menuStyle + "\">\n                <img src=\"https://www.ebi.ac.uk/pdbe/entry/static/images/logos/PDBe/logo_T_64.png\" style=\"height:15px; width: 15px; border:0;position: absolute;margin-top: 11px;\" />\n                <a style=\"color: #efefef;border-bottom:none; cursor:pointer;margin-left: 16px;\" target=\"_blank\" href=\"https://pdbe.org/" + this.entryId + "\">" + this.entryId + "</a> | <span class=\"menuDesc\">Entity " + this.entityId + " | Chain " + this.chainId.toUpperCase() + "</span>\n                <div class=\"menuOptions\" style=\"float:right;margin-right: 20px;\">\n                    <select class=\"menuSelectbox\" style=\"margin-right: 10px;\"><option value=\"\">Select</option></select>\n                    <img class=\"saveSVG\" src=\"http://apollo2.chemistry.gatech.edu/RiboVision3/pdb-topology-viewer-master_2/build/Save.png\" style=\"height:15px; width: 15px; border:0;position: relative;margin-right: 15px;cursor:pointer;\" title=\"saveSVG\" />\n\n                    <img class=\"resetIcon\" src=\"https://www.ebi.ac.uk/pdbe/pdb-component-library/images/refresh.png\" style=\"height:15px; width: 15px; border:0;position: absolute;margin-top: 11px;cursor:pointer;\" title=\"Reset view\" />\n                </div>\n            </div>\n        </div>";
-        //Get dimenstions
+        //Get dimensions
         var targetEleWt = this.targetEle.offsetWidth;
         var targetEleHt = this.targetEle.offsetHeight;
         if (targetEleWt == 0)
@@ -872,7 +894,9 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 return { value: void 0 };
             //iterating on secondary str data array
             secStrArr.forEach(function (secStrData, secStrDataIndex) {
-                if (typeof secStrData.path !== 'undefined' && secStrData.path.length > 0) {
+                if (typeof secStrData.path !== 'undefined' && secStrData.path.length > 0 && _this_1.getAdjustedStartAndStop(secStrType, secStrData) != null) {
+                    var istart = _this_1.getAdjustedStartAndStop(secStrType, secStrData)[0];
+                    var istop = _this_1.getAdjustedStartAndStop(secStrType, secStrData)[1];
                     if (secStrType === 'terms') {
                         //Terms
                     }
@@ -906,7 +930,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                                 return 'dashedEle topologyEle ' + secStrType + ' ' + secStrType + '' + secStrDataIndex + ' topoEleRange_' + secStrData.start + '-' + secStrData.stop;
                             }
                             else {
-                                return 'topologyEle ' + secStrType + ' ' + secStrType + '' + secStrDataIndex + ' topoEleRange_' + secStrData.start + '-' + secStrData.stop;
+                                return 'topologyEle ' + secStrType + ' ' + secStrType + '' + secStrDataIndex + ' topoEleRange_' + istart + '-' + istop;
                             }
                         })
                             .attr('d', function (d) {
@@ -946,7 +970,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                         //hightlight node calculations
                         if (secStrType === 'strands') {
                             //create subsections/paths
-                            _this_1.drawStrandSubpaths(secStrData.start, secStrData.stop, secStrDataIndex);
+                            _this_1.drawStrandSubpaths(istart, istop, secStrDataIndex);
                             //Create mask to restore shape
                             _this_1.drawStrandMaskShape(secStrDataIndex);
                             //bring original/complete helices in front newEle
@@ -956,7 +980,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                         //for helices
                         if (secStrType === 'helices') {
                             //create subsections/paths
-                            _this_1.drawHelicesSubpaths(secStrData.start, secStrData.stop, secStrDataIndex, curveYdiff);
+                            _this_1.drawHelicesSubpaths(istart, istop, secStrDataIndex, curveYdiff);
                             //Create mask to restore shape
                             _this_1.drawHelicesMaskShape(secStrDataIndex);
                             // //bring original/complete helices in front
@@ -966,7 +990,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                         //for coils
                         if (secStrType === 'coils') {
                             //create subsections/paths
-                            _this_1.drawCoilsSubpaths(secStrData.start, secStrData.stop, secStrDataIndex);
+                            _this_1.drawCoilsSubpaths(istart, istop, secStrDataIndex);
                         }
                         _this_1.scaledPointsArr = []; //empty the arr for next iteration
                     }
@@ -1524,23 +1548,32 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
     PdbTopologyViewerPlugin.prototype.displayDomain = function (invokedFrom) {
         var selectBoxEle = this.targetEle.querySelector('.menuSelectbox');
         var selectedValue = parseInt(selectBoxEle.value);
-        var selectedDomain = this.domainTypes[selectedValue];
-        var rv3AnnotationLabels = Array.from(aaPropertyConstants.keys());
-        if (selectedDomain.data !== null) {
-            this.resetTheme();
-            this.updateTheme(selectedDomain.data);
-            //Handle custom mapping data from RV3
-            if (rv3AnnotationLabels.includes(selectedDomain.label) && invokedFrom !== 'zoom') {
-                viewerInstance.visual.select({ data: selectSections_RV1.get(selectedDomain.label), nonSelectedColor: { r: 0, g: 0, b: 0 } });
-            }
-            //show rsrz validation circles if Quality
-            if (selectedDomain.label === 'Quality') {
-                this.svgEle.selectAll('.validationResidue').style('display', 'block');
-            }
-        }
-        else {
-            if (invokedFrom !== 'zoom') {
+        if (selectedValue) {
+            var selectedDomain = this.domainTypes[selectedValue];
+            var rv3AnnotationLabels = Array.from(aaPropertyConstants.keys());
+            if (selectedDomain.data !== null) {
                 this.resetTheme();
+                this.updateTheme(selectedDomain.data);
+                //Handle custom mapping data from RV3
+                if (rv3AnnotationLabels.includes(selectedDomain.label) && invokedFrom !== 'zoom') {
+                    if (filterRange != "-10000,10000") {
+                        var filterRangeArr = filterRange.split(",");
+                        var select_sections = selectSections_RV1.get(selectedDomain.label).slice(Number(filterRangeArr[0]), Number(filterRangeArr[1]) + 1);
+                    }
+                    else {
+                        var select_sections = selectSections_RV1.get(selectedDomain.label);
+                    }
+                    viewerInstance.visual.select({ data: select_sections, nonSelectedColor: { r: 0, g: 0, b: 0 } });
+                }
+                //show rsrz validation circles if Quality
+                if (selectedDomain.label === 'Quality') {
+                    this.svgEle.selectAll('.validationResidue').style('display', 'block');
+                }
+            }
+            else {
+                if (invokedFrom !== 'zoom') {
+                    this.resetTheme();
+                }
             }
         }
     };
