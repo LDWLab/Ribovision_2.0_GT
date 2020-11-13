@@ -30,6 +30,7 @@ function handleFilterRange(filter_range) {
     const temp_array = filter_range.split('-');
     if (filter_range.match(/^\d+-\d+/) && Number(temp_array[0]) < Number(temp_array[1])) {
         vm.filter_range = filter_range;
+        window.filter_range = temp_array.join(",");
         var topviewer = document.getElementById("PdbeTopViewer");
         var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
         topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);   
@@ -50,6 +51,10 @@ function handleFilterRange(filter_range) {
             //var selectedDomain = topviewer.pluginInstance.domainTypes[selectedIndex];
             //topviewer.updateTheme(selectedDomain.data);
          });
+         topviewer.pluginInstance.initPainting(window.filter_range)
+         /*let selectedData = topviewer.pluginInstance.domainTypes[selectedIndex];
+         topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);   
+         topviewer.pluginInstance.updateTheme(selectedData.data); */
     }
 }
 function isCorrectMask(mask_range){
@@ -160,6 +165,7 @@ function cleanSelection(checked_selection, filter_range){
     if (checked_selection){return;}
     if (filter_range == null){return;}
     vm.filter_range = null;
+    window.filter_range = "-1000,10000";
     viewerInstance.visual.update({
         customData: {
             url: `https://www.ebi.ac.uk/pdbe/coordinates/${window.pdblower}/chains?entityId=${topviewer.entityId}&encoding=bcif`,
@@ -685,6 +691,7 @@ var vm = new Vue({
                 this.aa_properties = calculateFrequencyData(fasta['AA frequencies']);
             })
         }, showTopologyViewer (pdbid, chainid, fasta){
+            window.filter_range = "-10000,10000";
             if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(vm);}
             if (chainid.length > 1){this.chainid = chainid[0];}
             const topview_item = document.getElementById("topview");
