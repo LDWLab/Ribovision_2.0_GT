@@ -51,7 +51,7 @@ function handleFilterRange(filter_range) {
             //var selectedDomain = topviewer.pluginInstance.domainTypes[selectedIndex];
             //topviewer.updateTheme(selectedDomain.data);
          });
-         topviewer.pluginInstance.initPainting(window.filter_range)
+         topviewer.pluginInstance.initPainting(window.filter_range);
          /*let selectedData = topviewer.pluginInstance.domainTypes[selectedIndex];
          topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);   
          topviewer.pluginInstance.updateTheme(selectedData.data); */
@@ -165,7 +165,9 @@ function cleanSelection(checked_selection, filter_range){
     if (checked_selection){return;}
     if (filter_range == null){return;}
     vm.filter_range = null;
+    var topviewer = document.getElementById("PdbeTopViewer");
     window.filter_range = "-1000,10000";
+    topviewer.pluginInstance.initPainting(window.filter_range);
     viewerInstance.visual.update({
         customData: {
             url: `https://www.ebi.ac.uk/pdbe/coordinates/${window.pdblower}/chains?entityId=${topviewer.entityId}&encoding=bcif`,
