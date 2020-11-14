@@ -196,7 +196,7 @@ window.ajaxRun = false;
 
 window.numSeqs = 14;
 class SimpleTooltip extends Component {
-    state = { tileWidth: 20, tileHeight: 20, aaPos: 0, seqPos: 0, highlight: null };
+    state = { tileWidth: 20, tileHeight: 20, highlight: null };
     onResidueMouseEnter = e => {
       if (!window.ajaxRun){
       window.ajaxRun = true;
@@ -245,8 +245,8 @@ class SimpleTooltip extends Component {
       this.setState({ fold: undefined, phase: undefined });
     };
     render() {
-      const xPos = this.state.tileWidth * (this.state.aaPos - 1);
-      const yPos = this.state.tileHeight * (this.state.seqPos - 1);
+      const xPos = this.state.tileWidth * (this.state.aaPos);
+      const yPos = this.state.tileHeight * (this.state.seqPos);
       return (
         <div style={{ display: "flex"}}>
           <input
@@ -266,7 +266,7 @@ class SimpleTooltip extends Component {
               value={this.state.aaPos}
               onChange={(evt) => this.setState({ aaPos: evt.target.value })}
               class="slider"
-              id="myRange"
+              id="xPosSlider"
               />
             <MSAViewer 
               ref={(ref) => (this.el = ref)}
@@ -296,6 +296,7 @@ class SimpleTooltip extends Component {
                 </div>
               )}
             </div>
+            <MyFirstMSAPlugin parent_state={this.state} />
             </MSAViewer>
           </div>
         </div>
@@ -304,6 +305,36 @@ class SimpleTooltip extends Component {
   }
 
 
+
+
+class MyFirstMSAPluginComponent extends Component {
+    // called on every position update (e.g. mouse movement or scrolling)
+    shouldRerender(newPosition) {
+      this.props.parent_state.seqPos = this.props.position.currentViewSequence;
+      this.props.parent_state.aaPos = this.props.position.currentViewSequencePosition;
+      return true;
+    }
+    render() {
+      return null;
+    }
+  }
+
+const MyFirstMSAPluginConnected = withPositionStore(
+    MyFirstMSAPluginComponent
+  );
+
+  // select attributes from the main redux store
+var mapStateToProps = (state) => {
+    return {
+      height: state.props.height,
+      sequences: state.sequences,
+    };
+  };
+
+  // subscribe to the main redux store
+const MyFirstMSAPlugin = msaConnect(mapStateToProps)(
+    MyFirstMSAPluginConnected
+  );
 
 class ExtraInformation extends Component {
   state = {};
@@ -319,6 +350,7 @@ class ExtraInformation extends Component {
                 onFeatureClick={this.onFeatureClick}
                 features={features}
               />
+              <MyFirstMSAPlugin />
             </MSAViewer>
         {this.state.lastEvent && (
           <div>Last feature clicked: {this.state.lastEvent}</div>
