@@ -307,6 +307,8 @@ class SimpleTooltip extends Component {
 
 
 
+
+
 class MyFirstMSAPluginComponent extends Component {
     // called on every position update (e.g. mouse movement or scrolling)
     shouldRerender(newPosition) {
