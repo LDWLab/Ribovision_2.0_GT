@@ -84,11 +84,7 @@ class PdbTopologyViewerPlugin {
         
     }
 
-    initPainting(filter_range? : any){
-        if(filter_range) {
-            filterRange = filter_range;
-            console.log("Filter:" + filterRange);
-        }
+    initPainting(){
         this.getApiData(this.entryId, this.chainId).then(result => {
             if(result){
                 
@@ -768,6 +764,8 @@ class PdbTopologyViewerPlugin {
     getAdjustedStartAndStop(secStrType: any, secStrData: any) {
         if(secStrType != 'helices' && secStrType != 'coils' && secStrType != 'strands') {
             return [secStrData.start, secStrData.stop];
+        } else if(secStrData.start === -1) {
+            return [secStrData.start, secStrData.stop];
         }
         if((secStrData.stop  < Number(filterRange.split(",")[0]) || (secStrData.start > Number(filterRange.split(",")[1])))) {
             return null;
@@ -825,114 +823,119 @@ class PdbTopologyViewerPlugin {
             const secStrArr =  topologyData[secStrType];
             if(!secStrArr) return;
             //iterating on secondary str data array
+            
             secStrArr.forEach((secStrData:any, secStrDataIndex: number) => {
-                if(typeof secStrData.path !== 'undefined' && secStrData.path.length > 0 && this.getAdjustedStartAndStop(secStrType, secStrData) != null){
-                    var istart = this.getAdjustedStartAndStop(secStrType, secStrData)[0];
-                    var istop = this.getAdjustedStartAndStop(secStrType, secStrData)[1];
-                    if(secStrType === 'terms'){
-                        //Terms
-                    }else{
-                        let curveYdiff = 0
-                        //modify helices path data to create a capsule like structure
-                        if(secStrType === 'helices'){
-                            const curveCenter = secStrData.path[0] + ((secStrData.path[2] - secStrData.path[0])/2);
-                                                                
-                            curveYdiff = 2 * (secStrData.minoraxis * 1.3);
-                            if(secStrData.path[1] >  secStrData.path[3]){
-                                curveYdiff = -2 * (secStrData.minoraxis * 1.3);
-                            }
-                            
-                            const newPathCords = [
-                                secStrData.path[0], secStrData.path[1],
-                                curveCenter, secStrData.path[1] - curveYdiff,
-                                secStrData.path[2], secStrData.path[1],
-                                secStrData.path[2], secStrData.path[3],
-                                curveCenter, secStrData.path[3] + curveYdiff,
-                                secStrData.path[0], secStrData.path[3]
-                            ];
-                            
-                            secStrData.path = newPathCords;
-                        }
+                if(typeof secStrData.path !== 'undefined' && secStrData.path.length > 0 && this.getAdjustedStartAndStop(secStrType, secStrData) != null){  
+
+                        var istart = this.getAdjustedStartAndStop(secStrType, secStrData)[0];
+                        var istop = this.getAdjustedStartAndStop(secStrType, secStrData)[1];
+                        if(istart !== -1 || (secStrType === "coils" && istart=== -1 && istop === -1 && this.getAdjustedStartAndStop(secStrType, secStrArr[secStrDataIndex + 1]) != null && this.getAdjustedStartAndStop(secStrType, secStrArr[secStrDataIndex - 1]) != null)){
                         
-                        secStrData.secStrType = secStrType;
-                        secStrData.pathIndex = secStrDataIndex;
-                        const newEle = this.svgEle.selectAll('path.'+secStrType+''+secStrDataIndex)
-                        .data([secStrData])
-                        .enter()
-                        .append('path')  
-                        .attr('class', () => {
-                            if( secStrData.start=== -1 && secStrData.stop === -1 && secStrType !== 'terms'){
-                                return 'dashedEle topologyEle '+secStrType+' '+secStrType+''+secStrDataIndex+' topoEleRange_'+secStrData.start+'-'+secStrData.stop;
-                            }else{
-                                return 'topologyEle '+secStrType+' '+secStrType+''+secStrDataIndex+' topoEleRange_'+istart+'-'+istop;
-                            }
-                        })
-                        .attr('d', (d: any) => {
-                            let dVal = 'M';
-                            const pathLenth = secStrData.path.length;
-                            let xScaleFlag = true;
-                            //if(secStrData.path[1] > secStrData.path[7]) maskDiff = 1;
-                            for(let i=0; i<pathLenth; i++){
-                                if(secStrType === 'helices' && (i === 2 || i === 8)) dVal += ' Q'
-                                //if(secStrType === 'coils' && secStrData.path.length < 12 && i === 2) dVal += ' C'
-                                //if(secStrType === 'coils' && secStrData.path.length < 14 && secStrData.path.length > 12 && i === 4) dVal += ' C'
-                                if((secStrType === 'helices' && i === 6) || (secStrType === 'coils' && secStrData.path.length < 12 && i === 8)) dVal += ' L'
-                                if(xScaleFlag){
-                                    const xScaleValue = this.xScale(secStrData.path[i]);
-                                    dVal += ' '+xScaleValue;
-                                    this.scaledPointsArr.push(xScaleValue);
-                                }else{
-                                    const yScaleValue = this.yScale(secStrData.path[i]);
-                                    dVal += ' '+yScaleValue;
-                                    this.scaledPointsArr.push(yScaleValue);
+                        if(secStrType === 'terms'){
+                            //Terms
+                        }else{
+                            let curveYdiff = 0
+                            //modify helices path data to create a capsule like structure
+                            if(secStrType === 'helices'){
+                                const curveCenter = secStrData.path[0] + ((secStrData.path[2] - secStrData.path[0])/2);
+                                                                    
+                                curveYdiff = 2 * (secStrData.minoraxis * 1.3);
+                                if(secStrData.path[1] >  secStrData.path[3]){
+                                    curveYdiff = -2 * (secStrData.minoraxis * 1.3);
                                 }
                                 
-                                xScaleFlag = !xScaleFlag;
+                                const newPathCords = [
+                                    secStrData.path[0], secStrData.path[1],
+                                    curveCenter, secStrData.path[1] - curveYdiff,
+                                    secStrData.path[2], secStrData.path[1],
+                                    secStrData.path[2], secStrData.path[3],
+                                    curveCenter, secStrData.path[3] + curveYdiff,
+                                    secStrData.path[0], secStrData.path[3]
+                                ];
+                                
+                                secStrData.path = newPathCords;
                             }
-                            if(secStrType === 'strands' || secStrType === 'helices') dVal += ' Z'
-                            return dVal;
-                        })
-                        .attr('fill', 'none')
-                        .attr('stroke-width', 0.3)
-                        .attr('stroke', this.defaultColours.borderColor)
-                    
-                        if(secStrData.start === -1 && secStrData.stop === -1){
-                            newEle.attr('stroke-dasharray', '0.9')
-                        }
-                    
-                        //hightlight node calculations
-                        if(secStrType === 'strands'){
-                            //create subsections/paths
-                            this.drawStrandSubpaths(istart, istop, secStrDataIndex)
-
-                            //Create mask to restore shape
-                            this.drawStrandMaskShape(secStrDataIndex);
                             
-                            //bring original/complete helices in front newEle
-                            // this.svgEle.append(newEle.node());		
-                            this.svgEle._groups[0][0].append(newEle.node());						
-                        }
+                            secStrData.secStrType = secStrType;
+                            secStrData.pathIndex = secStrDataIndex;
+                            const newEle = this.svgEle.selectAll('path.'+secStrType+''+secStrDataIndex)
+                            .data([secStrData])
+                            .enter()
+                            .append('path')  
+                            .attr('class', () => {
+                                if( secStrData.start=== -1 && secStrData.stop === -1 && secStrType !== 'terms'){
+                                    return 'dashedEle topologyEle '+secStrType+' '+secStrType+''+secStrDataIndex+' topoEleRange_'+secStrData.start+'-'+secStrData.stop;
+                                } else{
+                                    return 'topologyEle '+secStrType+' '+secStrType+''+secStrDataIndex+' topoEleRange_'+istart+'-'+istop;
+                                } 
+                            })
+                            .attr('d', (d: any) => {
+                                let dVal = 'M';
+                                const pathLenth = secStrData.path.length;
+                                let xScaleFlag = true;
+                                //if(secStrData.path[1] > secStrData.path[7]) maskDiff = 1;
+                                for(let i=0; i<pathLenth; i++){
+                                    if(secStrType === 'helices' && (i === 2 || i === 8)) dVal += ' Q'
+                                    //if(secStrType === 'coils' && secStrData.path.length < 12 && i === 2) dVal += ' C'
+                                    //if(secStrType === 'coils' && secStrData.path.length < 14 && secStrData.path.length > 12 && i === 4) dVal += ' C'
+                                    if((secStrType === 'helices' && i === 6) || (secStrType === 'coils' && secStrData.path.length < 12 && i === 8)) dVal += ' L'
+                                    if(xScaleFlag){
+                                        const xScaleValue = this.xScale(secStrData.path[i]);
+                                        dVal += ' '+xScaleValue;
+                                        this.scaledPointsArr.push(xScaleValue);
+                                    }else{
+                                        const yScaleValue = this.yScale(secStrData.path[i]);
+                                        dVal += ' '+yScaleValue;
+                                        this.scaledPointsArr.push(yScaleValue);
+                                    }
+                                    
+                                    xScaleFlag = !xScaleFlag;
+                                }
+                                if(secStrType === 'strands' || secStrType === 'helices') dVal += ' Z'
+                                return dVal;
+                            })
+                            .attr('fill', 'none')
+                            .attr('stroke-width', 0.3)
+                            .attr('stroke', this.defaultColours.borderColor)
                         
-                        //for helices
-                        if(secStrType === 'helices'){
-                            //create subsections/paths
-                            this.drawHelicesSubpaths(istart, istop, secStrDataIndex, curveYdiff)
+                            if(secStrData.start === -1 && secStrData.stop === -1){
+                                newEle.attr('stroke-dasharray', '0.9')
+                            }
+                        
+                            //hightlight node calculations
+                            if(secStrType === 'strands'){
+                                //create subsections/paths
+                                this.drawStrandSubpaths(istart, istop, secStrDataIndex)
 
-                            //Create mask to restore shape
-                            this.drawHelicesMaskShape(secStrDataIndex);
+                                //Create mask to restore shape
+                                this.drawStrandMaskShape(secStrDataIndex);
+                                
+                                //bring original/complete helices in front newEle
+                                // this.svgEle.append(newEle.node());		
+                                this.svgEle._groups[0][0].append(newEle.node());						
+                            }
                             
-                            // //bring original/complete helices in front
-                            // angular.element(element[0].querySelector('.topoSvg')).append(newEle.node());
-                            this.svgEle._groups[0][0].append(newEle.node());
+                            //for helices
+                            if(secStrType === 'helices'){
+                                //create subsections/paths
+                                this.drawHelicesSubpaths(istart, istop, secStrDataIndex, curveYdiff)
+
+                                //Create mask to restore shape
+                                this.drawHelicesMaskShape(secStrDataIndex);
+                                
+                                // //bring original/complete helices in front
+                                // angular.element(element[0].querySelector('.topoSvg')).append(newEle.node());
+                                this.svgEle._groups[0][0].append(newEle.node());
+                            }
+                        
+                            //for coils
+                            if(secStrType === 'coils'){
+                                //create subsections/paths
+                                this.drawCoilsSubpaths(istart, istop, secStrDataIndex);                       
+                            }
+                        
+                            this.scaledPointsArr = []; //empty the arr for next iteration
                         }
-                    
-                        //for coils
-                        if(secStrType === 'coils'){
-                            //create subsections/paths
-                            this.drawCoilsSubpaths(istart, istop, secStrDataIndex);                       
-                        }
-                    
-                        this.scaledPointsArr = []; //empty the arr for next iteration
                     }
                 }
                 

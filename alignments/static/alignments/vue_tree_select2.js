@@ -44,17 +44,19 @@ function handleFilterRange(filter_range) {
         });
         viewerInstance.events.loadComplete.subscribe(() => { 
             let selectedData = topviewer.pluginInstance.domainTypes[selectedIndex];
-            let select_sections = selectSections_RV1.get(selectedData.label).slice(Number(temp_array[0]), Number(temp_array[1])+1);
-            window.viewerInstance.visual.select({
-            data: select_sections,
-            nonSelectedColor: {r:255,g:255,b:255}});
+            if(selectSections_RV1.get(selectedData.label)) {
+                let select_sections = selectSections_RV1.get(selectedData.label).slice(Number(temp_array[0]), Number(temp_array[1])+1);
+                window.viewerInstance.visual.select({
+                data: select_sections,
+                nonSelectedColor: {r:255,g:255,b:255}});
+            }
             //var selectedDomain = topviewer.pluginInstance.domainTypes[selectedIndex];
             //topviewer.updateTheme(selectedDomain.data);
          });
          topviewer.pluginInstance.initPainting(window.select_sections)
-         /*let selectedData = topviewer.pluginInstance.domainTypes[selectedIndex];
+         let selectedData = topviewer.pluginInstance.domainTypes[selectedIndex];
          topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);   
-         topviewer.pluginInstance.updateTheme(selectedData.data); */
+         topviewer.pluginInstance.updateTheme(selectedData.data); 
     }else{
         //
     }
@@ -166,8 +168,11 @@ function cleanFilter(checked_filter, masking_range){
 function cleanSelection(checked_selection, filter_range){
     if (checked_selection){return;}
     if (filter_range == null){return;}
+    var topviewer = document.getElementById("PdbeTopViewer");
+    var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
     vm.filter_range = null;
     window.filterRange = "-10000,10000";
+    topviewer.pluginInstance.initPainting();
     viewerInstance.visual.update({
         customData: {
             url: `https://www.ebi.ac.uk/pdbe/coordinates/${window.pdblower}/chains?entityId=${topviewer.entityId}&encoding=bcif`,
@@ -175,6 +180,12 @@ function cleanSelection(checked_selection, filter_range){
             binary:true },
         assemblyId: '1',
         subscribeEvents: true});
+    topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);
+    if(window.custom_prop) {
+        topviewer.pluginInstance.getAnnotationFromRibovision(window.custom_prop);
+    }
+    topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data); 
+    window.viewerInstance.visual.select({data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), nonSelectedColor: {r:255,g:255,b:255}});
 }
 function getCookie(name) {
     var cookieValue = null;
