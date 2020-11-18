@@ -1,27 +1,13 @@
-import re
-
-import urllib.request
-import json
-
+import re, os
 import datetime
-
-import subprocess
 from subprocess import Popen, PIPE
-
 from Bio import AlignIO
 from io import StringIO
 from Bio.SeqUtils import IUPACData
 
-import os
-
 from django.shortcuts import render
 from django.http import HttpResponse, Http404, JsonResponse, HttpResponseServerError
-from django.urls import reverse_lazy
 from django.urls import reverse
-from django.conf import settings
-from django.core.files.storage import FileSystemStorage
-from django.views.generic import ListView, CreateView, UpdateView
-from django.views.decorators.csrf import csrf_exempt
 
 from alignments.models import *
 from alignments.taxonomy_views import *
@@ -251,7 +237,7 @@ def api_entropy(request, align_name, tax_group, anchor_structure):
 	aln_shannon_list = Shannon.main(['-a',fastastring,'-f','fastastring','--return_within','-s',filter_strain])
 	return JsonResponse(aln_shannon_list, safe = False)
 
-def index(request):
+def index_test(request):
 	some_Alignments = Alignment.objects.all()
 	superKingdoms = Taxgroups.objects.raw('SELECT * FROM SEREB.TaxGroups WHERE\
 		 SEREB.TaxGroups.groupLevel = "superkingdom";')
@@ -261,10 +247,10 @@ def index(request):
 		'some_Alignments': some_Alignments,
 		'superKingdoms': superKingdoms
 	}
-	return render(request, 'alignments/index.html', context)
+	return render(request, 'alignments/index_test.html', context)
 
-def index_orthologs(request):
-	return render(request, 'alignments/index_orthologs.html')
+def index(request):
+	return render(request, 'alignments/index.html')
 
 def visualizer(request, align_name, tax_group1, tax_group2, anchor_structure = ''):
 	twc_api_url = "http://127.0.0.1:8000/orthologs/twc-api/" + align_name + "/" + str(tax_group1) + "/" + str(tax_group2) + "/" + anchor_structure
