@@ -7,7 +7,7 @@ import { actions,
   withPositionStore, } from '@plotly/react-msa-viewer';
 import React, { Component } from "react";
 
-export default class RV3AlnViewer extends Component {
+var AlnViewer = class RV3AlnViewer extends Component {
   state = { 
       tileWidth: 18,
       tileHeight: 18,
@@ -157,3 +157,5 @@ export default class RV3AlnViewer extends Component {
       );
   }
 }
+
+export {AlnViewer}
