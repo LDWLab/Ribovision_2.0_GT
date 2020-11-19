@@ -33,7 +33,14 @@ var absolutePosition = function (el) {
 
 var parseFastaSeqForMSAViewer = function (fasta){
   let outSeqs = [];
-  let arrayFasta = String(fasta).split('\n').slice(0, -1);
+  let arrayFasta = [];
+  let tempFasta = String(fasta).split('>');
+  tempFasta = tempFasta.filter(n => n);
+  tempFasta.forEach(seq =>{
+    let splitSeq = seq.split(/\n/);
+    arrayFasta.push(splitSeq[0]);
+    arrayFasta.push(splitSeq.slice(1).join(''))
+  });
   arrayFasta.map(function(element, index) {
       if (index % 2 == 0){
           let seqName = element.replaceAll('_', ' ').replaceAll('>', '');
