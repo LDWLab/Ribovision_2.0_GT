@@ -1,4 +1,8 @@
 var registerHoverResiData = function (e, tooltipObj){
+  if (vm.type_tree == 'upload'){
+      //Figure out how to do the hover in this case;
+      return;
+  }
   const strainQuery = '&res__poldata__strain__strain=';
   var url = `/desire-api/residue-alignment/?format=json&aln_pos=${String(Number(e.position) + 1)}&aln=${vm.alnobj.id}${strainQuery}${vm.fastaSeqNames[Number(e.i)]}`
   ajax(url).then(alnpos_data => {
@@ -186,3 +190,45 @@ function cleanSelection(checked_selection, filter_range){
   topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data); 
   window.viewerInstance.visual.select({data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), nonSelectedColor: {r:255,g:255,b:255}});
 };
+
+function handlePropensities(checked_propensities){
+    if (checked_propensities){
+        console.log(document.getElementById("selectaln"));
+        let sequence_indices = prompt("Enter sequence indices (comma-separated): ").replace(/^\s+|\s+$/gm,'').split(',')
+        for (let i = 0; i < sequence_indices.length; i++) {
+            sequence_indices[i] = parseInt(sequence_indices[i])
+        }
+        if (vm.structure_mapping) {
+            let alignment_indices = []
+            let inverse_structure_mapping = {}
+            for (var key in vm.structure_mapping) {
+                let value = vm.structure_mapping[key]
+                inverse_structure_mapping[value] = key
+            }
+            for (var sequence_index of sequence_indices) {
+                alignment_indices.push(inverse_structure_mapping[sequence_index])
+            }
+            let indices = alignment_indices.join(',')
+            // $.ajax({
+            //     url: "http://127.0.0.1:8001/trim_fasta",
+            //     type: 'POST',
+            //     success: function(trimmed_fasta){
+            //     },
+            //     error: function(error) {
+            //         console.log(`Error ${error}`);
+            //         reject(error)
+            //     }
+            // });
+            let fasta_data = vm.fasta_data
+            let tax_id_string = vm.tax_id.join(',')
+            let url = `/propensity-data/${vm.alnobj.id}/${tax_id_string}`
+            ajax(url, {indices}).then(trimmed_fasta => {
+                console.log("trimmed_fasta: " + trimmed_fasta)
+            });
+        } else {
+            // let aln_name = document.getElementById('selectaln').value
+            window.location = "http://127.0.0.1:8001/propensities/uL02/2"
+        }
+    }
+
+}
