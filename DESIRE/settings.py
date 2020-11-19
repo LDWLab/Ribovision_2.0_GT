@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'desire_api.apps.DesireApiConfig',
     'webpack_loader',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -55,6 +56,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'
@@ -62,6 +64,7 @@ CSRF_TRUSTED_ORIGINS = ['https://ribovision3.chemistry.gatech.edu:443']
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 ROOT_URLCONF = 'DESIRE.urls'
+CORS_ORIGIN_ALLOW_ALL = True
 
 TEMPLATES = [
     {
