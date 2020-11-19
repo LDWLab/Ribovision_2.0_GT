@@ -87,7 +87,7 @@
 	
 	d. After editing the typescript of the Topology viewer run the following command **from the pdb-topology directory!**
 
-	> npm run refresh
+	> npm run build
 
 6. Open a VS Code folder in the root directory of the project.
 

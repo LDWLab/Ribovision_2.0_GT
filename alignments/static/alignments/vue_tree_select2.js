@@ -1,13 +1,13 @@
 function handleMaskingRanges(mask_range){
     vm.masking_range = mask_range;
     window.masking_range_array = null;
-    if (isCorrectMask(mask_range)) {   
+    if (isCorrectMask(mask_range)) {
         var topviewer = document.getElementById("PdbeTopViewer");
-        topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);   
+        topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);
         if(window.custom_prop) {
-            topviewer.pluginInstance.getAnnotationFromRibovision(window.custom_prop); 
+            topviewer.pluginInstance.getAnnotationFromRibovision(window.custom_prop);
         }
-        window.masked_array = initializeMaskedArray();          
+        window.masked_array = initializeMaskedArray();
         var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
 
         var index = 4;
@@ -16,9 +16,9 @@ function handleMaskingRanges(mask_range){
             index++;
         }
         let selectedData = topviewer.pluginInstance.domainTypes[selectedIndex]
-        
+
         if (selectedData.data){
-            topviewer.pluginInstance.updateTheme(selectedData.data); 
+            topviewer.pluginInstance.updateTheme(selectedData.data);
             window.viewerInstance.visual.select({data: selectSections_RV1.get(selectedData.label), nonSelectedColor: {r:255,g:255,b:255}});
             }
         vm.correct_mask = 'True';
@@ -68,13 +68,13 @@ function colorResidue(index, masked_array) {
     while(f < topviewer.pluginInstance.domainTypes[4].data.length) {
         if(!masked_array[f] && topviewer.pluginInstance.domainTypes[index].data[f]) {
             topviewer.pluginInstance.domainTypes[index].data[f].color = "rgb(255,255,255)";
-            topviewer.pluginInstance.domainTypes[index].data[f].tooltipMsg = "NaN";                   
+            topviewer.pluginInstance.domainTypes[index].data[f].tooltipMsg = "NaN";
             selectSections_RV1.get(topviewer.pluginInstance.domainTypes[index].label)[f].color = {r: 255, g: 255, b: 255};
 
         } if(!masked_array[f] && vm.coil_residues.includes(f) && topviewer.pluginInstance.domainTypes[index].data[f]) {
             topviewer.pluginInstance.domainTypes[index].data[f].color = "rgb(0,0,0)";
             topviewer.pluginInstance.domainTypes[index].data[f].tooltipMsg = "NaN";
-        }                        
+        }
         f++;
     }
 }
@@ -110,11 +110,44 @@ function downloadCSVData() {
 }
 function handlePropensities(checked_propensities){
     if (checked_propensities){
-        console.log("Checked")
-    }else{
-        console.log("UnChecked")
+        console.log(document.getElementById("selectaln"));
+        let sequence_indices = prompt("Enter sequence indices (comma-separated): ").replace(/^\s+|\s+$/gm,'').split(',')
+        for (let i = 0; i < sequence_indices.length; i++) {
+            sequence_indices[i] = parseInt(sequence_indices[i])
+        }
+        if (vm.structure_mapping) {
+            let alignment_indices = []
+            let inverse_structure_mapping = {}
+            for (var key in vm.structure_mapping) {
+                let value = vm.structure_mapping[key]
+                inverse_structure_mapping[value] = key
+            }
+            for (var sequence_index of sequence_indices) {
+                alignment_indices.push(inverse_structure_mapping[sequence_index])
+            }
+            let indices = alignment_indices.join(',')
+            // $.ajax({
+            //     url: "http://127.0.0.1:8001/trim_fasta",
+            //     type: 'POST',
+            //     success: function(trimmed_fasta){
+            //     },
+            //     error: function(error) {
+            //         console.log(`Error ${error}`);
+            //         reject(error)
+            //     }
+            // });
+            let fasta_data = vm.fasta_data
+            let tax_id_string = vm.tax_id.join(',')
+            let url = `/propensity-data/${vm.alnobj.id}/${tax_id_string}`
+            ajax(url, {indices}).then(trimmed_fasta => {
+                console.log("trimmed_fasta: " + trimmed_fasta)
+            });
+        } else {
+            // let aln_name = document.getElementById('selectaln').value
+            window.location = "http://127.0.0.1:8001/propensities/uL02/2"
+        }
     }
-    
+
 }
 function cleanFilter(checked_filter, masking_range){
     if (checked_filter){return;}
@@ -127,7 +160,7 @@ function cleanFilter(checked_filter, masking_range){
         topviewer.pluginInstance.getAnnotationFromRibovision(window.custom_prop);
     }
     var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
-    topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data); 
+    topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data);
     window.viewerInstance.visual.select({data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), nonSelectedColor: {r:255,g:255,b:255}});
 }
 function getCookie(name) {
@@ -382,7 +415,7 @@ var generateCSVstring = function (mapped_data){
     csv += properties.join(',');
     csv += '\n';
     let csv_ix = [];
-    
+
     mapped_data.get(properties[0]).forEach((datapoint) =>{
         csv_ix.push([datapoint[0]]);
     })
@@ -435,6 +468,8 @@ var vm = new Vue({
         checked_customMap: false,
         csv_data: null,
         checked_propensities: false,
+        substructures: null,
+        property: null,
     },
     watch: {
         csv_data: function (csv_data) {
@@ -755,8 +790,8 @@ var vm = new Vue({
             var pdblower = pdbid.toLocaleLowerCase();
             var viewerInstance = new PDBeMolstarPlugin();
             var options = {
-                customData: { url: `https://www.ebi.ac.uk/pdbe/coordinates/${pdblower}/chains?entityId=${entityid}&encoding=bcif`, 
-                                format: 'cif', 
+                customData: { url: `https://www.ebi.ac.uk/pdbe/coordinates/${pdblower}/chains?entityId=${entityid}&encoding=bcif`,
+                                format: 'cif',
                                 binary:true },
                 hideCanvasControls: ["expand", "selection", " animation"],
                 assemblyId: '1',
@@ -769,11 +804,11 @@ var vm = new Vue({
             window.viewerInstance = viewerInstance;
 
             document.addEventListener('PDB.topologyViewer.click', (e) => {
-                var molstar= viewerInstance;                            
+                var molstar= viewerInstance;
                 var chainId=e.eventData.chainId;
                 var entityId=e.eventData.entityId;
                 var residueNumber=e.eventData.residueNumber;
-                var types=e.eventData.type;                            
+                var types=e.eventData.type;
                 molstar.visual.select({
                     data:[
                         {
@@ -787,12 +822,12 @@ var vm = new Vue({
                 })
             })
             document.addEventListener('PDB.topologyViewer.mouseover', (e) => {
-                var molstar= viewerInstance;                            
+                var molstar= viewerInstance;
                 var chainId=e.eventData.chainId;
                 var entityId=e.eventData.entityId;
                 var residueNumber=e.eventData.residueNumber;
                 var types=e.eventData.type;
-                
+
                 molstar.visual.highlight({
                     data:[
                         {
@@ -810,7 +845,7 @@ var vm = new Vue({
                     viewerInstance.plugin.behaviors.interaction.hover._value.current.loci.kind = "empty-loci"
                 }
             });
-        }         
+        }
     }
 });
 
@@ -918,7 +953,7 @@ function MyMSA() {
                   to: 13
                 }
               };
-      
+
               if (n === 1) this.setState({ highlight });
               else
                 this.setState({
@@ -936,11 +971,11 @@ function MyMSA() {
         };
         removeHighlightRegion = () => {
             this.setState({ highlight: null });
-        };                
+        };
         render() {
             return (
             <div>
-                <ReactMSAViewer.MSAViewer 
+                <ReactMSAViewer.MSAViewer
                 {...msaOptions}
                 ref={ref => (this.el = ref)}
                 highlight={this.state.highlight}

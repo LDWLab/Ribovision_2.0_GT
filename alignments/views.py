@@ -264,6 +264,23 @@ def index(request):
 	return render(request, 'alignments/index.html', context)
 
 def index_orthologs(request):
+	print ("request.method == 'POST': " + str(request.method == 'POST'))
+	print ("'custom_propensity_data' in request.FILES: " + str('custom_propensity_data' in request.FILES))
+	print ("request.method: " + str(request.method))
+	for x in request.FILES:
+		print ("x: " + str(x))
+	if request.method == 'GET' and 'custom_propensity_data' in request.FILES:
+		propensity_indices_file = request.FILES['custom_propensity_data']
+		propensity_indices_string = ''
+		for propensity_part in propensity_indices_file.chunks():
+			propensity_indices_string += propensity_part.decode()
+		print ("propensity_indices_string: " + propensity_indices_string)
+	# if request.method == 'POST' and 'custom_propensity_data' in request.FILES:
+	# 	propensity_indices_file = request.FILES['custom_propensity_data']
+	# 	propensity_indices_string = ''
+	# 	for propensity_part in propensity_indices_file.chunks():
+	# 		propensity_indices_string += propensity_part.decode()
+	# 	print ("propensity_indices_string: " + propensity_indices_string)
 	return render(request, 'alignments/index_orthologs.html')
 
 def visualizer(request, align_name, tax_group1, tax_group2, anchor_structure = ''):
@@ -403,12 +420,23 @@ def handle_custom_upload_alignment(request):
 		
 		response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc])
 		return JsonResponse(response_dict, safe = False)
+        
+def trim_fasta_by_index(fasta, indices):
+    pass
+
 def propensity_data(request, aln_id, tax_group):
     from io import StringIO
     import alignments.propensities as propensities
 
     fastastring = simple_fasta(request, aln_id, tax_group, internal=True).replace('\\n', '\n')
     fasta = StringIO(fastastring)
+
+    if request.method == 'POST' and 'indices' in request.POST:
+        indices = request.POST['indices']
+        trimmed_fasta = trim_fasta_by_index(fasta, indices)
+        # Trim this fasta
+        fasta = StringIO(trimmed_fasta.format('fasta'))
+
     aa = propensities.aa_composition(fasta, reduced = False)
 
     # need to reload the fasta object
@@ -435,8 +463,10 @@ def propensities(request, align_name, tax_group):
         names.append(Taxgroups.objects.get(pk=group).groupname)
 
     # where does the context variable come from? what does it do?
-    context = {"propensity_data" : propensity_data, 
-    "align_name" : align_name,
-    "tax_name" : ', '.join(names)}
+    context = {
+		"propensity_data" : propensity_data, 
+    	"align_name" : align_name,
+    	"tax_name" : ', '.join(names)
+	}
     
     return render(request, 'alignments/propensities.html', context)

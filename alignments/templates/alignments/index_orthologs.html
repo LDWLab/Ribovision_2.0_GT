@@ -75,6 +75,10 @@
 			<p><input id="pdb_input" v-if="alnobj" v-model="pdbid" v-on:input="getPDBchains(pdbid, alnobj.id)" placeholder="4v9d" maxlength="4">
 				<div v-if="alnobj" class="checkbox">
 					<label><input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">Propensities</label>
+					<select v-if="checked_propensities&&structure_mapping" v-model="property">
+						<option :value="null" selected disabled hidden>Select a substructure</option>
+						<option v-for="substructure in substructures" v-bind:value="{ id: substructure.value, text: substructure.text }">[[ substructure.text ]]</option>
+					</select>
 				</div>
 			</p>
 			<p v-if="hide_chains">Looking for available polymers...</p>
