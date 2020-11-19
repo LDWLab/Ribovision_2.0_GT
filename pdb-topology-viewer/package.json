@@ -44,11 +44,12 @@
     "gulp-concat": "^2.6.1",
     "gulp-header": "^2.0.9",
     "gulp-uglify": "^3.0.2",
-    "typescript": "^3.7.4",
+    "typescript": "^3.9.7",
     "webpack": "^4.44.2",
     "webpack-cli": "^3.3.12"
   },
   "dependencies": {
-    "@types/d3": "^5.0.1"
+    "@types/d3": "^5.0.1",
+    "gulp-cli": "^2.3.0"
   }
 }

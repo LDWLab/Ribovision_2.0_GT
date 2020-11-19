@@ -93,3 +93,42 @@
   .svgSection{
     background-color: white;
   }
+  .slider {
+    -webkit-appearance: none;
+    width: 70%;
+    height: 10px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+  }
+  .slider:hover {
+    opacity: 1;
+  }
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 10px;
+    background: #4c90af;
+  }
+  .slider::-moz-range-thumb {
+    width: 20px;
+    height: 10px;
+    background: #4c90af;
+  }
+  #yPosSlider {
+    position: relative;
+    top: 30px;
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    transform: rotate(90deg);
+    -webkit-transform-origin: 4% 10%;
+    -moz-transform-origin: 4% 10%;
+    -ms-transform-origin: 4% 10%;
+    -o-transform-origin: 4% 10%;
+    transform-origin: 4% 10%;
+  }

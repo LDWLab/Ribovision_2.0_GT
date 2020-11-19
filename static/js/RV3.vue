@@ -1,18 +1,17 @@
 <template>
-  <div id="app">
-    <h1>Test</h1>
-    <Treeselect/>
+  <div>
+    <DropDownTree/>
     <RVGuide/>
   </div>
 </template>
 
 <script>
   import RVGuide from './components/RVGuide.vue'
-  import Treeselect from './components/TreeSelect.vue'
+  import DropDownTree from './components/DropDownTree.vue'
   export default {
     components: {
       RVGuide,
-      Treeselect
+      DropDownTree
     }
   }
 </script>

@@ -1,35 +1,49 @@
-{% load static %}
-{% load render_bundle from webpack_loader %}
+<html>
 <head>
-
+	{% load static %}
+	{% load render_bundle from webpack_loader %}
+	<script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+	<script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prop-types/15.5.2/prop-types.js"></script>
+	<script src="https://unpkg.com/@plotly/react-msa-viewer/dist/index.umd.min.js"></script>
 	<!-- include Ajax -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<!-- include Vue 2.x -->
+	<script src="https://cdn.jsdelivr.net/npm/vue@^2"></script>
+	<!-- include vue-treeselect & styles -->
+	<script src="https://cdn.jsdelivr.net/npm/@riophae/vue-treeselect@^0.4.0/dist/vue-treeselect.umd.min.js"></script>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@riophae/vue-treeselect@^0.4.0/dist/vue-treeselect.min.css">
+	<link rel="stylesheet" type="text/css" href="{% static 'alignments/style.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'alignments/pdbe-molstar-1.1.0-dev.5.css' %}">
+	<style data="rv3_style" type="text/css"></style>
+	<!-- Alignment viewer -->
+	<script src="{% static "alignments/msa.js" %}"></script>
+	<!-- <script src="https://cdn.bio.sh/msa/1/msa.min.gz.js"></script> -->
+	
 	<!-- Complied & minified d3 and math libraries -->
-	<script  src="https://cdn.jsdelivr.net/npm/d3@5.9.2" defer></script>
+	<script src="https://cdn.jsdelivr.net/npm/d3@5.9.2" defer></script>
 	<script src=https://cdnjs.cloudflare.com/ajax/libs/mathjs/3.3.0/math.min.js></script>
 	
 	<!-- Support scripts for the topology viewer -->
 	<script type="text/javascript" src={% static 'alignments/colormaps.js' %} defer></script>
 	<script type="text/javascript" src={% static 'alignments/GetRangeMapping.js' %} defer></script> 
-	
-	<!-- Alignment viewer -->
-	<script src="{% static "alignments/msa.min.gz.js" %}"></script>
 
 	<!-- Topology and Mol* viewers -->
 	<script type="text/javascript" src={% static 'pdb-topology-viewer-component-2.0.0.js' %} defer></script>
 	<script type="text/javascript" src={% static 'alignments/pdbe-molstar-plugin-1.1.0.js' %}></script>
-
-	<!-- Styles -->
-	<link rel="stylesheet" href={% static 'alignments/vue-tour.css' %}>
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@riophae/vue-treeselect@^0.4.0/dist/vue-treeselect.min.css">
-	<link rel="stylesheet" type="text/css" href="{% static 'alignments/style.css' %}">
-	<link rel="stylesheet" type="text/css" href="{% static 'alignments/pdbe-molstar-1.1.0-dev.5.css' %}">
 	
+	<!-- Support scripts for RV3 -->
+	<script type="text/javascript" src={% static 'alignments/RV3_before.js' %}></script>
 </head>
 <body>
+	<header class="pink section">DESIRE: DatabasE for Study and Imaging of Ribosomal Evolution</header>
+	<!-- include our custom Vue scripts -->
+
 	
 	<div id="app"></div>
-
 	{% render_bundle 'main' %}
+	<script type="text/javascript" src={% static 'alignments/RV3_after.js' %}></script>
 	
 </body>
+
+</html>
