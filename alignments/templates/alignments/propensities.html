@@ -23,6 +23,25 @@
                 // arguments: data, amino acids, title of graph, div to be displayed in
                 build_propensity_graph(data['reduced alphabet'], ra, align_name + ' ' + 'Reduced Alphabet Propensities for ' + tax_name, 'reduced');
                 build_propensity_graph(data['amino acid'], full, align_name + ' ' + 'Amino Acid Propensities for ' + tax_name, 'total');
+
+                // var myPlot = document.getElementById('reduced');
+                // myPlot.on('plotly_hover', function (eventdata){
+                //     var points = eventdata.points[0],
+                //         pointNum = points.pointNumber;
+                //         curveNum = points.curveNumber;
+
+                //     Plotly.Fx.hover('reduced',[
+                //         { curveNumber:0, pointNumber:pointNum },
+                //         { curveNumber:1, pointNumber:pointNum },
+                //         { curveNumber:2, pointNumber:pointNum },
+                //         { curveNumber:3, pointNumber:pointNum },
+                //         { curveNumber:4, pointNumber:pointNum },
+                //         { curveNumber:5, pointNumber:pointNum },
+                //         { curveNumber:6, pointNumber:pointNum },
+                //         { curveNumber:7, pointNumber:pointNum }
+                //     ]);
+                //     console.log(curveNum, pointNum)
+                // });
             },
             error: function (error) {
                 console.log(`Error ${error}`);}
@@ -59,7 +78,8 @@
                     pointpos: 0,
                     name: aa,
                     text: hover[aa]};
-                    // hovertemplate: "%{species}<extra></extra>"}
+                    // hoveron : 'points',
+                    // hovertemplate: "%{species}<extra></extra>"},
                     // marker: {color: 'rgb(9,56,125)'},
                     // line: {color: 'rgba(0,0,0,0)'},
                     // fillcolor:{color: 'rgba(0,0,0,0)'}};
@@ -70,7 +90,8 @@
                 title: title,
                 xaxis: {title: 'amino acid group'},
                 yaxis: {title: 'propensity'},
-                hovermode: 'closest'};
+                hovermode: 'closest',
+                hoveron: 'points'};
 
             Plotly.newPlot(div, traces, layout);
         }
