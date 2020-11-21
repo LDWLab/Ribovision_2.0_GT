@@ -1,3 +1,4 @@
+import React from "react";
 export function Tooltip (props) {
   const { style, children, ...otherProps } = props;
   const containerStyle = {

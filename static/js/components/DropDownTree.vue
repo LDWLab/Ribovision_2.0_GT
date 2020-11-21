@@ -107,6 +107,7 @@
 <script>
   import {AlnViewer} from './AlignmentViewer.js'
   import ReactDOM, { render } from 'react-dom';
+  import React, { Component } from "react";
   import Treeselect from '@riophae/vue-treeselect'
   export default {
       // register the component
