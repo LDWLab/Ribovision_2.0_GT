@@ -409,9 +409,6 @@ def handle_custom_upload_alignment(request):
 		response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc])
 		return JsonResponse(response_dict, safe = False)
         
-def trim_fasta_by_index(fasta, indices):
-    pass
-
 def propensity_data(request, aln_id, tax_group):
     from io import StringIO
     import alignments.propensities as propensities
@@ -421,16 +418,13 @@ def propensity_data(request, aln_id, tax_group):
 
     if request.method == 'POST' and 'indices' in request.POST:
         indices = request.POST['indices']
-        trimmed_fasta = trim_fasta_by_index(fasta, indices)
-        # Trim this fasta
-        fasta = StringIO(trimmed_fasta.format('fasta'))
-
-    aa = propensities.aa_composition(fasta, reduced = False)
-
-    # need to reload the fasta object
-    # fasta = StringIO(fastastring)
-    fasta.seek(0)
-    red_aa = propensities.aa_composition(fasta, reduced = False)
+        aa = propensities.aa_composition(fasta, reduced = False, indices = indices)
+        fasta.seek(0) # reload the fasta object
+        red_aa = propensities.aa_composition(fasta, reduced = False, indices = indices)
+    else:
+        aa = propensities.aa_composition(fasta, reduced = False)
+        fasta.seek(0) # reload the fasta object
+        red_aa = propensities.aa_composition(fasta, reduced = False)
 
     data = {
         'aln_id' : aln_id,
@@ -450,7 +444,6 @@ def propensities(request, align_name, tax_group):
     for group in tax_group.split(','):
         names.append(Taxgroups.objects.get(pk=group).groupname)
 
-    # where does the context variable come from? what does it do?
     context = {
 		"propensity_data" : propensity_data, 
     	"align_name" : align_name,
