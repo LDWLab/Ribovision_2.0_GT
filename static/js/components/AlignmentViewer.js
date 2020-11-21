@@ -1,10 +1,6 @@
 import {Tooltip} from './Tooltip.js'
-import { actions, 
-  MSAViewer, 
-  SequenceViewer,
-  Labels,
-  msaConnect,
-  withPositionStore, } from '@plotly/react-msa-viewer';
+import {XYDispatch} from './PositionDispatch.js'
+import { MSAViewer, SequenceViewer, Labels, } from '@plotly/react-msa-viewer';
 import React, { Component } from "react";
 
 var AlnViewer = class RV3AlnViewer extends Component {
@@ -48,8 +44,9 @@ var AlnViewer = class RV3AlnViewer extends Component {
           }
       }
       if (!window.ajaxRun){
-          window.ajaxRun = true;
+          
           if (e.position !== undefined){
+              window.ajaxRun = true;
               registerHoverResiData(e, this, vm);
           }
       } else {
@@ -78,10 +75,10 @@ var AlnViewer = class RV3AlnViewer extends Component {
   };
   removeHighlightRegion = () => {
       this.setState({ highlight: null });
-  };                
+  };
   render() {
-      const xPos = this.state.tileWidth * (this.state.aaPos - 1);
-      const yPos = this.state.tileHeight * (this.state.seqPos - 1);
+      const xPos = this.state.tileWidth * (this.state.aaPos);
+      const yPos = this.state.tileHeight * (this.state.seqPos);
       const maxXpos = window.aaFreqs.length - Math.round(((main_elmnt.offsetWidth * 0.7)/this.state.tileWidth))+2;
       const maxYpos = vm.fastaSeqNames.length - Math.round(((main_elmnt.offsetHeight * 0.9)/this.state.tileHeight))+2;
       return (
@@ -98,7 +95,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
               max={maxXpos}
               value={this.state.aaPos}
               onChange={(evt) => this.setState({ aaPos: evt.target.value })}
-              class="slider"
+              className="slider"
               id="xPosSlider"
               />
           <MSAViewer 
@@ -136,9 +133,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
               )}
               </div>
           </div>
-          {/* <button onClick={() => this.highlightRegion()}>
-          Highlight Region {" "}
-        </button> */}
+          <XYDispatch parent_state={this.state} />
           </MSAViewer>
       </div>
       <input
@@ -150,7 +145,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
           max={maxYpos}
           value={this.state.seqPos}
           onChange={(evt) => this.setState({ seqPos: evt.target.value })}
-          class="slider"
+          className="slider"
           id="yPosSlider"
           />
       </div>

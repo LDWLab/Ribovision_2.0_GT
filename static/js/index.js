@@ -14,5 +14,3 @@ var vm_both = new Vue({
 })
 
 window.vm = vm_both.$children[0].$children[0]
-window.ajaxRun = false;
-

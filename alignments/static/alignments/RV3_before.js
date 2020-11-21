@@ -413,3 +413,7 @@ var generateCSVstring = function (mapped_data){
 };
 
 var masked_array = [];
+window.ajaxRun = false;
+$(document).mouseleave(function () {
+  window.ajaxRun = false;
+});
