@@ -9,8 +9,8 @@
                 <input type="radio" id="upload" value="upload" v-model="type_tree" v-on:input="cleanTreeOpts()">
                 <label for="upload">Upload</label>
             </p>
-            <div v-if="type_tree=='para'|type_tree=='orth'">
-            <treeselect 
+            <div id="treeselect" v-if="type_tree=='para'|type_tree=='orth'">
+            <treeselect ref="treeselect"
               :load-options="loadOptions"
               v-model="tax_id" 
               v-on:input="loadData(tax_id, type_tree)"
