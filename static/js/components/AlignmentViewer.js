@@ -9,22 +9,22 @@ var AlnViewer = class RV3AlnViewer extends Component {
       tileHeight: 18,
       aaPos: 0,
       seqPos: 0,
-      width: main_elmnt.offsetWidth * 0.7,
-      height: main_elmnt.offsetHeight * 0.9,
+      width: (window.innerWidth - 300) * 0.7,
+      height: ((window.innerHeight - 171)/2) * 0.9,
       highlight: null 
   };
   handleResize = () => {
       this.setState({
-          width: main_elmnt.offsetWidth * 0.7,
-          height: main_elmnt.offsetHeight * 0.9
+          width: (window.innerWidth - 300) * 0.7,
+          height: ((window.innerHeight - 171)/2) * 0.9
       });
-      //var style = document.querySelector('[data="rv3_style"]');
-      //style.innerHTML = ".slider::-webkit-slider-thumb { width: "+main_elmnt.offsetWidth*0.05+"px}"
+      var style = document.querySelector('[data="rv3_style"]');
+      style.innerHTML += ".slider::-webkit-slider-thumb { width: "+(window.innerWidth - 300)*0.05+"px}"
   };
   componentDidMount() {
       window.addEventListener("resize", this.handleResize);
-      //var style = document.querySelector('[data="rv3_style"]');
-      //style.innerHTML = ".slider::-webkit-slider-thumb { width: "+main_elmnt.offsetWidth*0.05+"px}"
+      var style = document.querySelector('[data="rv3_style"]');
+      style.innerHTML += ".slider::-webkit-slider-thumb { width: "+(window.innerWidth - 300)*0.05+"px}"
   };
   componentWillUnmount() {
       window.removeEventListener("resize", this.handleResize);
@@ -79,16 +79,16 @@ var AlnViewer = class RV3AlnViewer extends Component {
   render() {
       const xPos = this.state.tileWidth * (this.state.aaPos);
       const yPos = this.state.tileHeight * (this.state.seqPos);
-      const maxXpos = window.aaFreqs.length - Math.round(((main_elmnt.offsetWidth * 0.7)/this.state.tileWidth))+2;
-      const maxYpos = vm.fastaSeqNames.length - Math.round(((main_elmnt.offsetHeight * 0.9)/this.state.tileHeight))+2;
+      const maxXpos = window.aaFreqs.length - Math.round((((window.innerWidth - 300) * 0.7)/this.state.tileWidth))+2;
+      const maxYpos = vm.fastaSeqNames.length - Math.round(((((window.innerHeight - 171)/2) * 0.9)/this.state.tileHeight))+2;
       return (
       <div style={{ display: "flex" }}>
           <div>
             <input
               style = {{ 
-                  width: main_elmnt.offsetWidth * 0.7+"px",
+                  width: (window.innerWidth - 300) * 0.7+"px",
                   position: "relative",
-                  left: main_elmnt.offsetWidth * 0.2+"px"
+                  left: (window.innerWidth - 300) * 0.2+"px"
               }}
               type="range"
               min="0"
@@ -110,7 +110,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
           >
           <div style={{ position: "relative", display: "flex"}}>
           <Labels style={{
-              width: main_elmnt.offsetWidth * 0.2
+              width: (window.innerWidth - 300) * 0.2
               }}/>
           <div>
               <SequenceViewer
@@ -138,7 +138,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
       </div>
       <input
           style={{ 
-              width: main_elmnt.offsetHeight*0.9+"px",
+              width: ((window.innerHeight - 171)/2)*0.9+"px",
           }}
           type="range"
           min="0"

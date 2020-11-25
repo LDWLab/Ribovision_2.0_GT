@@ -333,13 +333,13 @@
                 vm.fastaSeqNames = fasta['Sequence names'];
                 window.aaFreqs = fasta['AA frequencies'];
                 var main_elmnt = document.querySelector(".alignment_section");
-                window.main_elmnt = main_elmnt;
+                //window.main_elmnt = main_elmnt;
                 let seqsForMSAViewer = parseFastaSeqForMSAViewer(fasta['Alignment']);
                 var msaOptions = {
                     sequences: seqsForMSAViewer,
                     colorScheme: "clustal2",
                     height: main_elmnt.offsetHeight * 0.9,
-                    width: main_elmnt.offsetWidth * 0.75,
+                    width: main_elmnt.offsetWidth * 0.7,
                     tileHeight: 18,
                     tileWidth: 18,
                     overflow: "auto",

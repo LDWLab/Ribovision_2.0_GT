@@ -39,6 +39,21 @@
                     treeselectEl.openMenu()
                 )
             })
+        },{
+            target: '#selectaln',
+            header: {
+                title: 'Alignment selection',
+            },
+            content: `Select an alignment from our database.`,
+            params: {
+              placement: 'right'
+            },
+            before: type => new Promise((resolve, reject) => {
+                var selectAlnEl = document.querySelector("#selectaln")
+                resolve (
+                    selectAlnEl.click()
+                )
+            })
         }
 
     ]
