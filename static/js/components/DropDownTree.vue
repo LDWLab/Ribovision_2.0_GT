@@ -259,28 +259,7 @@
                 this.alignments = null;
                 var url = '/desire-api/taxonomic-groups/?format=json&taxgroup_id__in=' + value
                 ajax(url).then(data => {
-                    if (data["results"].length === 2) {
-                        function getObjIntersection(o1, o2) {
-                            return Object.keys(o1).filter({}.hasOwnProperty.bind(o2));
-                        }
-                        var alns_first_tax = Object.fromEntries(data["results"][0]["alignment_ids"]);
-                        var alns_second_tax = Object.fromEntries(data["results"][1]["alignment_ids"]);
-                        var aln_indexes = getObjIntersection(alns_first_tax, alns_second_tax);
-                        var fpa = []
-                        aln_indexes.forEach(function(alnk) {
-                            fpa.push(Array(Number(alnk), alns_first_tax[alnk]))
-                        });
-                    } else {
-                        var fpa = data["results"][0]["alignment_ids"]
-                    }
-                    var fpa_viz = [];
-                    fpa.forEach(function(fkey) {
-                        fpa_viz.push({
-                            text: fkey[1],
-                            value: fkey[0]
-                        });
-                    });
-                    this.alignments = fpa_viz
+                    loadOrthAlns(data, this);
                 });
             }
             if (type_tree == "para"){

@@ -292,6 +292,66 @@ var loadParaOptions = function (action, callback, vm) {
   }
 };
 
+var intersection = function () {
+    var result = [];
+    var lists;
+    if(arguments.length === 1) {
+        lists = arguments[0];
+    } else {
+        lists = arguments;
+    }
+    for(var i = 0; i < lists.length; i++) {
+        var currentList = lists[i];
+        for(var y = 0; y < currentList.length; y++) {
+            var currentValue = currentList[y];
+            if(result.indexOf(currentValue) === -1) {
+                if(lists.filter(function(obj) { return obj.indexOf(currentValue) == -1 }).length == 0) {
+                    result.push(currentValue);
+            }
+          }
+        }
+    }
+    return result;
+}
+
+var objectify = function (array){
+    return array.reduce(function(p, c) {
+         p[c[0]] = [c[1], c[2]];
+         return p;
+    }, {});
+}
+
+var loadOrthAlns = function(data, vm){
+    if (data["results"].length === 1) {
+        var fpa = data["results"][0]["alignment_ids"]
+    } else if (data["results"].length > 1) {
+        var fpa = [];
+        var alnid_maps = [];
+        var alnid_keys = [];
+        data["results"].forEach(function(tax_result){
+            var temp_map = objectify(tax_result["alignment_ids"])
+            alnid_maps.push(temp_map);
+            alnid_keys.push(Object.keys(temp_map));
+        });
+        var filtered_keys = intersection(alnid_keys);
+        filtered_keys.forEach(function(alnk){
+            fpa.push(Array(Number(alnk), alnid_maps[0][alnk][0], alnid_maps[0][alnk][1]))
+        })
+    } else {
+        var fpa = [null, 'No alignments found', "PROMALS3D"]
+    }
+    var fpa_viz = [];
+    fpa.forEach(function(fkey) {
+        if (fkey[2] == "PROMALS3D"){
+            fpa_viz.push({
+                text: fkey[1],
+                value: fkey[0]
+            });
+        }
+    });
+    vm.alignments = fpa_viz
+}
+
 var loadParaAlns = function (value, vm) {
   vm.alignments = null;
   ajax('/alignments/fold-api/'+value).then(data=>{
