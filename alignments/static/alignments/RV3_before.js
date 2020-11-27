@@ -31,24 +31,51 @@ var absolutePosition = function (el) {
   };
 };
 
+var parseFastaString = function(fastaString){
+    let arrayFasta = [];
+    let tempFasta = String(fastaString).split('>');
+    tempFasta = tempFasta.filter(n => n);
+    tempFasta.forEach(seq =>{
+        let splitSeq = seq.split(/\n/);
+        arrayFasta.push(splitSeq[0]);
+        arrayFasta.push(splitSeq.slice(1).join(''))
+    });
+    return arrayFasta;
+}
+
+var validateFasta = function (fasta) {
+    //From here https://www.blopig.com/blog/2013/03/a-javascript-function-to-validate-fasta-sequences/
+    
+    if (!fasta) { // check there is something first of all
+        return false;
+    }
+    
+    fastaArr = parseFastaString(fasta);
+    var fastaSeqs = '';
+    fastaArr.map(function(element, index) {
+        if (index % 2 == 1){
+            fastaSeqs += fastaArr[index];
+        }
+    });
+
+    if (!fastaSeqs) { // is it empty whatever we collected ? re-check not efficient 
+        return false;
+    }
+
+    return /^[-ACDEFGHIKLMNPQRSTUVWY\s]+$/i.test(fastaSeqs);
+}
+
 var parseFastaSeqForMSAViewer = function (fasta){
-  let outSeqs = [];
-  let arrayFasta = [];
-  let tempFasta = String(fasta).split('>');
-  tempFasta = tempFasta.filter(n => n);
-  tempFasta.forEach(seq =>{
-    let splitSeq = seq.split(/\n/);
-    arrayFasta.push(splitSeq[0]);
-    arrayFasta.push(splitSeq.slice(1).join(''))
-  });
-  arrayFasta.map(function(element, index) {
-      if (index % 2 == 0){
-          let seqName = element.replaceAll('_', ' ').replaceAll('>', '');
-          let seqObj = {'name': seqName, 'sequence': arrayFasta[index+1]}
-          outSeqs.push(seqObj);
-      }
-  });
-  return outSeqs;
+    let outSeqs = [];
+    arrayFasta = parseFastaString(fasta);
+    arrayFasta.map(function(element, index) {
+        if (index % 2 == 0){
+            let seqName = element.replaceAll('_', ' ').replaceAll('>', '');
+            let seqObj = {'name': seqName, 'sequence': arrayFasta[index+1]}
+            outSeqs.push(seqObj);
+        }
+    });
+    return outSeqs;
 };
 
 (function() {

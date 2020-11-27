@@ -375,12 +375,38 @@ def rRNA(request, align_name, tax_group):
     context = {'fastastring': fastastring, 'aln_name':str(Alignment.objects.filter(aln_id = align_id)[0].name)}
     return render(request, 'alignments/rRNA.html', context)
 
+def validate_fasta_string(fastaString):
+    malicious_strings = [
+        "eval\(unescape",
+        "base64_decode\(",
+        "substr\(md5\(strrev\(",
+        "cwd = @getcwd\(\);",
+        "chr\(\(ord\(",
+        "gzinflate\(base64_decode\(",
+        "php_uname\(\)\" \"] = chr\(ord\(",
+        "cwd\[strlen\(\$cwd\)",
+        "ini_get\('safe_mode'\);",
+        "=\"\x62\"",
+        "\"+ r + \"&r=\" + document.referrer;\"",
+        "if\(strtoupper\(substr\(PHP_OS, 0, 3\) \) == \"WIN\"\)",
+        "window.top.location.href=\"http://",
+        "@ini_get\(\"disable_functions\"\)",
+        "\$g3='';\$g3.=\$r;\$g3.=\$h;\$g3.=\$y",
+    ]
+    for mstring in malicious_strings:
+        regex = re.compile(mstring)
+        if re.search(regex, fastaString):
+            return True
+    return False
+
 def handle_custom_upload_alignment(request):
     if request.method == 'POST' and 'custom_aln_file' in request.FILES:
         aln_file = request.FILES['custom_aln_file']
         alignment_string = ''
         for aln_part in aln_file.chunks():
             alignment_string += aln_part.decode()
+        if (validate_fasta_string(alignment_string)):
+            return HttpResponseServerError("Found forbidden strings in file! What are you trying to do?")
         alignments = list(AlignIO.parse(StringIO(alignment_string), 'fasta'))
         if len(alignments) == 0:
             return HttpResponseServerError("Wasn't able to parse the alignment file! Is your file in fasta format?")
@@ -397,7 +423,7 @@ def handle_custom_upload_alignment(request):
         sliced_alns = slice_by_name(alignment_obj)
         twc = False
         if len(sliced_alns.keys()) == 2:
-            twc = True            
+            twc = True
         fastastring = fastastring.replace('\n','\\n')
         gap_only_cols = extract_gap_only_cols(fastastring)
         filtered_spec_list = extract_species_list(fastastring)

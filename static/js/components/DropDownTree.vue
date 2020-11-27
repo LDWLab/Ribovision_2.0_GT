@@ -187,24 +187,33 @@
         },
         submitCustomAlignment(){
             let formData = new FormData();
-            formData.append('custom_aln_file', this.file)
-            $.ajax({
-                url: '/custom-aln-data',
-                data: formData,
-                cache: false,
-                contentType: false,
-                processData: false,
-                method: 'POST',
-                type: 'POST', // For jQuery < 1.9
-                success: function(data){
-                    cleanupOnNewAlignment(vm, "Loading alignment...");
-                    vm.alnobj = "custom";
-                    vm.showAlignment(null, null, "upload");
-                },
-                error: function(error) {
-                    alert(`${error.responseText}`);
+            var fr = new FileReader();
+            var uploadedFile = this.file;
+            fr.onload = function(){
+                if (validateFasta(fr.result)){
+                    formData.append('custom_aln_file', uploadedFile)
+                    $.ajax({
+                        url: '/custom-aln-data',
+                        data: formData,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        method: 'POST',
+                        type: 'POST', // For jQuery < 1.9
+                        success: function(data){
+                            cleanupOnNewAlignment(vm, "Loading alignment...");
+                            vm.alnobj = "custom";
+                            vm.showAlignment(null, null, "upload");
+                        },
+                        error: function(error) {
+                            alert(`${error.responseText}`);
+                        }
+                    });
+                }else{
+                    alert("Check the fasta format of the uploaded file!")
                 }
-            });
+            };
+            fr.readAsText(this.file)
         },
         cleanTreeOpts() {
             cleanupOnNewAlignment(this, "Select new alignment!");
