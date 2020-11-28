@@ -38,7 +38,17 @@
                 <span v-if="alnobj&&alnobj!='custom'">Selected alignment: {{ alnobj.text }}.<br></span>
                 <span v-if="alnobj">Input PDB and polymer for mapping:</span>
             </p>
-            <p><input id="pdb_input" v-if="alnobj" v-model="pdbid" v-on:input="getPDBchains(pdbid, alnobj.id)" placeholder="4v9d" maxlength="4">
+            <p>
+                <input id="pdb_input" type="text" list="availablePDBs" v-if="alnobj" v-model="pdbid" v-on:input="getPDBchains(pdbid, alnobj.id)" placeholder="4v9d" maxlength="4">
+                <datalist id="availablePDBs">
+                    <option>4v9d</option>
+                    <option>4v6u</option>
+                    <option>4ug0</option>
+                    <option>1vy4</option>
+                </datalist>
+                <div v-if="hide_chains" id="onFailedChains">Looking for available polymers...</div>
+            </p>
+            <p>
                 <div v-if="alnobj" class="checkbox">
                     <label><input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">Propensities</label>
                     <select v-if="checked_propensities&&structure_mapping" v-model="property">
@@ -47,7 +57,6 @@
                     </select>
                 </div>
             </p>
-            <p v-if="hide_chains">Looking for available polymers...</p>
             <p><select v-bind:style="{ resize: 'both'}" multiple v-if="chains&&fasta_data" v-model="chainid" >
                 <option :value ="null" selected disabled>Select polymer</option>
                 <option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid, chain.entityID)">{{ chain.text }}</option>
@@ -302,7 +311,13 @@
                             this.hide_chains = null;
                         }
                     }).catch(error => {
-                        alert("Problem with parsing the chains:\n" + error)
+                        var elt = document.querySelector("#onFailedChains");
+                        this.pdbid = null;
+                        if (error.status == 404){
+                            elt.innerHTML  = "Couldn't find this PDB ID!<br/>Try a different PDB ID."
+                        } else {
+                            elt.innerHTML  = "Problem with parsing the chains! Try a different PDB ID."
+                        }
                     })
             }
         },
