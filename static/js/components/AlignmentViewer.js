@@ -23,10 +23,35 @@ var AlnViewer = class RV3AlnViewer extends Component {
         style.innerHTML += ".slider::-webkit-slider-thumb { width: "+(window.innerWidth - 300)*0.05+"px}"
     };
     componentDidMount() {
-        window.addEventListener("resize", this.handleResize);
         var style = document.querySelector('[data="rv3_style"]');
         style.innerHTML += ".slider::-webkit-slider-thumb { width: "+(window.innerWidth - 300)*0.05+"px}";
 
+        var handleMolStarTopViewHovers = function (alnViewerClass, residueNumber){
+            var alignmentNumber = Number(_.invert(vm.structure_mapping)[residueNumber]);
+            var numVisibleTiles = Math.round(alnViewerClass.state.width/alnViewerClass.state.tileWidth);
+            if (alnViewerClass.state.aaPos > alignmentNumber || alignmentNumber > alnViewerClass.state.aaPos+numVisibleTiles){
+                let visiblePos = alignmentNumber-Math.round(numVisibleTiles/2);
+                if (visiblePos < 0) {visiblePos = 0};
+                alnViewerClass.setState({ aaPos: visiblePos })
+            }
+            alnViewerClass.highlightRegion({
+                sequences: {from: 0, to: vm.fastaSeqNames.length},
+                residues: {from: alignmentNumber, to: alignmentNumber}
+            });
+        }
+        window.addEventListener("resize", this.handleResize);
+        document.addEventListener('PDB.topologyViewer.mouseover', (e) => {
+            handleMolStarTopViewHovers(this, e.eventData.residueNumber);
+        });
+        document.addEventListener('PDB.topologyViewer.mouseout', () => {
+            this.removeHighlightRegion();
+        });
+        document.addEventListener('PDB.molstar.mouseover', (e) => {
+            handleMolStarTopViewHovers(this, e.eventData.seq_id);
+        });
+        document.addEventListener('PDB.molstar.mouseout', () => {
+            this.removeHighlightRegion();
+        });
     };
     componentWillUnmount() {
         window.removeEventListener("resize", this.handleResize);
