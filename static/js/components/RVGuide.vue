@@ -19,9 +19,9 @@
             header: {
                 title: 'Mode of operation',
             },
-            content: `Select on three possible modes of operation.</br>
-            <b>Orthologs</b> retrieves orthologous alignments from our database.</br>
-            <b>Paralogs</b> retrieves paralogous alignments from our database.</br>
+            content: `Select on three possible modes of operation.<br/>
+            <b>Orthologs</b> retrieves orthologous alignments.<br/>
+            <b>Paralogs</b> retrieves paralogous alignments.<br/>
             <b>Upload</b> allows you to upload your own fasta formatted alignment.`,
         },{
             target: '#treeselect',
@@ -49,13 +49,19 @@
               placement: 'right'
             },
             before: type => new Promise((resolve, reject) => {
-                var selectAlnEl = document.querySelector("#selectaln")
                 resolve (
-                    selectAlnEl.click()
+                    vm.alnobj = {id: 1, text: "uL02"},
                 )
             })
-        }
-
+        },{
+            target: '.alignment_section',
+            header: {
+                title: 'Alignment viewer',
+            },
+            content: `This is the alignment viewer. 
+            Hover over residue to reveal additional data for it.<br/>
+            The viewer window can be moved by dragging or by using the scrollbars.`,
+        },
     ]
 
     export default {
@@ -63,26 +69,6 @@
         data () {
             return {
                 steps: tourSteps
-                //[
-                //    {
-                //        target: '#v-step-0',    // We're using document.querySelector() under the hood
-                //        header: {
-                //            title: 'Alignment viewer',
-                //        },
-                //        content: `Alignment viewer!`
-                //    },
-                //    {
-                //        target: '#treeselect',
-                //        content: 'Selection!'
-                //    },
-                //    {
-                //        target: '[data-v-step="2"]',
-                //        content: 'Try it, you\'ll love it!<br>You can put HTML in the steps and completely customize the DOM to suit your needs.',
-                //        params: {
-                //            placement: 'top' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
-                //        }
-                //    }
-                //]
             }
         },
         methods: {

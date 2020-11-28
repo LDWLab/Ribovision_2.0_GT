@@ -29,7 +29,7 @@
                 <p><button v-on:click="submitCustomAlignment()">Upload alignment</button></p>
             </div>
             <p>
-                <select id="selectaln" v-if="tax_id" v-model="alnobj" @change="showAlignment(alnobj.id, tax_id, type_tree)" >
+                <select id="selectaln" v-if="tax_id" v-model="alnobj">
                     <option v-if="tax_id" :value="null" selected disabled hidden>Select an alignment</option>
                     <option v-if="tax_id" v-for="aln in alignments" v-bind:value="{ id: aln.value, text: aln.text }">{{ aln.text }}</option>
                 </select>
@@ -188,7 +188,10 @@
                     colorResidue(j, window.masked_array);
                 }
             }
+        },alnobj: function (data){
+            this.showAlignment(data.id, vm.tax_id, vm.type_tree);
         },
+
     },methods: {
         handleFileUpload(){
             this.file = this.$refs.custom_aln_file.files[0];
