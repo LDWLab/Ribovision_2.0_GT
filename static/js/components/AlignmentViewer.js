@@ -1,6 +1,7 @@
 import {Tooltip} from './Tooltip.js'
 import {XYDispatch} from './PositionDispatch.js'
-import { MSAViewer, SequenceViewer, Labels, } from '@plotly/react-msa-viewer';
+//import { MSAViewer, SequenceViewer, Labels, } from '@plotly/react-msa-viewer';
+import { MSAViewer, SequenceViewer, Labels, } from './MSAV.umd.js';
 import React, { Component } from "react";
 
 var AlnViewer = class RV3AlnViewer extends Component {
@@ -24,14 +25,19 @@ var AlnViewer = class RV3AlnViewer extends Component {
   componentDidMount() {
       window.addEventListener("resize", this.handleResize);
       var style = document.querySelector('[data="rv3_style"]');
-      style.innerHTML += ".slider::-webkit-slider-thumb { width: "+(window.innerWidth - 300)*0.05+"px}"
+      style.innerHTML += ".slider::-webkit-slider-thumb { width: "+(window.innerWidth - 300)*0.05+"px}";
+      
   };
   componentWillUnmount() {
       window.removeEventListener("resize", this.handleResize);
   };
   onResidueMouseEnter = e => {
+    this.highlightRegion({
+        sequences: {from: 0, to: vm.fastaSeqNames.length},
+        residues: {from: e.position+1, to: e.position+1}
+    })
       if (vm.topology_loaded == 'True'){
-          let resiPos = vm.structure_mapping[e.position];
+        let resiPos = vm.structure_mapping[e.position];
           if (resiPos !== undefined){
               viewerInstanceTop.pluginInstance.highlight(resiPos, resiPos);
               viewerInstance.visual.highlight({
@@ -60,17 +66,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
       }
       this.setState({ fold: undefined, phase: undefined });
   };
-  highlightRegion = () => {
-      const highlight = {
-          sequences: {
-            from: 0,
-            to: 2
-          },
-          residues: {
-            from: 2,
-            to: 13
-          }
-        };
+  highlightRegion = (highlight) => {
       this.setState({ highlight });
   };
   removeHighlightRegion = () => {
