@@ -408,7 +408,16 @@ def handle_custom_upload_alignment(request):
 		
 		response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc])
 		return JsonResponse(response_dict, safe = False)
-        
+
+# trims fasta by a list of indices
+def trim_fasta_by_index(input_file, indices):
+    align = AlignIO.read(input_file, "fasta")
+    trimmed_align = align[:,indices[0]:indices[0]+1] # initialize align object
+    for i in indices[1:]:
+        trimmed_align += align[:,i:i+1]
+    return trimmed_align
+
+# TODO: change this back
 def propensity_data(request, aln_id, tax_group):
     from io import StringIO
     import alignments.propensities as propensities
