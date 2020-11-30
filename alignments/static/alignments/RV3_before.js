@@ -31,24 +31,51 @@ var absolutePosition = function (el) {
   };
 };
 
+var parseFastaString = function(fastaString){
+    let arrayFasta = [];
+    let tempFasta = String(fastaString).split('>');
+    tempFasta = tempFasta.filter(n => n);
+    tempFasta.forEach(seq =>{
+        let splitSeq = seq.split(/\n/);
+        arrayFasta.push(splitSeq[0]);
+        arrayFasta.push(splitSeq.slice(1).join(''))
+    });
+    return arrayFasta;
+}
+
+var validateFasta = function (fasta) {
+    //From here https://www.blopig.com/blog/2013/03/a-javascript-function-to-validate-fasta-sequences/
+    
+    if (!fasta) { // check there is something first of all
+        return false;
+    }
+    
+    fastaArr = parseFastaString(fasta);
+    var fastaSeqs = '';
+    fastaArr.map(function(element, index) {
+        if (index % 2 == 1){
+            fastaSeqs += fastaArr[index];
+        }
+    });
+
+    if (!fastaSeqs) { // is it empty whatever we collected ? re-check not efficient 
+        return false;
+    }
+
+    return /^[-ACDEFGHIKLMNPQRSTUVWY\s]+$/i.test(fastaSeqs);
+}
+
 var parseFastaSeqForMSAViewer = function (fasta){
-  let outSeqs = [];
-  let arrayFasta = [];
-  let tempFasta = String(fasta).split('>');
-  tempFasta = tempFasta.filter(n => n);
-  tempFasta.forEach(seq =>{
-    let splitSeq = seq.split(/\n/);
-    arrayFasta.push(splitSeq[0]);
-    arrayFasta.push(splitSeq.slice(1).join(''))
-  });
-  arrayFasta.map(function(element, index) {
-      if (index % 2 == 0){
-          let seqName = element.replaceAll('_', ' ').replaceAll('>', '');
-          let seqObj = {'name': seqName, 'sequence': arrayFasta[index+1]}
-          outSeqs.push(seqObj);
-      }
-  });
-  return outSeqs;
+    let outSeqs = [];
+    arrayFasta = parseFastaString(fasta);
+    arrayFasta.map(function(element, index) {
+        if (index % 2 == 0){
+            let seqName = element.replaceAll('_', ' ').replaceAll('>', '');
+            let seqObj = {'name': seqName, 'sequence': arrayFasta[index+1]}
+            outSeqs.push(seqObj);
+        }
+    });
+    return outSeqs;
 };
 
 (function() {
@@ -292,6 +319,66 @@ var loadParaOptions = function (action, callback, vm) {
   }
 };
 
+var intersection = function () {
+    var result = [];
+    var lists;
+    if(arguments.length === 1) {
+        lists = arguments[0];
+    } else {
+        lists = arguments;
+    }
+    for(var i = 0; i < lists.length; i++) {
+        var currentList = lists[i];
+        for(var y = 0; y < currentList.length; y++) {
+            var currentValue = currentList[y];
+            if(result.indexOf(currentValue) === -1) {
+                if(lists.filter(function(obj) { return obj.indexOf(currentValue) == -1 }).length == 0) {
+                    result.push(currentValue);
+            }
+          }
+        }
+    }
+    return result;
+}
+
+var objectify = function (array){
+    return array.reduce(function(p, c) {
+         p[c[0]] = [c[1], c[2]];
+         return p;
+    }, {});
+}
+
+var loadOrthAlns = function(data, vm){
+    if (data["results"].length === 1) {
+        var fpa = data["results"][0]["alignment_ids"]
+    } else if (data["results"].length > 1) {
+        var fpa = [];
+        var alnid_maps = [];
+        var alnid_keys = [];
+        data["results"].forEach(function(tax_result){
+            var temp_map = objectify(tax_result["alignment_ids"])
+            alnid_maps.push(temp_map);
+            alnid_keys.push(Object.keys(temp_map));
+        });
+        var filtered_keys = intersection(alnid_keys);
+        filtered_keys.forEach(function(alnk){
+            fpa.push(Array(Number(alnk), alnid_maps[0][alnk][0], alnid_maps[0][alnk][1]))
+        })
+    } else {
+        var fpa = [null, 'No alignments found', "PROMALS3D"]
+    }
+    var fpa_viz = [];
+    fpa.forEach(function(fkey) {
+        if (fkey[2] == "PROMALS3D"){
+            fpa_viz.push({
+                text: fkey[1],
+                value: fkey[0]
+            });
+        }
+    });
+    vm.alignments = fpa_viz
+}
+
 var loadParaAlns = function (value, vm) {
   vm.alignments = null;
   ajax('/alignments/fold-api/'+value).then(data=>{
@@ -413,3 +500,7 @@ var generateCSVstring = function (mapped_data){
 };
 
 var masked_array = [];
+window.ajaxRun = false;
+$(document).mouseleave(function () {
+  window.ajaxRun = false;
+});

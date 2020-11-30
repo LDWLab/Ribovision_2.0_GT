@@ -6,14 +6,14 @@ var registerHoverResiData = function (e, tooltipObj){
   const strainQuery = '&res__poldata__strain__strain=';
   var url = `/desire-api/residue-alignment/?format=json&aln_pos=${String(Number(e.position) + 1)}&aln=${vm.alnobj.id}${strainQuery}${vm.fastaSeqNames[Number(e.i)]}`
   ajax(url).then(alnpos_data => {
-      var alnViewCanvasEle = document.querySelector("#alnDiv canvas:nth-of-type(1)");
-      var alnViewLabelsEle = document.querySelector("#alnDiv div:nth-of-type(2)");
-      let boundLabelBox = alnViewLabelsEle.getBoundingClientRect();
-      let boundingBox = absolutePosition(alnViewCanvasEle);
-      let relativeBox = alnViewCanvasEle.getBoundingClientRect();
-      if (alnpos_data.count != 0){
-      ajax('/resi-api/' + alnpos_data["results"][0]["res"].split("/")[5]).then(resiData => {
-          if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right){
+    var alnViewCanvasEle = document.querySelector("#alnDiv canvas:nth-of-type(1)");
+    var alnViewLabelsEle = document.querySelector("#alnDiv div:nth-of-type(2)");
+    let boundLabelBox = alnViewLabelsEle.getBoundingClientRect();
+    let boundingBox = absolutePosition(alnViewCanvasEle);
+    let relativeBox = alnViewCanvasEle.getBoundingClientRect();
+    if (alnpos_data.count != 0){
+        ajax('/resi-api/' + alnpos_data["results"][0]["res"].split("/")[5]).then(resiData => {
+            if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right){
               let tooltipPosition = {
                 top: mousePos.y-boundingBox.top+5 +"px",
                 left: mousePos.x-relativeBox.left+boundLabelBox.right-boundLabelBox.left+5 +"px",
@@ -31,25 +31,26 @@ var registerHoverResiData = function (e, tooltipObj){
                   tooltipPosition,
                 });
               }
-         }
-         window.ajaxRun = false;
-      });
-      }else{
-          if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right){
-              let tooltipPosition = {
-                  top: mousePos.y-boundingBox.top+5 +"px",
-                  left: mousePos.x-relativeBox.left+boundLabelBox.right-boundLabelBox.left+5 +"px",
-              };
-              window.ajaxRun = false;
-              tooltipObj.setState({
-                  fold: 'NA',
-                  phase: 'NA',
-                  tooltipPosition,
-              });
-          }
-      }
+            }
+            window.ajaxRun = false;
+        });
+    }else{
+        if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right){
+            let tooltipPosition = {
+                top: mousePos.y-boundingBox.top+5 +"px",
+                left: mousePos.x-relativeBox.left+boundLabelBox.right-boundLabelBox.left+5 +"px",
+            };
+            window.ajaxRun = false;
+            tooltipObj.setState({
+                fold: 'NA',
+                phase: 'NA',
+                tooltipPosition,
+            });
+        }
+    }
   }).catch(error => {
-     console.log(error);
+    window.ajaxRun = false;
+    console.log(error);
   })
   return true;
 };

@@ -13,6 +13,4 @@ var vm_both = new Vue({
   components: { RV3 }
 })
 
-window.vm = vm_both.$children[0].$children[0]
-window.ajaxRun = false;
-
+window.vm = vm_both.$children[0].$children[1]

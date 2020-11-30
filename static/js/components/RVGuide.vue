@@ -1,41 +1,83 @@
 <template>
-  <div>
-    <button v-on:click="startTour();">Help</button>
-    <v-tour name="myTour" :steps="steps" :options="{ highlight: true }"></v-tour>
-  </div>
+    <div>
+        <header class="pink section">DESIRE: DatabasE for Study and Imaging of Ribosomal Evolution
+        <button v-on:click="startTour();" style="float: right;">Help</button></header>
+        <v-tour name="myTour" :steps="steps" :options="{ highlight: true }"></v-tour>
+    </div>
 </template>
 
 <script>
-  export default {
-    name: 'my-tour',
-    data () {
-      return {
-        steps: [
-          {
-            target: '#v-step-0',  // We're using document.querySelector() under the hood
+    const tourSteps = [
+        {
+            target: 'header',
             header: {
-              title: 'Alignment viewer',
+                title: 'Welcome to RiboVision3!',
             },
-            content: `Alignment viewer!`
-          },
-          {
+            content: ``
+        },{
+            target: '#tree_type',
+            header: {
+                title: 'Mode of operation',
+            },
+            content: `Select on three possible modes of operation.<br/>
+            <b>Orthologs</b> retrieves orthologous alignments.<br/>
+            <b>Paralogs</b> retrieves paralogous alignments.<br/>
+            <b>Upload</b> allows you to upload your own fasta formatted alignment.`,
+        },{
             target: '#treeselect',
-            content: 'Selection!'
-          },
-          {
-            target: '[data-v-step="2"]',
-            content: 'Try it, you\'ll love it!<br>You can put HTML in the steps and completely customize the DOM to suit your needs.',
+            header: {
+                title: 'Phylogenetic selection',
+            },
+            content: `Select a phylogenetic group. Supports searching and multiple groups.`,
             params: {
-              placement: 'top' // Any valid Popper.js placement. See https://popper.js.org/popper-documentation.html#Popper.placements
+              placement: 'right'
+            },
+            before: type => new Promise((resolve, reject) => {
+                var treeselectEl = vm.$refs["treeselect"]
+                resolve (
+                    treeselectEl.$emit('input', [2]),
+                    treeselectEl.openMenu()
+                )
+            })
+        },{
+            target: '#selectaln',
+            header: {
+                title: 'Alignment selection',
+            },
+            content: `Select an alignment from our database.`,
+            params: {
+              placement: 'right'
+            },
+            before: type => new Promise((resolve, reject) => {
+                resolve (
+                    vm.alnobj = {id: 1, text: "uL02"},
+                )
+            })
+        },{
+            target: '.alignment_section',
+            header: {
+                title: 'Alignment viewer',
+            },
+            content: `This is the alignment viewer. 
+            Hover over residue to reveal additional data for it.<br/>
+            The viewer window can be moved by dragging or by using the scrollbars.`,
+        },
+    ]
+
+    export default {
+        name: 'my-tour',
+        data () {
+            return {
+                steps: tourSteps
             }
-          }
-        ]
-      }
-    },
-    methods: {
-      startTour(){
-        this.$tours['myTour'].start()
-      }
+        },
+        methods: {
+            startTour(){
+                this.$tours['myTour'].start()
+            }
+        },
+        mounted: function () {
+            this.$tours['myTour'].start()
+        }
     }
-  }
 </script>

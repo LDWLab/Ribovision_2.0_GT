@@ -9,8 +9,8 @@
                 <input type="radio" id="upload" value="upload" v-model="type_tree" v-on:input="cleanTreeOpts()">
                 <label for="upload">Upload</label>
             </p>
-            <div v-if="type_tree=='para'|type_tree=='orth'">
-            <treeselect 
+            <div id="treeselect" v-if="type_tree=='para'|type_tree=='orth'">
+            <treeselect ref="treeselect"
               :load-options="loadOptions"
               v-model="tax_id" 
               v-on:input="loadData(tax_id, type_tree)"
@@ -29,7 +29,7 @@
                 <p><button v-on:click="submitCustomAlignment()">Upload alignment</button></p>
             </div>
             <p>
-                <select id="selectaln" v-if="tax_id" v-model="alnobj" @change="showAlignment(alnobj.id, tax_id, type_tree)" >
+                <select id="selectaln" v-if="tax_id" v-model="alnobj">
                     <option v-if="tax_id" :value="null" selected disabled hidden>Select an alignment</option>
                     <option v-if="tax_id" v-for="aln in alignments" v-bind:value="{ id: aln.value, text: aln.text }">{{ aln.text }}</option>
                 </select>
@@ -38,7 +38,17 @@
                 <span v-if="alnobj&&alnobj!='custom'">Selected alignment: {{ alnobj.text }}.<br></span>
                 <span v-if="alnobj">Input PDB and polymer for mapping:</span>
             </p>
-            <p><input id="pdb_input" v-if="alnobj" v-model="pdbid" v-on:input="getPDBchains(pdbid, alnobj.id)" placeholder="4v9d" maxlength="4">
+            <p>
+                <input id="pdb_input" type="text" list="availablePDBs" v-if="alnobj" v-model="pdbid" v-on:input="getPDBchains(pdbid, alnobj.id)" placeholder="4v9d" maxlength="4">
+                <datalist id="availablePDBs">
+                    <option>4v9d</option>
+                    <option>4v6u</option>
+                    <option>4ug0</option>
+                    <option>1vy4</option>
+                </datalist>
+                <div v-if="hide_chains" id="onFailedChains">Looking for available polymers...</div>
+            </p>
+            <p>
                 <div v-if="alnobj" class="checkbox">
                     <label><input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">Propensities</label>
                     <select v-if="checked_propensities&&structure_mapping" v-model="property">
@@ -47,7 +57,6 @@
                     </select>
                 </div>
             </p>
-            <p v-if="hide_chains">Looking for available polymers...</p>
             <p><select v-bind:style="{ resize: 'both'}" multiple v-if="chains&&fasta_data" v-model="chainid" >
                 <option :value ="null" selected disabled>Select polymer</option>
                 <option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid, chain.entityID)">{{ chain.text }}</option>
@@ -107,6 +116,7 @@
 <script>
   import {AlnViewer} from './AlignmentViewer.js'
   import ReactDOM, { render } from 'react-dom';
+  import React, { Component } from "react";
   import Treeselect from '@riophae/vue-treeselect'
   export default {
       // register the component
@@ -178,7 +188,10 @@
                     colorResidue(j, window.masked_array);
                 }
             }
+        },alnobj: function (data){
+            this.showAlignment(data.id, vm.tax_id, vm.type_tree);
         },
+
     },methods: {
         handleFileUpload(){
             this.file = this.$refs.custom_aln_file.files[0];
@@ -186,24 +199,33 @@
         },
         submitCustomAlignment(){
             let formData = new FormData();
-            formData.append('custom_aln_file', this.file)
-            $.ajax({
-                url: '/custom-aln-data',
-                data: formData,
-                cache: false,
-                contentType: false,
-                processData: false,
-                method: 'POST',
-                type: 'POST', // For jQuery < 1.9
-                success: function(data){
-                    cleanupOnNewAlignment(vm, "Loading alignment...");
-                    vm.alnobj = "custom";
-                    vm.showAlignment(null, null, "upload");
-                },
-                error: function(error) {
-                    alert(`${error.responseText}`);
+            var fr = new FileReader();
+            var uploadedFile = this.file;
+            fr.onload = function(){
+                if (validateFasta(fr.result)){
+                    formData.append('custom_aln_file', uploadedFile)
+                    $.ajax({
+                        url: '/custom-aln-data',
+                        data: formData,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        method: 'POST',
+                        type: 'POST', // For jQuery < 1.9
+                        success: function(data){
+                            cleanupOnNewAlignment(vm, "Loading alignment...");
+                            vm.alnobj = "custom";
+                            vm.showAlignment(null, null, "upload");
+                        },
+                        error: function(error) {
+                            alert(`${error.responseText}`);
+                        }
+                    });
+                }else{
+                    alert("Check the fasta format of the uploaded file!")
                 }
-            });
+            };
+            fr.readAsText(this.file)
         },
         cleanTreeOpts() {
             cleanupOnNewAlignment(this, "Select new alignment!");
@@ -258,28 +280,7 @@
                 this.alignments = null;
                 var url = '/desire-api/taxonomic-groups/?format=json&taxgroup_id__in=' + value
                 ajax(url).then(data => {
-                    if (data["results"].length === 2) {
-                        function getObjIntersection(o1, o2) {
-                            return Object.keys(o1).filter({}.hasOwnProperty.bind(o2));
-                        }
-                        var alns_first_tax = Object.fromEntries(data["results"][0]["alignment_ids"]);
-                        var alns_second_tax = Object.fromEntries(data["results"][1]["alignment_ids"]);
-                        var aln_indexes = getObjIntersection(alns_first_tax, alns_second_tax);
-                        var fpa = []
-                        aln_indexes.forEach(function(alnk) {
-                            fpa.push(Array(Number(alnk), alns_first_tax[alnk]))
-                        });
-                    } else {
-                        var fpa = data["results"][0]["alignment_ids"]
-                    }
-                    var fpa_viz = [];
-                    fpa.forEach(function(fkey) {
-                        fpa_viz.push({
-                            text: fkey[1],
-                            value: fkey[0]
-                        });
-                    });
-                    this.alignments = fpa_viz
+                    loadOrthAlns(data, this);
                 });
             }
             if (type_tree == "para"){
@@ -313,7 +314,13 @@
                             this.hide_chains = null;
                         }
                     }).catch(error => {
-                        alert("Problem with parsing the chains:\n" + error)
+                        var elt = document.querySelector("#onFailedChains");
+                        this.pdbid = null;
+                        if (error.status == 404){
+                            elt.innerHTML  = "Couldn't find this PDB ID!<br/>Try a different PDB ID."
+                        } else {
+                            elt.innerHTML  = "Problem with parsing the chains! Try a different PDB ID."
+                        }
                     })
             }
         },
@@ -332,13 +339,13 @@
                 vm.fastaSeqNames = fasta['Sequence names'];
                 window.aaFreqs = fasta['AA frequencies'];
                 var main_elmnt = document.querySelector(".alignment_section");
-                window.main_elmnt = main_elmnt;
+                //window.main_elmnt = main_elmnt;
                 let seqsForMSAViewer = parseFastaSeqForMSAViewer(fasta['Alignment']);
                 var msaOptions = {
                     sequences: seqsForMSAViewer,
                     colorScheme: "clustal2",
                     height: main_elmnt.offsetHeight * 0.9,
-                    width: main_elmnt.offsetWidth * 0.75,
+                    width: main_elmnt.offsetWidth * 0.7,
                     tileHeight: 18,
                     tileWidth: 18,
                     overflow: "auto",

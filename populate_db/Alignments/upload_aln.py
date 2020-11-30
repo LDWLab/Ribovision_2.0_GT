@@ -203,8 +203,7 @@ def main(commandline_arguments):
     comm_args = create_and_parse_argument_options(commandline_arguments)
     aln_path = comm_args.alignment_file
     source_string = comm_args.source
-    pw = 'eb1e1e^^'
-    #pw = getpass.getpass("Password: ")
+    pw = getpass.getpass("Password: ")
     cnx = mysql.connector.connect(user=comm_args.uname, password=pw, host=comm_args.db_host, database=comm_args.db_schema)
     cursor = cnx.cursor()
 
