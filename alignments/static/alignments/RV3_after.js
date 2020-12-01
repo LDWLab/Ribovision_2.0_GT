@@ -192,10 +192,28 @@ function cleanSelection(checked_selection, filter_range){
   window.viewerInstance.visual.select({data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), nonSelectedColor: {r:255,g:255,b:255}});
 };
 
-function handlePropensities(checked_propensities){
+
+function handlePropensities(checked_propensities) {
     if (checked_propensities){
-        console.log(document.getElementById("selectaln"));
-        let sequence_indices = prompt("Enter sequence indices (comma-separated): ").replace(/^\s+|\s+$/gm,'').split(',')
+        // console.log(document.getElementById("selectaln"));
+        var coils = []
+        var strands = []
+        var helices = []
+        ajax("https://www.ebi.ac.uk/pdbe/api/topology/entry/" + vm.pdbid).then(topology => {
+            let topology_entries_map = new Map(Object.entries(topology[vm.pdbid]))
+            let topology_entries_map_iterator = topology_entries_map.entries();
+            let entry = true;
+            while (entry) {
+                entry = topology_entries_map_iterator.next().value;
+                console.log(entry);
+                for (let i = 1; i < entry.length(); i++) {
+                    console.log("\t" + entry[i]);
+                }
+            }
+        });
+        vm.substructures = []
+        let sequence_indices = [];
+        // let sequence_indices = prompt("Enter sequence indices (comma-separated): ").replace(/^\s+|\s+$/gm,'').split(',')
         for (let i = 0; i < sequence_indices.length; i++) {
             sequence_indices[i] = parseInt(sequence_indices[i])
         }
@@ -223,13 +241,13 @@ function handlePropensities(checked_propensities){
             let fasta_data = vm.fasta_data
             let tax_id_string = vm.tax_id.join(',')
             let url = `/propensity-data/${vm.alnobj.id}/${tax_id_string}`
-            ajax(url, {indices}).then(trimmed_fasta => {
-                console.log("trimmed_fasta: " + trimmed_fasta)
-            });
+            /*
+            // ajax(url, {indices}).then(trimmed_fasta => {
+            //     console.log("trimmed_fasta: " + trimmed_fasta)
+            // });*/
         } else {
             // let aln_name = document.getElementById('selectaln').value
             window.location = "http://127.0.0.1:8001/propensities/uL02/2"
         }
     }
-
 }
