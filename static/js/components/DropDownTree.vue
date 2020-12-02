@@ -62,32 +62,32 @@
                 <option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid, chain.entityID)">{{ chain.text }}</option>
             </select></p>
             <div v-if="chainid">
-                <button type="button" v-on:click="downloadCSVData()">
+                <button id="downloadDataBtn" type="button" v-on:click="downloadCSVData()">
                     Download mapped data
                 </button>
             </div>
             <div v-if="topology_loaded != 'False'">
-                <p>
+                <div id="maskingSection"><p>
                     <div class="checkbox">
                         <label><input type="checkbox" v-model="checked_filter" v-on:change="cleanFilter(checked_filter, masking_range)">Masking ranges</label>
                     </div>
                     <span v-if="checked_filter">Residue ranges to show, separated by semicolon. <br> For example: 1-80;91-111;</span>
                     <input v-if="checked_filter" v-model="masking_range" v-on:input="handleMaskingRanges(masking_range)">
-                </p>
+                </p></div>
                 <p v-if="correct_mask!='True'&&masking_range!=null">Incorrect range syntax!</p>
-                <p>
+                <div id="filterSection"><p>
                     <div class="checkbox">
                         <label><input type="checkbox" v-model="checked_selection" v-on:change="cleanSelection(checked_selection, filter_range)">Filter Range</label>
                     </div>
                     <span v-if="checked_selection">Residue range to show </span>
                     <input v-if="checked_selection" v-model="filter_range" v-on:input="handleFilterRange(filter_range)">
-                </p>
-                <p>
+                </p></div>
+                <div id="customDataSection"><p>
                     <div class="checkbox">
                         <label><input type="checkbox" v-model="checked_customMap" v-on:change="cleanCustomMap(checked_customMap)">Custom Data</label>
                         <p><input v-if="checked_customMap" type="file" accept=".csv" ref="custom_csv_file" v-on:change="handleCustomMappingData()"/></p>
                     </div>
-                </p>
+                </p></div>
             </div>
         </div>
         <div class="alignment_section">

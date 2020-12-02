@@ -13,7 +13,7 @@
             header: {
                 title: 'Welcome to RiboVision3!',
             },
-            content: ``
+            content: `Welcome!`
         },{
             target: '#tree_type',
             header: {
@@ -91,6 +91,108 @@
                     vm.$nextTick(function(){
                         polSele.lastElementChild.click();
                     }),
+                )
+            })
+        },{
+            target: '.topology_section',
+            header: {
+                title: 'Topology viewer',
+            },
+            content: `This is the topology viewer that shows secondary protein structure.`,
+        },{
+            target: '.menuSelectbox',
+            header: {
+                title: 'Annotation data',
+            },
+            content: `Calculated annotation data from the alignment can be selected from this dropdown menu.<br/>
+            The data gets mapped on the topology and 3D viewers.`,
+            params: {
+              placement: 'left'
+            },
+            before: type => new Promise((resolve, reject) => {
+                var topviewer = document.getElementById("PdbeTopViewer");
+                var annotationSelect = document.querySelector(".menuSelectbox");
+                var exampleData = topviewer.pluginInstance.domainTypes[4];
+                resolve (
+                    topviewer.pluginInstance.updateTheme(exampleData.data),
+                    window.viewerInstance.visual.select({data: selectSections_RV1.get(exampleData.label), nonSelectedColor: {r:255,g:255,b:255}}),
+                    annotationSelect.selectedIndex=4,
+                )
+            })
+        },{
+            target: '.saveSVG',
+            header: {
+                title: 'Save an SVG image.',
+            },
+            content: `Saves the current view of the topology viewer`,
+            params: {
+              placement: 'left'
+            },
+        },{
+            target: '.resetIcon',
+            header: {
+                title: 'Reset the view.',
+            },
+            content: `Resets the current view of the topology viewer`,
+            params: {
+              placement: 'right'
+            },
+        },{
+            target: '.molstar_section',
+            header: {
+                title: '3D viewer',
+            },
+            content: `This is the 3D viewer that shows tertiary protein structure.<br/>
+            The alignment, topology, and 3D viewers have integrated hover effects.`,
+        },{
+            target: '#downloadDataBtn',
+            header: {
+                title: 'Download annotation data',
+            },
+            content: `Downloads annotation data calculated from the 
+            alignment and mapped on the structure residues in csv format.`,
+        },{
+            target: '#maskingSection',
+            header: {
+                title: 'Masking ranges',
+            },
+            content: `Here you can specify ranges that mask mapped data on the topology and 3D viewers.`,
+            params: {
+              placement: 'right'
+            },
+            before: type => new Promise((resolve, reject) => {
+                resolve (
+                    vm.checked_filter=true,
+                )
+            })
+        },{
+            target: '#filterSection',
+            header: {
+                title: '3D viewer',
+            },
+            content: `Here you can specify ranges that truncate the structure shown on the topology and 3D viewers.`,
+            params: {
+              placement: 'right'
+            },
+            before: type => new Promise((resolve, reject) => {
+                resolve (
+                    vm.checked_filter=false,
+                    vm.checked_selection=true,
+                )
+            })
+        },{
+            target: '#customDataSection',
+            header: {
+                title: 'Upload custom data',
+            },
+            content: `Upload custom data in csv format to be maped on the topology and 3D viewers.`,
+            params: {
+              placement: 'right'
+            },
+            before: type => new Promise((resolve, reject) => {
+                resolve (
+                    vm.checked_selection=false,
+                    vm.checked_customMap=true,
                 )
             })
         },
