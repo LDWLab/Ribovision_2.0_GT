@@ -39,12 +39,12 @@
                 <span v-if="alnobj">Input PDB and polymer for mapping:</span>
             </p>
             <p>
-                <input id="pdb_input" type="text" list="availablePDBs" v-if="alnobj" v-model="pdbid" v-on:input="getPDBchains(pdbid, alnobj.id)" placeholder="4v9d" maxlength="4">
+                <input id="pdb_input" type="text" list="availablePDBs" v-if="alnobj" v-model="pdbid" v-on:focus="pdbid=null" placeholder="4v9d" maxlength="4">
                 <datalist id="availablePDBs">
-                    <option>4v9d</option>
-                    <option>4v6u</option>
-                    <option>4ug0</option>
-                    <option>1vy4</option>
+                    <option value="4v9d">E. coli</option>
+                    <option value="4v6u">P. furiosus</option>
+                    <option value="4ug0">H. sapiens</option>
+                    <option value="1vy4">T. thermophilus</option>
                 </datalist>
                 <div v-if="hide_chains" id="onFailedChains">Looking for available polymers...</div>
             </p>
@@ -57,7 +57,7 @@
                     </select>
                 </div>
             </p>
-            <p><select v-bind:style="{ resize: 'both'}" multiple v-if="chains&&fasta_data" v-model="chainid" >
+            <p><select v-bind:style="{ resize: 'both'}" multiple v-if="chains&&fasta_data&&pdbid" v-model="chainid" >
                 <option :value ="null" selected disabled>Select polymer</option>
                 <option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid, chain.entityID)">{{ chain.text }}</option>
             </select></p>
@@ -190,6 +190,8 @@
             }
         },alnobj: function (data){
             this.showAlignment(data.id, vm.tax_id, vm.type_tree);
+        },pdbid: function (pdbid){
+            this.getPDBchains(pdbid, vm.alnobj.id);
         },
 
     },methods: {
@@ -297,7 +299,6 @@
                         if (this.type_tree == "para") {aln_id = aln_id.split(',')[1]}
                         if (this.type_tree != "upload") {
                             filterAvailablePolymers(chain_list, aln_id, vm);
-                            this.hide_chains = null;
                         } else {
                             let chain_options = []
                             for (let i = 0; i < chain_list.length; i++) {

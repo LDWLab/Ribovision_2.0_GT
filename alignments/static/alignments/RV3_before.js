@@ -259,7 +259,12 @@ var filterAvailablePolymers = function(chain_list, aln_id, vueObj) {
   // console.log("___" + temp_arr[temp_arr.length - 1]["sequence"] + "___");
   let chain_options = Array.from(new Set(temp_arr.map(JSON.stringify))).map(JSON.parse);
   if (chain_options.length === 0) {
+      var elt = document.querySelector("#onFailedChains");
+      elt.innerHTML  = "Problem with parsing the chains! Try a different PDB ID."
+      vueObj.pdbid = null;
       chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
+  }else{
+    vueObj.hide_chains = null;
   }
   vueObj.chains = chain_options;
   });
