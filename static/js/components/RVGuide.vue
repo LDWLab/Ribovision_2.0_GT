@@ -33,7 +33,7 @@
               placement: 'right'
             },
             before: type => new Promise((resolve, reject) => {
-                var treeselectEl = vm.$refs["treeselect"]
+                var treeselectEl = vm.$refs["treeselect"];
                 resolve (
                     treeselectEl.$emit('input', [2]),
                     treeselectEl.openMenu()
@@ -61,6 +61,38 @@
             content: `This is the alignment viewer. 
             Hover over residue to reveal additional data for it.<br/>
             The viewer window can be moved by dragging or by using the scrollbars.`,
+        },{
+            target: '#pdb_input',
+            header: {
+                title: 'Select pdb id for structure display',
+            },
+            content: `Write a PDB or select one from the available PDBs in the dropdown menu.`,
+            params: {
+              placement: 'right'
+            },
+            before: type => new Promise((resolve, reject) => {
+                resolve (
+                    vm.pdbid = "4v9d",
+                )
+            })
+        },{
+            target: '#polymerSelect',
+            header: {
+                title: 'Select polymer for structure display',
+            },
+            content: `Select one of the filtered polymers to see 2D and 3D structures.`,
+            params: {
+              placement: 'right'
+            },
+            before: type => new Promise((resolve, reject) => {
+                var polSele = document.querySelector("#polymerSelect")
+                resolve (
+                    vm.chainid = ["CC"],
+                    vm.$nextTick(function(){
+                        polSele.lastElementChild.click();
+                    }),
+                )
+            })
         },
     ]
 
