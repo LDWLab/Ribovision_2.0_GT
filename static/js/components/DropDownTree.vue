@@ -61,7 +61,7 @@
                 <option :value ="null" selected disabled>Select polymer</option>
                 <option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid, chain.entityID)">{{ chain.text }}</option>
             </select></p>
-            <div v-if="chainid">
+            <div v-if="structure_mapping">
                 <button id="downloadDataBtn" type="button" v-on:click="downloadCSVData()">
                     Download mapped data
                 </button>
