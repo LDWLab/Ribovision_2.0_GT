@@ -104,70 +104,74 @@ var AlnViewer = class RV3AlnViewer extends Component {
         return (
         <div style={{ display: "flex" }}>
             <div>
-              <input
-                style = {{ 
-                    width: (window.innerWidth - 300) * 0.7+"px",
-                    position: "relative",
-                    left: (window.innerWidth - 300) * 0.2+"px"
-                }}
-                type="range"
-                min="0"
-                max={maxXpos}
-                value={this.state.aaPos}
-                onChange={(evt) => this.setState({ aaPos: evt.target.value })}
-                className="slider"
-                id="xPosSlider"
+                <input
+                    style = {{ 
+                        width: (window.innerWidth - 300) * 0.7+"px",
+                        position: "relative",
+                        left: (window.innerWidth - 300) * 0.2+"px"
+                        }}
+                    type="range"
+                    min="0"
+                    max={maxXpos}
+                    value={this.state.aaPos}
+                    onChange={(evt) => this.setState({ aaPos: evt.target.value })}
+                    className="slider"
+                    id="xPosSlider"
                 />
-            <MSAViewer 
-            {...msaOptions}
-            ref={(ref) => (this.el = ref)}
-            highlight={this.state.highlight}
-            width={this.state.width}
-            height={this.state.height}
-            tileWidth={this.state.tileWidth}
-            tileHeight={this.state.tileHeight}
-            position={{ xPos, yPos }}
-            >
-            <div style={{ position: "relative", display: "flex"}}>
-            <Labels style={{
-                width: (window.innerWidth - 300) * 0.2
-                }}/>
-            <div>
-                <SequenceViewer
-                  onResidueMouseEnter={this.onResidueMouseEnter}
-                  onResidueMouseLeave={this.onResidueMouseLeave}
-                />
-                {this.state.fold && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      opacity: 0.8,
-                      ...this.state.tooltipPosition,
-                    }}
-                  >
-                    <Tooltip>
-                      Fold: {this.state.fold} <br></br>
-                      Phase: {this.state.phase}
-                    </Tooltip>
-                  </div>
-                )}
+                <MSAViewer 
+                  {...msaOptions}
+                  ref={(ref) => (this.el = ref)}
+                  highlight={this.state.highlight}
+                  width={this.state.width}
+                  height={this.state.height}
+                  tileWidth={this.state.tileWidth}
+                  tileHeight={this.state.tileHeight}
+                  position={{ xPos, yPos }}
+                >
+                <div style={{ position: "relative", display: "flex"}}>
+                    <Labels 
+                      style = {{
+                        width: (window.innerWidth - 300) * 0.2
+                        }}
+                    />
+                    <div>
+                        <SequenceViewer
+                          onResidueMouseEnter={this.onResidueMouseEnter}
+                          onResidueMouseLeave={this.onResidueMouseLeave}
+                        />
+                        {this.state.fold && (
+                          <div
+                            style={{
+                              position: "absolute",
+                              opacity: 0.8,
+                              ...this.state.tooltipPosition,
+                            }}
+                          >
+                            <Tooltip>
+                              Fold: {this.state.fold} <br></br>
+                              Phase: {this.state.phase}
+                            </Tooltip>
+                          </div>
+                        )}
+                    </div>
                 </div>
+                <XYDispatch parent_state={this.state} />
+                </MSAViewer>
             </div>
-            <XYDispatch parent_state={this.state} />
-            </MSAViewer>
-        </div>
-        <input
-            style={{ 
-                width: ((window.innerHeight - 171)/2)*0.9+"px",
-            }}
-            type="range"
-            min="0"
-            max={maxYpos}
-            value={this.state.seqPos}
-            onChange={(evt) => this.setState({ seqPos: evt.target.value })}
-            className="slider"
-            id="yPosSlider"
-            />
+            <div style={{width: "30px"}}>
+                <input
+                  style={{ 
+                      width: ((window.innerHeight - 171)/2)*0.9+"px",
+                  }}
+                  type="range"
+                  min="0"
+                  max={maxYpos}
+                  value={this.state.seqPos}
+                  onChange={(evt) => this.setState({ seqPos: evt.target.value })}
+                  className="slider"
+                  id="yPosSlider"
+                />
+            </div>
         </div>
         );
     }
