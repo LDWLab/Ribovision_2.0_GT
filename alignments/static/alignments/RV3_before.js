@@ -302,6 +302,7 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     }
     window.mapped_aa_properties = null;
     vueObj.structure_mapping = null;
+    vueObj.poor_structure_map = null;
     window.ajaxRun = false;
     if (window.masked_array.length > 0) {window.masked_array = [];}
     if (vueObj.masking_range) {vueObj.masking_range = null;}

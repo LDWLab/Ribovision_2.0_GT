@@ -61,6 +61,12 @@
                 <option :value ="null" selected disabled>Select polymer</option>
                 <option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid, chain.entityID)">{{ chain.text }}</option>
             </select></p>
+            <div v-if="poor_structure_map">
+                <p style="color:#DE3163"><b>Warning!!!<br>
+                Poor structure to alignment mapping!<br>
+                There where {{poor_structure_map}} poorly mapped residues!<br>
+                Proceed with caution or try different structure.</b></p>
+            </div>
             <div v-if="structure_mapping">
                 <button id="downloadDataBtn" type="button" v-on:click="downloadCSVData()">
                     Download mapped data
@@ -137,6 +143,7 @@
             type_tree: "orth",
             aa_properties: null,
             structure_mapping: null,
+            poor_structure_map: null,
             file: null,
             custom_aln_twc_flag: null,
             topology_loaded: 'False',
@@ -379,6 +386,7 @@
             // let ebi_sequence = this.chains[0]["sequence"];
             ajax('/mapSeqAln/', {fasta, ebi_sequence, startIndex}).then(struct_mapping=>{
                 this.structure_mapping = struct_mapping;
+                if (struct_mapping['BadMappingPositions']){this.poor_structure_map = struct_mapping['BadMappingPositions'];}
                 var mapped_aa_properties = mapAAProps(this.aa_properties, struct_mapping);
                 if ((this.tax_id != null && this.tax_id.length == 2) || (this.custom_aln_twc_flag != null && this.custom_aln_twc_flag == true) || (this.type_tree == 'para')) {
                     ajax('/twc-api/', {fasta}).then(twcDataUnmapped => {
