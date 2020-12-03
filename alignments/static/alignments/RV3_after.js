@@ -97,7 +97,8 @@ function handleFilterRange(filter_range) {
               format: 'cif',
               binary:true },
           assemblyId: '1',
-          subscribeEvents: true
+          subscribeEvents: true,
+          bgColor: {r:255,g:255,b:255},
       });
       viewerInstance.events.loadComplete.subscribe(() => { 
           let selectedData = topviewer.pluginInstance.domainTypes[selectedIndex];
@@ -183,7 +184,8 @@ function cleanSelection(checked_selection, filter_range){
           format: 'cif',
           binary:true },
       assemblyId: '1',
-      subscribeEvents: true});
+      subscribeEvents: true,
+      bgColor: {r:255,g:255,b:255},});
   topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);
   if(window.custom_prop) {
       topviewer.pluginInstance.getAnnotationFromRibovision(window.custom_prop);
