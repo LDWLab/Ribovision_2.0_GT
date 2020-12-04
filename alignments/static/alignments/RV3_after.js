@@ -194,6 +194,34 @@ function cleanSelection(checked_selection, filter_range){
   window.viewerInstance.visual.select({data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), nonSelectedColor: {r:255,g:255,b:255}});
 };
 
+var populatePDBs = function (alndata){
+    let alnPolurl = `/desire-api/polymers/?alns_of_polymer=${alndata.id}`
+    ajax(alnPolurl).then(polymersForAln => {
+        let trueNom = polymersForAln.results[0].nomgd.split('/')[5]
+        let url = `/desire-api/old-nomenclatures/?n_b_y_h_a=BAN&nn_fk=${trueNom}`;
+        ajax(url).then(oldnomData => {
+            if (oldnomData.count == 0){return;}
+            let oldName = oldnomData.results[0].old_name.replace(/^(.{2})(0)/,"$1")
+            let riboXYZurl = `https://ribosome.xyz:8000/neo4j/gmo_nom_class/?banName=${oldName}&format=json`
+            ajax(riboXYZurl).then(data => {
+                var pdb_entries = []
+                data.forEach(function(entry){
+                    let pdb_text = `${entry.parent} ${entry.orgname[0].slice(0,39)}`
+                    pdb_entries.push({id: entry.parent.toLowerCase(), name:pdb_text})
+                });
+                if (pdb_entries.length == 0){return;}
+                vm.pdbs.push(...pdb_entries);
+            }).catch(error => {
+                console.log(error);
+            })
+        }).catch(error => {
+            console.log(error);
+        })
+    }).catch(error => {
+            console.log(error);
+    })
+}
+
 function handlePropensities(checked_propensities){
     if (checked_propensities){
         console.log(document.getElementById("selectaln"));

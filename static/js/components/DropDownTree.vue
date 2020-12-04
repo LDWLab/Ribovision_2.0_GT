@@ -39,13 +39,10 @@
                 <span v-if="alnobj">Input PDB and polymer for mapping:</span>
             </p>
             <p>
-                <input id="pdb_input" type="text" list="availablePDBs" v-if="alnobj" v-model="pdbid" v-on:focus="pdbid=null" placeholder="4v9d" maxlength="4">
-                <datalist id="availablePDBs">
-                    <option value="4v9d">E. coli</option>
-                    <option value="4v6u">P. furiosus</option>
-                    <option value="4ug0">H. sapiens</option>
-                    <option value="1vy4">T. thermophilus</option>
-                </datalist>
+                <select id="pdb_input" v-if="alnobj" v-model="pdbid">
+                    <option :value="null" selected disabled hidden>Select a pdb</option>
+                    <option v-for="pdb in pdbs" v-bind:value="pdb.id">{{pdb.name}}</option>
+                </select>
                 <div v-if="hide_chains" id="onFailedChains">Looking for available polymers...</div>
             </p>
             <p>
@@ -133,6 +130,10 @@
             alnobj: null,
             options: null,
             alignments: null,
+            pdbs: [
+                {id: "4v9d", name: "4V9D E. coli"},
+                {id: "4v6u", name: "4V6U P. furiosus"},
+                {id: "4ug0", name: "4UG0 H. sapiens"},],
             pdbid: null,
             chains: null,
             chainid: null,
@@ -196,6 +197,7 @@
                 }
             }
         },alnobj: function (data){
+            this.populatePDBs(data);
             this.showAlignment(data.id, vm.tax_id, vm.type_tree);
         },pdbid: function (pdbid){
             this.getPDBchains(pdbid, vm.alnobj.id);
@@ -296,41 +298,38 @@
                 loadParaAlns (value, this)
             }
         }, getPDBchains(pdbid, aln_id) {
-            if (pdbid.length === 4) {
-                if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(this);}
-                this.chains = null
-                this.hide_chains = true
-                ajax('https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/' + pdbid.toLowerCase())
-                    .then(struc_data => {
-                        var chain_list = struc_data[pdbid.toLowerCase()];
-                        if (this.type_tree == "para") {aln_id = aln_id.split(',')[1]}
-                        if (this.type_tree != "upload") {
-                            filterAvailablePolymers(chain_list, aln_id, vm);
-                        } else {
-                            let chain_options = []
-                            for (let i = 0; i < chain_list.length; i++) {
-                                let chain_listI = chain_list[i]
-                                if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
-                                if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
-                                if (typeof(chain_listI.source[0]) === "undefined") {continue;}
-                                chain_options = pushChainData(chain_options, chain_listI);
-                            }
-                            if (chain_options.length === 0) {
-                                chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
-                            }
-                            vm.chains = chain_options;
-                            this.hide_chains = null;
-                        }
-                    }).catch(error => {
-                        var elt = document.querySelector("#onFailedChains");
-                        this.pdbid = null;
-                        if (error.status == 404){
-                            elt.innerHTML  = "Couldn't find this PDB ID!<br/>Try a different PDB ID."
-                        } else {
-                            elt.innerHTML  = "Problem with parsing the chains! Try a different PDB ID."
-                        }
-                    })
-            }
+            if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(this);}
+            this.chains = null
+            this.hide_chains = true
+            ajax('https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/' + pdbid.toLowerCase()).then(struc_data => {
+                var chain_list = struc_data[pdbid.toLowerCase()];
+                if (this.type_tree == "para") {aln_id = aln_id.split(',')[1]}
+                if (this.type_tree != "upload") {
+                    filterAvailablePolymers(chain_list, aln_id, vm);
+                } else {
+                    let chain_options = []
+                    for (let i = 0; i < chain_list.length; i++) {
+                        let chain_listI = chain_list[i]
+                        if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
+                        if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
+                        if (typeof(chain_listI.source[0]) === "undefined") {continue;}
+                        chain_options = pushChainData(chain_options, chain_listI);
+                    }
+                    if (chain_options.length === 0) {
+                        chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
+                    }
+                    vm.chains = chain_options;
+                    this.hide_chains = null;
+                }
+            }).catch(error => {
+                var elt = document.querySelector("#onFailedChains");
+                this.pdbid = null;
+                if (error.status == 404){
+                    elt.innerHTML  = "Couldn't find this PDB ID!<br/>Try a different PDB ID."
+                } else {
+                    elt.innerHTML  = "Problem with parsing the chains! Try a different PDB ID."
+                }
+            })
         },
         showAlignment(aln_id, taxid, type_tree) {
             cleanupOnNewAlignment(this, "Loading alignment...");
@@ -511,6 +510,8 @@
             handleFilterRange(filter_range);
         },handlePropensities(checked_propensities){
             handlePropensities(checked_propensities);
+        },populatePDBs(alndata){
+            populatePDBs(alndata);
         }
     }
 }

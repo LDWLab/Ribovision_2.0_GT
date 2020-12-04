@@ -289,6 +289,11 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     if (menu_item) {menu_item.remove();}
     if (aln_text != ''){
         vueObj.custom_aln_twc_flag = null;
+        vueObj.pdbs = [
+            {id: "4v9d", name: "4V9D E. coli"},
+            {id: "4v6u", name: "4V6U P. furiosus"},
+            {id: "4ug0", name: "4UG0 H. sapiens"},
+        ]
         if (pdb_input) {
             if (pdb_input.getAttribute("value") != ""){vueObj.pdbid = null;}
         }

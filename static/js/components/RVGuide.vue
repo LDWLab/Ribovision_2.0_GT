@@ -66,7 +66,7 @@
             header: {
                 title: 'Select pdb id for structure display',
             },
-            content: `Write a PDB or select one from the available PDBs in the dropdown menu.`,
+            content: `Select a PDB from the available ones in the dropdown menu.`,
             params: {
               placement: 'right'
             },

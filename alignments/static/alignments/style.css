@@ -136,3 +136,8 @@
     -o-transform-origin: 4% 10%;
     transform-origin: 4% 10%;
   }
+
+  #pdb_input{
+    max-width: 250px;
+    max-height: 75px;
+  }
