@@ -118,6 +118,10 @@
     height: 10px;
     background: #4c90af;
   }
+  body{
+    overflow-x: hidden !important;
+  }
+
   #yPosSlider {
     position: relative;
     top: 30px;

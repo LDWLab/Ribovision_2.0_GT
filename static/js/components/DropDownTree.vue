@@ -39,12 +39,12 @@
                 <span v-if="alnobj">Input PDB and polymer for mapping:</span>
             </p>
             <p>
-                <input id="pdb_input" type="text" list="availablePDBs" v-if="alnobj" v-model="pdbid" v-on:input="getPDBchains(pdbid, alnobj.id)" placeholder="4v9d" maxlength="4">
+                <input id="pdb_input" type="text" list="availablePDBs" v-if="alnobj" v-model="pdbid" v-on:focus="pdbid=null" placeholder="4v9d" maxlength="4">
                 <datalist id="availablePDBs">
-                    <option>4v9d</option>
-                    <option>4v6u</option>
-                    <option>4ug0</option>
-                    <option>1vy4</option>
+                    <option value="4v9d">E. coli</option>
+                    <option value="4v6u">P. furiosus</option>
+                    <option value="4ug0">H. sapiens</option>
+                    <option value="1vy4">T. thermophilus</option>
                 </datalist>
                 <div v-if="hide_chains" id="onFailedChains">Looking for available polymers...</div>
             </p>
@@ -57,37 +57,43 @@
                     </select>
                 </div>
             </p>
-            <p><select v-bind:style="{ resize: 'both'}" multiple v-if="chains&&fasta_data" v-model="chainid" >
+            <p><select id="polymerSelect" v-bind:style="{ resize: 'both'}" multiple v-if="chains&&fasta_data&&pdbid" v-model="chainid" >
                 <option :value ="null" selected disabled>Select polymer</option>
                 <option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid, chain.entityID)">{{ chain.text }}</option>
             </select></p>
-            <div v-if="chainid">
-                <button type="button" v-on:click="downloadCSVData()">
+            <div v-if="poor_structure_map">
+                <p style="color:#DE3163"><b>Warning!!!<br>
+                Poor structure to alignment mapping!<br>
+                There where {{poor_structure_map}} poorly mapped residues!<br>
+                Proceed with caution or try different structure.</b></p>
+            </div>
+            <div v-if="structure_mapping">
+                <button id="downloadDataBtn" type="button" v-on:click="downloadCSVData()">
                     Download mapped data
                 </button>
             </div>
             <div v-if="topology_loaded != 'False'">
-                <p>
+                <div id="maskingSection"><p>
                     <div class="checkbox">
                         <label><input type="checkbox" v-model="checked_filter" v-on:change="cleanFilter(checked_filter, masking_range)">Masking ranges</label>
                     </div>
                     <span v-if="checked_filter">Residue ranges to show, separated by semicolon. <br> For example: 1-80;91-111;</span>
                     <input v-if="checked_filter" v-model="masking_range" v-on:input="handleMaskingRanges(masking_range)">
-                </p>
+                </p></div>
                 <p v-if="correct_mask!='True'&&masking_range!=null">Incorrect range syntax!</p>
-                <p>
+                <div id="filterSection"><p>
                     <div class="checkbox">
                         <label><input type="checkbox" v-model="checked_selection" v-on:change="cleanSelection(checked_selection, filter_range)">Filter Range</label>
                     </div>
                     <span v-if="checked_selection">Residue range to show </span>
                     <input v-if="checked_selection" v-model="filter_range" v-on:input="handleFilterRange(filter_range)">
-                </p>
-                <p>
+                </p></div>
+                <div id="customDataSection"><p>
                     <div class="checkbox">
                         <label><input type="checkbox" v-model="checked_customMap" v-on:change="cleanCustomMap(checked_customMap)">Custom Data</label>
                         <p><input v-if="checked_customMap" type="file" accept=".csv" ref="custom_csv_file" v-on:change="handleCustomMappingData()"/></p>
                     </div>
-                </p>
+                </p></div>
             </div>
         </div>
         <div class="alignment_section">
@@ -137,6 +143,7 @@
             type_tree: "orth",
             aa_properties: null,
             structure_mapping: null,
+            poor_structure_map: null,
             file: null,
             custom_aln_twc_flag: null,
             topology_loaded: 'False',
@@ -190,6 +197,8 @@
             }
         },alnobj: function (data){
             this.showAlignment(data.id, vm.tax_id, vm.type_tree);
+        },pdbid: function (pdbid){
+            this.getPDBchains(pdbid, vm.alnobj.id);
         },
 
     },methods: {
@@ -297,7 +306,6 @@
                         if (this.type_tree == "para") {aln_id = aln_id.split(',')[1]}
                         if (this.type_tree != "upload") {
                             filterAvailablePolymers(chain_list, aln_id, vm);
-                            this.hide_chains = null;
                         } else {
                             let chain_options = []
                             for (let i = 0; i < chain_list.length; i++) {
@@ -378,6 +386,7 @@
             // let ebi_sequence = this.chains[0]["sequence"];
             ajax('/mapSeqAln/', {fasta, ebi_sequence, startIndex}).then(struct_mapping=>{
                 this.structure_mapping = struct_mapping;
+                if (struct_mapping['BadMappingPositions']){this.poor_structure_map = struct_mapping['BadMappingPositions'];}
                 var mapped_aa_properties = mapAAProps(this.aa_properties, struct_mapping);
                 if ((this.tax_id != null && this.tax_id.length == 2) || (this.custom_aln_twc_flag != null && this.custom_aln_twc_flag == true) || (this.type_tree == 'para')) {
                     ajax('/twc-api/', {fasta}).then(twcDataUnmapped => {

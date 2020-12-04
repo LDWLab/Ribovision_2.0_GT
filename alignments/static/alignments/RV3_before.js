@@ -259,7 +259,12 @@ var filterAvailablePolymers = function(chain_list, aln_id, vueObj) {
   // console.log("___" + temp_arr[temp_arr.length - 1]["sequence"] + "___");
   let chain_options = Array.from(new Set(temp_arr.map(JSON.stringify))).map(JSON.parse);
   if (chain_options.length === 0) {
+      var elt = document.querySelector("#onFailedChains");
+      elt.innerHTML  = "Problem with parsing the chains! Try a different PDB ID."
+      vueObj.pdbid = null;
       chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
+  }else{
+    vueObj.hide_chains = null;
   }
   vueObj.chains = chain_options;
   });
@@ -276,35 +281,37 @@ var create_deleted_element = function (parent_id, child_id, child_text) {
 };
 
 var cleanupOnNewAlignment = function (vueObj, aln_text='') {
-  const menu_item = document.querySelector(".smenubar");
-  const aln_item = document.getElementById("alnDiv");
-  const topview_item = document.getElementById("topview");
-  const molstar_item = document.getElementById("pdbeMolstarView");
-  const pdb_input = document.getElementById("pdb_input");
-  if (menu_item) {menu_item.remove();}
-  if (aln_text != ''){
-      vueObj.custom_aln_twc_flag == null;
-      window.mapped_aa_properties == null;
-      if (pdb_input) {
-          if (pdb_input.getAttribute("value") != ""){vueObj.pdbid = null;}
-      }
-      if (vueObj.chains) {vueObj.chains = null;}
-      if (vueObj.aln_meta_data) {vueObj.aln_meta_data = null;}
-      if (vueObj.fasta_data) {vueObj.fasta_data = null;}
-      if (vueObj.fastaSeqNames) {vueObj.fastaSeqNames = null;}
-      if (vueObj.frequency_data) {vueObj.frequency_data = null;}
-      if (vueObj.topology_loaded) {vueObj.topology_loaded = 'False';}
-      if (aln_item) {aln_item.remove(); create_deleted_element("alnif", "alnDiv", aln_text)}
-  }
-  window.ajaxRun = false;
-  if (window.masked_array.length > 0) {window.masked_array = [];}
-  if (vueObj.masking_range) {vueObj.masking_range = null;}
-  //if (vueObj.chainid) {vueObj.chainid = null;}
-  if (vueObj.checked_filter) {vueObj.checked_filter = false;}
-  if (vueObj.checked_customMap) {vueObj.checked_customMap = false;}
-  if (vueObj.csv_data) {vueObj.csv_data = null;}
-  if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Select new chain!")}
-  if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Select new structure!")}
+    const menu_item = document.querySelector(".smenubar");
+    const aln_item = document.getElementById("alnDiv");
+    const topview_item = document.getElementById("topview");
+    const molstar_item = document.getElementById("pdbeMolstarView");
+    const pdb_input = document.getElementById("pdb_input");
+    if (menu_item) {menu_item.remove();}
+    if (aln_text != ''){
+        vueObj.custom_aln_twc_flag = null;
+        if (pdb_input) {
+            if (pdb_input.getAttribute("value") != ""){vueObj.pdbid = null;}
+        }
+        if (vueObj.chains) {vueObj.chains = null;}
+        if (vueObj.aln_meta_data) {vueObj.aln_meta_data = null;}
+        if (vueObj.fasta_data) {vueObj.fasta_data = null;}
+        if (vueObj.fastaSeqNames) {vueObj.fastaSeqNames = null;}
+        if (vueObj.frequency_data) {vueObj.frequency_data = null;}
+        if (vueObj.topology_loaded) {vueObj.topology_loaded = 'False';}
+        if (aln_item) {aln_item.remove(); create_deleted_element("alnif", "alnDiv", aln_text)}
+    }
+    window.mapped_aa_properties = null;
+    vueObj.structure_mapping = null;
+    vueObj.poor_structure_map = null;
+    window.ajaxRun = false;
+    if (window.masked_array.length > 0) {window.masked_array = [];}
+    if (vueObj.masking_range) {vueObj.masking_range = null;}
+    //if (vueObj.chainid) {vueObj.chainid = null;}
+    if (vueObj.checked_filter) {vueObj.checked_filter = false;}
+    if (vueObj.checked_customMap) {vueObj.checked_customMap = false;}
+    if (vueObj.csv_data) {vueObj.csv_data = null;}
+    if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Select new chain!")}
+    if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Select new structure!")}
 };
 
 var loadParaOptions = function (action, callback, vm) {

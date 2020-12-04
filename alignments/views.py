@@ -95,8 +95,7 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
     output = pipe.communicate()[0]
     text = output.decode("ascii").split('\n#')[1]
 
-    mapping = dict()
-    firstLine = True
+    mapping, firstLine, badMapping = dict(), True, 0
     for line in text.split('\n'):
         if firstLine:
             firstLine = False
@@ -105,10 +104,14 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
         if len(row) < 3:
             continue
         if row[2] == '-':
+            badMapping += 1
             continue
         if row[1] == '-':
             raise Http404("Mapping did not work properly.")
         mapping[int(row[2])] = int(row[1]) + shiftIndexBy
+
+    if badMapping > 0:
+        mapping['BadMappingPositions'] = badMapping
 
     for removeFile in [alignmentFileName, ebiFileName, mappingFileName]:
         os.remove(removeFile)

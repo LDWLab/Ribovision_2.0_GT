@@ -29,15 +29,17 @@ var AlnViewer = class RV3AlnViewer extends Component {
         var handleMolStarTopViewHovers = function (alnViewerClass, residueNumber){
             var alignmentNumber = Number(_.invert(vm.structure_mapping)[residueNumber]);
             var numVisibleTiles = Math.round(alnViewerClass.state.width/alnViewerClass.state.tileWidth);
-            if (alnViewerClass.state.aaPos > alignmentNumber || alignmentNumber > alnViewerClass.state.aaPos+numVisibleTiles){
-                let visiblePos = alignmentNumber-Math.round(numVisibleTiles/2);
-                if (visiblePos < 0) {visiblePos = 0};
-                alnViewerClass.setState({ aaPos: visiblePos })
+            if (!isNaN(alignmentNumber)){
+                if (alnViewerClass.state.aaPos > alignmentNumber || alignmentNumber > alnViewerClass.state.aaPos+numVisibleTiles){
+                    let visiblePos = alignmentNumber-Math.round(numVisibleTiles/2);
+                    if (visiblePos < 0) {visiblePos = 0};
+                    alnViewerClass.setState({ aaPos: visiblePos })
+                }
+                alnViewerClass.highlightRegion({
+                    sequences: {from: 0, to: vm.fastaSeqNames.length},
+                    residues: {from: alignmentNumber, to: alignmentNumber}
+                });
             }
-            alnViewerClass.highlightRegion({
-                sequences: {from: 0, to: vm.fastaSeqNames.length},
-                residues: {from: alignmentNumber, to: alignmentNumber}
-            });
         }
         window.addEventListener("resize", this.handleResize);
         document.addEventListener('PDB.topologyViewer.mouseover', (e) => {
@@ -104,70 +106,74 @@ var AlnViewer = class RV3AlnViewer extends Component {
         return (
         <div style={{ display: "flex" }}>
             <div>
-              <input
-                style = {{ 
-                    width: (window.innerWidth - 300) * 0.7+"px",
-                    position: "relative",
-                    left: (window.innerWidth - 300) * 0.2+"px"
-                }}
-                type="range"
-                min="0"
-                max={maxXpos}
-                value={this.state.aaPos}
-                onChange={(evt) => this.setState({ aaPos: evt.target.value })}
-                className="slider"
-                id="xPosSlider"
+                <input
+                    style = {{ 
+                        width: (window.innerWidth - 300) * 0.7+"px",
+                        position: "relative",
+                        left: (window.innerWidth - 300) * 0.2+"px"
+                        }}
+                    type="range"
+                    min="0"
+                    max={maxXpos}
+                    value={this.state.aaPos}
+                    onChange={(evt) => this.setState({ aaPos: evt.target.value })}
+                    className="slider"
+                    id="xPosSlider"
                 />
-            <MSAViewer 
-            {...msaOptions}
-            ref={(ref) => (this.el = ref)}
-            highlight={this.state.highlight}
-            width={this.state.width}
-            height={this.state.height}
-            tileWidth={this.state.tileWidth}
-            tileHeight={this.state.tileHeight}
-            position={{ xPos, yPos }}
-            >
-            <div style={{ position: "relative", display: "flex"}}>
-            <Labels style={{
-                width: (window.innerWidth - 300) * 0.2
-                }}/>
-            <div>
-                <SequenceViewer
-                  onResidueMouseEnter={this.onResidueMouseEnter}
-                  onResidueMouseLeave={this.onResidueMouseLeave}
-                />
-                {this.state.fold && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      opacity: 0.8,
-                      ...this.state.tooltipPosition,
-                    }}
-                  >
-                    <Tooltip>
-                      Fold: {this.state.fold} <br></br>
-                      Phase: {this.state.phase}
-                    </Tooltip>
-                  </div>
-                )}
+                <MSAViewer 
+                  {...msaOptions}
+                  ref={(ref) => (this.el = ref)}
+                  highlight={this.state.highlight}
+                  width={this.state.width}
+                  height={this.state.height}
+                  tileWidth={this.state.tileWidth}
+                  tileHeight={this.state.tileHeight}
+                  position={{ xPos, yPos }}
+                >
+                <div style={{ position: "relative", display: "flex"}}>
+                    <Labels 
+                      style = {{
+                        width: (window.innerWidth - 300) * 0.2
+                        }}
+                    />
+                    <div>
+                        <SequenceViewer
+                          onResidueMouseEnter={this.onResidueMouseEnter}
+                          onResidueMouseLeave={this.onResidueMouseLeave}
+                        />
+                        {this.state.fold && (
+                          <div
+                            style={{
+                              position: "absolute",
+                              opacity: 0.8,
+                              ...this.state.tooltipPosition,
+                            }}
+                          >
+                            <Tooltip>
+                              Fold: {this.state.fold} <br></br>
+                              Phase: {this.state.phase}
+                            </Tooltip>
+                          </div>
+                        )}
+                    </div>
                 </div>
+                <XYDispatch parent_state={this.state} />
+                </MSAViewer>
             </div>
-            <XYDispatch parent_state={this.state} />
-            </MSAViewer>
-        </div>
-        <input
-            style={{ 
-                width: ((window.innerHeight - 171)/2)*0.9+"px",
-            }}
-            type="range"
-            min="0"
-            max={maxYpos}
-            value={this.state.seqPos}
-            onChange={(evt) => this.setState({ seqPos: evt.target.value })}
-            className="slider"
-            id="yPosSlider"
-            />
+            <div style={{width: "30px"}}>
+                <input
+                  style={{ 
+                      width: ((window.innerHeight - 171)/2)*0.9+"px",
+                  }}
+                  type="range"
+                  min="0"
+                  max={maxYpos}
+                  value={this.state.seqPos}
+                  onChange={(evt) => this.setState({ seqPos: evt.target.value })}
+                  className="slider"
+                  id="yPosSlider"
+                />
+            </div>
         </div>
         );
     }

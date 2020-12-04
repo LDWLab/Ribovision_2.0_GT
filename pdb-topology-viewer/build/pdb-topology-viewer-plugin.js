@@ -186,12 +186,8 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
             this.initPainting();
         }
     };
-    PdbTopologyViewerPlugin.prototype.initPainting = function (filter_range) {
+    PdbTopologyViewerPlugin.prototype.initPainting = function () {
         var _this_1 = this;
-        if (filter_range) {
-            filterRange = filter_range;
-            console.log("Filter:" + filterRange);
-        }
         this.getApiData(this.entryId, this.chainId).then(function (result) {
             if (result) {
                 //Validate required data in the API result set (0, 2, 4)
@@ -846,6 +842,9 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         if (secStrType != 'helices' && secStrType != 'coils' && secStrType != 'strands') {
             return [secStrData.start, secStrData.stop];
         }
+        else if (secStrData.start === -1) {
+            return [secStrData.start, secStrData.stop];
+        }
         if ((secStrData.stop < Number(filterRange.split(",")[0]) || (secStrData.start > Number(filterRange.split(",")[1])))) {
             return null;
         }
@@ -897,102 +896,104 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 if (typeof secStrData.path !== 'undefined' && secStrData.path.length > 0 && _this_1.getAdjustedStartAndStop(secStrType, secStrData) != null) {
                     var istart = _this_1.getAdjustedStartAndStop(secStrType, secStrData)[0];
                     var istop = _this_1.getAdjustedStartAndStop(secStrType, secStrData)[1];
-                    if (secStrType === 'terms') {
-                        //Terms
-                    }
-                    else {
-                        var curveYdiff = 0;
-                        //modify helices path data to create a capsule like structure
-                        if (secStrType === 'helices') {
-                            var curveCenter = secStrData.path[0] + ((secStrData.path[2] - secStrData.path[0]) / 2);
-                            curveYdiff = 2 * (secStrData.minoraxis * 1.3);
-                            if (secStrData.path[1] > secStrData.path[3]) {
-                                curveYdiff = -2 * (secStrData.minoraxis * 1.3);
-                            }
-                            var newPathCords = [
-                                secStrData.path[0], secStrData.path[1],
-                                curveCenter, secStrData.path[1] - curveYdiff,
-                                secStrData.path[2], secStrData.path[1],
-                                secStrData.path[2], secStrData.path[3],
-                                curveCenter, secStrData.path[3] + curveYdiff,
-                                secStrData.path[0], secStrData.path[3]
-                            ];
-                            secStrData.path = newPathCords;
+                    if (istart !== -1 || (secStrType === "coils" && istart === -1 && istop === -1 && _this_1.getAdjustedStartAndStop(secStrType, secStrArr[secStrDataIndex + 1]) != null && _this_1.getAdjustedStartAndStop(secStrType, secStrArr[secStrDataIndex - 1]) != null)) {
+                        if (secStrType === 'terms') {
+                            //Terms
                         }
-                        secStrData.secStrType = secStrType;
-                        secStrData.pathIndex = secStrDataIndex;
-                        var newEle = _this_1.svgEle.selectAll('path.' + secStrType + '' + secStrDataIndex)
-                            .data([secStrData])
-                            .enter()
-                            .append('path')
-                            .attr('class', function () {
-                            if (secStrData.start === -1 && secStrData.stop === -1 && secStrType !== 'terms') {
-                                return 'dashedEle topologyEle ' + secStrType + ' ' + secStrType + '' + secStrDataIndex + ' topoEleRange_' + secStrData.start + '-' + secStrData.stop;
+                        else {
+                            var curveYdiff = 0;
+                            //modify helices path data to create a capsule like structure
+                            if (secStrType === 'helices') {
+                                var curveCenter = secStrData.path[0] + ((secStrData.path[2] - secStrData.path[0]) / 2);
+                                curveYdiff = 2 * (secStrData.minoraxis * 1.3);
+                                if (secStrData.path[1] > secStrData.path[3]) {
+                                    curveYdiff = -2 * (secStrData.minoraxis * 1.3);
+                                }
+                                var newPathCords = [
+                                    secStrData.path[0], secStrData.path[1],
+                                    curveCenter, secStrData.path[1] - curveYdiff,
+                                    secStrData.path[2], secStrData.path[1],
+                                    secStrData.path[2], secStrData.path[3],
+                                    curveCenter, secStrData.path[3] + curveYdiff,
+                                    secStrData.path[0], secStrData.path[3]
+                                ];
+                                secStrData.path = newPathCords;
                             }
-                            else {
-                                return 'topologyEle ' + secStrType + ' ' + secStrType + '' + secStrDataIndex + ' topoEleRange_' + istart + '-' + istop;
-                            }
-                        })
-                            .attr('d', function (d) {
-                            var dVal = 'M';
-                            var pathLenth = secStrData.path.length;
-                            var xScaleFlag = true;
-                            //if(secStrData.path[1] > secStrData.path[7]) maskDiff = 1;
-                            for (var i = 0; i < pathLenth; i++) {
-                                if (secStrType === 'helices' && (i === 2 || i === 8))
-                                    dVal += ' Q';
-                                //if(secStrType === 'coils' && secStrData.path.length < 12 && i === 2) dVal += ' C'
-                                //if(secStrType === 'coils' && secStrData.path.length < 14 && secStrData.path.length > 12 && i === 4) dVal += ' C'
-                                if ((secStrType === 'helices' && i === 6) || (secStrType === 'coils' && secStrData.path.length < 12 && i === 8))
-                                    dVal += ' L';
-                                if (xScaleFlag) {
-                                    var xScaleValue = _this_1.xScale(secStrData.path[i]);
-                                    dVal += ' ' + xScaleValue;
-                                    _this_1.scaledPointsArr.push(xScaleValue);
+                            secStrData.secStrType = secStrType;
+                            secStrData.pathIndex = secStrDataIndex;
+                            var newEle = _this_1.svgEle.selectAll('path.' + secStrType + '' + secStrDataIndex)
+                                .data([secStrData])
+                                .enter()
+                                .append('path')
+                                .attr('class', function () {
+                                if (secStrData.start === -1 && secStrData.stop === -1 && secStrType !== 'terms') {
+                                    return 'dashedEle topologyEle ' + secStrType + ' ' + secStrType + '' + secStrDataIndex + ' topoEleRange_' + secStrData.start + '-' + secStrData.stop;
                                 }
                                 else {
-                                    var yScaleValue = _this_1.yScale(secStrData.path[i]);
-                                    dVal += ' ' + yScaleValue;
-                                    _this_1.scaledPointsArr.push(yScaleValue);
+                                    return 'topologyEle ' + secStrType + ' ' + secStrType + '' + secStrDataIndex + ' topoEleRange_' + istart + '-' + istop;
                                 }
-                                xScaleFlag = !xScaleFlag;
+                            })
+                                .attr('d', function (d) {
+                                var dVal = 'M';
+                                var pathLenth = secStrData.path.length;
+                                var xScaleFlag = true;
+                                //if(secStrData.path[1] > secStrData.path[7]) maskDiff = 1;
+                                for (var i = 0; i < pathLenth; i++) {
+                                    if (secStrType === 'helices' && (i === 2 || i === 8))
+                                        dVal += ' Q';
+                                    //if(secStrType === 'coils' && secStrData.path.length < 12 && i === 2) dVal += ' C'
+                                    //if(secStrType === 'coils' && secStrData.path.length < 14 && secStrData.path.length > 12 && i === 4) dVal += ' C'
+                                    if ((secStrType === 'helices' && i === 6) || (secStrType === 'coils' && secStrData.path.length < 12 && i === 8))
+                                        dVal += ' L';
+                                    if (xScaleFlag) {
+                                        var xScaleValue = _this_1.xScale(secStrData.path[i]);
+                                        dVal += ' ' + xScaleValue;
+                                        _this_1.scaledPointsArr.push(xScaleValue);
+                                    }
+                                    else {
+                                        var yScaleValue = _this_1.yScale(secStrData.path[i]);
+                                        dVal += ' ' + yScaleValue;
+                                        _this_1.scaledPointsArr.push(yScaleValue);
+                                    }
+                                    xScaleFlag = !xScaleFlag;
+                                }
+                                if (secStrType === 'strands' || secStrType === 'helices')
+                                    dVal += ' Z';
+                                return dVal;
+                            })
+                                .attr('fill', 'none')
+                                .attr('stroke-width', 0.3)
+                                .attr('stroke', _this_1.defaultColours.borderColor);
+                            if (secStrData.start === -1 && secStrData.stop === -1) {
+                                newEle.attr('stroke-dasharray', '0.9');
                             }
-                            if (secStrType === 'strands' || secStrType === 'helices')
-                                dVal += ' Z';
-                            return dVal;
-                        })
-                            .attr('fill', 'none')
-                            .attr('stroke-width', 0.3)
-                            .attr('stroke', _this_1.defaultColours.borderColor);
-                        if (secStrData.start === -1 && secStrData.stop === -1) {
-                            newEle.attr('stroke-dasharray', '0.9');
+                            //hightlight node calculations
+                            if (secStrType === 'strands') {
+                                //create subsections/paths
+                                _this_1.drawStrandSubpaths(istart, istop, secStrDataIndex);
+                                //Create mask to restore shape
+                                _this_1.drawStrandMaskShape(secStrDataIndex);
+                                //bring original/complete helices in front newEle
+                                // this.svgEle.append(newEle.node());		
+                                _this_1.svgEle._groups[0][0].append(newEle.node());
+                            }
+                            //for helices
+                            if (secStrType === 'helices') {
+                                //create subsections/paths
+                                _this_1.drawHelicesSubpaths(istart, istop, secStrDataIndex, curveYdiff);
+                                //Create mask to restore shape
+                                _this_1.drawHelicesMaskShape(secStrDataIndex);
+                                // //bring original/complete helices in front
+                                // angular.element(element[0].querySelector('.topoSvg')).append(newEle.node());
+                                _this_1.svgEle._groups[0][0].append(newEle.node());
+                            }
+                            //for coils
+                            if (secStrType === 'coils') {
+                                //create subsections/paths
+                                _this_1.drawCoilsSubpaths(istart, istop, secStrDataIndex);
+                            }
+                            _this_1.scaledPointsArr = []; //empty the arr for next iteration
                         }
-                        //hightlight node calculations
-                        if (secStrType === 'strands') {
-                            //create subsections/paths
-                            _this_1.drawStrandSubpaths(istart, istop, secStrDataIndex);
-                            //Create mask to restore shape
-                            _this_1.drawStrandMaskShape(secStrDataIndex);
-                            //bring original/complete helices in front newEle
-                            // this.svgEle.append(newEle.node());		
-                            _this_1.svgEle._groups[0][0].append(newEle.node());
-                        }
-                        //for helices
-                        if (secStrType === 'helices') {
-                            //create subsections/paths
-                            _this_1.drawHelicesSubpaths(istart, istop, secStrDataIndex, curveYdiff);
-                            //Create mask to restore shape
-                            _this_1.drawHelicesMaskShape(secStrDataIndex);
-                            // //bring original/complete helices in front
-                            // angular.element(element[0].querySelector('.topoSvg')).append(newEle.node());
-                            _this_1.svgEle._groups[0][0].append(newEle.node());
-                        }
-                        //for coils
-                        if (secStrType === 'coils') {
-                            //create subsections/paths
-                            _this_1.drawCoilsSubpaths(istart, istop, secStrDataIndex);
-                        }
-                        _this_1.scaledPointsArr = []; //empty the arr for next iteration
                     }
                 }
             });
