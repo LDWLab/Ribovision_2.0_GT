@@ -422,13 +422,37 @@
                     vm.helix_residues = filterCoilResidues(data[pdblower][entityid][chainid]["helices"])
                     var mapping = [];
                     var range_string = minIndex.concat("-").concat(maxIndex);
-                    GetRangeMapping(pdbid, chainid, range_string, mapping);
-                    let data_string = JSON.stringify(Array.from(mapped_aa_properties.entries())).replaceAll(",[[", ":").replaceAll("]],",";").replaceAll("],[",",");
-                    let formatted_data_string = data_string.replaceAll("[","").replaceAll("]","").replaceAll("\"","");
-                    var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid}	entropy-id=${formatted_data_string} filter-range=${mapping}></pdb-topology-viewer>`
-                    document.getElementById('topview').innerHTML = topology_viewer;
-                    window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
-                    this.topology_loaded = 'True';
+                    let ebiMappingURL = 'https://www.ebi.ac.uk/pdbe/api/mappings/uniprot/'+pdbid;
+                    ajax(ebiMappingURL).then(data=>{
+                        var result = [];
+                        customFilter(data, result, "chain_id", chainid);
+                        result = result[0];
+                        
+                        if(result != null) {
+                            var pdb_start = parseInt(result["start"]["residue_number"]);
+                            var pdb_end = parseInt(result["end"]["residue_number"]);
+                            var uniprot_start = parseInt(result["unp_start"]);
+                            for (let residue_number_str in range_string.split("-")){
+                                var residue_number = parseInt(residue_number_str);
+                                if(residue_number >= pdb_start && residue_number <= pdb_end){
+                                    let offset = uniprot_start - pdb_start;
+                                    mapping.push(residue_number - offset);
+                                }else{
+                                    mapping.push(residue_number);
+                                }
+                            }
+                        }else{
+                            console.log("No mapping for pdb "+pdbid+" and chain"+ chainid)
+                            mapping = [range_string.split("-")[0],range_string.split("-")[1]];
+                        }
+
+                        let data_string = JSON.stringify(Array.from(mapped_aa_properties.entries())).replaceAll(",[[", ":").replaceAll("]],",";").replaceAll("],[",",");
+                        let formatted_data_string = data_string.replaceAll("[","").replaceAll("]","").replaceAll("\"","");
+                        var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid}	entropy-id=${formatted_data_string} filter-range=${mapping}></pdb-topology-viewer>`
+                        document.getElementById('topview').innerHTML = topology_viewer;
+                        window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
+                        this.topology_loaded = 'True';
+                    })
                 })
             });
         }, showPDBViewer(pdbid, chainid, entityid){

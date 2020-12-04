@@ -222,6 +222,16 @@ var populatePDBs = function (alndata){
     })
 }
 
+var customFilter = function (object, result, key, value){
+    if(object.hasOwnProperty(key) && object[key] == value)
+        result.push(object);
+    for(var i=0; i<Object.keys(object).length; i++){
+        if(typeof object[Object.keys(object)[i]] == "object"){
+            customFilter(object[Object.keys(object)[i]], result, key, value);
+        }
+    }
+}
+
 function handlePropensities(checked_propensities){
     if (checked_propensities){
         console.log(document.getElementById("selectaln"));
