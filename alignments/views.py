@@ -438,6 +438,7 @@ def handle_custom_upload_alignment(request):
 
 # trims fasta by a list of indices
 def trim_fasta_by_index(input_file, indices):
+    from Bio import AlignIO
     align = AlignIO.read(input_file, "fasta")
     trimmed_align = align[:,indices[0]:indices[0]+1] # initialize align object
     for i in indices[1:]:
@@ -454,13 +455,12 @@ def propensity_data(request, aln_id, tax_group):
 
     if request.method == 'POST' and 'indices' in request.POST:
         indices = request.POST['indices']
-        aa = propensities.aa_composition(fasta, reduced = False, indices = indices)
-        fasta.seek(0) # reload the fasta object
-        red_aa = propensities.aa_composition(fasta, reduced = False, indices = indices)
-    else:
-        aa = propensities.aa_composition(fasta, reduced = False)
-        fasta.seek(0) # reload the fasta object
-        red_aa = propensities.aa_composition(fasta, reduced = False)
+        trimmed_fasta = trim_fasta_by_index(fasta, indices)
+        fasta = StringIO(trimmed_fasta.format('fasta'))
+
+    aa = propensities.aa_composition(fasta, reduced = False)
+    fasta.seek(0) # reload the fasta object
+    red_aa = propensities.aa_composition(fasta, reduced = False)
 
     data = {
         'aln_id' : aln_id,
