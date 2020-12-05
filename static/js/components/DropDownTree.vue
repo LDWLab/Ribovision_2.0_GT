@@ -353,9 +353,8 @@
                     colorScheme: "clustal2",
                     height: main_elmnt.offsetHeight * 0.9,
                     width: main_elmnt.offsetWidth * 0.7,
-                    tileHeight: 18,
-                    tileWidth: 18,
-                    overflow: "auto",
+                    tileHeight: 17,
+                    tileWidth: 17,
                 };
                 window.msaOptions = msaOptions;
                 ReactDOM.render(

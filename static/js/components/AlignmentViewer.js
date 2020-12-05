@@ -1,13 +1,16 @@
 import {Tooltip} from './Tooltip.js'
 import {XYDispatch} from './PositionDispatch.js'
 //import { MSAViewer, SequenceViewer, Labels, } from '@plotly/react-msa-viewer';
-import { MSAViewer, SequenceViewer, Labels, } from './MSAV.umd.js';
+import { MSAViewer, 
+        SequenceViewer, 
+        Labels, 
+        PositionBar, } from './MSAV.umd.js';
 import React, { Component } from "react";
 
 var AlnViewer = class RV3AlnViewer extends Component {
     state = { 
-        tileWidth: 18,
-        tileHeight: 18,
+        tileWidth: 17,
+        tileHeight: 17,
         aaPos: 0,
         seqPos: 0,
         width: (window.innerWidth - 300) * 0.7,
@@ -131,12 +134,16 @@ var AlnViewer = class RV3AlnViewer extends Component {
                   position={{ xPos, yPos }}
                 >
                 <div style={{ position: "relative", display: "flex"}}>
-                    <Labels 
-                      style = {{
-                        width: (window.innerWidth - 300) * 0.2
-                        }}
-                    />
                     <div>
+                        <div style = {{height:14}}></div>
+                        <Labels 
+                          style = {{
+                            width: (window.innerWidth - 300) * 0.2,
+                            }}
+                        />
+                    </div>
+                    <div>
+                        <PositionBar markerSteps={5} startIndex={0} />
                         <SequenceViewer
                           onResidueMouseEnter={this.onResidueMouseEnter}
                           onResidueMouseLeave={this.onResidueMouseLeave}

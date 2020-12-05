@@ -1,4 +1,4 @@
-import { msaConnect, withPositionStore, } from '@plotly/react-msa-viewer';
+import { msaConnect, withPositionStore, } from './MSAV.umd.js';
 import { Component } from "react";
 
 class MSAPluginComponent extends Component {
