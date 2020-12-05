@@ -1,4 +1,4 @@
-import {Tooltip} from './Tooltip.js'
+import {Tooltip, YSlider} from './Tooltip.js'
 import {XYDispatch} from './PositionDispatch.js'
 //import { MSAViewer, SequenceViewer, Labels, } from '@plotly/react-msa-viewer';
 import { MSAViewer, 
@@ -104,8 +104,11 @@ var AlnViewer = class RV3AlnViewer extends Component {
     render() {
         const xPos = this.state.tileWidth * (this.state.aaPos);
         const yPos = this.state.tileHeight * (this.state.seqPos);
-        const maxXpos = window.aaFreqs.length - Math.round((((window.innerWidth - 300) * 0.7)/this.state.tileWidth))+2;
-        const maxYpos = vm.fastaSeqNames.length - Math.round(((((window.innerHeight - 171)/2) * 0.9)/this.state.tileHeight))+2;
+        var maxXpos = window.aaFreqs.length - Math.round((((window.innerWidth - 300) * 0.7)/this.state.tileWidth))+2;
+        var maxYpos = vm.fastaSeqNames.length - Math.round(((((window.innerHeight - 171)/2) * 0.9)/this.state.tileHeight))+2;
+        var alnViewerAdjHeight = ((window.innerHeight - 171)/2)*0.9;
+        
+        if (maxYpos < 0){ maxYpos = 0 };
         return (
         <div style={{ display: "flex" }}>
             <div>
@@ -116,7 +119,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
                         left: (window.innerWidth - 300) * 0.2+"px"
                         }}
                     type="range"
-                    min="0"
+                    min="1"
                     max={maxXpos}
                     value={this.state.aaPos}
                     onChange={(evt) => this.setState({ aaPos: evt.target.value })}
@@ -133,7 +136,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
                   tileHeight={this.state.tileHeight}
                   position={{ xPos, yPos }}
                 >
-                <div style={{ position: "relative", display: "flex"}}>
+                <div style={{ position: "relative", display: "flex", height:this.state.height}}>
                     <div>
                         <div style = {{height:14}}></div>
                         <Labels 
@@ -167,20 +170,11 @@ var AlnViewer = class RV3AlnViewer extends Component {
                 <XYDispatch parent_state={this.state} />
                 </MSAViewer>
             </div>
-            <div style={{width: "30px"}}>
-                <input
-                  style={{ 
-                      width: ((window.innerHeight - 171)/2)*0.9+"px",
-                  }}
-                  type="range"
-                  min="0"
-                  max={maxYpos}
-                  value={this.state.seqPos}
-                  onChange={(evt) => this.setState({ seqPos: evt.target.value })}
-                  className="slider"
-                  id="yPosSlider"
-                />
-            </div>
+            <YSlider 
+              alnViewerAdjHeight={alnViewerAdjHeight}
+              maxYpos={maxYpos}
+              MSAVObject={this}
+            />
         </div>
         );
     }
