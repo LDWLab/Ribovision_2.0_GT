@@ -15,7 +15,7 @@ var registerHoverResiData = function (e, tooltipObj){
         ajax('/resi-api/' + alnpos_data["results"][0]["res"].split("/")[5]).then(resiData => {
             if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right){
               let tooltipPosition = {
-                top: mousePos.y-boundingBox.top+5 +"px",
+                top: mousePos.y-boundingBox.top+15 +"px",
                 left: mousePos.x-relativeBox.left+boundLabelBox.right-boundLabelBox.left+5 +"px",
               };
               if (resiData["Structural fold"][0] !== undefined && resiData["Associated data"][0] !== undefined){
@@ -37,7 +37,7 @@ var registerHoverResiData = function (e, tooltipObj){
     }else{
         if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right){
             let tooltipPosition = {
-                top: mousePos.y-boundingBox.top+5 +"px",
+                top: mousePos.y-boundingBox.top+15 +"px",
                 left: mousePos.x-relativeBox.left+boundLabelBox.right-boundLabelBox.left+5 +"px",
             };
             window.ajaxRun = false;
