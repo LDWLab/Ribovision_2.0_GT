@@ -21,9 +21,11 @@
   .alignment_section{
     display: grid;
     place-items: center;
+    align-items: center;
     background: wheat;
     grid-column: 2 / 4;
     grid-row: 2 ;
+    position: relative;
   }
 
   .topology_section{

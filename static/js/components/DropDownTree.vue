@@ -94,19 +94,20 @@
             </div>
         </div>
         <div class="alignment_section">
-            <p></p>
-            <span id="alnif" v-if="alnobj">
+            <br/>
+            <div id="alnif" v-if="alnobj">
                 <div id="alnDiv">Loading alignment...</div>
                 <div id="testaln"></div>
-            </span><br>
-            <span v-if="aln_meta_data">Selected residue: {{ aln_meta_data }}</span>
+            </div>
         </div>
         <div class="topology_section">
+        <br/>
             <span id="topif" v-if="chainid">
                 <div id="topview">Loading topology viewer and conservation data...</div>
             </span>
         </div>
         <div class="molstar_section">
+        <br/>
             <span id="molif" v-if="chainid">
                 <div id ="pdbeMolstarView">Loading Molstar Component...</div>
             </span>
@@ -137,7 +138,6 @@
             pdbid: null,
             chains: null,
             chainid: null,
-            aln_meta_data: null,
             fasta_data: null,
             fastaSeqNames: null,
             hide_chains: null,
@@ -346,12 +346,18 @@
                 vm.fastaSeqNames = fasta['Sequence names'];
                 window.aaFreqs = fasta['AA frequencies'];
                 var main_elmnt = document.querySelector(".alignment_section");
-                //window.main_elmnt = main_elmnt;
+                var msaHeight = main_elmnt.offsetHeight * 0.9;
+                if (msaHeight > 17*(vm.fastaSeqNames.length+2)){
+                    var alnifEle = document.querySelector('#alnif');
+                    alnifEle.style.position="absolute";
+                    alnifEle.style.top="30%";
+                    msaHeight = 17*(vm.fastaSeqNames.length+2);
+                }
                 let seqsForMSAViewer = parseFastaSeqForMSAViewer(fasta['Alignment']);
                 var msaOptions = {
                     sequences: seqsForMSAViewer,
                     colorScheme: "clustal2",
-                    height: main_elmnt.offsetHeight * 0.9,
+                    height: msaHeight,
                     width: main_elmnt.offsetWidth * 0.7,
                     tileHeight: 17,
                     tileWidth: 17,
