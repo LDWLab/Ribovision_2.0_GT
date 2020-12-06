@@ -35,6 +35,8 @@
   "dependencies": {
     "@plotly/react-msa-viewer": "^0.0.12",
     "@riophae/vue-treeselect": "^0.4.0",
+    "css-loader": "^5.0.1",
+    "postcss": "^8.1.14",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-msa-viewer": "^1.0.1",
