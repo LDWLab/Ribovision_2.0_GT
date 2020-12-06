@@ -1,5 +1,5 @@
 import {Tooltip} from './Tooltip.js'
-import {YSlider} from './YSlider.js'
+import {XSlider, YSlider} from './Sliders.js'
 import {XYDispatch} from './PositionDispatch.js'
 //import { MSAViewer, SequenceViewer, Labels, } from '@plotly/react-msa-viewer';
 import { MSAViewer, 
@@ -109,25 +109,17 @@ var AlnViewer = class RV3AlnViewer extends Component {
         const yPos = this.state.tileHeight * (this.state.seqPos);
         var maxXpos = window.aaFreqs.length - Math.round((((window.innerWidth - 300) * 0.7)/this.state.tileWidth))+2;
         var maxYpos = vm.fastaSeqNames.length - Math.round(((((window.innerHeight - 171)/2) * 0.9)/this.state.tileHeight))+2;
-        var alnViewerAdjHeight = ((window.innerHeight - 171)/2)*0.9;
-        
+        var alnViewerAdjHeight = ((window.innerHeight - 171)/2) * 0.9;
+        var alnViewerAdjWidth = (window.innerWidth - 300) * 0.7;
         if (maxYpos < 0){ maxYpos = 0 };
+        if (maxXpos < 0){ maxXpos = 0 };
         return (
         <div style={{ display: "flex" }}>
             <div>
-                <input
-                    style = {{ 
-                        width: (window.innerWidth - 300) * 0.7+"px",
-                        position: "relative",
-                        left: (window.innerWidth - 300) * 0.2+"px"
-                        }}
-                    type="range"
-                    min="1"
-                    max={maxXpos}
-                    value={this.state.aaPos}
-                    onChange={(evt) => this.setState({ aaPos: evt.target.value })}
-                    className="slider"
-                    id="xPosSlider"
+                <XSlider 
+                  alnViewerAdjWidth={alnViewerAdjWidth}
+                  maxXpos={maxXpos}
+                  MSAVObject={this}
                 />
                 <MSAViewer 
                   {...msaOptions}
