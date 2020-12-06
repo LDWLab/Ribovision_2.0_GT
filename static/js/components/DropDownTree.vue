@@ -85,8 +85,8 @@
                     <span v-if="checked_selection">Residue range to show </span>
                     <input v-if="checked_selection" v-model="filter_range" v-on:input="handleFilterRange(filter_range)">
                 </p></div>
-                <div id="customDataSection"><p>
-                    <div class="checkbox">
+                <div id="customDataSection">
+                <p><div class="checkbox">
                         <label><input type="checkbox" v-model="checked_customMap" v-on:change="cleanCustomMap(checked_customMap)">Custom Data</label>
                         <p><input v-if="checked_customMap" type="file" accept=".csv" ref="custom_csv_file" v-on:change="handleCustomMappingData()"/></p>
                     </div>
@@ -97,14 +97,15 @@
             <br/>
             <div id="alnif" v-if="alnobj">
                 <div id="alnMenu" style="display: flex;">
-                    <button v-if="colorScheme" id="downloadFastaBtn" type="button" v-on:click="downloadAlignmentData()">
+                    <button style="margin: 0 1%;" v-if="colorScheme" id="downloadFastaBtn" type="button" v-on:click="downloadAlignmentData()">
                         Download alignment
                     </button>
-                    <select v-model="colorScheme" v-if="colorScheme">
+                    <select style="margin: 0 1%;" v-model="colorScheme" v-if="colorScheme">
                         <option :value="null" selected disabled>Select a colorscheme</option>
                         <option v-for="colorscheme in availColorschemes" >{{ colorscheme }}</option>
                     </select>
                 </div>
+                <br/>
                 <div id="alnDiv">Loading alignment...</div>
             </div>
         </div>
