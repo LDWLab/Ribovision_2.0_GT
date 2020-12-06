@@ -144,16 +144,21 @@ function initializeMaskedArray() {
 };
 
 function downloadCSVData() {
-
   let csv = generateCSVstring(mapped_aa_properties);
-
   let anchor = document.createElement('a');
   anchor.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
   anchor.target = '_blank';
   anchor.download = 'rv3data.csv';
   anchor.click();
-
 };
+
+var downloadAlignmentData = function(fastaString){
+    let anchor = document.createElement('a');
+    anchor.href = 'data:text;charset=utf-8,' + encodeURIComponent(fastaString);
+    anchor.target = '_blank';
+    anchor.download = 'rv3alignment.fas';
+    anchor.click();
+}
 
 function handlePropensities(checked_propensities){
   if (checked_propensities){

@@ -97,6 +97,9 @@
             <br/>
             <div id="alnif" v-if="alnobj">
                 <div id="alnMenu" style="display: flex;">
+                    <button v-if="colorScheme" id="downloadFastaBtn" type="button" v-on:click="downloadAlignmentData()">
+                        Download alignment
+                    </button>
                     <select v-model="colorScheme" v-if="colorScheme">
                         <option :value="null" selected disabled>Select a colorscheme</option>
                         <option v-for="colorscheme in availColorschemes" >{{ colorscheme }}</option>
@@ -536,6 +539,8 @@
                     viewerInstance.plugin.behaviors.interaction.hover._value.current.loci.kind = "empty-loci"
                 }
             });
+        },downloadAlignmentData() {
+            downloadAlignmentData(vm.fasta_data);
         },downloadCSVData() {
             downloadCSVData();
         },cleanFilter(checked_filter, masking_range){
