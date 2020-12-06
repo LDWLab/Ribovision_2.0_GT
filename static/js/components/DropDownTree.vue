@@ -96,8 +96,13 @@
         <div class="alignment_section">
             <br/>
             <div id="alnif" v-if="alnobj">
+                <div id="alnMenu" style="display: flex;">
+                    <select v-model="colorScheme" v-if="colorScheme">
+                        <option :value="null" selected disabled>Select a colorscheme</option>
+                        <option v-for="colorscheme in availColorschemes" >{{ colorscheme }}</option>
+                    </select>
+                </div>
                 <div id="alnDiv">Loading alignment...</div>
-                <div id="testaln"></div>
             </div>
         </div>
         <div class="topology_section">
@@ -134,12 +139,17 @@
             pdbs: [
                 {id: "4v9d", name: "4V9D E. coli"},
                 {id: "4v6u", name: "4V6U P. furiosus"},
-                {id: "4ug0", name: "4UG0 H. sapiens"},],
+                {id: "4ug0", name: "4UG0 H. sapiens"},
+                ],
+            availColorschemes: [
+                "buried","cinema","clustal","clustal2","helix","hydrophobicity","lesk","mae","nucleotide","purine","strand","taylor","turn","zappo",
+                ],
             pdbid: null,
             chains: null,
             chainid: null,
             fasta_data: null,
             fastaSeqNames: null,
+            colorScheme: null,
             hide_chains: null,
             type_tree: "orth",
             aa_properties: null,
@@ -201,8 +211,11 @@
             this.showAlignment(data.id, vm.tax_id, vm.type_tree);
         },pdbid: function (pdbid){
             this.getPDBchains(pdbid, vm.alnobj.id);
-        },
-
+        },colorScheme: function (scheme){
+            if (window.AlnViewer){
+                window.AlnViewer.setState({colorScheme:scheme});
+            }
+        }
     },methods: {
         handleFileUpload(){
             this.file = this.$refs.custom_aln_file.files[0];
@@ -356,7 +369,7 @@
                 let seqsForMSAViewer = parseFastaSeqForMSAViewer(fasta['Alignment']);
                 var msaOptions = {
                     sequences: seqsForMSAViewer,
-                    colorScheme: "clustal2",
+                    colorScheme: vm.colorScheme,
                     height: msaHeight,
                     width: main_elmnt.offsetWidth * 0.7,
                     tileHeight: 17,

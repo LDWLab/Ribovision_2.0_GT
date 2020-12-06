@@ -1,4 +1,5 @@
-import {Tooltip, YSlider} from './Tooltip.js'
+import {Tooltip} from './Tooltip.js'
+import {YSlider} from './YSlider.js'
 import {XYDispatch} from './PositionDispatch.js'
 //import { MSAViewer, SequenceViewer, Labels, } from '@plotly/react-msa-viewer';
 import { MSAViewer, 
@@ -15,7 +16,8 @@ var AlnViewer = class RV3AlnViewer extends Component {
         seqPos: 0,
         width: (window.innerWidth - 300) * 0.7,
         height: ((window.innerHeight - 171)/2) * 0.9,
-        highlight: null 
+        highlight: null,
+        colorScheme: vm.colorScheme,
     };
     handleResize = () => {
         this.setState({
@@ -26,6 +28,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
         style.innerHTML += ".slider::-webkit-slider-thumb { width: "+(window.innerWidth - 300)*0.05+"px}"
     };
     componentDidMount() {
+        vm.colorScheme = 'clustal2';
         var style = document.querySelector('[data="rv3_style"]');
         style.innerHTML += ".slider::-webkit-slider-thumb { width: "+(window.innerWidth - 300)*0.05+"px}";
 
@@ -135,6 +138,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
                   tileWidth={this.state.tileWidth}
                   tileHeight={this.state.tileHeight}
                   position={{ xPos, yPos }}
+                  colorScheme={this.state.colorScheme}
                 >
                 <div style={{ position: "relative", display: "flex", height:this.state.height}}>
                     <div>
