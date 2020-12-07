@@ -7,7 +7,7 @@ var registerHoverResiData = function (e, tooltipObj){
   var url = `/desire-api/residue-alignment/?format=json&aln_pos=${String(Number(e.position) + 1)}&aln=${vm.alnobj.id}${strainQuery}${vm.fastaSeqNames[Number(e.i)]}`
   ajax(url).then(alnpos_data => {
     var alnViewCanvasEle = document.querySelector("#alnDiv canvas:nth-of-type(1)");
-    var alnViewLabelsEle = document.querySelector("#alnDiv div:nth-of-type(2)");
+    var alnViewLabelsEle = document.querySelector("#alnViewerLabels");
     let boundLabelBox = alnViewLabelsEle.getBoundingClientRect();
     let boundingBox = absolutePosition(alnViewCanvasEle);
     let relativeBox = alnViewCanvasEle.getBoundingClientRect();
@@ -15,7 +15,7 @@ var registerHoverResiData = function (e, tooltipObj){
         ajax('/resi-api/' + alnpos_data["results"][0]["res"].split("/")[5]).then(resiData => {
             if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right){
               let tooltipPosition = {
-                top: mousePos.y-boundingBox.top+5 +"px",
+                top: mousePos.y-boundingBox.top+15 +"px",
                 left: mousePos.x-relativeBox.left+boundLabelBox.right-boundLabelBox.left+5 +"px",
               };
               if (resiData["Structural fold"][0] !== undefined && resiData["Associated data"][0] !== undefined){
@@ -37,7 +37,7 @@ var registerHoverResiData = function (e, tooltipObj){
     }else{
         if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right){
             let tooltipPosition = {
-                top: mousePos.y-boundingBox.top+5 +"px",
+                top: mousePos.y-boundingBox.top+15 +"px",
                 left: mousePos.x-relativeBox.left+boundLabelBox.right-boundLabelBox.left+5 +"px",
             };
             window.ajaxRun = false;
@@ -97,7 +97,8 @@ function handleFilterRange(filter_range) {
               format: 'cif',
               binary:true },
           assemblyId: '1',
-          subscribeEvents: true
+          subscribeEvents: true,
+          bgColor: {r:255,g:255,b:255},
       });
       viewerInstance.events.loadComplete.subscribe(() => { 
           let selectedData = topviewer.pluginInstance.domainTypes[selectedIndex];
@@ -183,7 +184,8 @@ function cleanSelection(checked_selection, filter_range){
           format: 'cif',
           binary:true },
       assemblyId: '1',
-      subscribeEvents: true});
+      subscribeEvents: true,
+      bgColor: {r:255,g:255,b:255},});
   topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);
   if(window.custom_prop) {
       topviewer.pluginInstance.getAnnotationFromRibovision(window.custom_prop);
@@ -216,7 +218,46 @@ function parseConsecutiveIndices(structureTypeString, structureList, indicesList
     }
 }
 
-function handlePropensities(checked_propensities) {
+var populatePDBs = function (alndata){
+    let alnPolurl = `/desire-api/polymers/?alns_of_polymer=${alndata.id}`
+    ajax(alnPolurl).then(polymersForAln => {
+        let trueNom = polymersForAln.results[0].nomgd.split('/')[5]
+        let url = `/desire-api/old-nomenclatures/?n_b_y_h_a=BAN&nn_fk=${trueNom}`;
+        ajax(url).then(oldnomData => {
+            if (oldnomData.count == 0){return;}
+            let oldName = oldnomData.results[0].old_name.replace(/^(.{2})(0)/,"$1")
+            let riboXYZurl = `https://ribosome.xyz:8000/neo4j/gmo_nom_class/?banName=${oldName}&format=json`
+            ajax(riboXYZurl).then(data => {
+                var pdb_entries = []
+                data.forEach(function(entry){
+                    let pdb_text = `${entry.parent} ${entry.orgname[0].slice(0,39)}`
+                    pdb_entries.push({id: entry.parent.toLowerCase(), name:pdb_text})
+                });
+                if (pdb_entries.length == 0){return;}
+                vm.pdbs.push(...pdb_entries);
+            }).catch(error => {
+                console.log(error);
+            })
+        }).catch(error => {
+            console.log(error);
+        })
+    }).catch(error => {
+            console.log(error);
+    })
+}
+
+var customFilter = function (object, result, key, value){
+    if(object.hasOwnProperty(key) && object[key] == value)
+        result.push(object);
+    for(var i=0; i<Object.keys(object).length; i++){
+        let nextObj = object[Object.keys(object)[i]];
+        if(typeof nextObj == "object" && nextObj != null){
+            customFilter(nextObj, result, key, value);
+        }
+    }
+}
+
+function handlePropensities(checked_propensities){
     if (checked_propensities){
         // console.log(document.getElementById("selectaln"));
         var coilsListOfLists = []

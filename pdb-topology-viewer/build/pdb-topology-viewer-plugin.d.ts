@@ -52,7 +52,7 @@ declare class PdbTopologyViewerPlugin {
         errorStyle?: string;
         menuStyle?: string;
     }): void;
-    initPainting(filter_range?: any): void;
+    initPainting(): void;
     displayError(errType?: string): void;
     createNewEvent: (eventTypeArr: string[]) => any;
     getObservedResidues(pdbId: string): Promise<any>;

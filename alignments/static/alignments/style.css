@@ -75,6 +75,10 @@
     text-overflow: clip;
   }
 
+  #alnMenu{
+    padding-top: 2%;
+  }
+
   #topview{
     width: 500px;
     height: 500px;
@@ -118,9 +122,13 @@
     height: 10px;
     background: #4c90af;
   }
+  body{
+    overflow-x: hidden !important;
+  }
+
   #yPosSlider {
     position: relative;
-    top: 30px;
+    top: 37px;
     -webkit-transform: rotate(90deg);
     -moz-transform: rotate(90deg);
     -ms-transform: rotate(90deg);
@@ -131,4 +139,9 @@
     -ms-transform-origin: 4% 10%;
     -o-transform-origin: 4% 10%;
     transform-origin: 4% 10%;
+  }
+
+  #pdb_input{
+    max-width: 250px;
+    max-height: 75px;
   }

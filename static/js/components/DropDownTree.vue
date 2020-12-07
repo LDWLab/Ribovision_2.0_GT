@@ -39,13 +39,10 @@
                 <span v-if="alnobj">Input PDB and polymer for mapping:</span>
             </p>
             <p>
-                <input id="pdb_input" type="text" list="availablePDBs" v-if="alnobj" v-model="pdbid" v-on:input="getPDBchains(pdbid, alnobj.id)" placeholder="4v9d" maxlength="4">
-                <datalist id="availablePDBs">
-                    <option>4v9d</option>
-                    <option>4v6u</option>
-                    <option>4ug0</option>
-                    <option>1vy4</option>
-                </datalist>
+                <select id="pdb_input" v-if="alnobj" v-model="pdbid">
+                    <option :value="null" selected disabled hidden>Select a pdb</option>
+                    <option v-for="pdb in pdbs" v-bind:value="pdb.id">{{pdb.name}}</option>
+                </select>
                 <div v-if="hide_chains" id="onFailedChains">Looking for available polymers...</div>
             </p>
             <p>
@@ -57,53 +54,71 @@
                     </select>
                 </div>
             </p>
-            <p><select v-bind:style="{ resize: 'both'}" multiple v-if="chains&&fasta_data" v-model="chainid" >
+            <p><select id="polymerSelect" v-bind:style="{ resize: 'both'}" multiple v-if="chains&&fasta_data&&pdbid" v-model="chainid" >
                 <option :value ="null" selected disabled>Select polymer</option>
                 <option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid, chain.entityID)">{{ chain.text }}</option>
             </select></p>
-            <div v-if="chainid">
-                <button type="button" v-on:click="downloadCSVData()">
+            <div v-if="poor_structure_map">
+                <p style="color:#DE3163"><b>Warning!!!<br>
+                Poor structure to alignment mapping!<br>
+                There where {{poor_structure_map}} poorly mapped residues!<br>
+                Proceed with caution or try different structure.</b></p>
+            </div>
+            <div v-if="structure_mapping">
+                <button id="downloadDataBtn" type="button" v-on:click="downloadCSVData()">
                     Download mapped data
                 </button>
             </div>
             <div v-if="topology_loaded != 'False'">
-                <p>
+                <div id="maskingSection"><p>
                     <div class="checkbox">
                         <label><input type="checkbox" v-model="checked_filter" v-on:change="cleanFilter(checked_filter, masking_range)">Masking ranges</label>
                     </div>
                     <span v-if="checked_filter">Residue ranges to show, separated by semicolon. <br> For example: 1-80;91-111;</span>
                     <input v-if="checked_filter" v-model="masking_range" v-on:input="handleMaskingRanges(masking_range)">
-                </p>
+                </p></div>
                 <p v-if="correct_mask!='True'&&masking_range!=null">Incorrect range syntax!</p>
-                <p>
+                <div id="filterSection"><p>
                     <div class="checkbox">
                         <label><input type="checkbox" v-model="checked_selection" v-on:change="cleanSelection(checked_selection, filter_range)">Filter Range</label>
                     </div>
                     <span v-if="checked_selection">Residue range to show </span>
                     <input v-if="checked_selection" v-model="filter_range" v-on:input="handleFilterRange(filter_range)">
-                </p>
-                <p>
-                    <div class="checkbox">
+                </p></div>
+                <div id="customDataSection">
+                <p><div class="checkbox">
                         <label><input type="checkbox" v-model="checked_customMap" v-on:change="cleanCustomMap(checked_customMap)">Custom Data</label>
                         <p><input v-if="checked_customMap" type="file" accept=".csv" ref="custom_csv_file" v-on:change="handleCustomMappingData()"/></p>
                     </div>
-                </p>
+                </p></div>
             </div>
         </div>
         <div class="alignment_section">
-            <p></p>
-            <span id="alnif" v-if="alnobj">
+            <div id="alnif" v-if="alnobj">
+                <div id="alnMenu" style="display: flex;">
+                    <button id="downloadFastaBtn" style="margin: 0 1%;" v-if="colorScheme"  type="button" v-on:click="downloadAlignmentData()">
+                        Download alignment
+                    </button>
+                    <button id="downloadAlnImageBtn" style="margin: 0 1%;" v-if="colorScheme"  type="button" v-on:click="downloadAlignmentImage()">
+                        Download alignment image
+                    </button>
+                    <select id="selectAlnColorScheme" style="margin: 0 1%;" v-model="colorScheme" v-if="colorScheme">
+                        <option :value="null" selected disabled>Select a colorscheme</option>
+                        <option v-for="colorscheme in availColorschemes" >{{ colorscheme }}</option>
+                    </select>
+                </div>
+                <br/>
                 <div id="alnDiv">Loading alignment...</div>
-                <div id="testaln"></div>
-            </span><br>
-            <span v-if="aln_meta_data">Selected residue: {{ aln_meta_data }}</span>
+            </div>
         </div>
         <div class="topology_section">
+        <br/>
             <span id="topif" v-if="chainid">
                 <div id="topview">Loading topology viewer and conservation data...</div>
             </span>
         </div>
         <div class="molstar_section">
+        <br/>
             <span id="molif" v-if="chainid">
                 <div id ="pdbeMolstarView">Loading Molstar Component...</div>
             </span>
@@ -127,16 +142,25 @@
             alnobj: null,
             options: null,
             alignments: null,
+            pdbs: [
+                {id: "4v9d", name: "4V9D E. coli"},
+                {id: "4v6u", name: "4V6U P. furiosus"},
+                {id: "4ug0", name: "4UG0 H. sapiens"},
+                ],
+            availColorschemes: [
+                "buried","cinema","clustal","clustal2","helix","lesk","mae","nucleotide","purine","strand","taylor","turn","zappo",
+                ],
             pdbid: null,
             chains: null,
             chainid: null,
-            aln_meta_data: null,
             fasta_data: null,
             fastaSeqNames: null,
+            colorScheme: null,
             hide_chains: null,
             type_tree: "orth",
             aa_properties: null,
             structure_mapping: null,
+            poor_structure_map: null,
             file: null,
             custom_aln_twc_flag: null,
             topology_loaded: 'False',
@@ -189,9 +213,15 @@
                 }
             }
         },alnobj: function (data){
+            this.populatePDBs(data);
             this.showAlignment(data.id, vm.tax_id, vm.type_tree);
-        },
-
+        },pdbid: function (pdbid){
+            this.getPDBchains(pdbid, vm.alnobj.id);
+        },colorScheme: function (scheme){
+            if (window.AlnViewer){
+                window.AlnViewer.setState({colorScheme:scheme});
+            }
+        }
     },methods: {
         handleFileUpload(){
             this.file = this.$refs.custom_aln_file.files[0];
@@ -287,42 +317,38 @@
                 loadParaAlns (value, this)
             }
         }, getPDBchains(pdbid, aln_id) {
-            if (pdbid.length === 4) {
-                if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(this);}
-                this.chains = null
-                this.hide_chains = true
-                ajax('https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/' + pdbid.toLowerCase())
-                    .then(struc_data => {
-                        var chain_list = struc_data[pdbid.toLowerCase()];
-                        if (this.type_tree == "para") {aln_id = aln_id.split(',')[1]}
-                        if (this.type_tree != "upload") {
-                            filterAvailablePolymers(chain_list, aln_id, vm);
-                            this.hide_chains = null;
-                        } else {
-                            let chain_options = []
-                            for (let i = 0; i < chain_list.length; i++) {
-                                let chain_listI = chain_list[i]
-                                if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
-                                if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
-                                if (typeof(chain_listI.source[0]) === "undefined") {continue;}
-                                chain_options = pushChainData(chain_options, chain_listI);
-                            }
-                            if (chain_options.length === 0) {
-                                chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
-                            }
-                            vm.chains = chain_options;
-                            this.hide_chains = null;
-                        }
-                    }).catch(error => {
-                        var elt = document.querySelector("#onFailedChains");
-                        this.pdbid = null;
-                        if (error.status == 404){
-                            elt.innerHTML  = "Couldn't find this PDB ID!<br/>Try a different PDB ID."
-                        } else {
-                            elt.innerHTML  = "Problem with parsing the chains! Try a different PDB ID."
-                        }
-                    })
-            }
+            if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(this);}
+            this.chains = null
+            this.hide_chains = true
+            ajax('https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/' + pdbid.toLowerCase()).then(struc_data => {
+                var chain_list = struc_data[pdbid.toLowerCase()];
+                if (this.type_tree == "para") {aln_id = aln_id.split(',')[1]}
+                if (this.type_tree != "upload") {
+                    filterAvailablePolymers(chain_list, aln_id, vm);
+                } else {
+                    let chain_options = []
+                    for (let i = 0; i < chain_list.length; i++) {
+                        let chain_listI = chain_list[i]
+                        if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
+                        if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
+                        if (typeof(chain_listI.source[0]) === "undefined") {continue;}
+                        chain_options = pushChainData(chain_options, chain_listI);
+                    }
+                    if (chain_options.length === 0) {
+                        chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
+                    }
+                    vm.chains = chain_options;
+                    this.hide_chains = null;
+                }
+            }).catch(error => {
+                var elt = document.querySelector("#onFailedChains");
+                this.pdbid = null;
+                if (error.status == 404){
+                    elt.innerHTML  = "Couldn't find this PDB ID!<br/>Try a different PDB ID."
+                } else {
+                    elt.innerHTML  = "Problem with parsing the chains! Try a different PDB ID."
+                }
+            })
         },
         showAlignment(aln_id, taxid, type_tree) {
             cleanupOnNewAlignment(this, "Loading alignment...");
@@ -339,16 +365,21 @@
                 vm.fastaSeqNames = fasta['Sequence names'];
                 window.aaFreqs = fasta['AA frequencies'];
                 var main_elmnt = document.querySelector(".alignment_section");
-                //window.main_elmnt = main_elmnt;
+                var msaHeight = main_elmnt.offsetHeight * 0.8;
+                if (msaHeight > 17*(vm.fastaSeqNames.length+2)){
+                    var alnifEle = document.querySelector('#alnif');
+                    alnifEle.style.position="absolute";
+                    alnifEle.style.top="20%";
+                    msaHeight = 17*(vm.fastaSeqNames.length+2);
+                }
                 let seqsForMSAViewer = parseFastaSeqForMSAViewer(fasta['Alignment']);
                 var msaOptions = {
                     sequences: seqsForMSAViewer,
-                    colorScheme: "clustal2",
-                    height: main_elmnt.offsetHeight * 0.9,
+                    colorScheme: vm.colorScheme,
+                    height: msaHeight,
                     width: main_elmnt.offsetWidth * 0.7,
-                    tileHeight: 18,
-                    tileWidth: 18,
-                    overflow: "auto",
+                    tileHeight: 17,
+                    tileWidth: 17,
                 };
                 window.msaOptions = msaOptions;
                 ReactDOM.render(
@@ -378,6 +409,7 @@
             // let ebi_sequence = this.chains[0]["sequence"];
             ajax('/mapSeqAln/', {fasta, ebi_sequence, startIndex}).then(struct_mapping=>{
                 this.structure_mapping = struct_mapping;
+                if (struct_mapping['BadMappingPositions']){this.poor_structure_map = struct_mapping['BadMappingPositions'];}
                 var mapped_aa_properties = mapAAProps(this.aa_properties, struct_mapping);
                 if ((this.tax_id != null && this.tax_id.length == 2) || (this.custom_aln_twc_flag != null && this.custom_aln_twc_flag == true) || (this.type_tree == 'para')) {
                     ajax('/twc-api/', {fasta}).then(twcDataUnmapped => {
@@ -414,13 +446,37 @@
                     vm.helix_residues = filterCoilResidues(data[pdblower][entityid][chainid]["helices"])
                     var mapping = [];
                     var range_string = minIndex.concat("-").concat(maxIndex);
-                    GetRangeMapping(pdbid, chainid, range_string, mapping);
-                    let data_string = JSON.stringify(Array.from(mapped_aa_properties.entries())).replaceAll(",[[", ":").replaceAll("]],",";").replaceAll("],[",",");
-                    let formatted_data_string = data_string.replaceAll("[","").replaceAll("]","").replaceAll("\"","");
-                    var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid}	entropy-id=${formatted_data_string} filter-range=${mapping}></pdb-topology-viewer>`
-                    document.getElementById('topview').innerHTML = topology_viewer;
-                    window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
-                    this.topology_loaded = 'True';
+                    let ebiMappingURL = 'https://www.ebi.ac.uk/pdbe/api/mappings/uniprot/'+pdbid;
+                    ajax(ebiMappingURL).then(data=>{
+                        var result = [];
+                        customFilter(data, result, "chain_id", chainid);
+                        result = result[0];
+                        
+                        if(result != null) {
+                            var pdb_start = parseInt(result["start"]["residue_number"]);
+                            var pdb_end = parseInt(result["end"]["residue_number"]);
+                            var uniprot_start = parseInt(result["unp_start"]);
+                            for (let residue_number_str in range_string.split("-")){
+                                var residue_number = parseInt(residue_number_str);
+                                if(residue_number >= pdb_start && residue_number <= pdb_end){
+                                    let offset = uniprot_start - pdb_start;
+                                    mapping.push(residue_number - offset);
+                                }else{
+                                    mapping.push(residue_number);
+                                }
+                            }
+                        }else{
+                            console.log("No mapping for pdb "+pdbid+" and chain"+ chainid)
+                            mapping = [range_string.split("-")[0],range_string.split("-")[1]];
+                        }
+
+                        let data_string = JSON.stringify(Array.from(mapped_aa_properties.entries())).replaceAll(",[[", ":").replaceAll("]],",";").replaceAll("],[",",");
+                        let formatted_data_string = data_string.replaceAll("[","").replaceAll("]","").replaceAll("\"","");
+                        var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid}	entropy-id=${formatted_data_string} filter-range=${mapping}></pdb-topology-viewer>`
+                        document.getElementById('topview').innerHTML = topology_viewer;
+                        window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
+                        this.topology_loaded = 'True';
+                    })
                 })
             });
         }, showPDBViewer(pdbid, chainid, entityid){
@@ -486,6 +542,10 @@
                     viewerInstance.plugin.behaviors.interaction.hover._value.current.loci.kind = "empty-loci"
                 }
             });
+        },downloadAlignmentImage() {
+            downloadAlignmentImage(document.querySelector('#alnDiv'));
+        },downloadAlignmentData() {
+            downloadAlignmentData(vm.fasta_data);
         },downloadCSVData() {
             downloadCSVData();
         },cleanFilter(checked_filter, masking_range){
@@ -502,6 +562,8 @@
             handleFilterRange(filter_range);
         },handlePropensities(checked_propensities){
             handlePropensities(checked_propensities);
+        },populatePDBs(alndata){
+            populatePDBs(alndata);
         }
     }
 }

@@ -1,43 +1,51 @@
 import {Tooltip} from './Tooltip.js'
+import {XSlider, YSlider} from './Sliders.js'
 import {XYDispatch} from './PositionDispatch.js'
 //import { MSAViewer, SequenceViewer, Labels, } from '@plotly/react-msa-viewer';
-import { MSAViewer, SequenceViewer, Labels, } from './MSAV.umd.js';
+import { MSAViewer, 
+        SequenceViewer, 
+        Labels, 
+        PositionBar, } from './MSAV.umd.js';
 import React, { Component } from "react";
 
 var AlnViewer = class RV3AlnViewer extends Component {
     state = { 
-        tileWidth: 18,
-        tileHeight: 18,
+        tileWidth: 17,
+        tileHeight: 17,
         aaPos: 0,
         seqPos: 0,
         width: (window.innerWidth - 300) * 0.7,
-        height: ((window.innerHeight - 171)/2) * 0.9,
-        highlight: null 
+        height: ((window.innerHeight - 171)/2) * 0.8,
+        highlight: null,
+        colorScheme: vm.colorScheme,
     };
     handleResize = () => {
         this.setState({
             width: (window.innerWidth - 300) * 0.7,
-            height: ((window.innerHeight - 171)/2) * 0.9
+            height: ((window.innerHeight - 171)/2) * 0.8
         });
         var style = document.querySelector('[data="rv3_style"]');
         style.innerHTML += ".slider::-webkit-slider-thumb { width: "+(window.innerWidth - 300)*0.05+"px}"
     };
     componentDidMount() {
+        vm.colorScheme = 'clustal2';
         var style = document.querySelector('[data="rv3_style"]');
         style.innerHTML += ".slider::-webkit-slider-thumb { width: "+(window.innerWidth - 300)*0.05+"px}";
-
+        window.ajaxRun = false;
         var handleMolStarTopViewHovers = function (alnViewerClass, residueNumber){
             var alignmentNumber = Number(_.invert(vm.structure_mapping)[residueNumber]);
             var numVisibleTiles = Math.round(alnViewerClass.state.width/alnViewerClass.state.tileWidth);
-            if (alnViewerClass.state.aaPos > alignmentNumber || alignmentNumber > alnViewerClass.state.aaPos+numVisibleTiles){
-                let visiblePos = alignmentNumber-Math.round(numVisibleTiles/2);
-                if (visiblePos < 0) {visiblePos = 0};
-                alnViewerClass.setState({ aaPos: visiblePos })
+            if (!isNaN(alignmentNumber)){
+                if (alnViewerClass.state.aaPos > alignmentNumber || alignmentNumber > alnViewerClass.state.aaPos+numVisibleTiles){
+                    let visiblePos = alignmentNumber-Math.round(numVisibleTiles/2);
+                    if (visiblePos < 0) {visiblePos = 0};
+                    alnViewerClass.setState({ aaPos: visiblePos })
+                }
+                alnViewerClass.highlightRegion({
+                    sequences: {from: 0, to: vm.fastaSeqNames.length},
+                    residues: {from: alignmentNumber, to: alignmentNumber}
+                });
             }
-            alnViewerClass.highlightRegion({
-                sequences: {from: 0, to: vm.fastaSeqNames.length},
-                residues: {from: alignmentNumber, to: alignmentNumber}
-            });
         }
         window.addEventListener("resize", this.handleResize);
         document.addEventListener('PDB.topologyViewer.mouseover', (e) => {
@@ -52,6 +60,9 @@ var AlnViewer = class RV3AlnViewer extends Component {
         document.addEventListener('PDB.molstar.mouseout', () => {
             this.removeHighlightRegion();
         });
+        $('#alnSequenceViewer').mouseleave(function () {
+            window.ajaxRun = false;
+          });
     };
     componentWillUnmount() {
         window.removeEventListener("resize", this.handleResize);
@@ -99,74 +110,72 @@ var AlnViewer = class RV3AlnViewer extends Component {
     render() {
         const xPos = this.state.tileWidth * (this.state.aaPos);
         const yPos = this.state.tileHeight * (this.state.seqPos);
-        const maxXpos = window.aaFreqs.length - Math.round((((window.innerWidth - 300) * 0.7)/this.state.tileWidth))+2;
-        const maxYpos = vm.fastaSeqNames.length - Math.round(((((window.innerHeight - 171)/2) * 0.9)/this.state.tileHeight))+2;
+        var maxXpos = window.aaFreqs.length - Math.round((((window.innerWidth - 300) * 0.7)/this.state.tileWidth))+2;
+        var maxYpos = vm.fastaSeqNames.length - Math.round(((((window.innerHeight - 171)/2) * 0.8)/this.state.tileHeight))+2;
+        var alnViewerAdjHeight = ((window.innerHeight - 171)/2) * 0.8;
+        var alnViewerAdjWidth = (window.innerWidth - 300) * 0.7;
+        if (maxYpos < 0){ maxYpos = 0 };
+        if (maxXpos < 0){ maxXpos = 0 };
         return (
         <div style={{ display: "flex" }}>
             <div>
-              <input
-                style = {{ 
-                    width: (window.innerWidth - 300) * 0.7+"px",
-                    position: "relative",
-                    left: (window.innerWidth - 300) * 0.2+"px"
-                }}
-                type="range"
-                min="0"
-                max={maxXpos}
-                value={this.state.aaPos}
-                onChange={(evt) => this.setState({ aaPos: evt.target.value })}
-                className="slider"
-                id="xPosSlider"
+                <XSlider 
+                  alnViewerAdjWidth={alnViewerAdjWidth}
+                  maxXpos={maxXpos}
+                  MSAVObject={this}
                 />
-            <MSAViewer 
-            {...msaOptions}
-            ref={(ref) => (this.el = ref)}
-            highlight={this.state.highlight}
-            width={this.state.width}
-            height={this.state.height}
-            tileWidth={this.state.tileWidth}
-            tileHeight={this.state.tileHeight}
-            position={{ xPos, yPos }}
-            >
-            <div style={{ position: "relative", display: "flex"}}>
-            <Labels style={{
-                width: (window.innerWidth - 300) * 0.2
-                }}/>
-            <div>
-                <SequenceViewer
-                  onResidueMouseEnter={this.onResidueMouseEnter}
-                  onResidueMouseLeave={this.onResidueMouseLeave}
-                />
-                {this.state.fold && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      opacity: 0.8,
-                      ...this.state.tooltipPosition,
-                    }}
-                  >
-                    <Tooltip>
-                      Fold: {this.state.fold} <br></br>
-                      Phase: {this.state.phase}
-                    </Tooltip>
-                  </div>
-                )}
+                <MSAViewer 
+                  {...msaOptions}
+                  ref={(ref) => (this.el = ref)}
+                  highlight={this.state.highlight}
+                  width={this.state.width}
+                  height={this.state.height}
+                  tileWidth={this.state.tileWidth}
+                  tileHeight={this.state.tileHeight}
+                  position={{ xPos, yPos }}
+                  colorScheme={this.state.colorScheme}
+                >
+                <div style={{ position: "relative", display: "flex", height:this.state.height+this.state.tileHeight}}>
+                        <Labels 
+                          id="alnViewerLabels"
+                          style = {{
+                            width: (window.innerWidth - 300) * 0.2,
+                            "padding-top": 13.6
+                            }}
+                        />
+                    <div>
+                        <PositionBar 
+                          markerSteps={5} 
+                          startIndex={0} 
+                        />
+                        <SequenceViewer
+                          id="alnSequenceViewer"
+                          onResidueMouseEnter={this.onResidueMouseEnter}
+                          onResidueMouseLeave={this.onResidueMouseLeave}
+                        />
+                        {this.state.fold && (
+                          <div
+                            style={{
+                              position: "absolute",
+                              opacity: 0.8,
+                              ...this.state.tooltipPosition,
+                            }}
+                          >
+                            <Tooltip>
+                              Fold: {this.state.fold} <br></br>
+                              Phase: {this.state.phase}
+                            </Tooltip>
+                          </div>
+                        )}
+                    </div>
                 </div>
+                <XYDispatch parent_state={this.state} />
+                </MSAViewer>
             </div>
-            <XYDispatch parent_state={this.state} />
-            </MSAViewer>
-        </div>
-        <input
-            style={{ 
-                width: ((window.innerHeight - 171)/2)*0.9+"px",
-            }}
-            type="range"
-            min="0"
-            max={maxYpos}
-            value={this.state.seqPos}
-            onChange={(evt) => this.setState({ seqPos: evt.target.value })}
-            className="slider"
-            id="yPosSlider"
+            <YSlider 
+              alnViewerAdjHeight={alnViewerAdjHeight}
+              maxYpos={maxYpos}
+              MSAVObject={this}
             />
         </div>
         );
