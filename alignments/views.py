@@ -440,9 +440,9 @@ def handle_custom_upload_alignment(request):
 def trim_fasta_by_index(input_file, indices):
     from Bio import AlignIO
     align = AlignIO.read(input_file, "fasta")
-    trimmed_align = align[:,indices[0]:indices[0]+1] # initialize align object
-    for i in indices[1:]:
-        trimmed_align += align[:,i:i+1]
+    trimmed_align = align[:,int(indices[0]):int(indices[0])+1] # initialize align object
+    for i in indices.split(',')[1:]:
+        trimmed_align += align[:,int(i):int(i)+1]
     return trimmed_align
 
 # TODO: change this back
