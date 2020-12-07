@@ -62,6 +62,33 @@
             Hover over residue to reveal additional data for it.<br/>
             The viewer window can be moved by dragging or by using the scrollbars.`,
         },{
+            target: '#downloadFastaBtn',
+            header: {
+                title: 'Download alignment',
+            },
+            content: `Download the generated alignment in a fasta format.`,
+            params: {
+              placement: 'right'
+            },
+        },{
+            target: '#downloadAlnImageBtn',
+            header: {
+                title: 'Download alignment image',
+            },
+            content: `Download the visible part of the alignment as a png image.`,
+            params: {
+              placement: 'right'
+            },
+        },{
+            target: '#selectAlnColorScheme',
+            header: {
+                title: 'Select alignment color scheme.',
+            },
+            content: `Select an alignment color scheme from the available ones.`,
+            params: {
+              placement: 'right'
+            },
+        },{
             target: '#pdb_input',
             header: {
                 title: 'Select pdb id for structure display',
