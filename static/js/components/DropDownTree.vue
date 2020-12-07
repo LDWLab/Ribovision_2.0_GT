@@ -123,6 +123,7 @@
                 <div id ="pdbeMolstarView">Loading Molstar Component...</div>
             </span>
         </div>
+        <div id = "total"></div>
         <footer >Footer</footer>
     </div>
 </template>

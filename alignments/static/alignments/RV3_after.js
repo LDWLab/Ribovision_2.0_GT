@@ -287,6 +287,8 @@ function handlePropensities(checked_propensities){
         for (let i = 0; i < sequence_indices.length; i++) {
             sequence_indices[i] = parseInt(sequence_indices[i])
         }
+        var full = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y'];
+        let url = null;
         if (vm.structure_mapping) {
             let alignment_indices = []
             let inverse_structure_mapping = {}
@@ -297,18 +299,60 @@ function handlePropensities(checked_propensities){
             for (var sequence_index of sequence_indices) {
                 alignment_indices.push(inverse_structure_mapping[sequence_index])
             }
-            let indices = alignment_indices.join(',')
-            console.log(indices)
-            let fasta_data = vm.fasta_data
-            let tax_id_string = vm.tax_id.join(',')
-            let url = `/propensity-data/${vm.alnobj.id}/${tax_id_string}`
-            
-            ajax(url, {indices}).then(trimmed_fasta => {
-                console.log("trimmed_fasta: " + trimmed_fasta)
-            });
+            var indices = alignment_indices.join(',')
+            url = `/propensity-data/${vm.alnobj.id}/${vm.tax_id.join(',')}`
         } else {
-            // let aln_name = document.getElementById('selectaln').value
-            window.location = "http://127.0.0.1:8001/propensities/uL02/2"
+            url = `/propensity-data/${vm.alnobj.id}/${vm.tax_id}`
+            indices = '';
         }
+        ajax(url, {indices}).then(data => {
+            build_propensity_graph(data['amino acid'], full, vm.alnobj.text + ' ' + 'Amino Acid Propensities for ' + vm.tax_id.join(' '), 'total');
+        });
+
     }
+}
+
+var build_propensity_graph = function (data, amino_acids, title, div) {
+    // reformat data into trace format
+    var data2 = {};
+    var hover = {};
+    // initialize arrays for each amino acid in the JavaScript object
+    for (aa of amino_acids) {
+        data2[aa] = [];
+        hover[aa] = [];
+    }
+    // for a species, add the propensities for each amino acid to thei
+    for (species in data) {
+        for (aa of amino_acids) {
+            data2[aa].push(data[species][aa])
+            hover[aa].push(data[species]['name'])
+        }
+    };
+    // build traces
+    traces = []
+    for (aa of amino_acids) {
+        // styling - can we make this a stripplot?
+        var newtrace = {
+            y: data2[aa],
+            type: 'box',
+            boxpoints: 'all',
+            jitter: 0.2,
+            pointpos: 0,
+            name: aa,
+            text: hover[aa]};
+            // hoveron : 'points',
+            // hovertemplate: "%{species}<extra></extra>"},
+            // marker: {color: 'rgb(9,56,125)'},
+            // line: {color: 'rgba(0,0,0,0)'},
+            // fillcolor:{color: 'rgba(0,0,0,0)'}};
+        traces.push(newtrace)
+    };
+    
+    var layout = {
+        title: title,
+        xaxis: {title: 'amino acid group'},
+        yaxis: {title: 'propensity'},
+        hovermode: 'closest',
+        hoveron: 'points'};
+    Plotly.newPlot(div, traces, layout);
 }
