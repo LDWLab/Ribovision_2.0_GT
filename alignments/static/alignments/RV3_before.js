@@ -160,6 +160,17 @@ var downloadAlignmentData = function(fastaString){
     anchor.click();
 }
 
+var downloadAlignmentImage = function(alnDiv){
+    var anchor = document.createElement('a');
+    html2canvas(alnDiv).then(canvas => {
+        var imageData = canvas.toDataURL("image/png");
+        anchor.href = imageData.replace(/^data:image\/png/, "data:application/octet-stream");
+        anchor.target = '_blank';
+        anchor.download = 'rv3alignment.png';
+        anchor.click();
+    })
+}
+
 function handlePropensities(checked_propensities){
   if (checked_propensities){
       console.log("Checked")
@@ -518,7 +529,3 @@ var generateCSVstring = function (mapped_data){
 };
 
 var masked_array = [];
-window.ajaxRun = false;
-$(document).mouseleave(function () {
-  window.ajaxRun = false;
-});
