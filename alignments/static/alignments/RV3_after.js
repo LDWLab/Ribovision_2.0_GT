@@ -325,7 +325,7 @@ var build_propensity_graph = function (data, amino_acids, title, div) {
     for (species in data) {
         for (aa of amino_acids) {
             data2[aa].push(data[species][aa])
-            hover[aa].push(data[species]['name'])
+            hover[aa].push(data[species]['name'].replace(/_/g, ' '))
         }
     };
     // build traces
@@ -340,11 +340,6 @@ var build_propensity_graph = function (data, amino_acids, title, div) {
             pointpos: 0,
             name: aa,
             text: hover[aa]};
-            // hoveron : 'points',
-            // hovertemplate: "%{species}<extra></extra>"},
-            // marker: {color: 'rgb(9,56,125)'},
-            // line: {color: 'rgba(0,0,0,0)'},
-            // fillcolor:{color: 'rgba(0,0,0,0)'}};
         traces.push(newtrace)
     };
     
