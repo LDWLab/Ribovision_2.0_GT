@@ -62,7 +62,7 @@
             <div v-if="poor_structure_map">
                 <p style="color:#DE3163"><b>Warning!!!<br>
                 Poor structure to alignment mapping!<br>
-                There where {{poor_structure_map}} poorly mapped residues!<br>
+                There were {{poor_structure_map}} poorly mapped residues!<br>
                 Proceed with caution or try different structure.</b></p>
             </div>
             <div v-if="structure_mapping">
