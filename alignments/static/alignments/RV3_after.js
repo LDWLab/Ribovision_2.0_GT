@@ -7,7 +7,7 @@ var registerHoverResiData = function (e, tooltipObj){
   var url = `/desire-api/residue-alignment/?format=json&aln_pos=${String(Number(e.position) + 1)}&aln=${vm.alnobj.id}${strainQuery}${vm.fastaSeqNames[Number(e.i)]}`
   ajax(url).then(alnpos_data => {
     var alnViewCanvasEle = document.querySelector("#alnDiv canvas:nth-of-type(1)");
-    var alnViewLabelsEle = document.querySelector("#alnDiv div:nth-of-type(2)");
+    var alnViewLabelsEle = document.querySelector("#alnViewerLabels");
     let boundLabelBox = alnViewLabelsEle.getBoundingClientRect();
     let boundingBox = absolutePosition(alnViewCanvasEle);
     let relativeBox = alnViewCanvasEle.getBoundingClientRect();

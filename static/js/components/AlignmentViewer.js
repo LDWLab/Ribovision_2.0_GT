@@ -15,14 +15,14 @@ var AlnViewer = class RV3AlnViewer extends Component {
         aaPos: 0,
         seqPos: 0,
         width: (window.innerWidth - 300) * 0.7,
-        height: ((window.innerHeight - 171)/2) * 0.9,
+        height: ((window.innerHeight - 171)/2) * 0.8,
         highlight: null,
         colorScheme: vm.colorScheme,
     };
     handleResize = () => {
         this.setState({
             width: (window.innerWidth - 300) * 0.7,
-            height: ((window.innerHeight - 171)/2) * 0.9
+            height: ((window.innerHeight - 171)/2) * 0.8
         });
         var style = document.querySelector('[data="rv3_style"]');
         style.innerHTML += ".slider::-webkit-slider-thumb { width: "+(window.innerWidth - 300)*0.05+"px}"
@@ -31,7 +31,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
         vm.colorScheme = 'clustal2';
         var style = document.querySelector('[data="rv3_style"]');
         style.innerHTML += ".slider::-webkit-slider-thumb { width: "+(window.innerWidth - 300)*0.05+"px}";
-
+        window.ajaxRun = false;
         var handleMolStarTopViewHovers = function (alnViewerClass, residueNumber){
             var alignmentNumber = Number(_.invert(vm.structure_mapping)[residueNumber]);
             var numVisibleTiles = Math.round(alnViewerClass.state.width/alnViewerClass.state.tileWidth);
@@ -60,6 +60,9 @@ var AlnViewer = class RV3AlnViewer extends Component {
         document.addEventListener('PDB.molstar.mouseout', () => {
             this.removeHighlightRegion();
         });
+        $('#alnSequenceViewer').mouseleave(function () {
+            window.ajaxRun = false;
+          });
     };
     componentWillUnmount() {
         window.removeEventListener("resize", this.handleResize);
@@ -108,8 +111,8 @@ var AlnViewer = class RV3AlnViewer extends Component {
         const xPos = this.state.tileWidth * (this.state.aaPos);
         const yPos = this.state.tileHeight * (this.state.seqPos);
         var maxXpos = window.aaFreqs.length - Math.round((((window.innerWidth - 300) * 0.7)/this.state.tileWidth))+2;
-        var maxYpos = vm.fastaSeqNames.length - Math.round(((((window.innerHeight - 171)/2) * 0.9)/this.state.tileHeight))+2;
-        var alnViewerAdjHeight = ((window.innerHeight - 171)/2) * 0.9;
+        var maxYpos = vm.fastaSeqNames.length - Math.round(((((window.innerHeight - 171)/2) * 0.8)/this.state.tileHeight))+2;
+        var alnViewerAdjHeight = ((window.innerHeight - 171)/2) * 0.8;
         var alnViewerAdjWidth = (window.innerWidth - 300) * 0.7;
         if (maxYpos < 0){ maxYpos = 0 };
         if (maxXpos < 0){ maxXpos = 0 };
@@ -132,18 +135,21 @@ var AlnViewer = class RV3AlnViewer extends Component {
                   position={{ xPos, yPos }}
                   colorScheme={this.state.colorScheme}
                 >
-                <div style={{ position: "relative", display: "flex", height:this.state.height}}>
-                    <div>
-                        <div style = {{height:14}}></div>
+                <div style={{ position: "relative", display: "flex", height:this.state.height+this.state.tileHeight}}>
                         <Labels 
+                          id="alnViewerLabels"
                           style = {{
                             width: (window.innerWidth - 300) * 0.2,
+                            "padding-top": 13.6
                             }}
                         />
-                    </div>
                     <div>
-                        <PositionBar markerSteps={5} startIndex={0} />
+                        <PositionBar 
+                          markerSteps={5} 
+                          startIndex={0} 
+                        />
                         <SequenceViewer
+                          id="alnSequenceViewer"
                           onResidueMouseEnter={this.onResidueMouseEnter}
                           onResidueMouseLeave={this.onResidueMouseLeave}
                         />

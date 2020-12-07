@@ -94,13 +94,15 @@
             </div>
         </div>
         <div class="alignment_section">
-            <br/>
             <div id="alnif" v-if="alnobj">
                 <div id="alnMenu" style="display: flex;">
-                    <button style="margin: 0 1%;" v-if="colorScheme" id="downloadFastaBtn" type="button" v-on:click="downloadAlignmentData()">
+                    <button id="downloadFastaBtn" style="margin: 0 1%;" v-if="colorScheme"  type="button" v-on:click="downloadAlignmentData()">
                         Download alignment
                     </button>
-                    <select style="margin: 0 1%;" v-model="colorScheme" v-if="colorScheme">
+                    <button id="downloadAlnImageBtn" style="margin: 0 1%;" v-if="colorScheme"  type="button" v-on:click="downloadAlignmentImage()">
+                        Download alignment image
+                    </button>
+                    <select id="selectAlnColorScheme" style="margin: 0 1%;" v-model="colorScheme" v-if="colorScheme">
                         <option :value="null" selected disabled>Select a colorscheme</option>
                         <option v-for="colorscheme in availColorschemes" >{{ colorscheme }}</option>
                     </select>
@@ -146,7 +148,7 @@
                 {id: "4ug0", name: "4UG0 H. sapiens"},
                 ],
             availColorschemes: [
-                "buried","cinema","clustal","clustal2","helix","hydrophobicity","lesk","mae","nucleotide","purine","strand","taylor","turn","zappo",
+                "buried","cinema","clustal","clustal2","helix","lesk","mae","nucleotide","purine","strand","taylor","turn","zappo",
                 ],
             pdbid: null,
             chains: null,
@@ -363,11 +365,11 @@
                 vm.fastaSeqNames = fasta['Sequence names'];
                 window.aaFreqs = fasta['AA frequencies'];
                 var main_elmnt = document.querySelector(".alignment_section");
-                var msaHeight = main_elmnt.offsetHeight * 0.9;
+                var msaHeight = main_elmnt.offsetHeight * 0.8;
                 if (msaHeight > 17*(vm.fastaSeqNames.length+2)){
                     var alnifEle = document.querySelector('#alnif');
                     alnifEle.style.position="absolute";
-                    alnifEle.style.top="30%";
+                    alnifEle.style.top="20%";
                     msaHeight = 17*(vm.fastaSeqNames.length+2);
                 }
                 let seqsForMSAViewer = parseFastaSeqForMSAViewer(fasta['Alignment']);
@@ -540,6 +542,8 @@
                     viewerInstance.plugin.behaviors.interaction.hover._value.current.loci.kind = "empty-loci"
                 }
             });
+        },downloadAlignmentImage() {
+            downloadAlignmentImage(document.querySelector('#alnDiv'));
         },downloadAlignmentData() {
             downloadAlignmentData(vm.fasta_data);
         },downloadCSVData() {
