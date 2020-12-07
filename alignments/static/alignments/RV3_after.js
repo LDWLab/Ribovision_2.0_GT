@@ -192,27 +192,56 @@ function cleanSelection(checked_selection, filter_range){
   window.viewerInstance.visual.select({data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), nonSelectedColor: {r:255,g:255,b:255}});
 };
 
+function parseConsecutiveIndices(structureTypeString, structureList, indicesList) {
+    let structureIndex = 0;
+    if (indicesList.length == 0) {
+        return;
+    }
+    let previousIndex = indicesList[0];
+    let currentStructure = [previousIndex];
+    for (let i = 1; i < indicesList.length; i++) {
+        let currentIndex = indicesList[i];
+        if (currentIndex == previousIndex + 1) {
+            currentStructure.push(currentIndex);
+        } else {
+            let structureObject = {};
+            structureObject.text = structureTypeString + " #" + structureIndex;
+            structureObject.value = structureIndex;
+            structureObject.indices = currentStructure;
+            structureList.push(structureObject);
+            structureIndex++;
+            currentStructure = [currentIndex];
+        }
+        previousIndex = currentIndex;
+    }
+}
 
 function handlePropensities(checked_propensities) {
     if (checked_propensities){
         // console.log(document.getElementById("selectaln"));
-        var coils = []
-        var strands = []
-        var helices = []
-        ajax("https://www.ebi.ac.uk/pdbe/api/topology/entry/" + vm.pdbid).then(topology => {
-            let topology_entries_map = new Map(Object.entries(topology[vm.pdbid]))
-            let topology_entries_map_iterator = topology_entries_map.entries();
-            let entry = true;
-            while (entry) {
-                entry = topology_entries_map_iterator.next().value;
-                console.log(entry);
-                for (let i = 1; i < entry.length(); i++) {
-                    console.log("\t" + entry[i]);
-                }
-            }
-        });
+        var coilsListOfLists = []
+        var strandsListOfLists = []
+        var helicesListOfLists = []
+        // ajax("https://www.ebi.ac.uk/pdbe/api/topology/entry/" + vm.pdbid).then(topology => {
+        //     let topology_entries_map = new Map(Object.entries(topology[vm.pdbid]))
+        //     let topology_entries_map_iterator = topology_entries_map.entries();
+        //     let entry = true;
+        //     while (entry) {
+        //         entry = topology_entries_map_iterator.next().value;
+        //         console.log(entry);
+        //         for (let i = 1; i < entry.length(); i++) {
+        //             console.log("\t" + entry[i]);
+        //         }
+        //     }
+        // });
+        parseConsecutiveIndices("Coil", coilsListOfLists, vm.coil_residues);
+        // parseConsecutiveIndices("Strand", strandsListOfLists, vm.strand_residues);
+        parseConsecutiveIndices("Helix", helicesListOfLists, vm.helix_residues);
         vm.substructures = []
-        let sequence_indices = [];
+        Array.prototype.push.apply(vm.substructures, coilsListOfLists);
+        Array.prototype.push.apply(vm.substructures, strandsListOfLists);
+        Array.prototype.push.apply(vm.substructures, helicesListOfLists);
+        let sequence_indices = ["1", "2", "3"];
         // let sequence_indices = prompt("Enter sequence indices (comma-separated): ").replace(/^\s+|\s+$/gm,'').split(',')
         for (let i = 0; i < sequence_indices.length; i++) {
             sequence_indices[i] = parseInt(sequence_indices[i])
@@ -228,6 +257,7 @@ function handlePropensities(checked_propensities) {
                 alignment_indices.push(inverse_structure_mapping[sequence_index])
             }
             let indices = alignment_indices.join(',')
+            console.log(indices)
             // $.ajax({
             //     url: "http://127.0.0.1:8001/trim_fasta",
             //     type: 'POST',
@@ -241,10 +271,10 @@ function handlePropensities(checked_propensities) {
             let fasta_data = vm.fasta_data
             let tax_id_string = vm.tax_id.join(',')
             let url = `/propensity-data/${vm.alnobj.id}/${tax_id_string}`
-            /*
-            // ajax(url, {indices}).then(trimmed_fasta => {
-            //     console.log("trimmed_fasta: " + trimmed_fasta)
-            // });*/
+            
+            ajax(url, {indices}).then(trimmed_fasta => {
+                console.log("trimmed_fasta: " + trimmed_fasta)
+            });
         } else {
             // let aln_name = document.getElementById('selectaln').value
             window.location = "http://127.0.0.1:8001/propensities/uL02/2"
