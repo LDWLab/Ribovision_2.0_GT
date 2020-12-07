@@ -1,7 +1,7 @@
 #phylo_tree_dropdown {
     display: grid;
     height: 100vh;
-    grid-template: auto 1fr 1fr auto / auto 1fr 1fr
+    grid-template: auto 1fr 1fr 1fr auto / auto 1fr 1fr
   }
   
   header {
@@ -14,7 +14,7 @@
   .left-sidebar {
     background: lightblue;
     grid-column: 1 / 2;
-    grid-row: 2 / 4 ;
+    grid-row: 2 / 5 ;
     width: 300px;
   }
 
@@ -44,12 +44,21 @@
     text-align: center;
   }
 
+  .propensity_section{
+    display: grid;
+    place-items: center;
+    background: wheat;
+    grid-column: 2 / 4 ;
+    grid-row: 4 ;
+    text-align: center;
+  }
+
   footer {
     background: coral;
     padding: 2rem;
     text-align: center;
     grid-column: 1 / 5 ;
-    grid-row: 4 ;
+    grid-row: 5 ;
   }
 
   body {
@@ -144,4 +153,8 @@
   #pdb_input{
     max-width: 250px;
     max-height: 75px;
+  }
+  
+  #polymerSelect{
+    max-width: 250px;
   }
