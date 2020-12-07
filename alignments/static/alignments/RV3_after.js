@@ -276,7 +276,7 @@ function handlePropensities(checked_propensities){
         //     }
         // });
         parseConsecutiveIndices("Coil", coilsListOfLists, vm.coil_residues);
-        // parseConsecutiveIndices("Strand", strandsListOfLists, vm.strand_residues);
+        parseConsecutiveIndices("Strand", strandsListOfLists, vm.strand_residues);
         parseConsecutiveIndices("Helix", helicesListOfLists, vm.helix_residues);
         vm.substructures = []
         Array.prototype.push.apply(vm.substructures, coilsListOfLists);
@@ -299,16 +299,6 @@ function handlePropensities(checked_propensities){
             }
             let indices = alignment_indices.join(',')
             console.log(indices)
-            // $.ajax({
-            //     url: "http://127.0.0.1:8001/trim_fasta",
-            //     type: 'POST',
-            //     success: function(trimmed_fasta){
-            //     },
-            //     error: function(error) {
-            //         console.log(`Error ${error}`);
-            //         reject(error)
-            //     }
-            // });
             let fasta_data = vm.fasta_data
             let tax_id_string = vm.tax_id.join(',')
             let url = `/propensity-data/${vm.alnobj.id}/${tax_id_string}`

@@ -168,13 +168,14 @@
             masking_range: null,
             filter_range: null,
             correct_mask: false,
-            coil_residues: null,
             checked_filter: false,
             checked_selection: false,
             checked_customMap: false,
             csv_data: null,
             checked_propensities: false,
+            coil_residues: null,
             helix_residues: null,
+            strand_residues: null,
             substructures: null,
             property: null,
         }
@@ -444,6 +445,7 @@
                     var entityid = Object.keys(data[pdblower])[0];
                     vm.coil_residues = filterCoilResidues(data[pdblower][entityid][chainid]["coils"])
                     vm.helix_residues = filterCoilResidues(data[pdblower][entityid][chainid]["helices"])
+                    vm.strand_residues = filterCoilResidues(data[pdblower][entityid][chainid]["strands"])
                     var mapping = [];
                     var range_string = minIndex.concat("-").concat(maxIndex);
                     let ebiMappingURL = 'https://www.ebi.ac.uk/pdbe/api/mappings/uniprot/'+pdbid;
