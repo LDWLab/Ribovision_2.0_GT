@@ -1,6 +1,6 @@
 <template>
     <div>
-        <header class="pink section">DESIRE: DatabasE for Study and Imaging of Ribosomal Evolution
+        <header class="pink section"><span class="title">DESIRE: DatabasE for Study and Imaging of Ribosomal Evolution</span>
         <button v-on:click="startTour();" style="float: right;">Help</button></header>
         <v-tour name="myTour" :steps="steps" :options="{ highlight: true }"></v-tour>
     </div>
