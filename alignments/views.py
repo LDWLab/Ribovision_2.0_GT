@@ -93,8 +93,14 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
 
     pipe = Popen("mafft --quiet --addfull " + ebiFileName + " --mapout " + alignmentFileName + "; cat " + mappingFileName, stdout=PIPE, shell=True)
     output = pipe.communicate()[0]
-    text = output.decode("ascii").split('\n#')[1]
+    decoded_text = output.decode("ascii")
+    
+    if len(decoded_text) <= 0:
+        for removeFile in [alignmentFileName, ebiFileName]:
+            os.remove(removeFile)
+        return HttpResponseServerError("Failed mapping the polymer sequence to the alignment!\nTry a different structure.")
 
+    text = decoded_text.split('\n#')[1]
     mapping, firstLine, badMapping = dict(), True, 0
     for line in text.split('\n'):
         if firstLine:
@@ -107,7 +113,7 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
             badMapping += 1
             continue
         if row[1] == '-':
-            raise Http404("Mapping did not work properly.")
+            return HttpResponseServerError("Failed mapping the polymer sequence to the alignment!\nTry a different structure.")
         mapping[int(row[2])] = int(row[1]) + shiftIndexBy
 
     if badMapping > 0:
@@ -126,6 +132,8 @@ def request_post_data(post_data):
 def make_map_from_alnix_to_sequenceix(request):
     fasta, ebi_sequence, startIndex = request_post_data(request.POST)
     mapping = constructEbiAlignmentString(fasta, ebi_sequence, startIndex)
+    if type(mapping) != dict:
+        return mapping
     return JsonResponse(mapping, safe = False)
 
 def api_twc_parameterless(request):

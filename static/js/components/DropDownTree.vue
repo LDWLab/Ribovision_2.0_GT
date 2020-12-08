@@ -483,6 +483,10 @@
                         this.topology_loaded = true;
                     })
                 })
+            }).catch(error => {
+                var topview = document.querySelector('#topview')
+                topview.innerHTML = error.responseText.replace(/\n/g, "<br />");;
+                console.log(error)
             });
         }, showPDBViewer(pdbid, chainid, entityid){
             if (document.querySelector("pdbe-molstar")) {return;}
