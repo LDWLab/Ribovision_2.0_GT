@@ -140,7 +140,8 @@ var AlnViewer = class RV3AlnViewer extends Component {
                           id="alnViewerLabels"
                           style = {{
                             width: (window.innerWidth - 300) * 0.2,
-                            "padding-top": 13.6
+                            paddingTop: 13.6,
+                            marginRight: 3,
                             }}
                         />
                     <div>

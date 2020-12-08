@@ -16,7 +16,7 @@ var registerHoverResiData = function (e, tooltipObj){
             if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right){
               let tooltipPosition = {
                 top: mousePos.y-boundingBox.top+15 +"px",
-                left: mousePos.x-relativeBox.left+boundLabelBox.right-boundLabelBox.left+5 +"px",
+                left: mousePos.x-relativeBox.left+boundLabelBox.right-boundLabelBox.left+8 +"px",
               };
               if (resiData["Structural fold"][0] !== undefined && resiData["Associated data"][0] !== undefined){
                   tooltipObj.setState({
