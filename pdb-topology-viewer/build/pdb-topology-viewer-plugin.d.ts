@@ -27,7 +27,6 @@ declare class PdbTopologyViewerPlugin {
     sequenceArr: string[];
     entityId: string;
     entryId: string;
-    entropyId: string;
     chainId: string;
     apiData: any;
     targetEle: HTMLElement;
@@ -44,7 +43,6 @@ declare class PdbTopologyViewerPlugin {
     render(target: HTMLElement, options: {
         entityId: string;
         entryId: string;
-        entropyId: string;
         filterRange?: string;
         chainId?: string;
         subscribeEvents?: boolean;

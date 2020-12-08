@@ -477,10 +477,7 @@
                             console.log("No mapping for pdb "+pdbid+" and chain"+ chainid)
                             mapping = [range_string.split("-")[0],range_string.split("-")[1]];
                         }
-
-                        let data_string = JSON.stringify(Array.from(mapped_aa_properties.entries())).replaceAll(",[[", ":").replaceAll("]],",";").replaceAll("],[",",");
-                        let formatted_data_string = data_string.replaceAll("[","").replaceAll("]","").replaceAll("\"","");
-                        var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid}	entropy-id=${formatted_data_string} filter-range=${mapping}></pdb-topology-viewer>`
+                        var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid} filter-range=${mapping}></pdb-topology-viewer>`
                         document.getElementById('topview').innerHTML = topology_viewer;
                         window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
                         this.topology_loaded = true;

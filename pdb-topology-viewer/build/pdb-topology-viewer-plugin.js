@@ -97,7 +97,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                         var mappingRecords = mappingsData[categoryArr[catIndex]];
                         for (var accKey in mappingRecords) {
                             mappingRecords[accKey].mappings.forEach(function (domainMappings) {
-                                if (domainMappings.entity_id == _this_1.entityId && domainMappings.chain_id == _this_1.chainId && domainMappings.entropy_id == _this_1.entropy_id) {
+                                if (domainMappings.entity_id == _this_1.entityId && domainMappings.chain_id == _this_1.chainId) {
                                     residueDetails_1.push({
                                         start: domainMappings.start.residue_number,
                                         end: domainMappings.end.residue_number,
@@ -168,7 +168,6 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
             this.subscribeEvents = false;
         this.entityId = options.entityId;
         this.entryId = options.entryId.toLowerCase();
-        this.entropyId = options.entropyId;
         //If chain id is not provided then get best chain id from observed residues api
         if (typeof options.chainId == 'undefined' || options.chainId == null) {
             this.getObservedResidues(this.entryId).then(function (result) {
@@ -509,7 +508,6 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 type: eleObj.type,
                 entryId: this.entryId,
                 entityId: this.entityId,
-                entropyId: this.entropyId,
                 filterRange: filterRange,
                 chainId: this.chainId,
             });
@@ -535,7 +533,6 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 type: eleData.type,
                 entryId: this.entryId,
                 entityId: this.entityId,
-                entropyId: this.entropyId,
                 filterRange: filterRange,
                 chainId: this.chainId,
             });
@@ -574,7 +571,6 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         }
         //Dispatch custom mouseover event
         this.dispatchEvent('PDB.topologyViewer.mouseout', {
-            entropyId: this.entropyId,
             filterRange: filterRange,
             entryId: this.entryId,
             entityId: this.entityId,
@@ -1312,7 +1308,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
     PdbTopologyViewerPlugin.prototype.getAnnotationFromRibovision = function (mapped_aa_properties) {
         var _this = this;
         var chainRange = this.getChainStartAndEnd();
-        if (void 0 !== this.entropyId) {
+        if (mapped_aa_properties) {
             mapped_aa_properties.forEach(function (value, index) {
                 var residueDetails = [{
                     //start: chainRange.start,
