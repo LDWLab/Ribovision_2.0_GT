@@ -307,7 +307,6 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
         if (vueObj.fasta_data) {vueObj.fasta_data = null;}
         if (vueObj.fastaSeqNames) {vueObj.fastaSeqNames = null;}
         if (vueObj.frequency_data) {vueObj.frequency_data = null;}
-        if (vueObj.topology_loaded) {vueObj.topology_loaded = 'False';}
         if (aln_item) {aln_item.remove(); create_deleted_element("alnif", "alnDiv", aln_text)}
     }
     window.mapped_aa_properties = null;
@@ -315,6 +314,7 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     vueObj.structure_mapping = null;
     vueObj.poor_structure_map = null;
     window.ajaxRun = false;
+    if (vueObj.topology_loaded) {vueObj.topology_loaded = false;}
     if (window.masked_array.length > 0) {window.masked_array = [];}
     if (vueObj.masking_range) {vueObj.masking_range = null;}
     if (vueObj.checked_filter) {vueObj.checked_filter = false;}

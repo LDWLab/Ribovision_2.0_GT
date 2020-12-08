@@ -35,8 +35,9 @@
                 </select>
             </p>
             <p>
-                <span v-if="alnobj&&alnobj!='custom'">Selected alignment: {{ alnobj.text }}.<br></span>
-                <span v-if="alnobj">Input PDB and polymer for mapping:</span>
+                <!--<span v-if="alnobj&&alnobj!='custom'">Selected alignment: {{ alnobj.text }}.<br></span>-->
+                <span v-if="alnobj&&alnobj!='custom'">Select PDB for mapping:</span>
+                <span v-if="alnobj&&alnobj=='custom'">Type PDB for mapping:</span>
             </p>
             <p>
                 <select id="pdb_input" v-if="alnobj&&alnobj!='custom'" v-model="pdbid">
@@ -47,13 +48,7 @@
                 <div v-if="hide_chains" id="onFailedChains">Looking for available polymers...</div>
             </p>
             <p>
-                <div v-if="alnobj" class="checkbox">
-                    <label><input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">Propensities</label>
-                    <select v-if="checked_propensities&&structure_mapping" v-model="property">
-                        <option :value="null" selected disabled hidden>Select a substructure</option>
-                        <option v-for="substructure in substructures" v-bind:value="{ id: substructure.value, text: substructure.text }">{{ substructure.text }}</option>
-                    </select>
-                </div>
+                <span v-if="pdbid">Select polymer for mapping:</span>
             </p>
             <p><select id="polymerSelect" v-bind:style="{ resize: 'both'}" multiple v-if="chains&&fasta_data&&pdbid" v-model="chainid" >
                 <option :value ="null" selected disabled>Select polymer</option>
@@ -61,19 +56,26 @@
             </select></p>
             <div v-if="poor_structure_map">
                 <p style="color:#DE3163"><b>Warning!!!<br>
-                Poor structure to alignment mapping!<br>
-                There were {{poor_structure_map}} poorly mapped residues!<br>
-                Proceed with caution or try different structure.</b></p>
+                Poor structure-alignment mapping!<br>
+                Found {{poor_structure_map}} poorly mapped residues.<br>
+                Proceed with caution or try a different structure.</b></p>
             </div>
             <div v-if="structure_mapping">
                 <button id="downloadDataBtn" type="button" v-on:click="downloadCSVData()">
-                    Download mapped data
+                    Download mapped properties
                 </button>
             </div>
-            <div v-if="topology_loaded != 'False'">
+            <p><div v-if="alnobj" class="checkbox">
+                <label><input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">Show amino-acid propensities</label>
+                <select v-if="checked_propensities&&structure_mapping" v-model="property">
+                    <option :value="null" selected disabled hidden>Select a substructure</option>
+                    <option v-for="substructure in substructures" v-bind:value="{ id: substructure.value, text: substructure.text }">{{ substructure.text }}</option>
+                </select>
+            </div></p>
+            <div v-if="topology_loaded">
                 <div id="maskingSection"><p>
                     <div class="checkbox">
-                        <label><input type="checkbox" v-model="checked_filter" v-on:change="cleanFilter(checked_filter, masking_range)">Masking ranges</label>
+                        <label><input type="checkbox" v-model="checked_filter" v-on:change="cleanFilter(checked_filter, masking_range)">Mask residues in 2D and 3D</label>
                     </div>
                     <span v-if="checked_filter">Residue ranges to show, separated by semicolon. <br> For example: 1-80;91-111;</span>
                     <input v-if="checked_filter" v-model="masking_range" v-on:input="handleMaskingRanges(masking_range)">
@@ -81,14 +83,14 @@
                 <p v-if="correct_mask!='True'&&masking_range!=null">Incorrect range syntax!</p>
                 <div id="filterSection"><p>
                     <div class="checkbox">
-                        <label><input type="checkbox" v-model="checked_selection" v-on:change="cleanSelection(checked_selection, filter_range)">Filter Range</label>
+                        <label><input type="checkbox" v-model="checked_selection" v-on:change="cleanSelection(checked_selection, filter_range)">Remove residues in 2D and 3D</label>
                     </div>
                     <span v-if="checked_selection">Residue range to show </span>
                     <input v-if="checked_selection" v-model="filter_range" v-on:input="handleFilterRange(filter_range)">
                 </p></div>
                 <div id="customDataSection">
                 <p><div class="checkbox">
-                        <label><input type="checkbox" v-model="checked_customMap" v-on:change="cleanCustomMap(checked_customMap)">Custom Data</label>
+                        <label><input type="checkbox" v-model="checked_customMap" v-on:change="cleanCustomMap(checked_customMap)">Upload custom mapping data</label>
                         <p><input v-if="checked_customMap" type="file" accept=".csv" ref="custom_csv_file" v-on:change="handleCustomMappingData()"/></p>
                     </div>
                 </p></div>
@@ -166,7 +168,7 @@
             poor_structure_map: null,
             file: null,
             custom_aln_twc_flag: null,
-            topology_loaded: 'False',
+            topology_loaded: false,
             twc_loaded: false,
             masking_range: null,
             filter_range: null,
@@ -481,7 +483,7 @@
                         var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid}	entropy-id=${formatted_data_string} filter-range=${mapping}></pdb-topology-viewer>`
                         document.getElementById('topview').innerHTML = topology_viewer;
                         window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
-                        this.topology_loaded = 'True';
+                        this.topology_loaded = true;
                     })
                 })
             });
