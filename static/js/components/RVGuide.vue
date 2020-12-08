@@ -7,22 +7,36 @@
 </template>
 
 <script>
+    var getExampleFasta = function(){
+        $.ajax({
+            url: `static/alignments/EFTU_example.fas`,
+            type: 'GET',
+            dataType: "text",
+            success: function(data) {
+                vm.file = new File([data], "EFTU_example.fas", {});
+            },
+        })
+    };
     const tourSteps = [
         {
             target: 'header',
             header: {
                 title: 'Welcome to RiboVision3!',
             },
-            content: `Welcome!`
+            content: `What is this?`
         },{
             target: '#tree_type',
             header: {
                 title: 'Mode of operation',
             },
-            content: `Select on three possible modes of operation.<br/>
+            content: `Select either of two possible modes of operation.<br/>
             <b>Orthologs</b> retrieves orthologous alignments.<br/>
-            <b>Paralogs</b> retrieves paralogous alignments.<br/>
             <b>Upload</b> allows you to upload your own fasta formatted alignment.`,
+            before: type => new Promise((resolve, reject) => {
+                resolve (
+                    vm.type_tree="orth",
+                )
+            })
         },{
             target: '#treeselect',
             header: {
@@ -33,6 +47,7 @@
               placement: 'right'
             },
             before: type => new Promise((resolve, reject) => {
+                vm.type_tree="orth";
                 var treeselectEl = vm.$refs["treeselect"];
                 resolve (
                     treeselectEl.$emit('input', [2]),
@@ -127,6 +142,13 @@
             },
             content: `This is the topology viewer that shows secondary protein structure.`,
         },{
+            target: '.molstar_section',
+            header: {
+                title: '3D viewer',
+            },
+            content: `This is the 3D viewer that shows tertiary protein structure.<br/>
+            The alignment, topology, and 3D viewers have integrated hover effects.`,
+        },{
             target: '.menuSelectbox',
             header: {
                 title: 'Annotation data',
@@ -164,13 +186,6 @@
             params: {
               placement: 'right'
             },
-        },{
-            target: '.molstar_section',
-            header: {
-                title: '3D viewer',
-            },
-            content: `This is the 3D viewer that shows tertiary protein structure.<br/>
-            The alignment, topology, and 3D viewers have integrated hover effects.`,
         },{
             target: '#downloadDataBtn',
             header: {
@@ -222,6 +237,53 @@
                     vm.checked_customMap=true,
                 )
             })
+        },{
+            target: '#tree_type',
+            header: {
+                title: 'Upload custom alignment',
+            },
+            content: `Upload custom alignment in fasta format to be visualized and analyzed.`,
+            params: {
+              placement: 'right'
+            },
+            before: type => new Promise((resolve, reject) => {
+                resolve (
+                    vm.checked_customMap=false,
+                    vm.type_tree="upload",
+                    vm.cleanTreeOpts(),
+                    document.getElementById("pdbeMolstarView").textContent = null,
+                    document.getElementById("topview").textContent = null,
+                )
+            })
+        },{
+            target: '#inputUploadFasta',
+            header: {
+                title: 'Input custom alignment',
+            },
+            content: `Select a fasta format alignment from your computer.`,
+            params: {
+              placement: 'right'
+            },
+            before: type => new Promise((resolve, reject) => {
+                resolve (
+                    getExampleFasta(),
+                )
+            })
+        },{
+            target: '#uploadShowFasta',
+            header: {
+                title: 'Upload the chosen alignment.',
+            },
+            content: `Must be fasta format!`,
+            params: {
+              placement: 'right'
+            },
+            before: type => new Promise((resolve, reject) => {
+                let uploadButton = document.querySelector("#uploadShowFasta")
+                resolve (
+                    uploadButton.click(),
+                )
+            })
         },
     ]
 
@@ -238,7 +300,10 @@
             }
         },
         mounted: function () {
-            this.$tours['myTour'].start()
+            if (localStorage.getItem("hasCodeRunBefore") === null) {
+                this.$tours['myTour'].start();
+                localStorage.setItem("hasCodeRunBefore", true);
+            }
         }
     }
 </script>

@@ -25,8 +25,8 @@
             </div>
             <div v-else>
                 <p>Select alignment file: </p>
-                <p><input type = "file" accept=".fasta,.fas,.fa" ref="custom_aln_file" v-on:change="handleFileUpload()"/></p>
-                <p><button v-on:click="submitCustomAlignment()">Upload alignment</button></p>
+                <p><input id="inputUploadFasta" type = "file" accept=".fasta,.fas,.fa" ref="custom_aln_file" v-on:change="handleFileUpload()"/></p>
+                <p><button id="uploadShowFasta" v-on:click="submitCustomAlignment()">Upload alignment</button></p>
             </div>
             <p>
                 <select id="selectaln" v-if="tax_id" v-model="alnobj">
@@ -319,7 +319,7 @@
             if (type_tree == "upload"){this.tax_id = null; return;}
             if (value.length == 0){this.tax_id = null; return;}
             cleanupOnNewAlignment(this, "Select new alignment!");
-            //if (this.alnobj != null) {this.alnobj = null;}
+            if (this.alnobj != null) {this.alnobj = null;}
             if (type_tree == "orth"){
                 this.alignments = null;
                 var url = '/desire-api/taxonomic-groups/?format=json&taxgroup_id__in=' + value
@@ -384,7 +384,7 @@
                 var msaHeight = main_elmnt.offsetHeight * 0.8;
                 if (msaHeight > 17*(vm.fastaSeqNames.length+2)){
                     var alnifEle = document.querySelector('#alnif');
-                    alnifEle.style.paddingTop="10%";
+                    //alnifEle.style.paddingTop="10%";
                     msaHeight = 17*(vm.fastaSeqNames.length+2);
                 }
                 let seqsForMSAViewer = parseFastaSeqForMSAViewer(fasta['Alignment']);
