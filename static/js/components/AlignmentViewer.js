@@ -72,7 +72,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
             sequences: {from: 0, to: vm.fastaSeqNames.length},
             residues: {from: e.position+1, to: e.position+1}
         })
-        if (vm.topology_loaded == 'True'){
+        if (vm.topology_loaded){
             let resiPos = vm.structure_mapping[e.position];
             if (resiPos !== undefined){
                 viewerInstanceTop.pluginInstance.highlight(resiPos, resiPos);
@@ -95,7 +95,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
         }
     };
     onResidueMouseLeave = e => {
-        if (vm.topology_loaded == 'True'){
+        if (vm.topology_loaded){
             viewerInstanceTop.pluginInstance.clearHighlight();
             viewerInstance.visual.clearHighlight();
         }
