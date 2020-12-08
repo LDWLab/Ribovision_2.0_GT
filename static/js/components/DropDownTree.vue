@@ -3,11 +3,11 @@
         <div class="left-sidebar">
             <p id="tree_type">
                 <input type="radio" id="orthologs" value="orth" v-model="type_tree" v-on:input="cleanTreeOpts()" checked>
-                <label for="orthologs" >Orthologs</label>
-                <input type="radio" id="paralogs" value="para" v-model="type_tree" v-on:input="cleanTreeOpts()">
-                <label for="paralogs">Paralogs</label>
+                <label style="margin: 0 2%;" for="orthologs" >Orthologs</label>
+                <!--<input type="radio" id="paralogs" value="para" v-model="type_tree" v-on:input="cleanTreeOpts()">
+                <label for="paralogs">Paralogs</label>-->
                 <input type="radio" id="upload" value="upload" v-model="type_tree" v-on:input="cleanTreeOpts()">
-                <label for="upload">Upload</label>
+                <label style="margin: 0 2%;" for="upload">Upload</label>
             </p>
             <div id="treeselect" v-if="type_tree=='para'|type_tree=='orth'">
             <treeselect ref="treeselect"
@@ -66,7 +66,8 @@
                 </button>
             </div>
             <p><div v-if="alnobj" class="checkbox">
-                <label><input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">Show amino-acid propensities</label>
+                <input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">
+                <label>Show amino-acid propensities</label>
                 <select v-if="checked_propensities&&structure_mapping" v-model="property">
                     <option :value="null" selected disabled hidden>Select a substructure</option>
                     <option v-for="substructure in substructures" v-bind:value="{ id: substructure.value, text: substructure.text }">{{ substructure.text }}</option>
@@ -75,7 +76,8 @@
             <div v-if="topology_loaded">
                 <div id="maskingSection"><p>
                     <div class="checkbox">
-                        <label><input type="checkbox" v-model="checked_filter" v-on:change="cleanFilter(checked_filter, masking_range)">Mask residues in 2D and 3D</label>
+                        <input type="checkbox" v-model="checked_filter" v-on:change="cleanFilter(checked_filter, masking_range)">
+                        <label>Mask residues in 2D and 3D</label>
                     </div>
                     <span v-if="checked_filter">Residue ranges to show, separated by semicolon. <br> For example: 1-80;91-111;</span>
                     <input v-if="checked_filter" v-model="masking_range" v-on:input="handleMaskingRanges(masking_range)">
@@ -83,14 +85,16 @@
                 <p v-if="correct_mask!='True'&&masking_range!=null">Incorrect range syntax!</p>
                 <div id="filterSection"><p>
                     <div class="checkbox">
-                        <label><input type="checkbox" v-model="checked_selection" v-on:change="cleanSelection(checked_selection, filter_range)">Remove residues in 2D and 3D</label>
+                        <input type="checkbox" v-model="checked_selection" v-on:change="cleanSelection(checked_selection, filter_range)">
+                        <label>Remove residues in 2D and 3D</label>
                     </div>
                     <span v-if="checked_selection">Residue range to show </span>
                     <input v-if="checked_selection" v-model="filter_range" v-on:input="handleFilterRange(filter_range)">
                 </p></div>
                 <div id="customDataSection">
                 <p><div class="checkbox">
-                        <label><input type="checkbox" v-model="checked_customMap" v-on:change="cleanCustomMap(checked_customMap)">Upload custom mapping data</label>
+                        <input type="checkbox" v-model="checked_customMap" v-on:change="cleanCustomMap(checked_customMap)">
+                        <label>Upload custom mapping data</label>
                         <p><input v-if="checked_customMap" type="file" accept=".csv" ref="custom_csv_file" v-on:change="handleCustomMappingData()"/></p>
                     </div>
                 </p></div>
@@ -266,6 +270,10 @@
         cleanTreeOpts() {
             cleanupOnNewAlignment(this, "Select new alignment!");
             [this.options, this.tax_id, this.alnobj] = [null, null, null];
+            var molstar = document.getElementById("pdbeMolstarView");
+            var topview = document.getElementById("topview");
+            if (molstar) {molstar.textContent = null}
+            if (topview) {topview.textContent = null}
         }, loadOptions({ action, callback }) {
             if (this.type_tree == "orth"){
                 if (action === "LOAD_CHILDREN_OPTIONS") {
@@ -311,7 +319,7 @@
             if (type_tree == "upload"){this.tax_id = null; return;}
             if (value.length == 0){this.tax_id = null; return;}
             cleanupOnNewAlignment(this, "Select new alignment!");
-            if (this.alnobj != null) {this.alnobj = null;}
+            //if (this.alnobj != null) {this.alnobj = null;}
             if (type_tree == "orth"){
                 this.alignments = null;
                 var url = '/desire-api/taxonomic-groups/?format=json&taxgroup_id__in=' + value
