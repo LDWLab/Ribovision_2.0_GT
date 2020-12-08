@@ -25,8 +25,8 @@
             </div>
             <div v-else>
                 <p>Select alignment file: </p>
-                <p><input id="inputUploadFasta" type = "file" accept=".fasta,.fas,.fa" ref="custom_aln_file" v-on:change="handleFileUpload()"/></p>
-                <p><button id="uploadShowFasta" v-on:click="submitCustomAlignment()">Upload alignment</button></p>
+                <p><input id="inputUploadFasta" class="btn btn-outline-dark" type = "file" accept=".fasta,.fas,.fa" ref="custom_aln_file" v-on:change="handleFileUpload()"/></p>
+                <p><button id="uploadShowFasta" class="btn btn-outline-dark" v-on:click="submitCustomAlignment()">Upload alignment</button></p>
             </div>
             <p>
                 <select id="selectaln" v-if="tax_id" v-model="alnobj">
@@ -61,7 +61,7 @@
                 Proceed with caution or try a different structure.</b></p>
             </div>
             <div v-if="structure_mapping">
-                <button id="downloadDataBtn" type="button" v-on:click="downloadCSVData()">
+                <button id="downloadDataBtn" class="btn btn-outline-dark" type="button" v-on:click="downloadCSVData()">
                     Download mapped properties
                 </button>
             </div>
@@ -103,10 +103,10 @@
         <div class="alignment_section">
             <div id="alnif" v-if="alnobj">
                 <div id="alnMenu" style="display: flex;">
-                    <button id="downloadFastaBtn" style="margin: 0 1%;" v-if="colorScheme"  type="button" v-on:click="downloadAlignmentData()">
+                    <button id="downloadFastaBtn" class="btn btn-outline-dark" style="margin: 0 1%;" v-if="colorScheme"  type="button" v-on:click="downloadAlignmentData()">
                         Download alignment
                     </button>
-                    <button id="downloadAlnImageBtn" style="margin: 0 1%;" v-if="colorScheme"  type="button" v-on:click="downloadAlignmentImage()">
+                    <button id="downloadAlnImageBtn" class="btn btn-outline-dark" style="margin: 0 1%;" v-if="colorScheme"  type="button" v-on:click="downloadAlignmentImage()">
                         Download alignment image
                     </button>
                     <select id="selectAlnColorScheme" style="margin: 0 1%;" v-model="colorScheme" v-if="colorScheme">
