@@ -108,24 +108,23 @@
                         <option v-for="colorscheme in availColorschemes" >{{ colorscheme }}</option>
                     </select>
                 </div>
-                <br/>
                 <div id="alnDiv">Loading alignment...</div>
             </div>
         </div>
         <div class="topology_section">
-        <br/>
             <span id="topif" v-if="chainid">
                 <div id="topview">Loading topology viewer and conservation data...</div>
             </span>
         </div>
         <div class="molstar_section">
-        <br/>
             <span id="molif" v-if="chainid">
                 <div id ="pdbeMolstarView">Loading Molstar Component...</div>
             </span>
         </div>
         <div class = "propensity_section">
-            <div id = "total"></div>
+            <span id="propif" v-if="checked_propensities">
+                <div id = "total"></div>
+            </span>
         </div>
         <footer >Footer</footer>
     </div>
@@ -375,8 +374,7 @@
                 var msaHeight = main_elmnt.offsetHeight * 0.8;
                 if (msaHeight > 17*(vm.fastaSeqNames.length+2)){
                     var alnifEle = document.querySelector('#alnif');
-                    alnifEle.style.position="absolute";
-                    alnifEle.style.top="15%";
+                    alnifEle.style.paddingTop="10%";
                     msaHeight = 17*(vm.fastaSeqNames.length+2);
                 }
                 let seqsForMSAViewer = parseFastaSeqForMSAViewer(fasta['Alignment']);

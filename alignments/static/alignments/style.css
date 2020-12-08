@@ -63,6 +63,7 @@
 
   body {
     font-family: system-ui, sans-serif;
+    overflow-x: hidden !important;
   }
 
   .left-sidebar,
@@ -84,8 +85,13 @@
     text-overflow: clip;
   }
 
+  #alnif{
+    padding: 2%;
+  }
+
   #alnMenu{
     padding-top: 2%;
+    padding-bottom: 2%;
   }
 
   #topview{
@@ -131,9 +137,6 @@
     height: 10px;
     background: #4c90af;
   }
-  body{
-    overflow-x: hidden !important;
-  }
 
   #yPosSlider {
     position: relative;
@@ -148,6 +151,10 @@
     -ms-transform-origin: 4% 10%;
     -o-transform-origin: 4% 10%;
     transform-origin: 4% 10%;
+  }
+
+  #treeselect{
+    padding-bottom: 5%
   }
 
   #pdb_input{
