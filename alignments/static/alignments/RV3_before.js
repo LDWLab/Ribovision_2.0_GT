@@ -171,16 +171,6 @@ var downloadAlignmentImage = function(alnDiv){
     })
 }
 
-function handlePropensities(checked_propensities){
-  if (checked_propensities){
-      console.log("Checked")
-  }else{
-      console.log("UnChecked")
-  }
-  
-};
-
-
 function getCookie(name) {
   var cookieValue = null;
   if (document.cookie && document.cookie !== '') {
@@ -196,7 +186,9 @@ function getCookie(name) {
   }
   return cookieValue;
 };
-var csrftoken = getCookie('csrftoken');    function csrfSafeMethod(method) {
+var csrftoken = getCookie('csrftoken');
+
+function csrfSafeMethod(method) {
   // these HTTP methods do not require CSRF protection
   return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
 };
@@ -210,9 +202,6 @@ $.ajaxSetup({
 
 function ajax(url, optional_data='') {
   if (optional_data != ''){
-      //var el = document.getElementsByName("csrfmiddlewaretoken");
-      //csrf_value = Cookies.get('csrftoken');
-      //csrf_value = el[0].getAttribute("value");
       return new Promise((resolve, reject) => {
           $.ajax({
               url: url,
@@ -272,7 +261,6 @@ var filterAvailablePolymers = function(chain_list, aln_id, vueObj) {
               }
           }
       }
-  // console.log("___" + temp_arr[temp_arr.length - 1]["sequence"] + "___");
   let chain_options = Array.from(new Set(temp_arr.map(JSON.stringify))).map(JSON.parse);
   if (chain_options.length === 0) {
       var elt = document.querySelector("#onFailedChains");
@@ -323,12 +311,12 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
         if (aln_item) {aln_item.remove(); create_deleted_element("alnif", "alnDiv", aln_text)}
     }
     window.mapped_aa_properties = null;
+    vueObj.checked_propensities = null;
     vueObj.structure_mapping = null;
     vueObj.poor_structure_map = null;
     window.ajaxRun = false;
     if (window.masked_array.length > 0) {window.masked_array = [];}
     if (vueObj.masking_range) {vueObj.masking_range = null;}
-    //if (vueObj.chainid) {vueObj.chainid = null;}
     if (vueObj.checked_filter) {vueObj.checked_filter = false;}
     if (vueObj.checked_customMap) {vueObj.checked_customMap = false;}
     if (vueObj.csv_data) {vueObj.csv_data = null;}
