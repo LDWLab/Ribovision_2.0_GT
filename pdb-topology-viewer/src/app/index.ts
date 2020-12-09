@@ -1631,6 +1631,7 @@ class PdbTopologyViewerPlugin {
     resetDisplay(){
         const selectBoxEle:any = this.targetEle.querySelector('.menuSelectbox');
         selectBoxEle.value = 0;
+        this.resetTheme();
         this.displayDomain();
     }
 
