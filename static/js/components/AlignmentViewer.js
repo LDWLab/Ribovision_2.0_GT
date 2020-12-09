@@ -73,7 +73,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
             residues: {from: e.position+1, to: e.position+1}
         })
         if (vm.topology_loaded){
-            let resiPos = vm.structure_mapping[e.position];
+            let resiPos = vm.structure_mapping[e.position+1];
             if (resiPos !== undefined){
                 viewerInstanceTop.pluginInstance.highlight(resiPos, resiPos);
                 viewerInstance.visual.highlight({
