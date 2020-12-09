@@ -67,7 +67,7 @@ function handleMaskingRanges(mask_range){
       window.masked_array = initializeMaskedArray();          
       var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
 
-      var index = 4;
+      var index = 1;
       while(index < topviewer.pluginInstance.domainTypes.length) {
           colorResidue(index, window.masked_array);
           index++;
