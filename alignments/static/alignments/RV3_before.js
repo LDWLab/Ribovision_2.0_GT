@@ -416,7 +416,7 @@ var calculateFrequencyData = function (frequencies){
                           ["Hydropathy",[Blues, Reds]],
                           ["Hydrophobicity",[Reds, Blues]],
                           ["Polarity",[viridis]],
-                          ["Mutability",[viridis]],
+                          ["Mutability",[plasma]],
                           ["Shannon entropy",[plasma]],
                           ["TwinCons",[RdPu, YlGn]],
                       ]);
