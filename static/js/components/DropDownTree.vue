@@ -79,7 +79,7 @@
                         <label><input type="checkbox" v-model="checked_filter" v-on:change="cleanFilter(checked_filter, masking_range)">
                         Mask residues in 2D and 3D</label>
                     </div>
-                    <span v-if="checked_filter">Residue ranges to show, separated by semicolon. <br> For example: 1-80;91-111;</span>
+                    <span v-if="checked_filter"><b>Multiple</b> residue ranges to show, separated by semicolon. <br> For example: 1-80;91-111;</span>
                     <input v-if="checked_filter" v-model="masking_range" v-on:input="handleMaskingRanges(masking_range)">
                 </p></div>
                 <p v-if="correct_mask!='True'&&masking_range!=null">Incorrect range syntax!</p>
@@ -88,7 +88,7 @@
                         <label><input type="checkbox" v-model="checked_selection" v-on:change="cleanSelection(checked_selection, filter_range)">
                         Remove residues in 2D and 3D</label>
                     </div>
-                    <span v-if="checked_selection">Residue range to show </span>
+                    <span v-if="checked_selection"><b>Single</b> residue range to leave, ending with semicolon. <br> For example: 1-80;</span>
                     <input v-if="checked_selection" v-model="filter_range" v-on:input="handleFilterRange(filter_range)">
                 </p></div>
                 <div id="customDataSection">

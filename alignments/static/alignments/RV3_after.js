@@ -55,6 +55,26 @@ var registerHoverResiData = function (e, tooltipObj){
   return true;
 };
 
+function isCorrectMask(mask_range){
+    window.masking_range_array = null;
+    if (mask_range.match(/^(\d+-\d+;)+$/)) {
+        var temp_array = mask_range.split(';').join('-').split('-');
+        temp_array = temp_array.slice(0, -1)
+        var i = 0;
+        var isCorrect = true;
+        while(i < temp_array.length) {
+            if(i % 2 == 0) {
+                if(Number(temp_array[i]) > Number(temp_array[i + 1])) {
+                    isCorrect = false;
+                }
+            }
+            i = i + 1;
+        }
+        window.masking_range_array = temp_array;
+    }
+    return isCorrect;
+  };
+
 function handleMaskingRanges(mask_range){
   vm.masking_range = mask_range;
   window.masking_range_array = null;
@@ -84,40 +104,46 @@ function handleMaskingRanges(mask_range){
   }
 };
 function handleFilterRange(filter_range) {
-  const temp_array = filter_range.split('-');
-  if (filter_range.match(/^\d+-\d+/) && Number(temp_array[0]) < Number(temp_array[1])) {
-      vm.filter_range = filter_range;
-      window.filterRange = temp_array.join(",");
-      var topviewer = document.getElementById("PdbeTopViewer");
-      var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
-      topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);   
-      viewerInstance.visual.update({
-          customData: {
-              url: `https://www.ebi.ac.uk/pdbe/coordinates/${window.pdblower}/residueRange?entityId=${topviewer.entityId}&range=${filter_range}&encoding=bcif`,
-              format: 'cif',
-              binary:true },
-          assemblyId: '1',
-          subscribeEvents: true,
-          bgColor: {r:255,g:255,b:255},
-      });
-      viewerInstance.events.loadComplete.subscribe(() => { 
-          let selectedData = topviewer.pluginInstance.domainTypes[selectedIndex];
-          if(selectSections_RV1.get(selectedData.label)) {
-              let select_sections = selectSections_RV1.get(selectedData.label).slice(Number(temp_array[0]), Number(temp_array[1])+1);
-              window.viewerInstance.visual.select({
-              data: select_sections,
-              nonSelectedColor: {r:255,g:255,b:255}});
-          }
-          //var selectedDomain = topviewer.pluginInstance.domainTypes[selectedIndex];
-          //topviewer.updateTheme(selectedDomain.data);
-       });
-       topviewer.pluginInstance.initPainting(window.select_sections)
-       let selectedData = topviewer.pluginInstance.domainTypes[selectedIndex];
-       topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);   
-       topviewer.pluginInstance.updateTheme(selectedData.data); 
-  }else{
-      //
-  }
+    if (filter_range.match(/^\d+-\d+;/)) {
+        var filter_range = filter_range.slice(0, -1);
+        const temp_array = filter_range.split('-');
+        if (Number(temp_array[0]) < Number(temp_array[1])){
+            window.filterRange = temp_array.join(",");
+            var topviewer = document.getElementById("PdbeTopViewer");
+            var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
+            topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);   
+            viewerInstance.visual.update({
+                customData: {
+                    url: `https://www.ebi.ac.uk/pdbe/coordinates/${window.pdblower}/residueRange?entityId=${topviewer.entityId}&range=${filter_range}&encoding=bcif`,
+                    format: 'cif',
+                    binary:true },
+                assemblyId: '1',
+                subscribeEvents: true,
+                bgColor: {r:255,g:255,b:255},
+            });
+            viewerInstance.events.loadComplete.subscribe(() => { 
+                let selectedData = topviewer.pluginInstance.domainTypes[selectedIndex];
+                if(selectSections_RV1.get(selectedData.label)) {
+                    let select_sections = selectSections_RV1.get(selectedData.label).slice(Number(temp_array[0]), Number(temp_array[1])+1);
+                    window.viewerInstance.visual.select({
+                    data: select_sections,
+                    nonSelectedColor: {r:255,g:255,b:255}});
+                }
+                if (selectedIndex > 0){
+                    var selectedDomain = topviewer.pluginInstance.domainTypes[selectedIndex];
+                    topviewer.pluginInstance.updateTheme(selectedDomain.data);
+                }
+            });
+            topviewer.pluginInstance.initPainting(window.select_sections)
+            let selectedData = topviewer.pluginInstance.domainTypes[selectedIndex];
+            topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);   
+            topviewer.pluginInstance.updateTheme(selectedData.data);
+        }else{
+            //Swapped start end
+        }
+    }else{
+        //Incorrect syntax
+    }
 };
 
 function colorResidue(index, masked_array) {

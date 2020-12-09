@@ -106,25 +106,6 @@ var parseFastaSeqForMSAViewer = function (fasta){
   }
 })();
 
-function isCorrectMask(mask_range){
-  window.masking_range_array = null;
-  if (mask_range.match(/^(\d+-\d+;)+$/)) {
-      var temp_array = mask_range.split(';').join('-').split('-');
-      temp_array = temp_array.slice(0, -1)
-      var i = 0;
-      var isCorrect = true;
-      while(i < temp_array.length) {
-          if(i % 2 == 0) {
-              if(Number(temp_array[i]) > Number(temp_array[i + 1])) {
-                  isCorrect = false;
-              }
-          }
-          i = i + 1;
-      }
-      window.masking_range_array = temp_array;
-  }
-  return isCorrect;
-};
 function initializeMaskedArray() {
   var topviewer = document.getElementById("PdbeTopViewer");
   var masked_array = [];
