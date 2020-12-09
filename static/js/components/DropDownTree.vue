@@ -52,7 +52,7 @@
             </p>
             <p><select id="polymerSelect" v-bind:style="{ resize: 'both'}" multiple v-if="chains&&fasta_data&&pdbid" v-model="chainid" >
                 <option :value ="null" selected disabled>Select polymer</option>
-                <option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid, chain.entityID)">{{ chain.text }}</option>
+                <option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid, chain.entityID); ">{{ chain.text }}</option>
             </select></p>
             <div v-if="poor_structure_map" id="warningPoorStructureAln">
                 <p style="color:#DE3163"><b>Warning!!!<br>
@@ -68,9 +68,9 @@
             <p><div v-if="alnobj" class="checkbox">
                 <label><input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">
                 Show amino-acid propensities</label>
-                <select v-if="checked_propensities&&structure_mapping" v-model="property">
+                <select v-if="structure_mapping" v-model="property" v-on:change="getPropensities(property.indices)">
                     <option :value="null" selected disabled hidden>Select a substructure</option>
-                    <option v-for="substructure in substructures" v-bind:value="{ id: substructure.value, text: substructure.text }">{{ substructure.text }}</option>
+                    <option v-for="substructure in substructures" v-bind:value="{ id: substructure.value, text: substructure.text, indices: substructure.indices }">{{ substructure.text }}</option>
                 </select>
             </div></p>
             <div v-if="topology_loaded">
@@ -468,6 +468,7 @@
                     vm.coil_residues = filterCoilResidues(data[pdblower][entityid][chainid]["coils"])
                     vm.helix_residues = filterCoilResidues(data[pdblower][entityid][chainid]["helices"])
                     vm.strand_residues = filterCoilResidues(data[pdblower][entityid][chainid]["strands"])
+                    listSecondaryStructures();
                     var mapping = [];
                     var range_string = minIndex.concat("-").concat(maxIndex);
                     let ebiMappingURL = 'https://www.ebi.ac.uk/pdbe/api/mappings/uniprot/'+pdbid;
@@ -589,6 +590,10 @@
             handlePropensities(checked_propensities);
         },populatePDBs(alndata){
             populatePDBs(alndata);
+        },getPropensities(sequence_indices) {
+            getPropensities(sequence_indices);
+        },listSecondaryStructures() {
+            listSecondaryStructures();
         }
     }
 }
