@@ -276,14 +276,13 @@ function handlePropensities(checked_propensities){
         //     }
         // });
         parseConsecutiveIndices("Coil", coilsListOfLists, vm.coil_residues);
-        // parseConsecutiveIndices("Strand", strandsListOfLists, vm.strand_residues);
+        parseConsecutiveIndices("Strand", strandsListOfLists, vm.strand_residues);
         parseConsecutiveIndices("Helix", helicesListOfLists, vm.helix_residues);
         vm.substructures = []
         Array.prototype.push.apply(vm.substructures, coilsListOfLists);
         Array.prototype.push.apply(vm.substructures, strandsListOfLists);
         Array.prototype.push.apply(vm.substructures, helicesListOfLists);
         let sequence_indices = ["1", "2", "3"];
-        // let sequence_indices = prompt("Enter sequence indices (comma-separated): ").replace(/^\s+|\s+$/gm,'').split(',')
         for (let i = 0; i < sequence_indices.length; i++) {
             sequence_indices[i] = parseInt(sequence_indices[i])
         }
@@ -298,23 +297,8 @@ function handlePropensities(checked_propensities){
                 alignment_indices.push(inverse_structure_mapping[sequence_index])
             }
             let indices = alignment_indices.join(',')
-            console.log(indices)
-            // $.ajax({
-            //     url: "http://127.0.0.1:8001/trim_fasta",
-            //     type: 'POST',
-            //     success: function(trimmed_fasta){
-            //     },
-            //     error: function(error) {
-            //         console.log(`Error ${error}`);
-            //         reject(error)
-            //     }
-            // });
-            let fasta_data = vm.fasta_data
-            let tax_id_string = vm.tax_id.join(',')
-            let url = `/propensity-data/${vm.alnobj.id}/${tax_id_string}`
-            
-            ajax(url, {indices}).then(trimmed_fasta => {
-                console.log("trimmed_fasta: " + trimmed_fasta)
+            ajax(`/propensity-data/${vm.alnobj.id}/${vm.tax_id.join(',')}`, {indices}).then(trimmed_fasta => {
+                
             });
         } else {
             // let aln_name = document.getElementById('selectaln').value
