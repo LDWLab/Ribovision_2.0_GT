@@ -98,9 +98,9 @@ function handleMaskingRanges(mask_range){
           topviewer.pluginInstance.updateTheme(selectedData.data); 
           window.viewerInstance.visual.select({data: selectSections_RV1.get(selectedData.label), nonSelectedColor: {r:255,g:255,b:255}});
           }
-      vm.correct_mask = 'True';
+      vm.correct_mask = true;
   } else {
-      vm.correct_mask = 'False';
+      vm.correct_mask = false;
   }
 };
 function handleFilterRange(filter_range) {
@@ -167,7 +167,7 @@ function cleanCustomMap(checked_customMap){
   var topviewer = document.getElementById("PdbeTopViewer");
   topviewer.pluginInstance.domainTypes = topviewer.pluginInstance.domainTypes.filter(obj => {return obj.label !== "CustomData"})
   window.coilsOutOfCustom = null;
-  //window.custom_prop = null;
+  window.custom_prop = null;
   vm.csv_data = null;
 };
 function handleCustomMappingData(){
@@ -187,6 +187,7 @@ function cleanFilter(checked_filter, masking_range){
   if (masking_range == null){return;}
   window.masked_array = [];
   vm.masking_range = null;
+  vm.correct_mask = null;
   var topviewer = document.getElementById("PdbeTopViewer");
   topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);
   if(window.custom_prop) {

@@ -41,7 +41,7 @@
             </p>
             <p>
                 <select id="pdb_input" v-if="alnobj&&alnobj!='custom'" v-model="pdbid">
-                    <option :value="null" selected disabled hidden>Select a pdb</option>
+                    <option :value="null" selected disabled hidden>Select structure</option>
                     <option v-for="pdb in pdbs" v-bind:value="pdb.id">{{pdb.name}}</option>
                 </select>
                 <input type="text" id="pdb_input_custom" v-if="alnobj&&alnobj=='custom'" v-model="pdbid" maxlength="4"></input>
@@ -82,7 +82,7 @@
                     <span v-if="checked_filter"><b>Multiple</b> residue ranges to show, separated by semicolon. <br> For example: 1-80;91-111;</span>
                     <input v-if="checked_filter" v-model="masking_range" v-on:input="handleMaskingRanges(masking_range)">
                 </p></div>
-                <p v-if="correct_mask!='True'&&masking_range!=null">Incorrect range syntax!</p>
+                <p v-if="correct_mask!=true&&masking_range!=null">Incorrect range syntax!</p>
                 <div id="filterSection"><p>
                     <div class="checkbox">
                         <label><input type="checkbox" v-model="checked_selection" v-on:change="cleanSelection(checked_selection, filter_range)">
@@ -176,7 +176,7 @@
             twc_loaded: false,
             masking_range: null,
             filter_range: null,
-            correct_mask: false,
+            correct_mask: null,
             checked_filter: false,
             checked_selection: false,
             checked_customMap: false,
@@ -195,7 +195,7 @@
             var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
             if (csv_data == null){
                 selectBoxEle.removeChild(selectBoxEle.childNodes[selectBoxEle.options.length-1]);
-                topviewer.pluginInstance.resetDisplay();
+                topviewer.pluginInstance.resetTheme();
                 return;
             }
             let custom_data = csv_data.split('\n').map(function(e){
@@ -217,10 +217,18 @@
                 custom_option.setAttribute("value", selectBoxEle.options.length);
                 custom_option.appendChild(document.createTextNode("Custom Data"));
                 selectBoxEle.appendChild(custom_option);
-                if(this.correct_mask == 'True') {
+                if(this.correct_mask) {
                     var j = topviewer.pluginInstance.domainTypes.length-1;
                     colorResidue(j, window.masked_array);
                 }
+                let selectedIndex = selectBoxEle.options.length-1;
+                topviewer.pluginInstance.resetTheme();
+                topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data);
+                window.viewerInstance.visual.select({
+                    data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), 
+                    nonSelectedColor: {r:255,g:255,b:255}
+                });
+                selectBoxEle.selectedIndex = selectedIndex;
             }
         },alnobj: function (data){
             this.populatePDBs(data);
