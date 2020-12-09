@@ -3,11 +3,11 @@
         <div class="left-sidebar">
             <p id="tree_type">
                 <input type="radio" id="orthologs" value="orth" v-model="type_tree" v-on:input="cleanTreeOpts()" checked>
-                <label for="orthologs" >Orthologs</label>
-                <input type="radio" id="paralogs" value="para" v-model="type_tree" v-on:input="cleanTreeOpts()">
-                <label for="paralogs">Paralogs</label>
+                <label style="margin: 0 2%;" for="orthologs" >Orthologs</label>
+                <!--<input type="radio" id="paralogs" value="para" v-model="type_tree" v-on:input="cleanTreeOpts()">
+                <label for="paralogs">Paralogs</label>-->
                 <input type="radio" id="upload" value="upload" v-model="type_tree" v-on:input="cleanTreeOpts()">
-                <label for="upload">Upload</label>
+                <label style="margin: 0 2%;" for="upload">Upload</label>
             </p>
             <div id="treeselect" v-if="type_tree=='para'|type_tree=='orth'">
             <treeselect ref="treeselect"
@@ -25,8 +25,8 @@
             </div>
             <div v-else>
                 <p>Select alignment file: </p>
-                <p><input type = "file" accept=".fasta,.fas,.fa" ref="custom_aln_file" v-on:change="handleFileUpload()"/></p>
-                <p><button v-on:click="submitCustomAlignment()">Upload alignment</button></p>
+                <p><input id="inputUploadFasta" class="btn btn-outline-dark" type = "file" accept=".fasta,.fas,.fa" ref="custom_aln_file" v-on:change="handleFileUpload()"/></p>
+                <p><button id="uploadShowFasta" class="btn btn-outline-dark" v-on:click="submitCustomAlignment()">Upload alignment</button></p>
             </div>
             <p>
                 <select id="selectaln" v-if="tax_id" v-model="alnobj">
@@ -35,60 +35,67 @@
                 </select>
             </p>
             <p>
-                <span v-if="alnobj&&alnobj!='custom'">Selected alignment: {{ alnobj.text }}.<br></span>
-                <span v-if="alnobj">Input PDB and polymer for mapping:</span>
+                <!--<span v-if="alnobj&&alnobj!='custom'">Selected alignment: {{ alnobj.text }}.<br></span>-->
+                <span v-if="alnobj&&alnobj!='custom'">Select PDB for mapping:</span>
+                <span v-if="alnobj&&alnobj=='custom'">Type PDB for mapping:</span>
             </p>
             <p>
-                <select id="pdb_input" v-if="alnobj" v-model="pdbid">
+                <select id="pdb_input" v-if="alnobj&&alnobj!='custom'" v-model="pdbid">
                     <option :value="null" selected disabled hidden>Select a pdb</option>
                     <option v-for="pdb in pdbs" v-bind:value="pdb.id">{{pdb.name}}</option>
                 </select>
+                <input type="text" id="pdb_input_custom" v-if="alnobj&&alnobj=='custom'" v-model="pdbid" maxlength="4"></input>
                 <div v-if="hide_chains" id="onFailedChains">Looking for available polymers...</div>
             </p>
             <p>
-                <div v-if="alnobj" class="checkbox">
-                    <label><input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">Propensities</label>
-                    <select v-if="checked_propensities&&structure_mapping" v-model="property">
-                        <option :value="null" selected disabled hidden>Select a substructure</option>
-                        <option v-for="substructure in substructures" v-bind:value="{ id: substructure.value, text: substructure.text }">{{ substructure.text }}</option>
-                    </select>
-                </div>
+                <span v-if="pdbid">Select polymer for mapping:</span>
             </p>
             <p><select id="polymerSelect" v-bind:style="{ resize: 'both'}" multiple v-if="chains&&fasta_data&&pdbid" v-model="chainid" >
                 <option :value ="null" selected disabled>Select polymer</option>
                 <option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid, chain.entityID)">{{ chain.text }}</option>
             </select></p>
-            <div v-if="poor_structure_map">
+            <div v-if="poor_structure_map" id="warningPoorStructureAln">
                 <p style="color:#DE3163"><b>Warning!!!<br>
-                Poor structure to alignment mapping!<br>
-                There where {{poor_structure_map}} poorly mapped residues!<br>
-                Proceed with caution or try different structure.</b></p>
+                Poor structure-alignment alignment!<br>
+                Found {{poor_structure_map}} poorly aligned residues.<br>
+                Proceed with caution or try a different structure.</b></p>
             </div>
             <div v-if="structure_mapping">
-                <button id="downloadDataBtn" type="button" v-on:click="downloadCSVData()">
-                    Download mapped data
+                <button id="downloadDataBtn" class="btn btn-outline-dark" type="button" v-on:click="downloadCSVData()">
+                    Download mapped properties
                 </button>
             </div>
-            <div v-if="topology_loaded != 'False'">
+            <p><div v-if="alnobj" class="checkbox">
+                <label><input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">
+                Show amino-acid propensities</label>
+                <select v-if="checked_propensities&&structure_mapping" v-model="property">
+                    <option :value="null" selected disabled hidden>Select a substructure</option>
+                    <option v-for="substructure in substructures" v-bind:value="{ id: substructure.value, text: substructure.text }">{{ substructure.text }}</option>
+                </select>
+            </div></p>
+            <div v-if="topology_loaded">
                 <div id="maskingSection"><p>
                     <div class="checkbox">
-                        <label><input type="checkbox" v-model="checked_filter" v-on:change="cleanFilter(checked_filter, masking_range)">Masking ranges</label>
+                        <label><input type="checkbox" v-model="checked_filter" v-on:change="cleanFilter(checked_filter, masking_range)">
+                        Mask residues in 2D and 3D</label>
                     </div>
-                    <span v-if="checked_filter">Residue ranges to show, separated by semicolon. <br> For example: 1-80;91-111;</span>
+                    <span v-if="checked_filter"><b>Multiple</b> residue ranges to show, separated by semicolon. <br> For example: 1-80;91-111;</span>
                     <input v-if="checked_filter" v-model="masking_range" v-on:input="handleMaskingRanges(masking_range)">
                 </p></div>
                 <p v-if="correct_mask!='True'&&masking_range!=null">Incorrect range syntax!</p>
                 <div id="filterSection"><p>
                     <div class="checkbox">
-                        <label><input type="checkbox" v-model="checked_selection" v-on:change="cleanSelection(checked_selection, filter_range)">Filter Range</label>
+                        <label><input type="checkbox" v-model="checked_selection" v-on:change="cleanSelection(checked_selection, filter_range)">
+                        Remove residues in 2D and 3D</label>
                     </div>
-                    <span v-if="checked_selection">Residue range to show </span>
+                    <span v-if="checked_selection"><b>Single</b> residue range to leave, ending with semicolon. <br> For example: 1-80;</span>
                     <input v-if="checked_selection" v-model="filter_range" v-on:input="handleFilterRange(filter_range)">
                 </p></div>
                 <div id="customDataSection">
                 <p><div class="checkbox">
-                        <label><input type="checkbox" v-model="checked_customMap" v-on:change="cleanCustomMap(checked_customMap)">Custom Data</label>
-                        <p><input v-if="checked_customMap" type="file" accept=".csv" ref="custom_csv_file" v-on:change="handleCustomMappingData()"/></p>
+                        <label><input type="checkbox" v-model="checked_customMap" v-on:change="cleanCustomMap(checked_customMap)">
+                        Upload custom mapping data</label>
+                        <p><input class="btn btn-outline-dark" id="inputUploadCSV" v-if="checked_customMap" type="file" accept=".csv" ref="custom_csv_file" v-on:change="handleCustomMappingData()"/></p>
                     </div>
                 </p></div>
             </div>
@@ -96,10 +103,10 @@
         <div class="alignment_section">
             <div id="alnif" v-if="alnobj">
                 <div id="alnMenu" style="display: flex;">
-                    <button id="downloadFastaBtn" style="margin: 0 1%;" v-if="colorScheme"  type="button" v-on:click="downloadAlignmentData()">
+                    <button id="downloadFastaBtn" class="btn btn-outline-dark" style="margin: 0 1%;" v-if="colorScheme"  type="button" v-on:click="downloadAlignmentData()">
                         Download alignment
                     </button>
-                    <button id="downloadAlnImageBtn" style="margin: 0 1%;" v-if="colorScheme"  type="button" v-on:click="downloadAlignmentImage()">
+                    <button id="downloadAlnImageBtn" class="btn btn-outline-dark" style="margin: 0 1%;" v-if="colorScheme"  type="button" v-on:click="downloadAlignmentImage()">
                         Download alignment image
                     </button>
                     <select id="selectAlnColorScheme" style="margin: 0 1%;" v-model="colorScheme" v-if="colorScheme">
@@ -107,20 +114,22 @@
                         <option v-for="colorscheme in availColorschemes" >{{ colorscheme }}</option>
                     </select>
                 </div>
-                <br/>
                 <div id="alnDiv">Loading alignment...</div>
             </div>
         </div>
         <div class="topology_section">
-        <br/>
             <span id="topif" v-if="chainid">
                 <div id="topview">Loading topology viewer and conservation data...</div>
             </span>
         </div>
         <div class="molstar_section">
-        <br/>
             <span id="molif" v-if="chainid">
                 <div id ="pdbeMolstarView">Loading Molstar Component...</div>
+            </span>
+        </div>
+        <div class = "propensity_section">
+            <span id="propif" v-if="checked_propensities">
+                <div id = "total"></div>
             </span>
         </div>
         <footer >Footer</footer>
@@ -163,18 +172,19 @@
             poor_structure_map: null,
             file: null,
             custom_aln_twc_flag: null,
-            topology_loaded: 'False',
+            topology_loaded: false,
             twc_loaded: false,
             masking_range: null,
             filter_range: null,
             correct_mask: false,
-            coil_residues: null,
             checked_filter: false,
             checked_selection: false,
             checked_customMap: false,
             csv_data: null,
             checked_propensities: false,
+            coil_residues: null,
             helix_residues: null,
+            strand_residues: null,
             substructures: null,
             property: null,
         }
@@ -260,6 +270,10 @@
         cleanTreeOpts() {
             cleanupOnNewAlignment(this, "Select new alignment!");
             [this.options, this.tax_id, this.alnobj] = [null, null, null];
+            var molstar = document.getElementById("pdbeMolstarView");
+            var topview = document.getElementById("topview");
+            if (molstar) {molstar.textContent = null}
+            if (topview) {topview.textContent = null}
         }, loadOptions({ action, callback }) {
             if (this.type_tree == "orth"){
                 if (action === "LOAD_CHILDREN_OPTIONS") {
@@ -317,38 +331,40 @@
                 loadParaAlns (value, this)
             }
         }, getPDBchains(pdbid, aln_id) {
-            if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(this);}
-            this.chains = null
-            this.hide_chains = true
-            ajax('https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/' + pdbid.toLowerCase()).then(struc_data => {
-                var chain_list = struc_data[pdbid.toLowerCase()];
-                if (this.type_tree == "para") {aln_id = aln_id.split(',')[1]}
-                if (this.type_tree != "upload") {
-                    filterAvailablePolymers(chain_list, aln_id, vm);
-                } else {
-                    let chain_options = []
-                    for (let i = 0; i < chain_list.length; i++) {
-                        let chain_listI = chain_list[i]
-                        if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
-                        if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
-                        if (typeof(chain_listI.source[0]) === "undefined") {continue;}
-                        chain_options = pushChainData(chain_options, chain_listI);
+            if (pdbid.length === 4) {
+                if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(this);}
+                this.chains = null
+                this.hide_chains = true
+                ajax('https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/' + pdbid.toLowerCase()).then(struc_data => {
+                    var chain_list = struc_data[pdbid.toLowerCase()];
+                    if (this.type_tree == "para") {aln_id = aln_id.split(',')[1]}
+                    if (this.type_tree != "upload") {
+                        filterAvailablePolymers(chain_list, aln_id, vm);
+                    } else {
+                        let chain_options = []
+                        for (let i = 0; i < chain_list.length; i++) {
+                            let chain_listI = chain_list[i]
+                            if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
+                            if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
+                            if (typeof(chain_listI.source[0]) === "undefined") {continue;}
+                            chain_options = pushChainData(chain_options, chain_listI);
+                        }
+                        if (chain_options.length === 0) {
+                            chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
+                        }
+                        vm.chains = chain_options;
+                        this.hide_chains = null;
                     }
-                    if (chain_options.length === 0) {
-                        chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
+                }).catch(error => {
+                    var elt = document.querySelector("#onFailedChains");
+                    this.pdbid = null;
+                    if (error.status == 404){
+                        elt.innerHTML  = "Couldn't find this PDB ID!<br/>Try a different PDB ID."
+                    } else {
+                        elt.innerHTML  = "Problem with parsing the chains! Try a different PDB ID."
                     }
-                    vm.chains = chain_options;
-                    this.hide_chains = null;
-                }
-            }).catch(error => {
-                var elt = document.querySelector("#onFailedChains");
-                this.pdbid = null;
-                if (error.status == 404){
-                    elt.innerHTML  = "Couldn't find this PDB ID!<br/>Try a different PDB ID."
-                } else {
-                    elt.innerHTML  = "Problem with parsing the chains! Try a different PDB ID."
-                }
-            })
+                })
+            }
         },
         showAlignment(aln_id, taxid, type_tree) {
             cleanupOnNewAlignment(this, "Loading alignment...");
@@ -368,8 +384,7 @@
                 var msaHeight = main_elmnt.offsetHeight * 0.8;
                 if (msaHeight > 17*(vm.fastaSeqNames.length+2)){
                     var alnifEle = document.querySelector('#alnif');
-                    alnifEle.style.position="absolute";
-                    alnifEle.style.top="20%";
+                    //alnifEle.style.paddingTop="10%";
                     msaHeight = 17*(vm.fastaSeqNames.length+2);
                 }
                 let seqsForMSAViewer = parseFastaSeqForMSAViewer(fasta['Alignment']);
@@ -444,6 +459,7 @@
                     var entityid = Object.keys(data[pdblower])[0];
                     vm.coil_residues = filterCoilResidues(data[pdblower][entityid][chainid]["coils"])
                     vm.helix_residues = filterCoilResidues(data[pdblower][entityid][chainid]["helices"])
+                    vm.strand_residues = filterCoilResidues(data[pdblower][entityid][chainid]["strands"])
                     var mapping = [];
                     var range_string = minIndex.concat("-").concat(maxIndex);
                     let ebiMappingURL = 'https://www.ebi.ac.uk/pdbe/api/mappings/uniprot/'+pdbid;
@@ -469,15 +485,16 @@
                             console.log("No mapping for pdb "+pdbid+" and chain"+ chainid)
                             mapping = [range_string.split("-")[0],range_string.split("-")[1]];
                         }
-
-                        let data_string = JSON.stringify(Array.from(mapped_aa_properties.entries())).replaceAll(",[[", ":").replaceAll("]],",";").replaceAll("],[",",");
-                        let formatted_data_string = data_string.replaceAll("[","").replaceAll("]","").replaceAll("\"","");
-                        var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid}	entropy-id=${formatted_data_string} filter-range=${mapping}></pdb-topology-viewer>`
+                        var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid} filter-range=${mapping}></pdb-topology-viewer>`
                         document.getElementById('topview').innerHTML = topology_viewer;
                         window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
-                        this.topology_loaded = 'True';
+                        this.topology_loaded = true;
                     })
                 })
+            }).catch(error => {
+                var topview = document.querySelector('#topview')
+                topview.innerHTML = error.responseText.replace(/\n/g, "<br />");;
+                console.log(error)
             });
         }, showPDBViewer(pdbid, chainid, entityid){
             if (document.querySelector("pdbe-molstar")) {return;}

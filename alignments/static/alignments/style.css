@@ -1,35 +1,43 @@
 #phylo_tree_dropdown {
     display: grid;
     height: 100vh;
-    grid-template: auto 1fr 1fr auto / auto 1fr 1fr
+    grid-template: auto 1fr 1fr 1fr auto / auto 1fr 1fr
   }
   
   header {
-    background: lightpink;
+    background: #f7a37f;
     padding: 2rem;
     grid-column: 1 / 5;
     grid-row: 1 ;
+    color: #174060;
+  }
+
+  .title {
+    font-size: 1.3rem;
+    font-weight: bold;
   }
 
   .left-sidebar {
-    background: lightblue;
+    background: #96c9dc;
     grid-column: 1 / 2;
-    grid-row: 2 / 4 ;
+    grid-row: 2 / 5 ;
     width: 300px;
+    color: #174060;
   }
 
   .alignment_section{
     display: grid;
     place-items: center;
-    background: wheat;
+    background: #f8efdd;
     grid-column: 2 / 4;
     grid-row: 2 ;
+    color: #174060;
   }
 
   .topology_section{
     display: grid;
     place-items: center;
-    background: wheat;
+    background: #f8efdd;
     grid-column: 2 ;
     grid-row: 3 ;
     text-align: center;
@@ -38,22 +46,33 @@
   .molstar_section{
     display: grid;
     place-items: center;
-    background: wheat;
+    background: #f8efdd;
     grid-column: 3 ;
     grid-row: 3 ;
     text-align: center;
   }
 
+  .propensity_section{
+    display: grid;
+    place-items: center;
+    background: #f8efdd;
+    grid-column: 2 / 4 ;
+    grid-row: 4 ;
+    text-align: center;
+  }
+
   footer {
-    background: coral;
+    background: #174060;
     padding: 2rem;
     text-align: center;
     grid-column: 1 / 5 ;
-    grid-row: 4 ;
+    grid-row: 5 ;
+    color: #f8efdd;
   }
 
   body {
     font-family: system-ui, sans-serif;
+    overflow-x: hidden !important;
   }
 
   .left-sidebar,
@@ -75,8 +94,13 @@
     text-overflow: clip;
   }
 
+  #alnif{
+    padding: 2%;
+  }
+
   #alnMenu{
     padding-top: 2%;
+    padding-bottom: 2%;
   }
 
   #topview{
@@ -122,9 +146,6 @@
     height: 10px;
     background: #4c90af;
   }
-  body{
-    overflow-x: hidden !important;
-  }
 
   #yPosSlider {
     position: relative;
@@ -141,7 +162,23 @@
     transform-origin: 4% 10%;
   }
 
+  #treeselect{
+    padding-bottom: 5%
+  }
+
   #pdb_input{
     max-width: 250px;
     max-height: 75px;
+  }
+  
+  #polymerSelect{
+    max-width: 250px;
+  }
+
+  #inputUploadFasta,#inputUploadCSV{
+    max-width: 250px;
+    margin-right: auto;
+    word-wrap: break-word;
+    overflow: auto;
+    white-space: normal;
   }

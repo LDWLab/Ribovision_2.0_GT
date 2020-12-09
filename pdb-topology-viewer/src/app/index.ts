@@ -32,7 +32,6 @@ class PdbTopologyViewerPlugin {
     sequenceArr: string[];
     entityId: string;
     entryId: string;
-    entropyId: string;
     //filterRange: string;
     chainId: string;
     apiData: any;
@@ -51,7 +50,7 @@ class PdbTopologyViewerPlugin {
 
     subscribeEvents = true;
 
-    render(target: HTMLElement, options:{entityId: string, entryId: string, entropyId: string, filterRange?: string, chainId?: string, subscribeEvents?:boolean, displayStyle?: string, errorStyle?: string, menuStyle?: string}) {
+    render(target: HTMLElement, options:{entityId: string, entryId: string, filterRange?: string, chainId?: string, subscribeEvents?:boolean, displayStyle?: string, errorStyle?: string, menuStyle?: string}) {
         if(options && typeof options.displayStyle != 'undefined' && options.displayStyle != null) this.displayStyle += options.displayStyle;
         if(options && typeof options.errorStyle != 'undefined' && options.errorStyle != null) this.errorStyle += options.errorStyle;
         if(options && typeof options.menuStyle != 'undefined' && options.menuStyle != null) this.menuStyle += options.menuStyle;
@@ -66,7 +65,6 @@ class PdbTopologyViewerPlugin {
         if(options.subscribeEvents == false) this.subscribeEvents = false;
         this.entityId = options.entityId;
         this.entryId = options.entryId.toLowerCase();
-        this.entropyId = options.entropyId;
         //If chain id is not provided then get best chain id from observed residues api
         if(typeof options.chainId == 'undefined' || options.chainId == null){
             this.getObservedResidues(this.entryId).then((result) => {
@@ -410,7 +408,6 @@ class PdbTopologyViewerPlugin {
                 type: eleObj.type,
                 entryId: this.entryId,
                 entityId: this.entityId,
-                entropyId: this.entropyId,
                 filterRange: filterRange,
                 chainId: this.chainId,
                 // structAsymId: this.bestStructAsymId
@@ -440,7 +437,6 @@ class PdbTopologyViewerPlugin {
                 type: eleData.type,
                 entryId: this.entryId,
                 entityId: this.entityId,
-                entropyId: this.entropyId,
                 filterRange: filterRange,
                 chainId: this.chainId,
                 // structAsymId: scope.bestStructAsymId
@@ -481,7 +477,6 @@ class PdbTopologyViewerPlugin {
         
         //Dispatch custom mouseover event
         this.dispatchEvent('PDB.topologyViewer.mouseout', {
-            entropyId: this.entropyId,
             filterRange: filterRange,
             entryId: this.entryId,
             entityId: this.entityId,
@@ -1187,7 +1182,7 @@ class PdbTopologyViewerPlugin {
                     for(let accKey in mappingRecords){
 
                         mappingRecords[accKey].mappings.forEach((domainMappings:any) => {
-                            if(domainMappings.entity_id == this.entityId && domainMappings.chain_id == this.chainId && domainMappings.entropy_id == this.entropy_id){
+                            if(domainMappings.entity_id == this.entityId && domainMappings.chain_id == this.chainId){
                                 
                                 residueDetails.push({
                                     start: domainMappings.start.residue_number,
@@ -1315,7 +1310,7 @@ class PdbTopologyViewerPlugin {
         const _this = this;
         const chainRange:any = this.getChainStartAndEnd();
         
-        if (void 0 !== this.entropyId) {
+        if (mapped_aa_properties) {
             mapped_aa_properties.forEach(function(value, index) {    
                 let residueDetails:any = [{
                     //start: chainRange.start,
@@ -1354,8 +1349,8 @@ class PdbTopologyViewerPlugin {
             });
         }
         else {
-        //catch block
-        };     
+            //catch block
+        };
       }
       
 
@@ -1479,8 +1474,8 @@ class PdbTopologyViewerPlugin {
                 label: 'Annotation',
                 data: null
             }];
-            this.getAnnotationFromMappings();
-            this.getAnnotationFromOutliers();
+            //this.getAnnotationFromMappings();
+            //this.getAnnotationFromOutliers();
             this.getAnnotationFromRibovision(mapped_aa_properties);
             this.selectedDomain = this.domainTypes[0];
         }

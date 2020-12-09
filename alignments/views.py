@@ -93,8 +93,14 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
 
     pipe = Popen("mafft --quiet --addfull " + ebiFileName + " --mapout " + alignmentFileName + "; cat " + mappingFileName, stdout=PIPE, shell=True)
     output = pipe.communicate()[0]
-    text = output.decode("ascii").split('\n#')[1]
+    decoded_text = output.decode("ascii")
+    
+    if len(decoded_text) <= 0:
+        for removeFile in [alignmentFileName, ebiFileName]:
+            os.remove(removeFile)
+        return HttpResponseServerError("Failed mapping the polymer sequence to the alignment!\nTry a different structure.")
 
+    text = decoded_text.split('\n#')[1]
     mapping, firstLine, badMapping = dict(), True, 0
     for line in text.split('\n'):
         if firstLine:
@@ -107,7 +113,7 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
             badMapping += 1
             continue
         if row[1] == '-':
-            raise Http404("Mapping did not work properly.")
+            return HttpResponseServerError("Failed mapping the polymer sequence to the alignment!\nTry a different structure.")
         mapping[int(row[2])] = int(row[1]) + shiftIndexBy
 
     if badMapping > 0:
@@ -126,6 +132,8 @@ def request_post_data(post_data):
 def make_map_from_alnix_to_sequenceix(request):
     fasta, ebi_sequence, startIndex = request_post_data(request.POST)
     mapping = constructEbiAlignmentString(fasta, ebi_sequence, startIndex)
+    if type(mapping) != dict:
+        return mapping
     return JsonResponse(mapping, safe = False)
 
 def api_twc_parameterless(request):
@@ -399,50 +407,53 @@ def validate_fasta_string(fastaString):
     for mstring in malicious_strings:
         regex = re.compile(mstring)
         if re.search(regex, fastaString):
-            return True
-    return False
+            return False
+    return True
 
 def handle_custom_upload_alignment(request):
-	if request.method == 'POST' and 'custom_aln_file' in request.FILES:
-		aln_file = request.FILES['custom_aln_file']
-		alignment_string = ''
-		for aln_part in aln_file.chunks():
-			alignment_string += aln_part.decode()
-		alignments = list(AlignIO.parse(StringIO(alignment_string), 'fasta'))
-		if len(alignments) == 0:
-			return HttpResponseServerError("Wasn't able to parse the alignment file! Is your file in fasta format?")
-		if len(alignments) > 1:
-			return HttpResponseServerError("Alignment file had more than one alignments!\nPlease upload a single alignment.")
-		fastastring = alignments[0].format("fasta")
-		request.session['custom_alignment_file'] = fastastring
-		return HttpResponse('Success!')
-	if request.method == 'GET':
-		from alignments.Shannon import gap_adjusted_frequency
-		from TwinCons.bin.TwinCons import slice_by_name
-		fastastring = request.session.get('custom_alignment_file')
-		alignment_obj = AlignIO.read(StringIO(fastastring), 'fasta')
-		sliced_alns = slice_by_name(alignment_obj)
-		twc = False
-		if len(sliced_alns.keys()) == 2:
-			twc = True			
-		fastastring = fastastring.replace('\n','\\n')
-		gap_only_cols = extract_gap_only_cols(fastastring)
-		filtered_spec_list = extract_species_list(fastastring)
-		concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
-		frequency_list = list()
-		for i in range(0, alignment_obj.get_alignment_length()):
-			frequency_list.append(gap_adjusted_frequency(alignment_obj[:,i], IUPACData.protein_letters))
-		
-		response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc])
-		return JsonResponse(response_dict, safe = False)
+    if request.method == 'POST' and 'custom_aln_file' in request.FILES:
+        aln_file = request.FILES['custom_aln_file']
+        alignment_string = ''
+        for aln_part in aln_file.chunks():
+            alignment_string += aln_part.decode()
+        alignments = list(AlignIO.parse(StringIO(alignment_string), 'fasta'))
+        if len(alignments) == 0:
+            return HttpResponseServerError("Wasn't able to parse the alignment file! Is your file in fasta format?")
+        if len(alignments) > 1:
+            return HttpResponseServerError("Alignment file had more than one alignments!\nPlease upload a single alignment.")
+        fastastring = alignments[0].format("fasta")
+        if validate_fasta_string(fastastring):
+            request.session['custom_alignment_file'] = fastastring
+            return HttpResponse('Success!')
+        else:
+            return HttpResponseServerError("Alignment file had forbidden characters!\nWhat are you trying to do?")
+    if request.method == 'GET':
+        from alignments.Shannon import gap_adjusted_frequency
+        from TwinCons.bin.TwinCons import slice_by_name
+        fastastring = request.session.get('custom_alignment_file')
+        alignment_obj = AlignIO.read(StringIO(fastastring), 'fasta')
+        sliced_alns = slice_by_name(alignment_obj)
+        twc = False
+        if len(sliced_alns.keys()) == 2:
+        	twc = True			
+        fastastring = fastastring.replace('\n','\\n')
+        gap_only_cols = extract_gap_only_cols(fastastring)
+        filtered_spec_list = extract_species_list(fastastring)
+        concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
+        frequency_list = list()
+        for i in range(0, alignment_obj.get_alignment_length()):
+            frequency_list.append(gap_adjusted_frequency(alignment_obj[:,i], IUPACData.protein_letters))
+        
+        response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc])
+        return JsonResponse(response_dict, safe = False)
 
 # trims fasta by a list of indices
 def trim_fasta_by_index(input_file, indices):
     from Bio import AlignIO
     align = AlignIO.read(input_file, "fasta")
-    trimmed_align = align[:,indices[0]:indices[0]+1] # initialize align object
-    for i in indices[1:]:
-        trimmed_align += align[:,i:i+1]
+    trimmed_align = align[:,int(indices[0]):int(indices[0])+1] # initialize align object
+    for i in indices.split(',')[1:]:
+        trimmed_align += align[:,int(i):int(i)+1]
     return trimmed_align
 
 # TODO: change this back

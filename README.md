@@ -65,7 +65,7 @@
 
 	>./node_modules/.bin/webpack --config webpack.config.js
 
-	f. (Optional) If developing a nodejs script
+	f. (Optional) If developing/updating the nodejs scripts
 
 	>npm run watch
 

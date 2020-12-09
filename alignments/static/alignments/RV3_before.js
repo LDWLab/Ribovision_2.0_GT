@@ -106,25 +106,6 @@ var parseFastaSeqForMSAViewer = function (fasta){
   }
 })();
 
-function isCorrectMask(mask_range){
-  window.masking_range_array = null;
-  if (mask_range.match(/^(\d+-\d+;)+$/)) {
-      var temp_array = mask_range.split(';').join('-').split('-');
-      temp_array = temp_array.slice(0, -1)
-      var i = 0;
-      var isCorrect = true;
-      while(i < temp_array.length) {
-          if(i % 2 == 0) {
-              if(Number(temp_array[i]) > Number(temp_array[i + 1])) {
-                  isCorrect = false;
-              }
-          }
-          i = i + 1;
-      }
-      window.masking_range_array = temp_array;
-  }
-  return isCorrect;
-};
 function initializeMaskedArray() {
   var topviewer = document.getElementById("PdbeTopViewer");
   var masked_array = [];
@@ -171,16 +152,6 @@ var downloadAlignmentImage = function(alnDiv){
     })
 }
 
-function handlePropensities(checked_propensities){
-  if (checked_propensities){
-      console.log("Checked")
-  }else{
-      console.log("UnChecked")
-  }
-  
-};
-
-
 function getCookie(name) {
   var cookieValue = null;
   if (document.cookie && document.cookie !== '') {
@@ -196,7 +167,9 @@ function getCookie(name) {
   }
   return cookieValue;
 };
-var csrftoken = getCookie('csrftoken');    function csrfSafeMethod(method) {
+var csrftoken = getCookie('csrftoken');
+
+function csrfSafeMethod(method) {
   // these HTTP methods do not require CSRF protection
   return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
 };
@@ -210,9 +183,6 @@ $.ajaxSetup({
 
 function ajax(url, optional_data='') {
   if (optional_data != ''){
-      //var el = document.getElementsByName("csrfmiddlewaretoken");
-      //csrf_value = Cookies.get('csrftoken');
-      //csrf_value = el[0].getAttribute("value");
       return new Promise((resolve, reject) => {
           $.ajax({
               url: url,
@@ -272,7 +242,6 @@ var filterAvailablePolymers = function(chain_list, aln_id, vueObj) {
               }
           }
       }
-  // console.log("___" + temp_arr[temp_arr.length - 1]["sequence"] + "___");
   let chain_options = Array.from(new Set(temp_arr.map(JSON.stringify))).map(JSON.parse);
   if (chain_options.length === 0) {
       var elt = document.querySelector("#onFailedChains");
@@ -319,16 +288,16 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
         if (vueObj.fasta_data) {vueObj.fasta_data = null;}
         if (vueObj.fastaSeqNames) {vueObj.fastaSeqNames = null;}
         if (vueObj.frequency_data) {vueObj.frequency_data = null;}
-        if (vueObj.topology_loaded) {vueObj.topology_loaded = 'False';}
         if (aln_item) {aln_item.remove(); create_deleted_element("alnif", "alnDiv", aln_text)}
     }
     window.mapped_aa_properties = null;
+    vueObj.checked_propensities = null;
     vueObj.structure_mapping = null;
     vueObj.poor_structure_map = null;
     window.ajaxRun = false;
+    if (vueObj.topology_loaded) {vueObj.topology_loaded = false;}
     if (window.masked_array.length > 0) {window.masked_array = [];}
     if (vueObj.masking_range) {vueObj.masking_range = null;}
-    //if (vueObj.chainid) {vueObj.chainid = null;}
     if (vueObj.checked_filter) {vueObj.checked_filter = false;}
     if (vueObj.checked_customMap) {vueObj.checked_customMap = false;}
     if (vueObj.csv_data) {vueObj.csv_data = null;}

@@ -32,7 +32,7 @@ export function XSlider (props){
           style = {{ 
               width: (window.innerWidth - 300) * 0.7+"px",
               position: "relative",
-              left: (window.innerWidth - 300) * 0.2+"px"
+              left: ((window.innerWidth - 300) * 0.2)+3+"px"
               }}
           type="range"
           min="1"

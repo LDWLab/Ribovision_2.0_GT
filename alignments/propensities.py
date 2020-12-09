@@ -92,7 +92,10 @@ def aa_composition(file_path, reduced = True, indices = None):
             name = record.name.split('|')[0]
             species_dict = {'name' : name}
             for aa in aa_counts:
-                species_dict[aa] = aa_counts[aa] / length
+                if length > 0:
+                    species_dict[aa] = aa_counts[aa] / length
+                else:
+                    species_dict[aa] = 0
             aa_dict[name] = species_dict
 
     return aa_dict

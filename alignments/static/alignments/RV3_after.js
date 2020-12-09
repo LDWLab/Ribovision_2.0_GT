@@ -16,7 +16,7 @@ var registerHoverResiData = function (e, tooltipObj){
             if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right){
               let tooltipPosition = {
                 top: mousePos.y-boundingBox.top+15 +"px",
-                left: mousePos.x-relativeBox.left+boundLabelBox.right-boundLabelBox.left+5 +"px",
+                left: mousePos.x-relativeBox.left+boundLabelBox.right-boundLabelBox.left+8 +"px",
               };
               if (resiData["Structural fold"][0] !== undefined && resiData["Associated data"][0] !== undefined){
                   tooltipObj.setState({
@@ -55,6 +55,26 @@ var registerHoverResiData = function (e, tooltipObj){
   return true;
 };
 
+function isCorrectMask(mask_range){
+    window.masking_range_array = null;
+    if (mask_range.match(/^(\d+-\d+;)+$/)) {
+        var temp_array = mask_range.split(';').join('-').split('-');
+        temp_array = temp_array.slice(0, -1)
+        var i = 0;
+        var isCorrect = true;
+        while(i < temp_array.length) {
+            if(i % 2 == 0) {
+                if(Number(temp_array[i]) > Number(temp_array[i + 1])) {
+                    isCorrect = false;
+                }
+            }
+            i = i + 1;
+        }
+        window.masking_range_array = temp_array;
+    }
+    return isCorrect;
+  };
+
 function handleMaskingRanges(mask_range){
   vm.masking_range = mask_range;
   window.masking_range_array = null;
@@ -67,7 +87,7 @@ function handleMaskingRanges(mask_range){
       window.masked_array = initializeMaskedArray();          
       var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
 
-      var index = 4;
+      var index = 1;
       while(index < topviewer.pluginInstance.domainTypes.length) {
           colorResidue(index, window.masked_array);
           index++;
@@ -84,40 +104,46 @@ function handleMaskingRanges(mask_range){
   }
 };
 function handleFilterRange(filter_range) {
-  const temp_array = filter_range.split('-');
-  if (filter_range.match(/^\d+-\d+/) && Number(temp_array[0]) < Number(temp_array[1])) {
-      vm.filter_range = filter_range;
-      window.filterRange = temp_array.join(",");
-      var topviewer = document.getElementById("PdbeTopViewer");
-      var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
-      topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);   
-      viewerInstance.visual.update({
-          customData: {
-              url: `https://www.ebi.ac.uk/pdbe/coordinates/${window.pdblower}/residueRange?entityId=${topviewer.entityId}&range=${filter_range}&encoding=bcif`,
-              format: 'cif',
-              binary:true },
-          assemblyId: '1',
-          subscribeEvents: true,
-          bgColor: {r:255,g:255,b:255},
-      });
-      viewerInstance.events.loadComplete.subscribe(() => { 
-          let selectedData = topviewer.pluginInstance.domainTypes[selectedIndex];
-          if(selectSections_RV1.get(selectedData.label)) {
-              let select_sections = selectSections_RV1.get(selectedData.label).slice(Number(temp_array[0]), Number(temp_array[1])+1);
-              window.viewerInstance.visual.select({
-              data: select_sections,
-              nonSelectedColor: {r:255,g:255,b:255}});
-          }
-          //var selectedDomain = topviewer.pluginInstance.domainTypes[selectedIndex];
-          //topviewer.updateTheme(selectedDomain.data);
-       });
-       topviewer.pluginInstance.initPainting(window.select_sections)
-       let selectedData = topviewer.pluginInstance.domainTypes[selectedIndex];
-       topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);   
-       topviewer.pluginInstance.updateTheme(selectedData.data); 
-  }else{
-      //
-  }
+    if (filter_range.match(/^\d+-\d+;/)) {
+        var filter_range = filter_range.slice(0, -1);
+        const temp_array = filter_range.split('-');
+        if (Number(temp_array[0]) < Number(temp_array[1])){
+            window.filterRange = temp_array.join(",");
+            var topviewer = document.getElementById("PdbeTopViewer");
+            var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
+            topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);   
+            viewerInstance.visual.update({
+                customData: {
+                    url: `https://www.ebi.ac.uk/pdbe/coordinates/${window.pdblower}/residueRange?entityId=${topviewer.entityId}&range=${filter_range}&encoding=bcif`,
+                    format: 'cif',
+                    binary:true },
+                assemblyId: '1',
+                subscribeEvents: true,
+                bgColor: {r:255,g:255,b:255},
+            });
+            viewerInstance.events.loadComplete.subscribe(() => { 
+                let selectedData = topviewer.pluginInstance.domainTypes[selectedIndex];
+                if(selectSections_RV1.get(selectedData.label)) {
+                    let select_sections = selectSections_RV1.get(selectedData.label).slice(Number(temp_array[0]), Number(temp_array[1])+1);
+                    window.viewerInstance.visual.select({
+                    data: select_sections,
+                    nonSelectedColor: {r:255,g:255,b:255}});
+                }
+                if (selectedIndex > 0){
+                    var selectedDomain = topviewer.pluginInstance.domainTypes[selectedIndex];
+                    topviewer.pluginInstance.updateTheme(selectedDomain.data);
+                }
+            });
+            topviewer.pluginInstance.initPainting(window.select_sections)
+            let selectedData = topviewer.pluginInstance.domainTypes[selectedIndex];
+            topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);   
+            topviewer.pluginInstance.updateTheme(selectedData.data);
+        }else{
+            //Swapped start end
+        }
+    }else{
+        //Incorrect syntax
+    }
 };
 
 function colorResidue(index, masked_array) {
@@ -286,6 +312,9 @@ function handlePropensities(checked_propensities){
         for (let i = 0; i < sequence_indices.length; i++) {
             sequence_indices[i] = parseInt(sequence_indices[i])
         }
+        var full = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y'];
+        let url = null;
+        let indices = null;
         if (vm.structure_mapping) {
             let alignment_indices = []
             let inverse_structure_mapping = {}
@@ -296,13 +325,55 @@ function handlePropensities(checked_propensities){
             for (var sequence_index of sequence_indices) {
                 alignment_indices.push(inverse_structure_mapping[sequence_index])
             }
-            let indices = alignment_indices.join(',')
-            ajax(`/propensity-data/${vm.alnobj.id}/${vm.tax_id.join(',')}`, {indices}).then(trimmed_fasta => {
-                
-            });
+            indices = alignment_indices.join(',')
+            url = `/propensity-data/${vm.alnobj.id}/${vm.tax_id.join(',')}`
         } else {
-            // let aln_name = document.getElementById('selectaln').value
-            window.location = "http://127.0.0.1:8001/propensities/uL02/2"
+            indices = '';
+            url = `/propensity-data/${vm.alnobj.id}/${vm.tax_id}`
         }
+        ajax(url, {indices}).then(data => {
+            build_propensity_graph(data['amino acid'], full, vm.alnobj.text + ' ' + 'Amino Acid Propensities for ' + vm.tax_id.join(' '), 'total');
+        });
+
     }
+}
+
+var build_propensity_graph = function (data, amino_acids, title, div) {
+    // reformat data into trace format
+    var data2 = {};
+    var hover = {};
+    // initialize arrays for each amino acid in the JavaScript object
+    for (aa of amino_acids) {
+        data2[aa] = [];
+        hover[aa] = [];
+    }
+    // for a species, add the propensities for each amino acid to thei
+    for (species in data) {
+        for (aa of amino_acids) {
+            data2[aa].push(data[species][aa])
+            hover[aa].push(data[species]['name'].replace(/_/g, ' '))
+        }
+    };
+    // build traces
+    traces = []
+    for (aa of amino_acids) {
+        // styling - can we make this a stripplot?
+        var newtrace = {
+            y: data2[aa],
+            type: 'box',
+            boxpoints: 'all',
+            jitter: 0.2,
+            pointpos: 0,
+            name: aa,
+            text: hover[aa]};
+        traces.push(newtrace)
+    };
+    
+    var layout = {
+        title: title,
+        xaxis: {title: 'amino acid group'},
+        yaxis: {title: 'propensity'},
+        hovermode: 'closest',
+        hoveron: 'points'};
+    Plotly.newPlot(div, traces, layout);
 }
