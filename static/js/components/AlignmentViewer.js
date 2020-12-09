@@ -85,6 +85,13 @@ var AlnViewer = class RV3AlnViewer extends Component {
                 });
             }
         }
+        //if (prop_loaded){
+        //    let seqIx = vm.fastaSeqNames.indexOf(e.sequence.name.split(' ').slice(1,).join(' '))
+        //    Plotly.Fx.hover('total',[
+        //        {curveNumber:5, pointNumber:5},
+        //        {curveNumber:6, pointNumber:6}
+        //    ]);
+        //}
         if (!window.ajaxRun){
             if (e.position !== undefined){
                 window.ajaxRun = true;

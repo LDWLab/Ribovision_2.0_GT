@@ -375,6 +375,25 @@ var build_propensity_graph = function (data, amino_acids, title, div) {
         xaxis: {title: 'amino acid group'},
         yaxis: {title: 'propensity'},
         hovermode: 'closest',
-        hoveron: 'points'};
+        hoveron: 'points',
+    };
     Plotly.newPlot(div, traces, layout);
+
+    var myPlot = document.getElementById(div)
+    myPlot.on('plotly_hover', function(data){
+        data.points.map(function(d){
+            let seqname = d.text.split(' ').slice(1,).join(' ')
+            AlnViewer.highlightRegion({
+                sequences: {from: vm.fastaSeqNames.indexOf(seqname), to: vm.fastaSeqNames.indexOf(seqname)},
+                residues: {from: 0, to: vm.fasta_data.split('>')[1].split('\n')[1].length}
+            })
+        });
+        //Plotly.Fx.hover(div,[
+        //    { curveNumber:0, pointNumber:1 },
+        //    { curveNumber:1, pointNumber:2 },
+        //    { curveNumber:2, pointNumber:3 },
+        //]);
+    }).on('plotly_unhover', function(data){
+        //
+    });
 }
