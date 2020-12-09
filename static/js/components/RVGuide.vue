@@ -106,7 +106,7 @@
         },{
             target: '#pdb_input',
             header: {
-                title: 'Select pdb id for structure display',
+                title: 'Select PDB id for structure display',
             },
             content: `Select a PDB from the available ones in the dropdown menu.`,
             params: {
@@ -242,7 +242,8 @@
             header: {
                 title: 'Upload custom alignment',
             },
-            content: `Upload custom alignment in fasta format to be visualized and analyzed.`,
+            content: `Using a custom alignment is the other mode of operation.<br/>
+            Changing between modes clears the viewers.`,
             params: {
               placement: 'right'
             },
@@ -274,7 +275,8 @@
             header: {
                 title: 'Upload the chosen alignment.',
             },
-            content: `Must be fasta format!`,
+            content: `The alignment will be sent to our server, but it won't be stored there. <br/>
+            Our server will calculate amino-acid propensities and check the format.`,
             params: {
               placement: 'right'
             },
@@ -282,6 +284,83 @@
                 let uploadButton = document.querySelector("#uploadShowFasta")
                 resolve (
                     uploadButton.click(),
+                )
+            })
+        },{
+            target: '#pdb_input_custom',
+            header: {
+                title: 'Write a PDB ID for structure display',
+            },
+            content: `In the case of uploaded alignment we let you write in any PDB ID of length 4.`,
+            params: {
+              placement: 'right'
+            },
+            before: type => new Promise((resolve, reject) => {
+                resolve (
+                    vm.pdbid = "1efu",
+                )
+            })
+        },{
+            target: '#polymerSelect',
+            header: {
+                title: 'Select polymer for structure display',
+            },
+            content: `In the case of uploaded alignment we do not filter the avaialable PDB chains. <br/>
+            You can select any polymer from the PDB structure.`,
+            params: {
+              placement: 'right'
+            },
+            before: type => new Promise((resolve, reject) => {
+                var polSele = document.querySelector("#polymerSelect")
+                resolve (
+                    vm.chainid = ["B"],
+                    vm.$nextTick(function(){
+                        polSele.lastElementChild.click();
+                    }),
+                )
+            })
+        },{
+            target: '#warningPoorStructureAln',
+            header: {
+                title: 'Warning for poor alignment.',
+            },
+            content: `A warning will be displayed here when the selected structure and alignment sequences 
+            have poor alignment.<br/>
+            The number of misaligned positions will be indicated.<br/>
+            The user can input a different pdb or select a new chain or restart with a new alignment.`,
+            params: {
+              placement: 'right'
+            },
+        },{
+            target: '#pdb_input_custom',
+            header: {
+                title: 'Write a different PDB ID for structure display',
+            },
+            content: `Writing a new PDB id will clear all data related to the old PDB.`,
+            params: {
+              placement: 'right'
+            },
+            before: type => new Promise((resolve, reject) => {
+                resolve (
+                    vm.pdbid = "1eft",
+                )
+            })
+        },{
+            target: '#polymerSelect',
+            header: {
+                title: 'Select polymer for structure display',
+            },
+            content: `Selecting a polymer that produces good alignment with the sequence alignment does not raise a warning.`,
+            params: {
+              placement: 'right'
+            },
+            before: type => new Promise((resolve, reject) => {
+                var polSele = document.querySelector("#polymerSelect")
+                resolve (
+                    vm.chainid = ["A"],
+                    vm.$nextTick(function(){
+                        polSele.lastElementChild.click();
+                    }),
                 )
             })
         },
