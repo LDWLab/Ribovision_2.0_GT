@@ -1577,6 +1577,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
     PdbTopologyViewerPlugin.prototype.resetDisplay = function () {
         var selectBoxEle = this.targetEle.querySelector('.menuSelectbox');
         selectBoxEle.value = 0;
+        this.resetTheme();
         this.displayDomain();
     };
     PdbTopologyViewerPlugin.prototype.handleSeqViewerEvents = function (e, eType) {
