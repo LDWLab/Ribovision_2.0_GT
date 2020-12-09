@@ -1474,8 +1474,8 @@ class PdbTopologyViewerPlugin {
                 label: 'Annotation',
                 data: null
             }];
-            this.getAnnotationFromMappings();
-            this.getAnnotationFromOutliers();
+            //this.getAnnotationFromMappings();
+            //this.getAnnotationFromOutliers();
             this.getAnnotationFromRibovision(mapped_aa_properties);
             this.selectedDomain = this.domainTypes[0];
         }
