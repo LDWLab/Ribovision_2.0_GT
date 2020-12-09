@@ -456,12 +456,18 @@ def trim_fasta_by_index(input_file, indices):
         trimmed_align += align[:,int(i):int(i)+1]
     return trimmed_align
 
-# TODO: change this back
+def propensity_data_custom (request):
+    response = propensity_data(request, None, None)
+    return response
+
 def propensity_data(request, aln_id, tax_group):
     from io import StringIO
     import alignments.propensities as propensities
 
-    fastastring = simple_fasta(request, aln_id, tax_group, internal=True).replace('\\n', '\n')
+    if request.method == 'POST' and 'customFasta' in request.POST and aln_id is None:
+        fastastring = request.POST['customFasta']
+    else:
+        fastastring = simple_fasta(request, aln_id, tax_group, internal=True).replace('\\n', '\n')
     fasta = StringIO(fastastring)
 
     if request.method == 'POST' and 'indices' in request.POST:
