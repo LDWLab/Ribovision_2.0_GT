@@ -174,3 +174,11 @@
   #polymerSelect{
     max-width: 250px;
   }
+
+  #inputUploadFasta,#inputUploadCSV{
+    max-width: 250px;
+    margin-right: auto;
+    word-wrap: break-word;
+    overflow: auto;
+    white-space: normal;
+  }

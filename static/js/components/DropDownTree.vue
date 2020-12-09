@@ -54,10 +54,10 @@
                 <option :value ="null" selected disabled>Select polymer</option>
                 <option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid, chain.entityID)">{{ chain.text }}</option>
             </select></p>
-            <div v-if="poor_structure_map">
+            <div v-if="poor_structure_map" id="warningPoorStructureAln">
                 <p style="color:#DE3163"><b>Warning!!!<br>
-                Poor structure-alignment mapping!<br>
-                Found {{poor_structure_map}} poorly mapped residues.<br>
+                Poor structure-alignment alignment!<br>
+                Found {{poor_structure_map}} poorly aligned residues.<br>
                 Proceed with caution or try a different structure.</b></p>
             </div>
             <div v-if="structure_mapping">
@@ -95,7 +95,7 @@
                 <p><div class="checkbox">
                         <label><input type="checkbox" v-model="checked_customMap" v-on:change="cleanCustomMap(checked_customMap)">
                         Upload custom mapping data</label>
-                        <p><input v-if="checked_customMap" type="file" accept=".csv" ref="custom_csv_file" v-on:change="handleCustomMappingData()"/></p>
+                        <p><input class="btn btn-outline-dark" id="inputUploadCSV" v-if="checked_customMap" type="file" accept=".csv" ref="custom_csv_file" v-on:change="handleCustomMappingData()"/></p>
                     </div>
                 </p></div>
             </div>
