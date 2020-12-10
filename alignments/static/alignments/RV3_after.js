@@ -194,7 +194,9 @@ function cleanFilter(checked_filter, masking_range){
       topviewer.pluginInstance.getAnnotationFromRibovision(window.custom_prop);
   }
   var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
-  topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data); 
+  if (selectedIndex > 0){
+    topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data); 
+  }
   window.viewerInstance.visual.select({data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), nonSelectedColor: {r:255,g:255,b:255}});
 };
 function cleanSelection(checked_selection, filter_range){
@@ -212,7 +214,8 @@ function cleanSelection(checked_selection, filter_range){
           binary:true },
       assemblyId: '1',
       subscribeEvents: true,
-      bgColor: {r:255,g:255,b:255},});
+      bgColor: {r:255,g:255,b:255},
+    });
   topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);
   if(window.custom_prop) {
       topviewer.pluginInstance.getAnnotationFromRibovision(window.custom_prop);

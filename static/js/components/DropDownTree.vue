@@ -196,6 +196,7 @@
             if (csv_data == null){
                 selectBoxEle.removeChild(selectBoxEle.childNodes[selectBoxEle.options.length-1]);
                 topviewer.pluginInstance.resetTheme();
+                //clean up 3D
                 return;
             }
             let custom_data = csv_data.split('\n').map(function(e){
