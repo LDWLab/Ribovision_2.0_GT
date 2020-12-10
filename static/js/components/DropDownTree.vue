@@ -96,6 +96,10 @@
                         <label><input type="checkbox" v-model="checked_customMap" v-on:change="cleanCustomMap(checked_customMap)">
                         Upload custom mapping data</label>
                         <p><input class="btn btn-outline-dark" id="inputUploadCSV" v-if="checked_customMap" type="file" accept=".csv" ref="custom_csv_file" v-on:change="handleCustomMappingData()"/></p>
+                        <p v-if="raiseCustomCSVWarn" v-html="raiseCustomCSVWarn"></p>
+                        <p><button class="btn btn-outline-dark" id="downloadExampleCSV" v-if="raiseCustomCSVWarn" type="button" v-on:click="downloadCSVData()">
+                        Download example mapping data
+                        </button></p>
                     </div>
                 </p></div>
             </div>
@@ -103,7 +107,7 @@
         <div class="alignment_section">
             <div id="alnif" v-if="alnobj">
                 <div id="alnMenu" style="display: flex;">
-                    <button id="downloadFastaBtn" class="btn btn-outline-dark" style="margin: 0 1%;" v-if="colorScheme"  type="button" v-on:click="downloadAlignmentData()">
+                    <button id="downloadFastaBtn" class="btn btn-outline-dark" style="margin: 0 1%;" v-if="colorScheme" type="button" v-on:click="downloadAlignmentData()">
                         Download alignment
                     </button>
                     <button id="downloadAlnImageBtn" class="btn btn-outline-dark" style="margin: 0 1%;" v-if="colorScheme"  type="button" v-on:click="downloadAlignmentImage()">
@@ -181,6 +185,8 @@
             checked_selection: false,
             checked_customMap: false,
             csv_data: null,
+            custom_headers: [],
+            raiseCustomCSVWarn: null,
             checked_propensities: false,
             coil_residues: null,
             helix_residues: null,
@@ -192,44 +198,65 @@
       watch: {
         csv_data: function (csv_data) {
             var topviewer = document.getElementById("PdbeTopViewer");
-            var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
+            cleanCustomMap(this.checked_customMap);
+            this.raiseCustomCSVWarn = null;
+            this.custom_headers = [];
             if (csv_data == null){
-                selectBoxEle.removeChild(selectBoxEle.childNodes[selectBoxEle.options.length-1]);
                 topviewer.pluginInstance.resetTheme();
                 //clean up 3D
                 return;
             }
-            let custom_data = csv_data.split('\n').map(function(e){
-                return e.split(',').map(Number);
-            })
-            if (custom_data[custom_data.length-1] == 0){custom_data.splice(-1,1)}
-            if (topviewer != null && topviewer.pluginInstance.domainTypes != undefined){
-                let vals = custom_data.map(function(v){ return v[1] });
-                let indexes = custom_data.map(function(v){ return v[0] });
-                window.aaColorData.set("CustomData", [viridis]);
-                window.aaPropertyConstants.set("CustomData", [Math.min(...vals), Math.max(...vals)]);
-                let coilsOutOfCustom = this.coil_residues.filter(value => !indexes.includes(value));
-                window.coilsOutOfCustom = coilsOutOfCustom;
-                var custom_prop = new Map();
-                custom_prop.set("CustomData", custom_data);
-                topviewer.pluginInstance.getAnnotationFromRibovision(custom_prop);
-                window.custom_prop = custom_prop;
-                var custom_option = document.createElement("option");
-                custom_option.setAttribute("value", selectBoxEle.options.length);
-                custom_option.appendChild(document.createTextNode("Custom Data"));
-                selectBoxEle.appendChild(custom_option);
-                if(this.correct_mask) {
-                    var j = topviewer.pluginInstance.domainTypes.length-1;
-                    colorResidue(j, window.masked_array);
+            var csvArray = csv_data.split('\n');
+            var custom_header = csvArray.shift().replace(/^\s+|\s+$/g, '').split(',');
+            var headerLength = custom_header.length;
+            if (csvArray[csvArray.length-1] == 0 || csvArray[csvArray.length-1] == ''){csvArray.splice(-1,1)}
+            if (custom_header[0] != 'Index'){
+                this.raiseCustomCSVWarn = 'Bad CSV format:<br/>No defined index header!'
+                return;
+            }
+            if (custom_header.length < 2 || custom_header[custom_header.length-1] == ''){
+                  this.raiseCustomCSVWarn = 'Bad CSV format:<br/>Bad data header definition!'
+                  return;
+            }
+            if (custom_header.some(r=> Array.from(mapped_aa_properties.keys()).includes(r))){
+                this.raiseCustomCSVWarn = 'Bad CSV format:<br/>Header definitions exist in RV3!<br/>Use different headers.'
+                return;
+            }
+            if (new Set(custom_header).size !== custom_header.length){
+                this.raiseCustomCSVWarn = 'Bad CSV format:<br/>Duplicate header definitions.'
+                return;
+            }
+            let customDataObj = csvArray.map(function(e){
+                let currentDat = e.split(',');
+                if (e[e.length-1] != ',' && currentDat.length == headerLength){
+                    return { ix: currentDat[0], data: currentDat.slice(1) }
+                } else {
+                    return 'MISMATCH'
                 }
-                let selectedIndex = selectBoxEle.options.length-1;
-                topviewer.pluginInstance.resetTheme();
-                topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data);
-                window.viewerInstance.visual.select({
-                    data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), 
-                    nonSelectedColor: {r:255,g:255,b:255}
-                });
-                selectBoxEle.selectedIndex = selectedIndex;
+            })
+            if (customDataObj.includes('MISMATCH')){
+                this.raiseCustomCSVWarn = 'Bad CSV format:<br/>Mismatch between header and data!'
+                return;
+            }
+            let customDataArrays = [];
+            let customDataNames = [];
+            var colIndex = 0;
+            while (colIndex < headerLength-1) {
+                let tempArr = [];
+                customDataObj.forEach((row) => 
+                    tempArr.push([Number(row.ix), Number(row.data[colIndex])])
+                )
+                customDataNames.push()
+                customDataArrays.push(tempArr);
+                colIndex += 1;
+            }
+
+            if (topviewer != null && topviewer.pluginInstance.domainTypes != undefined){
+                for (let ix = 0; ix < customDataArrays.length; ix++) {
+                    this.custom_headers.push(custom_header[ix+1]);
+                    mapCustomMappingData(customDataArrays[ix], custom_header[ix+1], topviewer);
+                }
+                displayMappingDataByIndex(topviewer, topviewer.pluginInstance.domainTypes.length-1);
             }
         },alnobj: function (data){
             this.populatePDBs(data);

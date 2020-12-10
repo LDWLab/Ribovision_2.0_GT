@@ -163,12 +163,19 @@ function colorResidue(index, masked_array) {
   }
 };
 function cleanCustomMap(checked_customMap){
-  if (checked_customMap){return;}
   var topviewer = document.getElementById("PdbeTopViewer");
-  topviewer.pluginInstance.domainTypes = topviewer.pluginInstance.domainTypes.filter(obj => {return obj.label !== "CustomData"})
+  var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
+  topviewer.pluginInstance.domainTypes = topviewer.pluginInstance.domainTypes.filter(obj => {
+      return !vm.custom_headers.includes(obj.label)
+    })
+  vm.custom_headers.forEach(() =>
+    selectBoxEle.removeChild(selectBoxEle.childNodes[selectBoxEle.options.length-1])
+  )
+  if (checked_customMap){return;}
   window.coilsOutOfCustom = null;
   window.custom_prop = null;
   vm.csv_data = null;
+  vm.custom_headers = [];
 };
 function handleCustomMappingData(){
   const readFile = function (fileInput) {
@@ -179,8 +186,44 @@ function handleCustomMappingData(){
       reader.readAsBinaryString(fileInput);
   };
   readFile(vm.$refs.custom_csv_file.files[0]);
-
 };
+
+var displayMappingDataByIndex = function(topviewer, selectedIndex){
+    var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
+    topviewer.pluginInstance.resetTheme();
+    topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data);
+    window.viewerInstance.visual.select({
+        data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), 
+        nonSelectedColor: {r:255,g:255,b:255}
+    });
+    selectBoxEle.selectedIndex = selectedIndex;
+}
+
+var mapCustomMappingData = function(custom_data, custom_data_name, topviewer){
+    var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
+    let vals = custom_data.map(function(v){ return v[1] });
+    let indexes = custom_data.map(function(v){ return v[0] });
+    window.aaColorData.set(custom_data_name, [viridis]);
+    window.aaPropertyConstants.set(custom_data_name, [Math.min(...vals), Math.max(...vals)]);
+    let coilsOutOfCustom = vm.coil_residues.filter(value => !indexes.includes(value));
+    window.coilsOutOfCustom = coilsOutOfCustom;
+    var custom_prop = new Map();
+    custom_prop.set(custom_data_name, custom_data);
+    if (window.custom_prop){
+        window.custom_prop.set(custom_data_name, custom_data)
+    } else {
+        window.custom_prop = custom_prop;
+    }
+    topviewer.pluginInstance.getAnnotationFromRibovision(custom_prop);
+    var custom_option = document.createElement("option");
+    custom_option.setAttribute("value", selectBoxEle.options.length);
+    custom_option.appendChild(document.createTextNode(custom_data_name));
+    selectBoxEle.appendChild(custom_option);
+    if(vm.correct_mask) {
+        var j = topviewer.pluginInstance.domainTypes.length-1;
+        colorResidue(j, window.masked_array);
+    }
+}
 
 function cleanFilter(checked_filter, masking_range){
   if (checked_filter){return;}
