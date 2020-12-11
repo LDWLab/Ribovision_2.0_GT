@@ -133,32 +133,16 @@
                 <div id = "total"></div>
             </span>
         </div>
-        <footer style="display: flex;">
-            <div class="white-box" style="float: left;">
-                <a href="http://prebioticchem.info/" target="_blank">
-                    <img 
-                        style="height:75px; padding:5px;padding-right:2px;"
-                        src="/static/ribovision/images/NASALogo.png" 
-                        class="ComboLogo" 
-                        title="NASA Astrobiology Institute (NAI)" alt="NASA Logo">
-                </a>
-            </div>
-            <p style="padding:10px;"></p>
-            <div class="white-box" style="float: left;">
-                <a href="http://cool.gatech.edu/" target="_blank">
-                    <img 
-                        style="height:75px; padding:10px;padding-top:2px;"
-                        src="static/ribovision/images/cool_logo.png" 
-                        title="Center for the Origin Of Life (COOL)" 
-                        alt="COOL Logo">
-                </a>
-            </div>
+        <footer>
+            <div id="footerDiv" style="display: flex;"></div>
         </footer>
     </div>
 </template>
 
 
 <script>
+  import {addFooterImages} from './Footer.js'
+  import {initialState} from './DropDownTreeVars.js'
   import {AlnViewer} from './AlignmentViewer.js'
   import ReactDOM, { render } from 'react-dom';
   import React, { Component } from "react";
@@ -166,51 +150,8 @@
   export default {
       // register the component
       components: { Treeselect },
-      data() {
-        return {
-            tax_id: null,
-            alnobj: null,
-            options: null,
-            alignments: null,
-            pdbs: [
-                {id: "4v9d", name: "4V9D E. coli"},
-                {id: "4v6u", name: "4V6U P. furiosus"},
-                {id: "4ug0", name: "4UG0 H. sapiens"},
-                ],
-            availColorschemes: [
-                "buried","cinema","clustal","clustal2","helix","lesk","mae","nucleotide","purine","strand","taylor","turn","zappo",
-                ],
-            pdbid: null,
-            chains: null,
-            chainid: null,
-            fasta_data: null,
-            fastaSeqNames: null,
-            colorScheme: null,
-            hide_chains: null,
-            type_tree: "orth",
-            aa_properties: null,
-            structure_mapping: null,
-            poor_structure_map: null,
-            file: null,
-            custom_aln_twc_flag: null,
-            topology_loaded: false,
-            twc_loaded: false,
-            masking_range: null,
-            filter_range: null,
-            correct_mask: null,
-            checked_filter: false,
-            checked_selection: false,
-            checked_customMap: false,
-            csv_data: null,
-            custom_headers: [],
-            raiseCustomCSVWarn: null,
-            checked_propensities: false,
-            coil_residues: null,
-            helix_residues: null,
-            strand_residues: null,
-            substructures: null,
-            property: null,
-        }
+      data: function () {
+        return initialState();
       },
       watch: {
         csv_data: function (csv_data) {
@@ -643,6 +584,9 @@
         },listSecondaryStructures() {
             listSecondaryStructures();
         }
+    }, 
+    mounted() {
+        addFooterImages("footerDiv");
     }
 }
 </script>
