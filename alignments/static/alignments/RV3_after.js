@@ -169,12 +169,19 @@ function colorResidue(index, masked_array) {
   }
 };
 function cleanCustomMap(checked_customMap){
-  if (checked_customMap){return;}
   var topviewer = document.getElementById("PdbeTopViewer");
-  topviewer.pluginInstance.domainTypes = topviewer.pluginInstance.domainTypes.filter(obj => {return obj.label !== "CustomData"})
+  var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
+  topviewer.pluginInstance.domainTypes = topviewer.pluginInstance.domainTypes.filter(obj => {
+      return !vm.custom_headers.includes(obj.label)
+    })
+  vm.custom_headers.forEach(() =>
+    selectBoxEle.removeChild(selectBoxEle.childNodes[selectBoxEle.options.length-1])
+  )
+  if (checked_customMap){return;}
   window.coilsOutOfCustom = null;
   window.custom_prop = null;
   vm.csv_data = null;
+  vm.custom_headers = [];
 };
 function handleCustomMappingData(){
   const readFile = function (fileInput) {
@@ -185,7 +192,58 @@ function handleCustomMappingData(){
       reader.readAsBinaryString(fileInput);
   };
   readFile(vm.$refs.custom_csv_file.files[0]);
+};
 
+var displayMappingDataByIndex = function(topviewer, selectedIndex){
+    var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
+    topviewer.pluginInstance.resetTheme();
+    topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data);
+    window.viewerInstance.visual.select({
+        data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), 
+        nonSelectedColor: {r:255,g:255,b:255}
+    });
+    selectBoxEle.selectedIndex = selectedIndex;
+}
+
+var mapCustomMappingData = function(custom_data, custom_data_name, topviewer){
+    var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
+    let vals = custom_data.map(function(v){ return v[1] });
+    let indexes = custom_data.map(function(v){ return v[0] });
+    window.aaColorData.set(custom_data_name, [viridis]);
+    window.aaPropertyConstants.set(custom_data_name, [Math.min(...vals), Math.max(...vals)]);
+    let coilsOutOfCustom = vm.coil_residues.filter(value => !indexes.includes(value));
+    window.coilsOutOfCustom = coilsOutOfCustom;
+    var custom_prop = new Map();
+    custom_prop.set(custom_data_name, custom_data);
+    if (window.custom_prop){
+        window.custom_prop.set(custom_data_name, custom_data)
+    } else {
+        window.custom_prop = custom_prop;
+    }
+    topviewer.pluginInstance.getAnnotationFromRibovision(custom_prop);
+    var custom_option = document.createElement("option");
+    custom_option.setAttribute("value", selectBoxEle.options.length);
+    custom_option.appendChild(document.createTextNode(custom_data_name));
+    selectBoxEle.appendChild(custom_option);
+    if(vm.correct_mask) {
+        var j = topviewer.pluginInstance.domainTypes.length-1;
+        colorResidue(j, window.masked_array);
+    }
+}
+
+var getExampleFile = function(url, name){
+    $.ajax({
+        url: url,
+        type: 'GET',
+        dataType: "text",
+        success: function(data) {
+            let anchor = document.createElement('a');
+            anchor.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(data);
+            anchor.target = '_blank';
+            anchor.download = name;
+            anchor.click();
+        },
+    })
 };
 
 function cleanFilter(checked_filter, masking_range){
@@ -305,29 +363,40 @@ function getPropensities(sequence_indices) {
         let alignment_indices = []
         let inverse_structure_mapping = {}
         for (var key in vm.structure_mapping) {
-            let value = vm.structure_mapping[key]
-            inverse_structure_mapping[value] = key
+            if (key != "BadMappingPositions"){
+                let value = vm.structure_mapping[key]
+                inverse_structure_mapping[value] = key
+            }
         }
         for (var sequence_index of sequence_indices) {
-            alignment_indices.push(inverse_structure_mapping[sequence_index])
+            if (inverse_structure_mapping[sequence_index]){
+                alignment_indices.push(inverse_structure_mapping[sequence_index])
+            }
         }
         indices = alignment_indices.join(',')
-        url = `/propensity-data/${vm.alnobj.id}/${vm.tax_id.join(',')}`
+        // url = `/propensity-data/${vm.alnobj.id}/${vm.tax_id.join(',')}`
     } else {
         indices = '';
-        url = `/propensity-data/${vm.alnobj.id}/${vm.tax_id}`
+        // url = `/propensity-data/${vm.alnobj.id}/${vm.tax_id}`
     }
     vm.propensity_indices = indices
-    vm.propensity_url = url
+    vm.fasta_data
 }
 
-function handlePropensities(checked_propensities){
-    if (checked_propensities){
+function handlePropensities(checked_propensities) {
+    if (checked_propensities) {
         let indices = vm.propensity_indices
         var full = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y'];
-        ajax(vm.propensity_url, {indices}).then(data => {
-            build_propensity_graph(data['amino acid'], full, vm.alnobj.text + ' ' + 'Amino Acid Propensities for ' + vm.tax_id.join(' '), 'total');
-        });
+        let customFasta = vm.fasta_data
+        if (indices) {
+            ajax("/propensity-data-custom/", {indices, customFasta}).then(data => {
+                build_propensity_graph(data['amino acid'], full, vm.alnobj.text + ' ' + 'Amino Acid Propensities', 'total');
+            });
+        } else if (!vm.structure_mapping) {
+            ajax("/propensity-data-custom/", {customFasta}).then(data => {
+                build_propensity_graph(data['amino acid'], full, vm.alnobj.text + ' ' + 'Amino Acid Propensities', 'total');
+            });
+        }
     }
 }
 
@@ -399,8 +468,8 @@ var build_propensity_graph = function (data, amino_acids, title, div) {
         hoveron: 'points',
     };
     Plotly.newPlot(div, traces, layout);
-
-    var myPlot = document.getElementById(div)
+    var myPlot = document.getElementById(div);
+    myPlot.scrollIntoView();
     myPlot.on('plotly_hover', function(data){
         data.points.map(function(d){
             let seqname = d.text.split(' ').slice(1,).join(' ')
