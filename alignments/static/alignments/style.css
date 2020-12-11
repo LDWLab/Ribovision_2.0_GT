@@ -3,7 +3,7 @@
     height: 100vh;
     grid-template: auto 1fr 1fr 1fr auto / auto 1fr 1fr
   }
-  
+
   header {
     background: #f7a37f;
     padding: 2rem;
@@ -70,6 +70,12 @@
     color: #f8efdd;
   }
 
+  .white-box {
+    background-color: #ffffff9a;
+    border-radius: 5px;
+    color: black;
+}
+
   body {
     font-family: system-ui, sans-serif;
     overflow-x: hidden !important;
@@ -95,7 +101,13 @@
   }
 
   #alnif{
-    padding: 2%;
+    padding: 1%;
+  }
+
+  #warningPoorStructureAln{
+    padding-top: 1%;
+    color:#DE3163; 
+    text-align: center;
   }
 
   #alnMenu{

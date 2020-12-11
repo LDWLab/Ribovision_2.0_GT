@@ -3,11 +3,11 @@
         <div class="left-sidebar">
             <p id="tree_type">
                 <input type="radio" id="orthologs" value="orth" v-model="type_tree" v-on:input="cleanTreeOpts()" checked>
-                <label style="margin: 0 2%;" for="orthologs" >Orthologs</label>
+                <label style="margin: 0 1%;" for="orthologs" >DESIRE</label>
                 <!--<input type="radio" id="paralogs" value="para" v-model="type_tree" v-on:input="cleanTreeOpts()">
                 <label for="paralogs">Paralogs</label>-->
                 <input type="radio" id="upload" value="upload" v-model="type_tree" v-on:input="cleanTreeOpts()">
-                <label style="margin: 0 2%;" for="upload">Upload</label>
+                <label style="margin: 0 1%;" for="upload">User upload</label>
             </p>
             <div id="treeselect" v-if="type_tree=='para'|type_tree=='orth'">
             <treeselect ref="treeselect"
@@ -48,19 +48,10 @@
                 <input type="text" id="pdb_input_custom" v-if="alnobj&&alnobj=='custom'" v-model="pdbid" maxlength="4"></input>
                 <div v-if="hide_chains" id="onFailedChains">Looking for available polymers...</div>
             </p>
-            <p>
-                <span v-if="pdbid">Select polymer for mapping:</span>
-            </p>
             <p><select id="polymerSelect" v-bind:style="{ resize: 'both'}" multiple v-if="chains&&fasta_data&&pdbid" v-model="chainid" >
                 <option :value ="null" selected disabled>Select polymer</option>
                 <option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid, chain.entityID); ">{{ chain.text }}</option>
             </select></p>
-            <div v-if="poor_structure_map" id="warningPoorStructureAln">
-                <p style="color:#DE3163"><b>Warning!!!<br>
-                Poor structure-alignment alignment!<br>
-                Found {{poor_structure_map}} poorly aligned residues.<br>
-                Proceed with caution or try a different structure.</b></p>
-            </div>
             <div v-if="structure_mapping">
                 <button id="downloadDataBtn" class="btn btn-outline-dark" type="button" v-on:click="downloadCSVData()">
                     Download mapped properties
@@ -68,7 +59,7 @@
             </div>
             <p><div v-if="alnobj" class="checkbox">
                 <label><input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">
-                Show amino-acid propensities</label>
+                Show amino-acid frequencies</label>
                 <select v-if="structure_mapping" v-model="property" v-on:change="getPropensities(property.indices)">
                     <option :value="null" selected disabled hidden>Select a substructure</option>
                     <option v-for="substructure in substructures" v-bind:value="{ id: substructure.value, text: substructure.text, indices: substructure.indices }">{{ substructure.text }}</option>
@@ -120,6 +111,11 @@
                     </select>
                 </div>
                 <div id="alnDiv">Loading alignment...</div>
+                    <div v-if="poor_structure_map" id="warningPoorStructureAln">
+                        <b>Warning, poor alignment between the structure and sequences!!!<br/>
+                        Found {{poor_structure_map}} poorly aligned residues.
+                        Proceed with caution or try a different structure.</b>
+                    </div>
             </div>
         </div>
         <div class="topology_section">
@@ -137,7 +133,27 @@
                 <div id = "total"></div>
             </span>
         </div>
-        <footer >Footer</footer>
+        <footer style="display: flex;">
+            <div class="white-box" style="float: left;">
+                <a href="http://prebioticchem.info/" target="_blank">
+                    <img 
+                        style="height:75px; padding:5px;padding-right:2px;"
+                        src="/static/ribovision/images/NASALogo.png" 
+                        class="ComboLogo" 
+                        title="NASA Astrobiology Institute (NAI)" alt="NASA Logo">
+                </a>
+            </div>
+            <p style="padding:10px;"></p>
+            <div class="white-box" style="float: left;">
+                <a href="http://cool.gatech.edu/" target="_blank">
+                    <img 
+                        style="height:75px; padding:10px;padding-top:2px;"
+                        src="static/ribovision/images/cool_logo.png" 
+                        title="Center for the Origin Of Life (COOL)" 
+                        alt="COOL Logo">
+                </a>
+            </div>
+        </footer>
     </div>
 </template>
 
