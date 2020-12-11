@@ -133,11 +133,17 @@ function handleFilterRange(filter_range) {
                     var selectedDomain = topviewer.pluginInstance.domainTypes[selectedIndex];
                     topviewer.pluginInstance.updateTheme(selectedDomain.data);
                 }
+                topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex = selectedIndex;
             });
             topviewer.pluginInstance.initPainting(window.select_sections)
             let selectedData = topviewer.pluginInstance.domainTypes[selectedIndex];
             topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);   
-            topviewer.pluginInstance.updateTheme(selectedData.data);
+            if(selectedIndex > 0) {
+                topviewer.pluginInstance.updateTheme(selectedData.data);
+            }
+            if(vm.correct_mask){
+                handleMaskingRanges(vm.masking_range)
+            }
         }else{
             //Swapped start end
         }
@@ -154,8 +160,8 @@ function colorResidue(index, masked_array) {
           topviewer.pluginInstance.domainTypes[index].data[f].color = "rgb(255,255,255)";
           topviewer.pluginInstance.domainTypes[index].data[f].tooltipMsg = "NaN";                   
           selectSections_RV1.get(topviewer.pluginInstance.domainTypes[index].label)[f].color = {r: 255, g: 255, b: 255};
-
-      } if(!masked_array[f] && vm.coil_residues.includes(f) && topviewer.pluginInstance.domainTypes[index].data[f]) {
+      }   
+      if(!masked_array[f] && vm.coil_residues.includes(f) && topviewer.pluginInstance.domainTypes[index].data[f]) {
           topviewer.pluginInstance.domainTypes[index].data[f].color = "rgb(0,0,0)";
           topviewer.pluginInstance.domainTypes[index].data[f].tooltipMsg = "NaN";
       }                        
@@ -220,8 +226,13 @@ function cleanSelection(checked_selection, filter_range){
   if(window.custom_prop) {
       topviewer.pluginInstance.getAnnotationFromRibovision(window.custom_prop);
   }
-  topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data); 
+  if(selectedIndex > 0) {
+      topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data); 
+  }
   window.viewerInstance.visual.select({data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), nonSelectedColor: {r:255,g:255,b:255}});
+  if(vm.correct_mask) {
+      handleMaskingRanges(vm.masking_range)
+  }
 };
 
 var populatePDBs = function (alndata){

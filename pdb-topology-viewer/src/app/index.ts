@@ -757,6 +757,9 @@ class PdbTopologyViewerPlugin {
         
     }
     getAdjustedStartAndStop(secStrType: any, secStrData: any) {
+        if(secStrData == undefined) {
+            return null;
+        }
         if(secStrType != 'helices' && secStrType != 'coils' && secStrType != 'strands') {
             return [secStrData.start, secStrData.stop];
         } else if(secStrData.start === -1) {
@@ -1303,6 +1306,17 @@ class PdbTopologyViewerPlugin {
                 //_this.drawValidationShape(index, "circle", colors);
             }
         })
+        if (TWCData.size < mapped_aa_properties.get("Charge").length) {
+            for(var i = TWCData.size - 1; i < mapped_aa_properties.get("Charge").length; i++) {
+                selectSections_RV1.get(name).push({ //3d
+                    entity_id: _this.entityId,
+                    start_residue_number: i, 
+                    end_residue_number: i,
+                    color: {r:255, g:255, b:255},
+                    sideChain: false,
+                });
+            }
+        }
         return residueDetails;
     }
 

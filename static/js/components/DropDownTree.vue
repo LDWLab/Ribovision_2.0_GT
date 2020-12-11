@@ -196,7 +196,7 @@
             if (csv_data == null){
                 selectBoxEle.removeChild(selectBoxEle.childNodes[selectBoxEle.options.length-1]);
                 topviewer.pluginInstance.resetTheme();
-                //clean up 3D
+                window.viewerInstance.visual.select({data: null, nonSelectedColor: {r:255,g:255,b:255}});
                 return;
             }
             let custom_data = csv_data.split('\n').map(function(e){
@@ -226,8 +226,8 @@
                 topviewer.pluginInstance.resetTheme();
                 topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data);
                 window.viewerInstance.visual.select({
-                    data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), 
-                    nonSelectedColor: {r:255,g:255,b:255}
+                    data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label),
+                    //nonSelectedColor: {r:255,g:255,b:255}
                 });
                 selectBoxEle.selectedIndex = selectedIndex;
             }
