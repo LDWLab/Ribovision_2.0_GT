@@ -296,9 +296,11 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     vueObj.poor_structure_map = null;
     window.ajaxRun = false;
     if (vueObj.topology_loaded) {vueObj.topology_loaded = false;}
+    if (vueObj.raiseCustomCSVWarn) {vueObj.raiseCustomCSVWarn = null;}
     if (window.masked_array.length > 0) {window.masked_array = [];}
     if (vueObj.masking_range) {vueObj.masking_range = null;}
     if (vueObj.checked_filter) {vueObj.checked_filter = false;}
+    if (vueObj.checked_selection) {vueObj.checked_selection = false;}
     if (vueObj.checked_customMap) {vueObj.checked_customMap = false;}
     if (vueObj.csv_data) {vueObj.csv_data = null;}
     if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Select new chain!")}
