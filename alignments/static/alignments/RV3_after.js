@@ -352,11 +352,15 @@ function getPropensities(sequence_indices) {
         let alignment_indices = []
         let inverse_structure_mapping = {}
         for (var key in vm.structure_mapping) {
-            let value = vm.structure_mapping[key]
-            inverse_structure_mapping[value] = key
+            if (key != "BadMappingPositions"){
+                let value = vm.structure_mapping[key]
+                inverse_structure_mapping[value] = key
+            }
         }
         for (var sequence_index of sequence_indices) {
-            alignment_indices.push(inverse_structure_mapping[sequence_index])
+            if (inverse_structure_mapping[sequence_index]){
+                alignment_indices.push(inverse_structure_mapping[sequence_index])
+            }
         }
         indices = alignment_indices.join(',')
         // url = `/propensity-data/${vm.alnobj.id}/${vm.tax_id.join(',')}`
