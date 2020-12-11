@@ -161,7 +161,7 @@
             this.custom_headers = [];
             if (csv_data == null){
                 topviewer.pluginInstance.resetTheme();
-                //clean up 3D
+                window.viewerInstance.visual.select({data: null, nonSelectedColor: {r:255,g:255,b:255}});
                 return;
             }
             var csvArray = csv_data.split('\n');
