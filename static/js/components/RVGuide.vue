@@ -4,11 +4,51 @@
             <span class="title">DESIRE: DatabasE for Study and Imaging of Ribosomal Evolution</span>
             <button class="btn btn-outline-dark" v-on:click="startTour();" style="float: right;">Help</button>
         </header>
-        <v-tour name="myTour" :steps="steps" :options="{ highlight: true }"></v-tour>
+        <v-tour 
+          name="myTour"
+          :steps="steps" 
+          :callbacks="myCallbacks"
+          :options="{ highlight: true }"
+          >
+        </v-tour>
     </div>
 </template>
 
 <script>
+    import {initialState} from './DropDownTreeVars.js'
+    export default {
+        name: 'my-tour',
+        data () {
+            return {
+                steps: tourSteps,
+                myOptions: {
+                    useKeyboardNavigation: false,
+                },
+                myCallbacks: {
+                    onSkip: this.skipTour,
+                    onFinish: this.stopTour
+                }
+            }
+        },
+        methods: {
+            startTour(){
+                this.$tours['myTour'].start()
+            },
+            stopTour(){
+                Object.assign(vm.$data, initialState());
+            },
+            skipTour(){
+                Object.assign(vm.$data, initialState());
+            }
+        },
+        mounted: function () {
+            if (localStorage.getItem("hasCodeRunBefore") === null) {
+                this.$tours['myTour'].start();
+                localStorage.setItem("hasCodeRunBefore", true);
+            }
+        },
+    }
+
     var getExampleFasta = function(){
         $.ajax({
             url: `static/alignments/EFTU_example.fas`,
@@ -32,8 +72,8 @@
                 title: 'Mode of operation',
             },
             content: `Select either of two possible modes of operation.<br/>
-            <b>Orthologs</b> retrieves orthologous alignments.<br/>
-            <b>Upload</b> allows you to upload your own fasta formatted alignment.`,
+            <b>DESIRE</b> retrieves alignments from the DatabasE for Study and Imaging of Ribosomal Evolution.<br/>
+            <b>User upload</b> allows you to upload your own fasta formatted alignment.`,
             before: type => new Promise((resolve, reject) => {
                 resolve (
                     vm.type_tree="orth",
@@ -330,9 +370,6 @@
             have poor alignment.<br/>
             The number of misaligned positions will be indicated.<br/>
             The user can input a different pdb or select a new chain or restart with a new alignment.`,
-            params: {
-              placement: 'right'
-            },
         },{
             target: '#pdb_input_custom',
             header: {
@@ -368,23 +405,4 @@
         },
     ]
 
-    export default {
-        name: 'my-tour',
-        data () {
-            return {
-                steps: tourSteps
-            }
-        },
-        methods: {
-            startTour(){
-                this.$tours['myTour'].start()
-            }
-        },
-        mounted: function () {
-            if (localStorage.getItem("hasCodeRunBefore") === null) {
-                this.$tours['myTour'].start();
-                localStorage.setItem("hasCodeRunBefore", true);
-            }
-        }
-    }
 </script>
