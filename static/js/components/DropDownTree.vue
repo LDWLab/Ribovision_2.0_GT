@@ -97,7 +97,7 @@
                         Upload custom mapping data</label>
                         <p><input class="btn btn-outline-dark" id="inputUploadCSV" v-if="checked_customMap" type="file" accept=".csv" ref="custom_csv_file" v-on:change="handleCustomMappingData()"/></p>
                         <p v-if="raiseCustomCSVWarn" v-html="raiseCustomCSVWarn"></p>
-                        <p><button class="btn btn-outline-dark" id="downloadExampleCSV" v-if="raiseCustomCSVWarn" type="button" v-on:click="downloadCSVData()">
+                        <p><button class="btn btn-outline-dark" id="downloadExampleCSV" v-if="checked_customMap" type="button" v-on:click="downloadCSVData()">
                         Download example mapping data
                         </button></p>
                     </div>
@@ -227,8 +227,9 @@
                 return;
             }
             let customDataObj = csvArray.map(function(e){
-                let currentDat = e.split(',');
-                if (e[e.length-1] != ',' && currentDat.length == headerLength){
+                let stringDat = e.replace(/^\s+|\s+$/g, '')
+                let currentDat = stringDat.split(',');
+                if (stringDat[stringDat.length-1] != ',' && currentDat.length == headerLength){
                     return { ix: currentDat[0], data: currentDat.slice(1) }
                 } else {
                     return 'MISMATCH'
