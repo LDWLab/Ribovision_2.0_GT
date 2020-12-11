@@ -359,22 +359,29 @@ function getPropensities(sequence_indices) {
             alignment_indices.push(inverse_structure_mapping[sequence_index])
         }
         indices = alignment_indices.join(',')
-        url = `/propensity-data/${vm.alnobj.id}/${vm.tax_id.join(',')}`
+        // url = `/propensity-data/${vm.alnobj.id}/${vm.tax_id.join(',')}`
     } else {
         indices = '';
-        url = `/propensity-data/${vm.alnobj.id}/${vm.tax_id}`
+        // url = `/propensity-data/${vm.alnobj.id}/${vm.tax_id}`
     }
     vm.propensity_indices = indices
-    vm.propensity_url = url
+    vm.fasta_data
 }
 
-function handlePropensities(checked_propensities){
-    if (checked_propensities){
+function handlePropensities(checked_propensities) {
+    if (checked_propensities) {
         let indices = vm.propensity_indices
         var full = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y'];
-        ajax(vm.propensity_url, {indices}).then(data => {
-            build_propensity_graph(data['amino acid'], full, vm.alnobj.text + ' ' + 'Amino Acid Propensities for ' + vm.tax_id.join(' '), 'total');
-        });
+        let customFasta = vm.fasta_data
+        if (indices) {
+            ajax("/propensity-data-custom/", {indices, customFasta}).then(data => {
+                build_propensity_graph(data['amino acid'], full, vm.alnobj.text + ' ' + 'Amino Acid Propensities', 'total');
+            });
+        } else if (!vm.structure_mapping) {
+            ajax("/propensity-data-custom/", {customFasta}).then(data => {
+                build_propensity_graph(data['amino acid'], full, vm.alnobj.text + ' ' + 'Amino Acid Propensities', 'total');
+            });
+        }
     }
 }
 
