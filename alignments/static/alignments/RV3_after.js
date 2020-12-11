@@ -225,6 +225,21 @@ var mapCustomMappingData = function(custom_data, custom_data_name, topviewer){
     }
 }
 
+var getExampleFile = function(url, name){
+    $.ajax({
+        url: url,
+        type: 'GET',
+        dataType: "text",
+        success: function(data) {
+            let anchor = document.createElement('a');
+            anchor.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(data);
+            anchor.target = '_blank';
+            anchor.download = name;
+            anchor.click();
+        },
+    })
+};
+
 function cleanFilter(checked_filter, masking_range){
   if (checked_filter){return;}
   if (masking_range == null){return;}

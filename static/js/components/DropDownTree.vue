@@ -27,6 +27,7 @@
                 <p>Select alignment file: </p>
                 <p><input id="inputUploadFasta" class="btn btn-outline-dark" type = "file" accept=".fasta,.fas,.fa" ref="custom_aln_file" v-on:change="handleFileUpload()"/></p>
                 <p><button id="uploadShowFasta" class="btn btn-outline-dark" v-on:click="submitCustomAlignment()">Upload alignment</button></p>
+                <p><button id="downloadExampleFasta" class="btn btn-outline-dark" v-on:click="getExampleFile(`static/alignments/EFTU_example.fas`, `rv3ExampleAlignment.fas`)">Download example alignment</button></p>
             </div>
             <p>
                 <select id="selectaln" v-if="tax_id" v-model="alnobj">
@@ -97,7 +98,7 @@
                         Upload custom mapping data</label>
                         <p><input class="btn btn-outline-dark" id="inputUploadCSV" v-if="checked_customMap" type="file" accept=".csv" ref="custom_csv_file" v-on:change="handleCustomMappingData()"/></p>
                         <p v-if="raiseCustomCSVWarn" v-html="raiseCustomCSVWarn"></p>
-                        <p><button class="btn btn-outline-dark" id="downloadExampleCSV" v-if="checked_customMap" type="button" v-on:click="downloadCSVData()">
+                        <p><button class="btn btn-outline-dark" id="downloadExampleCSV" v-if="checked_customMap" type="button" v-on:click="getExampleFile(`static/alignments/rv3_example_cusom_mapping.csv`, `rv3ExampleCusomMapping.csv`)">
                         Download example mapping data
                         </button></p>
                     </div>
@@ -603,6 +604,8 @@
             downloadAlignmentData(vm.fasta_data);
         },downloadCSVData() {
             downloadCSVData();
+        },getExampleFile(url, name) {
+            getExampleFile(url, name);
         },cleanFilter(checked_filter, masking_range){
             cleanFilter(checked_filter, masking_range);
         },handleMaskingRanges(mask_range){
