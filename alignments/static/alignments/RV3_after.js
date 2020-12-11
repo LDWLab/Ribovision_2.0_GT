@@ -446,8 +446,8 @@ var build_propensity_graph = function (data, amino_acids, title, div) {
         hoveron: 'points',
     };
     Plotly.newPlot(div, traces, layout);
-
-    var myPlot = document.getElementById(div)
+    var myPlot = document.getElementById(div);
+    myPlot.scrollIntoView();
     myPlot.on('plotly_hover', function(data){
         data.points.map(function(d){
             let seqname = d.text.split(' ').slice(1,).join(' ')
