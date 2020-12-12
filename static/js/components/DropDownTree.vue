@@ -57,30 +57,22 @@
                     Download mapped properties
                 </button>
             </div>
-            <p><div v-if="alnobj" class="checkbox">
-                <label><input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">
-                Show amino-acid frequencies</label>
-                <select v-if="checked_propensities&&structure_mapping" v-model="property" v-on:change="getPropensities(property.indices); handlePropensities(checked_propensities)">
-                    <option :value="null" selected disabled hidden>Select a substructure</option>
-                    <option v-for="substructure in substructures" v-bind:value="{ id: substructure.value, text: substructure.text, indices: substructure.indices }">{{ substructure.text }}</option>
-                </select>
-            </div></p>
             <div v-if="topology_loaded">
                 <div id="maskingSection"><p>
                     <div class="checkbox">
                         <label><input type="checkbox" v-model="checked_filter" v-on:change="cleanFilter(checked_filter, masking_range)">
                         Mask residues in 2D and 3D</label>
                     </div>
-                    <span v-if="checked_filter"><b>Multiple</b> residue ranges to show, separated by semicolon. <br> For example: 1-80;91-111;</span>
+                    <span v-if="checked_filter"><b>Input multiple</b> residue ranges to <b>show</b>, separated by semicolon. <br> For example: 1-80;91-111;</span>
                     <input v-if="checked_filter" v-model="masking_range" v-on:input="handleMaskingRanges(masking_range)">
                 </p></div>
                 <p v-if="correct_mask!=true&&masking_range!=null">Incorrect range syntax!</p>
                 <div id="filterSection"><p>
                     <div class="checkbox">
                         <label><input type="checkbox" v-model="checked_selection" v-on:change="cleanSelection(checked_selection, filter_range)">
-                        Remove residues in 2D and 3D</label>
+                        Truncate 2D and 3D structures</label>
                     </div>
-                    <span v-if="checked_selection"><b>Single</b> residue range to leave, ending with semicolon. <br> For example: 1-80;</span>
+                    <span v-if="checked_selection"><b>Input single</b> residue range to <b>show</b>, ending with semicolon. <br> For example: 1-80;</span>
                     <input v-if="checked_selection" v-model="filter_range" v-on:input="handleFilterRange(filter_range)">
                 </p></div>
                 <div id="customDataSection">
@@ -95,6 +87,14 @@
                     </div>
                 </p></div>
             </div>
+            <p><div v-if="alnobj" class="checkbox">
+                <label><input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">
+                Show amino-acid frequencies</label>
+                <select v-if="checked_propensities&&structure_mapping" v-model="property" v-on:change="getPropensities(property.indices); handlePropensities(checked_propensities)">
+                    <option :value="null" selected disabled hidden>Select a substructure</option>
+                    <option v-for="substructure in substructures" v-bind:value="{ id: substructure.value, text: substructure.text, indices: substructure.indices }">{{ substructure.text }}</option>
+                </select>
+            </div></p>
         </div>
         <div class="alignment_section">
             <div id="alnif" v-if="alnobj">
