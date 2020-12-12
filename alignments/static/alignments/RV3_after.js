@@ -392,11 +392,11 @@ function handlePropensities(checked_propensities) {
         let customFasta = vm.fasta_data
         if (indices) {
             ajax("/propensity-data-custom/", {indices, customFasta}).then(data => {
-                build_propensity_graph(data['amino acid'], full, vm.alnobj.text + ' ' + 'Amino Acid Propensities', 'total');
+                build_propensity_graph(data['amino acid'], full, vm.alnobj.text + ' ' + 'Amino Acid Frequencies', 'total');
             });
         } else if (!vm.structure_mapping) {
             ajax("/propensity-data-custom/", {customFasta}).then(data => {
-                build_propensity_graph(data['amino acid'], full, vm.alnobj.text + ' ' + 'Amino Acid Propensities', 'total');
+                build_propensity_graph(data['amino acid'], full, vm.alnobj.text + ' ' + 'Amino Acid Frequencies', 'total');
             });
         }
     }
@@ -464,8 +464,8 @@ var build_propensity_graph = function (data, amino_acids, title, div) {
     
     var layout = {
         title: title,
-        xaxis: {title: 'amino acid group'},
-        yaxis: {title: 'propensity'},
+        xaxis: {title: 'Amino Acid'},
+        yaxis: {title: 'Frequency'},
         hovermode: 'closest',
         hoveron: 'points',
     };

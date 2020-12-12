@@ -48,7 +48,7 @@
                 <input type="text" id="pdb_input_custom" v-if="alnobj&&alnobj=='custom'" v-model="pdbid" maxlength="4"></input>
                 <div v-if="hide_chains" id="onFailedChains">Looking for available polymers...</div>
             </p>
-            <p><select id="polymerSelect" v-bind:style="{ resize: 'both'}" multiple v-if="chains&&fasta_data&&pdbid" v-model="chainid" >
+            <p><select id="polymerSelect" v-bind:style="{ resize: 'both'}" multiple v-if="chains&&fasta_data&&pdbid||uploadSession" v-model="chainid" >
                 <option :value ="null" selected disabled>Select polymer</option>
                 <option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid, chain.entityID); ">{{ chain.text }}</option>
             </select></p>
@@ -59,7 +59,7 @@
             </div>
             <p><div v-if="alnobj" class="checkbox">
                 <label><input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">
-                Show amino-acid propensities</label>
+                Show amino-acid frequencies</label>
                 <select v-if="checked_propensities&&structure_mapping" v-model="property" v-on:change="getPropensities(property.indices); handlePropensities(checked_propensities)">
                     <option :value="null" selected disabled hidden>Select a substructure</option>
                     <option v-for="substructure in substructures" v-bind:value="{ id: substructure.value, text: substructure.text, indices: substructure.indices }">{{ substructure.text }}</option>
@@ -119,12 +119,12 @@
             </div>
         </div>
         <div class="topology_section">
-            <span id="topif" v-if="chainid">
+            <span id="topif" v-if="chainid.length>0">
                 <div id="topview">Loading topology viewer and conservation data...</div>
             </span>
         </div>
         <div class="molstar_section">
-            <span id="molif" v-if="chainid">
+            <span id="molif" v-if="chainid.length>0">
                 <div id ="pdbeMolstarView">Loading Molstar Component...</div>
             </span>
         </div>
@@ -311,6 +311,7 @@
                 loadParaOptions(action, callback, this);
             }
         }, loadData (value, type_tree) {
+            if (this.uploadSession){return;}
             if (type_tree == "upload"){this.tax_id = null; return;}
             if (value.length == 0){this.tax_id = null; return;}
             cleanupOnNewAlignment(this, "Select new alignment!");
@@ -488,9 +489,13 @@
                     })
                 })
             }).catch(error => {
-                var topview = document.querySelector('#topview')
-                topview.innerHTML = error.responseText.replace(/\n/g, "<br />");;
-                console.log(error)
+                var topview = document.querySelector('#topview');
+                console.log(error);
+                if (error.responseText){
+                    topview.innerHTML = error.responseText.replace(/\n/g, "<br />");
+                } else {
+                    topview.innerHTML = "Failed to load the viewer!"
+                }
             });
         }, showPDBViewer(pdbid, chainid, entityid){
             if (document.querySelector("pdbe-molstar")) {return;}

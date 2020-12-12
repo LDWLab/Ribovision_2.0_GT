@@ -203,3 +203,12 @@
     overflow: auto;
     white-space: normal;
   }
+
+  #inputRV3State{
+    display: none;
+  }
+
+  #rv3-state-upload{
+    float: right;
+    cursor: pointer;
+  }

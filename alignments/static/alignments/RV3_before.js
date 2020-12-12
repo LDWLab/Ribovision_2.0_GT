@@ -400,31 +400,36 @@ var loadParaAlns = function (value, vm) {
   });
 };
 
+var setGlobalProperties = function(){
+    let aaPropertiesData = new Map([
+        ["Charge",[0,0,-1,-1,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0]],
+        ["Hydropathy",[1.8,2.5,-3.5,-3.5,2.8,-0.4,-3.2,4.5,-3.9,3.8,1.9,-3.5,-1.6,-3.5,-4.5,-0.8,-0.7,4.2,-0.9,-1.3]],
+        ["Hydrophobicity",[0.02,0.77,-1.04,-1.14,1.35,-0.80,0.26,1.81,-0.41,1.14,1,-0.77,-0.09,-1.10,-0.42,-0.97,-0.77,1.13,1.71,1.11]],
+        ["Polarity",[0,1.48,49.7,49.9,0.35,0,51.6,0.13,49.5,0.13,1.43,3.38,1.58,3.53,52,1.67,1.66,0.13,2.1,1.61]],
+        ["Mutability",[100,44,86,77,51,50,91,103,72,54,93,104,58,84,83,117,107,98,25,50]],
+        ["Shannon entropy",[0.000000000000001,4.321928094887363]],
+        ["TwinCons",[-2.935,12.065]]
+    ]);
+    let aaColorData = new Map([
+        ["Charge",[Blues, Reds]],
+        ["Hydropathy",[Blues, Reds]],
+        ["Hydrophobicity",[Reds, Blues]],
+        ["Polarity",[viridis]],
+        ["Mutability",[plasma]],
+        ["Shannon entropy",[plasma]],
+        ["TwinCons",[RdPu, YlGn]],
+    ]);
+    window.aaColorData = aaColorData;
+    window.aaPropertyConstants = aaPropertiesData;
+    window.selectSections_RV1 = new Map();
+    return aaPropertiesData;
+}
+
 var calculateFrequencyData = function (frequencies){
   const multiplyvector = function (a,b){
       return a.map((e,i) => e * b[i]);
   }
-  let aaPropertiesData = new Map([
-                          ["Charge",[0,0,-1,-1,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0]],
-                          ["Hydropathy",[1.8,2.5,-3.5,-3.5,2.8,-0.4,-3.2,4.5,-3.9,3.8,1.9,-3.5,-1.6,-3.5,-4.5,-0.8,-0.7,4.2,-0.9,-1.3]],
-                          ["Hydrophobicity",[0.02,0.77,-1.04,-1.14,1.35,-0.80,0.26,1.81,-0.41,1.14,1,-0.77,-0.09,-1.10,-0.42,-0.97,-0.77,1.13,1.71,1.11]],
-                          ["Polarity",[0,1.48,49.7,49.9,0.35,0,51.6,0.13,49.5,0.13,1.43,3.38,1.58,3.53,52,1.67,1.66,0.13,2.1,1.61]],
-                          ["Mutability",[100,44,86,77,51,50,91,103,72,54,93,104,58,84,83,117,107,98,25,50]],
-                          ["Shannon entropy",[0.000000000000001,4.321928094887363]],
-                          ["TwinCons",[-2.935,12.065]]
-                      ]);
-  let aaColorData = new Map([
-                          ["Charge",[Blues, Reds]],
-                          ["Hydropathy",[Blues, Reds]],
-                          ["Hydrophobicity",[Reds, Blues]],
-                          ["Polarity",[viridis]],
-                          ["Mutability",[plasma]],
-                          ["Shannon entropy",[plasma]],
-                          ["TwinCons",[RdPu, YlGn]],
-                      ]);
-  window.aaColorData = aaColorData;
-  window.aaPropertyConstants = aaPropertiesData;
-  window.selectSections_RV1 = new Map();
+  aaPropertiesData = setGlobalProperties();
   let outPropertyPosition = new Map();
   aaPropertiesData.forEach(function (data, property_name){
       if (property_name == "TwinCons"){return;}
@@ -498,5 +503,27 @@ var generateCSVstring = function (mapped_data){
 
   return csv;
 };
+
+function replacer(key, value) {
+    const originalObject = this[key];
+    if(originalObject instanceof Map) {
+      return {
+        dataType: 'Map',
+        value: Array.from(originalObject.entries()), // or with spread: value: [...originalObject]
+      };
+    } else {
+      return value;
+    }
+  }
+
+function reviver(key, value) {
+    if(typeof value === 'object' && value !== null) {
+      if (value.dataType === 'Map') {
+        return new Map(value.value);
+      }
+    }
+    return value;
+  }
+
 
 var masked_array = [];
