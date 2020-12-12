@@ -20922,10 +20922,6 @@
             newPosition.yPos = state.position.yPos;
           }
 
-          _this.setState({
-            highlight: state.highlight,
-            hasBeenInitialized: !0
-          }); // not called on the first render
 
 
           if (_this.el.current && _this.shouldRerender(newPosition)) {
