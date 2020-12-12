@@ -1,7 +1,7 @@
 <template>
     <div>
         <header class="pink section">
-            <span class="title">DESIRE: DatabasE for Study and Imaging of Ribosomal Evolution</span>
+            <span class="title">RiboVision3 Webserver for Study and Imaging of Ribosomal Protein Evolution </span>
             <button class="btn btn-outline-dark" v-on:click="startTour();" style="float: right;">Help</button>
         </header>
         <v-tour 
