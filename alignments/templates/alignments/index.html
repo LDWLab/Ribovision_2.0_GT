@@ -1,65 +1,47 @@
-{% load static %}
-<!-- {% load render_bundle from webpack_loader %} -->
+<html>
 <head>
-	<!-- d3.js dependency script for topology viewer -->
-	<script  src="https://cdn.jsdelivr.net/npm/d3@5.9.2" defer></script>
-	<!-- Colormaps for topology viewer -->
-	<script type="text/javascript" src={% static 'alignments/colormaps.js' %} defer></script>
-	<!-- The topology viewer -->
-	<script type="text/javascript" src={% static 'pdb-topology-viewer-component-2.0.0.js' %} defer></script> 
+    {% csrf_token %}
+	{% load static %}
+	{% load render_bundle from webpack_loader %}
+	<script src={% static 'alignments/external/prop-types.min.js' %}></script>
+	<!-- include Ajax -->
+	<script src={% static 'alignments/external/jquery.min.js' %}></script>
+	<!-- include styles -->
+	<link rel="stylesheet" href={% static 'alignments/external/bootstrap.min.css' %}>
+	<link rel="stylesheet" href={% static 'alignments/external/vue-treeselect.min.css' %}>
+	<link rel="stylesheet" type="text/css" href={% static 'alignments/style.css' %}>
+	<link rel="stylesheet" type="text/css" href={% static 'alignments/external/pdbe-molstar-1.1.0-dev.5.css' %}>
+	<link rel="stylesheet" href={% static 'alignments/external/vue-tour.css' %}>
+	<style data="rv3_style" type="text/css"></style>
+	<!-- Lodash script -->
+	<script type="text/javascript" src={% static 'alignments/external/lodash.min.js' %}></script>
+	<!-- Complied & minified d3 and math libraries -->
+	<script src={% static 'alignments/external/d3@5.9.2' %}></script>
+	<script src={% static 'alignments/external/math.min.js' %}></script>
+	<script src={% static 'alignments/external/html2canvas.min.js' %}></script>
 	
+	<!-- Plotly scripts -->
+	<script src={% static 'alignments/external/plotly-latest.min.js' %} charset="utf-8"></script>
+
+	<!-- Support scripts for the topology viewer -->
+	<script type="text/javascript" src={% static 'alignments/colormaps.js' %} defer></script>
+
+	<!-- Topology and Mol* viewers -->
+	<script type="text/javascript" src={% static 'pdb-topology-viewer-component-2.0.0.js' %} defer></script>
+	<script type="text/javascript" src={% static 'alignments/external/pdbe-molstar-plugin-1.1.0.js' %}></script>
+	
+	<!-- Support scripts for RV3 -->
+	<script type="text/javascript" src={% static 'alignments/RV3_before.js' %}></script>
 </head>
 <body>
-	<!-- <div id="target"></div>
-	{% render_bundle 'main' %} -->
-
-	<!-- <pdb-topology-viewer entry-id="1aqd" entity-id="1" entropy-id='"TwinCons":1,0.042932976626302605,2,0.15296113770768818;"Shannon":1,0,2,4"'></pdb-topology-viewer> -->
-	<pdb-topology-viewer entry-id="1aqd" entity-id="1" filter-range= "5, 6" entropy-id='&#34Hydrophobicity&#34:1,2,3,4,5,6,7,8,9,10,11,12,12,-6,13,-3,14,-1;&#34Charge&#34:1,7,2,5,3,4,4,9,5,-3,6,-8,7,0,8,5'></pdb-topology-viewer>
 	
-	<!-- 
-	<script>
-	class PdbTopologyViewer extends HTMLElement {
-		static get observedAttributes() {
-		  return ['entry-id', 'entity-id', 'chain-id', 'display-style', 'error-style', 'menu-style', 'subscribe-events'];
-		}
-		constructor() {
-		  super();
-		}
-		validateParams() {
-		  if(typeof this.entryId == 'undefined' || typeof this.entityId == 'undefined' || this.entryId == null || this.entityId == null) return false;
-		  return true
-		}
-		invokePlugin(){
-		  let paramValidatity = this.validateParams();
-		  if(!paramValidatity) return
-		  // create an instance of the plugin
-		  if(typeof this.pluginInstance == 'undefined') this.pluginInstance = new PdbTopologyViewerPlugin();
-		  let options = {
-			entryId: this.entryId,
-			entityId: this.entityId,
-		  }
-		  if(typeof this.chainId !== 'undefined' && this.chainId !== null) options['chainId'] = this.chainId;
-		  if(typeof this.displayStyle !== 'undefined' && this.displayStyle !== null) options['displayStyle'] = this.displayStyle;
-		  if(typeof this.errorStyle !== 'undefined' && this.errorStyle !== null) options['errorStyle'] = this.errorStyle;
-		  if(typeof this.menuStyle !== 'undefined' && this.menuStyle !== null) options['menuStyle'] = this.menuStyle;
-		  if(typeof this.subscribeEvents !== 'undefined' && this.subscribeEvents !== null) options['subscribeEvents'] = this.subscribeEvents;
-		  this.pluginInstance.render(this, options);
-		}
-		attributeChangedCallback() {
-		  this.entryId = this.getAttribute("entry-id");
-		  this.entityId = this.getAttribute("entity-id");
-		  this.chainId = this.getAttribute("chain-id");
-		  this.displayStyle = this.getAttribute("display-style");
-		  this.errorStyle = this.getAttribute("error-style");
-		  this.menuStyle = this.getAttribute("menu-style");
-		  this.subscribeEvents = this.getAttribute("subscribe-events");
-		  this.invokePlugin();
-		}
-	}
-	customElements.define('pdb-topology-viewer', PdbTopologyViewer);
-	let topview = new PdbTopologyViewer()
-	topview.setAttribute("entry-id", "1aqd")
-	topview.setAttribute("entity-id", "1")
-	document.getElementById("target").appendChild(topview)
-	</script> -->
+	<!-- include our custom Vue scripts -->
+
+	
+	<div id="app"></div>
+	{% render_bundle 'main' %}
+	<script type="text/javascript" src={% static 'alignments/RV3_after.js' %}></script>
+	
 </body>
+
+</html>

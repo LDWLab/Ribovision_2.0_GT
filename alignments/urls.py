@@ -5,19 +5,19 @@ from . import views
 app_name = 'alignments'
 
 urlpatterns = [
-	path('', views.index_orthologs, name='index'),
-	path('orthologs/', views.index_orthologs, name='orthologs'),
-	path('node_test/', views.index, name='node_test'),
-	path('paralogs/', views.paralog_entry_form, name='paralogs'),
-	path('orthologs/rRNA/<str:align_name>/<int:tax_group>', views.rRNA, name='rRNA'),
-	path('orthologs/rProtein/<str:align_name>/<int:tax_group>', views.rProtein, name='rProtein'),
-	path('orthologs/Visualizer/<str:align_name>/<int:tax_group1>/<int:tax_group2>/<str:anchor_structure>', views.visualizer),
-	path('rRNA/<str:align_name>/<int:tax_group>', views.rRNA, name='rRNA'),
-	path('rProtein/<str:align_name>/<int:tax_group>', views.rProtein, name='rProtein'),
+	path('', views.index, name='index'),
+	#path('orthologs/', views.index, name='orthologs'),
+	#path('node_test/', views.index_test, name='node_test'),
+	#path('paralogs/', views.paralog_entry_form, name='paralogs'),
+	#path('orthologs/rRNA/<str:align_name>/<int:tax_group>', views.rRNA, name='rRNA'),
+	#path('orthologs/rProtein/<str:align_name>/<int:tax_group>', views.rProtein, name='rProtein'),
+	#path('orthologs/Visualizer/<str:align_name>/<int:tax_group1>/<int:tax_group2>/<str:anchor_structure>', views.visualizer),
+	#path('rRNA/<str:align_name>/<int:tax_group>', views.rRNA, name='rRNA'),
+	#path('rProtein/<str:align_name>/<int:tax_group>', views.rProtein, name='rProtein'),
 	path('showTaxonomy', views.buildTaxonomy, name='showTaxonomy'),
 	path('showStrucTaxonomy', views.buildFoldTaxonomy, name='showStrucTaxonomy'),
 	path('showTaxonomy-api/<int:current_tax>', views.api_showTaxonomy, name='api_showTaxonomy'),
-	path('entropy/<str:align_name>/<int:tax_group>/<str:anchor_structure>', views.entropy, name='entropy'),
+	#path('entropy/<str:align_name>/<int:tax_group>/<str:anchor_structure>', views.entropy, name='entropy'),
 	path('orthologs/twincons/<str:anchor_structure>/<str:chain>/<str:align_name>/<int:tax_group1>/<int:tax_group2>/<int:minIndex>/<int:maxIndex>', views.twincons_handler, name='twincons'),
 	path('orthologs/twincons/<str:anchor_structure>/<str:chain>/<str:align_name>/<int:tax_group1>/<int:tax_group2>', views.twincons_handler, name='twincons'),
 	path('twincons/<str:anchor_structure>/<str:chain>/<str:align_name>/<int:tax_group1>/<int:tax_group2>', views.twincons_handler, name='twincons'),
@@ -41,5 +41,8 @@ urlpatterns = [
 	path('custom-aln-data', views.handle_custom_upload_alignment, name='custom_aln_data_handler'),
 	path('upload-custom-csv/', views.upload_custom_data, name='upload_custom_data'),
     path('propensity-data/<int:aln_id>/<int:tax_group>', views.propensity_data, name = 'propensity_data'),
+    path('propensity-data/<int:aln_id>/<str:tax_group>', views.propensity_data, name = 'propensity_data'),
+    path('propensity-data-custom/', views.propensity_data_custom, name = 'propensity_data_custom'),
     path('propensities/<str:align_name>/<int:tax_group>', views.propensities, name = 'propensities'),
+    path('propensities/<str:align_name>/<str:tax_group>', views.propensities, name = 'propensities')
 ]

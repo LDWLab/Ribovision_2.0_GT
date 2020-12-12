@@ -8,6 +8,7 @@ def create_and_parse_argument_options(argument_list):
 	parser.add_argument('-host','--db_host', help='Defines database host (default: 130.207.36.76)', type=str, default='130.207.36.76')
 	parser.add_argument('-schema','--db_schema', help='Defines schema to use (default: SEREB)', type=str, default='SEREB')
 	parser.add_argument('-dl','--download_most_recent_fold_definitions', help='Update latest fold definitions.', default=False, action="store_true")
+	parser.add_argument('-commit','--commit_changes', help='Commit the changes to the DB', action="store_true")
 	commandline_args = parser.parse_args(argument_list)
 	return commandline_args
 
@@ -65,7 +66,6 @@ def upload_strucfold_resis(cursor, strucfoldid, resi_ids):
 						residue_id = '"+str(resid)+"'")
 		result = cursor.fetchall()
 		if len(result) == 0:
-			print(result)
 			query = "INSERT INTO `SEREB`.`StrucFold_Residues`(`residue_id`, `strucfold_id`) VALUES ('"+str(resid)+"','"+str(strucid)+"')"
 			cursor.execute(query)
 	return True
@@ -102,30 +102,32 @@ def check_polymerid_from_chainid(cursor, pdbid, chainid):
 	if len(result) > 1:
 		raise ValueError("Mistake in database for query with pdb "+pdbid+" and chain "+chainid+"!")
 
+def upload_parent_fold_ifnone(cursor, entry_for_upload, levels, cnx):
+	parent = "NULL"
+	last_statement = "IS "+parent
+	external_ecod_id = ['0'] + entry_for_upload[0].split('.')
+	for fold_name,fold_level,fold_id in zip(entry_for_upload[-5:], levels, external_ecod_id):
+		fold_name = fold_name.replace("\"","")
+		if fold_level != 'Architecture':
+			last_statement = "= '"+parent+"'"
+		cursor.execute("SELECT SEREB.Structural_Folds.struc_fold_id FROM SEREB.Structural_Folds WHERE\
+						SEREB.Structural_Folds.Level = '"+fold_level+"' AND\
+						SEREB.Structural_Folds.Name = '"+fold_name+"' AND\
+						SEREB.Structural_Folds.external_id = '"+fold_id+"' AND\
+						SEREB.Structural_Folds.parent "+last_statement)
+		result = cursor.fetchall()
+		if len(result) == 0:
+			parent = upload_struc_fold(fold_level, fold_name, 'ECOD', parent, fold_id, cursor, cnx)
+		if len(result) == 1:
+			parent = str(result[0][0])
+	return parent
+
 def check_then_upload_struc_fold(ecod_definitions, cursor, cnx, pdbid):
 	levels = ['Architecture', 'X', 'H', 'T', 'F']
 	for entry_for_upload in ecod_definitions:
 		if re.match(r'UNCLASSIFIED', entry_for_upload[8]):
 			continue
-		parent = "NULL"
-		last_statement = "IS "+parent
-		external_ecod_id = ['0'] + entry_for_upload[0].split('.')
-		###------Separate this into function
-		for fold_name,fold_level,fold_id in zip(entry_for_upload[-5:], levels, external_ecod_id):
-			fold_name = fold_name.replace("\"","")
-			if fold_level != 'Architecture':
-				last_statement = "= '"+parent+"'"
-			cursor.execute("SELECT SEREB.Structural_Folds.struc_fold_id FROM SEREB.Structural_Folds WHERE\
-							SEREB.Structural_Folds.Level = '"+fold_level+"' AND\
-							SEREB.Structural_Folds.Name = '"+fold_name+"' AND\
-							SEREB.Structural_Folds.external_id = '"+fold_id+"' AND\
-							SEREB.Structural_Folds.parent "+last_statement)
-			result = cursor.fetchall()
-			if len(result) == 0:
-				parent = upload_struc_fold(fold_level, fold_name, 'ECOD', parent, fold_id, cursor, cnx)
-			if len(result) == 1:
-				parent = str(result[0][0])
-		###------Up to here
+		parent = upload_parent_fold_ifnone(cursor, entry_for_upload, levels, cnx)
 		pol_id, chain_id = check_polymerid_from_chainid(cursor, pdbid, entry_for_upload[1])
 		if chain_id is not None:
 			upload_strucfold_chains(cursor, str(parent), str(chain_id))
@@ -146,8 +148,8 @@ def main(commandline_arguments):
 	cursor = cnx.cursor()
 
 	check_then_upload_struc_fold(ecod_defs, cursor, cnx, pdbid)
-	
-	cnx.commit()
+	if comm_args.commit_changes:
+		cnx.commit()
 	cursor.close()
 	cnx.close()
 
