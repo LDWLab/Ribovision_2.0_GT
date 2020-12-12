@@ -8,6 +8,7 @@ declare const masking_range_array: any;
 declare var masked_array: any;
 declare var viewerInstance: any;
 declare var selectSections_RV1: any;
+declare var filterRange: any;
 declare class PdbTopologyViewerPlugin {
     defaultColours: {
         domainSelection: string;
@@ -26,8 +27,6 @@ declare class PdbTopologyViewerPlugin {
     sequenceArr: string[];
     entityId: string;
     entryId: string;
-    entropyId: string;
-    filterRange: string;
     chainId: string;
     apiData: any;
     targetEle: HTMLElement;
@@ -44,7 +43,6 @@ declare class PdbTopologyViewerPlugin {
     render(target: HTMLElement, options: {
         entityId: string;
         entryId: string;
-        entropyId: string;
         filterRange?: string;
         chainId?: string;
         subscribeEvents?: boolean;
@@ -70,6 +68,7 @@ declare class PdbTopologyViewerPlugin {
     drawHelicesSubpaths(startResidueNumber: number, stopResidueNumber: number, index: number, curveYdiff: number): void;
     drawHelicesMaskShape(index: number): void;
     drawCoilsSubpaths(startResidueNumber: number, stopResidueNumber: number, index: number): void;
+    getAdjustedStartAndStop(secStrType: any, secStrData: any): any[];
     drawTopologyStructures(): void;
     zoomDraw(): void;
     clearHighlight(): void;
