@@ -5,6 +5,7 @@
   }
 
   header {
+    border-bottom: 1px solid black;
     background: #f7a37f;
     padding: 2rem;
     grid-column: 1 / 5;
@@ -19,6 +20,7 @@
 
   .left-sidebar {
     background: #96c9dc;
+    border-right: 1px solid black;
     grid-column: 1 / 2;
     grid-row: 2 / 5 ;
     width: 300px;
@@ -62,6 +64,7 @@
   }
 
   footer {
+    border-top: 1px solid black;
     background: #174060;
     padding: 2rem;
     text-align: center;
@@ -87,10 +90,44 @@
     padding: 1rem;
   }
 
+
   .vue-treeselect__menu {
     width: 450px;
     overflow-x: auto;
     text-overflow: clip;
+  }
+
+  .vue-treeselect__multi-value{
+    color: black;
+  }
+
+  .vue-treeselect__placeholder{
+    color:black;
+  }
+
+  .vue-treeselect__control{
+    border-color: black;
+    background-color: transparent;
+  }
+
+  .vue-treeselect__label:hover{
+    color: black;
+  }
+
+  .vue-treeselect__label:hover{
+    color: white;
+  }
+
+  .vue-treeselect__option:hover, 
+  .vue-treeselect__option:hover{
+    color: white;
+    background-color: DodgerBlue;
+  }
+  .vue-treeselect__control:hover, 
+  .vue-treeselect__placeholder:hover,
+  .vue-treeselect__menu:hover{
+    color: white;
+    background-color: #343a40;
   }
 
   .vue-treeselect__placeholder,
@@ -166,8 +203,6 @@
     background: #174060;
   }
 
-
-
   #yPosSlider {
     position: relative;
     top: 37px;
@@ -194,6 +229,9 @@
   
   #polymerSelect{
     max-width: 250px;
+    background:none;
+    overflow-x:hidden;
+    overflow-y: auto;
   }
 
   #inputUploadFasta,#inputUploadCSV{
@@ -211,4 +249,13 @@
   #rv3-state-upload{
     float: right;
     cursor: pointer;
+  }
+
+  #tooltip{
+    -webkit-touch-callout: none; 
+    -webkit-user-select: none; 
+     -khtml-user-select: none; 
+       -moz-user-select: none; 
+        -ms-user-select: none; 
+            user-select: none;
   }

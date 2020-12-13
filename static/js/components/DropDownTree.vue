@@ -1,20 +1,27 @@
 <template>
     <div id="phylo_tree_dropdown">
         <div class="left-sidebar">
-            <p id="tree_type">
-                <input type="radio" id="orthologs" value="orth" v-model="type_tree" v-on:input="cleanTreeOpts()" checked>
-                <label style="margin: 0 1%;" for="orthologs" >DESIRE</label>
-                <!--<input type="radio" id="paralogs" value="para" v-model="type_tree" v-on:input="cleanTreeOpts()">
-                <label for="paralogs">Paralogs</label>-->
-                <input type="radio" id="upload" value="upload" v-model="type_tree" v-on:input="cleanTreeOpts()">
-                <label style="margin: 0 1%;" for="upload">User upload</label>
-            </p>
+            <div id="tree_type" class="btn-group btn-group-toggle" data-toggle="buttons" style="display:flex; padding-bottom:15px;">
+                
+                <label class="btn btn-outline-dark" style="margin: 0 1%;" for="orthologs" >
+                    <input type="radio" id="orthologs" value="orth" v-model="type_tree" v-on:input="cleanTreeOpts()" checked>
+                    DESIRE
+                </label>
+                <!--<label class="btn btn-outline-dark" for="paralogs">
+                    <input type="radio" id="paralogs" value="para" v-model="type_tree" v-on:input="cleanTreeOpts()">
+                    Paralogs
+                </label>-->
+                <label class="btn btn-outline-dark" style="margin: 0 1%;" for="upload">
+                    <input type="radio" id="upload" value="upload" v-model="type_tree" v-on:input="cleanTreeOpts()">
+                    User upload
+                </label>
+            </div>
             <div id="treeselect" v-if="type_tree=='para'|type_tree=='orth'">
             <treeselect ref="treeselect"
               :load-options="loadOptions"
               v-model="tax_id" 
               v-on:input="loadData(tax_id, type_tree)"
-              placeholder="Select a group"
+              placeholder="Select a phylogenetic group"
               no-children-text="Loading... or no children"
               :multiple="true" 
               :options="options" 
@@ -30,7 +37,7 @@
                 <p><button id="downloadExampleFasta" class="btn btn-outline-dark" v-on:click="getExampleFile(`static/alignments/EFTU_example.fas`, `rv3ExampleAlignment.fas`)">Download example alignment</button></p>
             </div>
             <p>
-                <select id="selectaln" v-if="tax_id" v-model="alnobj">
+                <select class="btn btn-outline-dark dropdown-toggle" id="selectaln" v-if="tax_id" v-model="alnobj">
                     <option v-if="tax_id" :value="null" selected disabled hidden>Select an alignment</option>
                     <option v-if="tax_id" v-for="aln in alignments" v-bind:value="{ id: aln.value, text: aln.text }">{{ aln.text }}</option>
                 </select>
@@ -41,14 +48,14 @@
                 <span v-if="alnobj&&alnobj=='custom'">Type PDB for mapping:</span>
             </p>
             <p>
-                <select id="pdb_input" v-if="alnobj&&alnobj!='custom'" v-model="pdbid">
+                <select class="btn btn-outline-dark dropdown-toggle" id="pdb_input" v-if="alnobj&&alnobj!='custom'" v-model="pdbid">
                     <option :value="null" selected disabled hidden>Select structure</option>
                     <option v-for="pdb in pdbs" v-bind:value="pdb.id">{{pdb.name}}</option>
                 </select>
                 <input type="text" id="pdb_input_custom" v-if="alnobj&&alnobj=='custom'" v-model="pdbid" maxlength="4"></input>
                 <div v-if="hide_chains" id="onFailedChains">Looking for available polymers...</div>
             </p>
-            <p><select id="polymerSelect" v-bind:style="{ resize: 'both'}" multiple v-if="chains&&fasta_data&&pdbid||uploadSession" v-model="chainid" >
+            <p><select multiple class="form-control btn-outline-dark" id="polymerSelect" v-bind:style="{ resize: 'both'}"  v-if="chains&&fasta_data&&pdbid||uploadSession" v-model="chainid" >
                 <option :value ="null" selected disabled>Select polymer</option>
                 <option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid, chain.entityID); ">{{ chain.text }}</option>
             </select></p>
@@ -64,7 +71,7 @@
                         Mask residues in 2D and 3D</label>
                     </div>
                     <span v-if="checked_filter"><b>Input multiple</b> residue ranges to <b>show</b>, separated by semicolon. <br> For example: 1-80;91-111;</span>
-                    <input v-if="checked_filter" v-model="masking_range" v-on:input="handleMaskingRanges(masking_range)">
+                    <input class="input-group-text" v-if="checked_filter" v-model="masking_range" v-on:input="handleMaskingRanges(masking_range)">
                 </p></div>
                 <p v-if="correct_mask!=true&&masking_range!=null">Incorrect range syntax!</p>
                 <div id="filterSection"><p>
@@ -73,7 +80,7 @@
                         Truncate 2D and 3D structures</label>
                     </div>
                     <span v-if="checked_selection"><b>Input single</b> residue range to <b>show</b>, ending with semicolon. <br> For example: 1-80;</span>
-                    <input v-if="checked_selection" v-model="filter_range" v-on:input="handleFilterRange(filter_range)">
+                    <input class="input-group-text" v-if="checked_selection" v-model="filter_range" v-on:input="handleFilterRange(filter_range)">
                 </p></div>
                 <div id="customDataSection">
                 <p><div class="checkbox">
@@ -90,7 +97,7 @@
             <p><div v-if="alnobj" class="checkbox">
                 <label><input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">
                 Show amino-acid frequencies</label>
-                <select v-if="checked_propensities&&structure_mapping" v-model="property" v-on:change="getPropensities(property.indices); handlePropensities(checked_propensities)">
+                <select class="btn btn-outline-dark dropdown-toggle" v-if="checked_propensities&&structure_mapping" v-model="property" v-on:change="getPropensities(property.indices); handlePropensities(checked_propensities)">
                     <option :value="null" selected disabled hidden>Select a substructure</option>
                     <option v-for="substructure in substructures" v-bind:value="{ id: substructure.value, text: substructure.text, indices: substructure.indices }">{{ substructure.text }}</option>
                 </select>
@@ -105,7 +112,7 @@
                     <button id="downloadAlnImageBtn" class="btn btn-outline-dark" style="margin: 0 1%;" v-if="colorScheme"  type="button" v-on:click="downloadAlignmentImage()">
                         Download alignment image
                     </button>
-                    <select id="selectAlnColorScheme" style="margin: 0 1%;" v-model="colorScheme" v-if="colorScheme">
+                    <select id="selectAlnColorScheme" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="colorScheme" v-if="colorScheme">
                         <option :value="null" selected disabled>Select a colorscheme</option>
                         <option v-for="colorscheme in availColorschemes" >{{ colorscheme }}</option>
                     </select>
