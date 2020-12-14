@@ -1,9 +1,9 @@
 <template>
     <div id="phylo_tree_dropdown">
         <div class="left-sidebar">
-            <div id="tree_type" class="btn-group btn-group-toggle" data-toggle="buttons" style="display:flex; padding-bottom:15px;">
+            <div id="tree_type" class="btn-group btn-group-toggle" data-toggle="buttons">
                 
-                <label class="btn btn-outline-dark" style="margin: 0 1%;" for="orthologs" >
+                <label class="btn btn-outline-dark" style="margin: 0 1% 0 0;width:50%;" for="orthologs" >
                     <input type="radio" id="orthologs" value="orth" v-model="type_tree" v-on:input="cleanTreeOpts()" checked>
                     DESIRE
                 </label>
@@ -11,7 +11,7 @@
                     <input type="radio" id="paralogs" value="para" v-model="type_tree" v-on:input="cleanTreeOpts()">
                     Paralogs
                 </label>-->
-                <label class="btn btn-outline-dark" style="margin: 0 1%;" for="upload">
+                <label class="btn btn-outline-dark" style="margin: 0 0 0 1%;width:50%;" for="upload">
                     <input type="radio" id="upload" value="upload" v-model="type_tree" v-on:input="cleanTreeOpts()">
                     User upload
                 </label>
@@ -97,7 +97,7 @@
             <p><div v-if="alnobj" class="checkbox">
                 <label><input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">
                 Show amino-acid frequencies</label>
-                <select class="btn btn-outline-dark dropdown-toggle" v-if="checked_propensities&&structure_mapping" v-model="property" v-on:change="getPropensities(property.indices); handlePropensities(checked_propensities)">
+                <select class="btn btn-outline-dark dropdown-toggle" id="propensitiesSubstructure" v-if="checked_propensities&&structure_mapping" v-model="property" v-on:change="getPropensities(property.indices); handlePropensities(checked_propensities)">
                     <option :value="null" selected disabled hidden>Select a substructure</option>
                     <option v-for="substructure in substructures" v-bind:value="{ id: substructure.value, text: substructure.text, indices: substructure.indices }">{{ substructure.text }}</option>
                 </select>

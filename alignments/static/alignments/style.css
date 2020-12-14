@@ -164,9 +164,6 @@
     float:left;
     position:relative;
   }
-  #tree_type{
-    text-align: center;
-  }
   .svgSection{
     background-color: white;
   }
@@ -193,10 +190,6 @@
     border-radius:3px;
   }
 
-  /*.slider::-webkit-slider-runnable-track {
-    background: #f8efdd;
-    /* border: 8px solid #f8efdd;}*/
-  
   .slider::-moz-range-thumb {
     width: 20px;
     height: 10px;
@@ -222,20 +215,35 @@
     padding-bottom: 5%
   }
 
+  #tree_type {
+    display:flex; 
+    padding-bottom:15px;
+    text-align: center;
+    width: 267px;
+  }
+
+  #selectaln, #pdb_input, #polymerSelect, #downloadDataBtn, 
+  #propensitiesSubstructure, #downloadExampleCSV {
+    width: 267px;
+  }
+
   #pdb_input{
-    width: 250px;
     max-height: 75px;
   }
   
   #polymerSelect{
-    max-width: 250px;
+    max-width: 267px;
     background:none;
     overflow-x:hidden;
     overflow-y: auto;
   }
 
+  #maskingSection .input-group-text, #filterSection .input-group-text {
+    width: 267px;
+  }
+
   #inputUploadFasta,#inputUploadCSV{
-    max-width: 250px;
+    max-width: 267px;
     margin-right: auto;
     word-wrap: break-word;
     overflow: auto;
