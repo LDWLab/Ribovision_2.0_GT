@@ -26,7 +26,7 @@
               :multiple="true" 
               :options="options" 
               :flat="true"
-              :limit="2"
+              :limit="3"
               :default-expand-level="1"
               >Loading phylogenetic tree...</treeselect>
             </div>
@@ -68,7 +68,7 @@
                 <div id="maskingSection"><p>
                     <div class="checkbox">
                         <label><input type="checkbox" v-model="checked_filter" v-on:change="cleanFilter(checked_filter, masking_range)">
-                        Mask residues in 2D and 3D</label>
+                        Mask/Unmask 2D and 3D residues</label>
                     </div>
                     <span v-if="checked_filter"><b>Input multiple</b> residue ranges to <b>show</b>, separated by semicolon. <br> For example: 1-80;91-111;</span>
                     <input class="input-group-text" v-if="checked_filter" v-model="masking_range" v-on:input="handleMaskingRanges(masking_range)">
@@ -77,7 +77,7 @@
                 <div id="filterSection"><p>
                     <div class="checkbox">
                         <label><input type="checkbox" v-model="checked_selection" v-on:change="cleanSelection(checked_selection, filter_range)">
-                        Truncate 2D and 3D structures</label>
+                        Cut/Uncut 2D and 3D structures</label>
                     </div>
                     <span v-if="checked_selection"><b>Input single</b> residue range to <b>show</b>, ending with semicolon. <br> For example: 1-80;</span>
                     <input class="input-group-text" v-if="checked_selection" v-model="filter_range" v-on:input="handleFilterRange(filter_range)">
