@@ -45,13 +45,15 @@
                 this.$tours['myTour'].start()
             },
             stopTour(){
-                Object.assign(vm.$data, initialState());
+                this.resetRV3State();
             },
             skipTour(){
-                Object.assign(vm.$data, initialState());
+                this.resetRV3State();
             },
             resetRV3State(){
                 Object.assign(vm.$data, initialState());
+                window.tempCSVdata = null;
+                clearInputFile(document.getElementById('inputRV3State'));
             },
             saveRV3State(){
                 let anchor = document.createElement('a');
@@ -67,8 +69,9 @@
             loadRV3State(){
                 if (this.$refs.rv3_state_file.files.length == 0){return;}
                 Object.assign(vm.$data, initialState());
+                window.tempCSVdata = null;
                 readLoadRV3State(this.$refs.rv3_state_file.files[0]);
-                this.$refs.rv3_state_file.files = null;
+                clearInputFile(document.getElementById('inputRV3State'));
             }
         },
         mounted: function () {

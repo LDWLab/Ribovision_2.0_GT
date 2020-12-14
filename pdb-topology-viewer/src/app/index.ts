@@ -9,6 +9,7 @@ const masking_range_array = (window as any).masking_range_array;
 var masked_array = (window as any).masked_array;
 var viewerInstance = (window as any).viewerInstance;
 var selectSections_RV1 = (window as any).selectSections_RV1;
+var rv3VUEcomponent = (window as any).vm;
 var filterRange = (window as any).filterRange?(window as any).filterRange: "-10000,10000";
 
 class PdbTopologyViewerPlugin { 
@@ -1508,7 +1509,7 @@ class PdbTopologyViewerPlugin {
             const resetIconEle = this.targetEle.querySelector('.resetIcon');
             resetIconEle.addEventListener("click", this.resetDisplay.bind(this));
             this.targetEle.querySelector(".saveSVG").addEventListener("click", this.saveSVG.bind(this))
-
+            rv3VUEcomponent.topology_loaded=true;
         }else{
             this.targetEle.querySelector('.menuOptions').style.display = 'none';
         }

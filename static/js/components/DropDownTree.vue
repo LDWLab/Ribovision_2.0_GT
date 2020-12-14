@@ -162,6 +162,7 @@
       },
       watch: {
         csv_data: function (csv_data) {
+            if (this.uploadSession){return;}
             var topviewer = document.getElementById("PdbeTopViewer");
             cleanCustomMap(this.checked_customMap);
             this.raiseCustomCSVWarn = null;
@@ -233,7 +234,12 @@
             if (window.AlnViewer){
                 window.AlnViewer.setState({colorScheme:scheme});
             }
-        }
+        }, topology_loaded: function(topology_loaded){
+            if (window.tempCSVdata!= null && this.topology_loaded){
+                vm.csv_data = window.tempCSVdata;
+                window.tempCSVdata = null;
+            }
+        },
     },methods: {
         handleFileUpload(){
             this.file = this.$refs.custom_aln_file.files[0];
@@ -408,6 +414,7 @@
                 this.aa_properties = calculateFrequencyData(fasta['AA frequencies']);
             })
         }, showTopologyViewer (pdbid, chainid, fasta){
+            this.topology_loaded = false;
             window.filterRange = "-10000,10000";
             if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(this);}
             if (chainid.length > 1){this.chainid = chainid[0];}
@@ -424,7 +431,6 @@
             })[0];
             let ebi_sequence = temp["sequence"];
             let startIndex = temp["startIndex"];
-            // let ebi_sequence = this.chains[0]["sequence"];
             ajax('/mapSeqAln/', {fasta, ebi_sequence, startIndex}).then(struct_mapping=>{
                 this.structure_mapping = struct_mapping;
                 if (struct_mapping['BadMappingPositions']){this.poor_structure_map = struct_mapping['BadMappingPositions'];}
@@ -492,7 +498,7 @@
                         var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid} filter-range=${mapping}></pdb-topology-viewer>`
                         document.getElementById('topview').innerHTML = topology_viewer;
                         window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
-                        this.topology_loaded = true;
+                        //this.topology_loaded = true;
                     })
                 })
             }).catch(error => {

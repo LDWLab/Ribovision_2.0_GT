@@ -8,6 +8,7 @@ declare const masking_range_array: any;
 declare var masked_array: any;
 declare var viewerInstance: any;
 declare var selectSections_RV1: any;
+declare var rv3VUEcomponent: any;
 declare var filterRange: any;
 declare class PdbTopologyViewerPlugin {
     defaultColours: {

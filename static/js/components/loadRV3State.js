@@ -18,6 +18,10 @@ export function readLoadRV3State (fileInput) {
 						vm.checked_propensities = uploadedState.checked_propensities;
 						handlePropensities(vm.checked_propensities);
 					}
+					if (uploadedState.checked_customMap){
+						vm.checked_customMap = uploadedState.checked_customMap;
+						window.tempCSVdata = uploadedState.csv_data;
+					}
 					vm.uploadSession = false;
 				});
 			});

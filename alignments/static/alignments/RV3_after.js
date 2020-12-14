@@ -168,20 +168,44 @@ function colorResidue(index, masked_array) {
       f++;
   }
 };
+
+function clearInputFile(f){
+    if(f.value){
+        try{
+            f.value = ''; //for IE11, latest Chrome/Firefox/Opera...
+        }catch(err){ }
+        if(f.value){ //for IE5 ~ IE10
+            var form = document.createElement('form'),
+                parentNode = f.parentNode, ref = f.nextSibling;
+            form.appendChild(f);
+            form.reset();
+            parentNode.insertBefore(f,ref);
+        }
+    }
+}
+
 function cleanCustomMap(checked_customMap){
-  var topviewer = document.getElementById("PdbeTopViewer");
-  var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
-  topviewer.pluginInstance.domainTypes = topviewer.pluginInstance.domainTypes.filter(obj => {
-      return !vm.custom_headers.includes(obj.label)
+    if (vm.uploadSession){return;}
+    var topviewer = document.getElementById("PdbeTopViewer");
+    if (!topviewer.pluginInstance.domainTypes){return;}
+    var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
+    topviewer.pluginInstance.domainTypes = topviewer.pluginInstance.domainTypes.filter(obj => {
+        return !vm.custom_headers.includes(obj.label)
     })
-  vm.custom_headers.forEach(() =>
-    selectBoxEle.removeChild(selectBoxEle.childNodes[selectBoxEle.options.length-1])
-  )
-  if (checked_customMap){return;}
-  window.coilsOutOfCustom = null;
-  window.custom_prop = null;
-  vm.csv_data = null;
-  vm.custom_headers = [];
+    
+    var sliceChildren = Array.prototype.slice.call(selectBoxEle.childNodes).filter(optionsNode => {
+        return vm.custom_headers.includes(optionsNode.label)
+    })
+    
+    sliceChildren.forEach(function(){
+        selectBoxEle.removeChild(selectBoxEle.childNodes[selectBoxEle.options.length-1]);
+    })
+    
+    if (checked_customMap){return;}
+    window.coilsOutOfCustom = null;
+    window.custom_prop = null;
+    vm.csv_data = null;
+    vm.custom_headers = [];
 };
 function handleCustomMappingData(){
   const readFile = function (fileInput) {

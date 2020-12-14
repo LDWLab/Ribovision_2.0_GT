@@ -45,6 +45,7 @@ var masking_range_array = window.masking_range_array;
 var masked_array = window.masked_array;
 var viewerInstance = window.viewerInstance;
 var selectSections_RV1 = window.selectSections_RV1;
+var rv3VUEcomponent = window.vm;
 var filterRange = window.filterRange ? window.filterRange : "-10000,10000";
 var PdbTopologyViewerPlugin = /** @class */ (function () {
     function PdbTopologyViewerPlugin() {
@@ -142,6 +143,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 var resetIconEle = this.targetEle.querySelector('.resetIcon');
                 resetIconEle.addEventListener("click", this.resetDisplay.bind(this));
                 this.targetEle.querySelector(".saveSVG").addEventListener("click", this.saveSVG.bind(this));
+                rv3VUEcomponent.topology_loaded = true;
             }
             else {
                 this.targetEle.querySelector('.menuOptions').style.display = 'none';
@@ -835,6 +837,9 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         }
     };
     PdbTopologyViewerPlugin.prototype.getAdjustedStartAndStop = function (secStrType, secStrData) {
+        if (secStrData == undefined) {
+            return null;
+        }
         if (secStrType != 'helices' && secStrType != 'coils' && secStrType != 'strands') {
             return [secStrData.start, secStrData.stop];
         }
@@ -1303,6 +1308,17 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 //_this.drawValidationShape(index, "circle", colors);
             }
         });
+        if (TWCData.size < mapped_aa_properties.get("Charge").length) {
+            for (var i = TWCData.size - 1; i < mapped_aa_properties.get("Charge").length; i++) {
+                selectSections_RV1.get(name).push({
+                    entity_id: _this.entityId,
+                    start_residue_number: i,
+                    end_residue_number: i,
+                    color: { r: 255, g: 255, b: 255 },
+                    sideChain: false,
+                });
+            }
+        }
         return residueDetails;
     };
     PdbTopologyViewerPlugin.prototype.getAnnotationFromRibovision = function (mapped_aa_properties) {
