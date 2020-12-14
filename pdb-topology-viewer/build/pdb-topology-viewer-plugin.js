@@ -1556,7 +1556,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
             downloadLink.click();
             document.body.removeChild(downloadLink);
         }
-        saveSvg1(svg, 'test.svg');
+        saveSvg1(svg, 'rv3Topology.svg');
     };
     PdbTopologyViewerPlugin.prototype.displayDomain = function (invokedFrom) {
         var selectBoxEle = this.targetEle.querySelector('.menuSelectbox');

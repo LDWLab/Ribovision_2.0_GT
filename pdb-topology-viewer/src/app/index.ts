@@ -1608,7 +1608,7 @@ class PdbTopologyViewerPlugin {
           downloadLink.click();
           document.body.removeChild(downloadLink);
       }
-	    saveSvg1(svg, 'test.svg')	
+        saveSvg1(svg, 'rv3Topology.svg')
   }
 
     displayDomain(invokedFrom?: string) {
