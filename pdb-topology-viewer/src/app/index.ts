@@ -9,6 +9,7 @@ const masking_range_array = (window as any).masking_range_array;
 var masked_array = (window as any).masked_array;
 var viewerInstance = (window as any).viewerInstance;
 var selectSections_RV1 = (window as any).selectSections_RV1;
+var rv3VUEcomponent = (window as any).vm;
 var filterRange = (window as any).filterRange?(window as any).filterRange: "-10000,10000";
 
 class PdbTopologyViewerPlugin { 
@@ -781,12 +782,12 @@ class PdbTopologyViewerPlugin {
         this.targetEle.innerHTML = `<div style="${this.displayStyle}">
             <div class="svgSection" style="position:relative;width:100%;"></div>
             <div style="${this.menuStyle}">
-                <img src="https://www.ebi.ac.uk/pdbe/entry/static/images/logos/PDBe/logo_T_64.png" style="height:15px; width: 15px; border:0;position: absolute;margin-top: 11px;" />
+                <img src="static/alignments/png/EBILogo.png" style="height:15px; width: 15px; border:0;position: absolute;margin-top: 11px;" />
                 <a style="color: #efefef;border-bottom:none; cursor:pointer;margin-left: 16px;" target="_blank" href="https://pdbe.org/${this.entryId}">${this.entryId}</a> | <span class="menuDesc">Entity ${this.entityId} | Chain ${this.chainId.toUpperCase()}</span>
                 <div class="menuOptions" style="float:right;margin-right: 20px;">
                     <select class="menuSelectbox" style="margin-right: 10px;"><option value="">Select</option></select>
-                    <img class="saveSVG" src="http://apollo2.chemistry.gatech.edu/RiboVision3/pdb-topology-viewer-master_2/build/Save.png" style="height:15px; width: 15px; border:0;position: relative;margin-right: 15px;cursor:pointer;" title="saveSVG" />\n
-                    <img class="resetIcon" src="https://www.ebi.ac.uk/pdbe/pdb-component-library/images/refresh.png" style="height:15px; width: 15px; border:0;position: absolute;margin-top: 11px;cursor:pointer;" title="Reset view" />
+                    <img class="saveSVG" src="static/alignments/png/Save.png" style="height:15px; width: 15px; border:0;position: relative;margin-right: 15px;cursor:pointer;" title="saveSVG" />\n
+                    <img class="resetIcon" src="static/alignments/png/refresh.png" style="height:15px; width: 15px; border:0;position: absolute;margin-top: 11px;cursor:pointer;" title="Reset view" />
                 </div>
             </div>
         </div>`;
@@ -1508,7 +1509,7 @@ class PdbTopologyViewerPlugin {
             const resetIconEle = this.targetEle.querySelector('.resetIcon');
             resetIconEle.addEventListener("click", this.resetDisplay.bind(this));
             this.targetEle.querySelector(".saveSVG").addEventListener("click", this.saveSVG.bind(this))
-
+            rv3VUEcomponent.topology_loaded=true;
         }else{
             this.targetEle.querySelector('.menuOptions').style.display = 'none';
         }
@@ -1607,7 +1608,7 @@ class PdbTopologyViewerPlugin {
           downloadLink.click();
           document.body.removeChild(downloadLink);
       }
-	    saveSvg1(svg, 'test.svg')	
+        saveSvg1(svg, 'rv3Topology.svg')
   }
 
     displayDomain(invokedFrom?: string) {

@@ -5,6 +5,7 @@
   }
 
   header {
+    border-bottom: 1px solid black;
     background: #f7a37f;
     padding: 2rem;
     grid-column: 1 / 5;
@@ -19,6 +20,7 @@
 
   .left-sidebar {
     background: #96c9dc;
+    border-right: 1px solid black;
     grid-column: 1 / 2;
     grid-row: 2 / 5 ;
     width: 300px;
@@ -62,6 +64,7 @@
   }
 
   footer {
+    border-top: 1px solid black;
     background: #174060;
     padding: 2rem;
     text-align: center;
@@ -87,10 +90,57 @@
     padding: 1rem;
   }
 
+
   .vue-treeselect__menu {
     width: 450px;
     overflow-x: auto;
     text-overflow: clip;
+  }
+
+  .vue-treeselect__multi-value{
+    color: black;
+  }
+
+  .vue-treeselect__placeholder{
+    color:black;
+  }
+
+  .vue-treeselect__control{
+    border-color: black;
+    background-color: transparent;
+  }
+
+  .vue-treeselect__multi-value-item,
+  .vue-treeselect__limit-tip-text{
+    background: transparent;
+    color: black;
+  }
+
+  .vue-treeselect__value-container:hover,
+  .vue-treeselect__multi-value-item:hover,
+  .vue-treeselect__limit-tip-text:hover{
+    color: white;
+  }
+
+  .vue-treeselect__label:hover{
+    color: black;
+  }
+
+  .vue-treeselect__label:hover{
+    color: white;
+  }
+
+  .vue-treeselect__option:hover, 
+  .vue-treeselect__option:hover{
+    color: white;
+    background-color: DodgerBlue;
+  }
+  .vue-treeselect__control:hover, 
+  .vue-treeselect__placeholder:hover,
+  .vue-treeselect__menu:hover,
+  #polymerSelect:hover{
+    color: white;
+    background-color: #343a40;
   }
 
   .vue-treeselect__placeholder,
@@ -127,9 +177,6 @@
     float:left;
     position:relative;
   }
-  #tree_type{
-    text-align: center;
-  }
   .svgSection{
     background-color: white;
   }
@@ -156,17 +203,11 @@
     border-radius:3px;
   }
 
-  /*.slider::-webkit-slider-runnable-track {
-    background: #f8efdd;
-    /* border: 8px solid #f8efdd;}*/
-  
   .slider::-moz-range-thumb {
     width: 20px;
     height: 10px;
     background: #174060;
   }
-
-
 
   #yPosSlider {
     position: relative;
@@ -187,19 +228,55 @@
     padding-bottom: 5%
   }
 
+  #tree_type {
+    display:flex; 
+    padding-bottom:15px;
+    text-align: center;
+    width: 267px;
+  }
+
+  #selectaln, #pdb_input, #polymerSelect, #downloadDataBtn, #downloadExampleFasta,
+  #propensitiesSubstructure, #downloadExampleCSV, #uploadShowFasta, #pdb_input_custom {
+    width: 267px;
+  }
+
   #pdb_input{
-    width: 250px;
     max-height: 75px;
   }
   
   #polymerSelect{
-    max-width: 250px;
+    max-width: 267px;
+    background:none;
+    overflow-x:hidden;
+    overflow-y: auto;
+  }
+
+  #maskingSection .input-group-text, #filterSection .input-group-text {
+    width: 267px;
   }
 
   #inputUploadFasta,#inputUploadCSV{
-    max-width: 250px;
+    max-width: 267px;
     margin-right: auto;
     word-wrap: break-word;
     overflow: auto;
     white-space: normal;
+  }
+
+  #inputRV3State{
+    display: none;
+  }
+
+  #rv3-state-upload{
+    float: right;
+    cursor: pointer;
+  }
+
+  #tooltip{
+    -webkit-touch-callout: none; 
+    -webkit-user-select: none; 
+     -khtml-user-select: none; 
+       -moz-user-select: none; 
+        -ms-user-select: none; 
+            user-select: none;
   }

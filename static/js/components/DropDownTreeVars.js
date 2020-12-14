@@ -14,7 +14,7 @@ export function initialState (){
             ],
         pdbid: null,
         chains: null,
-        chainid: null,
+        chainid: [],
         fasta_data: null,
         fastaSeqNames: null,
         colorScheme: null,
@@ -42,5 +42,6 @@ export function initialState (){
         strand_residues: null,
         substructures: null,
         property: null,
+        uploadSession: false,
     }
 }

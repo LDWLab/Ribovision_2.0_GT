@@ -1,8 +1,21 @@
 <template>
     <div>
-        <header class="pink section">
-            <span class="title">DESIRE: DatabasE for Study and Imaging of Ribosomal Evolution</span>
-            <button class="btn btn-outline-dark" v-on:click="startTour();" style="float: right;">Help</button>
+        <header class="pink section" style="display:flex;">
+            <div>
+                <span class="title">RiboVision3 Webserver for Study and Imaging of Ribosomal Protein Evolution </span>
+            </div>
+            <div class="headerOptions" style="margin-left: auto;">
+                <button class="btn btn-outline-dark" v-on:click="startTour();" style="float: right;">Help</button>
+                <p style="padding:5px;float: right;"></p>
+                <button class="btn btn-outline-dark" id="resetButton" v-on:click="resetRV3State();" style="float: right;">Reset</button>
+                <p style="padding:5px;float: right;"></p>
+                <button class="btn btn-outline-dark" id="saveButton" v-on:click="saveRV3State();" style="float: right;">Save session</button>
+                <p style="padding:5px;float: right;"></p>
+                <label for="inputRV3State" id="rv3-state-upload" class="btn btn-outline-dark">
+                    Upload session
+                </label>
+                <input id="inputRV3State" type="file" accept=".json" ref="rv3_state_file" v-on:change="loadRV3State()"/>
+            </div>
         </header>
         <v-tour 
           name="myTour"
@@ -16,6 +29,7 @@
 
 <script>
     import {initialState} from './DropDownTreeVars.js'
+    import {readLoadRV3State} from './loadRV3State.js'
     export default {
         name: 'my-tour',
         data () {
@@ -35,10 +49,33 @@
                 this.$tours['myTour'].start()
             },
             stopTour(){
-                Object.assign(vm.$data, initialState());
+                this.resetRV3State();
             },
             skipTour(){
+                this.resetRV3State();
+            },
+            resetRV3State(){
                 Object.assign(vm.$data, initialState());
+                window.tempCSVdata = null;
+                clearInputFile(document.getElementById('inputRV3State'));
+            },
+            saveRV3State(){
+                let anchor = document.createElement('a');
+                vm.uploadSession=true;
+                var saveData = vm.$data;
+                saveData["window.selectSections_RV1"]=window.selectSections_RV1;
+                anchor.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(saveData, replacer));
+                anchor.target = '_blank';
+                anchor.download = "rv3State.json";
+                anchor.click();
+                vm.uploadSession=false;
+            },
+            loadRV3State(){
+                if (this.$refs.rv3_state_file.files.length == 0){return;}
+                Object.assign(vm.$data, initialState());
+                window.tempCSVdata = null;
+                readLoadRV3State(this.$refs.rv3_state_file.files[0]);
+                clearInputFile(document.getElementById('inputRV3State'));
             }
         },
         mounted: function () {
@@ -65,7 +102,9 @@
             header: {
                 title: 'Welcome to RiboVision3!',
             },
-            content: `What is this?`
+            content: `RiboVision3 is a visualization tool for ribosomal proteins 
+            designed to visualize phylogenetic, structural, and physicochemical 
+            properties in primary, secondary, and tertiary representations.`
         },{
             target: '#tree_type',
             header: {
@@ -146,6 +185,28 @@
               placement: 'right'
             },
         },{
+            target: '#showFrequencies',
+            header: {
+                title: 'Select to show amino-acid frequencies',
+            },
+            content: `Amino-acid frequencies, calculated for the loaded alignment will be shown.`,
+            params: {
+              placement: 'right'
+            },
+            before: type => new Promise((resolve, reject) => {
+                resolve (
+                    vm.checked_propensities = true,
+                    vm.handlePropensities(true)
+                )
+            })
+        },{
+            target: '#total',
+            header: {
+                title: 'Frequency graph',
+            },
+            content: `Frequencies for the 20 amino-acids are shown as a boxplot figure. Each species is represented with a datapoint. <br>
+            Hovering on a datapoint highlights the corresponding species in the alignment viewer.`,
+        },{
             target: '#pdb_input',
             header: {
                 title: 'Select PDB id for structure display',
@@ -156,6 +217,7 @@
             },
             before: type => new Promise((resolve, reject) => {
                 resolve (
+                    vm.checked_propensities = false,
                     vm.pdbid = "4v9d",
                 )
             })
@@ -252,7 +314,7 @@
         },{
             target: '#filterSection',
             header: {
-                title: '3D viewer',
+                title: 'Truncation ranges',
             },
             content: `Here you can specify ranges that truncate the structure shown on the topology and 3D viewers.`,
             params: {
@@ -280,6 +342,22 @@
                 )
             })
         },{
+            target: '#propensitiesSubstructure',
+            header: {
+                title: 'Recalculate AA frequencies',
+            },
+            content: `Once a structure has been defined, AA frequencies can be recalculated by a given secondary structure.<br>
+            The options are Coil, Strand, or Helix residues.`,
+            params: {
+              placement: 'right'
+            },
+            before: type => new Promise((resolve, reject) => {
+                resolve (
+                    vm.checked_customMap=false,
+                    vm.checked_propensities = true
+                )
+            })
+        },{
             target: '#tree_type',
             header: {
                 title: 'Upload custom alignment',
@@ -291,8 +369,9 @@
             },
             before: type => new Promise((resolve, reject) => {
                 resolve (
-                    vm.checked_customMap=false,
+                    vm.checked_propensities = false,
                     vm.type_tree="upload",
+                    document.getElementById('tree_type').children[1].click(),
                     vm.cleanTreeOpts(),
                     document.getElementById("pdbeMolstarView").textContent = null,
                     document.getElementById("topview").textContent = null,
@@ -328,6 +407,15 @@
                     uploadButton.click(),
                 )
             })
+        },{
+            target: '#downloadExampleFasta',
+            header: {
+                title: 'Download example alignment.',
+            },
+            content: `Download an example fasta format alignment.`,
+            params: {
+              placement: 'right'
+            },
         },{
             target: '#pdb_input_custom',
             header: {
@@ -402,6 +490,35 @@
                     }),
                 )
             })
+        },{
+            target: '#resetButton',
+            header: {
+                title: 'Reset session',
+            },
+            content: `Reset the current RiboVision3 session.<br/>
+            All loaded data will be removed.`,
+        },{
+            target: '#saveButton',
+            header: {
+                title: 'Save the session',
+            },
+            content: `Downloads a RiboVision3 session file.<br>
+            The state of current alignment, structure and frequency viewers will be saved.<br>
+            Masking ranges, truncation ranges, or custom mapping data will not be saved.`,
+        },{
+            target: '#rv3-state-upload',
+            header: {
+                title: 'Load a session',
+            },
+            content: `Upload a RiboVision3 session file.<br>
+            The file will load a previously saved RiboVision3 session.`,
+        },{
+            target: 'footer',
+            header: {
+                title: 'Thank you',
+            },
+            content: `Thank you for reading our guide!
+            Ending this guide will reset the session.`,
         },
     ]
 

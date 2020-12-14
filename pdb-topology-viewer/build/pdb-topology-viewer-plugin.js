@@ -45,6 +45,7 @@ var masking_range_array = window.masking_range_array;
 var masked_array = window.masked_array;
 var viewerInstance = window.viewerInstance;
 var selectSections_RV1 = window.selectSections_RV1;
+var rv3VUEcomponent = window.vm;
 var filterRange = window.filterRange ? window.filterRange : "-10000,10000";
 var PdbTopologyViewerPlugin = /** @class */ (function () {
     function PdbTopologyViewerPlugin() {
@@ -142,6 +143,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 var resetIconEle = this.targetEle.querySelector('.resetIcon');
                 resetIconEle.addEventListener("click", this.resetDisplay.bind(this));
                 this.targetEle.querySelector(".saveSVG").addEventListener("click", this.saveSVG.bind(this));
+                rv3VUEcomponent.topology_loaded = true;
             }
             else {
                 this.targetEle.querySelector('.menuOptions').style.display = 'none';
@@ -835,6 +837,9 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         }
     };
     PdbTopologyViewerPlugin.prototype.getAdjustedStartAndStop = function (secStrType, secStrData) {
+        if (secStrData == undefined) {
+            return null;
+        }
         if (secStrType != 'helices' && secStrType != 'coils' && secStrType != 'strands') {
             return [secStrData.start, secStrData.stop];
         }
@@ -858,7 +863,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
     PdbTopologyViewerPlugin.prototype.drawTopologyStructures = function () {
         var _this_1 = this;
         //Add container elements
-        this.targetEle.innerHTML = "<div style=\"" + this.displayStyle + "\">\n            <div class=\"svgSection\" style=\"position:relative;width:100%;\"></div>\n            <div style=\"" + this.menuStyle + "\">\n                <img src=\"https://www.ebi.ac.uk/pdbe/entry/static/images/logos/PDBe/logo_T_64.png\" style=\"height:15px; width: 15px; border:0;position: absolute;margin-top: 11px;\" />\n                <a style=\"color: #efefef;border-bottom:none; cursor:pointer;margin-left: 16px;\" target=\"_blank\" href=\"https://pdbe.org/" + this.entryId + "\">" + this.entryId + "</a> | <span class=\"menuDesc\">Entity " + this.entityId + " | Chain " + this.chainId.toUpperCase() + "</span>\n                <div class=\"menuOptions\" style=\"float:right;margin-right: 20px;\">\n                    <select class=\"menuSelectbox\" style=\"margin-right: 10px;\"><option value=\"\">Select</option></select>\n                    <img class=\"saveSVG\" src=\"http://apollo2.chemistry.gatech.edu/RiboVision3/pdb-topology-viewer-master_2/build/Save.png\" style=\"height:15px; width: 15px; border:0;position: relative;margin-right: 15px;cursor:pointer;\" title=\"saveSVG\" />\n\n                    <img class=\"resetIcon\" src=\"https://www.ebi.ac.uk/pdbe/pdb-component-library/images/refresh.png\" style=\"height:15px; width: 15px; border:0;position: absolute;margin-top: 11px;cursor:pointer;\" title=\"Reset view\" />\n                </div>\n            </div>\n        </div>";
+        this.targetEle.innerHTML = "<div style=\"" + this.displayStyle + "\">\n            <div class=\"svgSection\" style=\"position:relative;width:100%;\"></div>\n            <div style=\"" + this.menuStyle + "\">\n                <img src=\"static/alignments/png/EBILogo.png\" style=\"height:15px; width: 15px; border:0;position: absolute;margin-top: 11px;\" />\n                <a style=\"color: #efefef;border-bottom:none; cursor:pointer;margin-left: 16px;\" target=\"_blank\" href=\"https://pdbe.org/" + this.entryId + "\">" + this.entryId + "</a> | <span class=\"menuDesc\">Entity " + this.entityId + " | Chain " + this.chainId.toUpperCase() + "</span>\n                <div class=\"menuOptions\" style=\"float:right;margin-right: 20px;\">\n                    <select class=\"menuSelectbox\" style=\"margin-right: 10px;\"><option value=\"\">Select</option></select>\n                    <img class=\"saveSVG\" src=\"static/alignments/png/Save.png\" style=\"height:15px; width: 15px; border:0;position: relative;margin-right: 15px;cursor:pointer;\" title=\"saveSVG\" />\n\n                    <img class=\"resetIcon\" src=\"static/alignments/png/refresh.png\" style=\"height:15px; width: 15px; border:0;position: absolute;margin-top: 11px;cursor:pointer;\" title=\"Reset view\" />\n                </div>\n            </div>\n        </div>";
         //Get dimensions
         var targetEleWt = this.targetEle.offsetWidth;
         var targetEleHt = this.targetEle.offsetHeight;
@@ -1303,6 +1308,17 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 //_this.drawValidationShape(index, "circle", colors);
             }
         });
+        if (TWCData.size < mapped_aa_properties.get("Charge").length) {
+            for (var i = TWCData.size - 1; i < mapped_aa_properties.get("Charge").length; i++) {
+                selectSections_RV1.get(name).push({
+                    entity_id: _this.entityId,
+                    start_residue_number: i,
+                    end_residue_number: i,
+                    color: { r: 255, g: 255, b: 255 },
+                    sideChain: false,
+                });
+            }
+        }
         return residueDetails;
     };
     PdbTopologyViewerPlugin.prototype.getAnnotationFromRibovision = function (mapped_aa_properties) {
@@ -1540,7 +1556,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
             downloadLink.click();
             document.body.removeChild(downloadLink);
         }
-        saveSvg1(svg, 'test.svg');
+        saveSvg1(svg, 'rv3Topology.svg');
     };
     PdbTopologyViewerPlugin.prototype.displayDomain = function (invokedFrom) {
         var selectBoxEle = this.targetEle.querySelector('.menuSelectbox');

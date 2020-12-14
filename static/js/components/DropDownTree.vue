@@ -1,25 +1,32 @@
 <template>
     <div id="phylo_tree_dropdown">
         <div class="left-sidebar">
-            <p id="tree_type">
-                <input type="radio" id="orthologs" value="orth" v-model="type_tree" v-on:input="cleanTreeOpts()" checked>
-                <label style="margin: 0 1%;" for="orthologs" >DESIRE</label>
-                <!--<input type="radio" id="paralogs" value="para" v-model="type_tree" v-on:input="cleanTreeOpts()">
-                <label for="paralogs">Paralogs</label>-->
-                <input type="radio" id="upload" value="upload" v-model="type_tree" v-on:input="cleanTreeOpts()">
-                <label style="margin: 0 1%;" for="upload">User upload</label>
-            </p>
+            <div id="tree_type" class="btn-group btn-group-toggle" data-toggle="buttons">
+                
+                <label class="btn btn-outline-dark" style="margin: 0 1% 0 0;width:50%;" for="orthologs" >
+                    <input type="radio" id="orthologs" value="orth" v-model="type_tree" v-on:input="cleanTreeOpts()" checked>
+                    DESIRE
+                </label>
+                <!--<label class="btn btn-outline-dark" for="paralogs">
+                    <input type="radio" id="paralogs" value="para" v-model="type_tree" v-on:input="cleanTreeOpts()">
+                    Paralogs
+                </label>-->
+                <label class="btn btn-outline-dark" style="margin: 0 0 0 1%;width:50%;" for="upload">
+                    <input type="radio" id="upload" value="upload" v-model="type_tree" v-on:input="cleanTreeOpts()">
+                    User upload
+                </label>
+            </div>
             <div id="treeselect" v-if="type_tree=='para'|type_tree=='orth'">
             <treeselect ref="treeselect"
               :load-options="loadOptions"
               v-model="tax_id" 
               v-on:input="loadData(tax_id, type_tree)"
-              placeholder="Select a group"
+              placeholder="Select a phylogenetic group"
               no-children-text="Loading... or no children"
               :multiple="true" 
               :options="options" 
               :flat="true"
-              :limit="2"
+              :limit="3"
               :default-expand-level="1"
               >Loading phylogenetic tree...</treeselect>
             </div>
@@ -30,7 +37,7 @@
                 <p><button id="downloadExampleFasta" class="btn btn-outline-dark" v-on:click="getExampleFile(`static/alignments/EFTU_example.fas`, `rv3ExampleAlignment.fas`)">Download example alignment</button></p>
             </div>
             <p>
-                <select id="selectaln" v-if="tax_id" v-model="alnobj">
+                <select class="btn btn-outline-dark dropdown-toggle" id="selectaln" v-if="tax_id" v-model="alnobj">
                     <option v-if="tax_id" :value="null" selected disabled hidden>Select an alignment</option>
                     <option v-if="tax_id" v-for="aln in alignments" v-bind:value="{ id: aln.value, text: aln.text }">{{ aln.text }}</option>
                 </select>
@@ -41,14 +48,14 @@
                 <span v-if="alnobj&&alnobj=='custom'">Type PDB for mapping:</span>
             </p>
             <p>
-                <select id="pdb_input" v-if="alnobj&&alnobj!='custom'" v-model="pdbid">
+                <select class="btn btn-outline-dark dropdown-toggle" id="pdb_input" v-if="alnobj&&alnobj!='custom'" v-model="pdbid">
                     <option :value="null" selected disabled hidden>Select structure</option>
                     <option v-for="pdb in pdbs" v-bind:value="pdb.id">{{pdb.name}}</option>
                 </select>
-                <input type="text" id="pdb_input_custom" v-if="alnobj&&alnobj=='custom'" v-model="pdbid" maxlength="4"></input>
+                <input type="text" id="pdb_input_custom" class="input-group-text" v-if="alnobj&&alnobj=='custom'" v-model="pdbid" maxlength="4"></input>
                 <div v-if="hide_chains" id="onFailedChains">Looking for available polymers...</div>
             </p>
-            <p><select id="polymerSelect" v-bind:style="{ resize: 'both'}" multiple v-if="chains&&fasta_data&&pdbid" v-model="chainid" >
+            <p><select multiple class="form-control btn-outline-dark" id="polymerSelect" v-bind:style="{ resize: 'both'}"  v-if="chains&&fasta_data&&pdbid||uploadSession" v-model="chainid" >
                 <option :value ="null" selected disabled>Select polymer</option>
                 <option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid, chain.entityID); ">{{ chain.text }}</option>
             </select></p>
@@ -57,31 +64,23 @@
                     Download mapped properties
                 </button>
             </div>
-            <p><div v-if="alnobj" class="checkbox">
-                <label><input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">
-                Show amino-acid propensities</label>
-                <select v-if="checked_propensities&&structure_mapping" v-model="property" v-on:change="getPropensities(property.indices); handlePropensities(checked_propensities)">
-                    <option :value="null" selected disabled hidden>Select a substructure</option>
-                    <option v-for="substructure in substructures" v-bind:value="{ id: substructure.value, text: substructure.text, indices: substructure.indices }">{{ substructure.text }}</option>
-                </select>
-            </div></p>
             <div v-if="topology_loaded">
                 <div id="maskingSection"><p>
                     <div class="checkbox">
                         <label><input type="checkbox" v-model="checked_filter" v-on:change="cleanFilter(checked_filter, masking_range)">
-                        Mask residues in 2D and 3D</label>
+                        Mask/Unmask 2D and 3D residues</label>
                     </div>
-                    <span v-if="checked_filter"><b>Multiple</b> residue ranges to show, separated by semicolon. <br> For example: 1-80;91-111;</span>
-                    <input v-if="checked_filter" v-model="masking_range" v-on:input="handleMaskingRanges(masking_range)">
+                    <span v-if="checked_filter"><b>Input multiple</b> residue ranges to <b>show</b>, separated by semicolon. <br> For example: 1-80;91-111;</span>
+                    <input class="input-group-text" v-if="checked_filter" v-model="masking_range" v-on:input="handleMaskingRanges(masking_range)">
                 </p></div>
                 <p v-if="correct_mask!=true&&masking_range!=null">Incorrect range syntax!</p>
                 <div id="filterSection"><p>
                     <div class="checkbox">
                         <label><input type="checkbox" v-model="checked_selection" v-on:change="cleanSelection(checked_selection, filter_range)">
-                        Remove residues in 2D and 3D</label>
+                        Cut/Uncut 2D and 3D structures</label>
                     </div>
-                    <span v-if="checked_selection"><b>Single</b> residue range to leave, ending with semicolon. <br> For example: 1-80;</span>
-                    <input v-if="checked_selection" v-model="filter_range" v-on:input="handleFilterRange(filter_range)">
+                    <span v-if="checked_selection"><b>Input single</b> residue range to <b>show</b>, ending with semicolon. <br> For example: 1-80;</span>
+                    <input class="input-group-text" v-if="checked_selection" v-model="filter_range" v-on:input="handleFilterRange(filter_range)">
                 </p></div>
                 <div id="customDataSection">
                 <p><div class="checkbox">
@@ -95,6 +94,14 @@
                     </div>
                 </p></div>
             </div>
+            <p><div v-if="alnobj" class="checkbox" id="showFrequencies">
+                <label><input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">
+                Show amino-acid frequencies</label>
+                <select class="btn btn-outline-dark dropdown-toggle" id="propensitiesSubstructure" v-if="checked_propensities&&structure_mapping" v-model="property" v-on:change="getPropensities(property.indices); handlePropensities(checked_propensities)">
+                    <option :value="null" selected disabled hidden>Select a substructure</option>
+                    <option v-for="substructure in substructures" v-bind:value="{ id: substructure.value, text: substructure.text, indices: substructure.indices }">{{ substructure.text }}</option>
+                </select>
+            </div></p>
         </div>
         <div class="alignment_section">
             <div id="alnif" v-if="alnobj">
@@ -105,7 +112,7 @@
                     <button id="downloadAlnImageBtn" class="btn btn-outline-dark" style="margin: 0 1%;" v-if="colorScheme"  type="button" v-on:click="downloadAlignmentImage()">
                         Download alignment image
                     </button>
-                    <select id="selectAlnColorScheme" style="margin: 0 1%;" v-model="colorScheme" v-if="colorScheme">
+                    <select id="selectAlnColorScheme" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="colorScheme" v-if="colorScheme">
                         <option :value="null" selected disabled>Select a colorscheme</option>
                         <option v-for="colorscheme in availColorschemes" >{{ colorscheme }}</option>
                     </select>
@@ -119,12 +126,12 @@
             </div>
         </div>
         <div class="topology_section">
-            <span id="topif" v-if="chainid">
+            <span id="topif" v-if="chainid.length>0">
                 <div id="topview">Loading topology viewer and conservation data...</div>
             </span>
         </div>
         <div class="molstar_section">
-            <span id="molif" v-if="chainid">
+            <span id="molif" v-if="chainid.length>0">
                 <div id ="pdbeMolstarView">Loading Molstar Component...</div>
             </span>
         </div>
@@ -154,7 +161,14 @@
         return initialState();
       },
       watch: {
-        csv_data: function (csv_data) {
+        type_tree: function (type_tree){
+            if (this.type_tree == "orth"){
+                document.getElementById('tree_type').children[0].click();
+            }else if (this.type_tree == "upload"){
+                document.getElementById('tree_type').children[1].click();
+            }
+        },csv_data: function (csv_data) {
+            if (this.uploadSession){return;}
             var topviewer = document.getElementById("PdbeTopViewer");
             cleanCustomMap(this.checked_customMap);
             this.raiseCustomCSVWarn = null;
@@ -226,7 +240,12 @@
             if (window.AlnViewer){
                 window.AlnViewer.setState({colorScheme:scheme});
             }
-        }
+        }, topology_loaded: function(topology_loaded){
+            if (window.tempCSVdata!= null && this.topology_loaded){
+                vm.csv_data = window.tempCSVdata;
+                window.tempCSVdata = null;
+            }
+        },
     },methods: {
         handleFileUpload(){
             this.file = this.$refs.custom_aln_file.files[0];
@@ -311,6 +330,7 @@
                 loadParaOptions(action, callback, this);
             }
         }, loadData (value, type_tree) {
+            if (this.uploadSession){return;}
             if (type_tree == "upload"){this.tax_id = null; return;}
             if (value.length == 0){this.tax_id = null; return;}
             cleanupOnNewAlignment(this, "Select new alignment!");
@@ -400,6 +420,7 @@
                 this.aa_properties = calculateFrequencyData(fasta['AA frequencies']);
             })
         }, showTopologyViewer (pdbid, chainid, fasta){
+            this.topology_loaded = false;
             window.filterRange = "-10000,10000";
             if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(this);}
             if (chainid.length > 1){this.chainid = chainid[0];}
@@ -416,7 +437,6 @@
             })[0];
             let ebi_sequence = temp["sequence"];
             let startIndex = temp["startIndex"];
-            // let ebi_sequence = this.chains[0]["sequence"];
             ajax('/mapSeqAln/', {fasta, ebi_sequence, startIndex}).then(struct_mapping=>{
                 this.structure_mapping = struct_mapping;
                 if (struct_mapping['BadMappingPositions']){this.poor_structure_map = struct_mapping['BadMappingPositions'];}
@@ -484,13 +504,17 @@
                         var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid} filter-range=${mapping}></pdb-topology-viewer>`
                         document.getElementById('topview').innerHTML = topology_viewer;
                         window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
-                        this.topology_loaded = true;
+                        //this.topology_loaded = true;
                     })
                 })
             }).catch(error => {
-                var topview = document.querySelector('#topview')
-                topview.innerHTML = error.responseText.replace(/\n/g, "<br />");;
-                console.log(error)
+                var topview = document.querySelector('#topview');
+                console.log(error);
+                if (error.responseText){
+                    topview.innerHTML = error.responseText.replace(/\n/g, "<br />");
+                } else {
+                    topview.innerHTML = "Failed to load the viewer!"
+                }
             });
         }, showPDBViewer(pdbid, chainid, entityid){
             if (document.querySelector("pdbe-molstar")) {return;}
