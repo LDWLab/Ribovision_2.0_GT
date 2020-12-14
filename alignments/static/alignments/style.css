@@ -222,8 +222,8 @@
     width: 267px;
   }
 
-  #selectaln, #pdb_input, #polymerSelect, #downloadDataBtn, 
-  #propensitiesSubstructure, #downloadExampleCSV {
+  #selectaln, #pdb_input, #polymerSelect, #downloadDataBtn, #downloadExampleFasta
+  #propensitiesSubstructure, #downloadExampleCSV, #uploadShowFasta, {
     width: 267px;
   }
 
