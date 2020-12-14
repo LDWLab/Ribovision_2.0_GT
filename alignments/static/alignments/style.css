@@ -116,6 +116,12 @@
     color: black;
   }
 
+  .vue-treeselect__value-container:hover,
+  .vue-treeselect__multi-value-item:hover,
+  .vue-treeselect__limit-tip-text:hover{
+    color: white;
+  }
+
   .vue-treeselect__label:hover{
     color: black;
   }
@@ -131,7 +137,8 @@
   }
   .vue-treeselect__control:hover, 
   .vue-treeselect__placeholder:hover,
-  .vue-treeselect__menu:hover{
+  .vue-treeselect__menu:hover,
+  #polymerSelect:hover{
     color: white;
     background-color: #343a40;
   }
@@ -229,7 +236,7 @@
   }
 
   #selectaln, #pdb_input, #polymerSelect, #downloadDataBtn, #downloadExampleFasta,
-  #propensitiesSubstructure, #downloadExampleCSV, #uploadShowFasta {
+  #propensitiesSubstructure, #downloadExampleCSV, #uploadShowFasta, #pdb_input_custom {
     width: 267px;
   }
 
