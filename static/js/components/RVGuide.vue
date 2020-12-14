@@ -1,17 +1,21 @@
 <template>
     <div>
-        <header class="pink section">
-            <span class="title">RiboVision3 Webserver for Study and Imaging of Ribosomal Protein Evolution </span>
-            <button class="btn btn-outline-dark" v-on:click="startTour();" style="float: right;">Help</button>
-            <p style="padding:5px;float: right;"></p>
-            <button class="btn btn-outline-dark" id="resetButton" v-on:click="resetRV3State();" style="float: right;">Reset</button>
-            <p style="padding:5px;float: right;"></p>
-            <button class="btn btn-outline-dark" id="saveButton" v-on:click="saveRV3State();" style="float: right;">Save session</button>
-            <p style="padding:5px;float: right;"></p>
-            <label for="inputRV3State" id="rv3-state-upload" class="btn btn-outline-dark">
-                Upload session
-            </label>
-            <input id="inputRV3State" type="file" accept=".json" ref="rv3_state_file" v-on:change="loadRV3State()"/>
+        <header class="pink section" style="display:flex;">
+            <div>
+                <span class="title">RiboVision3 Webserver for Study and Imaging of Ribosomal Protein Evolution </span>
+            </div>
+            <div class="headerOptions" style="margin-left: auto;">
+                <button class="btn btn-outline-dark" v-on:click="startTour();" style="float: right;">Help</button>
+                <p style="padding:5px;float: right;"></p>
+                <button class="btn btn-outline-dark" id="resetButton" v-on:click="resetRV3State();" style="float: right;">Reset</button>
+                <p style="padding:5px;float: right;"></p>
+                <button class="btn btn-outline-dark" id="saveButton" v-on:click="saveRV3State();" style="float: right;">Save session</button>
+                <p style="padding:5px;float: right;"></p>
+                <label for="inputRV3State" id="rv3-state-upload" class="btn btn-outline-dark">
+                    Upload session
+                </label>
+                <input id="inputRV3State" type="file" accept=".json" ref="rv3_state_file" v-on:change="loadRV3State()"/>
+            </div>
         </header>
         <v-tour 
           name="myTour"

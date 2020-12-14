@@ -9,7 +9,7 @@ export function addFooterImages (divID){
                 title="NASA Astrobiology Institute (NAI)" alt="NASA Logo">
         </a>
     </div>
-    <p style="padding:10px;"></p>
+    <p style="padding:5px;"></p>
     <div class="white-box" style="float: left;">
         <a href="http://prebioticchem.info//" target="_blank">
             <img 
@@ -19,7 +19,7 @@ export function addFooterImages (divID){
                 alt="PCE3 Logo">
         </a>
     </div>
-    <p style="padding:10px;"></p>
+    <p style="padding:5px;"></p>
     <div class="white-box" style="float: left;">
         <a href="https://cos.gatech.edu/" target="_blank">
             <img 
@@ -29,7 +29,7 @@ export function addFooterImages (divID){
                 alt="GaTech Logo">
         </a>
     </div>
-    <p style="padding:10px;"></p>
+    <p style="padding:5px;"></p>
     <div class="white-box" style="float: left;">
         <a href="http://ww2.chemistry.gatech.edu/~lw26/index.html" target="_blank">
             <img 
@@ -39,7 +39,7 @@ export function addFooterImages (divID){
                 alt="Williams Logo">
         </a>
     </div>
-    <p style="padding:10px;"></p>
+    <p style="padding:5px;"></p>
     <div class="white-box" style="float: left;">
         <a href="http://cool.gatech.edu/" target="_blank">
             <img 
@@ -49,7 +49,7 @@ export function addFooterImages (divID){
                 alt="COOL Logo">
         </a>
     </div>
-    <p style="padding:10px;"></p>
+    <p style="padding:5px;"></p>
     <div class="white-box" style="float: left;">
         <a href="http://apollo.chemistry.gatech.edu/RiboVision/" target="_blank">
             <img 
@@ -58,7 +58,13 @@ export function addFooterImages (divID){
                 title="RiboVision" 
                 alt="RiboVision Logo">
         </a>
-    </div>`
+    </div>
+    <a href="mailto:anton.petrov@biology.gatech.edu?cc=loren.williams@chemistry.gatech.edu&bcc=ppenev@gatech.edu
+&subject=RiboVision3%20question">
+        <div class="white-box" style="position: absolute;right: 35px;height:75px; padding:5px;">
+            <div style="padding-top:20px"><b>Contact us</b></div>
+        </div>
+    </a>`
     var injectionDiv = document.getElementById(divID)
     injectionDiv.innerHTML = htmlTOinject;
 }
