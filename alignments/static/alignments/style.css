@@ -110,6 +110,12 @@
     background-color: transparent;
   }
 
+  .vue-treeselect__multi-value-item,
+  .vue-treeselect__limit-tip-text{
+    background: transparent;
+    color: black;
+  }
+
   .vue-treeselect__label:hover{
     color: black;
   }
