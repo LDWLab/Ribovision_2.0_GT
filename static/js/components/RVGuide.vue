@@ -181,6 +181,28 @@
               placement: 'right'
             },
         },{
+            target: '#showFrequencies',
+            header: {
+                title: 'Select to show amino-acid frequencies',
+            },
+            content: `Amino-acid frequencies, calculated for the loaded alignment will be shown.`,
+            params: {
+              placement: 'right'
+            },
+            before: type => new Promise((resolve, reject) => {
+                resolve (
+                    vm.checked_propensities = true,
+                    vm.handlePropensities(true)
+                )
+            })
+        },{
+            target: '#total',
+            header: {
+                title: 'Frequency graph',
+            },
+            content: `Frequencies for the 20 amino-acids are shown as a boxplot figure. Each species is represented with a datapoint. <br>
+            Hovering on a datapoint highlights the corresponding species in the alignment viewer.`,
+        },{
             target: '#pdb_input',
             header: {
                 title: 'Select PDB id for structure display',
@@ -191,6 +213,7 @@
             },
             before: type => new Promise((resolve, reject) => {
                 resolve (
+                    vm.checked_propensities = false,
                     vm.pdbid = "4v9d",
                 )
             })
@@ -287,7 +310,7 @@
         },{
             target: '#filterSection',
             header: {
-                title: '3D viewer',
+                title: 'Truncation ranges',
             },
             content: `Here you can specify ranges that truncate the structure shown on the topology and 3D viewers.`,
             params: {
@@ -315,6 +338,22 @@
                 )
             })
         },{
+            target: '#propensitiesSubstructure',
+            header: {
+                title: 'Recalculate AA frequencies',
+            },
+            content: `Once a structure has been defined, AA frequencies can be recalculated by a given secondary structure.<br>
+            The options are Coil, Strand, or Helix residues.`,
+            params: {
+              placement: 'right'
+            },
+            before: type => new Promise((resolve, reject) => {
+                resolve (
+                    vm.checked_customMap=false,
+                    vm.checked_propensities = true
+                )
+            })
+        },{
             target: '#tree_type',
             header: {
                 title: 'Upload custom alignment',
@@ -326,8 +365,9 @@
             },
             before: type => new Promise((resolve, reject) => {
                 resolve (
-                    vm.checked_customMap=false,
+                    vm.checked_propensities = false,
                     vm.type_tree="upload",
+                    document.getElementById('tree_type').children[1].click(),
                     vm.cleanTreeOpts(),
                     document.getElementById("pdbeMolstarView").textContent = null,
                     document.getElementById("topview").textContent = null,
@@ -363,6 +403,15 @@
                     uploadButton.click(),
                 )
             })
+        },{
+            target: '#downloadExampleFasta',
+            header: {
+                title: 'Download example alignment.',
+            },
+            content: `Download an example fasta format alignment.`,
+            params: {
+              placement: 'right'
+            },
         },{
             target: '#pdb_input_custom',
             header: {

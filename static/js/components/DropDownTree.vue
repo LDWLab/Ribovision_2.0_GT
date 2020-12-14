@@ -94,7 +94,7 @@
                     </div>
                 </p></div>
             </div>
-            <p><div v-if="alnobj" class="checkbox">
+            <p><div v-if="alnobj" class="checkbox" id="showFrequencies">
                 <label><input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">
                 Show amino-acid frequencies</label>
                 <select class="btn btn-outline-dark dropdown-toggle" id="propensitiesSubstructure" v-if="checked_propensities&&structure_mapping" v-model="property" v-on:change="getPropensities(property.indices); handlePropensities(checked_propensities)">
@@ -161,7 +161,13 @@
         return initialState();
       },
       watch: {
-        csv_data: function (csv_data) {
+        type_tree: function (type_tree){
+            if (this.type_tree == "orth"){
+                document.getElementById('tree_type').children[0].click();
+            }else if (this.type_tree == "upload"){
+                document.getElementById('tree_type').children[1].click();
+            }
+        },csv_data: function (csv_data) {
             if (this.uploadSession){return;}
             var topviewer = document.getElementById("PdbeTopViewer");
             cleanCustomMap(this.checked_customMap);
