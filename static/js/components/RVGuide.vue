@@ -504,7 +504,7 @@
             },
             content: `Downloads a RiboVision3 session file.<br>
             The state of current alignment, structure and frequency viewers will be saved.<br>
-            Masking ranges, truncation ranges, or custom mapping data will not be saved.`,
+            Masking ranges and truncation ranges will not be saved.`,
         },{
             target: '#rv3-state-upload',
             header: {
