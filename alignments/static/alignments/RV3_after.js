@@ -416,7 +416,7 @@ function handlePropensities(checked_propensities) {
         let customFasta = vm.fasta_data
         if (indices) {
             ajax("/propensity-data-custom/", {indices, customFasta}).then(data => {
-                let title = vm.alnobj.text + ' ' + 'Amino Acid Frequencies for '+ vm.property.text.replace(' residues','s')
+                let title = vm.alnobj.text + ' ' + 'Amino Acid Frequencies for '+ vm.property.text
                 build_propensity_graph(data['amino acid'], full, title, 'total');
             });
         } else if (!vm.structure_mapping) {
