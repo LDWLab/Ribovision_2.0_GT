@@ -8,11 +8,16 @@ export function readLoadRV3State (fileInput) {
 		window.selectSections_RV1 = uploadedState["window.selectSections_RV1"];
 		vm.$nextTick(function(){
 			vm.chains = uploadedState.chains;
-			vm.fasta_data = uploadedState.fasta_data;
 			vm.$nextTick(function(){
-				var polSele = document.querySelector("#polymerSelect");
-				polSele.lastElementChild.click();
+				vm.fasta_data = uploadedState.fasta_data;
+				vm.alnobj = uploadedState.alnobj;
 				vm.$nextTick(function(){
+					var polSele = document.querySelector("#polymerSelect");
+					polSele.forEach(function(childElt){
+						if (childElt.value == uploadedState.chainid){
+							childElt.click();
+						}
+					})
 					window.selectSections_RV1 = uploadedState["window.selectSections_RV1"];
 					if (uploadedState.checked_propensities){
 						vm.checked_propensities = uploadedState.checked_propensities;

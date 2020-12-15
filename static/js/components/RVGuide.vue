@@ -62,6 +62,11 @@
             saveRV3State(){
                 let anchor = document.createElement('a');
                 vm.uploadSession=true;
+                let tempTop = false;
+                if (vm.topology_loaded){
+                    let tempTop = true;
+                    vm.topology_loaded=false;
+                }
                 var saveData = vm.$data;
                 saveData["window.selectSections_RV1"]=window.selectSections_RV1;
                 anchor.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(saveData, replacer));
@@ -69,6 +74,10 @@
                 anchor.download = "rv3State.json";
                 anchor.click();
                 vm.uploadSession=false;
+                if (tempTop){
+                    vm.topology_loaded=true;
+                    tempTop = false;
+                }
             },
             loadRV3State(){
                 if (this.$refs.rv3_state_file.files.length == 0){return;}

@@ -266,6 +266,7 @@ var create_deleted_element = function (parent_id, child_id, child_text) {
 };
 
 var cleanupOnNewAlignment = function (vueObj, aln_text='') {
+    if (vm.uploadSession){return;}
     const menu_item = document.querySelector(".smenubar");
     const aln_item = document.getElementById("alnDiv");
     const topview_item = document.getElementById("topview");
