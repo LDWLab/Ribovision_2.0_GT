@@ -178,6 +178,7 @@
                 this.showAlignment(data.id, vm.tax_id, vm.type_tree);
             }
         },pdbid: function (pdbid){
+            if (!pdbid){return;}
             if (vm.type_tree == "upload"){
                 this.getPDBchains(pdbid, null);
             }else{

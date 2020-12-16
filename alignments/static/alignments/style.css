@@ -74,8 +74,9 @@
   }
 
   .white-box {
-    background-color: #ffffff9a;
+    background-color: #ffffffab;
     border-radius: 5px;
+    border: 1.5px solid black;
     color: black;
 }
 
@@ -171,6 +172,14 @@
     float:left;
     position:relative;
   }
+  
+  @-moz-document url-prefix() {
+    .topoSvg{
+      background-color: white;
+      border: 1px solid black;
+    }
+  }
+
   #pdbeMolstarView {
     width: 500px;
     height: 500px;
@@ -180,6 +189,11 @@
   .svgSection{
     background-color: white;
   }
+
+  #propif{
+    padding: 20px;
+  }
+
   .slider {
     -webkit-appearance: none;
     width: 70%;

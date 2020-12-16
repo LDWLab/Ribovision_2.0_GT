@@ -28,7 +28,7 @@ class PdbTopologyViewerPlugin {
 
     displayStyle = 'border:1px solid #696969;';
     errorStyle = 'border:1px solid #696969; height:54%; padding-top:46%; text-align:center; font-weight:bold;';
-    menuStyle = 'position:relative;height:38px;line-height:38px;background-color:#696969;padding: 0 10px;font-size:16px; color: #efefef;';
+    menuStyle = 'position:relative;height:38px;line-height:38px;background-color:#96c9dc;padding: 0 10px;font-size:16px; color: black;';
 
     sequenceArr: string[];
     entityId: string;
@@ -782,8 +782,7 @@ class PdbTopologyViewerPlugin {
         this.targetEle.innerHTML = `<div style="${this.displayStyle}">
             <div class="svgSection" style="position:relative;width:100%;"></div>
             <div style="${this.menuStyle}">
-                <img src="static/alignments/png/EBILogo.png" style="height:15px; width: 15px; border:0;position: absolute;margin-top: 11px;" />
-                <a style="color: #efefef;border-bottom:none; cursor:pointer;margin-left: 16px;" target="_blank" href="https://pdbe.org/${this.entryId}">${this.entryId}</a> | <span class="menuDesc">Entity ${this.entityId} | Chain ${this.chainId.toUpperCase()}</span>
+                <a style="color: black;border-bottom:none; cursor:pointer;margin-left: 16px;" target="_blank" href="https://pdbe.org/${this.entryId}">${this.entryId}</a> | <span class="menuDesc">Entity ${this.entityId} | Chain ${this.chainId.toUpperCase()}</span>
                 <div class="menuOptions" style="float:right;margin-right: 20px;">
                     <select class="menuSelectbox" style="margin-right: 10px;"><option value="">Select</option></select>
                     <img class="saveSVG" src="static/alignments/png/Save.png" style="height:15px; width: 15px; border:0;position: relative;margin-right: 15px;cursor:pointer;" title="saveSVG" />\n

@@ -414,14 +414,17 @@ function handlePropensities(checked_propensities) {
         let indices = vm.propensity_indices
         var full = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y'];
         let customFasta = vm.fasta_data
+        var title = 'Amino Acid Frequencies'
+        if (vm.type_tree == "orth"){
+            var title = vm.alnobj.text + ' ' + 'Amino Acid Frequencies'
+        }
         if (indices) {
             ajax("/propensity-data-custom/", {indices, customFasta}).then(data => {
-                let title = vm.alnobj.text + ' ' + 'Amino Acid Frequencies for '+ vm.property.text
-                build_propensity_graph(data['amino acid'], full, title, 'total');
+                build_propensity_graph(data['amino acid'], full, title+' for '+vm.property.text, 'total');
             });
         } else if (!vm.structure_mapping) {
             ajax("/propensity-data-custom/", {customFasta}).then(data => {
-                build_propensity_graph(data['amino acid'], full, vm.alnobj.text + ' ' + 'Amino Acid Frequencies', 'total');
+                build_propensity_graph(data['amino acid'], full, title, 'total');
             });
         }
     }

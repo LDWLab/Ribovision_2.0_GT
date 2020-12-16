@@ -10,7 +10,7 @@ export function initialState (){
             {id: "4ug0", name: "4UG0 H. sapiens"},
             ],
         availColorschemes: [
-            "buried","cinema","clustal","clustal2","helix","lesk","mae","nucleotide","purine","strand","taylor","turn","zappo",
+            "buried","cinema","clustal","clustal2","helix","lesk","mae","strand","taylor","turn","zappo",
             ],
         pdbid: null,
         chains: null,
