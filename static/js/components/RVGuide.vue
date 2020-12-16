@@ -5,8 +5,8 @@
                 <span class="title" >ProteoVision Webserver for Study and Imaging of Ribosomal Protein Evolution </span>
             </div>
             <div class="headerOptions" style="margin-left: auto;padding-top:10px;">
-                <button class="btn btn-outline-dark" v-on:click="downloadAboutDoc();" style="float: right;">About</button>
-                <p style="padding:5px;float: right;"></p>
+                <!--<button class="btn btn-outline-dark" v-on:click="downloadAboutDoc();" style="float: right;">About</button>
+                <p style="padding:5px;float: right;"></p>-->
                 <button class="btn btn-outline-dark" v-on:click="startTour();" style="float: right;">Help</button>
                 <p style="padding:5px;float: right;"></p>
                 <button class="btn btn-outline-dark" id="resetButton" v-on:click="resetRV3State();" style="float: right;">Reset</button>
