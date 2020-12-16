@@ -5,8 +5,8 @@
                 <span class="title" >ProteoVision Webserver for Study and Imaging of Ribosomal Protein Evolution </span>
             </div>
             <div class="headerOptions" style="margin-left: auto;padding-top:10px;">
-                <!--<button class="btn btn-outline-dark" v-on:click="downloadAboutDoc();" style="float: right;">About</button>
-                <p style="padding:5px;float: right;"></p>-->
+                <button class="btn btn-outline-dark" v-on:click="downloadAboutDoc();" style="float: right;">About</button>
+                <p style="padding:5px;float: right;"></p>
                 <button class="btn btn-outline-dark" v-on:click="startTour();" style="float: right;">Help</button>
                 <p style="padding:5px;float: right;"></p>
                 <button class="btn btn-outline-dark" id="resetButton" v-on:click="resetRV3State();" style="float: right;">Reset</button>
@@ -147,7 +147,9 @@
             header: {
                 title: 'Phylogenetic browser',
             },
-            content: `Select a phylogenetic group. Supports searching and multiple groups.`,
+            content: `Select a phylogenetic group. Supports searching and selection of multiple groups.<br>
+            Initially only the three major phylogenetic branches are shown, deeper branches take a few seconds to load. 
+            Deeper branches can be opened by clicking on the triangle ► next to each parent branch.`,
             params: {
               placement: 'right'
             },
