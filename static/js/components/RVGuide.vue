@@ -1,19 +1,19 @@
 <template>
     <div>
         <header class="pink section" style="display:flex;">
-            <div>
-                <span class="title">RiboVision3 Webserver for Study and Imaging of Ribosomal Protein Evolution </span>
+            <div style="padding-top:10px">
+                <span class="title" >ProteoVision Webserver for Study and Imaging of Ribosomal Protein Evolution </span>
             </div>
-            <div class="headerOptions" style="margin-left: auto;">
+            <div class="headerOptions" style="margin-left: auto;padding-top:10px;">
+                <!--<button class="btn btn-outline-dark" v-on:click="downloadAboutDoc();" style="float: right;">About</button>
+                <p style="padding:5px;float: right;"></p>-->
                 <button class="btn btn-outline-dark" v-on:click="startTour();" style="float: right;">Help</button>
                 <p style="padding:5px;float: right;"></p>
                 <button class="btn btn-outline-dark" id="resetButton" v-on:click="resetRV3State();" style="float: right;">Reset</button>
                 <p style="padding:5px;float: right;"></p>
                 <button class="btn btn-outline-dark" id="saveButton" v-on:click="saveRV3State();" style="float: right;">Save session</button>
                 <p style="padding:5px;float: right;"></p>
-                <label for="inputRV3State" id="rv3-state-upload" class="btn btn-outline-dark">
-                    Upload session
-                </label>
+                <label for="inputRV3State" id="rv3-state-upload" class="btn btn-outline-dark">Load session</label>
                 <input id="inputRV3State" type="file" accept=".json" ref="rv3_state_file" v-on:change="loadRV3State()"/>
             </div>
         </header>
@@ -46,6 +46,7 @@
         },
         methods: {
             startTour(){
+                this.resetRV3State();
                 this.$tours['myTour'].start()
             },
             stopTour(){
@@ -85,10 +86,24 @@
                 window.tempCSVdata = null;
                 readLoadRV3State(this.$refs.rv3_state_file.files[0]);
                 clearInputFile(document.getElementById('inputRV3State'));
+            }, downloadAboutDoc(){
+                var req = new XMLHttpRequest();
+                req.open("GET", `static/alignments/About.pdf`, true);
+                req.responseType = "blob";
+                req.onload = function (event) {
+                  var blob = req.response;
+                  console.log(blob.size);
+                  var link=document.createElement('a');
+                  link.href=window.URL.createObjectURL(blob);
+                  link.download="AboutProteoVision.pdf";
+                  link.click();
+                };
+                req.send();
             }
         },
         mounted: function () {
             if (localStorage.getItem("hasCodeRunBefore") === null) {
+                tourSteps[0].content += '<br><b>First time users are advised to complete this guide by only clicking the Next button ▼</b>';
                 this.$tours['myTour'].start();
                 localStorage.setItem("hasCodeRunBefore", true);
             }
@@ -105,13 +120,13 @@
             },
         })
     };
-    const tourSteps = [
+    var tourSteps = [
         {
             target: 'header',
             header: {
-                title: 'Welcome to RiboVision3!',
+                title: 'Welcome to ProteoVision!',
             },
-            content: `RiboVision3 is a visualization tool for ribosomal proteins 
+            content: `ProteoVision is a visualization tool for ribosomal proteins 
             designed to visualize phylogenetic, structural, and physicochemical 
             properties in primary, secondary, and tertiary representations.`
         },{
@@ -130,7 +145,7 @@
         },{
             target: '#treeselect',
             header: {
-                title: 'Phylogenetic selection',
+                title: 'Phylogenetic browser',
             },
             content: `Select a phylogenetic group. Supports searching and multiple groups.`,
             params: {
@@ -149,7 +164,7 @@
             header: {
                 title: 'Alignment selection',
             },
-            content: `Select an alignment from our database.`,
+            content: `Select an alignment from the DESIRE database.`,
             params: {
               placement: 'right'
             },
@@ -164,8 +179,8 @@
                 title: 'Alignment viewer',
             },
             content: `This is the alignment viewer. 
-            Hover over residue to reveal additional data for it.<br/>
-            The viewer window can be moved by dragging or by using the scrollbars.`,
+            The viewer window can be moved by dragging or by using the scrollbars.<br/>
+            Hover over residue to reveal associated data for it.`,
         },{
             target: '#downloadFastaBtn',
             header: {
@@ -218,7 +233,7 @@
         },{
             target: '#pdb_input',
             header: {
-                title: 'Select PDB id for structure display',
+                title: 'Select structure for 2D and 3D display',
             },
             content: `Select a PDB from the available ones in the dropdown menu.`,
             params: {
@@ -257,16 +272,16 @@
         },{
             target: '.molstar_section',
             header: {
-                title: '3D viewer',
+                title: '3D MolStar viewer',
             },
             content: `This is the 3D viewer that shows tertiary protein structure.<br/>
             The alignment, topology, and 3D viewers have integrated hover effects.`,
         },{
             target: '.menuSelectbox',
             header: {
-                title: 'Annotation data',
+                title: 'Mapping data',
             },
-            content: `Calculated annotation data from the alignment can be selected from this dropdown menu.<br/>
+            content: `Calculated mapping data from the alignment can be selected from this dropdown menu.<br/>
             The data gets mapped on the topology and 3D viewers.`,
             params: {
               placement: 'left'
@@ -302,9 +317,9 @@
         },{
             target: '#downloadDataBtn',
             header: {
-                title: 'Download annotation data',
+                title: 'Download calculated data',
             },
-            content: `Downloads annotation data calculated from the 
+            content: `Downloads data calculated from the 
             alignment and mapped on the structure residues in csv format.`,
         },{
             target: '#maskingSection',
@@ -350,6 +365,17 @@
                     vm.checked_customMap=true,
                 )
             })
+        },{
+            target: '#downloadExampleCSV',
+            header: {
+                title: 'Download example mapping data',
+            },
+            content: `Example CSV format supported by ProteoVision. The file must have a header row with column labeled
+            <b>Index</b> indicating the structure residues. At least one more header is necessary which 
+            labels the data column. The viridis colormap is used to map datapoints to colors.`,
+            params: {
+              placement: 'right'
+            },
         },{
             target: '#propensitiesSubstructure',
             header: {
@@ -406,7 +432,7 @@
                 title: 'Upload the chosen alignment.',
             },
             content: `The alignment will be sent to our server, but it won't be stored there. <br/>
-            Our server will calculate amino-acid propensities and check the format.`,
+            Our server will calculate amino-acid frequencies and check the format.`,
             params: {
               placement: 'right'
             },
@@ -504,14 +530,14 @@
             header: {
                 title: 'Reset session',
             },
-            content: `Reset the current RiboVision3 session.<br/>
+            content: `Reset the current ProteoVision session.<br/>
             All loaded data will be removed.`,
         },{
             target: '#saveButton',
             header: {
                 title: 'Save the session',
             },
-            content: `Downloads a RiboVision3 session file.<br>
+            content: `Downloads a ProteoVision session file.<br>
             The state of current alignment, structure and frequency viewers will be saved.<br>
             Masking ranges and truncation ranges will not be saved.`,
         },{
@@ -519,8 +545,8 @@
             header: {
                 title: 'Load a session',
             },
-            content: `Upload a RiboVision3 session file.<br>
-            The file will load a previously saved RiboVision3 session.`,
+            content: `Upload a ProteoVision session file.<br>
+            The file will load a previously saved ProteoVision session.`,
         },{
             target: 'footer',
             header: {
