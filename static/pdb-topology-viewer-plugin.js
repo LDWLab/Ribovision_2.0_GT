@@ -62,7 +62,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         };
         this.displayStyle = 'border:1px solid #696969;';
         this.errorStyle = 'border:1px solid #696969; height:54%; padding-top:46%; text-align:center; font-weight:bold;';
-        this.menuStyle = 'position:relative;height:38px;line-height:38px;background-color:#696969;padding: 0 10px;font-size:16px; color: #efefef;';
+        this.menuStyle = 'position:relative;height:38px;line-height:38px;background-color:#96c9dc;padding: 0 10px;font-size:16px; color: black;';
         this.svgWidth = 100;
         this.svgHeight = 100;
         this.subscribeEvents = true;
@@ -863,7 +863,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
     PdbTopologyViewerPlugin.prototype.drawTopologyStructures = function () {
         var _this_1 = this;
         //Add container elements
-        this.targetEle.innerHTML = "<div style=\"" + this.displayStyle + "\">\n            <div class=\"svgSection\" style=\"position:relative;width:100%;\"></div>\n            <div style=\"" + this.menuStyle + "\">\n                <img src=\"static/alignments/png/EBILogo.png\" style=\"height:15px; width: 15px; border:0;position: absolute;margin-top: 11px;\" />\n                <a style=\"color: #efefef;border-bottom:none; cursor:pointer;margin-left: 16px;\" target=\"_blank\" href=\"https://pdbe.org/" + this.entryId + "\">" + this.entryId + "</a> | <span class=\"menuDesc\">Entity " + this.entityId + " | Chain " + this.chainId.toUpperCase() + "</span>\n                <div class=\"menuOptions\" style=\"float:right;margin-right: 20px;\">\n                    <select class=\"menuSelectbox\" style=\"margin-right: 10px;\"><option value=\"\">Select</option></select>\n                    <img class=\"saveSVG\" src=\"static/alignments/png/Save.png\" style=\"height:15px; width: 15px; border:0;position: relative;margin-right: 15px;cursor:pointer;\" title=\"saveSVG\" />\n\n                    <img class=\"resetIcon\" src=\"static/alignments/png/refresh.png\" style=\"height:15px; width: 15px; border:0;position: absolute;margin-top: 11px;cursor:pointer;\" title=\"Reset view\" />\n                </div>\n            </div>\n        </div>";
+        this.targetEle.innerHTML = "<div style=\"" + this.displayStyle + "\">\n            <div class=\"svgSection\" style=\"position:relative;width:100%;\"></div>\n            <div style=\"" + this.menuStyle + "\">\n                <a style=\"color: black;border-bottom:none; cursor:pointer;margin-left: 16px;\" target=\"_blank\" href=\"https://pdbe.org/" + this.entryId + "\">" + this.entryId + "</a> | <span class=\"menuDesc\">Entity " + this.entityId + " | Chain " + this.chainId.toUpperCase() + "</span>\n                <div class=\"menuOptions\" style=\"float:right;margin-right: 20px;\">\n                    <select class=\"menuSelectbox\" style=\"margin-right: 10px;\"><option value=\"\">Select</option></select>\n                    <img class=\"saveSVG\" src=\"static/alignments/png/Save.png\" style=\"height:15px; width: 15px; border:0;position: relative;margin-right: 15px;cursor:pointer;\" title=\"saveSVG\" />\n\n                    <img class=\"resetIcon\" src=\"static/alignments/png/refresh.png\" style=\"height:15px; width: 15px; border:0;position: absolute;margin-top: 11px;cursor:pointer;\" title=\"Reset view\" />\n                </div>\n            </div>\n        </div>";
         //Get dimensions
         var targetEleWt = this.targetEle.offsetWidth;
         var targetEleHt = this.targetEle.offsetHeight;
