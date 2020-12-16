@@ -28,7 +28,7 @@ SECRET_KEY = config['SECRET_KEY']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '130.207.36.76','apollo2.chemistry.gatech.edu','ribovision3.chemistry.gatech.edu','[::1]']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '130.207.36.76','apollo2.chemistry.gatech.edu','ribovision3.chemistry.gatech.edu','proteovision.chemistry.gatech.edu','[::1]']
 
 
 # Application definition
@@ -60,7 +60,7 @@ MIDDLEWARE = [
 ]
 
 CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'
-CSRF_TRUSTED_ORIGINS = ['https://ribovision3.chemistry.gatech.edu:443']
+CSRF_TRUSTED_ORIGINS = ['https://ribovision3.chemistry.gatech.edu:443','https://proteovision.chemistry.gatech.edu:443']
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 ROOT_URLCONF = 'DESIRE.urls'
