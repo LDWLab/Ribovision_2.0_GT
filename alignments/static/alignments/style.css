@@ -294,3 +294,7 @@
         -ms-user-select: none; 
             user-select: none;
   }
+
+  #Counter{
+    display: none;
+  }
