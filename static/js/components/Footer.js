@@ -64,7 +64,11 @@ export function addFooterImages (divID){
         <div class="white-box" style="position: absolute;right: 35px;height:80px; padding:5px;">
             <div style="padding-top:20px"><b>Contact us</b></div>
         </div>
-    </a>`
+    </a>
+    <div id="Counter">
+    <a href="/" alt="counter statistics" target="_blank" >
+        <img  src="//sstatic1.histats.com/0.gif?4492569&101" alt="counter statistics" border="0">
+</div>`
     var injectionDiv = document.getElementById(divID)
     injectionDiv.innerHTML = htmlTOinject;
 }
