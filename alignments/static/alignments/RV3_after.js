@@ -382,10 +382,10 @@ function parseConsecutiveIndices(structureTypeString, structureList, indicesList
     }
 }
 
-function getPropensities(sequence_indices) {
-    let url = null;
+function getPropensities(property) {
     let indices = null;
-    if (vm.structure_mapping) {
+    if (vm.structure_mapping && property && property!=0) {
+        var sequence_indices = property.indices;
         let alignment_indices = []
         let inverse_structure_mapping = {}
         for (var key in vm.structure_mapping) {
@@ -400,10 +400,8 @@ function getPropensities(sequence_indices) {
             }
         }
         indices = alignment_indices.join(',')
-        // url = `/propensity-data/${vm.alnobj.id}/${vm.tax_id.join(',')}`
     } else {
         indices = '';
-        // url = `/propensity-data/${vm.alnobj.id}/${vm.tax_id}`
     }
     vm.propensity_indices = indices
     vm.fasta_data
