@@ -60,7 +60,7 @@ export function addFooterImages (divID){
         </a>
     </div>
     <a href="mailto:RiboZones@gmail.com?subject=ProteoVision%20question">
-        <div class="white-box" style="position: absolute;right: 35px;height:80px; padding:5px;">
+        <div class="white-box" style="position: absolute;right: 35px;height:78px; padding:5px;">
             <div style="padding-top:20px"><b>Contact us</b></div>
         </div>
     </a>
