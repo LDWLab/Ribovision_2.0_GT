@@ -98,11 +98,8 @@
     text-overflow: clip;
   }
 
-  .vue-treeselect__multi-value{
-    color: black;
-  }
-
-  .vue-treeselect__placeholder{
+  .vue-treeselect__placeholder,
+  .vue-treeselect__multi-valu{
     color:black;
   }
 
@@ -112,15 +109,14 @@
   }
 
   .vue-treeselect__multi-value-item,
-  .vue-treeselect__limit-tip-text{
+  .vue-treeselect__limit-tip-text,
+  .input-group-text{
     background: transparent;
     color: black;
   }
 
-  .vue-treeselect__value-container:hover,
-  .vue-treeselect__multi-value-item:hover,
-  .vue-treeselect__limit-tip-text:hover{
-    color: white;
+  .input-group-text{
+    border: 1px solid black;
   }
 
   .vue-treeselect__label:hover{
@@ -139,7 +135,11 @@
   .vue-treeselect__control:hover, 
   .vue-treeselect__placeholder:hover,
   .vue-treeselect__menu:hover,
-  #polymerSelect:hover{
+  .vue-treeselect__value-container:hover,
+  .vue-treeselect__multi-value-item:hover,
+  .vue-treeselect__limit-tip-text:hover,
+  #polymerSelect:hover,
+  .input-group-text:hover{
     color: white;
     background-color: #343a40;
   }
@@ -250,7 +250,8 @@
   }
 
   #selectaln, #pdb_input, #polymerSelect, #downloadDataBtn, #downloadExampleFasta,
-  #propensitiesSubstructure, #downloadExampleCSV, #uploadShowFasta, #pdb_input_custom {
+  #propensitiesSubstructure, #downloadExampleCSV, #uploadShowFasta, #pdb_input_custom,
+  #maskingSection, .input-group-text, #filterSection {
     width: 267px;
   }
 
@@ -265,10 +266,6 @@
     overflow-y: auto;
   }
 
-  #maskingSection .input-group-text, #filterSection .input-group-text {
-    width: 267px;
-  }
-
   #inputUploadFasta,#inputUploadCSV{
     max-width: 267px;
     margin-right: auto;
@@ -277,7 +274,8 @@
     white-space: normal;
   }
 
-  #inputRV3State{
+  #inputRV3State,
+  #Counter{
     display: none;
   }
 
@@ -293,8 +291,4 @@
        -moz-user-select: none; 
         -ms-user-select: none; 
             user-select: none;
-  }
-
-  #Counter{
-    display: none;
   }

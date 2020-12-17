@@ -31,9 +31,9 @@
               >Loading phylogenetic tree...</treeselect>
             </div>
             <div v-else>
-                <p>Select alignment file: </p>
+                <p>Select an alignment file: </p>
                 <p><input id="inputUploadFasta" class="btn btn-outline-dark" type = "file" accept=".fasta,.fas,.fa" ref="custom_aln_file" v-on:change="handleFileUpload()"/></p>
-                <p><button id="uploadShowFasta" class="btn btn-outline-dark" v-on:click="submitCustomAlignment()">Upload alignment</button></p>
+                <p><button id="uploadShowFasta" class="btn btn-outline-dark" v-on:click="submitCustomAlignment()">Upload the alignment</button></p>
                 <p><button id="downloadExampleFasta" class="btn btn-outline-dark" v-on:click="getExampleFile(`static/alignments/EFTU_example.fas`, `rv3ExampleAlignment.fas`)">Download example alignment</button></p>
             </div>
             <p>
@@ -56,7 +56,7 @@
                 <div v-if="hide_chains" id="onFailedChains">Looking for available polymers...</div>
             </p>
             <p><select multiple class="form-control btn-outline-dark" id="polymerSelect" v-bind:style="{ resize: 'both'}"  v-if="chains&&fasta_data&&pdbid||uploadSession" v-model="chainid" >
-                <option :value ="null" selected disabled>Select polymer</option>
+                <option :value ="null" selected disabled>Select a polymer</option>
                 <option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid, chain.entityID); ">{{ chain.text }}</option>
             </select></p>
             <div v-if="structure_mapping">

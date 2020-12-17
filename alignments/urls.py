@@ -1,11 +1,13 @@
 from django.urls import include, path
-
+from django.views.generic.base import RedirectView
+from django.contrib.staticfiles.storage import staticfiles_storage
 from . import views
 
 app_name = 'alignments'
 
 urlpatterns = [
 	path('', views.index, name='index'),
+	path('favicon.ico', RedirectView.as_view(url=staticfiles_storage.url('img/favicon128.png'))),
 	#path('orthologs/', views.index, name='orthologs'),
 	#path('node_test/', views.index_test, name='node_test'),
 	#path('paralogs/', views.paralog_entry_form, name='paralogs'),

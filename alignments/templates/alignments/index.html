@@ -3,6 +3,10 @@
     {% csrf_token %}
 	{% load static %}
 	{% load render_bundle from webpack_loader %}
+	
+	<!-- Favicon -->
+	<link rel="shortcut icon" href="{% static 'img/favicon128.png' %}"/>
+
 	<script src={% static 'alignments/external/prop-types.min.js' %}></script>
 	<!-- include Ajax -->
 	<script src={% static 'alignments/external/jquery.min.js' %}></script>
@@ -33,6 +37,8 @@
 	
 	<!-- Support scripts for RV3 -->
 	<script type="text/javascript" src={% static 'alignments/RV3_before.js' %}></script>
+
+
 </head>
 <body>
 	
