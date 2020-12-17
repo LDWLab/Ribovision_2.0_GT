@@ -97,6 +97,16 @@
 
 ...
 
-n. After updating python/html files within the django project make sure to execute
+n. After updating the dev branch bring the public branch up to speed
 
+	> git fetch
+
+	> source ./env/bin/activate
+
+	Merge the origin/dev branch onto public
+	
+	> npm run watch
+
+	> python3 manage.py collectstatic
+	
 	> touch /home/Desire-Server/DESIRE/DESIRE/wsgi.py
