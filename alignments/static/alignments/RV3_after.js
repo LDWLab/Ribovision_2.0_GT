@@ -422,7 +422,7 @@ function handlePropensities(checked_propensities) {
             ajax("/propensity-data-custom/", {indices, customFasta}).then(data => {
                 build_propensity_graph(data['amino acid'], full, title+' for '+vm.property.text, 'total');
             });
-        } else if (!vm.structure_mapping) {
+        } else {
             ajax("/propensity-data-custom/", {customFasta}).then(data => {
                 build_propensity_graph(data['amino acid'], full, title, 'total');
             });
