@@ -2,17 +2,19 @@
     <div>
         <header class="pink section" style="display:flex;">
             <div style="padding-top:10px">
-                <span class="title" >ProteoVision Webserver for Study and Imaging of Ribosomal Protein Evolution </span>
+                <span class="title" >ProteoVision: Advanced Visualization of Ribosomal Proteins </span>
             </div>
             <div class="headerOptions" style="margin-left: auto;padding-top:10px;">
                 <button class="btn btn-outline-dark" v-on:click="startTour();" style="float: right;">Help</button>
-                <p style="padding:5px;float: right;"></p>
+                <p style="padding:2px;float: right;"></p>
                 <button class="btn btn-outline-dark" id="aboutButton" v-on:click="downloadAboutDoc();" style="float: right;">About</button>
-                <p style="padding:5px;float: right;"></p>
+                <p style="padding:2px;float: right;"></p>
+                <a href="/desire-api/" id="desireAPIButton" class="btn btn-outline-dark" style="float: right;">API</a>
+                <p style="padding:2px;float: right;"></p>
                 <button class="btn btn-outline-dark" id="resetButton" v-on:click="resetRV3State();" style="float: right;">Reset</button>
-                <p style="padding:5px;float: right;"></p>
+                <p style="padding:2px;float: right;"></p>
                 <button class="btn btn-outline-dark" id="saveButton" v-on:click="saveRV3State();" style="float: right;">Save session</button>
-                <p style="padding:5px;float: right;"></p>
+                <p style="padding:2px;float: right;"></p>
                 <label for="inputRV3State" id="rv3-state-upload" class="btn btn-outline-dark">Load session</label>
                 <input id="inputRV3State" type="file" accept=".json" ref="rv3_state_file" v-on:change="loadRV3State()"/>
             </div>
@@ -147,7 +149,7 @@
             header: {
                 title: 'Phylogenetic browser',
             },
-            content: `Select a phylogenetic group. Supports searching and selection of multiple groups.<br>
+            content: `Select a phylogenetic group. This menu supports searching and selection of multiple groups.<br>
             Initially only the three major phylogenetic branches are shown, deeper branches take a few seconds to load. 
             Deeper branches can be opened by clicking on the triangle ▸ next to each parent branch.`,
             params: {
@@ -213,9 +215,9 @@
         },{
             target: '#showFrequencies',
             header: {
-                title: 'Select to show amino-acid frequencies',
+                title: 'Show amino-acid frequencies',
             },
-            content: `Amino-acid frequencies, calculated for the loaded alignment will be shown.`,
+            content: `Select this checkbox to show amino-acid frequencies, calculated from the loaded alignment.`,
             params: {
               placement: 'right'
             },
@@ -235,7 +237,7 @@
         },{
             target: '#pdb_input',
             header: {
-                title: 'Select structure for 2D and 3D display',
+                title: 'Select a structure for 2D and 3D display',
             },
             content: `Select a PDB from the available ones in the dropdown menu.`,
             params: {
@@ -250,7 +252,7 @@
         },{
             target: '#polymerSelect',
             header: {
-                title: 'Select polymer for structure display',
+                title: 'Select a polymer for structure display',
             },
             content: `Select one of the filtered polymers to see 2D and 3D structures.`,
             params: {
@@ -357,7 +359,7 @@
             header: {
                 title: 'Upload custom data',
             },
-            content: `Upload custom data in csv format to be maped on the topology and 3D viewers.`,
+            content: `Upload custom data in csv format to be mapped on the topology and 3D viewers.`,
             params: {
               placement: 'right'
             },
@@ -370,11 +372,11 @@
         },{
             target: '#downloadExampleCSV',
             header: {
-                title: 'Download example mapping data',
+                title: 'Download a mapping data example',
             },
-            content: `Example CSV format supported by ProteoVision. The file must have a header row with column labeled
+            content: `CSV format example that is supported by ProteoVision. The file must have a header row with column labeled
             <b>Index</b> indicating the structure residues. At least one more header is necessary which 
-            labels the data column. The viridis colormap is used to map datapoints to colors.`,
+            labels the data column. The viridis colormap is used to map the datapoints with colors.`,
             params: {
               placement: 'right'
             },
@@ -397,7 +399,7 @@
         },{
             target: '#tree_type',
             header: {
-                title: 'Upload custom alignment',
+                title: 'Upload a custom alignment',
             },
             content: `Using a custom alignment is the other mode of operation.<br/>
             Changing between modes clears the viewers.`,
@@ -449,7 +451,7 @@
             header: {
                 title: 'Download example alignment.',
             },
-            content: `Download an example fasta format alignment.`,
+            content: `Download an example of a fasta format alignment.`,
             params: {
               placement: 'right'
             },
@@ -458,7 +460,7 @@
             header: {
                 title: 'Write a PDB ID for structure display',
             },
-            content: `In the case of uploaded alignment we let you write in any PDB ID of length 4.`,
+            content: `For uploaded alignment you can write in any PDB ID of length 4.`,
             params: {
               placement: 'right'
             },
@@ -472,7 +474,7 @@
             header: {
                 title: 'Select polymer for structure display',
             },
-            content: `In the case of uploaded alignment we do not filter the avaialable PDB chains. <br/>
+            content: `For uploaded alignment we do not filter the available PDB chains. <br/>
             You can select any polymer from the PDB structure.`,
             params: {
               placement: 'right'
@@ -494,13 +496,13 @@
             content: `A warning will be displayed here when the selected structure and alignment sequences 
             have poor alignment.<br/>
             The number of misaligned positions will be indicated.<br/>
-            The user can input a different pdb or select a new chain or restart with a new alignment.`,
+            The user can input a different PDB or select a new polymer or restart with a new alignment.`,
         },{
             target: '#pdb_input_custom',
             header: {
                 title: 'Write a different PDB ID for structure display',
             },
-            content: `Writing a new PDB id will clear all data related to the old PDB.`,
+            content: `Writing a new PDB ID will clear all data related to the old PDB.`,
             params: {
               placement: 'right'
             },
@@ -512,9 +514,10 @@
         },{
             target: '#polymerSelect',
             header: {
-                title: 'Select polymer for structure display',
+                title: 'Select a polymer for structure display',
             },
-            content: `Selecting a polymer that produces good alignment with the sequence alignment does not raise a warning.`,
+            content: `If you select a polymer that produces good alignment with 
+            the sequence alignment, it won't raise a warning.`,
             params: {
               placement: 'right'
             },
@@ -535,9 +538,15 @@
             content: `Download a comprehensive pdf document that describes
             all functions and features of ProteoVision.`,
         },{
+            target: '#desireAPIButton',
+            header: {
+                title: 'DESIRE API',
+            },
+            content: `This is a link to the DESIRE REST API that supports this webserver.`,
+        },{
             target: '#resetButton',
             header: {
-                title: 'Reset session',
+                title: 'Reset the session',
             },
             content: `Reset the current ProteoVision session.<br/>
             All loaded data will be removed.`,
@@ -547,7 +556,7 @@
                 title: 'Save the session',
             },
             content: `Downloads a ProteoVision session file.<br>
-            The state of current alignment, structure and frequency viewers will be saved.<br>
+            The state of current alignment, structure, and frequency viewers will be saved.<br>
             Masking ranges and truncation ranges will not be saved.`,
         },{
             target: '#rv3-state-upload',
