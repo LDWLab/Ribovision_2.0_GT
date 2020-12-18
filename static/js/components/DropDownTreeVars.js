@@ -43,5 +43,8 @@ export function initialState (){
         substructures: null,
         property: null,
         uploadSession: false,
+        fetchingPDBwithCustomAln: null,
+        blastPDBresult: [],
+        blastMAPresult: null,
     }
 }

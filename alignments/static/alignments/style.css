@@ -293,3 +293,27 @@
         -ms-user-select: none; 
             user-select: none;
   }
+
+  .autocomplete-results {
+    position:absolute;
+    max-height: 200px;
+    padding: 0;
+    margin: 0;
+    border: 1px solid black;
+    overflow: auto;
+    width: 267px;
+    background-color: white;
+    cursor: default;
+  }
+
+  .autocomplete-result {
+    list-style: none;
+    text-align: left;
+    margin-left: 15px;
+  }
+  
+  .autocomplete-results:hover,
+  .autocomplete-result:hover {
+    color: white;
+    background-color: #343a40;
+  }

@@ -42,18 +42,22 @@
                     <option v-if="tax_id" v-for="aln in alignments" v-bind:value="{ id: aln.value, text: aln.text }">{{ aln.text }}</option>
                 </select>
             </p>
-            <p>
-                <!--<span v-if="alnobj&&alnobj!='custom'">Selected alignment: {{ alnobj.text }}.<br></span>-->
+
                 <span v-if="alnobj&&alnobj!='custom'">Select PDB for mapping:</span>
                 <span v-if="alnobj&&alnobj=='custom'">Type PDB for mapping:</span>
-            </p>
+
             <p>
                 <select class="btn btn-outline-dark dropdown-toggle" id="pdb_input" v-if="alnobj&&alnobj!='custom'" v-model="pdbid">
                     <option :value="null" selected disabled hidden>Select structure</option>
                     <option v-for="pdb in pdbs" v-bind:value="pdb.id">{{pdb.name}}</option>
                 </select>
-                <input type="text" id="pdb_input_custom" class="input-group-text" v-if="alnobj&&alnobj=='custom'" v-model="pdbid" maxlength="4"></input>
-                <div v-if="hide_chains" id="onFailedChains">Looking for available polymers...</div>
+                <autocomplete isAsync:true :items="blastPDBresult" v-if="alnobj&&alnobj=='custom'" v-model="pdbid"></autocomplete>
+                <span v-if="alnobj&&alnobj=='custom'&&fetchingPDBwithCustomAln&&fetchingPDBwithCustomAln!='complete'">
+                    <b>BLASTing available PDBs</b>
+                    <img src="static/img/loading.gif" alt="BLASTing available PDBs" style="height:25px;">
+                </span>
+                <span v-if="alnobj&&alnobj=='custom'&&fetchingPDBwithCustomAln=='complete'"><b>Completed BLAST for similar PDBs.</b></span>
+                <div v-if="hide_chains" id="onFailedChains">Looking for available polymers <img src='static/img/loading.gif' alt='Searching available polymers' style='height:25px;'></div>
             </p>
             <p><select multiple class="form-control btn-outline-dark" id="polymerSelect" v-bind:style="{ resize: 'both'}"  v-if="chains&&fasta_data&&pdbid||uploadSession" v-model="chainid" >
                 <option :value ="null" selected disabled>Select a polymer</option>
@@ -118,7 +122,7 @@
                         <option v-for="colorscheme in availColorschemes" >{{ colorscheme }}</option>
                     </select>
                 </div>
-                <div id="alnDiv">Loading alignment...</div>
+                <div id="alnDiv">Loading alignment <img src="static/img/loading.gif" alt="Loading alignment" style="height:25px;"></div>
                     <div v-if="poor_structure_map" id="warningPoorStructureAln">
                         <b>Warning, poor alignment between the structure and sequences!!!<br/>
                         Found {{poor_structure_map}} poorly aligned residues.
@@ -128,12 +132,16 @@
         </div>
         <div class="topology_section">
             <span id="topif" v-if="chainid.length>0">
-                <div id="topview">Loading topology viewer and conservation data...</div>
+                <div id="topview">
+                    Loading topology viewer and conservation data <img src="static/img/loading.gif" alt="Loading topology viewer" style="height:25px;">
+                </div>
             </span>
         </div>
         <div class="molstar_section">
             <span id="molif" v-if="chainid.length>0">
-                <div id ="pdbeMolstarView">Loading Molstar Component...</div>
+                <div id ="pdbeMolstarView">
+                    Loading Molstar Component <img src="static/img/loading.gif" alt="Loading MolStar" style="height:25px;">
+                </div>
             </span>
         </div>
         <div class = "propensity_section">
@@ -153,12 +161,14 @@
   import {initialState} from './DropDownTreeVars.js'
   import {AlnViewer} from './AlignmentViewer.js'
   import {customCSVhandler} from './handleCSVdata.js'
+  import {populatePDBsFromCustomAln} from './populatePDBsFromCustomAln.js'
   import ReactDOM, { render } from 'react-dom';
   import React, { Component } from "react";
   import Treeselect from '@riophae/vue-treeselect'
+  import Autocomplete from './Autocomplete.vue'
   export default {
       // register the component
-      components: { Treeselect },
+      components: { Treeselect, Autocomplete },
       data: function () {
         return initialState();
       },
@@ -207,6 +217,10 @@
             var uploadedFile = this.file;
             fr.onload = function(){
                 if (validateFasta(fr.result)){
+                    vm.blastPDBresult = [];
+                    vm.blastMAPresult = null;
+                    let firstSeq = parseFastaString(fr.result)[1].replace(/-/g,'');
+                    vm.populatePDBsFromCustomAln(firstSeq);
                     formData.append('custom_aln_file', uploadedFile)
                     $.ajax({
                         url: '/custom-aln-data',
@@ -298,14 +312,14 @@
         }, getPDBchains(pdbid, aln_id) {
             if (pdbid.length === 4) {
                 if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(this);}
-                this.chains = null
-                this.hide_chains = true
+                this.chains = null;
+                this.hide_chains = true;
                 ajax('https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/' + pdbid.toLowerCase()).then(struc_data => {
                     var chain_list = struc_data[pdbid.toLowerCase()];
                     if (this.type_tree == "para") {aln_id = aln_id.split(',')[1]}
                     if (this.type_tree != "upload") {
                         filterAvailablePolymers(chain_list, aln_id, vm);
-                    } else {
+                    } else if (vm.blastMAPresult == null){
                         let chain_options = []
                         for (let i = 0; i < chain_list.length; i++) {
                             let chain_listI = chain_list[i]
@@ -313,6 +327,30 @@
                             if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
                             if (typeof(chain_listI.source[0]) === "undefined") {continue;}
                             chain_options = pushChainData(chain_options, chain_listI);
+                        }
+                        if (chain_options.length === 0) {
+                            chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
+                        }
+                        vm.chains = chain_options;
+                        this.hide_chains = null;
+                    } else {
+                        let chain_options = [];
+                        var chainsFromBlast = vm.blastMAPresult.get(pdbid);
+                        for (let i = 0; i < chain_list.length; i++) {
+                            let chain_listI = chain_list[i]
+                            if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
+                            if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
+                            if (typeof(chain_listI.source[0]) === "undefined") {continue;}
+                            let intersectedChains = _.intersection(chainsFromBlast, chain_listI["in_chains"]);
+                            intersectedChains.forEach(function(chainVal){
+                                chain_options.push({
+                                    text: `${chainVal} ${chain_listI["molecule_name"][0]}`,
+                                    value: chainVal,
+                                    sequence: chain_listI["sequence"],
+                                    entityID: chain_listI["entity_id"],
+                                    startIndex: chain_listI.source[0].mappings[0].start.residue_number
+                                });
+                            });
                         }
                         if (chain_options.length === 0) {
                             chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
@@ -348,8 +386,6 @@
                 var main_elmnt = document.querySelector(".alignment_section");
                 var msaHeight = main_elmnt.offsetHeight * 0.8;
                 if (msaHeight > 17*(vm.fastaSeqNames.length+2)){
-                    var alnifEle = document.querySelector('#alnif');
-                    //alnifEle.style.paddingTop="10%";
                     msaHeight = 17*(vm.fastaSeqNames.length+2);
                 }
                 let seqsForMSAViewer = parseFastaSeqForMSAViewer(fasta['Alignment']);
@@ -460,11 +496,7 @@
             }).catch(error => {
                 var topview = document.querySelector('#topview');
                 console.log(error);
-                if (error.responseText){
-                    topview.innerHTML = error.responseText.replace(/\n/g, "<br />");
-                } else {
-                    topview.innerHTML = "Failed to load the viewer!"
-                }
+                topview.innerHTML = "Failed to load the viewer!"
             });
         }, showPDBViewer(pdbid, chainid, entityid){
             if (document.querySelector("pdbe-molstar")) {return;}
@@ -553,6 +585,8 @@
             handlePropensities(checked_propensities);
         },populatePDBs(alndata){
             populatePDBs(alndata);
+        },populatePDBsFromCustomAln(firstSeq){
+            populatePDBsFromCustomAln(firstSeq);
         },getPropensities(sequence_indices) {
             getPropensities(sequence_indices);
         },listSecondaryStructures() {
