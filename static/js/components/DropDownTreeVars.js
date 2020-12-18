@@ -46,5 +46,6 @@ export function initialState (){
         fetchingPDBwithCustomAln: null,
         blastPDBresult: [],
         blastMAPresult: null,
+        guideOff: true,
     }
 }

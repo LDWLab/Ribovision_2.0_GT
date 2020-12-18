@@ -9,7 +9,7 @@
       @keydown.down="onArrowDown"
       @keydown.up="onArrowUp"
       @keydown.enter="onEnter"
-      @click="isOpen=true"
+      @click="filterResults();isOpen=true;"
     />
     <ul
       id="autocomplete-results"
@@ -86,7 +86,7 @@
       },
       setResult(result) {
         this.search = result;
-        vm.pdbid = result;
+        this.$emit('input', result);
         this.isOpen = false;
       },
       onArrowDown(evt) {

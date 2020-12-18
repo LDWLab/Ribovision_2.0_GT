@@ -8,7 +8,7 @@ export function populatePDBsFromCustomAln (firstSeq) {
 		},
 		type: 'POST',
 		contentType: 'application/json',
-		data: `email=ppenev%40gatech.edu&program=blastp&stype=protein&sequence=${firstSeq}&database=pdb`,
+		data: `email=anton.petrov%40biology.gatech.edu&program=blastp&stype=protein&sequence=${firstSeq}&database=pdb`,
 		success: function (data){
 			repeatingFunc(data);
 		},
