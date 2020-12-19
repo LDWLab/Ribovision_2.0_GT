@@ -255,14 +255,21 @@ var filterAvailablePolymers = function(chain_list, aln_id, vueObj) {
   });
 };
 
-var create_deleted_element = function (parent_id, child_id, child_text) {
-  const parent = document.getElementById(parent_id);
-  const child_elt = document.createElement("div");
-  const childText = document.createTextNode(child_text);
-  child_elt.setAttribute("id", child_id);
-  child_elt.setAttribute("id", child_id);
-  child_elt.appendChild(childText);
-  parent.appendChild(child_elt);
+var create_deleted_element = function (parent_id, child_id, child_text, optionalLoadIMG=null) {
+    const parent = document.getElementById(parent_id);
+    const child_elt = document.createElement("div");
+    const childText = document.createTextNode(child_text);
+    child_elt.setAttribute("id", child_id);
+    child_elt.setAttribute("id", child_id);
+    child_elt.appendChild(childText);
+    if (optionalLoadIMG){
+        let imgElt = document.createElement("img");
+        imgElt.setAttribute("src","static/img/loading.gif");
+        imgElt.setAttribute("alt","Loading");
+        imgElt.setAttribute("style","height:25px;");
+        child_elt.appendChild(imgElt);
+    }
+    parent.appendChild(child_elt);
 };
 
 var cleanupOnNewAlignment = function (vueObj, aln_text='') {
@@ -289,7 +296,7 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
         if (vueObj.fasta_data) {vueObj.fasta_data = null;}
         if (vueObj.fastaSeqNames) {vueObj.fastaSeqNames = null;}
         if (vueObj.frequency_data) {vueObj.frequency_data = null;}
-        if (aln_item) {aln_item.remove(); create_deleted_element("alnif", "alnDiv", aln_text)}
+        if (aln_item) {aln_item.remove(); create_deleted_element("alnif", "alnDiv", aln_text, true)}
     }
     window.mapped_aa_properties = null;
     vueObj.checked_propensities = null;

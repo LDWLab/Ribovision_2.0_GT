@@ -28,13 +28,14 @@
               :flat="true"
               :limit="3"
               :default-expand-level="1"
-              >Loading phylogenetic tree...</treeselect>
+              >Loading phylogenetic tree <img src="static/img/loading.gif" alt="BLASTing available PDBs" style="height:25px;">
+              </treeselect>
             </div>
             <div v-else>
-                <p>Select an alignment file: </p>
+                Select an alignment file:
                 <p><input id="inputUploadFasta" class="btn btn-outline-dark" type = "file" accept=".fasta,.fas,.fa" ref="custom_aln_file" v-on:change="handleFileUpload()"/></p>
-                <p><button id="uploadShowFasta" class="btn btn-outline-dark" v-on:click="submitCustomAlignment()">Upload the alignment</button></p>
-                <p><button id="downloadExampleFasta" class="btn btn-outline-dark" v-on:click="getExampleFile(`static/alignments/EFTU_example.fas`, `rv3ExampleAlignment.fas`)">Download example alignment</button></p>
+                <p><button id="uploadShowFasta" class="btn btn-outline-dark" v-on:click="submitCustomAlignment()" v-if="file&&type_tree=='upload'">Upload the alignment</button></p>
+                <p><button id="downloadExampleFasta" class="btn btn-outline-dark" v-on:click="getExampleFile(`static/alignments/EFTU_example.fas`, `rv3ExampleAlignment.fas`)" v-if="!file&&type_tree=='upload'">Download example alignment</button></p>
             </div>
             <p>
                 <select class="btn btn-outline-dark dropdown-toggle" id="selectaln" v-if="tax_id" v-model="alnobj">
@@ -42,18 +43,22 @@
                     <option v-if="tax_id" v-for="aln in alignments" v-bind:value="{ id: aln.value, text: aln.text }">{{ aln.text }}</option>
                 </select>
             </p>
-            <p>
-                <!--<span v-if="alnobj&&alnobj!='custom'">Selected alignment: {{ alnobj.text }}.<br></span>-->
+
                 <span v-if="alnobj&&alnobj!='custom'">Select PDB for mapping:</span>
                 <span v-if="alnobj&&alnobj=='custom'">Type PDB for mapping:</span>
-            </p>
+
             <p>
                 <select class="btn btn-outline-dark dropdown-toggle" id="pdb_input" v-if="alnobj&&alnobj!='custom'" v-model="pdbid">
                     <option :value="null" selected disabled hidden>Select structure</option>
                     <option v-for="pdb in pdbs" v-bind:value="pdb.id">{{pdb.name}}</option>
                 </select>
-                <input type="text" id="pdb_input_custom" class="input-group-text" v-if="alnobj&&alnobj=='custom'" v-model="pdbid" maxlength="4"></input>
-                <div v-if="hide_chains" id="onFailedChains">Looking for available polymers...</div>
+                <autocomplete isAsync:true :items="blastPDBresult" v-if="alnobj&&alnobj=='custom'" v-model="pdbid"></autocomplete>
+                <div id="blastingPDBsMSG" v-if="alnobj&&alnobj=='custom'&&fetchingPDBwithCustomAln&&fetchingPDBwithCustomAln!='complete'">
+                    <b>BLASTing available PDBs</b>
+                    <img src="static/img/loading.gif" alt="BLASTing available PDBs" style="height:25px;">
+                </div>
+                <span id="completeBLASTsMSG" v-if="alnobj&&alnobj=='custom'&&fetchingPDBwithCustomAln=='complete'"><b>Completed BLAST for similar PDBs.</b></span>
+                <div v-if="hide_chains" id="onFailedChains">Looking for available polymers <img src='static/img/loading.gif' alt='Searching available polymers' style='height:25px;'></div>
             </p>
             <p><select multiple class="form-control btn-outline-dark" id="polymerSelect" v-bind:style="{ resize: 'both'}"  v-if="chains&&fasta_data&&pdbid||uploadSession" v-model="chainid" >
                 <option :value ="null" selected disabled>Select a polymer</option>
@@ -88,7 +93,7 @@
                         Upload custom mapping data</label>
                         <p><input class="btn btn-outline-dark" id="inputUploadCSV" v-if="checked_customMap" type="file" accept=".csv" ref="custom_csv_file" v-on:change="handleCustomMappingData()"/></p>
                         <p v-if="raiseCustomCSVWarn" v-html="raiseCustomCSVWarn"></p>
-                        <p><button class="btn btn-outline-dark" id="downloadExampleCSV" v-if="checked_customMap" type="button" v-on:click="getExampleFile(`static/alignments/rv3_example_cusom_mapping.csv`, `rv3ExampleCusomMapping.csv`)">
+                        <p><button class="btn btn-outline-dark" id="downloadExampleCSV" v-if="checked_customMap&&csv_data==null" type="button" v-on:click="getExampleFile(`static/alignments/rv3_example_cusom_mapping.csv`, `rv3ExampleCusomMapping.csv`)">
                         Download example mapping data
                         </button></p>
                     </div>
@@ -118,7 +123,7 @@
                         <option v-for="colorscheme in availColorschemes" >{{ colorscheme }}</option>
                     </select>
                 </div>
-                <div id="alnDiv">Loading alignment...</div>
+                <div id="alnDiv">Loading alignment <img src="static/img/loading.gif" alt="Loading alignment" style="height:25px;"></div>
                     <div v-if="poor_structure_map" id="warningPoorStructureAln">
                         <b>Warning, poor alignment between the structure and sequences!!!<br/>
                         Found {{poor_structure_map}} poorly aligned residues.
@@ -128,12 +133,17 @@
         </div>
         <div class="topology_section">
             <span id="topif" v-if="chainid.length>0">
-                <div id="topview">Loading topology viewer and conservation data...</div>
+                <div v-if="!topology_loaded">
+                    Loading topology viewer and conservation data <img src="static/img/loading.gif" alt="Loading topology viewer" style="height:25px;">
+                </div>
+                <div id="topview"></div>
             </span>
         </div>
         <div class="molstar_section">
             <span id="molif" v-if="chainid.length>0">
-                <div id ="pdbeMolstarView">Loading Molstar Component...</div>
+                <div id ="pdbeMolstarView">
+                    Loading Molstar Component <img src="static/img/loading.gif" alt="Loading MolStar" style="height:25px;">
+                </div>
             </span>
         </div>
         <div class = "propensity_section">
@@ -153,12 +163,14 @@
   import {initialState} from './DropDownTreeVars.js'
   import {AlnViewer} from './AlignmentViewer.js'
   import {customCSVhandler} from './handleCSVdata.js'
+  import {populatePDBsFromCustomAln} from './populatePDBsFromCustomAln.js'
   import ReactDOM, { render } from 'react-dom';
   import React, { Component } from "react";
   import Treeselect from '@riophae/vue-treeselect'
+  import Autocomplete from './Autocomplete.vue'
   export default {
       // register the component
-      components: { Treeselect },
+      components: { Treeselect, Autocomplete },
       data: function () {
         return initialState();
       },
@@ -189,7 +201,7 @@
             if (window.AlnViewer){
                 window.AlnViewer.setState({colorScheme:scheme});
             }
-        }, topology_loaded: function(topology_loaded){
+        },topology_loaded: function(topology_loaded){
             if (window.tempCSVdata!= null && this.topology_loaded){
                 vm.csv_data = window.tempCSVdata;
                 window.tempCSVdata = null;
@@ -207,6 +219,10 @@
             var uploadedFile = this.file;
             fr.onload = function(){
                 if (validateFasta(fr.result)){
+                    vm.blastPDBresult = [];
+                    vm.blastMAPresult = null;
+                    let firstSeq = parseFastaString(fr.result)[1].replace(/-/g,'');
+                    vm.populatePDBsFromCustomAln(firstSeq);
                     formData.append('custom_aln_file', uploadedFile)
                     $.ajax({
                         url: '/custom-aln-data',
@@ -232,12 +248,16 @@
             fr.readAsText(this.file)
         },
         cleanTreeOpts() {
-            cleanupOnNewAlignment(this, "Select new alignment!");
-            [this.options, this.tax_id, this.alnobj] = [null, null, null];
-            var molstar = document.getElementById("pdbeMolstarView");
-            var topview = document.getElementById("topview");
-            if (molstar) {molstar.textContent = null}
-            if (topview) {topview.textContent = null}
+            if (this.uploadSession){return;}
+            Object.assign(vm.$data, initialState());
+            this.type_tree="upload";
+            this.topology_loaded=false;
+            //cleanupOnNewAlignment(this, "Select new alignment!");
+            //[this.options, this.tax_id, this.alnobj, this.chainid] = [null, null, null, null];
+            //var topview = document.getElementById("PdbeTopViewer");
+            //var molstar = document.querySelector(".msp-plugin");
+            //if (molstar) {molstar.textContent = null}
+            //if (topview) {topview.textContent = null}
         }, loadOptions({ action, callback }) {
             if (this.type_tree == "orth"){
                 if (action === "LOAD_CHILDREN_OPTIONS") {
@@ -284,6 +304,7 @@
             if (type_tree == "upload"){this.tax_id = null; return;}
             if (value.length == 0){this.tax_id = null; return;}
             cleanupOnNewAlignment(this, "Select new alignment!");
+            vm.chainid = [];
             if (this.alnobj != null) {this.alnobj = null;}
             if (type_tree == "orth"){
                 this.alignments = null;
@@ -298,14 +319,15 @@
         }, getPDBchains(pdbid, aln_id) {
             if (pdbid.length === 4) {
                 if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(this);}
-                this.chains = null
-                this.hide_chains = true
+                this.chains = null;
+                this.chainid = [];
+                this.hide_chains = true;
                 ajax('https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/' + pdbid.toLowerCase()).then(struc_data => {
                     var chain_list = struc_data[pdbid.toLowerCase()];
                     if (this.type_tree == "para") {aln_id = aln_id.split(',')[1]}
                     if (this.type_tree != "upload") {
                         filterAvailablePolymers(chain_list, aln_id, vm);
-                    } else {
+                    } else if (vm.blastMAPresult == null){
                         let chain_options = []
                         for (let i = 0; i < chain_list.length; i++) {
                             let chain_listI = chain_list[i]
@@ -313,6 +335,30 @@
                             if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
                             if (typeof(chain_listI.source[0]) === "undefined") {continue;}
                             chain_options = pushChainData(chain_options, chain_listI);
+                        }
+                        if (chain_options.length === 0) {
+                            chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
+                        }
+                        vm.chains = chain_options;
+                        this.hide_chains = null;
+                    } else {
+                        let chain_options = [];
+                        var chainsFromBlast = vm.blastMAPresult.get(pdbid);
+                        for (let i = 0; i < chain_list.length; i++) {
+                            let chain_listI = chain_list[i]
+                            if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
+                            if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
+                            if (typeof(chain_listI.source[0]) === "undefined") {continue;}
+                            let intersectedChains = _.intersection(chainsFromBlast, chain_listI["in_chains"]);
+                            intersectedChains.forEach(function(chainVal){
+                                chain_options.push({
+                                    text: `${chainVal} ${chain_listI["molecule_name"][0]}`,
+                                    value: chainVal,
+                                    sequence: chain_listI["sequence"],
+                                    entityID: chain_listI["entity_id"],
+                                    startIndex: chain_listI.source[0].mappings[0].start.residue_number
+                                });
+                            });
                         }
                         if (chain_options.length === 0) {
                             chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
@@ -333,6 +379,7 @@
         },
         showAlignment(aln_id, taxid, type_tree) {
             cleanupOnNewAlignment(this, "Loading alignment...");
+            this.chainid = [];
             if (type_tree == "orth"){
                 var url = `/ortholog-aln-api/${aln_id}/${taxid}`}
             if (type_tree == "para"){
@@ -348,8 +395,6 @@
                 var main_elmnt = document.querySelector(".alignment_section");
                 var msaHeight = main_elmnt.offsetHeight * 0.8;
                 if (msaHeight > 17*(vm.fastaSeqNames.length+2)){
-                    var alnifEle = document.querySelector('#alnif');
-                    //alnifEle.style.paddingTop="10%";
                     msaHeight = 17*(vm.fastaSeqNames.length+2);
                 }
                 let seqsForMSAViewer = parseFastaSeqForMSAViewer(fasta['Alignment']);
@@ -376,8 +421,8 @@
             if (chainid.length > 1){this.chainid = chainid[0];}
             const topview_item = document.getElementById("topview");
             const molstar_item = document.getElementById("pdbeMolstarView");
-            if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Loading topology viewer and conservation data...")}
-            if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Loading Molstar Component...")}
+            if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "")}
+            if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Loading Molstar Component ", true)}
             var minIndex = String(0)
             var maxIndex = String(100000)
             var pdblower = pdbid.toLocaleLowerCase();
@@ -454,17 +499,18 @@
                         var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid} filter-range=${mapping}></pdb-topology-viewer>`
                         document.getElementById('topview').innerHTML = topology_viewer;
                         window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
-                        //this.topology_loaded = true;
                     })
-                })
+                }).catch(error => {
+                    var topview = document.querySelector('#topview');
+                    console.log(error);
+                    this.topology_loaded = 'error';
+                    topview.innerHTML = "Failed to fetch the secondary structure!<br>Try another structure."
+                });
             }).catch(error => {
                 var topview = document.querySelector('#topview');
                 console.log(error);
-                if (error.responseText){
-                    topview.innerHTML = error.responseText.replace(/\n/g, "<br />");
-                } else {
-                    topview.innerHTML = "Failed to load the viewer!"
-                }
+                this.topology_loaded = 'error';
+                topview.innerHTML = "Failed to load the viewer!<br>Try another structure."
             });
         }, showPDBViewer(pdbid, chainid, entityid){
             if (document.querySelector("pdbe-molstar")) {return;}
@@ -553,6 +599,10 @@
             handlePropensities(checked_propensities);
         },populatePDBs(alndata){
             populatePDBs(alndata);
+        },populatePDBsFromCustomAln(firstSeq){
+            if (this.guideOff){
+                populatePDBsFromCustomAln(firstSeq);
+            }
         },getPropensities(sequence_indices) {
             getPropensities(sequence_indices);
         },listSecondaryStructures() {

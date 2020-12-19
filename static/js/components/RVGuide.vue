@@ -43,18 +43,24 @@
                 myCallbacks: {
                     onSkip: this.skipTour,
                     onFinish: this.stopTour
-                }
+                },
             }
         },
         methods: {
             startTour(){
                 this.resetRV3State();
+                vm.guideOff = false;
                 this.$tours['myTour'].start()
             },
             stopTour(){
+                vm.guideOff = true;
                 this.resetRV3State();
             },
             skipTour(){
+                if (window.firstVisitCookiePolicy){
+                    location.href = 'https://www.allaboutcookies.org/';
+                }
+                vm.guideOff = true;
                 this.resetRV3State();
             },
             resetRV3State(){
@@ -65,22 +71,14 @@
             saveRV3State(){
                 let anchor = document.createElement('a');
                 vm.uploadSession=true;
-                let tempTop = false;
-                if (vm.topology_loaded){
-                    let tempTop = true;
-                    vm.topology_loaded=false;
-                }
                 var saveData = vm.$data;
+                saveData.topology_loaded = false;
                 saveData["window.selectSections_RV1"]=window.selectSections_RV1;
                 anchor.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(saveData, replacer));
                 anchor.target = '_blank';
                 anchor.download = "rv3State.json";
                 anchor.click();
                 vm.uploadSession=false;
-                if (tempTop){
-                    vm.topology_loaded=true;
-                    tempTop = false;
-                }
             },
             loadRV3State(){
                 if (this.$refs.rv3_state_file.files.length == 0){return;}
@@ -105,11 +103,34 @@
         },
         mounted: function () {
             if (localStorage.getItem("hasCodeRunBefore") === null) {
+                window.firstVisitCookiePolicy = true;
                 tourSteps[0].content += '<br><b>First time users are advised to complete this guide by only clicking the Next button ▼</b>';
+                tourSteps.unshift(cookieNotice);
+                tourSteps[1].before = function before(type) {
+                    return new Promise((resolve, reject) => {
+                        resolve (
+                            localStorage.setItem("hasCodeRunBefore", true),
+                            vm.guideOff = false,
+                            window.firstVisitCookiePolicy = false,
+                        )
+                    })
+                }
                 this.$tours['myTour'].start();
-                localStorage.setItem("hasCodeRunBefore", true);
             }
         },
+    }
+
+    const cookieNotice = {
+        target: 'header',
+            header: {
+                title: 'Cookie Notice',
+            },
+        content: `ProteoVision uses two essential cookies for it's function.
+            One ensures you do not see this message every time you visit the website;<br>
+            the other ensures our server can validate a secure connection to your browser.<br>
+            We do not store any other data from you. Uploaded CSV files are kept in your browser memory and are not stored between sessions. 
+            Uploaded alignments are sent to our server for processing, however they are deleted immediately on completion of the job.
+            Clicking <b>Next</b> indicates you consent to this data processing. Clicking <b>Skip Tour</b> will redirect you to allaboutcookies.org`
     }
 
     var getExampleFasta = function(){
@@ -407,6 +428,7 @@
               placement: 'right'
             },
             before: type => new Promise((resolve, reject) => {
+                vm.topology_loaded = false;
                 resolve (
                     vm.checked_propensities = false,
                     vm.type_tree="upload",
@@ -414,8 +436,18 @@
                     vm.cleanTreeOpts(),
                     document.getElementById("pdbeMolstarView").textContent = null,
                     document.getElementById("topview").textContent = null,
+                    vm.topology_loaded = false,
                 )
             })
+        },{
+            target: '#downloadExampleFasta',
+            header: {
+                title: 'Download example alignment.',
+            },
+            content: `Download an example of a fasta format alignment.`,
+            params: {
+              placement: 'right'
+            },
         },{
             target: '#inputUploadFasta',
             header: {
@@ -444,19 +476,11 @@
                 let uploadButton = document.querySelector("#uploadShowFasta")
                 resolve (
                     uploadButton.click(),
+                    vm.fetchingPDBwithCustomAln=true,
                 )
             })
         },{
-            target: '#downloadExampleFasta',
-            header: {
-                title: 'Download example alignment.',
-            },
-            content: `Download an example of a fasta format alignment.`,
-            params: {
-              placement: 'right'
-            },
-        },{
-            target: '#pdb_input_custom',
+            target: '.autocomplete',
             header: {
                 title: 'Write a PDB ID for structure display',
             },
@@ -467,15 +491,28 @@
             before: type => new Promise((resolve, reject) => {
                 resolve (
                     vm.pdbid = "1efu",
+                    vm.$children[0].search = "1efu",
                 )
             })
+        },{
+            target: '#blastingPDBsMSG',
+            header: {
+                title: 'Background BLAST search',
+            },
+            content: `The first sequence of the uploaded alignment will be BLASTed against the PDB database 
+            to find structures with similar chains. This process takes some time so you are free to input any 4 letter PDB while waiting.
+            <br>When the BLAST finishes a searchable dropdown menu will be available with the PDB results.`,
+            params: {
+              placement: 'right'
+            },
         },{
             target: '#polymerSelect',
             header: {
                 title: 'Select polymer for structure display',
             },
-            content: `For uploaded alignment we do not filter the available PDB chains. <br/>
-            You can select any polymer from the PDB structure.`,
+            content: `For uploaded alignment while BLAST is running we do not filter the available PDB chains and 
+            you can select any polymer from the PDB structure.<br>
+            When the BLAST finishes, only chains with high similarity will be shown here.`,
             params: {
               placement: 'right'
             },
@@ -498,17 +535,46 @@
             The number of misaligned positions will be indicated.<br/>
             The user can input a different PDB or select a new polymer or restart with a new alignment.`,
         },{
-            target: '#pdb_input_custom',
+            target: '#completeBLASTsMSG',
             header: {
-                title: 'Write a different PDB ID for structure display',
+                title: 'Background BLAST complete',
+            },
+            content: `A message will be shown here when the BLAST search is complete.
+            PDB IDs with chains that are highly similar to the first sequence of the alignment will be populated in the
+            <b>Input PDB</b> box as searchable dropdown menu.`,
+            params: {
+              placement: 'right'
+            },
+            before: type => new Promise((resolve, reject) => {
+                var tempMap = new Map();
+                tempMap.set("1EFT", ["A"]);
+                tempMap.set("1EFU", ["A", "C"]);
+                vm.fetchingPDBwithCustomAln = 'complete';
+                resolve (
+                    vm.blastPDBresult = ["1EFT","1EFU"],
+                    vm.blastMAPresult = tempMap,
+                );
+            })
+        },{
+            target: '.autocomplete',
+            header: {
+                title: 'Select a different PDB ID for structure display',
             },
             content: `Writing a new PDB ID will clear all data related to the old PDB.`,
             params: {
               placement: 'right'
             },
             before: type => new Promise((resolve, reject) => {
+                vm.pdbid = "1eft";
+                vm.$children[0].search = "1eft";
+                var pdbinput = document.querySelector('.input-group-text');
+                var autoresult = document.querySelector('#autocomplete-results');
+                autoresult.firstElementChild.click();
                 resolve (
-                    vm.pdbid = "1eft",
+                    vm.$nextTick(function(){
+                        vm.$children[0].isOpen=true;
+                        pdbinput.click();
+                    }),
                 )
             })
         },{
@@ -524,6 +590,7 @@
             before: type => new Promise((resolve, reject) => {
                 var polSele = document.querySelector("#polymerSelect")
                 resolve (
+                    vm.$children[0].isOpen=false,
                     vm.chainid = ["A"],
                     vm.$nextTick(function(){
                         polSele.lastElementChild.click();
