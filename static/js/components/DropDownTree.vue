@@ -28,7 +28,8 @@
               :flat="true"
               :limit="3"
               :default-expand-level="1"
-              >Loading phylogenetic tree...</treeselect>
+              >Loading phylogenetic tree <img src="static/img/loading.gif" alt="BLASTing available PDBs" style="height:25px;">
+              </treeselect>
             </div>
             <div v-else>
                 Select an alignment file:
@@ -92,7 +93,7 @@
                         Upload custom mapping data</label>
                         <p><input class="btn btn-outline-dark" id="inputUploadCSV" v-if="checked_customMap" type="file" accept=".csv" ref="custom_csv_file" v-on:change="handleCustomMappingData()"/></p>
                         <p v-if="raiseCustomCSVWarn" v-html="raiseCustomCSVWarn"></p>
-                        <p><button class="btn btn-outline-dark" id="downloadExampleCSV" v-if="checked_customMap" type="button" v-on:click="getExampleFile(`static/alignments/rv3_example_cusom_mapping.csv`, `rv3ExampleCusomMapping.csv`)">
+                        <p><button class="btn btn-outline-dark" id="downloadExampleCSV" v-if="checked_customMap&&csv_data==null" type="button" v-on:click="getExampleFile(`static/alignments/rv3_example_cusom_mapping.csv`, `rv3ExampleCusomMapping.csv`)">
                         Download example mapping data
                         </button></p>
                     </div>
@@ -132,9 +133,10 @@
         </div>
         <div class="topology_section">
             <span id="topif" v-if="chainid.length>0">
-                <div id="topview">
+                <div v-if="!topology_loaded">
                     Loading topology viewer and conservation data <img src="static/img/loading.gif" alt="Loading topology viewer" style="height:25px;">
                 </div>
+                <div id="topview"></div>
             </span>
         </div>
         <div class="molstar_section">
@@ -199,7 +201,7 @@
             if (window.AlnViewer){
                 window.AlnViewer.setState({colorScheme:scheme});
             }
-        }, topology_loaded: function(topology_loaded){
+        },topology_loaded: function(topology_loaded){
             if (window.tempCSVdata!= null && this.topology_loaded){
                 vm.csv_data = window.tempCSVdata;
                 window.tempCSVdata = null;
@@ -246,12 +248,16 @@
             fr.readAsText(this.file)
         },
         cleanTreeOpts() {
-            cleanupOnNewAlignment(this, "Select new alignment!");
-            [this.options, this.tax_id, this.alnobj] = [null, null, null];
-            var molstar = document.getElementById("pdbeMolstarView");
-            var topview = document.getElementById("topview");
-            if (molstar) {molstar.textContent = null}
-            if (topview) {topview.textContent = null}
+            if (this.uploadSession){return;}
+            Object.assign(vm.$data, initialState());
+            this.type_tree="upload";
+            this.topology_loaded=false;
+            //cleanupOnNewAlignment(this, "Select new alignment!");
+            //[this.options, this.tax_id, this.alnobj, this.chainid] = [null, null, null, null];
+            //var topview = document.getElementById("PdbeTopViewer");
+            //var molstar = document.querySelector(".msp-plugin");
+            //if (molstar) {molstar.textContent = null}
+            //if (topview) {topview.textContent = null}
         }, loadOptions({ action, callback }) {
             if (this.type_tree == "orth"){
                 if (action === "LOAD_CHILDREN_OPTIONS") {
@@ -298,6 +304,7 @@
             if (type_tree == "upload"){this.tax_id = null; return;}
             if (value.length == 0){this.tax_id = null; return;}
             cleanupOnNewAlignment(this, "Select new alignment!");
+            vm.chainid = [];
             if (this.alnobj != null) {this.alnobj = null;}
             if (type_tree == "orth"){
                 this.alignments = null;
@@ -313,6 +320,7 @@
             if (pdbid.length === 4) {
                 if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(this);}
                 this.chains = null;
+                this.chainid = [];
                 this.hide_chains = true;
                 ajax('https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/' + pdbid.toLowerCase()).then(struc_data => {
                     var chain_list = struc_data[pdbid.toLowerCase()];
@@ -371,6 +379,7 @@
         },
         showAlignment(aln_id, taxid, type_tree) {
             cleanupOnNewAlignment(this, "Loading alignment...");
+            this.chainid = [];
             if (type_tree == "orth"){
                 var url = `/ortholog-aln-api/${aln_id}/${taxid}`}
             if (type_tree == "para"){
@@ -412,8 +421,8 @@
             if (chainid.length > 1){this.chainid = chainid[0];}
             const topview_item = document.getElementById("topview");
             const molstar_item = document.getElementById("pdbeMolstarView");
-            if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Loading topology viewer and conservation data...", true)}
-            if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Loading Molstar Component...", true)}
+            if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "")}
+            if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Loading Molstar Component ", true)}
             var minIndex = String(0)
             var maxIndex = String(100000)
             var pdblower = pdbid.toLocaleLowerCase();
@@ -490,13 +499,18 @@
                         var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid} filter-range=${mapping}></pdb-topology-viewer>`
                         document.getElementById('topview').innerHTML = topology_viewer;
                         window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
-                        //this.topology_loaded = true;
                     })
-                })
+                }).catch(error => {
+                    var topview = document.querySelector('#topview');
+                    console.log(error);
+                    this.topology_loaded = 'error';
+                    topview.innerHTML = "Failed to fetch the secondary structure!<br>Try another structure."
+                });
             }).catch(error => {
                 var topview = document.querySelector('#topview');
                 console.log(error);
-                topview.innerHTML = "Failed to load the viewer!"
+                this.topology_loaded = 'error';
+                topview.innerHTML = "Failed to load the viewer!<br>Try another structure."
             });
         }, showPDBViewer(pdbid, chainid, entityid){
             if (document.querySelector("pdbe-molstar")) {return;}
