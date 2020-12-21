@@ -487,13 +487,14 @@ var filterCoilResidues = function (coil_data){
 
 var generateCSVstring = function (mapped_data){
   let properties = Array.from(mapped_data.keys());
-  let csv = 'Index,'
+  let csv = 'Index,Alignment index,'
   csv += properties.join(',');
   csv += '\n';
   let csv_ix = [];
   
   mapped_data.get(properties[0]).forEach((datapoint) =>{
-      csv_ix.push([datapoint[0]]);
+      let alnIx = _.invert(vm.structure_mapping)[datapoint[0]];
+      csv_ix.push([datapoint[0], alnIx]);
   })
 
   properties.forEach((prop) => {
