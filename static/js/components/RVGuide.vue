@@ -57,9 +57,6 @@
                 this.resetRV3State();
             },
             skipTour(){
-                if (window.firstVisitCookiePolicy){
-                    location.href = 'https://www.allaboutcookies.org/';
-                }
                 vm.guideOff = true;
                 this.resetRV3State();
             },
@@ -103,7 +100,6 @@
         },
         mounted: function () {
             if (localStorage.getItem("hasCodeRunBefore") === null) {
-                window.firstVisitCookiePolicy = true;
                 tourSteps[0].content += '<br><b>First time users are advised to complete this guide by only clicking the Next button ▼</b>';
                 tourSteps.unshift(cookieNotice);
                 tourSteps[1].before = function before(type) {
@@ -111,7 +107,6 @@
                         resolve (
                             localStorage.setItem("hasCodeRunBefore", true),
                             vm.guideOff = false,
-                            window.firstVisitCookiePolicy = false,
                         )
                     })
                 }
@@ -123,14 +118,14 @@
     const cookieNotice = {
         target: 'header',
             header: {
-                title: 'Cookie Notice',
+                title: 'Privacy Notice',
             },
-        content: `ProteoVision uses two essential cookies for it's function.
+        content: `ProteoVision uses two essential cookies.
             One ensures you do not see this message every time you visit the website;<br>
             the other ensures our server can validate a secure connection to your browser.<br>
             We do not store any other data from you. Uploaded CSV files are kept in your browser memory and are not stored between sessions. 
-            Uploaded alignments are sent to our server for processing, however they are deleted immediately on completion of the job.
-            Clicking <b>Next</b> indicates you consent to this data processing. Clicking <b>Skip Tour</b> will redirect you to allaboutcookies.org`
+            Uploaded alignments are sent to our server for processing, however they are deleted immediately on completion of the job.<br>
+            Continuing to use our website indicates you consent to this data processing.`
     }
 
     var getExampleFasta = function(){
