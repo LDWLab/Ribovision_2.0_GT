@@ -524,7 +524,6 @@ def handleCustomUploadStructure (request, strucID):
         return HttpResponse('Success!')
     
     if request.method == 'GET':
-        
         structureDict = dict()
         for singleID in strucID.split(','):
             serializeData = request.session[singleID]
@@ -533,7 +532,6 @@ def handleCustomUploadStructure (request, strucID):
         if len(structureDict) == 1:
             stringStruc = strucToString(next(iter(structureDict.values())))
             return HttpResponse(stringStruc, content_type="text/plain")
-            #return JsonResponse({strucID:stringStruc})
         elif len(structureDict) > 1:
             #combine into single structure and return
             pass
@@ -551,7 +549,6 @@ def parse_serialized_structure(serializeData, strucID):
 def strucToString(strucObj):
     
     from Bio.PDB.mmcifio import MMCIFIO
-    #strucFile = io.BytesIO(b"\x00")
     strucFile = io.StringIO("")
     mmCIFio=MMCIFIO()
     mmCIFio.set_structure(strucObj)
