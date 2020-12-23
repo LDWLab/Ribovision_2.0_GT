@@ -47,5 +47,6 @@ export function initialState (){
         blastPDBresult: [],
         blastMAPresult: null,
         guideOff: true,
+        postedPDBEntities: false,
     }
 }

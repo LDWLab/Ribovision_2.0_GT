@@ -1,3 +1,4 @@
+from alignments import handleStructureRequests, mapStrucSeqToAln
 from django.urls import include, path
 from django.views.generic.base import RedirectView
 from django.contrib.staticfiles.storage import staticfiles_storage
@@ -26,7 +27,7 @@ urlpatterns = [
 	path('entropy-api/<str:align_name>/<int:tax_group>/<str:anchor_structure>', views.api_entropy, name='api_entropy'),
 	path('twc-api/<str:align_name>/<int:tax_group1>/<int:tax_group2>/<str:anchor_structure>', views.api_twc, name='api_twc'),
 	path('twc-api/', views.api_twc_parameterless, name='api_twc'),
-	path('mapSeqAln/', views.make_map_from_alnix_to_sequenceix, name='mapping_aln_to_seq'),
+	path('mapSeqAln/', mapStrucSeqToAln.make_map_from_alnix_to_sequenceix_new, name='mapping_aln_to_seq'),
 	path('twc-api/<str:align_name>/<int:tax_group1>/<int:tax_group2>', views.api_twc, name='api_twc_no_struc'),
 	path('resi-api/<int:resi_id>', views.resi_info),
 	path('struc-api/<int:struc_id>', views.struc_info),
@@ -47,5 +48,5 @@ urlpatterns = [
     path('propensity-data-custom/', views.propensity_data_custom, name = 'propensity_data_custom'),
     path('propensities/<str:align_name>/<int:tax_group>', views.propensities, name = 'propensities'),
     path('propensities/<str:align_name>/<str:tax_group>', views.propensities, name = 'propensities'),
-    path('custom-struc-data/<str:strucID>', views.handleCustomUploadStructure, name = 'custom_structure'),
+    path('custom-struc-data/<str:strucID>', handleStructureRequests.handleCustomUploadStructure, name = 'custom_structure'),
 ]
