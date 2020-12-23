@@ -63,13 +63,13 @@ class AssociatedDataViewSet(viewsets.ModelViewSet):
     serializer_class = AssociatedDataSerializer
 
 class AlnDataViewSet(viewsets.ModelViewSet):
-    queryset = AlnData.objects.all()
+    queryset = AlnData.objects.all().order_by('aln_data_id')
     serializer_class = AlnDataSerializer
     filter_backends = [DjangoFilterBackend]
     filter_fields = '__all__'
 
 class TaxGroupViewSet(viewsets.ModelViewSet):
-    queryset = Taxgroups.objects.all()
+    queryset = Taxgroups.objects.all().order_by('taxgroup_id')
     serializer_class = TaxGroupSerializer
     filter_backends = [DjangoFilterBackend]
     filter_fields = ['groupname', 'grouplevel', 'taxgroup_id']
