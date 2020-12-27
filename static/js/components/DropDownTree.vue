@@ -163,7 +163,8 @@
   import {ajaxProper} from './ajaxProper.js'
   import {addFooterImages} from './Footer.js'
   import {initialState} from './DropDownTreeVars.js'
-  import {AlnViewer} from './AlignmentViewer.js'
+  import {getStructMappingAndTWC} from './getStructMappingAndTWC.js'
+  import {loadAlignmentViewer} from './loadAlignmentViewer.js'
   import {customCSVhandler} from './handleCSVdata.js'
   import {populatePDBsFromCustomAln} from './populatePDBsFromCustomAln.js'
   import {postCIFdata} from './postCustomStruct.js'
@@ -395,35 +396,23 @@
                 var url = `/ortholog-aln-api/${aln_id}/${taxid}`}
             if (type_tree == "para"){
                 var url = '/paralog-aln-api/'+aln_id.split(',')[1]}
-            if (type_tree == "upload"){
-                var url = '/custom-aln-data'}
+            if (type_tree == "upload" && !this.uploadSession){
+                var url = '/custom-aln-data'
+            }
+            if (type_tree == "upload" && this.uploadSession){
+                this.$nextTick(function(){
+                    loadAlignmentViewer (vm.fasta_data);
+                });
+                return;
+            }
             ajax(url).then(fasta => {
                 if (fasta['TwinCons'] != null){
                     this.custom_aln_twc_flag = fasta['TwinCons']
                 }
-                vm.fastaSeqNames = fasta['Sequence names'];
-                window.aaFreqs = fasta['AA frequencies'];
-                var main_elmnt = document.querySelector(".alignment_section");
-                var msaHeight = main_elmnt.offsetHeight * 0.8;
-                if (msaHeight > 17*(vm.fastaSeqNames.length+2)){
-                    msaHeight = 17*(vm.fastaSeqNames.length+2);
-                }
-                let seqsForMSAViewer = parseFastaSeqForMSAViewer(fasta['Alignment']);
-                var msaOptions = {
-                    sequences: seqsForMSAViewer,
-                    colorScheme: vm.colorScheme,
-                    height: msaHeight,
-                    width: main_elmnt.offsetWidth * 0.7,
-                    tileHeight: 17,
-                    tileWidth: 17,
-                };
-                window.msaOptions = msaOptions;
-                ReactDOM.render(
-                    <AlnViewer ref={(AlnViewer) => {window.AlnViewer = AlnViewer}}/>,
-                    document.getElementById('alnDiv')
-                  );
+                this.fastaSeqNames = fasta['Sequence names'];
                 this.fasta_data = fasta['Alignment'];
                 this.aa_properties = calculateFrequencyData(fasta['AA frequencies']);
+                loadAlignmentViewer (fasta['Alignment']);
             })
         }, showTopologyViewer (pdbid, chainid, fasta){
             this.topology_loaded = false;
@@ -441,47 +430,9 @@
             let ebi_sequence = temp["sequence"];
             let startIndex = temp["startIndex"];
             let struc_id = `${pdbid.toUpperCase()}-${temp["entityID"]}`
-            ajax('/mapSeqAln/', {fasta, struc_id}).then(struct_mapping=>{
-                this.structure_mapping = struct_mapping;
-                if (struct_mapping['BadMappingPositions']){this.poor_structure_map = struct_mapping['BadMappingPositions'];}
-                var mapped_aa_properties = mapAAProps(this.aa_properties, struct_mapping);
-                var topviewer = document.getElementById("PdbeTopViewer");
-                if ((this.tax_id != null && this.tax_id.length == 2) || (this.custom_aln_twc_flag != null && this.custom_aln_twc_flag == true) || (this.type_tree == 'para')) {
-                    ajax('/twc-api/', {fasta}).then(twcDataUnmapped => {
-                        const build_mapped_props = function(mapped_props, twcDataUnmapped, structure_mapping){
-                            mapped_props.set("TwinCons", [])
-                            for (let i = 0; i < twcDataUnmapped.length; i++) {
-                                let mappedI0 = structure_mapping[twcDataUnmapped[i][0]];
-                                if (mappedI0) {
-                                    mapped_props.get("TwinCons").push([mappedI0, twcDataUnmapped[i][1]]);
-                                }
-                            }
-                            return mapped_props;
-                        }
-                        
-                        mapped_aa_properties = build_mapped_props(mapped_aa_properties, twcDataUnmapped, this.structure_mapping);
-                        window.mapped_aa_properties = mapped_aa_properties;
-                        if (topviewer != null && topviewer.pluginInstance.domainTypes != undefined){
-                            var empty_props = new Map();
-                            let twc_props = build_mapped_props(empty_props, twcDataUnmapped, this.structure_mapping);
-                            topviewer.pluginInstance.getAnnotationFromRibovision(twc_props);
-                            var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
-                            var twc_option = document.createElement("option");
-                            twc_option.setAttribute("value", selectBoxEle.options.length);
-                            twc_option.appendChild(document.createTextNode("TwinCons"));
-                            selectBoxEle.appendChild(twc_option);
-                        }
-                    })
-                }
-                window.mapped_aa_properties = mapped_aa_properties;
-                topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);
-                topviewer.pluginInstance.createDomainDropdown();
-            }).catch(error => {
-                //var topview = document.querySelector('#topview');
-                console.log(error);
-                //this.topology_loaded = 'error';
-                //topview.innerHTML = "Failed to load the viewer!<br>Try another structure."
-            });
+            if (!this.uploadSession){
+                getStructMappingAndTWC (fasta, struc_id, this);
+            }
             var topology_url = `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdblower}/chain/${chainid}`
             ajax(topology_url).then(data => {
                 var entityid = Object.keys(data[pdblower])[0];
@@ -642,7 +593,7 @@
                     dataType: `text`,
                 }).then(response => {
                 if (response == 'Success!'){
-                    console.log("Session flushed succesfully!") 
+                    console.log("Session flushed successfully!") 
                 }
             })
         }
