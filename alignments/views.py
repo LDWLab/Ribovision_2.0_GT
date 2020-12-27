@@ -504,3 +504,9 @@ def propensities(request, align_name, tax_group):
     
     return render(request, 'alignments/propensities.html', context)
 
+def flushSession (request):
+    try:
+        request.session.flush()
+    except:
+        return HttpResponseServerError ("Failed to flush the session!")
+    return HttpResponse ("Success!")
