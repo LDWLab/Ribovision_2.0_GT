@@ -25,7 +25,8 @@ export function YSlider (props){
 
 export function XSlider (props){
   const {alnViewerAdjWidth, maxXpos, MSAVObject} = props;
-  if (alnViewerAdjWidth < MSAVObject.state.tileWidth*window.aaFreqs.length) {
+  let alnLength = vm.fasta_data.split('\n')[1].length;
+  if (alnViewerAdjWidth < MSAVObject.state.tileWidth*alnLength) {
     return(
       <div>
         <input
