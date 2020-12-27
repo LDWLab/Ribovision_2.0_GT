@@ -22,7 +22,7 @@ export function populatePDBsFromCustomAln (firstSeq) {
 var repeatingFunc = function(jobid) {
 	ebiAjax(`https://www.ebi.ac.uk/Tools/services/rest/ncbiblast/status/${jobid}`).then(jobStatus=>{
 		if (jobStatus == 'RUNNING'){
-			setTimeout(repeatingFunc(jobid), 1000);
+			setTimeout(repeatingFunc(jobid), 10000);
 		} else if (jobStatus == 'FINISHED'){
 			fetchBLASTresult(jobid);
 		} else {
