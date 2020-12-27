@@ -160,12 +160,13 @@
 
 
 <script>
+  import {ajaxProper} from './ajaxProper.js'
   import {addFooterImages} from './Footer.js'
   import {initialState} from './DropDownTreeVars.js'
   import {AlnViewer} from './AlignmentViewer.js'
   import {customCSVhandler} from './handleCSVdata.js'
   import {populatePDBsFromCustomAln} from './populatePDBsFromCustomAln.js'
-  import {testingCIFParsing} from './testingPDB.js'
+  import {postCIFdata} from './postCustomStruct.js'
   import ReactDOM, { render } from 'react-dom';
   import React, { Component } from "react";
   import Treeselect from '@riophae/vue-treeselect'
@@ -310,7 +311,6 @@
                 loadParaOptions(action, callback, this);
             }
         }, loadData (value, type_tree) {
-            //testingCIFParsing('4V9D', [25,27]);
             if (this.uploadSession){return;}
             if (type_tree == "upload"){this.tax_id = null; return;}
             if (value.length == 0){this.tax_id = null; return;}
@@ -602,7 +602,7 @@
             tempEntities.forEach(function(ent){
                 entityIDS.push(ent["entityID"])
             })
-            testingCIFParsing(pdbid, entityIDS);
+            postCIFdata(pdbid, entityIDS);
         },downloadAlignmentImage() {
             downloadAlignmentImage(document.querySelector('#alnDiv'));
         },downloadAlignmentData() {
@@ -635,6 +635,16 @@
             getPropensities(sequence_indices);
         },listSecondaryStructures() {
             listSecondaryStructures();
+        },flushDjangoSession(){
+            ajaxProper({
+                    url: `/flush-session`,
+                    type: `GET`,
+                    dataType: `text`,
+                }).then(response => {
+                if (response == 'Success!'){
+                    console.log("Session flushed succesfully!") 
+                }
+            })
         }
     }, 
     mounted() {
@@ -642,11 +652,7 @@
     },
     created() {
         $(window).bind('beforeunload', function(){
-            ajax(`/flush-session`).then(response => {
-                if (response == 'Success!'){
-                    console.log("Session flushed succesfully!") 
-                }
-            })
+            vm.flushDjangoSession();
         });
     },
 }
