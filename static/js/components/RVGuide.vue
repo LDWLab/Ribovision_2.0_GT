@@ -72,6 +72,8 @@
                 var saveData = _.cloneDeep(vm.$data);
                 saveData.topology_loaded = false;
                 saveData.postedPDBEntities = false;
+                saveData.checked_filter = false;
+                saveData.checked_selection = false;
                 saveData.uploadSession = true;
                 saveData["window.selectSections_RV1"]=window.selectSections_RV1;
                 anchor.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(saveData, replacer));
