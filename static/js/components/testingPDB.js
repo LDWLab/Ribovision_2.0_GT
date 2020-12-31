@@ -1,5 +1,5 @@
 import {ajaxProper} from './ajaxProper.js'
-export function postCIFdata (pdbID, entityIDS){
+export function testingCIFParsing (pdbID, entityIDS){
     vm.postedPDBEntities = false;
     let parseURL = `custom-struc-data/${pdbID}`;
     ajaxProper({
