@@ -135,7 +135,7 @@
         <div class="topology_section">
             <span id="topif" v-if="chainid.length>0">
                 <div v-if="!topology_loaded">
-                    Calculating conservation data and alignment <-> structure mapping <img src="static/img/loading.gif" alt="Loading topology viewer" style="height:25px;">
+                    Loading topology viewer and conservation data <img src="static/img/loading.gif" alt="Loading topology viewer" style="height:25px;">
                 </div>
                 <div id="topview"></div>
             </span>
@@ -429,6 +429,7 @@
             window.filterRange = "-10000,10000";
             if (chainid.length > 1){this.chainid = chainid[0];}
             const topview_item = document.getElementById("topview");
+            const molstar_item = document.getElementById("pdbeMolstarView");
             if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "")}
             var minIndex = String(0)
             var maxIndex = String(100000)
@@ -444,7 +445,6 @@
                 this.structure_mapping = struct_mapping;
                 if (struct_mapping['BadMappingPositions']){this.poor_structure_map = struct_mapping['BadMappingPositions'];}
                 var mapped_aa_properties = mapAAProps(this.aa_properties, struct_mapping);
-                var topviewer = document.getElementById("PdbeTopViewer");
                 if ((this.tax_id != null && this.tax_id.length == 2) || (this.custom_aln_twc_flag != null && this.custom_aln_twc_flag == true) || (this.type_tree == 'para')) {
                     ajax('/twc-api/', {fasta}).then(twcDataUnmapped => {
                         const build_mapped_props = function(mapped_props, twcDataUnmapped, structure_mapping){
@@ -457,7 +457,7 @@
                             }
                             return mapped_props;
                         }
-                        
+                        var topviewer = document.getElementById("PdbeTopViewer");
                         mapped_aa_properties = build_mapped_props(mapped_aa_properties, twcDataUnmapped, this.structure_mapping);
                         window.mapped_aa_properties = mapped_aa_properties;
                         if (topviewer != null && topviewer.pluginInstance.domainTypes != undefined){
@@ -473,59 +473,53 @@
                     })
                 }
                 window.mapped_aa_properties = mapped_aa_properties;
-                topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);
-                topviewer.pluginInstance.createDomainDropdown();
-            }).catch(error => {
-                //var topview = document.querySelector('#topview');
-                console.log(error);
-                //this.topology_loaded = 'error';
-                //topview.innerHTML = "Failed to load the viewer!<br>Try another structure."
-            });
-            var topology_url = `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdblower}/chain/${chainid}`
-            ajax(topology_url).then(data => {
-                var entityid = Object.keys(data[pdblower])[0];
-                vm.coil_residues = filterCoilResidues(data[pdblower][entityid][chainid]["coils"])
-                vm.helix_residues = filterCoilResidues(data[pdblower][entityid][chainid]["helices"])
-                vm.strand_residues = filterCoilResidues(data[pdblower][entityid][chainid]["strands"])
-                listSecondaryStructures();
-                var mapping = [];
-                var range_string = minIndex.concat("-").concat(maxIndex);
-                let ebiMappingURL = 'https://www.ebi.ac.uk/pdbe/api/mappings/uniprot/'+pdbid;
-                ajax(ebiMappingURL).then(data=>{
-                    var result = [];
-                    customFilter(data, result, "chain_id", chainid);
-                    result = result[0];
-                    if(result != null) {
-                        var pdb_start = parseInt(result["start"]["residue_number"]);
-                        var pdb_end = parseInt(result["end"]["residue_number"]);
-                        var uniprot_start = parseInt(result["unp_start"]);
-                        for (let residue_number_str in range_string.split("-")){
-                            var residue_number = parseInt(residue_number_str);
-                            if(residue_number >= pdb_start && residue_number <= pdb_end){
-                                let offset = uniprot_start - pdb_start;
-                                mapping.push(residue_number - offset);
-                            }else{
-                                mapping.push(residue_number);
+                var topology_url = `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdblower}/chain/${chainid}`
+                ajax(topology_url).then(data => {
+                    var entityid = Object.keys(data[pdblower])[0];
+                    vm.coil_residues = filterCoilResidues(data[pdblower][entityid][chainid]["coils"])
+                    vm.helix_residues = filterCoilResidues(data[pdblower][entityid][chainid]["helices"])
+                    vm.strand_residues = filterCoilResidues(data[pdblower][entityid][chainid]["strands"])
+                    listSecondaryStructures();
+                    var mapping = [];
+                    var range_string = minIndex.concat("-").concat(maxIndex);
+                    let ebiMappingURL = 'https://www.ebi.ac.uk/pdbe/api/mappings/uniprot/'+pdbid;
+                    ajax(ebiMappingURL).then(data=>{
+                        var result = [];
+                        customFilter(data, result, "chain_id", chainid);
+                        result = result[0];
+                        
+                        if(result != null) {
+                            var pdb_start = parseInt(result["start"]["residue_number"]);
+                            var pdb_end = parseInt(result["end"]["residue_number"]);
+                            var uniprot_start = parseInt(result["unp_start"]);
+                            for (let residue_number_str in range_string.split("-")){
+                                var residue_number = parseInt(residue_number_str);
+                                if(residue_number >= pdb_start && residue_number <= pdb_end){
+                                    let offset = uniprot_start - pdb_start;
+                                    mapping.push(residue_number - offset);
+                                }else{
+                                    mapping.push(residue_number);
+                                }
                             }
+                        }else{
+                            console.log("No mapping for pdb "+pdbid+" and chain"+ chainid)
+                            mapping = [range_string.split("-")[0],range_string.split("-")[1]];
                         }
-                    }else{
-                        console.log("No mapping for pdb "+pdbid+" and chain"+ chainid)
-                        mapping = [range_string.split("-")[0],range_string.split("-")[1]];
-                    }
-                    var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid} filter-range=${mapping}></pdb-topology-viewer>`
-                    document.getElementById('topview').innerHTML = topology_viewer;
-                    window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
+                        var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid} filter-range=${mapping}></pdb-topology-viewer>`
+                        document.getElementById('topview').innerHTML = topology_viewer;
+                        window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
+                    })
                 }).catch(error => {
                     var topview = document.querySelector('#topview');
                     console.log(error);
                     this.topology_loaded = 'error';
-                    topview.innerHTML = "Failed with 2D structure mapping to 3D!<br>Try another structure."
+                    topview.innerHTML = "Failed to fetch the secondary structure!<br>Try another structure."
                 });
             }).catch(error => {
                 var topview = document.querySelector('#topview');
                 console.log(error);
                 this.topology_loaded = 'error';
-                topview.innerHTML = "Failed to fetch the secondary structure!<br>Try another structure."
+                topview.innerHTML = "Failed to load the viewer!<br>Try another structure."
             });
         }, showPDBViewer(pdbid, chainid, entityid){
             const molstar_item = document.getElementById("pdbeMolstarView");
