@@ -511,6 +511,7 @@
             window.filterRange = "-10000,10000";
             if (chainid.length > 1){this.chainid = chainid[0];}
             const topview_item = document.getElementById("topview");
+            const molstar_item = document.getElementById("pdbeMolstarView");
             if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "")}
             var minIndex = String(0)
             var maxIndex = String(100000)
@@ -526,7 +527,6 @@
                 this.structure_mapping = struct_mapping;
                 if (struct_mapping['BadMappingPositions']){this.poor_structure_map = struct_mapping['BadMappingPositions'];}
                 var mapped_aa_properties = mapAAProps(this.aa_properties, struct_mapping);
-                var topviewer = document.getElementById("PdbeTopViewer");
                 if ((this.tax_id != null && this.tax_id.length == 2) || (this.custom_aln_twc_flag != null && this.custom_aln_twc_flag == true) || (this.type_tree == 'para')) {
                     ajax('/twc-api/', {fasta}).then(twcDataUnmapped => {
                         const build_mapped_props = function(mapped_props, twcDataUnmapped, structure_mapping){
@@ -539,7 +539,7 @@
                             }
                             return mapped_props;
                         }
-                        
+                        var topviewer = document.getElementById("PdbeTopViewer");
                         mapped_aa_properties = build_mapped_props(mapped_aa_properties, twcDataUnmapped, this.structure_mapping);
                         window.mapped_aa_properties = mapped_aa_properties;
                         if (topviewer != null && topviewer.pluginInstance.domainTypes != undefined){
@@ -590,25 +590,25 @@
                             }else{
                                 mapping.push(residue_number);
                             }
+                        }else{
+                            console.log("No mapping for pdb "+pdbid+" and chain"+ chainid)
+                            mapping = [range_string.split("-")[0],range_string.split("-")[1]];
                         }
-                    }else{
-                        console.log("No mapping for pdb "+pdbid+" and chain"+ chainid)
-                        mapping = [range_string.split("-")[0],range_string.split("-")[1]];
-                    }
-                    var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid} filter-range=${mapping}></pdb-topology-viewer>`
-                    document.getElementById('topview').innerHTML = topology_viewer;
-                    window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
+                        var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid} filter-range=${mapping}></pdb-topology-viewer>`
+                        document.getElementById('topview').innerHTML = topology_viewer;
+                        window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
+                    })
                 }).catch(error => {
                     var topview = document.querySelector('#topview');
                     console.log(error);
                     this.topology_loaded = 'error';
-                    topview.innerHTML = "Failed with 2D structure mapping to 3D!<br>Try another structure."
+                    topview.innerHTML = "Failed to fetch the secondary structure!<br>Try another structure."
                 });
             }).catch(error => {
                 var topview = document.querySelector('#topview');
                 console.log(error);
                 this.topology_loaded = 'error';
-                topview.innerHTML = "Failed to fetch the secondary structure!<br>Try another structure."
+                topview.innerHTML = "Failed to load the viewer!<br>Try another structure."
             });
         }, showPDBViewer(pdbid, chainid, entityid){
             const molstar_item = document.getElementById("pdbeMolstarView");
