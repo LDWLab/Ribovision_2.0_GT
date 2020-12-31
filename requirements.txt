@@ -1,5 +1,5 @@
 astroid==2.2.5
-biopython==1.76
+biopython==1.78
 cached-property==1.5.1
 Django==2.2.5
 django-appconf==1.0.4

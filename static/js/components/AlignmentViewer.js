@@ -1,6 +1,7 @@
 import {Tooltip} from './Tooltip.js'
 import {XSlider, YSlider} from './Sliders.js'
 import {XYDispatch} from './PositionDispatch.js'
+import ScrollBooster from 'scrollbooster';
 //import { MSAViewer, SequenceViewer, Labels, } from '@plotly/react-msa-viewer';
 import { MSAViewer, 
         SequenceViewer, 
@@ -62,7 +63,13 @@ var AlnViewer = class RV3AlnViewer extends Component {
         });
         $('#alnSequenceViewer').mouseleave(function () {
             window.ajaxRun = false;
-          });
+        });
+        new ScrollBooster({
+            viewport: document.querySelector("#alnViewerLabels").firstElementChild,
+            scrollMode: 'native',
+            direction: 'horizontal',
+            bounce: false,
+        });
     };
     componentWillUnmount() {
         window.removeEventListener("resize", this.handleResize);

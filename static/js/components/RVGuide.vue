@@ -32,6 +32,7 @@
 <script>
     import {initialState} from './DropDownTreeVars.js'
     import {readLoadRV3State} from './loadRV3State.js'
+    import {cloneDeep} from 'lodash'
     export default {
         name: 'my-tour',
         data () {
@@ -68,7 +69,7 @@
             saveRV3State(){
                 let anchor = document.createElement('a');
                 vm.uploadSession=true;
-                var saveData = vm.$data;
+                var saveData = _.cloneDeep(vm.$data);
                 saveData.topology_loaded = false;
                 saveData["window.selectSections_RV1"]=window.selectSections_RV1;
                 anchor.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(saveData, replacer));
