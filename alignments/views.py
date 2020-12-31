@@ -1,4 +1,4 @@
-import re, os, warnings
+import re, os
 import datetime
 from subprocess import Popen, PIPE
 from Bio import AlignIO
@@ -6,7 +6,7 @@ from io import StringIO
 from Bio.SeqUtils import IUPACData
 
 from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse, HttpResponseServerError
+from django.http import HttpResponse, Http404, JsonResponse, HttpResponseServerError
 from django.urls import reverse
 
 from alignments.models import *
@@ -32,7 +32,7 @@ def calculate_twincons(alignment):
     '''Calculates twincons score given an alignment object.
     Returns data in a list format for the topology viewer'''
     from TwinCons.bin import TwinCons
-    list_for_phymeas = ['-as', alignment, '-r', '-mx', 'blosum62']
+    list_for_phymeas = ['-as',alignment.format("fasta"), '-r', '-mx', 'blosum62']
     alnindex_score, sliced_alns, number_of_aligned_positions, gp_mapping = TwinCons.main(list_for_phymeas)
     list_for_topology_viewer = []
     for alnindex in alnindex_score:
@@ -413,14 +413,15 @@ def validate_fasta_string(fastaString):
 def handle_custom_upload_alignment(request):
     if request.method == 'POST' and 'custom_aln_file' in request.FILES:
         aln_file = request.FILES['custom_aln_file']
-        fastastring = ''
+        alignment_string = ''
         for aln_part in aln_file.chunks():
-            fastastring += aln_part.decode()
-        alignments = list(AlignIO.parse(StringIO(fastastring), 'fasta'))
+            alignment_string += aln_part.decode()
+        alignments = list(AlignIO.parse(StringIO(alignment_string), 'fasta'))
         if len(alignments) == 0:
             return HttpResponseServerError("Wasn't able to parse the alignment file! Is your file in fasta format?")
         if len(alignments) > 1:
             return HttpResponseServerError("Alignment file had more than one alignments!\nPlease upload a single alignment.")
+        fastastring = alignments[0].format("fasta")
         if validate_fasta_string(fastastring):
             request.session['custom_alignment_file'] = fastastring
             return HttpResponse('Success!')
@@ -472,7 +473,7 @@ def propensity_data(request, aln_id, tax_group):
     if request.method == 'POST' and 'indices' in request.POST:
         indices = request.POST['indices']
         trimmed_fasta = trim_fasta_by_index(fasta, indices)
-        fasta = StringIO(format(trimmed_fasta, 'fasta'))
+        fasta = StringIO(trimmed_fasta.format('fasta'))
 
     aa = propensities.aa_composition(fasta, reduced = False)
     fasta.seek(0) # reload the fasta object
