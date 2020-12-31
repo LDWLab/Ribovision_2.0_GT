@@ -65,15 +65,17 @@
                 Object.assign(vm.$data, initialState());
                 window.tempCSVdata = null;
                 clearInputFile(document.getElementById('inputRV3State'));
-                vm.flushDjangoSession();
+                ajax(`/flush-session`).then(response => {
+                    if (response == 'Success!'){
+                        console.log("Session flushed succesfully!") 
+                    }
+                })
             },
             saveRV3State(){
                 let anchor = document.createElement('a');
                 vm.uploadSession=true;
                 var saveData = _.cloneDeep(vm.$data);
                 saveData.topology_loaded = false;
-                saveData.postedPDBEntities = false;
-                saveData.uploadSession = true;
                 saveData["window.selectSections_RV1"]=window.selectSections_RV1;
                 anchor.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(saveData, replacer));
                 anchor.target = '_blank';
