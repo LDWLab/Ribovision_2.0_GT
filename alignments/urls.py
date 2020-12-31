@@ -18,7 +18,6 @@ urlpatterns = [
 	#path('rRNA/<str:align_name>/<int:tax_group>', views.rRNA, name='rRNA'),
 	#path('rProtein/<str:align_name>/<int:tax_group>', views.rProtein, name='rProtein'),
 	path('showTaxonomy', views.buildTaxonomy, name='showTaxonomy'),
-	path('flush-session', views.flushSession, name='flushSession'),
 	path('showStrucTaxonomy', views.buildFoldTaxonomy, name='showStrucTaxonomy'),
 	path('showTaxonomy-api/<int:current_tax>', views.api_showTaxonomy, name='api_showTaxonomy'),
 	#path('entropy/<str:align_name>/<int:tax_group>/<str:anchor_structure>', views.entropy, name='entropy'),

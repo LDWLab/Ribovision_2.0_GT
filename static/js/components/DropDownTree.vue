@@ -209,7 +209,7 @@
                 this.showTopologyViewer(this.pdbid, this.chainid, this.fasta_data);
             } else {
                 const topview_item = document.getElementById("topview");
-                if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Loading Structure Data ", true)}
+                if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Loading Structure Data", true)}
             }
         },topology_loaded: function(topology_loaded){
             if (window.tempCSVdata!= null && this.topology_loaded){
@@ -310,7 +310,6 @@
                 loadParaOptions(action, callback, this);
             }
         }, loadData (value, type_tree) {
-            //testingCIFParsing('4V9D', [25,27]);
             if (this.uploadSession){return;}
             if (type_tree == "upload"){this.tax_id = null; return;}
             if (value.length == 0){this.tax_id = null; return;}
@@ -440,7 +439,7 @@
             })[0];
             let ebi_sequence = temp["sequence"];
             let startIndex = temp["startIndex"];
-            let struc_id = `${pdbid.toUpperCase()}-${temp["entityID"]}`
+            let struc_id = `${pdbid}_${temp["entityID"]}`
             ajax('/mapSeqAln/', {fasta, struc_id}).then(struct_mapping=>{
                 this.structure_mapping = struct_mapping;
                 if (struct_mapping['BadMappingPositions']){this.poor_structure_map = struct_mapping['BadMappingPositions'];}
@@ -594,7 +593,7 @@
             });
         },postStructureData(pdbid, chainid) {
             const topview_item = document.getElementById("topview");
-            if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Loading Structure Data ", true)}
+            if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Loading Structure Data", true)}
             let tempEntities = this.chains.filter(obj => {
                 return obj["value"] == chainid;
             });
@@ -639,15 +638,6 @@
     }, 
     mounted() {
         addFooterImages("footerDiv");
-    },
-    created() {
-        $(window).bind('beforeunload', function(){
-            ajax(`/flush-session`).then(response => {
-                if (response == 'Success!'){
-                    console.log("Session flushed succesfully!") 
-                }
-            })
-        });
-    },
+    }
 }
 </script>

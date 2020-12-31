@@ -65,11 +65,6 @@
                 Object.assign(vm.$data, initialState());
                 window.tempCSVdata = null;
                 clearInputFile(document.getElementById('inputRV3State'));
-                ajax(`/flush-session`).then(response => {
-                    if (response == 'Success!'){
-                        console.log("Session flushed succesfully!") 
-                    }
-                })
             },
             saveRV3State(){
                 let anchor = document.createElement('a');
@@ -130,7 +125,7 @@
             One ensures you do not see this message every time you visit the website;<br>
             the other ensures our server can validate a secure connection to your browser.<br>
             We do not store any other data from you. Uploaded CSV files are kept in your browser memory and are not stored between sessions. 
-            Uploaded alignments are sent to our server for processing, however they are deleted on exit from our website.<br>
+            Uploaded alignments are sent to our server for processing, however they are deleted immediately on completion of the job.<br>
             Continuing to use our website indicates you consent to this data processing.`
     }
 
