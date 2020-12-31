@@ -65,11 +65,6 @@
                 Object.assign(vm.$data, initialState());
                 window.tempCSVdata = null;
                 clearInputFile(document.getElementById('inputRV3State'));
-                ajax(`/flush-session`).then(response => {
-                    if (response == 'Success!'){
-                        console.log("Session flushed succesfully!") 
-                    }
-                })
             },
             saveRV3State(){
                 let anchor = document.createElement('a');
