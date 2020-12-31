@@ -5,7 +5,7 @@ from Bio.SeqUtils import seq1
 from Bio.SeqRecord import SeqRecord
 import re
 
-from alignments.handleStructureRequests import parse_string_structure
+from alignments.handleStructureRequests import parse_serialized_structure
 
 def request_post_data(post_data):
     fasta = post_data["fasta"]
@@ -15,7 +15,7 @@ def request_post_data(post_data):
 def make_map_from_alnix_to_sequenceix_new(request):
     fasta, struc_id = request_post_data(request.POST)
     serializeData = request.session[struc_id]
-    strucObj = parse_string_structure(serializeData, struc_id)
+    strucObj = parse_serialized_structure(serializeData, struc_id)
     seq_ix_mapping, struc_seq = constructStrucSeqMap(strucObj)
     mapping = create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping, struc_id)
     if type(mapping) != dict:
