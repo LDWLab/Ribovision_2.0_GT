@@ -1,7 +1,7 @@
 import re, os, warnings
 import datetime
 from subprocess import Popen, PIPE
-from Bio import AlignIO, BiopythonDeprecationWarning
+from Bio import AlignIO
 from io import StringIO
 from Bio.SeqUtils import IUPACData
 
@@ -31,9 +31,7 @@ def trim_alignment(concat_fasta, filter_strain):
 def calculate_twincons(alignment):
     '''Calculates twincons score given an alignment object.
     Returns data in a list format for the topology viewer'''
-    with warnings.catch_warnings():
-        warnings.simplefilter('ignore', BiopythonDeprecationWarning)
-        from TwinCons.bin import TwinCons
+    from TwinCons.bin import TwinCons
     list_for_phymeas = ['-as', alignment, '-r', '-mx', 'blosum62']
     alnindex_score, sliced_alns, number_of_aligned_positions, gp_mapping = TwinCons.main(list_for_phymeas)
     list_for_topology_viewer = []
