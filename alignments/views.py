@@ -7,7 +7,7 @@ from io import StringIO
 from Bio.SeqUtils import IUPACData
 
 from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse, HttpResponseServerError
+from django.http import HttpResponse, Http404, JsonResponse, HttpResponseServerError
 from django.urls import reverse
 from django.contrib.sites.shortcuts import get_current_site
 
