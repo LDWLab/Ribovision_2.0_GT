@@ -62,8 +62,7 @@
             </p>
             <p><select multiple class="form-control btn-outline-dark" id="polymerSelect" v-bind:style="{ resize: 'both'}"  v-if="chains&&fasta_data&&pdbid||uploadSession" v-model="chainid" >
                 <option :value ="null" selected disabled>Select a polymer</option>
-                <!--<option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid, chain.entityID); ">{{ chain.text }}</option>-->
-                <option v-for="chain in chains" v-bind:value="chain.value" @click="postStructureData(pdbid, chainid); showPDBViewer(pdbid, chainid, chain.entityID); ">{{ chain.text }}</option>
+                <option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid, chain.entityID); ">{{ chain.text }}</option>
             </select></p>
             <div v-if="structure_mapping">
                 <button id="downloadDataBtn" class="btn btn-outline-dark" type="button" v-on:click="downloadCSVData()">
@@ -170,7 +169,6 @@
   import React, { Component } from "react";
   import Treeselect from '@riophae/vue-treeselect'
   import Autocomplete from './Autocomplete.vue'
-  import { intersection } from 'lodash';
   export default {
       // register the component
       components: { Treeselect, Autocomplete },
@@ -203,13 +201,6 @@
         },colorScheme: function (scheme){
             if (window.AlnViewer){
                 window.AlnViewer.setState({colorScheme:scheme});
-            }
-        },postedPDBEntities: function (successPost){
-            if (successPost){
-                this.showTopologyViewer(this.pdbid, this.chainid, this.fasta_data);
-            } else {
-                const topview_item = document.getElementById("topview");
-                if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Loading Structure Data", true)}
             }
         },topology_loaded: function(topology_loaded){
             if (window.tempCSVdata!= null && this.topology_loaded){
@@ -359,7 +350,7 @@
                             if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
                             if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
                             if (typeof(chain_listI.source[0]) === "undefined") {continue;}
-                            let intersectedChains = intersection(chainsFromBlast, chain_listI["in_chains"]);
+                            let intersectedChains = _.intersection(chainsFromBlast, chain_listI["in_chains"]);
                             intersectedChains.forEach(function(chainVal){
                                 chain_options.push({
                                     text: `${chainVal} ${chain_listI["molecule_name"][0]}`,
@@ -427,10 +418,12 @@
         }, showTopologyViewer (pdbid, chainid, fasta){
             this.topology_loaded = false;
             window.filterRange = "-10000,10000";
+            if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(this);}
             if (chainid.length > 1){this.chainid = chainid[0];}
             const topview_item = document.getElementById("topview");
             const molstar_item = document.getElementById("pdbeMolstarView");
             if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "")}
+            if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Loading Molstar Component ", true)}
             var minIndex = String(0)
             var maxIndex = String(100000)
             var pdblower = pdbid.toLocaleLowerCase();
@@ -440,8 +433,7 @@
             })[0];
             let ebi_sequence = temp["sequence"];
             let startIndex = temp["startIndex"];
-            let struc_id = `${pdbid}_${temp["entityID"]}`
-            ajax('/mapSeqAln/', {fasta, struc_id}).then(struct_mapping=>{
+            ajax('/mapSeqAln/', {fasta, ebi_sequence, startIndex}).then(struct_mapping=>{
                 this.structure_mapping = struct_mapping;
                 if (struct_mapping['BadMappingPositions']){this.poor_structure_map = struct_mapping['BadMappingPositions'];}
                 var mapped_aa_properties = mapAAProps(this.aa_properties, struct_mapping);
@@ -522,8 +514,7 @@
                 topview.innerHTML = "Failed to load the viewer!<br>Try another structure."
             });
         }, showPDBViewer(pdbid, chainid, entityid){
-            const molstar_item = document.getElementById("pdbeMolstarView");
-            if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Loading Molstar Component ", true)}
+            if (document.querySelector("pdbe-molstar")) {return;}
             var minIndex = String(0)
             var maxIndex = String(100000)
             var pdblower = pdbid.toLocaleLowerCase();
@@ -585,17 +576,6 @@
                     viewerInstance.plugin.behaviors.interaction.hover._value.current.loci.kind = "empty-loci"
                 }
             });
-        },postStructureData(pdbid, chainid) {
-            const topview_item = document.getElementById("topview");
-            if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Loading Structure Data", true)}
-            let tempEntities = this.chains.filter(obj => {
-                return obj["value"] == chainid;
-            });
-            let entityIDS = [];
-            tempEntities.forEach(function(ent){
-                entityIDS.push(ent["entityID"])
-            })
-            testingCIFParsing(pdbid, entityIDS);
         },downloadAlignmentImage() {
             downloadAlignmentImage(document.querySelector('#alnDiv'));
         },downloadAlignmentData() {
@@ -632,6 +612,7 @@
     }, 
     mounted() {
         addFooterImages("footerDiv");
+        testingCIFParsing();
     }
 }
 </script>
