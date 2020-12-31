@@ -144,7 +144,6 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 resetIconEle.addEventListener("click", this.resetDisplay.bind(this));
                 this.targetEle.querySelector(".saveSVG").addEventListener("click", this.saveSVG.bind(this));
                 rv3VUEcomponent.topology_loaded = true;
-                this.targetEle.querySelector('.menuOptions').style.display = '';
             }
             else {
                 this.targetEle.querySelector('.menuOptions').style.display = 'none';
@@ -1335,14 +1334,12 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                     }];
                 var name = index;
                 var separatedData = value;
-                if (!selectSections_RV1.get(name)) {
-                    selectSections_RV1.set(name, []);
-                    var min = Math.min.apply(Math, aaPropertyConstants.get(name));
-                    var max = Math.max.apply(Math, aaPropertyConstants.get(name));
-                    var colormapArray = aaColorData.get(name);
-                    var _a = _this.parseTWCData(separatedData, min, max, colormapArray), TWCrgbMap = _a[0], TWCData = _a[1];
-                    selectSections_RV1.get(name).push({ entity_id: _this.entityId, focus: true });
-                }
+                selectSections_RV1.set(name, []);
+                var min = Math.min.apply(Math, aaPropertyConstants.get(name));
+                var max = Math.max.apply(Math, aaPropertyConstants.get(name));
+                var colormapArray = aaColorData.get(name);
+                var _a = _this.parseTWCData(separatedData, min, max, colormapArray), TWCrgbMap = _a[0], TWCData = _a[1];
+                selectSections_RV1.get(name).push({ entity_id: _this.entityId, focus: true });
                 if (void 0 !== TWCData) {
                     residueDetails = _this.create2D3DAnnotations(name, residueDetails, TWCrgbMap, TWCData, chainRange.start, chainRange.end);
                     if (0 < residueDetails.length) {

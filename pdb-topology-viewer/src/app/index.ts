@@ -1335,14 +1335,15 @@ class PdbTopologyViewerPlugin {
                 let name = index;
                 let separatedData = value;
 
-                if (!selectSections_RV1.get(name)){
-                    selectSections_RV1.set(name, [])
-                    let min = Math.min(...aaPropertyConstants.get(name));
-                    let max = Math.max(...aaPropertyConstants.get(name));
-                    let colormapArray = aaColorData.get(name); 
-                    var [TWCrgbMap, TWCData] = _this.parseTWCData(separatedData, min, max, colormapArray);
-                    selectSections_RV1.get(name).push({entity_id: _this.entityId, focus: true});
-                }
+                selectSections_RV1.set(name, [])
+
+                let min = Math.min(...aaPropertyConstants.get(name));
+                let max = Math.max(...aaPropertyConstants.get(name));
+                let colormapArray = aaColorData.get(name); 
+                const [TWCrgbMap, TWCData] = _this.parseTWCData(separatedData, min, max, colormapArray);
+
+                selectSections_RV1.get(name).push({entity_id: _this.entityId, focus: true});
+                
                 if (void 0 !== TWCData){
                     residueDetails = _this.create2D3DAnnotations(name, residueDetails, 
                                                                 TWCrgbMap, TWCData, 
@@ -1508,7 +1509,6 @@ class PdbTopologyViewerPlugin {
             resetIconEle.addEventListener("click", this.resetDisplay.bind(this));
             this.targetEle.querySelector(".saveSVG").addEventListener("click", this.saveSVG.bind(this))
             rv3VUEcomponent.topology_loaded=true;
-            this.targetEle.querySelector('.menuOptions').style.display = '';
         }else{
             this.targetEle.querySelector('.menuOptions').style.display = 'none';
         }
