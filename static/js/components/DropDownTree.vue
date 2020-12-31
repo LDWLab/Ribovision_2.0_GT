@@ -198,7 +198,6 @@
   import {AlnViewer} from './AlignmentViewer.js'
   import {updateProperty} from './handleCSVdata.js'
   import {populatePDBsFromCustomAln} from './populatePDBsFromCustomAln.js'
-  import {testingCIFParsing} from './testingPDB.js'
   import ReactDOM, { render } from 'react-dom';
   import React, { Component } from "react";
   import Treeselect from '@riophae/vue-treeselect'
@@ -729,7 +728,6 @@
     }, 
     mounted() {
         addFooterImages("footerDiv");
-        testingCIFParsing();
     }
 }
 </script>
