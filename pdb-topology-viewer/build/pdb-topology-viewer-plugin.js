@@ -1315,23 +1315,17 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                     }];
                 var name = index;
                 var separatedData = value;
-<<<<<<< 0022b22e19511f5e770a3ce807af460b03fc283b
+
                 selectSections_RV1.set(name, []);
                 var min = Math.min.apply(Math, aaPropertyConstants.get(name));
                 var max = Math.max.apply(Math, aaPropertyConstants.get(name));
                 var colormapArray = aaColorData.get(name);
                 var _a = parsePVData(separatedData, min, max, colormapArray), TWCrgbMap = _a[0], TWCData = _a[1];
                 selectSections_RV1.get(name).push({ entity_id: _this.entityId, focus: true });
-=======
-                if (!selectSections_RV1.get(name)) {
-                    selectSections_RV1.set(name, []);
-                    var min = Math.min.apply(Math, aaPropertyConstants.get(name));
-                    var max = Math.max.apply(Math, aaPropertyConstants.get(name));
-                    var colormapArray = aaColorData.get(name);
-                    var _a = _this.parseTWCData(separatedData, min, max, colormapArray), TWCrgbMap = _a[0], TWCData = _a[1];
-                    selectSections_RV1.get(name).push({ entity_id: _this.entityId, focus: true });
-                }
->>>>>>> Revert "Fix broken masking from previous commit"
+
+                var _a = _this.parseTWCData(separatedData, min, max, colormapArray), TWCrgbMap = _a[0], TWCData = _a[1];
+                selectSections_RV1.get(name).push({ entity_id: _this.entityId, focus: true });
+
                 if (void 0 !== TWCData) {
                     residueDetails = _this.create2D3DAnnotations(name, residueDetails, TWCrgbMap, TWCData, chainRange.start, chainRange.end);
                     if (0 < residueDetails.length) {
