@@ -239,13 +239,6 @@
             if (window.PVAlnViewer){
                 window.PVAlnViewer.setState({colorScheme:scheme});
             }
-        },postedPDBEntities: function (successPost){
-            if (successPost){
-                this.showTopologyViewer(this.pdbid, this.chainid, this.fasta_data);
-            } else {
-                const topview_item = document.getElementById("topview");
-                if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Loading Structure Data", true)}
-            }
         },topology_loaded: function(topology_loaded){
             if (window.tempCSVdata!= null && this.topology_loaded){
                 vm.csv_data = window.tempCSVdata;
@@ -509,10 +502,12 @@
         }, showTopologyViewer (pdbid, chainid, fasta){
             this.topology_loaded = false;
             window.filterRange = "-10000,10000";
+            if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(this);}
             if (chainid.length > 1){this.chainid = chainid[0];}
             const topview_item = document.getElementById("topview");
             const molstar_item = document.getElementById("pdbeMolstarView");
             if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "")}
+            if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Loading Molstar Component ", true)}
             var minIndex = String(0)
             var maxIndex = String(100000)
             var pdblower = pdbid.toLocaleLowerCase();
@@ -522,8 +517,7 @@
             })[0];
             let ebi_sequence = temp["sequence"];
             let startIndex = temp["startIndex"];
-            let struc_id = `${pdbid}_${temp["entityID"]}`
-            ajax('/mapSeqAln/', {fasta, struc_id}).then(struct_mapping=>{
+            ajax('/mapSeqAln/', {fasta, ebi_sequence, startIndex}).then(struct_mapping=>{
                 this.structure_mapping = struct_mapping;
                 if (struct_mapping['BadMappingPositions']){this.poor_structure_map = struct_mapping['BadMappingPositions'];}
                 var mapped_aa_properties = mapAAProps(this.aa_properties, struct_mapping);
@@ -611,8 +605,7 @@
                 topview.innerHTML = "Failed to load the viewer!<br>Try another structure."
             });
         }, showPDBViewer(pdbid, chainid, entityid){
-            const molstar_item = document.getElementById("pdbeMolstarView");
-            if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Loading Molstar Component ", true)}
+            if (document.querySelector("pdbe-molstar")) {return;}
             var minIndex = String(0)
             var maxIndex = String(100000)
             var pdblower = pdbid.toLocaleLowerCase();
@@ -736,6 +729,7 @@
     }, 
     mounted() {
         addFooterImages("footerDiv");
+        testingCIFParsing();
     }
 }
 </script>
