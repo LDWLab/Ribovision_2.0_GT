@@ -14,8 +14,6 @@ def handleCustomUploadStructure (request, strucID):
         except:
             return HttpResponseServerError("POST was sent without entities to parse!")
         for entityId in entityIDS:
-            if request.session.get(f'{strucID}_{entityId}'):
-                continue
             ebiURL = f'https://www.ebi.ac.uk/pdbe/coordinates/{strucID.lower()}/chains?entityId={entityId}'
             try:
                 data = urlopen(ebiURL)
@@ -42,7 +40,7 @@ def handleCustomUploadStructure (request, strucID):
             return HttpResponse(stringStruc, content_type="text/plain")
         elif len(structureDict) > 1:
             #combine into single structure and return
-            return HttpResponseServerError("Can't handle multiple yet!")
+            pass
         else:
             return HttpResponseServerError("Failed to parse structures!")
 
