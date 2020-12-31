@@ -18,7 +18,7 @@ def handleCustomUploadStructure (request, strucID):
         for entityId in entityIDS:
             if request.session.get(f'{strucID}-{entityId}'):
                 continue
-            ebiURL = f'https://www.ebi.ac.uk/pdbe/coordinates/{strucID.lower()}/chains?entityId={entityId}&atomSitesOnly=1'
+            ebiURL = f'https://www.ebi.ac.uk/pdbe/coordinates/{strucID.lower()}/chains?entityId={entityId}'
             try:
                 data = urlopen(ebiURL)
             except:
@@ -37,34 +37,23 @@ def handleCustomUploadStructure (request, strucID):
             stringStruc = request.session[strucID]
             return HttpResponse(stringStruc, content_type="text/plain")
         structureList = list()
-        #try:
-        chainToEntity = dict()
-        for singleID in strucID.split(','):
-            pdbAndEntity = singleID.split('-')
-            stringData = request.session[singleID]
-            strucObj = parse_string_structure(stringData, pdbAndEntity[0])
-            chainToEntity[list(strucObj[0].get_chains())[0].id] = pdbAndEntity[1]
-            structureList.append(strucObj)
-        if len(structureList) > 1:
-            for singleStruc in structureList:
-                chains = list(singleStruc.get_chains())
-                for removeChain in chains[1:]:
-                    singleStruc[0].detach_child(removeChain.id)
-            for strucToMerge in structureList[1:]:
-                chain = list(strucToMerge.get_chains())
-                structureList[0][0].add(chain[0])
-        stringStruc = strucToString(structureList[0])
-        listStruc = stringStruc.split('\n')
-        tempStruc = listStruc[:21]
-        for row in listStruc[21:]:
-            rowList = row.split()
-            if len(rowList) > 10:
-                rowList[7] = chainToEntity[rowList[16]]
-            tempStruc.append(' '.join(rowList))
-        request.session[strucID] = '\n'.join(tempStruc)
-        stringStruc = '\n'.join(tempStruc)
-        #except:
-        #    return HttpResponseServerError("Failed to parse structures!")
+        try:
+            for singleID in strucID.split(','): 
+                stringData = request.session[singleID]
+                strucObj = parse_string_structure(stringData, singleID.split('-')[0])
+                structureList.append(strucObj)
+            if len(structureList) > 1:
+                for singleStruc in structureList:
+                    chains = list(singleStruc.get_chains())
+                    for removeChain in chains[1:]:
+                        singleStruc[0].detach_child(removeChain.id)
+                for strucToMerge in structureList[1:]:
+                    chain = list(strucToMerge.get_chains())
+                    structureList[0][0].add(chain[0])
+            stringStruc = strucToString(structureList[0])
+            request.session[strucID] = stringStruc
+        except:
+            return HttpResponseServerError("Failed to parse structures!")
         return HttpResponse(stringStruc, content_type="text/plain")
 
 def parse_string_structure(stringData, strucID):
