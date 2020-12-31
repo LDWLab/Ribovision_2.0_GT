@@ -117,7 +117,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
     render() {
         const xPos = this.state.tileWidth * (this.state.aaPos);
         const yPos = this.state.tileHeight * (this.state.seqPos);
-        var maxXpos = vm.fasta_data.split('\n')[1].length - Math.round((((window.innerWidth - 300) * 0.7)/this.state.tileWidth))+2;
+        var maxXpos = window.aaFreqs.length - Math.round((((window.innerWidth - 300) * 0.7)/this.state.tileWidth))+2;
         var maxYpos = vm.fastaSeqNames.length - Math.round(((((window.innerHeight - 171)/2) * 0.8)/this.state.tileHeight))+2;
         var alnViewerAdjHeight = ((window.innerHeight - 171)/2) * 0.8;
         var alnViewerAdjWidth = (window.innerWidth - 300) * 0.7;
