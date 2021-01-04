@@ -115,9 +115,11 @@
                     <button id="downloadFastaBtn" class="btn btn-outline-dark" style="margin: 0 1%;" v-if="colorScheme" type="button" v-on:click="downloadAlignmentData()">
                         Download alignment
                     </button>
-                    <button id="downloadAlnImageBtn" class="btn btn-outline-dark" style="margin: 0 1%;" v-if="colorScheme"  type="button" v-on:click="downloadAlignmentImage()">
-                        Download alignment image
-                    </button>
+                    <select id="downloadAlnImageBtn" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="downloadAlignmentOpt" v-if="colorScheme">
+                        <option :value="null" selected disabled>Download alignment image</option>
+                        <option value='full'>Full alignment</option>
+                        <option value='visible'>Visible alignment</option>
+                    </select>
                     <select id="selectAlnColorScheme" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="colorScheme" v-if="colorScheme">
                         <option :value="null" selected disabled>Select a colorscheme</option>
                         <option v-for="colorscheme in availColorschemes" >{{ colorscheme }}</option>
@@ -198,8 +200,8 @@
                 this.getPDBchains(pdbid, vm.alnobj.id);
             }
         },colorScheme: function (scheme){
-            if (window.AlnViewer){
-                window.AlnViewer.setState({colorScheme:scheme});
+            if (window.PVAlnViewer){
+                window.PVAlnViewer.setState({colorScheme:scheme});
             }
         },topology_loaded: function(topology_loaded){
             if (window.tempCSVdata!= null && this.topology_loaded){
@@ -207,7 +209,15 @@
                 window.tempCSVdata = null;
                 customCSVhandler(vm.csv_data);
             }
-        },
+        },downloadAlignmentOpt: function(opt){
+            if (this.uploadSession){return;}
+            else if (opt == 'visible'){
+                downloadAlignmentImage();
+            } else if (opt == 'full'){
+                downloadFullAlignmentImage();
+            }
+            this.downloadAlignmentOpt = null;
+        }
     },methods: {
         handleFileUpload(){
             this.file = this.$refs.custom_aln_file.files[0];
@@ -408,7 +418,7 @@
                 };
                 window.msaOptions = msaOptions;
                 ReactDOM.render(
-                    <AlnViewer ref={(AlnViewer) => {window.AlnViewer = AlnViewer}}/>,
+                    <AlnViewer ref={(PVAlnViewer) => {window.PVAlnViewer = PVAlnViewer}}/>,
                     document.getElementById('alnDiv')
                   );
                 this.fasta_data = fasta['Alignment'];
@@ -575,8 +585,6 @@
                     viewerInstance.plugin.behaviors.interaction.hover._value.current.loci.kind = "empty-loci"
                 }
             });
-        },downloadAlignmentImage() {
-            downloadAlignmentImage(document.querySelector('#alnDiv'));
         },downloadAlignmentData() {
             downloadAlignmentData(vm.fasta_data);
         },downloadCSVData() {

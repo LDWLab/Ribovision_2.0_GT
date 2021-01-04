@@ -216,7 +216,8 @@
             header: {
                 title: 'Download alignment image',
             },
-            content: `Download the visible part of the alignment as a png image.`,
+            content: `Download the visible part of the alignment or the entire alignment as a png image. 
+            Large alignments might take some time so please be patient.`,
             params: {
               placement: 'right'
             },

@@ -26,12 +26,12 @@ var AlnViewer = class RV3AlnViewer extends Component {
             height: ((window.innerHeight - 171)/2) * 0.8
         });
         var style = document.querySelector('[data="rv3_style"]');
-        style.innerHTML += ".slider::-webkit-slider-thumb { width: "+(window.innerWidth - 300)*0.05+"px}"
+        style.innerHTML = ".slider::-webkit-slider-thumb { width: "+(window.innerWidth - 300)*0.05+"px}"
     };
     componentDidMount() {
         vm.colorScheme = 'clustal2';
         var style = document.querySelector('[data="rv3_style"]');
-        style.innerHTML += ".slider::-webkit-slider-thumb { width: "+(window.innerWidth - 300)*0.05+"px}";
+        style.innerHTML = ".slider::-webkit-slider-thumb { width: "+(window.innerWidth - 300)*0.05+"px}";
         window.ajaxRun = false;
         var handleMolStarTopViewHovers = function (alnViewerClass, residueNumber){
             var alignmentNumber = Number(_.invert(vm.structure_mapping)[residueNumber]);

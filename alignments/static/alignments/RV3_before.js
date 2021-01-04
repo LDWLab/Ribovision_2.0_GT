@@ -129,7 +129,7 @@ function downloadCSVData() {
   let anchor = document.createElement('a');
   anchor.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
   anchor.target = '_blank';
-  anchor.download = 'rv3data.csv';
+  anchor.download = 'PVdata.csv';
   anchor.click();
 };
 
@@ -137,19 +137,77 @@ var downloadAlignmentData = function(fastaString){
     let anchor = document.createElement('a');
     anchor.href = 'data:text;charset=utf-8,' + encodeURIComponent(fastaString);
     anchor.target = '_blank';
-    anchor.download = 'rv3alignment.fas';
+    anchor.download = 'PValignment.fas';
     anchor.click();
 }
 
-var downloadAlignmentImage = function(alnDiv){
+var downloadAlignmentImage = function(){
+    var labelsDiv = document.querySelector("#alnViewerLabels");
+    var alnDiv = labelsDiv.parentElement;
     var anchor = document.createElement('a');
     html2canvas(alnDiv).then(canvas => {
         var imageData = canvas.toDataURL("image/png");
         anchor.href = imageData.replace(/^data:image\/png/, "data:application/octet-stream");
         anchor.target = '_blank';
-        anchor.download = 'rv3alignment.png';
+        anchor.download = 'PValignment.png';
         anchor.click();
     })
+}
+
+var downloadFullAlignmentImage = function (){
+    var handleCanvasErr = function (err, labelsDiv, initialLabelsWidth){
+        labelsDiv.style.width = initialLabelsWidth;
+        PVAlnViewer.handleResize();
+        alert("Couldn't parse the alignment. Check the console for error.")
+        console.log(err)
+    }
+    var alnLength = vm.fasta_data.split('>')[1].split('\n')[1].length;
+    PVAlnViewer.setState({
+        aaPos: 0,
+        seqPos: 0,
+        height: (vm.fastaSeqNames.length+2)*17, 
+        width: (alnLength+5)*17,
+    });
+    var labelsDiv = document.querySelector("#alnViewerLabels");
+    var longestName = '';
+    labelsDiv.firstElementChild.firstElementChild.children.forEach(function (labelNode) {
+        if (labelNode.textContent.length > longestName.length) {
+            longestName = labelNode.textContent;
+          }
+    });
+    var initialLabelsWidth = labelsDiv.style.width;
+    var maxLabelsWidth = getWidthOfText(longestName, 'Arial', '15px');
+    labelsDiv.style.width = maxLabelsWidth;
+    var anchor = document.createElement('a');
+    var alnDiv = labelsDiv.parentElement;
+    //Have to do 2 nested html2canvas so that canvas gets rerendered at the 0,0 position.
+    html2canvas(alnDiv).then(() => {
+        var alnDivDownload = labelsDiv.parentElement;
+        html2canvas(alnDivDownload).then(canvas => {
+            var imageData = canvas.toDataURL("image/png");
+            labelsDiv.style.width = initialLabelsWidth;
+            PVAlnViewer.handleResize();
+            anchor.href = imageData.replace(/^data:image\/png/, "data:application/octet-stream");
+            anchor.target = '_blank';
+            anchor.download = 'PValignment.png';
+            anchor.click();
+        }).catch(err => {
+            handleCanvasErr(err, labelsDiv, initialLabelsWidth);
+        })
+    }).catch(err => {
+        handleCanvasErr(err, labelsDiv, initialLabelsWidth);
+    });
+}
+
+var getWidthOfText = function (txt, fontname, fontsize){
+    if(getWidthOfText.c === undefined){
+        getWidthOfText.c=document.createElement('canvas');
+        getWidthOfText.ctx=getWidthOfText.c.getContext('2d');
+    }
+    var fontspec = fontsize + ' ' + fontname;
+    if(getWidthOfText.ctx.font !== fontspec)
+        getWidthOfText.ctx.font = fontspec;
+    return getWidthOfText.ctx.measureText(txt).width;
 }
 
 function getCookie(name) {

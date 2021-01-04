@@ -501,7 +501,7 @@ var build_propensity_graph = function (data, amino_acids, title, div) {
     myPlot.on('plotly_hover', function(data){
         data.points.map(function(d){
             let seqname = d.text.split(' ').slice(1,).join(' ')
-            AlnViewer.highlightRegion({
+            PVAlnViewer.highlightRegion({
                 sequences: {from: vm.fastaSeqNames.indexOf(seqname), to: vm.fastaSeqNames.indexOf(seqname)},
                 residues: {from: 0, to: vm.fasta_data.split('>')[1].split('\n')[1].length}
             })
