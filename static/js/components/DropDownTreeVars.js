@@ -48,5 +48,6 @@ export function initialState (){
         blastMAPresult: null,
         guideOff: true,
         downloadAlignmentOpt: null,
+        downloadMapDataOpt: null,
     }
 }

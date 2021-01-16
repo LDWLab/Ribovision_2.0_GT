@@ -342,7 +342,10 @@
                 title: 'Download calculated data',
             },
             content: `Downloads data calculated from the 
-            alignment and mapped on the structure residues in csv format.`,
+            alignment and mapped on the structure residues as a PyMOL script or in csv format.`,
+            params: {
+              placement: 'right'
+            },
         },{
             target: '#maskingSection',
             header: {

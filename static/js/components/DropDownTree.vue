@@ -65,9 +65,11 @@
                 <option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid, chain.entityID); ">{{ chain.text }}</option>
             </select></p>
             <div v-if="structure_mapping">
-                <button id="downloadDataBtn" class="btn btn-outline-dark" type="button" v-on:click="downloadCSVData()">
-                    Download mapped data
-                </button>
+                <select id="downloadDataBtn" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="downloadMapDataOpt" v-if="topology_loaded">
+                    <option :value="null" selected disabled>Download mapped data</option>
+                    <option value='csv'>As CSV file</option>
+                    <option value='pymol'>As PyMOL script</option>
+                </select>
             </div>
             <div v-if="topology_loaded">
                 <div id="maskingSection"><p>
@@ -170,6 +172,7 @@
   import React, { Component } from "react";
   import Treeselect from '@riophae/vue-treeselect'
   import Autocomplete from './Autocomplete.vue'
+  import {downloadPyMOLscript} from './handlePyMOLrequest.js'
   export default {
       // register the component
       components: { Treeselect, Autocomplete },
@@ -217,6 +220,15 @@
                 downloadFullAlignmentImage();
             }
             this.downloadAlignmentOpt = null;
+        },downloadMapDataOpt: function(opt){
+            if (this.uploadSession){return;}
+            else if (opt == 'csv'){
+                downloadCSVData();
+                this.downloadMapDataOpt = null;
+            } else if (opt == 'pymol'){
+                downloadPyMOLscript();
+                this.downloadMapDataOpt = null;
+            }
         }
     },methods: {
         handleFileUpload(){
@@ -588,6 +600,7 @@
         },downloadAlignmentData() {
             downloadAlignmentData(vm.fasta_data);
         },downloadCSVData() {
+            downloadPyMOLscript();
             downloadCSVData();
         },getExampleFile(url, name) {
             getExampleFile(url, name);
