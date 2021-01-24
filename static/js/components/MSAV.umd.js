@@ -20920,8 +20920,7 @@
           if (state.position) {
             newPosition.xPos = state.position.xPos;
             newPosition.yPos = state.position.yPos;
-          }
-
+          } // not called on the first render
 
 
           if (_this.el.current && _this.shouldRerender(newPosition)) {
@@ -21010,7 +21009,7 @@
         _this.el = createRef$1();
         _this.state = {
           highlight: null,
-          hasBeenInitialized: !1
+          hasBeenInitialized: false
         };
         return _this;
       }
@@ -22321,6 +22320,18 @@
               result = stats.scale(stats.ic());
               break;
 
+            case "proteovision":
+              var tempArr = [];
+              var maxEntr = aaPropertiesData.get("Shannon entropy")[1];
+              var pvEntropy = vm.aa_properties.get("Shannon entropy");
+              pvEntropy.forEach(function (column) {
+                tempArr.push((maxEntr - column.reduce(function (a, b) {
+                  return a + b;
+                }, 0)) / maxEntr);
+              });
+              result = tempArr;
+              break;
+
             default:
               console.error(method$$1 + "is an invalid aggregation method for <OverviewBar />");
           }
@@ -22365,8 +22376,9 @@
      * Method to use for the OverviewBar:
      *  - `information-content`: Information entropy after Shannon of a column (scaled)
      *  - `conservation`: Conservation of a column (scaled)
+     *  - `proteovision`: Conservation based on LDW @ GATECH calculations
      */
-    method: PropTypes.oneOf(['information-content', 'conservation']),
+    method: PropTypes.oneOf(['information-content', 'conservation', 'proteovision']),
 
     /**
      * Height of the OverviewBar (in pixels), e.g. `100`

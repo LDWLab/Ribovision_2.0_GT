@@ -6,7 +6,8 @@ import ScrollBooster from 'scrollbooster';
 import { MSAViewer, 
         SequenceViewer, 
         Labels, 
-        PositionBar, } from './MSAV.umd.js';
+        PositionBar,
+        OverviewBar } from './MSAV.umd.js';
 import React, { Component } from "react";
 
 var AlnViewer = class RV3AlnViewer extends Component {
@@ -163,6 +164,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
                           markerSteps={5} 
                           startIndex={0} 
                         />
+                        {/* <OverviewBar method='proteovision'/> */}
                         <SequenceViewer
                           id="alnSequenceViewer"
                           onResidueMouseEnter={this.onResidueMouseEnter}

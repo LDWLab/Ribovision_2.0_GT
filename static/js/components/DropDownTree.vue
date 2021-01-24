@@ -429,12 +429,12 @@
                     tileWidth: 17,
                 };
                 window.msaOptions = msaOptions;
+                this.fasta_data = fasta['Alignment'];
+                this.aa_properties = calculateFrequencyData(fasta['AA frequencies']);
                 ReactDOM.render(
                     <AlnViewer ref={(PVAlnViewer) => {window.PVAlnViewer = PVAlnViewer}}/>,
                     document.getElementById('alnDiv')
                   );
-                this.fasta_data = fasta['Alignment'];
-                this.aa_properties = calculateFrequencyData(fasta['AA frequencies']);
             })
         }, showTopologyViewer (pdbid, chainid, fasta){
             this.topology_loaded = false;
