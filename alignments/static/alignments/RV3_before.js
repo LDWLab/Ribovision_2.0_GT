@@ -276,13 +276,15 @@ function ajax(url, optional_data='') {
 };
 
 var pushChainData = function(temp_arr, chain_listI){
-  temp_arr.push({
-      text: chain_listI["molecule_name"][0],
-      value: chain_listI["in_chains"][0],
-      sequence: chain_listI["sequence"],
-      entityID: chain_listI["entity_id"],
-      startIndex: chain_listI.source[0].mappings[0].start.residue_number
-  })
+  try{
+    temp_arr.push({
+        text: chain_listI["molecule_name"][0],
+        value: chain_listI["in_chains"][0],
+        sequence: chain_listI["sequence"],
+        entityID: chain_listI["entity_id"],
+        startIndex: chain_listI.source[0].mappings[0].start.residue_number
+    })
+    }catch(err){console.log(err);}
   return temp_arr;
 };
 
@@ -295,15 +297,21 @@ var filterAvailablePolymers = function(chain_list, aln_id, vueObj) {
           if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
           if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
           for (let ix =0; ix < aln_data["polymers"].length; ix++){
-              if (aln_data["polymers"][ix]["genedescription"].trim() == chain_list[i]["molecule_name"][0]){
-                  temp_arr = pushChainData(temp_arr, chain_listI);
+              let desirePolymerName = aln_data["polymers"][ix]["genedescription"].trim();
+              let pdbePolymerNames = chain_list[i]["molecule_name"];
+              for (let nameIx =0; nameIx < pdbePolymerNames.length; nameIx++){
+                  let pdbeName = pdbePolymerNames[nameIx].replace(/-[A-Z]{1}$/,'');
+                  if (pdbeName == desirePolymerName){
+                    temp_arr = pushChainData(temp_arr, chain_listI);
+                    break;
+                  }
               }
           }
       }
   let chain_options = Array.from(new Set(temp_arr.map(JSON.stringify))).map(JSON.parse);
   if (chain_options.length === 0) {
       var elt = document.querySelector("#onFailedChains");
-      elt.innerHTML  = "Problem with parsing the chains! Try a different PDB ID."
+      elt.innerHTML  = "Couldn't find a matching chain!<br>Try a different PDB ID."
       vueObj.pdbid = null;
       chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
   }else{
