@@ -20,25 +20,46 @@ import shallowSelect from '../../utils/shallowSelect';
 import autobind from '../../utils/autobind';
 import MSAStats from '../../utils/statSeqs';
 
-function createBar({columnHeights, tileWidth, height, fillColor,
+function createBar({columnHeights, columnColors, tileWidth, height, fillColor,
   barStyle, barAttributes}) {
-  class Bar extends PureComponent {
-    render() {
-      const { index, ...otherProps} = this.props;
-      otherProps.style = {
-        height: Math.round(columnHeights[index] * height),
-        width: tileWidth,
-        display: "inline-block",
-        textAlign: "center",
-        backgroundColor: fillColor,
+    class Bar extends PureComponent {
+      render() {
+        const { index, ...otherProps} = this.props;
+        otherProps.style = {
+          height: Math.round(columnHeights[index] * height),
+          width: tileWidth,
+          display: "inline-block",
+          textAlign: "center",
+          backgroundColor: fillColor,
+        }
+        return (
+          <div {...otherProps}>
+          </div>
+        );
       }
-      return (
-        <div {...otherProps}>
-        </div>
-      );
     }
+    class ColoredBar extends PureComponent {
+      render() {
+        const { index, ...otherProps} = this.props;
+        otherProps.style = {
+          height: Math.round(columnHeights[index] * height),
+          width: tileWidth,
+          display: "inline-block",
+          textAlign: "center",
+          backgroundColor: columnColors[index],
+          verticalAlign: "top",
+        }
+        return (
+          <div {...otherProps}>
+          </div>
+        );
+      }
+    }
+  if (columnColors.length == 0){
+    return Bar;
+  }else{
+    return ColoredBar;
   }
-  return Bar;
 }
 
 /**
@@ -54,17 +75,19 @@ class HTMLOverviewBarComponent extends PureComponent {
     super(props);
     this.cache = function(){};
     this.initializeColumnHeights();
+    this.initializeColumnColors();
     autobind(this, 'createBar');
     this.bar = shallowSelect(
       s => pick(s, this.constructor.barAttributes),
       this.columnHeights,
+      this.columnColors,
       this.createBar,
     );
   }
 
-  createBar(props, columnHeights) {
+  createBar(props, columnHeights, columnColors) {
     this.cache = function(){};
-    return createBar({...props, columnHeights});
+    return createBar({...props, columnHeights, columnColors});
   }
 
   /**
@@ -86,7 +109,6 @@ class HTMLOverviewBarComponent extends PureComponent {
           break;
         case "proteovision":
           var tempArr = [];
-          
           let maxEntr = aaPropertiesData.get("Shannon entropy")[1];
           let pvEntropy = vm.aa_properties.get("Shannon entropy");
           pvEntropy.forEach(function(column){
@@ -99,6 +121,14 @@ class HTMLOverviewBarComponent extends PureComponent {
       }
       return result;
     }).bind(this);
+  }
+
+  //Change here like initializeColumnHeights when you pass the colors internally through the 
+  //MSA viewer properties. Has to also be registered in mapStateToProps.
+  initializeColumnColors() {
+    this.columnColors = function(){
+      return window.barColors;
+    }.bind(this);
   }
 
   render() {
@@ -115,6 +145,7 @@ class HTMLOverviewBarComponent extends PureComponent {
         tileComponent={this.bar(this.props)}
         cacheElements={cacheElements}
         componentCache={this.cache}
+        height={this.height}
         {...otherProps}
       />
     );

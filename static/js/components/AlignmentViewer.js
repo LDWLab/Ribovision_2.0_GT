@@ -151,6 +151,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
                   colorScheme={this.state.colorScheme}
                 >
                 <div style={{ position: "relative", display: "flex", height:this.state.height+this.state.tileHeight}}>
+                    <div>
                         <Labels 
                           id="alnViewerLabels"
                           style = {{
@@ -159,17 +160,19 @@ var AlnViewer = class RV3AlnViewer extends Component {
                             marginRight: 3,
                             }}
                         />
+                        
+                    </div>
                     <div>
                         <PositionBar 
                           markerSteps={5} 
                           startIndex={0} 
                         />
-                        {/* <OverviewBar method='proteovision'/> */}
                         <SequenceViewer
                           id="alnSequenceViewer"
                           onResidueMouseEnter={this.onResidueMouseEnter}
                           onResidueMouseLeave={this.onResidueMouseLeave}
                         />
+                        <OverviewBar method='proteovision'/>
                         {this.state.fold && (
                           <div
                             style={{

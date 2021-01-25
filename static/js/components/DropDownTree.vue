@@ -420,6 +420,8 @@
                     msaHeight = 17*(vm.fastaSeqNames.length+2);
                 }
                 let seqsForMSAViewer = parseFastaSeqForMSAViewer(fasta['Alignment']);
+                var barColors = Array(aaFreqs.length).fill('#BA20B7');
+                window.barColors = barColors;
                 var msaOptions = {
                     sequences: seqsForMSAViewer,
                     colorScheme: vm.colorScheme,

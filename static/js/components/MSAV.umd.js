@@ -21982,6 +21982,7 @@
 
   function createBar({
     columnHeights,
+    columnColors,
     tileWidth,
     height,
     fillColor,
@@ -22006,7 +22007,30 @@
 
     }
 
-    return Bar;
+    class ColoredBar extends React.PureComponent {
+      render() {
+        const _this$props2 = this.props,
+              index = _this$props2.index,
+              otherProps = _objectWithoutProperties(_this$props2, ["index"]);
+
+        otherProps.style = {
+          height: Math.round(columnHeights[index] * height),
+          width: tileWidth,
+          display: "inline-block",
+          textAlign: "center",
+          backgroundColor: columnColors[index],
+          verticalAlign: "top"
+        };
+        return /*#__PURE__*/React__default.createElement("div", otherProps);
+      }
+
+    }
+
+    if (columnColors.length == 0) {
+      return Bar;
+    } else {
+      return ColoredBar;
+    }
   }
   /**
    * Creates a small overview box of the sequences for a general overview.
@@ -22020,15 +22044,17 @@
       this.cache = function () {};
 
       this.initializeColumnHeights();
+      this.initializeColumnColors();
       autoBind(this, 'createBar');
-      this.bar = shallowSelect(s => pick(s, this.constructor.barAttributes), this.columnHeights, this.createBar);
+      this.bar = shallowSelect(s => pick(s, this.constructor.barAttributes), this.columnHeights, this.columnColors, this.createBar);
     }
 
-    createBar(props, columnHeights) {
+    createBar(props, columnHeights, columnColors) {
       this.cache = function () {};
 
       return createBar(_objectSpread2(_objectSpread2({}, props), {}, {
-        columnHeights
+        columnHeights,
+        columnColors
       }));
     }
     /**
@@ -22066,23 +22092,32 @@
 
         return result;
       }).bind(this);
+    } //Change here like initializeColumnHeights when you pass the colors internally through the 
+    //MSA viewer properties. Has to also be registered in mapStateToProps.
+
+
+    initializeColumnColors() {
+      this.columnColors = function () {
+        return window.barColors;
+      }.bind(this);
     }
 
     render() {
-      const _this$props2 = this.props,
-            cacheElements = _this$props2.cacheElements,
-            height = _this$props2.height,
-            method$$1 = _this$props2.method,
-            fillColor = _this$props2.fillColor,
-            dispatch = _this$props2.dispatch,
-            barStyle = _this$props2.barStyle,
-            barAttributes = _this$props2.barAttributes,
-            otherProps = _objectWithoutProperties(_this$props2, ["cacheElements", "height", "method", "fillColor", "dispatch", "barStyle", "barAttributes"]);
+      const _this$props3 = this.props,
+            cacheElements = _this$props3.cacheElements,
+            height = _this$props3.height,
+            method$$1 = _this$props3.method,
+            fillColor = _this$props3.fillColor,
+            dispatch = _this$props3.dispatch,
+            barStyle = _this$props3.barStyle,
+            barAttributes = _this$props3.barAttributes,
+            otherProps = _objectWithoutProperties(_this$props3, ["cacheElements", "height", "method", "fillColor", "dispatch", "barStyle", "barAttributes"]);
 
       return /*#__PURE__*/React__default.createElement(XBar, _extends({
         tileComponent: this.bar(this.props),
         cacheElements: cacheElements,
-        componentCache: this.cache
+        componentCache: this.cache,
+        height: this.height
       }, otherProps));
     }
 
