@@ -25,28 +25,18 @@ function createBar({columnHeights, columnColors, tileWidth, height, fillColor,
     class Bar extends PureComponent {
       render() {
         const { index, ...otherProps} = this.props;
-        otherProps.style = {
-          height: Math.round(columnHeights[index] * height),
-          width: tileWidth,
-          display: "inline-block",
-          textAlign: "center",
-          backgroundColor: fillColor,
+        
+        if (columnColors.length == 0){
+          var bgColor = fillColor
+        }else{
+          var bgColor = columnColors[index]
         }
-        return (
-          <div {...otherProps}>
-          </div>
-        );
-      }
-    }
-    class ColoredBar extends PureComponent {
-      render() {
-        const { index, ...otherProps} = this.props;
         otherProps.style = {
           height: Math.round(columnHeights[index] * height),
           width: tileWidth,
           display: "inline-block",
           textAlign: "center",
-          backgroundColor: columnColors[index],
+          backgroundColor: bgColor,
           verticalAlign: "top",
         }
         return (
@@ -55,11 +45,7 @@ function createBar({columnHeights, columnColors, tileWidth, height, fillColor,
         );
       }
     }
-  if (columnColors.length == 0){
-    return Bar;
-  }else{
-    return ColoredBar;
-  }
+  return Bar;
 }
 
 /**
@@ -145,7 +131,7 @@ class HTMLOverviewBarComponent extends PureComponent {
         tileComponent={this.bar(this.props)}
         cacheElements={cacheElements}
         componentCache={this.cache}
-        height={this.height}
+        height={this.props.height}
         {...otherProps}
       />
     );
