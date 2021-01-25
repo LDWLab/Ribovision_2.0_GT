@@ -86,6 +86,7 @@ class HTMLOverviewBarComponent extends PureComponent {
           break;
         case "proteovision":
           var tempArr = [];
+          
           let maxEntr = aaPropertiesData.get("Shannon entropy")[1];
           let pvEntropy = vm.aa_properties.get("Shannon entropy");
           pvEntropy.forEach(function(column){

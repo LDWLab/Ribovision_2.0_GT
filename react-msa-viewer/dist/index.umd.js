@@ -7,28 +7,6 @@
   PropTypes = PropTypes && PropTypes.hasOwnProperty('default') ? PropTypes['default'] : PropTypes;
   var React__default = 'default' in React ? React['default'] : React;
 
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  function _defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];
-      descriptor.enumerable = descriptor.enumerable || false;
-      descriptor.configurable = true;
-      if ("value" in descriptor) descriptor.writable = true;
-      Object.defineProperty(target, descriptor.key, descriptor);
-    }
-  }
-
-  function _createClass(Constructor, protoProps, staticProps) {
-    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-    if (staticProps) _defineProperties(Constructor, staticProps);
-    return Constructor;
-  }
-
   function _defineProperty(obj, key, value) {
     if (key in obj) {
       Object.defineProperty(obj, key, {
@@ -96,50 +74,6 @@
     return target;
   }
 
-  function _inherits(subClass, superClass) {
-    if (typeof superClass !== "function" && superClass !== null) {
-      throw new TypeError("Super expression must either be null or a function");
-    }
-
-    subClass.prototype = Object.create(superClass && superClass.prototype, {
-      constructor: {
-        value: subClass,
-        writable: true,
-        configurable: true
-      }
-    });
-    if (superClass) _setPrototypeOf(subClass, superClass);
-  }
-
-  function _getPrototypeOf(o) {
-    _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
-      return o.__proto__ || Object.getPrototypeOf(o);
-    };
-    return _getPrototypeOf(o);
-  }
-
-  function _setPrototypeOf(o, p) {
-    _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
-      o.__proto__ = p;
-      return o;
-    };
-
-    return _setPrototypeOf(o, p);
-  }
-
-  function _isNativeReflectConstruct() {
-    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-    if (Reflect.construct.sham) return false;
-    if (typeof Proxy === "function") return true;
-
-    try {
-      Date.prototype.toString.call(Reflect.construct(Date, [], function () {}));
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
   function _objectWithoutPropertiesLoose(source, excluded) {
     if (source == null) return {};
     var target = {};
@@ -176,89 +110,12 @@
     return target;
   }
 
-  function _assertThisInitialized(self) {
-    if (self === void 0) {
-      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    }
-
-    return self;
-  }
-
-  function _possibleConstructorReturn(self, call) {
-    if (call && (typeof call === "object" || typeof call === "function")) {
-      return call;
-    }
-
-    return _assertThisInitialized(self);
-  }
-
-  function _createSuper(Derived) {
-    var hasNativeReflectConstruct = _isNativeReflectConstruct();
-
-    return function _createSuperInternal() {
-      var Super = _getPrototypeOf(Derived),
-          result;
-
-      if (hasNativeReflectConstruct) {
-        var NewTarget = _getPrototypeOf(this).constructor;
-
-        result = Reflect.construct(Super, arguments, NewTarget);
-      } else {
-        result = Super.apply(this, arguments);
-      }
-
-      return _possibleConstructorReturn(this, result);
-    };
-  }
-
-  function _superPropBase(object, property) {
-    while (!Object.prototype.hasOwnProperty.call(object, property)) {
-      object = _getPrototypeOf(object);
-      if (object === null) break;
-    }
-
-    return object;
-  }
-
-  function _get(target, property, receiver) {
-    if (typeof Reflect !== "undefined" && Reflect.get) {
-      _get = Reflect.get;
-    } else {
-      _get = function _get(target, property, receiver) {
-        var base = _superPropBase(target, property);
-
-        if (!base) return;
-        var desc = Object.getOwnPropertyDescriptor(base, property);
-
-        if (desc.get) {
-          return desc.get.call(receiver);
-        }
-
-        return desc.value;
-      };
-    }
-
-    return _get(target, property, receiver || target);
-  }
-
   function _slicedToArray(arr, i) {
     return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray$1(arr, i) || _nonIterableRest();
   }
 
-  function _toConsumableArray(arr) {
-    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray$1(arr) || _nonIterableSpread();
-  }
-
-  function _arrayWithoutHoles(arr) {
-    if (Array.isArray(arr)) return _arrayLikeToArray(arr);
-  }
-
   function _arrayWithHoles(arr) {
     if (Array.isArray(arr)) return arr;
-  }
-
-  function _iterableToArray(iter) {
-    if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter);
   }
 
   function _iterableToArrayLimit(arr, i) {
@@ -303,10 +160,6 @@
     for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
 
     return arr2;
-  }
-
-  function _nonIterableSpread() {
-    throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
   }
 
   function _nonIterableRest() {
@@ -1710,7 +1563,7 @@
   * This source code is licensed under the MIT license found in the
   * LICENSE file in the root directory of this source tree.
   */
-  var storeKey = 'msaStore';
+  const storeKey = 'msaStore';
 
   /**
   * Copyright 2018, Plotly, Inc.
@@ -1730,8 +1583,7 @@
    * See also: https://react-redux.js.org/docs/api
    */
 
-  function msaConnect(mapStateToProps, mapDispatchToProps, mergeProps) {
-    var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
+  function msaConnect(mapStateToProps, mapDispatchToProps, mergeProps, options = {}) {
     options.storeKey = storeKey;
     return connect(mapStateToProps, mapDispatchToProps, mergeProps, options);
   }
@@ -4515,7 +4367,7 @@
    * _.keysIn(new Foo);
    * // => ['a', 'b', 'c'] (iteration order is not guaranteed)
    */
-  function keysIn$1(object) {
+  function keysIn(object) {
     return isArrayLike(object) ? arrayLikeKeys(object, true) : baseKeysIn(object);
   }
 
@@ -4551,7 +4403,7 @@
    * // => { 'a': 1, 'b': 2, 'c': 3, 'd': 4 }
    */
   var assignIn = createAssigner(function(object, source) {
-    copyObject(source, keysIn$1(source), object);
+    copyObject(source, keysIn(source), object);
   });
 
   /**
@@ -4584,7 +4436,7 @@
    * // => { 'a': 1, 'b': 2 }
    */
   var assignInWith = createAssigner(function(object, source, srcIndex, customizer) {
-    copyObject(source, keysIn$1(source), object, customizer);
+    copyObject(source, keysIn(source), object, customizer);
   });
 
   /**
@@ -6575,7 +6427,7 @@
    * @returns {Object} Returns `object`.
    */
   function baseAssignIn(object, source) {
-    return object && copyObject(source, keysIn$1(source), object);
+    return object && copyObject(source, keysIn(source), object);
   }
 
   /** Detect free variable `exports`. */
@@ -6761,7 +6613,7 @@
    * @returns {Array} Returns the array of property names and symbols.
    */
   function getAllKeysIn(object) {
-    return baseGetAllKeys(object, keysIn$1, getSymbolsIn);
+    return baseGetAllKeys(object, keysIn, getSymbolsIn);
   }
 
   /* Built-in method references that are verified to be native. */
@@ -7563,10 +7415,11 @@
     if (arrLength != othLength && !(isPartial && othLength > arrLength)) {
       return false;
     }
-    // Assume cyclic values are equal.
-    var stacked = stack.get(array);
-    if (stacked && stack.get(other)) {
-      return stacked == other;
+    // Check that cyclic values are equal.
+    var arrStacked = stack.get(array);
+    var othStacked = stack.get(other);
+    if (arrStacked && othStacked) {
+      return arrStacked == other && othStacked == array;
     }
     var index = -1,
         result = true,
@@ -7793,10 +7646,11 @@
         return false;
       }
     }
-    // Assume cyclic values are equal.
-    var stacked = stack.get(object);
-    if (stacked && stack.get(other)) {
-      return stacked == other;
+    // Check that cyclic values are equal.
+    var objStacked = stack.get(object);
+    var othStacked = stack.get(other);
+    if (objStacked && othStacked) {
+      return objStacked == other && othStacked == object;
     }
     var result = true;
     stack.set(object, other);
@@ -8983,7 +8837,7 @@
 
     while (++index < length) {
       var source = sources[index];
-      var props = keysIn$1(source);
+      var props = keysIn(source);
       var propsIndex = -1;
       var propsLength = props.length;
 
@@ -9091,7 +8945,7 @@
    * // => { 'a': 1, 'b': 2, 'c': 3 }
    */
   function toPlainObject(value) {
-    return copyObject(value, keysIn$1(value));
+    return copyObject(value, keysIn(value));
   }
 
   /**
@@ -9201,7 +9055,7 @@
         }
         assignMergeValue(object, key, newValue);
       }
-    }, keysIn$1);
+    }, keysIn);
   }
 
   /**
@@ -10008,7 +9862,7 @@
    * _.toPairsIn(new Foo);
    * // => [['a', 1], ['b', 2], ['c', 3]] (iteration order is not guaranteed)
    */
-  var toPairsIn = createToPairs(keysIn$1);
+  var toPairsIn = createToPairs(keysIn);
 
   /** Used to map characters to HTML entities. */
   var htmlEscapes = {
@@ -10342,6 +10196,10 @@
    * // The `_.property` iteratee shorthand.
    * _.filter(users, 'active');
    * // => objects for ['barney']
+   *
+   * // Combining several predicates using `_.overEvery` or `_.overSome`.
+   * _.filter(users, _.overSome([{ 'age': 36 }, ['age', 40]]));
+   * // => objects for ['fred', 'barney']
    */
   function filter(collection, predicate) {
     var func = isArray(collection) ? arrayFilter : baseFilter;
@@ -11043,7 +10901,7 @@
   function forIn(object, iteratee) {
     return object == null
       ? object
-      : baseFor(object, castFunction(iteratee), keysIn$1);
+      : baseFor(object, castFunction(iteratee), keysIn);
   }
 
   /**
@@ -11075,7 +10933,7 @@
   function forInRight(object, iteratee) {
     return object == null
       ? object
-      : baseForRight(object, castFunction(iteratee), keysIn$1);
+      : baseForRight(object, castFunction(iteratee), keysIn);
   }
 
   /**
@@ -11233,7 +11091,7 @@
    * // => ['a', 'b', 'c']
    */
   function functionsIn(object) {
-    return object == null ? [] : baseFunctions(object, keysIn$1(object));
+    return object == null ? [] : baseFunctions(object, keysIn(object));
   }
 
   /** Used for built-in method references. */
@@ -13088,6 +12946,9 @@
    * values against any array or object value, respectively. See `_.isEqual`
    * for a list of supported value comparisons.
    *
+   * **Note:** Multiple values can be checked by combining several matchers
+   * using `_.overSome`
+   *
    * @static
    * @memberOf _
    * @since 3.0.0
@@ -13103,6 +12964,10 @@
    *
    * _.filter(objects, _.matches({ 'a': 4, 'c': 6 }));
    * // => [{ 'a': 4, 'b': 5, 'c': 6 }]
+   *
+   * // Checking for several possible values
+   * _.filter(objects, _.overSome([_.matches({ 'a': 1 }), _.matches({ 'a': 4 })]));
+   * // => [{ 'a': 1, 'b': 2, 'c': 3 }, { 'a': 4, 'b': 5, 'c': 6 }]
    */
   function matches(source) {
     return baseMatches(baseClone(source, CLONE_DEEP_FLAG$5));
@@ -13120,6 +12985,9 @@
    * `srcValue` values against any array or object value, respectively. See
    * `_.isEqual` for a list of supported value comparisons.
    *
+   * **Note:** Multiple values can be checked by combining several matchers
+   * using `_.overSome`
+   *
    * @static
    * @memberOf _
    * @since 3.2.0
@@ -13136,6 +13004,10 @@
    *
    * _.find(objects, _.matchesProperty('a', 4));
    * // => { 'a': 4, 'b': 5, 'c': 6 }
+   *
+   * // Checking for several possible values
+   * _.filter(objects, _.overSome([_.matchesProperty('a', 1), _.matchesProperty('a', 4)]));
+   * // => [{ 'a': 1, 'b': 2, 'c': 3 }, { 'a': 4, 'b': 5, 'c': 6 }]
    */
   function matchesProperty(path, srcValue) {
     return baseMatchesProperty(path, baseClone(srcValue, CLONE_DEEP_FLAG$6));
@@ -13841,6 +13713,10 @@
       var key = toKey(path[index]),
           newValue = value;
 
+      if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+        return object;
+      }
+
       if (index != lastIndex) {
         var objValue = nested[key];
         newValue = customizer ? customizer(objValue, key, nested) : undefined;
@@ -14067,8 +13943,21 @@
    * @returns {Array} Returns the new sorted array.
    */
   function baseOrderBy(collection, iteratees, orders) {
+    if (iteratees.length) {
+      iteratees = arrayMap(iteratees, function(iteratee) {
+        if (isArray(iteratee)) {
+          return function(value) {
+            return baseGet(value, iteratee.length === 1 ? iteratee[0] : iteratee);
+          }
+        }
+        return iteratee;
+      });
+    } else {
+      iteratees = [identity];
+    }
+
     var index = -1;
-    iteratees = arrayMap(iteratees.length ? iteratees : [identity], baseUnary(baseIteratee));
+    iteratees = arrayMap(iteratees, baseUnary(baseIteratee));
 
     var result = baseMap(collection, function(value, key, collection) {
       var criteria = arrayMap(iteratees, function(iteratee) {
@@ -14230,6 +14119,10 @@
    * Creates a function that checks if **all** of the `predicates` return
    * truthy when invoked with the arguments it receives.
    *
+   * Following shorthands are possible for providing predicates.
+   * Pass an `Object` and it will be used as an parameter for `_.matches` to create the predicate.
+   * Pass an `Array` of parameters for `_.matchesProperty` and the predicate will be created using them.
+   *
    * @static
    * @memberOf _
    * @since 4.0.0
@@ -14256,6 +14149,10 @@
    * Creates a function that checks if **any** of the `predicates` return
    * truthy when invoked with the arguments it receives.
    *
+   * Following shorthands are possible for providing predicates.
+   * Pass an `Object` and it will be used as an parameter for `_.matches` to create the predicate.
+   * Pass an `Array` of parameters for `_.matchesProperty` and the predicate will be created using them.
+   *
    * @static
    * @memberOf _
    * @since 4.0.0
@@ -14275,6 +14172,9 @@
    *
    * func(NaN);
    * // => false
+   *
+   * var matchesFunc = _.overSome([{ 'a': 1 }, { 'a': 2 }])
+   * var matchesPropertyFunc = _.overSome([['a', 1], ['a', 2]])
    */
   var overSome = createOver(arraySome);
 
@@ -16092,15 +15992,15 @@
    * var users = [
    *   { 'user': 'fred',   'age': 48 },
    *   { 'user': 'barney', 'age': 36 },
-   *   { 'user': 'fred',   'age': 40 },
+   *   { 'user': 'fred',   'age': 30 },
    *   { 'user': 'barney', 'age': 34 }
    * ];
    *
    * _.sortBy(users, [function(o) { return o.user; }]);
-   * // => objects for [['barney', 36], ['barney', 34], ['fred', 48], ['fred', 40]]
+   * // => objects for [['barney', 36], ['barney', 34], ['fred', 48], ['fred', 30]]
    *
    * _.sortBy(users, ['user', 'age']);
-   * // => objects for [['barney', 34], ['barney', 36], ['fred', 40], ['fred', 48]]
+   * // => objects for [['barney', 34], ['barney', 36], ['fred', 30], ['fred', 48]]
    */
   var sortBy = baseRest(function(collection, iteratees) {
     if (collection == null) {
@@ -16137,11 +16037,14 @@
    *  into `array`.
    */
   function baseSortedIndexBy(array, value, iteratee, retHighest) {
-    value = iteratee(value);
-
     var low = 0,
-        high = array == null ? 0 : array.length,
-        valIsNaN = value !== value,
+        high = array == null ? 0 : array.length;
+    if (high === 0) {
+      return 0;
+    }
+
+    value = iteratee(value);
+    var valIsNaN = value !== value,
         valIsNull = value === null,
         valIsSymbol = isSymbol(value),
         valIsUndefined = value === undefined;
@@ -17192,11 +17095,11 @@
 
     // Use a sourceURL for easier debugging.
     // The sourceURL gets injected into the source that's eval-ed, so be careful
-    // with lookup (in case of e.g. prototype pollution), and strip newlines if any.
-    // A newline wouldn't be a valid sourceURL anyway, and it'd enable code injection.
+    // to normalize all kinds of whitespace, so e.g. newlines (and unicode versions of it) can't sneak in
+    // and escape the comment, thus injecting code that gets evaled.
     var sourceURL = hasOwnProperty$n.call(options, 'sourceURL')
       ? ('//# sourceURL=' +
-         (options.sourceURL + '').replace(/[\r\n]/g, ' ') +
+         (options.sourceURL + '').replace(/\s/g, ' ') +
          '\n')
       : '';
 
@@ -17229,8 +17132,6 @@
 
     // If `variable` is not specified wrap a with-statement around the generated
     // code to add the data object to the top of the scope chain.
-    // Like with sourceURL, we take care to not check the option's prototype,
-    // as this configuration is a code injection vector.
     var variable = hasOwnProperty$n.call(options, 'variable') && options.variable;
     if (!variable) {
       source = 'with (obj) {\n' + source + '\n}\n';
@@ -18425,7 +18326,7 @@
    * // => [1, 2, 3] (iteration order is not guaranteed)
    */
   function valuesIn(object) {
-    return object == null ? [] : baseValues(object, keysIn$1(object));
+    return object == null ? [] : baseValues(object, keysIn(object));
   }
 
   /**
@@ -18875,7 +18776,7 @@
     extend: assignIn, extendWith: assignInWith, findKey, findLastKey, forIn,
     forInRight, forOwn, forOwnRight, functions, functionsIn,
     get, has, hasIn, invert, invertBy,
-    invoke, keys, keysIn: keysIn$1, mapKeys, mapValues,
+    invoke, keys, keysIn, mapKeys, mapValues,
     merge, mergeWith, omit, omitBy, pick,
     pickBy, result: result$1, set: set$1, setWith, toPairs,
     toPairsIn, transform, unset, update, updateWith,
@@ -19054,7 +18955,7 @@
    */
 
   /** Used as the semantic version number. */
-  var VERSION = '4.17.15';
+  var VERSION = '4.17.20';
 
   /** Used to compose bitmasks for function metadata. */
   var WRAP_BIND_KEY_FLAG$6 = 2;
@@ -19659,7 +19560,7 @@
    * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
    */
 
-  var StaticSchemeClass = function StaticSchemeClass(map) {
+  const StaticSchemeClass = function StaticSchemeClass(map) {
     this.defaultColor = "#ffffff";
     this.type = "static";
     this.map = map;
@@ -19672,7 +19573,7 @@
       }
     };
   };
-  var DynSchemeClass = function DynSchemeClass(fun, opt) {
+  const DynSchemeClass = function DynSchemeClass(fun, opt) {
     this.type = "dyn";
     this.opt = opt; // init
 
@@ -20034,7 +19935,7 @@
     Z: "#fff"
   };
 
-  var pid = {}; // calculating the conservation is expensive 
+  const pid = {}; // calculating the conservation is expensive 
   // we only want to do it once
 
   pid.init = function () {
@@ -20055,7 +19956,7 @@
     }
   };
 
-  var staticSchemes = {
+  const staticSchemes = {
     buried: Buried,
     buried_index: Buried,
     cinema: Cinema,
@@ -20076,11 +19977,11 @@
     turn_propensity: Turn,
     zappo: Zappo
   };
-  var dynSchemes = {
+  const dynSchemes = {
     pid: pid
   };
 
-  var Colors = function Colors(opt) {
+  const Colors = function Colors(opt) {
     this.maps = clone$1(staticSchemes);
     this.dyn = clone$1(dynSchemes);
     this.opt = opt;
@@ -20124,27 +20025,28 @@
     return copy;
   }
 
-  var schemesMgr = new Colors();
+  /**
+  * Copyright 2018, Plotly, Inc.
+  * All rights reserved.
+  *
+  * This source code is licensed under the MIT license found in the
+  * LICENSE file in the root directory of this source tree.
+  */
+  const schemesMgr = new Colors();
   /**
    * Simple color scheme abstraction over msa-colorschemes. To be extended.
    */
 
-  var ColorScheme = /*#__PURE__*/function () {
-    function ColorScheme(colorScheme) {
-      _classCallCheck(this, ColorScheme);
-
+  class ColorScheme {
+    constructor(colorScheme) {
       this.scheme = schemesMgr.getScheme(colorScheme);
     }
 
-    _createClass(ColorScheme, [{
-      key: "getColor",
-      value: function getColor(element) {
-        return this.scheme.getColor(element);
-      }
-    }]);
+    getColor(element) {
+      return this.scheme.getColor(element);
+    }
 
-    return ColorScheme;
-  }();
+  }
   /**
    * Checks whether the `obj` is a color scheme.
    * Everything that looks like a color scheme is very likely one.
@@ -20167,21 +20069,21 @@
    *   sequence: raw sequence data (e.g. AGAAAA)
    */
 
-  var SequencePropType = PropTypes.shape({
+  const SequencePropType = PropTypes.shape({
     name: PropTypes.string,
     sequence: PropTypes.string
   });
-  var AllowedColorschemes = ["buried_index", "clustal", "clustal2", "cinema", "helix_propensity", "hydro", "lesk", "mae", "nucleotide", "purine_pyrimidine", "strand_propensity", "taylor", "turn_propensity", "zappo"];
-  var ColorSchemePropType = PropTypes.oneOfType([PropTypes.oneOf(AllowedColorschemes), PropTypes.instanceOf(ColorScheme), function isColorSchemeObject(props, propName, componentName) {
+  const AllowedColorschemes = ["buried_index", "clustal", "clustal2", "cinema", "helix_propensity", "hydro", "lesk", "mae", "nucleotide", "purine_pyrimidine", "strand_propensity", "taylor", "turn_propensity", "zappo"];
+  const ColorSchemePropType = PropTypes.oneOfType([PropTypes.oneOf(AllowedColorschemes), PropTypes.instanceOf(ColorScheme), function isColorSchemeObject(props, propName, componentName) {
     if (isColorScheme(props[propName])) ; else {
       return new Error('Invalid prop `' + propName + '` supplied to' + ' `' + componentName + '`. Validation failed.');
     }
   }]);
-  var PositionPropType = PropTypes.shape({
+  const PositionPropType = PropTypes.shape({
     xPos: PropTypes.number,
     yPos: PropTypes.number
   });
-  var MSAPropTypes = {
+  const MSAPropTypes = {
     /**
      * Sequence data.
      * `sequences` expects an array of individual sequences.
@@ -20285,7 +20187,7 @@
 
   }; // TODO: separate individual properties into their components
 
-  var msaDefaultProps = {
+  const msaDefaultProps = {
     width: 500,
     height: 100,
     tileWidth: 20,
@@ -20315,23 +20217,15 @@
    *
    * Similar to createAction from redux-actions
    */
-  function createAction(type) {
-    for (var _len = arguments.length, argNames = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      argNames[_key - 1] = arguments[_key];
-    }
-
-    var actionCreator = function actionCreator() {
-      for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-        args[_key2] = arguments[_key2];
-      }
-
-      var payload;
+  function createAction(type, ...argNames) {
+    const actionCreator = function actionCreator(...args) {
+      let payload;
 
       if (argNames.length === 0) {
         payload = args[0];
       } else {
         payload = {};
-        argNames.forEach(function (arg, index) {
+        argNames.forEach((arg, index) => {
           payload[argNames[index]] = args[index];
         });
       }
@@ -20342,18 +20236,16 @@
       };
     };
 
-    actionCreator.toString = function () {
-      return type.toString();
-    };
+    actionCreator.toString = () => type.toString();
 
     actionCreator.key = actionCreator.toString();
     return actionCreator;
   } // TODO: maybe use createActions from redux-actions here
 
-  var updateProps = createAction('PROPS_UPDATE');
-  var updateProp = createAction('PROP_UPDATE', 'key', 'value');
-  var updateSequences = createAction('SEQUENCES_UPDATE');
-  var actions = {
+  const updateProps = createAction('PROPS_UPDATE');
+  const updateProp = createAction('PROP_UPDATE', 'key', 'value');
+  const updateSequences = createAction('SEQUENCES_UPDATE');
+  const actions = {
     updateProp,
     updateProps,
     updateSequences
@@ -20379,13 +20271,10 @@
    * Similar to handleActions from redux-actions or createReduce from redux-act
    */
   function handleActions(handlers, initialState) {
-    return function reducer() {
-      var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
-
-      var _ref = arguments.length > 1 ? arguments[1] : undefined,
-          type = _ref.type,
-          payload = _ref.payload;
-
+    return function reducer(state = initialState, {
+      type,
+      payload
+    }) {
       if (handlers.hasOwnProperty(type)) {
         return handlers[type](state, payload);
       } else {
@@ -20425,16 +20314,14 @@
    * passed object, and builds a state object with the same shape.
    */
   function combineReducers$1(reducers) {
-    var keys = Object.keys(reducers);
-    return function () {
-      var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-      var action = arguments.length > 1 ? arguments[1] : undefined;
-      var nextState = {};
-      var hasChanged = false;
+    const keys = Object.keys(reducers);
+    return function (state = {}, action) {
+      const nextState = {};
+      let hasChanged = false;
 
-      for (var i = 0; i < keys.length; i++) {
-        var key = keys[i];
-        var nextStateForKey = reducers[key](state[key], action);
+      for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        const nextStateForKey = reducers[key](state[key], action);
 
         if (typeof nextStateForKey === 'undefined') {
           throw new Error("A reducer can't return 'undefined'");
@@ -20456,14 +20343,12 @@
   * LICENSE file in the root directory of this source tree.
   */
 
-  var calculateSequencesState = function calculateSequencesState(prevState, sequences) {
-    var state = {
+  const calculateSequencesState = (prevState, sequences) => {
+    const state = {
       raw: sequences,
       length: sequences.length
     };
-    state.maxLength = reduce(sequences, function (m, e) {
-      return Math.max(m, e.sequence.length);
-    }, 0);
+    state.maxLength = reduce(sequences, (m, e) => Math.max(m, e.sequence.length), 0);
     return state;
   };
 
@@ -20477,13 +20362,10 @@
    */
 
 
-  var props = function props() {
-    var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-    var _ref = arguments.length > 1 ? arguments[1] : undefined,
-        type = _ref.type,
-        payload = _ref.payload;
-
+  const props = (state = {}, {
+    type,
+    payload
+  }) => {
     switch (type) {
       case actions.updateProps.key:
         state = _objectSpread2(_objectSpread2({}, state), payload); // has the colorScheme been updated?
@@ -20495,8 +20377,8 @@
         return state;
 
       case actions.updateProp.key:
-        var key = payload.key,
-            value = payload.value;
+        const key = payload.key,
+              value = payload.value;
         state = _objectSpread2(_objectSpread2({}, state), {}, {
           [key]: value
         }); // has the colorScheme been updated?
@@ -20516,7 +20398,7 @@
     }
   };
 
-  var sequences = handleActions({
+  const sequences = handleActions({
     [actions.updateSequences]: calculateSequencesState
   }, []);
   /**
@@ -20524,20 +20406,16 @@
    */
   // TODO: maybe use reselect for this?
 
-  var sequenceStats = function sequenceStats() {
-    var prevState = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
-      currentViewSequence: 0,
-      currentViewSequencePosition: 0
-    };
-    var action = arguments.length > 1 ? arguments[1] : undefined;
-    var state = arguments.length > 2 ? arguments[2] : undefined;
-
+  const sequenceStats = (prevState = {
+    currentViewSequence: 0,
+    currentViewSequencePosition: 0
+  }, action, state) => {
     switch (action.type) {
       case actions.updateProp.key:
       case actions.updateProps.key:
       case actions.updateSequences.key:
         if (state.props && state.props.tileHeight && state.props.tileWidth && state.sequences) {
-          var stats = {};
+          const stats = {};
           stats.nrXTiles = Math.ceil(state.props.width / state.props.tileWidth) + 1;
           stats.nrYTiles = Math.ceil(state.props.height / state.props.tileHeight) + 1;
           stats.fullWidth = state.props.tileWidth * state.sequences.maxLength;
@@ -20562,18 +20440,16 @@
    */
 
 
-  var statCombineReduce = function statCombineReduce(reducer, statReducers) {
-    var keys = Object.keys(statReducers);
-    return function () {
-      var prevState = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-      var action = arguments.length > 1 ? arguments[1] : undefined;
-      var state = reducer(prevState, action);
+  const statCombineReduce = (reducer, statReducers) => {
+    const keys = Object.keys(statReducers);
+    return function (prevState = {}, action) {
+      const state = reducer(prevState, action);
 
       if (prevState !== state) {
         // state object already changed, no need to copy it again
-        for (var i = 0; i < keys.length; i++) {
-          var key = keys[i];
-          var nextStateForKey = statReducers[key](state[key], action, state);
+        for (let i = 0; i < keys.length; i++) {
+          const key = keys[i];
+          const nextStateForKey = statReducers[key](state[key], action, state);
 
           if (typeof nextStateForKey === 'undefined') {
             throw new Error("A reducer can't return 'undefined'");
@@ -20594,7 +20470,7 @@
     sequenceStats
   });
 
-  var env = "production" === 'development';
+  const env = "production" === 'development';
 
   /**
   Initializes a new MSAViewer store-like structure.
@@ -20603,15 +20479,15 @@
   The default properties from MSAViewer.defaultProps are used.
   */
 
-  var createMSAStore = function createMSAStore(props) {
+  const createMSAStore = props => {
     PropTypes.checkPropTypes(MSAPropTypes, props, 'prop', 'MSAViewer');
-    var propsWithDefaultValues = merge({}, msaDefaultProps, props);
+    const propsWithDefaultValues = merge({}, msaDefaultProps, props);
 
-    var sequences = propsWithDefaultValues.sequences,
-        position = propsWithDefaultValues.position,
-        otherProps = _objectWithoutProperties(propsWithDefaultValues, ["sequences", "position"]);
+    const sequences = propsWithDefaultValues.sequences,
+          position = propsWithDefaultValues.position,
+          otherProps = _objectWithoutProperties(propsWithDefaultValues, ["sequences", "position"]);
 
-    var store = createStore(positionReducers, // https://github.com/zalmoxisus/redux-devtools-extension
+    const store = createStore(positionReducers, // https://github.com/zalmoxisus/redux-devtools-extension
     env && window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
     store.dispatch(updateProps(otherProps));
     store.dispatch(updateSequences(sequences));
@@ -20890,32 +20766,19 @@
    * every store update. Otherwise a default implementation will be used.
    */
 
-  function withPositionConsumer(Component) {
-    var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-        _ref$withX = _ref.withX,
-        withX = _ref$withX === void 0 ? false : _ref$withX,
-        _ref$withY = _ref.withY,
-        withY = _ref$withY === void 0 ? false : _ref$withY;
+  function withPositionConsumer(Component, {
+    withX = false,
+    withY = false
+  } = {}) {
+    class MSAPositionConsumer extends React.PureComponent {
+      constructor(props) {
+        super(props);
 
-    var MSAPositionConsumer = /*#__PURE__*/function (_PureComponent) {
-      _inherits(MSAPositionConsumer, _PureComponent);
+        _defineProperty(this, "updateFromPositionStore", () => {
+          const state = this.context.positionMSAStore.getState();
+          this.position = this.position || {}; // create new position object to compare it with the previous
 
-      var _super = _createSuper(MSAPositionConsumer);
-
-      function MSAPositionConsumer(props) {
-        var _this;
-
-        _classCallCheck(this, MSAPositionConsumer);
-
-        _this = _super.call(this, props);
-
-        _defineProperty(_assertThisInitialized(_this), "updateFromPositionStore", function () {
-
-          var state = _this.context.positionMSAStore.getState();
-
-          _this.position = _this.position || {}; // create new position object to compare it with the previous
-
-          var newPosition = pick(state, ["currentViewSequence", "currentViewSequencePosition", "xPosOffset", "yPosOffset"]);
+          const newPosition = pick(state, ["currentViewSequence", "currentViewSequencePosition", "xPosOffset", "yPosOffset"]);
 
           if (state.position) {
             newPosition.xPos = state.position.xPos;
@@ -20923,43 +20786,43 @@
           } // not called on the first render
 
 
-          if (_this.el.current && _this.shouldRerender(newPosition)) {
+          if (this.el.current && this.shouldRerender(newPosition)) {
             // this will always force a rerender as position is a new object
-            _this.position = newPosition; // it doesn't matter what state we set here, this is just to force
+            this.position = newPosition; // it doesn't matter what state we set here, this is just to force
             // React to rerender
 
-            _this.setState({
-              position: _this.position
+            this.setState({
+              position: this.position
             });
           } else {
             // copy over new position
-            forOwn(newPosition, function (v, k) {
-              _this.position[k] = v;
+            forOwn(newPosition, (v, k) => {
+              this.position[k] = v;
             });
 
-            if (_this.el.current) {
-              _this.updateScrollPosition();
+            if (this.el.current) {
+              this.updateScrollPosition();
             }
           }
         });
 
-        _defineProperty(_assertThisInitialized(_this), "shouldRerender", function (newPosition) {
-          var it = _this.el.current;
+        _defineProperty(this, "shouldRerender", newPosition => {
+          const it = this.el.current;
 
           if (it.shouldRerender !== undefined) {
             return it.shouldRerender(newPosition);
           }
 
-          var cacheElements = it.props.cacheElements;
+          const cacheElements = it.props.cacheElements;
 
           if (withY) {
-            if (Math.abs(newPosition.currentViewSequence - _this.position.lastCurrentViewSequence) >= cacheElements) {
+            if (Math.abs(newPosition.currentViewSequence - this.position.lastCurrentViewSequence) >= cacheElements) {
               return true;
             }
           }
 
           if (withX) {
-            if (Math.abs(newPosition.currentViewSequencePosition - _this.position.lastCurrentViewSequencePosition) >= cacheElements) {
+            if (Math.abs(newPosition.currentViewSequencePosition - this.position.lastCurrentViewSequencePosition) >= cacheElements) {
               return true;
             }
           }
@@ -20967,8 +20830,8 @@
           return false;
         });
 
-        _defineProperty(_assertThisInitialized(_this), "updateScrollPosition", function () {
-          var it = _this.el.current; // be careful - might be a shallow render
+        _defineProperty(this, "updateScrollPosition", () => {
+          const it = this.el.current; // be careful - might be a shallow render
 
           if (it && it.updateScrollPosition !== undefined) {
             it.updateScrollPosition();
@@ -20977,24 +20840,24 @@
 
           if (it && it.el && it.el.current) {
             if (withX) {
-              var tileWidth = it.props.tileWidth;
-              var offsetX = -_this.position.xPosOffset;
-              offsetX += (_this.position.lastCurrentViewSequencePosition - _this.position.lastStartXTile) * tileWidth;
+              const tileWidth = it.props.tileWidth;
+              let offsetX = -this.position.xPosOffset;
+              offsetX += (this.position.lastCurrentViewSequencePosition - this.position.lastStartXTile) * tileWidth;
 
-              if (_this.position.currentViewSequencePosition !== _this.position.lastCurrentViewSequencePosition) {
-                offsetX += (_this.position.currentViewSequencePosition - _this.position.lastCurrentViewSequencePosition) * tileWidth;
+              if (this.position.currentViewSequencePosition !== this.position.lastCurrentViewSequencePosition) {
+                offsetX += (this.position.currentViewSequencePosition - this.position.lastCurrentViewSequencePosition) * tileWidth;
               }
 
               it.el.current.scrollLeft = offsetX;
             }
 
             if (withY) {
-              var tileHeight = it.props.tileHeight;
-              var offsetY = -_this.position.yPosOffset;
-              offsetY += (_this.position.lastCurrentViewSequence - _this.position.lastStartYTile) * tileHeight;
+              const tileHeight = it.props.tileHeight;
+              let offsetY = -this.position.yPosOffset;
+              offsetY += (this.position.lastCurrentViewSequence - this.position.lastStartYTile) * tileHeight;
 
-              if (_this.position.currentViewSequence !== _this.position.lastCurrentViewSequence) {
-                offsetY += (_this.position.currentViewSequence - _this.position.lastCurrentViewSequence) * tileHeight;
+              if (this.position.currentViewSequence !== this.position.lastCurrentViewSequence) {
+                offsetY += (this.position.currentViewSequence - this.position.lastCurrentViewSequence) * tileHeight;
               }
 
               it.el.current.scrollTop = offsetY;
@@ -21002,61 +20865,53 @@
           }
         });
 
-        _defineProperty(_assertThisInitialized(_this), "dispatch", function (payload) {
-          _this.context.positionMSAStore.dispatch(payload);
+        _defineProperty(this, "dispatch", payload => {
+          this.context.positionMSAStore.dispatch(payload);
         });
 
-        _this.el = createRef$1();
-        _this.state = {
+        this.el = createRef$1();
+        this.state = {
           highlight: null,
           hasBeenInitialized: false
         };
-        return _this;
       }
 
-      _createClass(MSAPositionConsumer, [{
-        key: "componentDidMount",
-        value: function componentDidMount() {
-          // update to all updates from the position store
-          this.unsubscribe = this.context.positionMSAStore.subscribe(this.updateFromPositionStore);
-          this.updateScrollPosition(true);
+      componentDidMount() {
+        // update to all updates from the position store
+        this.unsubscribe = this.context.positionMSAStore.subscribe(this.updateFromPositionStore);
+        this.updateScrollPosition(true);
+        this.updateFromPositionStore();
+      }
+
+      componentDidUpdate() {
+        this.updateScrollPosition();
+      }
+
+      componentWillUnmount() {
+        this.unsubscribe();
+      }
+      /**
+       * a method which updates this.position from the PositionStore
+       * when `shouldRerender` returns true, calls `setState({position: positionState})` is called
+       * always calls `updateScrollPosition`
+       */
+
+
+      render() {
+        if (!this.hasBeenInitialized) {
           this.updateFromPositionStore();
+          this.hasBeenInitialized = true;
         }
-      }, {
-        key: "componentDidUpdate",
-        value: function componentDidUpdate() {
-          this.updateScrollPosition();
-        }
-      }, {
-        key: "componentWillUnmount",
-        value: function componentWillUnmount() {
-          this.unsubscribe();
-        }
-        /**
-         * a method which updates this.position from the PositionStore
-         * when `shouldRerender` returns true, calls `setState({position: positionState})` is called
-         * always calls `updateScrollPosition`
-         */
 
-      }, {
-        key: "render",
-        value: function render() {
-          if (!this.hasBeenInitialized) {
-            this.updateFromPositionStore();
-            this.hasBeenInitialized = true;
-          }
+        return /*#__PURE__*/React__default.createElement(Component, _objectSpread2({
+          ref: this.el,
+          position: this.position,
+          positionDispatch: this.dispatch,
+          highlight: this.state.highlight
+        }, this.props));
+      }
 
-          return /*#__PURE__*/React__default.createElement(Component, _objectSpread2({
-            ref: this.el,
-            position: this.position,
-            positionDispatch: this.dispatch,
-            highlight: this.state.highlight
-          }, this.props));
-        }
-      }]);
-
-      return MSAPositionConsumer;
-    }(React.PureComponent);
+    }
 
     MSAPositionConsumer.displayName = "withPosition(".concat(Component.displayName || Component.name, ")");
     MSAPositionConsumer.contextTypes = {
@@ -21224,7 +21079,7 @@
    * See also: https://github.com/reduxjs/reselect#createselectorinputselectors--inputselectors-resultfunc
    */
 
-  var shallowSelect = createSelectorCreator(defaultMemoize, shallowEqual$1);
+  const shallowSelect = createSelectorCreator(defaultMemoize, shallowEqual$1);
 
   /**
   * Copyright 2018, Plotly, Inc.
@@ -21246,63 +21101,55 @@
 
   function autoBind(instance) {
 
-    for (var i = 1; i < arguments.length; i++) {
-      var k = arguments[i];
+    for (let i = 1; i < arguments.length; i++) {
+      const k = arguments[i];
       instance[k] = instance[k].bind(instance);
     }
   }
 
   /**
+  * Copyright 2018, Plotly, Inc.
+  * All rights reserved.
+  *
+  * This source code is licensed under the MIT license found in the
+  * LICENSE file in the root directory of this source tree.
+  */
+  /**
    * Renders a list of tiles, but caches already seen components.
    */
 
-  var ListComponent = /*#__PURE__*/function (_PureComponent) {
-    _inherits(ListComponent, _PureComponent);
+  class ListComponent extends React.PureComponent {
+    renderTile(i) {
+      const TileComponent = this.props.tileComponent;
 
-    var _super = _createSuper(ListComponent);
-
-    function ListComponent() {
-      _classCallCheck(this, ListComponent);
-
-      return _super.apply(this, arguments);
+      if (i in this.props.componentCache) {
+        return this.props.componentCache[i];
+      } else {
+        const el = /*#__PURE__*/React__default.createElement(TileComponent, {
+          key: i,
+          index: i
+        });
+        this.props.componentCache[i] = el;
+        return el;
+      }
     }
 
-    _createClass(ListComponent, [{
-      key: "renderTile",
-      value: function renderTile(i) {
-        var TileComponent = this.props.tileComponent;
+    render() {
+      const elements = [];
 
-        if (i in this.props.componentCache) {
-          return this.props.componentCache[i];
-        } else {
-          var el = /*#__PURE__*/React__default.createElement(TileComponent, {
-            key: i,
-            index: i
-          });
-          this.props.componentCache[i] = el;
-          return el;
-        }
+      for (let i = this.props.startTile; i < this.props.endTile; i++) {
+        elements.push(this.renderTile(i));
       }
-    }, {
-      key: "render",
-      value: function render() {
-        var elements = [];
 
-        for (var i = this.props.startTile; i < this.props.endTile; i++) {
-          elements.push(this.renderTile(i));
-        }
-
-        if (elements.length === 0) {
-          console.warn("The TileComponent rendered returned 0 elements from ".concat(this.props.startTile, " to ").concat(this.props.endTile));
-        } // React 15 doesn't allow to return arrays directly. Only React 16 does.
+      if (elements.length === 0) {
+        console.warn("The TileComponent rendered returned 0 elements from ".concat(this.props.startTile, " to ").concat(this.props.endTile));
+      } // React 15 doesn't allow to return arrays directly. Only React 16 does.
 
 
-        return /*#__PURE__*/React__default.createElement("div", null, elements);
-      }
-    }]);
+      return /*#__PURE__*/React__default.createElement("div", null, elements);
+    }
 
-    return ListComponent;
-  }(React.PureComponent);
+  }
 
   ListComponent.propTypes = {
     startTile: PropTypes.number.isRequired,
@@ -21314,25 +21161,14 @@
   * Displays the sequence names with an arbitrary Marker component
   */
 
-  var YBarComponent = /*#__PURE__*/function (_PureComponent) {
-    _inherits(YBarComponent, _PureComponent);
-
-    var _super = _createSuper(YBarComponent);
-
-    function YBarComponent(props) {
-      var _this;
-
-      _classCallCheck(this, YBarComponent);
-
-      _this = _super.call(this, props);
-      _this.el = createRef$1();
-      return _this;
+  class YBarComponent extends React.PureComponent {
+    constructor(props) {
+      super(props);
+      this.el = createRef$1();
     }
 
-    _createClass(YBarComponent, [{
-      key: "render",
-      value: function render() {
-        var _this$props = this.props,
+    render() {
+      const _this$props = this.props,
             yPosOffset = _this$props.yPosOffset,
             tileHeight = _this$props.tileHeight,
             currentViewSequence = _this$props.currentViewSequence,
@@ -21346,30 +21182,28 @@
             componentCache = _this$props.componentCache,
             otherProps = _objectWithoutProperties(_this$props, ["yPosOffset", "tileHeight", "currentViewSequence", "sequences", "height", "cacheElements", "tileComponent", "nrYTiles", "position", "positionDispatch", "componentCache"]);
 
-        var style = {
-          height,
-          overflow: "hidden",
-          position: "relative",
-          whiteSpace: "nowrap"
-        };
-        var startTile = Math.max(0, this.props.position.currentViewSequence - this.props.cacheElements);
-        var endTile = Math.min(this.props.sequences.length, startTile + Math.ceil(height / this.props.tileHeight) + this.props.cacheElements * 2);
-        this.props.position.lastCurrentViewSequence = this.props.position.currentViewSequence;
-        this.props.position.lastStartYTile = startTile;
-        return /*#__PURE__*/React__default.createElement("div", otherProps, /*#__PURE__*/React__default.createElement("div", {
-          style: style,
-          ref: this.el
-        }, /*#__PURE__*/React__default.createElement(ListComponent, {
-          componentCache: this.props.componentCache,
-          startTile: startTile,
-          endTile: endTile,
-          tileComponent: this.props.tileComponent
-        })));
-      }
-    }]);
+      const style = {
+        height,
+        overflow: "hidden",
+        position: "relative",
+        whiteSpace: "nowrap"
+      };
+      const startTile = Math.max(0, this.props.position.currentViewSequence - this.props.cacheElements);
+      const endTile = Math.min(this.props.sequences.length, startTile + Math.ceil(height / this.props.tileHeight) + this.props.cacheElements * 2);
+      this.props.position.lastCurrentViewSequence = this.props.position.currentViewSequence;
+      this.props.position.lastStartYTile = startTile;
+      return /*#__PURE__*/React__default.createElement("div", otherProps, /*#__PURE__*/React__default.createElement("div", {
+        style: style,
+        ref: this.el
+      }, /*#__PURE__*/React__default.createElement(ListComponent, {
+        componentCache: this.props.componentCache,
+        startTile: startTile,
+        endTile: endTile,
+        tileComponent: this.props.tileComponent
+      })));
+    }
 
-    return YBarComponent;
-  }(React.PureComponent);
+  }
 
   YBarComponent.propTypes = {
     /**
@@ -21385,54 +21219,40 @@
     withY: true
   });
 
-  function _createLabel(_ref) {
-    var sequences = _ref.sequences,
-        tileHeight = _ref.tileHeight,
-        labelComponent = _ref.labelComponent,
-        labelStyle = _ref.labelStyle,
-        labelAttributes = _ref.labelAttributes;
-
+  function createLabel({
+    sequences,
+    tileHeight,
+    labelComponent,
+    labelStyle,
+    labelAttributes
+  }) {
     /**
      * Displays an individual sequence name.
      */
-    var Label = /*#__PURE__*/function (_PureComponent) {
-      _inherits(Label, _PureComponent);
-
-      var _super = _createSuper(Label);
-
-      function Label() {
-        _classCallCheck(this, Label);
-
-        return _super.apply(this, arguments);
-      }
-
-      _createClass(Label, [{
-        key: "render",
-        value: function render() {
-          var _this$props = this.props,
+    class Label extends React.PureComponent {
+      render() {
+        const _this$props = this.props,
               index = _this$props.index,
               otherProps = _objectWithoutProperties(_this$props, ["index"]);
 
-          if (labelComponent) {
-            var LabelComponent = labelComponent;
-            return /*#__PURE__*/React__default.createElement(LabelComponent, {
-              sequence: sequences[index],
-              index: index
-            });
-          } else {
-            otherProps.style = _objectSpread2(_objectSpread2({}, this.props.style), {}, {
-              height: tileHeight
-            }, labelStyle);
+        if (labelComponent) {
+          const LabelComponent = labelComponent;
+          return /*#__PURE__*/React__default.createElement(LabelComponent, {
+            sequence: sequences[index],
+            index: index
+          });
+        } else {
+          otherProps.style = _objectSpread2(_objectSpread2({}, this.props.style), {}, {
+            height: tileHeight
+          }, labelStyle);
 
-            var attributes = _objectSpread2(_objectSpread2({}, otherProps), labelAttributes);
+          const attributes = _objectSpread2(_objectSpread2({}, otherProps), labelAttributes);
 
-            return /*#__PURE__*/React__default.createElement("div", attributes, sequences[index].name);
-          }
+          return /*#__PURE__*/React__default.createElement("div", attributes, sequences[index].name);
         }
-      }]);
+      }
 
-      return Label;
-    }(React.PureComponent);
+    }
 
     return Label;
   }
@@ -21441,33 +21261,21 @@
    */
 
 
-  var HTMLLabelsComponent = /*#__PURE__*/function (_PureComponent2) {
-    _inherits(HTMLLabelsComponent, _PureComponent2);
-
-    var _super2 = _createSuper(HTMLLabelsComponent);
-
-    function HTMLLabelsComponent(props) {
-      var _this;
-
-      _classCallCheck(this, HTMLLabelsComponent);
-
-      _this = _super2.call(this, props);
-      autoBind(_assertThisInitialized(_this), 'createLabel');
-      _this.label = shallowSelect(partialRight(pick, _this.constructor.labelProps), _this.createLabel);
-      return _this;
+  class HTMLLabelsComponent extends React.PureComponent {
+    constructor(props) {
+      super(props);
+      autoBind(this, 'createLabel');
+      this.label = shallowSelect(partialRight(pick, this.constructor.labelProps), this.createLabel);
     }
 
-    _createClass(HTMLLabelsComponent, [{
-      key: "createLabel",
-      value: function createLabel(props) {
-        this.cache = function () {};
+    createLabel(props) {
+      this.cache = function () {};
 
-        return _createLabel(props);
-      }
-    }, {
-      key: "render",
-      value: function render() {
-        var _this$props2 = this.props,
+      return createLabel(props);
+    }
+
+    render() {
+      const _this$props2 = this.props,
             cacheElements = _this$props2.cacheElements,
             dispatch = _this$props2.dispatch,
             labelComponent = _this$props2.labelComponent,
@@ -21475,16 +21283,14 @@
             labelAttributes = _this$props2.labelAttributes,
             otherProps = _objectWithoutProperties(_this$props2, ["cacheElements", "dispatch", "labelComponent", "labelStyle", "labelAttributes"]);
 
-        return /*#__PURE__*/React__default.createElement(YBar, _extends({
-          tileComponent: this.label(this.props),
-          cacheElements: cacheElements,
-          componentCache: this.cache
-        }, otherProps));
-      }
-    }]);
+      return /*#__PURE__*/React__default.createElement(YBar, _extends({
+        tileComponent: this.label(this.props),
+        cacheElements: cacheElements,
+        componentCache: this.cache
+      }, otherProps));
+    }
 
-    return HTMLLabelsComponent;
-  }(React.PureComponent);
+  }
 
   _defineProperty(HTMLLabelsComponent, "labelProps", ["sequences", "tileHeight", "labelComponent", "labelStyle", "labelAttributes"]);
 
@@ -21519,7 +21325,7 @@
     labelAttributes: PropTypes.object
   };
 
-  var mapStateToProps = function mapStateToProps(state) {
+  const mapStateToProps = state => {
     return {
       height: state.props.height,
       tileHeight: state.props.tileHeight,
@@ -21534,25 +21340,14 @@
   * Displays the sequence names with an arbitrary Marker component
   */
 
-  var XBarComponent = /*#__PURE__*/function (_PureComponent) {
-    _inherits(XBarComponent, _PureComponent);
-
-    var _super = _createSuper(XBarComponent);
-
-    function XBarComponent(props) {
-      var _this;
-
-      _classCallCheck(this, XBarComponent);
-
-      _this = _super.call(this, props);
-      _this.el = createRef$1();
-      return _this;
+  class XBarComponent extends React.PureComponent {
+    constructor(props) {
+      super(props);
+      this.el = createRef$1();
     }
 
-    _createClass(XBarComponent, [{
-      key: "render",
-      value: function render() {
-        var _this$props = this.props,
+    render() {
+      const _this$props = this.props,
             tileWidth = _this$props.tileWidth,
             sequences = _this$props.sequences,
             width = _this$props.width,
@@ -21565,43 +21360,41 @@
             componentCache = _this$props.componentCache,
             otherProps = _objectWithoutProperties(_this$props, ["tileWidth", "sequences", "width", "cacheElements", "tileComponent", "nrXTiles", "maxLength", "position", "positionDispatch", "componentCache"]);
 
-        var style = {
-          width,
-          overflow: "hidden",
-          position: "relative",
-          whiteSpace: "nowrap"
-        };
+      const style = {
+        width,
+        overflow: "hidden",
+        position: "relative",
+        whiteSpace: "nowrap"
+      };
 
-        var containerStyle = _objectSpread2(_objectSpread2({}, this.props.style), {}, {
-          height: this.props.height
-        });
+      const containerStyle = _objectSpread2(_objectSpread2({}, this.props.style), {}, {
+        height: this.props.height
+      });
 
-        var forwardedProps = {
-          tileWidth,
-          sequences,
-          tileComponent
-        };
-        var startTile = Math.max(0, this.props.position.currentViewSequencePosition - this.props.cacheElements);
-        var endTile = Math.min(this.props.maxLength, startTile + this.props.nrXTiles + this.props.cacheElements * 2);
-        var maxWidth = this.props.width + this.props.cacheElements * 2 * this.props.tileWidth;
-        this.props.position.lastStartXTile = startTile;
-        this.props.position.lastCurrentViewSequencePosition = this.props.position.currentViewSequencePosition;
-        return /*#__PURE__*/React__default.createElement("div", _extends({
-          style: containerStyle
-        }, otherProps), /*#__PURE__*/React__default.createElement("div", {
-          style: style,
-          ref: this.el
-        }, /*#__PURE__*/React__default.createElement(ListComponent, _extends({}, forwardedProps, {
-          componentCache: this.props.componentCache,
-          startTile: startTile,
-          endTile: endTile,
-          maxWidth: maxWidth
-        }))));
-      }
-    }]);
+      const forwardedProps = {
+        tileWidth,
+        sequences,
+        tileComponent
+      };
+      const startTile = Math.max(0, this.props.position.currentViewSequencePosition - this.props.cacheElements);
+      const endTile = Math.min(this.props.maxLength, startTile + this.props.nrXTiles + this.props.cacheElements * 2);
+      const maxWidth = this.props.width + this.props.cacheElements * 2 * this.props.tileWidth;
+      this.props.position.lastStartXTile = startTile;
+      this.props.position.lastCurrentViewSequencePosition = this.props.position.currentViewSequencePosition;
+      return /*#__PURE__*/React__default.createElement("div", _extends({
+        style: containerStyle
+      }, otherProps), /*#__PURE__*/React__default.createElement("div", {
+        style: style,
+        ref: this.el
+      }, /*#__PURE__*/React__default.createElement(ListComponent, _extends({}, forwardedProps, {
+        componentCache: this.props.componentCache,
+        startTile: startTile,
+        endTile: endTile,
+        maxWidth: maxWidth
+      }))));
+    }
 
-    return XBarComponent;
-  }(React.PureComponent);
+  }
 
   XBarComponent.propTypes = {
     /**
@@ -21618,64 +21411,50 @@
     withX: true
   });
 
-  function _createMarker(_ref) {
-    var markerSteps = _ref.markerSteps,
-        startIndex = _ref.startIndex,
-        tileWidth = _ref.tileWidth,
-        font = _ref.font,
-        markerComponent = _ref.markerComponent,
-        markerStyle = _ref.markerStyle,
-        markerAttributes = _ref.markerAttributes;
-
+  function createMarker({
+    markerSteps,
+    startIndex,
+    tileWidth,
+    font,
+    markerComponent,
+    markerStyle,
+    markerAttributes
+  }) {
     /**
      * Displays an individual sequence name.
      */
-    var Marker = /*#__PURE__*/function (_PureComponent) {
-      _inherits(Marker, _PureComponent);
-
-      var _super = _createSuper(Marker);
-
-      function Marker() {
-        _classCallCheck(this, Marker);
-
-        return _super.apply(this, arguments);
-      }
-
-      _createClass(Marker, [{
-        key: "render",
-        value: function render() {
-          var _this$props = this.props,
+    class Marker extends React.PureComponent {
+      render() {
+        const _this$props = this.props,
               index = _this$props.index,
               otherProps = _objectWithoutProperties(_this$props, ["index"]);
 
-          if (markerComponent) {
-            var MarkerComponent = markerComponent;
-            return /*#__PURE__*/React__default.createElement(MarkerComponent, {
-              index: index
-            });
+        if (markerComponent) {
+          const MarkerComponent = markerComponent;
+          return /*#__PURE__*/React__default.createElement(MarkerComponent, {
+            index: index
+          });
+        } else {
+          otherProps.style = _objectSpread2({
+            width: tileWidth,
+            display: "inline-block",
+            textAlign: "center"
+          }, markerStyle);
+          let name;
+
+          if (index % markerSteps === 0) {
+            name = index + 0 + startIndex;
           } else {
-            otherProps.style = _objectSpread2({
-              width: tileWidth,
-              display: "inline-block",
-              textAlign: "center"
-            }, markerStyle);
-            var name;
-
-            if (index % markerSteps === 0) {
-              name = index + 0 + startIndex;
-            } else {
-              name = '.';
-            }
-
-            var attributes = _objectSpread2(_objectSpread2({}, otherProps), markerAttributes);
-
-            return /*#__PURE__*/React__default.createElement("div", attributes, name);
+            name = '.';
           }
-        }
-      }]);
 
-      return Marker;
-    }(React.PureComponent);
+          const attributes = _objectSpread2(_objectSpread2({}, otherProps), markerAttributes);
+
+          return /*#__PURE__*/React__default.createElement("div", attributes, name);
+        }
+      }
+
+    }
 
     return Marker;
   }
@@ -21684,36 +21463,24 @@
   */
 
 
-  var HTMLPositionBarComponent = /*#__PURE__*/function (_PureComponent2) {
-    _inherits(HTMLPositionBarComponent, _PureComponent2);
+  class HTMLPositionBarComponent extends React.PureComponent {
+    constructor(props) {
+      super(props);
 
-    var _super2 = _createSuper(HTMLPositionBarComponent);
+      this.cache = function () {};
 
-    function HTMLPositionBarComponent(props) {
-      var _this;
-
-      _classCallCheck(this, HTMLPositionBarComponent);
-
-      _this = _super2.call(this, props);
-
-      _this.cache = function () {};
-
-      autoBind(_assertThisInitialized(_this), 'createMarker');
-      _this.marker = shallowSelect(partialRight(pick, _this.constructor.markerAttributes), _this.createMarker);
-      return _this;
+      autoBind(this, 'createMarker');
+      this.marker = shallowSelect(partialRight(pick, this.constructor.markerAttributes), this.createMarker);
     }
 
-    _createClass(HTMLPositionBarComponent, [{
-      key: "createMarker",
-      value: function createMarker(props) {
-        this.cache = function () {};
+    createMarker(props) {
+      this.cache = function () {};
 
-        return _createMarker(props);
-      }
-    }, {
-      key: "render",
-      value: function render() {
-        var _this$props2 = this.props,
+      return createMarker(props);
+    }
+
+    render() {
+      const _this$props2 = this.props,
             cacheElements = _this$props2.cacheElements,
             markerSteps = _this$props2.markerSteps,
             startIndex = _this$props2.startIndex,
@@ -21722,16 +21489,14 @@
             markerStyle = _this$props2.markerStyle,
             otherProps = _objectWithoutProperties(_this$props2, ["cacheElements", "markerSteps", "startIndex", "dispatch", "markerComponent", "markerStyle"]);
 
-        return /*#__PURE__*/React__default.createElement(XBar, _extends({
-          tileComponent: this.marker(this.props),
-          cacheElements: cacheElements,
-          componentCache: this.cache
-        }, otherProps));
-      }
-    }]);
+      return /*#__PURE__*/React__default.createElement(XBar, _extends({
+        tileComponent: this.marker(this.props),
+        cacheElements: cacheElements,
+        componentCache: this.cache
+      }, otherProps));
+    }
 
-    return HTMLPositionBarComponent;
-  }(React.PureComponent);
+  }
 
   _defineProperty(HTMLPositionBarComponent, "markerAttributes", ["markerSteps", "startIndex", "tileWidth", "markerComponent", "markerStyle", "markerAttributes"]);
 
@@ -21788,7 +21553,7 @@
     markerAttributes: PropTypes.object
   };
 
-  var mapStateToProps$1 = function mapStateToProps(state) {
+  const mapStateToProps$1 = state => {
     return {
       sequences: state.sequences.raw,
       maxLength: state.sequences.maxLength,
@@ -21800,7 +21565,7 @@
 
   var PositionBar = msaConnect(mapStateToProps$1)(HTMLPositionBarComponent);
 
-  var stat = function stat(seqs, opts) {
+  const stat = function stat(seqs, opts) {
     // if someone forgets new
     if (!this || this.constructor !== stat) {
       return new stat(seqs);
@@ -22215,45 +21980,31 @@
     return this._gaps;
   };
 
-  function _createBar(_ref) {
-    var columnHeights = _ref.columnHeights,
-        tileWidth = _ref.tileWidth,
-        height = _ref.height,
-        fillColor = _ref.fillColor,
-        barStyle = _ref.barStyle,
-        barAttributes = _ref.barAttributes;
-
-    var Bar = /*#__PURE__*/function (_PureComponent) {
-      _inherits(Bar, _PureComponent);
-
-      var _super = _createSuper(Bar);
-
-      function Bar() {
-        _classCallCheck(this, Bar);
-
-        return _super.apply(this, arguments);
-      }
-
-      _createClass(Bar, [{
-        key: "render",
-        value: function render() {
-          var _this$props = this.props,
+  function createBar({
+    columnHeights,
+    tileWidth,
+    height,
+    fillColor,
+    barStyle,
+    barAttributes
+  }) {
+    class Bar extends React.PureComponent {
+      render() {
+        const _this$props = this.props,
               index = _this$props.index,
               otherProps = _objectWithoutProperties(_this$props, ["index"]);
 
-          otherProps.style = {
-            height: Math.round(columnHeights[index] * height),
-            width: tileWidth,
-            display: "inline-block",
-            textAlign: "center",
-            backgroundColor: fillColor
-          };
-          return /*#__PURE__*/React__default.createElement("div", otherProps);
-        }
-      }]);
+        otherProps.style = {
+          height: Math.round(columnHeights[index] * height),
+          width: tileWidth,
+          display: "inline-block",
+          textAlign: "center",
+          backgroundColor: fillColor
+        };
+        return /*#__PURE__*/React__default.createElement("div", otherProps);
+      }
 
-      return Bar;
-    }(React.PureComponent);
+    }
 
     return Bar;
   }
@@ -22262,87 +22013,63 @@
    */
 
 
-  var HTMLOverviewBarComponent = /*#__PURE__*/function (_PureComponent2) {
-    _inherits(HTMLOverviewBarComponent, _PureComponent2);
+  class HTMLOverviewBarComponent extends React.PureComponent {
+    constructor(props) {
+      super(props);
 
-    var _super2 = _createSuper(HTMLOverviewBarComponent);
+      this.cache = function () {};
 
-    function HTMLOverviewBarComponent(props) {
-      var _this;
-
-      _classCallCheck(this, HTMLOverviewBarComponent);
-
-      _this = _super2.call(this, props);
-
-      _this.cache = function () {};
-
-      _this.initializeColumnHeights();
-
-      autoBind(_assertThisInitialized(_this), 'createBar');
-      _this.bar = shallowSelect(function (s) {
-        return pick(s, _this.constructor.barAttributes);
-      }, _this.columnHeights, _this.createBar);
-      return _this;
+      this.initializeColumnHeights();
+      autoBind(this, 'createBar');
+      this.bar = shallowSelect(s => pick(s, this.constructor.barAttributes), this.columnHeights, this.createBar);
     }
 
-    _createClass(HTMLOverviewBarComponent, [{
-      key: "createBar",
-      value: function createBar(props, columnHeights) {
-        this.cache = function () {};
+    createBar(props, columnHeights) {
+      this.cache = function () {};
 
-        return _createBar(_objectSpread2(_objectSpread2({}, props), {}, {
-          columnHeights
-        }));
-      }
-      /**
-       * Reduces the `props` object to column height by a `props.method`
-       */
+      return createBar(_objectSpread2(_objectSpread2({}, props), {}, {
+        columnHeights
+      }));
+    }
+    /**
+     * Reduces the `props` object to column height by a `props.method`
+     */
 
-    }, {
-      key: "initializeColumnHeights",
-      value: function initializeColumnHeights() {
-        this.columnHeights = createSelector(function (p) {
-          return p.sequences;
-        }, function (p) {
-          return p.method;
-        }, function (sequences, method$$1) {
-          var stats = stat(sequences.map(function (e) {
-            return e.sequence;
-          }));
-          var result;
 
-          switch (method$$1) {
-            case "conservation":
-              result = stats.scale(stats.conservation());
-              break;
+    initializeColumnHeights() {
+      this.columnHeights = createSelector(p => p.sequences, p => p.method, (sequences, method$$1) => {
+        const stats = stat(sequences.map(e => e.sequence));
+        let result;
 
-            case "information-content":
-              result = stats.scale(stats.ic());
-              break;
+        switch (method$$1) {
+          case "conservation":
+            result = stats.scale(stats.conservation());
+            break;
 
-            case "proteovision":
-              var tempArr = [];
-              var maxEntr = aaPropertiesData.get("Shannon entropy")[1];
-              var pvEntropy = vm.aa_properties.get("Shannon entropy");
-              pvEntropy.forEach(function (column) {
-                tempArr.push((maxEntr - column.reduce(function (a, b) {
-                  return a + b;
-                }, 0)) / maxEntr);
-              });
-              result = tempArr;
-              break;
+          case "information-content":
+            result = stats.scale(stats.ic());
+            break;
 
-            default:
-              console.error(method$$1 + "is an invalid aggregation method for <OverviewBar />");
-          }
+          case "proteovision":
+            var tempArr = [];
+            let maxEntr = aaPropertiesData.get("Shannon entropy")[1];
+            let pvEntropy = vm.aa_properties.get("Shannon entropy");
+            pvEntropy.forEach(function (column) {
+              tempArr.push((maxEntr - column.reduce((a, b) => a + b, 0)) / maxEntr);
+            });
+            result = tempArr;
+            break;
 
-          return result;
-        }).bind(this);
-      }
-    }, {
-      key: "render",
-      value: function render() {
-        var _this$props2 = this.props,
+          default:
+            console.error(method$$1 + "is an invalid aggregation method for <OverviewBar />");
+        }
+
+        return result;
+      }).bind(this);
+    }
+
+    render() {
+      const _this$props2 = this.props,
             cacheElements = _this$props2.cacheElements,
             height = _this$props2.height,
             method$$1 = _this$props2.method,
@@ -22352,16 +22079,14 @@
             barAttributes = _this$props2.barAttributes,
             otherProps = _objectWithoutProperties(_this$props2, ["cacheElements", "height", "method", "fillColor", "dispatch", "barStyle", "barAttributes"]);
 
-        return /*#__PURE__*/React__default.createElement(XBar, _extends({
-          tileComponent: this.bar(this.props),
-          cacheElements: cacheElements,
-          componentCache: this.cache
-        }, otherProps));
-      }
-    }]);
+      return /*#__PURE__*/React__default.createElement(XBar, _extends({
+        tileComponent: this.bar(this.props),
+        cacheElements: cacheElements,
+        componentCache: this.cache
+      }, otherProps));
+    }
 
-    return HTMLOverviewBarComponent;
-  }(React.PureComponent);
+  }
 
   _defineProperty(HTMLOverviewBarComponent, "barAttributes", ["tileWidth", "height", "fillColor", "barStyle", "barAttributes"]);
 
@@ -22406,7 +22131,7 @@
     barAttributes: PropTypes.object
   };
 
-  var mapStateToProps$2 = function mapStateToProps(state) {
+  const mapStateToProps$2 = state => {
     return {
       sequences: state.sequences.raw,
       maxLength: state.sequences.maxLength,
@@ -22418,19 +22143,17 @@
 
   var OverviewBar = msaConnect(mapStateToProps$2)(HTMLOverviewBarComponent); // for testing
 
-  var Mouse = function Mouse() {
-    _classCallCheck(this, Mouse);
-  };
+  class Mouse {}
 
   _defineProperty(Mouse, "rel", function (e) {
     if (e.changedTouches !== undefined) //return Mouse.rel(e.changedTouches[e.targetTouches.length - 1]);
       return Mouse.rel(e.changedTouches[0]);
-    var mouseX = e.offsetX;
-    var mouseY = e.offsetY;
+    let mouseX = e.offsetX;
+    let mouseY = e.offsetY;
 
     if (mouseX === undefined) {
-      var target = e.target || e.srcElement;
-      var rect = target.getBoundingClientRect();
+      const target = e.target || e.srcElement;
+      const rect = target.getBoundingClientRect();
       mouseX = e.clientX - rect.left;
       mouseY = e.clientY - rect.top;
 
@@ -22450,8 +22173,8 @@
   _defineProperty(Mouse, "abs", function (e) {
     if (e.changedTouches !== undefined) //return Mouse.abs(e.changedTouches[e.targetTouches.length - 1]);
       return Mouse.abs(e.changedTouches[0]);
-    var mouseX = e.pageX;
-    var mouseY = e.pageY;
+    let mouseX = e.pageX;
+    let mouseY = e.pageY;
 
     if (mouseX === undefined) {
       mouseX = e.layerX;
@@ -22472,7 +22195,7 @@
   });
 
   _defineProperty(Mouse, "wheelDelta", function (e) {
-    var delta = [e.deltaX, e.deltaY];
+    let delta = [e.deltaX, e.deltaY];
 
     if (delta[0] === undefined) {
       // in case there is a more detailed scroll sensor - use it
@@ -22652,84 +22375,70 @@
   // TODO: tooltips
 
 
-  var ModBar = /*#__PURE__*/function (_PureComponent) {
-    _inherits(ModBar, _PureComponent);
+  class ModBar extends React.PureComponent {
+    render() {
+      const iconWidth = 20;
+      const iconHeight = 20;
 
-    var _super = _createSuper(ModBar);
+      const style = _objectSpread2({
+        opacity: 0.9,
+        backgroundColor: "white"
+      }, this.props.style);
 
-    function ModBar() {
-      _classCallCheck(this, ModBar);
+      const linkStyle = {
+        position: "relative",
+        fontSize: "16px",
+        padding: "3px 4px",
+        cursor: "pointer",
+        lineHeight: "normal",
+        textDecoration: "none",
+        color: "black"
+      }; // fill with rgba(0, 31, 95, 0.3);
+      //
+      //<a href="" style={linkStyle}>
+      //<SaveIcon width={iconWidth} height={iconHeight} />
+      //</a>
 
-      return _super.apply(this, arguments);
+      return /*#__PURE__*/React__default.createElement("div", {
+        style: style
+      }, /*#__PURE__*/React__default.createElement("div", {
+        style: linkStyle
+      }, /*#__PURE__*/React__default.createElement(ZoomPlusIcon, {
+        width: iconWidth,
+        height: iconHeight
+      })), /*#__PURE__*/React__default.createElement("div", {
+        style: linkStyle
+      }, /*#__PURE__*/React__default.createElement(ZoomMinusIcon, {
+        width: iconWidth,
+        height: iconHeight
+      })), /*#__PURE__*/React__default.createElement("div", {
+        style: linkStyle
+      }, /*#__PURE__*/React__default.createElement(AutoscaleIcon, {
+        width: iconWidth,
+        height: iconHeight
+      })), /*#__PURE__*/React__default.createElement("a", {
+        href: "https://plot.ly/",
+        target: "_blank",
+        rel: "noreferrer noopener",
+        "data-title": "Produced with Plotly",
+        style: linkStyle
+      }, /*#__PURE__*/React__default.createElement(PlotlyIcon, {
+        width: iconWidth,
+        height: iconHeight
+      })));
     }
 
-    _createClass(ModBar, [{
-      key: "render",
-      value: function render() {
-        var iconWidth = 20;
-        var iconHeight = 20;
+  }
 
-        var style = _objectSpread2({
-          opacity: 0.9,
-          backgroundColor: "white"
-        }, this.props.style);
+  const updateMainStore = createAction("MAINSTORE_UPDATE"); // move the position relatively by {xMovement, yMovement}
 
-        var linkStyle = {
-          position: "relative",
-          fontSize: "16px",
-          padding: "3px 4px",
-          cursor: "pointer",
-          lineHeight: "normal",
-          textDecoration: "none",
-          color: "black"
-        }; // fill with rgba(0, 31, 95, 0.3);
-        //
-        //<a href="" style={linkStyle}>
-        //<SaveIcon width={iconWidth} height={iconHeight} />
-        //</a>
+  const movePosition = createAction("POSITION_MOVE"); // set an absolute position with {yPos, xPos}
 
-        return /*#__PURE__*/React__default.createElement("div", {
-          style: style
-        }, /*#__PURE__*/React__default.createElement("div", {
-          style: linkStyle
-        }, /*#__PURE__*/React__default.createElement(ZoomPlusIcon, {
-          width: iconWidth,
-          height: iconHeight
-        })), /*#__PURE__*/React__default.createElement("div", {
-          style: linkStyle
-        }, /*#__PURE__*/React__default.createElement(ZoomMinusIcon, {
-          width: iconWidth,
-          height: iconHeight
-        })), /*#__PURE__*/React__default.createElement("div", {
-          style: linkStyle
-        }, /*#__PURE__*/React__default.createElement(AutoscaleIcon, {
-          width: iconWidth,
-          height: iconHeight
-        })), /*#__PURE__*/React__default.createElement("a", {
-          href: "https://plot.ly/",
-          target: "_blank",
-          rel: "noreferrer noopener",
-          "data-title": "Produced with Plotly",
-          style: linkStyle
-        }, /*#__PURE__*/React__default.createElement(PlotlyIcon, {
-          width: iconWidth,
-          height: iconHeight
-        })));
-      }
-    }]);
+  const updatePosition = createAction("POSITION_UPDATE"); //Handling highlights
 
-    return ModBar;
-  }(React.PureComponent);
-
-  var updateMainStore = createAction("MAINSTORE_UPDATE"); // move the position relatively by {xMovement, yMovement}
-
-  var movePosition = createAction("POSITION_MOVE"); // set an absolute position with {yPos, xPos}
-
-  var updatePosition = createAction("POSITION_UPDATE"); //Handling highlights
-
-  var highlightRegion = createAction("HIGHLIGHT_REGION");
-  var removeHighlightRegion = createAction("REMOVE_HIGHLIGHT_REGION");
-  var actions$1 = {
+  const highlightRegion = createAction("HIGHLIGHT_REGION");
+  const removeHighlightRegion = createAction("REMOVE_HIGHLIGHT_REGION");
+  const actions$1 = {
     updateMainStore,
     updatePosition,
     movePosition,
@@ -22741,10 +22450,10 @@
    */
 
   function commonPositionReducer(prevState, pos) {
-    var maximum = prevState.sequences.maxLength;
-    var maxWidth = maximum * prevState.props.tileWidth - prevState.props.width;
+    const maximum = prevState.sequences.maxLength;
+    const maxWidth = maximum * prevState.props.tileWidth - prevState.props.width;
     pos.xPos = clamp(pos.xPos, 0, maxWidth);
-    var maxHeight = prevState.sequences.raw.length * prevState.props.tileHeight - prevState.props.height;
+    const maxHeight = prevState.sequences.raw.length * prevState.props.tileHeight - prevState.props.height;
     pos.yPos = clamp(pos.yPos, 0, maxHeight);
     return _objectSpread2(_objectSpread2({}, prevState), {}, {
       position: pos
@@ -22755,27 +22464,25 @@
    */
 
 
-  var relativePositionReducer = function relativePositionReducer() {
-    var prevState = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
-      position: {
-        xPos: 0,
-        yPos: 0
-      }
-    };
-    var action = arguments.length > 1 ? arguments[1] : undefined;
-    var pos = prevState.position;
+  const relativePositionReducer = (prevState = {
+    position: {
+      xPos: 0,
+      yPos: 0
+    }
+  }, action) => {
+    const pos = prevState.position;
 
     switch (action.type) {
       case movePosition.key:
 
-        var movePayload = _objectSpread2({}, pos);
+        const movePayload = _objectSpread2({}, pos);
 
         movePayload.xPos += action.payload.xMovement || 0;
         movePayload.yPos += action.payload.yMovement || 0;
         return commonPositionReducer(prevState, movePayload);
 
       case updatePosition.key:
-        var updatePayload = {
+        const updatePayload = {
           xPos: action.payload.xPos || pos.xPos,
           yPos: action.payload.yPos || pos.yPos
         };
@@ -22791,17 +22498,15 @@
    */
 
 
-  function positionReducer() {
-    var oldState = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
-      position: {
-        xPos: 0,
-        yPos: 0
-      }
-    };
-    var action = arguments.length > 1 ? arguments[1] : undefined;
-    var state = oldState;
-    var position = oldState.position;
-    var highlight = oldState.highlight;
+  function positionReducer(oldState = {
+    position: {
+      xPos: 0,
+      yPos: 0
+    }
+  }, action) {
+    let state = oldState;
+    let position = oldState.position;
+    let highlight = oldState.highlight;
 
     switch (action.type) {
       case updateMainStore.key:
@@ -22826,7 +22531,7 @@
         return state;
     }
 
-    var addedState = {
+    const addedState = {
       xPosOffset: -(position.xPos % state.props.tileWidth),
       yPosOffset: -(position.yPos % state.props.tileWidth),
       currentViewSequence: clamp(floor(position.yPos / state.props.tileHeight), 0, state.sequences.length - 1),
@@ -22868,151 +22573,134 @@
    * However, no actual content is displayed by this element.
    */
 
-  var FakeScroll = /*#__PURE__*/function (_PureComponent) {
-    _inherits(FakeScroll, _PureComponent);
+  class FakeScroll extends React.PureComponent {
+    constructor(props) {
+      super(props);
 
-    var _super = _createSuper(FakeScroll);
-
-    function FakeScroll(props) {
-      var _this;
-
-      _classCallCheck(this, FakeScroll);
-
-      _this = _super.call(this, props);
-
-      _defineProperty(_assertThisInitialized(_this), "onScroll", function (e) {
-        requestAnimation(_assertThisInitialized(_this), function () {
-          var movement = {
-            xMovement: _this.el.current.scrollLeft - _this.props.position.xPos,
-            yMovement: _this.el.current.scrollTop - _this.props.position.yPos
+      _defineProperty(this, "onScroll", e => {
+        requestAnimation(this, () => {
+          const movement = {
+            xMovement: this.el.current.scrollLeft - this.props.position.xPos,
+            yMovement: this.el.current.scrollTop - this.props.position.yPos
           };
-
-          _this.props.positionDispatch(movePosition(movement));
+          this.props.positionDispatch(movePosition(movement));
         });
       });
 
-      _defineProperty(_assertThisInitialized(_this), "updateScrollPosition", function () {
-        if (!_this.el || !_this.el.current) return;
-        _this.el.current.scrollTop = _this.props.position.yPos;
-        _this.el.current.scrollLeft = _this.props.position.xPos;
+      _defineProperty(this, "updateScrollPosition", () => {
+        if (!this.el || !this.el.current) return;
+        this.el.current.scrollTop = this.props.position.yPos;
+        this.el.current.scrollLeft = this.props.position.xPos;
       });
 
-      _this.el = createRef$1();
-      return _this;
+      this.el = createRef$1();
     }
 
-    _createClass(FakeScroll, [{
-      key: "checkOverflow",
-      value: function checkOverflow(overflow, _ref) {
-        var _ref$withX = _ref.withX,
-            withX = _ref$withX === void 0 ? false : _ref$withX,
-            _ref$withY = _ref.withY,
-            withY = _ref$withY === void 0 ? false : _ref$withY;
-        var show = false;
+    checkOverflow(overflow, {
+      withX = false,
+      withY = false
+    }) {
+      let show = false;
 
-        switch (this.props.overflow) {
-          case "auto":
-            if (withX) {
-              show |= this.props.fullWidth > this.props.width;
-            }
+      switch (this.props.overflow) {
+        case "auto":
+          if (withX) {
+            show |= this.props.fullWidth > this.props.width;
+          }
 
-            if (withY) {
-              show |= this.props.fullHeight > this.props.height;
-            }
+          if (withY) {
+            show |= this.props.fullHeight > this.props.height;
+          }
 
-            break;
+          break;
 
-          case "hidden":
-            show = false;
-            break;
+        case "hidden":
+          show = false;
+          break;
 
-          case "scroll":
-            show = true;
-            break;
+        case "scroll":
+          show = true;
+          break;
 
-          default:
-        }
-
-        return show;
+        default:
       }
-    }, {
-      key: "shouldShow",
-      value: function shouldShow() {
-        var withX = {
-          withX: true
-        };
-        var withY = {
-          withY: true
-        };
-        var overflowX = this.props.overflowX === "initial" ? this.props.overflow : this.props.overflowX;
-        var overflowY = this.props.overflowY === "initial" ? this.props.overflow : this.props.overflowY;
-        var showX = this.checkOverflow(overflowX, withX) && this.checkOverflow(this.props.overflow, withX);
-        var showY = this.checkOverflow(overflowY, withY) && this.checkOverflow(this.props.overflow, withY);
-        return {
-          showX,
-          showY
-        };
-      }
-    }, {
-      key: "render",
-      value: function render() {
-        var _this$props = this.props,
+
+      return show;
+    }
+
+    shouldShow() {
+      const withX = {
+        withX: true
+      };
+      const withY = {
+        withY: true
+      };
+      const overflowX = this.props.overflowX === "initial" ? this.props.overflow : this.props.overflowX;
+      const overflowY = this.props.overflowY === "initial" ? this.props.overflow : this.props.overflowY;
+      const showX = this.checkOverflow(overflowX, withX) && this.checkOverflow(this.props.overflow, withX);
+      const showY = this.checkOverflow(overflowY, withY) && this.checkOverflow(this.props.overflow, withY);
+      return {
+        showX,
+        showY
+      };
+    }
+
+    render() {
+      const _this$props = this.props,
             width = _this$props.width,
             height = _this$props.height,
             fullWidth = _this$props.fullWidth,
             fullHeight = _this$props.fullHeight;
-        var style = {
-          position: "absolute",
-          overflowX: "auto",
-          overflowY: "auto",
-          width,
-          height,
-          transform: ""
-        };
+      const style = {
+        position: "absolute",
+        overflowX: "auto",
+        overflowY: "auto",
+        width,
+        height,
+        transform: ""
+      };
 
-        var _this$shouldShow = this.shouldShow(),
+      const _this$shouldShow = this.shouldShow(),
             showX = _this$shouldShow.showX,
             showY = _this$shouldShow.showY;
 
-        var childStyle = {
-          height: 1,
-          width: 1
-        };
+      const childStyle = {
+        height: 1,
+        width: 1
+      };
 
-        if (!showY && !showX) {
-          return /*#__PURE__*/React__default.createElement("div", null);
-        }
-
-        if (showX) {
-          childStyle.width = fullWidth;
-          style.overflowX = "scroll";
-
-          if (this.props.positionX === "top") {
-            style.transform += "rotateX(180deg)";
-          }
-        }
-
-        if (showY) {
-          childStyle.height = fullHeight;
-          style.overflowY = "scroll";
-
-          if (this.props.positionY === "left") {
-            style.transform += "rotateY(180deg)";
-          }
-        }
-
-        return /*#__PURE__*/React__default.createElement("div", {
-          style: style,
-          onScroll: this.onScroll,
-          ref: this.el
-        }, /*#__PURE__*/React__default.createElement("div", {
-          style: childStyle
-        }));
+      if (!showY && !showX) {
+        return /*#__PURE__*/React__default.createElement("div", null);
       }
-    }]);
 
-    return FakeScroll;
-  }(React.PureComponent);
+      if (showX) {
+        childStyle.width = fullWidth;
+        style.overflowX = "scroll";
+
+        if (this.props.positionX === "top") {
+          style.transform += "rotateX(180deg)";
+        }
+      }
+
+      if (showY) {
+        childStyle.height = fullHeight;
+        style.overflowY = "scroll";
+
+        if (this.props.positionY === "left") {
+          style.transform += "rotateY(180deg)";
+        }
+      }
+
+      return /*#__PURE__*/React__default.createElement("div", {
+        style: style,
+        onScroll: this.onScroll,
+        ref: this.el
+      }, /*#__PURE__*/React__default.createElement("div", {
+        style: childStyle
+      }));
+    }
+
+  }
 
   FakeScroll.defaultProps = {
     overflow: "auto",
@@ -23050,11 +22738,7 @@
   */
   // TODO: handle wheel events
 
-  var DraggingComponent = /*#__PURE__*/function (_PureComponent) {
-    _inherits(DraggingComponent, _PureComponent);
-
-    var _super = _createSuper(DraggingComponent);
-
+  class DraggingComponent extends React.PureComponent {
     /**
      * The internal state is kept in:
      *
@@ -23063,361 +22747,317 @@
      *
      * If no movement is happening, inInDragPhase is undefined
      */
-    function DraggingComponent(props) {
-      var _this;
+    constructor(props) {
+      super(props);
 
-      _classCallCheck(this, DraggingComponent);
-
-      _this = _super.call(this, props);
-
-      _defineProperty(_assertThisInitialized(_this), "state", {
+      _defineProperty(this, "state", {
         mouse: {
           isMouseWithin: false,
           cursorState: "grab"
         }
       });
 
-      _defineProperty(_assertThisInitialized(_this), "currentContext", 1);
+      _defineProperty(this, "currentContext", 1);
 
-      _this.canvasBuffers = [createRef$1(), createRef$1()];
-      _this.container = createRef$1(); // bind events (can't use static properties due to inheritance)
+      this.canvasBuffers = [createRef$1(), createRef$1()];
+      this.container = createRef$1(); // bind events (can't use static properties due to inheritance)
 
-      autoBind(_assertThisInitialized(_this), "onMouseEnter", "onMouseLeave", "onMouseDown", "onMouseUp", "onMouseMove", "onTouchStart", "onTouchMove", "onTouchEnd", "onTouchCancel", "onClick", "onDoubleClick", "draw");
+      autoBind(this, "onMouseEnter", "onMouseLeave", "onMouseDown", "onMouseUp", "onMouseMove", "onTouchStart", "onTouchMove", "onTouchEnd", "onTouchCancel", "onClick", "onDoubleClick", "draw");
+      this.onViewpointChange(); // Define internal variables for explicitness
 
-      _this.onViewpointChange(); // Define internal variables for explicitness
-
-
-      _this.mouseMovePosition = undefined;
-      _this.touchMovePosition = undefined;
-      _this.isInDragPhase = undefined;
+      this.mouseMovePosition = undefined;
+      this.touchMovePosition = undefined;
+      this.isInDragPhase = undefined;
       /**
        * Set by mouseMouse, reset after the drag phase
        * Used to check whether an `onClick` event comes from a drag phase.
        */
 
-      _this.mouseHasMoved = undefined;
-      return _this;
+      this.mouseHasMoved = undefined;
     }
     /**
      * Called on every movement to rerender the canvas.
      */
 
 
-    _createClass(DraggingComponent, [{
-      key: "drawScene",
-      value: function drawScene() {
-        console.warn("drawScene is unimplemented.");
-      }
-      /**
-       * Called on every position update.
-       */
+    drawScene() {
+      console.warn("drawScene is unimplemented.");
+    }
+    /**
+     * Called on every position update.
+     */
 
-    }, {
-      key: "onPositionUpdate",
-      value: function onPositionUpdate() {
-        console.warn("onPositionUpdate is unimplemented.");
-      }
-      /**
-        * Called every time when the component's dimensions change.
-        */
 
-    }, {
-      key: "onViewpointChange",
-      value: function onViewpointChange() {// no work is necessary anymore
-      }
-    }, {
-      key: "componentDidMount",
-      value: function componentDidMount() {
-        // choose the best engine
-        this.ctxBuffers = [this.canvasBuffers[0].current.getContext('2d', {
-          alpha: 'false'
-        }), this.canvasBuffers[1].current.getContext('2d', {
-          alpha: 'false'
-        })]; // init
-
-        this.swapContexts();
-        this.container.current.addEventListener('mouseenter', this.onMouseEnter);
-        this.container.current.addEventListener('mouseleave', this.onMouseLeave);
-        this.container.current.addEventListener('mousedown', this.onMouseDown);
-        this.container.current.addEventListener('mouseup', this.onMouseUp);
-        this.container.current.addEventListener('mousemove', this.onMouseMove);
-        this.container.current.addEventListener('touchstart', this.onTouchStart);
-        this.container.current.addEventListener('touchmove', this.onTouchMove);
-        this.container.current.addEventListener('touchend', this.onTouchEnd);
-        this.container.current.addEventListener('touchcancel', this.onTouchCancel);
-        this.container.current.addEventListener('click', this.onClick);
-        this.container.current.addEventListener('dblclick', this.onDoubleClick); // TODO: should we react do window resizes dynamically?
-        //window.addEventListener('resize', this.onResize)
-      }
-      /**
-       * We buffer the canvas to display and allow to be redrawn while not being visible.
-       * Only after it has been drawn, the canvas element will be flipped to a visible state.
-       * In other words, we have two canvas elements (1 visible, 1 hidden) and
-       * a new `draw` happens on the hidden one. After a `draw` operation these canvas
-       * elements are "swapped" by this method.
-       *
-       * This method swaps the visibility of the DOM nodes and sets `this.ctx`
-       * to the hidden canvas.
-       */
-
-    }, {
-      key: "swapContexts",
-      value: function swapContexts() {
-        var current = this.currentContext; // show the pre-rendered buffer
-
-        this.canvasBuffers[current].current.style.visibility = "visible"; // and prepare the next one
-
-        var next = (this.currentContext + 1) % 2;
-        this.canvasBuffers[next].current.style.visibility = "hidden";
-        this.currentContext = next;
-        this.ctx = this.ctxBuffers[next];
-      }
-      /**
-       * Starts a draw operation by essentially:
-       * - clearing the current context (the hidden canvas)
-       * - calling `drawScene` to render the current canvas
-       * - swapping canvas contexts with `swapContexts`
-       */
-
-    }, {
-      key: "draw",
-      value: function draw() {
-        if (!this.ctx) return;
-        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-        this.onViewpointChange();
-        this.drawScene();
-        this.swapContexts();
-      }
-      /**
-      // TODO: should we react do window resizes dynamically?
-      onResize = (e) => {
-      }
+    onPositionUpdate() {
+      console.warn("onPositionUpdate is unimplemented.");
+    }
+    /**
+      * Called every time when the component's dimensions change.
       */
 
-      /**
-       * To be implemented by its childs.
-       */
 
-    }, {
-      key: "onClick",
-      value: function onClick(e) {}
-      /**
-       * To be implemented by its childs.
-       */
+    onViewpointChange() {// no work is necessary anymore
+    }
 
-    }, {
-      key: "onDoubleClick",
-      value: function onDoubleClick(e) {}
-    }, {
-      key: "onMouseDown",
-      value: function onMouseDown(e) {
-        //console.log("mousedown", e);
-        this.startDragPhase(e);
-      }
-    }, {
-      key: "onMouseMove",
-      value: function onMouseMove(e) {
-        var _this2 = this;
+    componentDidMount() {
+      // choose the best engine
+      this.ctxBuffers = [this.canvasBuffers[0].current.getContext('2d', {
+        alpha: 'false'
+      }), this.canvasBuffers[1].current.getContext('2d', {
+        alpha: 'false'
+      })]; // init
 
-        if (this.isInDragPhase === undefined) {
-          return;
-        }
+      this.swapContexts();
+      this.container.current.addEventListener('mouseenter', this.onMouseEnter);
+      this.container.current.addEventListener('mouseleave', this.onMouseLeave);
+      this.container.current.addEventListener('mousedown', this.onMouseDown);
+      this.container.current.addEventListener('mouseup', this.onMouseUp);
+      this.container.current.addEventListener('mousemove', this.onMouseMove);
+      this.container.current.addEventListener('touchstart', this.onTouchStart);
+      this.container.current.addEventListener('touchmove', this.onTouchMove);
+      this.container.current.addEventListener('touchend', this.onTouchEnd);
+      this.container.current.addEventListener('touchcancel', this.onTouchCancel);
+      this.container.current.addEventListener('click', this.onClick);
+      this.container.current.addEventListener('dblclick', this.onDoubleClick); // TODO: should we react do window resizes dynamically?
+      //window.addEventListener('resize', this.onResize)
+    }
+    /**
+     * We buffer the canvas to display and allow to be redrawn while not being visible.
+     * Only after it has been drawn, the canvas element will be flipped to a visible state.
+     * In other words, we have two canvas elements (1 visible, 1 hidden) and
+     * a new `draw` happens on the hidden one. After a `draw` operation these canvas
+     * elements are "swapped" by this method.
+     *
+     * This method swaps the visibility of the DOM nodes and sets `this.ctx`
+     * to the hidden canvas.
+     */
 
-        this.mouseHasMoved = true;
-        var pos = Mouse.abs(e); // TODO: use global window out and not this container's out for better dragging
-        //if (!this.isEventWithinComponent(e)) {
-        //this.stopDragPhase();
-        //return;
-        //}
 
-        var oldPos = this.mouseMovePosition;
-        requestAnimation(this, function () {
-          // already use the potentially updated mouse move position here
-          _this2.mouseMovePosition = pos;
+    swapContexts() {
+      const current = this.currentContext; // show the pre-rendered buffer
 
-          _this2.onPositionUpdate(oldPos, _this2.mouseMovePosition);
-        });
-      }
-    }, {
-      key: "onMouseUp",
-      value: function onMouseUp() {
-        this.stopDragPhase();
-      }
-    }, {
-      key: "onMouseEnter",
-      value: function onMouseEnter() {
-        this.setState(function (prevState) {
-          return {
-            mouse: _objectSpread2(_objectSpread2({}, prevState.mouse), {}, {
-              isMouseWithin: true
-            })
-          };
-        });
-      }
-    }, {
-      key: "onMouseLeave",
-      value: function onMouseLeave() {
-        // TODO: use global window out and not this container's out for better dragging
-        this.stopHoverPhase();
-        this.stopDragPhase();
-      }
-    }, {
-      key: "onTouchStart",
-      value: function onTouchStart(e) {
-        this.startDragPhase(e);
-      }
-    }, {
-      key: "onTouchMove",
-      value: function onTouchMove(e) {
-        if (this.isInDragPhase === undefined) {
-          return;
-        } // TODO: can call mouse move with changedTouches[$-1], but it's reversed moving
+      this.canvasBuffers[current].current.style.visibility = "visible"; // and prepare the next one
 
-        this.onMouseMove(e);
-      }
-    }, {
-      key: "onTouchEnd",
-      value: function onTouchEnd() {
-        this.stopDragPhase();
-      }
-    }, {
-      key: "onTouchCancel",
-      value: function onTouchCancel() {
-        this.stopDragPhase();
-      }
-      /**
-       * Called at the start of a drag action.
-       */
+      const next = (this.currentContext + 1) % 2;
+      this.canvasBuffers[next].current.style.visibility = "hidden";
+      this.currentContext = next;
+      this.ctx = this.ctxBuffers[next];
+    }
+    /**
+     * Starts a draw operation by essentially:
+     * - clearing the current context (the hidden canvas)
+     * - calling `drawScene` to render the current canvas
+     * - swapping canvas contexts with `swapContexts`
+     */
 
-    }, {
-      key: "startDragPhase",
-      value: function startDragPhase(e) {
-        this.mouseMovePosition = Mouse.abs(e);
-        this.mouseHasMoved = undefined;
-        this.isInDragPhase = true;
-        this.setState(function (prevState) {
-          return {
-            mouse: _objectSpread2(_objectSpread2({}, prevState.mouse), {}, {
-              cursorState: "grabbing"
-            })
-          };
-        });
-      }
-      /**
-       * Called whenever the mouse leaves the canvas area.
-       */
 
-    }, {
-      key: "stopHoverPhase",
-      value: function stopHoverPhase() {
-        this.setState(function (prevState) {
-          return {
-            mouse: _objectSpread2(_objectSpread2({}, prevState.mouse), {}, {
-              isMouseWithin: false
-            })
-          };
-        });
-      }
-      /**
-       * Called at the end of a drag action.
-       */
+    draw() {
+      if (!this.ctx) return;
+      this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+      this.onViewpointChange();
+      this.drawScene();
+      this.swapContexts();
+    }
+    /**
+    // TODO: should we react do window resizes dynamically?
+    onResize = (e) => {
+    }
+    */
 
-    }, {
-      key: "stopDragPhase",
-      value: function stopDragPhase() {
-        this.isInDragPhase = undefined;
-        this.setState(function (prevState) {
-          return {
-            mouse: _objectSpread2(_objectSpread2({}, prevState.mouse), {}, {
-              cursorState: "grab"
-            })
-          };
-        });
-      }
-    }, {
-      key: "isEventWithinComponent",
-      value: function isEventWithinComponent(e) {
-        // TODO: cache width + height for the rel call
-        var relPos = Mouse.rel(e);
-        return 0 <= relPos[0] && relPos[0] <= this.props.width && 0 <= relPos[1] && relPos[1] <= this.props.height;
-      }
-      /**
-       * Unregisters all event listeners and stops the animations.
-       */
+    /**
+     * To be implemented by its childs.
+     */
 
-    }, {
-      key: "componentWillUnmount",
-      value: function componentWillUnmount() {
-        // TODO: should we react to resize events dynamically?
-        //window.removeEventListener('resize', this.onResize);
-        this.container.current.removeEventListener('mouseenter', this.onMouseEnter);
-        this.container.current.removeEventListener('mouseleave', this.onMouseLeave);
-        this.container.current.removeEventListener('mouseup', this.onMouseUp);
-        this.container.current.removeEventListener('mousedown', this.onMouseDown);
-        this.container.current.removeEventListener('mousemove', this.onMouseMove);
-        this.container.current.removeEventListener('click', this.onClick);
-        this.container.current.removeEventListener('dblclick', this.onDoubleClick);
-        this.container.current.removeEventListener('touchstart', this.onTouchStart);
-        this.container.current.removeEventListener('touchend', this.onTouchEnd);
-        this.container.current.removeEventListener('touchcancel', this.onTouchCancel);
-        this.container.current.removeEventListener('touchmove', this.onTouchMove);
-        this.stopDragPhase();
-      }
-    }, {
-      key: "render",
-      value: function render() {
-        // TODO: adapt to parent height/width
-        var style = _objectSpread2(_objectSpread2({
-          width: this.props.width,
-          height: this.props.height
-        }, this.props.style), {}, {
-          cursor: this.state.mouse.cursorState,
-          position: "relative"
-        });
 
-        var modBar = {
-          position: "absolute",
-          right: 0,
-          opacity: 0.8
-        };
-        var showModBar = this.props.showModBar && this.state.mouse.isMouseWithin;
-        var canvasStyle = {
-          position: "absolute",
-          left: 0,
-          top: 0
-        };
-        var otherProps = omit(this.props, [].concat(_toConsumableArray(this.constructor.propKeys), ["tileWidth", "tileHeight", "colorScheme", "nrXTiles", "nrYTiles", "dispatch", "sequences", "fullWidth", "fullHeight", "position", "positionDispatch"]));
-        return /*#__PURE__*/React__default.createElement("div", _extends({
-          style: style,
-          ref: this.container
-        }, otherProps), showModBar && /*#__PURE__*/React__default.createElement(ModBar, {
-          style: modBar
-        }, " Plotly Modbar"), /*#__PURE__*/React__default.createElement("canvas", {
-          style: canvasStyle,
-          ref: this.canvasBuffers[0],
-          width: this.props.width,
-          height: this.props.height
-        }, "Your browser does not seem to support HTML5 canvas."), /*#__PURE__*/React__default.createElement("canvas", {
-          style: canvasStyle,
-          ref: this.canvasBuffers[1],
-          width: this.props.width,
-          height: this.props.height
-        }, "Your browser does not seem to support HTML5 canvas."), /*#__PURE__*/React__default.createElement(FakeScroll$1, {
-          overflow: this.props.overflow,
-          overflowX: this.props.overflowX,
-          overflowY: this.props.overflowY,
-          positionX: this.props.scrollBarPositionX,
-          positionY: this.props.scrollBarPositionY,
-          width: this.props.width,
-          height: this.props.height,
-          fullWidth: this.props.fullWidth,
-          fullHeight: this.props.fullHeight
-        }));
-      }
-    }]);
+    onClick(e) {}
+    /**
+     * To be implemented by its childs.
+     */
 
-    return DraggingComponent;
-  }(React.PureComponent);
+
+    onDoubleClick(e) {}
+
+    onMouseDown(e) {
+      //console.log("mousedown", e);
+      this.startDragPhase(e);
+    }
+
+    onMouseMove(e) {
+      if (this.isInDragPhase === undefined) {
+        return;
+      }
+
+      this.mouseHasMoved = true;
+      const pos = Mouse.abs(e); // TODO: use global window out and not this container's out for better dragging
+      //if (!this.isEventWithinComponent(e)) {
+      //this.stopDragPhase();
+      //return;
+      //}
+
+      const oldPos = this.mouseMovePosition;
+      requestAnimation(this, () => {
+        // already use the potentially updated mouse move position here
+        this.mouseMovePosition = pos;
+        this.onPositionUpdate(oldPos, this.mouseMovePosition);
+      });
+    }
+
+    onMouseUp() {
+      this.stopDragPhase();
+    }
+
+    onMouseEnter() {
+      this.setState(prevState => ({
+        mouse: _objectSpread2(_objectSpread2({}, prevState.mouse), {}, {
+          isMouseWithin: true
+        })
+      }));
+    }
+
+    onMouseLeave() {
+      // TODO: use global window out and not this container's out for better dragging
+      this.stopHoverPhase();
+      this.stopDragPhase();
+    }
+
+    onTouchStart(e) {
+      this.startDragPhase(e);
+    }
+
+    onTouchMove(e) {
+      if (this.isInDragPhase === undefined) {
+        return;
+      } // TODO: can call mouse move with changedTouches[$-1], but it's reversed moving
+
+      this.onMouseMove(e);
+    }
+
+    onTouchEnd() {
+      this.stopDragPhase();
+    }
+
+    onTouchCancel() {
+      this.stopDragPhase();
+    }
+    /**
+     * Called at the start of a drag action.
+     */
+
+
+    startDragPhase(e) {
+      this.mouseMovePosition = Mouse.abs(e);
+      this.mouseHasMoved = undefined;
+      this.isInDragPhase = true;
+      this.setState(prevState => ({
+        mouse: _objectSpread2(_objectSpread2({}, prevState.mouse), {}, {
+          cursorState: "grabbing"
+        })
+      }));
+    }
+    /**
+     * Called whenever the mouse leaves the canvas area.
+     */
+
+
+    stopHoverPhase() {
+      this.setState(prevState => ({
+        mouse: _objectSpread2(_objectSpread2({}, prevState.mouse), {}, {
+          isMouseWithin: false
+        })
+      }));
+    }
+    /**
+     * Called at the end of a drag action.
+     */
+
+
+    stopDragPhase() {
+      this.isInDragPhase = undefined;
+      this.setState(prevState => ({
+        mouse: _objectSpread2(_objectSpread2({}, prevState.mouse), {}, {
+          cursorState: "grab"
+        })
+      }));
+    }
+
+    isEventWithinComponent(e) {
+      // TODO: cache width + height for the rel call
+      const relPos = Mouse.rel(e);
+      return 0 <= relPos[0] && relPos[0] <= this.props.width && 0 <= relPos[1] && relPos[1] <= this.props.height;
+    }
+    /**
+     * Unregisters all event listeners and stops the animations.
+     */
+
+
+    componentWillUnmount() {
+      // TODO: should we react to resize events dynamically?
+      //window.removeEventListener('resize', this.onResize);
+      this.container.current.removeEventListener('mouseenter', this.onMouseEnter);
+      this.container.current.removeEventListener('mouseleave', this.onMouseLeave);
+      this.container.current.removeEventListener('mouseup', this.onMouseUp);
+      this.container.current.removeEventListener('mousedown', this.onMouseDown);
+      this.container.current.removeEventListener('mousemove', this.onMouseMove);
+      this.container.current.removeEventListener('click', this.onClick);
+      this.container.current.removeEventListener('dblclick', this.onDoubleClick);
+      this.container.current.removeEventListener('touchstart', this.onTouchStart);
+      this.container.current.removeEventListener('touchend', this.onTouchEnd);
+      this.container.current.removeEventListener('touchcancel', this.onTouchCancel);
+      this.container.current.removeEventListener('touchmove', this.onTouchMove);
+      this.stopDragPhase();
+    }
+
+    render() {
+      // TODO: adapt to parent height/width
+      const style = _objectSpread2(_objectSpread2({
+        width: this.props.width,
+        height: this.props.height
+      }, this.props.style), {}, {
+        cursor: this.state.mouse.cursorState,
+        position: "relative"
+      });
+
+      const modBar = {
+        position: "absolute",
+        right: 0,
+        opacity: 0.8
+      };
+      const showModBar = this.props.showModBar && this.state.mouse.isMouseWithin;
+      const canvasStyle = {
+        position: "absolute",
+        left: 0,
+        top: 0
+      };
+      const otherProps = omit(this.props, [...this.constructor.propKeys, "tileWidth", "tileHeight", "colorScheme", "nrXTiles", "nrYTiles", "dispatch", "sequences", "fullWidth", "fullHeight", "position", "positionDispatch"]);
+      return /*#__PURE__*/React__default.createElement("div", _extends({
+        style: style,
+        ref: this.container
+      }, otherProps), showModBar && /*#__PURE__*/React__default.createElement(ModBar, {
+        style: modBar
+      }, " Plotly Modbar"), /*#__PURE__*/React__default.createElement("canvas", {
+        style: canvasStyle,
+        ref: this.canvasBuffers[0],
+        width: this.props.width,
+        height: this.props.height
+      }, "Your browser does not seem to support HTML5 canvas."), /*#__PURE__*/React__default.createElement("canvas", {
+        style: canvasStyle,
+        ref: this.canvasBuffers[1],
+        width: this.props.width,
+        height: this.props.height
+      }, "Your browser does not seem to support HTML5 canvas."), /*#__PURE__*/React__default.createElement(FakeScroll$1, {
+        overflow: this.props.overflow,
+        overflowX: this.props.overflowX,
+        overflowY: this.props.overflowY,
+        positionX: this.props.scrollBarPositionX,
+        positionY: this.props.scrollBarPositionY,
+        width: this.props.width,
+        height: this.props.height,
+        fullWidth: this.props.fullWidth,
+        fullHeight: this.props.fullHeight
+      }));
+    }
+
+  }
 
   _defineProperty(DraggingComponent, "defaultProps", {
     engine: "canvas",
@@ -23432,48 +23072,36 @@
   * LICENSE file in the root directory of this source tree.
   */
   // TODO: use more abstract, non-canvas-like API
-  var DrawingBase = /*#__PURE__*/function () {
-    function DrawingBase(el) {
-      _classCallCheck(this, DrawingBase);
-
+  class DrawingBase {
+    constructor(el) {
       this.el = el;
       this.state = {};
     }
 
-    _createClass(DrawingBase, [{
-      key: "updateEl",
-      value: function updateEl(el) {
-        this.el = el;
-      } // props
+    updateEl(el) {
+      this.el = el;
+    } // props
 
-    }, {
-      key: "font",
-      value: function font(fontName) {
-        this.state.font = fontName;
-      }
-    }, {
-      key: "globalAlpha",
-      value: function globalAlpha(_globalAlpha) {
-        this.state.globalAlpha = _globalAlpha;
-      }
-    }, {
-      key: "startDrawingFrame",
-      value: function startDrawingFrame() {
-        this.clear();
-      }
-    }, {
-      key: "endDrawingFrame",
-      value: function endDrawingFrame() {}
-    }, {
-      key: "save",
-      value: function save() {}
-    }, {
-      key: "restore",
-      value: function restore() {}
-    }]);
 
-    return DrawingBase;
-  }();
+    font(fontName) {
+      this.state.font = fontName;
+    }
+
+    globalAlpha(globalAlpha) {
+      this.state.globalAlpha = globalAlpha;
+    }
+
+    startDrawingFrame() {
+      this.clear();
+    }
+
+    endDrawingFrame() {}
+
+    save() {}
+
+    restore() {}
+
+  }
 
   /**
   * Copyright 2018, Plotly, Inc.
@@ -23482,128 +23110,107 @@
   * This source code is licensed under the MIT license found in the
   * LICENSE file in the root directory of this source tree.
   */
-  var CanvasCharCache = /*#__PURE__*/function () {
-    function CanvasCharCache(g) {
-      _classCallCheck(this, CanvasCharCache);
-
+  class CanvasCharCache {
+    constructor(g) {
       this.cache = {};
       this.cacheHeight = 0;
       this.cacheWidth = 0;
     } // returns a cached canvas
 
 
-    _createClass(CanvasCharCache, [{
-      key: "getFontTile",
-      value: function getFontTile(letter, width, height, font) {
-        // validate cache
-        if (width !== this.cacheWidth || height !== this.cacheHeight || font !== this.font) {
-          this.updateDimensions(width, height);
-          this.font = font;
-        }
-
-        if (this.cache[letter] === undefined) {
-          this.createTile(letter, width, height);
-        }
-
-        return this.cache[letter];
-      } // creates a canvas with a single letter
-      // (for the fast font cache)
-
-    }, {
-      key: "createTile",
-      value: function createTile(letter, width, height, font) {
-        var canvas = this.cache[letter] = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        this.ctx = canvas.getContext('2d');
-        this.ctx.font = this.font + "px mono";
-        this.ctx.textBaseline = 'middle';
-        this.ctx.textAlign = "center";
-        return this.ctx.fillText(letter, width / 2, height / 2, width, font);
+    getFontTile(letter, width, height, font) {
+      // validate cache
+      if (width !== this.cacheWidth || height !== this.cacheHeight || font !== this.font) {
+        this.updateDimensions(width, height);
+        this.font = font;
       }
-    }, {
-      key: "updateDimensions",
-      value: function updateDimensions(width, height) {
-        this.invalidate();
-        this.cacheWidth = width;
-        this.cacheHeight = height;
+
+      if (this.cache[letter] === undefined) {
+        this.createTile(letter, width, height);
       }
-    }, {
-      key: "invalidate",
-      value: function invalidate() {
-        // TODO: destroy the old canvas elements
-        this.cache = {};
-      }
-    }]);
 
-    return CanvasCharCache;
-  }();
+      return this.cache[letter];
+    } // creates a canvas with a single letter
+    // (for the fast font cache)
 
-  var Canvas = /*#__PURE__*/function (_DrawingBase) {
-    _inherits(Canvas, _DrawingBase);
 
-    var _super = _createSuper(Canvas);
-
-    function Canvas(el) {
-      var _this;
-
-      _classCallCheck(this, Canvas);
-
-      _this = _super.call(this, el);
-      _this.ctx = el.getContext('2d');
-      _this.cache = new CanvasCharCache();
-      return _this;
+    createTile(letter, width, height, font) {
+      const canvas = this.cache[letter] = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      this.ctx = canvas.getContext('2d');
+      this.ctx.font = this.font + "px mono";
+      this.ctx.textBaseline = 'middle';
+      this.ctx.textAlign = "center";
+      return this.ctx.fillText(letter, width / 2, height / 2, width, font);
     }
 
-    _createClass(Canvas, [{
-      key: "clear",
-      value: function clear() {
-        // fastest way to clear the canvas
-        // http://jsperf.com/canvas-clear-speed
-        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-      }
-    }, {
-      key: "fillRect",
-      value: function fillRect(x, y, width, height) {
-        this.ctx.fillRect(x, y, width, height);
-      } // TODO: rename as its effectively only one letter
+    updateDimensions(width, height) {
+      this.invalidate();
+      this.cacheWidth = width;
+      this.cacheHeight = height;
+    }
 
-    }, {
-      key: "fillText",
-      value: function fillText(text, x, y, width, height) {
-        //this.ctx.fillText(text, x, y);
-        return this.ctx.drawImage(this.cache.getFontTile(text, width, height, this.ctx.font), x, y, width, height);
-      } // props
+    invalidate() {
+      // TODO: destroy the old canvas elements
+      this.cache = {};
+    }
 
-    }, {
-      key: "font",
-      value: function font(fontName) {
-        this.ctx.font = fontName;
-      }
-    }, {
-      key: "fillStyle",
-      value: function fillStyle(_fillStyle) {
-        this.ctx.fillStyle = _fillStyle;
-      }
-    }, {
-      key: "globalAlpha",
-      value: function globalAlpha(_globalAlpha) {
-        this.ctx.globalAlpha = _globalAlpha;
-      }
-    }, {
-      key: "save",
-      value: function save() {
-        this.ctx.save();
-      }
-    }, {
-      key: "restore",
-      value: function restore() {
-        this.ctx.restore();
-      }
-    }]);
+  }
 
-    return Canvas;
-  }(DrawingBase);
+  /**
+  * Copyright 2018, Plotly, Inc.
+  * All rights reserved.
+  *
+  * This source code is licensed under the MIT license found in the
+  * LICENSE file in the root directory of this source tree.
+  */
+
+  class Canvas extends DrawingBase {
+    constructor(el) {
+      super(el);
+      this.ctx = el.getContext('2d');
+      this.cache = new CanvasCharCache();
+    }
+
+    clear() {
+      // fastest way to clear the canvas
+      // http://jsperf.com/canvas-clear-speed
+      this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+    }
+
+    fillRect(x, y, width, height) {
+      this.ctx.fillRect(x, y, width, height);
+    } // TODO: rename as its effectively only one letter
+
+
+    fillText(text, x, y, width, height) {
+      //this.ctx.fillText(text, x, y);
+      return this.ctx.drawImage(this.cache.getFontTile(text, width, height, this.ctx.font), x, y, width, height);
+    } // props
+
+
+    font(fontName) {
+      this.ctx.font = fontName;
+    }
+
+    fillStyle(fillStyle) {
+      this.ctx.fillStyle = fillStyle;
+    }
+
+    globalAlpha(globalAlpha) {
+      this.ctx.globalAlpha = globalAlpha;
+    }
+
+    save() {
+      this.ctx.save();
+    }
+
+    restore() {
+      this.ctx.restore();
+    }
+
+  }
 
   /**
    * Constructs a drawable canvas (e.g. HTML Canvas or WebGL) and provides it as
@@ -23612,62 +23219,45 @@
    * On every redraw, this.draw() gets called.
    */
 
-  var CanvasComponent = /*#__PURE__*/function (_PureComponent) {
-    _inherits(CanvasComponent, _PureComponent);
-
-    var _super = _createSuper(CanvasComponent);
-
-    function CanvasComponent(props) {
-      var _this;
-
-      _classCallCheck(this, CanvasComponent);
-
-      _this = _super.call(this, props);
-      _this.canvas = createRef$1();
-      return _this;
+  class CanvasComponent extends React.PureComponent {
+    constructor(props) {
+      super(props);
+      this.canvas = createRef$1();
     }
 
-    _createClass(CanvasComponent, [{
-      key: "componentDidMount",
-      value: function componentDidMount() {
-        this.ctx = new Canvas(this.canvas.current);
-        this.draw();
-      }
-    }, {
-      key: "componentDidUpdate",
-      value: function componentDidUpdate() {
-        this._draw();
-      }
-    }, {
-      key: "_draw",
-      value: function _draw() {
-        if (!this.ctx) return;
-        this.ctx.startDrawingFrame();
-        this.ctx.save();
-        this.draw();
-        this.ctx.restore();
-        this.ctx.endDrawingFrame();
-      }
-    }, {
-      key: "draw",
-      value: function draw() {
-        console.error("Implement me.");
-      }
-    }, {
-      key: "render",
-      value: function render() {
-        return /*#__PURE__*/React__default.createElement("div", {
-          style: this.props.style
-        }, /*#__PURE__*/React__default.createElement("canvas", {
-          ref: this.canvas,
-          width: this.props.width,
-          height: this.props.height
-        }));
-      }
-    }]);
+    componentDidMount() {
+      this.ctx = new Canvas(this.canvas.current);
+      this.draw();
+    }
 
-    return CanvasComponent;
-  }(React.PureComponent);
+    componentDidUpdate() {
+      this._draw();
+    }
+
+    _draw() {
+      if (!this.ctx) return;
+      this.ctx.startDrawingFrame();
+      this.ctx.save();
+      this.draw();
+      this.ctx.restore();
+      this.ctx.endDrawingFrame();
+    }
+
+    draw() {
+      console.error("Implement me.");
+    }
+
+    render() {
+      return /*#__PURE__*/React__default.createElement("div", {
+        style: this.props.style
+      }, /*#__PURE__*/React__default.createElement("canvas", {
+        ref: this.canvas,
+        width: this.props.width,
+        height: this.props.height
+      }));
+    }
+
+  }
 
   _defineProperty(CanvasComponent, "defaultProps", {
     engine: "canvas"
@@ -23696,6 +23286,13 @@
   };
 
   /**
+  * Copyright 2018, Plotly, Inc.
+  * All rights reserved.
+  *
+  * This source code is licensed under the MIT license found in the
+  * LICENSE file in the root directory of this source tree.
+  */
+  /**
    * Allows rendering in tiles of grids.
    *
    * |---|---|---|
@@ -23712,99 +23309,91 @@
    * Tree calculations slim.
    */
 
-  var CanvasTilingGridComponent = /*#__PURE__*/function (_CanvasComponent) {
-    _inherits(CanvasTilingGridComponent, _CanvasComponent);
+  class CanvasTilingGridComponent extends CanvasComponent {
+    drawTile({
+      row,
+      column
+    }) {
+      const tileWidth = this.props.tileWidth;
+      const tileHeight = this.props.tileHeight;
+      const yPos = tileHeight * (row - this.props.startYTile);
+      const xPos = tileWidth * (column - this.props.startXTile);
+      if (row >= this.props.sequences.raw.length) return undefined;
+      const sequence = this.props.sequences.raw[row].sequence;
+      if (column >= sequence.length) return undefined;
+      const text = sequence[column];
 
-    var _super = _createSuper(CanvasTilingGridComponent);
-
-    function CanvasTilingGridComponent() {
-      _classCallCheck(this, CanvasTilingGridComponent);
-
-      return _super.apply(this, arguments);
-    }
-
-    _createClass(CanvasTilingGridComponent, [{
-      key: "drawTile",
-      value: function drawTile(_ref) {
-        var _this = this;
-
-        var row = _ref.row,
-            column = _ref.column;
-        var tileWidth = this.props.tileWidth;
-        var tileHeight = this.props.tileHeight;
-        var yPos = tileHeight * (row - this.props.startYTile);
-        var xPos = tileWidth * (column - this.props.startXTile);
-        if (row >= this.props.sequences.raw.length) return undefined;
-        var sequence = this.props.sequences.raw[row].sequence;
-        if (column >= sequence.length) return undefined;
-        var text = sequence[column];
-
-        if (text !== undefined) {
-          var colorScheme = this.props.colorScheme.getColor(text);
-          var key = "".concat(text, "-").concat(colorScheme);
-          var canvasTile = this.props.residueTileCache.createTile({
-            key,
-            tileWidth,
-            tileHeight,
-            create: function create(_ref2) {
-              var canvas = _ref2.canvas;
-              return _this.drawResidue({
-                text,
-                canvas,
-                row,
-                column,
-                colorScheme
-              });
-            }
-          });
-          this.props.ctx.drawImage(canvasTile, 0, 0, tileWidth, tileHeight, xPos, yPos, tileWidth, tileHeight);
-        }
-      }
-    }, {
-      key: "drawResidue",
-      value: function drawResidue(_ref3) {
-        var row = _ref3.row,
-            column = _ref3.column,
-            canvas = _ref3.canvas,
-            colorScheme = _ref3.colorScheme,
-            text = _ref3.text;
-        canvas.globalAlpha = 0.7;
-        canvas.fillStyle = colorScheme;
-        canvas.fillRect(0, 0, this.props.tileWidth, this.props.tileHeight);
-
-        if (this.props.border) {
-          canvas.globalAlpha = 1;
-          canvas.lineWidth = this.props.borderWidth;
-          canvas.strokeStyle = this.props.borderStyle;
-          canvas.strokeRect(0, 0, this.props.tileWidth, this.props.tileHeight);
-        }
-
-        canvas.globalAlpha = 1.0;
-        canvas.fillStyle = this.props.textColor;
-        canvas.font = this.props.textFont + "px mono";
-        canvas.textBaseline = 'middle';
-        canvas.textAlign = 'center';
-        canvas.fillText(text, this.props.tileWidth / 2, this.props.tileHeight / 2 + 1, this.props.tileWidth);
-      }
-    }, {
-      key: "draw",
-      value: function draw(props) {
-        this.props = props;
-
-        for (var i = this.props.startYTile; i < this.props.endYTile; i++) {
-          for (var j = this.props.startXTile; j < this.props.endXTile; j++) {
-            this.drawTile({
-              row: i,
-              column: j
+      if (text !== undefined) {
+        const colorScheme = this.props.colorScheme.getColor(text);
+        const key = "".concat(text, "-").concat(colorScheme);
+        const canvasTile = this.props.residueTileCache.createTile({
+          key,
+          tileWidth,
+          tileHeight,
+          create: ({
+            canvas
+          }) => {
+            return this.drawResidue({
+              text,
+              canvas,
+              row,
+              column,
+              colorScheme
             });
           }
+        });
+        this.props.ctx.drawImage(canvasTile, 0, 0, tileWidth, tileHeight, xPos, yPos, tileWidth, tileHeight);
+      }
+    }
+
+    drawResidue({
+      row,
+      column,
+      canvas,
+      colorScheme,
+      text
+    }) {
+      canvas.globalAlpha = 0.7;
+      canvas.fillStyle = colorScheme;
+      canvas.fillRect(0, 0, this.props.tileWidth, this.props.tileHeight);
+
+      if (this.props.border) {
+        canvas.globalAlpha = 1;
+        canvas.lineWidth = this.props.borderWidth;
+        canvas.strokeStyle = this.props.borderStyle;
+        canvas.strokeRect(0, 0, this.props.tileWidth, this.props.tileHeight);
+      }
+
+      canvas.globalAlpha = 1.0;
+      canvas.fillStyle = this.props.textColor;
+      canvas.font = this.props.textFont + "px mono";
+      canvas.textBaseline = 'middle';
+      canvas.textAlign = 'center';
+      canvas.fillText(text, this.props.tileWidth / 2, this.props.tileHeight / 2 + 1, this.props.tileWidth);
+    }
+
+    draw(props) {
+      this.props = props;
+
+      for (let i = this.props.startYTile; i < this.props.endYTile; i++) {
+        for (let j = this.props.startXTile; j < this.props.endXTile; j++) {
+          this.drawTile({
+            row: i,
+            column: j
+          });
         }
       }
-    }]);
+    }
 
-    return CanvasTilingGridComponent;
-  }(CanvasComponent);
+  }
 
+  /**
+  * Copyright 2018, Plotly, Inc.
+  * All rights reserved.
+  *
+  * This source code is licensed under the MIT license found in the
+  * LICENSE file in the root directory of this source tree.
+  */
   /**
    * A simple, in-memory cache for Canvas tiles outside of the DOM.
    * Gets automatically invalidated when called with different widths.
@@ -23814,13 +23403,10 @@
    * @param {Number} maxElements Maximal elements to keep in the cache (default: 200)
    */
 
-  var CanvasCache = /*#__PURE__*/function () {
-    function CanvasCache() {
-      var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          maxElements = _ref.maxElements;
-
-      _classCallCheck(this, CanvasCache);
-
+  class CanvasCache {
+    constructor({
+      maxElements
+    } = {}) {
       this.maxElements = maxElements || 200;
       this.invalidate();
     }
@@ -23833,80 +23419,70 @@
      */
 
 
-    _createClass(CanvasCache, [{
-      key: "createTile",
-      value: function createTile(_ref2) {
-        var _this = this;
-
-        var key = _ref2.key,
-            tileWidth = _ref2.tileWidth,
-            tileHeight = _ref2.tileHeight,
-            create$$1 = _ref2.create;
-
-        // check if cache needs to be regenerated
-        if (key in this.cache) {
-          return this.cache[key].value;
-        }
-
-        if (this.cachedElements >= this.maxElements) {
-          // purge oldest key from cache if maxSize is reached
-          var oldestKey = minBy(Object.keys(this.cache), function (k) {
-            return _this.cache[k].insertionTime;
-          });
-          delete this.cache[oldestKey];
-        }
-
-        var canvas = document.createElement("canvas");
-        this.cache[key] = {
-          value: canvas,
-          insertionTime: Date.now()
-        };
-        canvas.width = tileWidth;
-        canvas.height = tileHeight;
-        var ctx = canvas.getContext('2d');
-        this.cachedElements++;
-        create$$1({
-          canvas: ctx
-        });
-        return canvas;
+    createTile({
+      key,
+      tileWidth,
+      tileHeight,
+      create: create$$1
+    }) {
+      // check if cache needs to be regenerated
+      if (key in this.cache) {
+        return this.cache[key].value;
       }
-      /**
-       * Checks whether the tile specification has changed and the cache needs
-       * to be refreshed.
-       * Pass in an object of all the properties that would result in the cache to be refreshed
-       * Like React.PureComponents the passed-in properties are compared by their
-       * shallow equality.
-       *
-       * @param {object} spec Object of all parameters that depend on this cache
-       * Returns: `true` when the cache has been invalidated
-       */
 
-    }, {
-      key: "updateTileSpecs",
-      value: function updateTileSpecs(spec) {
-        if (!shallowEqual$1(spec, this.spec)) {
-          this.invalidate();
-          this.spec = spec;
-          return true;
-        }
-
-        return false;
+      if (this.cachedElements >= this.maxElements) {
+        // purge oldest key from cache if maxSize is reached
+        const oldestKey = minBy(Object.keys(this.cache), k => this.cache[k].insertionTime);
+        delete this.cache[oldestKey];
       }
-      /**
-       * Invalidates the entire cache and removed all elements.
-       */
 
-    }, {
-      key: "invalidate",
-      value: function invalidate() {
-        this.cache = {};
-        this.spec = {};
-        this.cachedElements = 0;
+      const canvas = document.createElement("canvas");
+      this.cache[key] = {
+        value: canvas,
+        insertionTime: Date.now()
+      };
+      canvas.width = tileWidth;
+      canvas.height = tileHeight;
+      const ctx = canvas.getContext('2d');
+      this.cachedElements++;
+      create$$1({
+        canvas: ctx
+      });
+      return canvas;
+    }
+    /**
+     * Checks whether the tile specification has changed and the cache needs
+     * to be refreshed.
+     * Pass in an object of all the properties that would result in the cache to be refreshed
+     * Like React.PureComponents the passed-in properties are compared by their
+     * shallow equality.
+     *
+     * @param {object} spec Object of all parameters that depend on this cache
+     * Returns: `true` when the cache has been invalidated
+     */
+
+
+    updateTileSpecs(spec) {
+      if (!shallowEqual$1(spec, this.spec)) {
+        this.invalidate();
+        this.spec = spec;
+        return true;
       }
-    }]);
 
-    return CanvasCache;
-  }();
+      return false;
+    }
+    /**
+     * Invalidates the entire cache and removed all elements.
+     */
+
+
+    invalidate() {
+      this.cache = {};
+      this.spec = {};
+      this.cachedElements = 0;
+    }
+
+  }
 
   /**
   * Copyright 2018, Plotly, Inc.
@@ -23935,317 +23511,284 @@
    * Component to draw the main sequence alignment.
    */
 
-  var SequenceViewerComponent = /*#__PURE__*/function (_DraggingComponent) {
-    _inherits(SequenceViewerComponent, _DraggingComponent);
+  class SequenceViewerComponent extends DraggingComponent {
+    constructor(props) {
+      super(props); // cache fully drawn tiles
 
-    var _super = _createSuper(SequenceViewerComponent);
-
-    function SequenceViewerComponent(props) {
-      var _thisSuper, _thisSuper2, _thisSuper3, _thisSuper4, _this;
-
-      _classCallCheck(this, SequenceViewerComponent);
-
-      _this = _super.call(this, props); // cache fully drawn tiles
-
-      _defineProperty(_assertThisInitialized(_this), "renderTile", function (_ref) {
-        var row = _ref.row,
-            column = _ref.column;
-        var key = row + "-" + column;
-        return _this.tileCache.createTile({
+      _defineProperty(this, "renderTile", ({
+        row,
+        column
+      }) => {
+        const key = row + "-" + column;
+        return this.tileCache.createTile({
           key: key,
-          tileWidth: _this.props.tileWidth * _this.props.xGridSize,
-          tileHeight: _this.props.tileHeight * _this.props.yGridSize,
-          create: function create$$1(_ref2) {
-            var canvas = _ref2.canvas;
+          tileWidth: this.props.tileWidth * this.props.xGridSize,
+          tileHeight: this.props.tileHeight * this.props.yGridSize,
+          create: ({
+            canvas
+          }) => {
 
-            _this.tilingGridManager.draw(_objectSpread2({
+            this.tilingGridManager.draw(_objectSpread2({
               ctx: canvas,
               startYTile: row,
               startXTile: column,
-              residueTileCache: _this.residueTileCache,
-              endYTile: row + _this.props.yGridSize,
-              endXTile: column + _this.props.xGridSize
-            }, pick(_this.props, ["sequences", "colorScheme", "textFont", "textColor", "tileHeight", "tileWidth", "border", "borderWidth", "borderColor"])));
+              residueTileCache: this.residueTileCache,
+              endYTile: row + this.props.yGridSize,
+              endXTile: column + this.props.xGridSize
+            }, pick(this.props, ["sequences", "colorScheme", "textFont", "textColor", "tileHeight", "tileWidth", "border", "borderWidth", "borderColor"])));
           }
         });
       });
 
-      _defineProperty(_assertThisInitialized(_this), "onPositionUpdate", function (oldPos, newPos) {
-        var relativeMovement = {
+      _defineProperty(this, "onPositionUpdate", (oldPos, newPos) => {
+        const relativeMovement = {
           xMovement: oldPos[0] - newPos[0],
           yMovement: oldPos[1] - newPos[1]
         };
-
-        _this.props.positionDispatch(movePosition(relativeMovement));
+        this.props.positionDispatch(movePosition(relativeMovement));
       });
 
-      _defineProperty(_assertThisInitialized(_this), "updateScrollPosition", function () {
-        _this.draw();
+      _defineProperty(this, "updateScrollPosition", () => {
+        this.draw();
       });
 
-      _defineProperty(_assertThisInitialized(_this), "onMouseMove", function (e) {
-        if (typeof _this.isInDragPhase === "undefined") {
-          if (_this.props.onResidueMouseEnter !== undefined || _this.props.onResidueMouseLeave !== undefined) {
-            var eventData = _this.currentPointerPosition(e);
-
-            var lastValue = _this.currentMouseSequencePosition;
+      _defineProperty(this, "onMouseMove", e => {
+        if (typeof this.isInDragPhase === "undefined") {
+          if (this.props.onResidueMouseEnter !== undefined || this.props.onResidueMouseLeave !== undefined) {
+            const eventData = this.currentPointerPosition(e);
+            const lastValue = this.currentMouseSequencePosition;
 
             if (!isEqual(lastValue, eventData)) {
               if (lastValue !== undefined) {
-                _this.sendEvent('onResidueMouseLeave', lastValue);
+                this.sendEvent('onResidueMouseLeave', lastValue);
               }
 
-              _this.currentMouseSequencePosition = eventData;
-
-              _this.sendEvent('onResidueMouseEnter', eventData);
+              this.currentMouseSequencePosition = eventData;
+              this.sendEvent('onResidueMouseEnter', eventData);
             }
           }
         }
 
-        _get((_thisSuper = _assertThisInitialized(_this), _getPrototypeOf(SequenceViewerComponent.prototype)), "onMouseMove", _thisSuper).call(_thisSuper, e);
+        super.onMouseMove(e);
       });
 
-      _defineProperty(_assertThisInitialized(_this), "onMouseLeave", function (e) {
-        _this.sendEvent('onResidueMouseLeave', _this.currentMouseSequencePosition);
-
-        _this.currentMouseSequencePosition = undefined;
-
-        _get((_thisSuper2 = _assertThisInitialized(_this), _getPrototypeOf(SequenceViewerComponent.prototype)), "onMouseLeave", _thisSuper2).call(_thisSuper2, e);
+      _defineProperty(this, "onMouseLeave", e => {
+        this.sendEvent('onResidueMouseLeave', this.currentMouseSequencePosition);
+        this.currentMouseSequencePosition = undefined;
+        super.onMouseLeave(e);
       });
 
-      _defineProperty(_assertThisInitialized(_this), "onClick", function (e) {
-        if (!_this.mouseHasMoved) {
-          var eventData = _this.currentPointerPosition(e);
-
-          _this.sendEvent('onResidueClick', eventData);
+      _defineProperty(this, "onClick", e => {
+        if (!this.mouseHasMoved) {
+          const eventData = this.currentPointerPosition(e);
+          this.sendEvent('onResidueClick', eventData);
         }
 
-        _get((_thisSuper3 = _assertThisInitialized(_this), _getPrototypeOf(SequenceViewerComponent.prototype)), "onClick", _thisSuper3).call(_thisSuper3, e);
+        super.onClick(e);
       });
 
-      _defineProperty(_assertThisInitialized(_this), "onDoubleClick", function (e) {
-        var eventData = _this.currentPointerPosition(e);
-
-        _this.sendEvent('onResidueDoubleClick', eventData);
-
-        _get((_thisSuper4 = _assertThisInitialized(_this), _getPrototypeOf(SequenceViewerComponent.prototype)), "onDoubleClick", _thisSuper4).call(_thisSuper4, e);
+      _defineProperty(this, "onDoubleClick", e => {
+        const eventData = this.currentPointerPosition(e);
+        this.sendEvent('onResidueDoubleClick', eventData);
+        super.onDoubleClick(e);
       });
 
-      _this.tileCache = new CanvasCache(); // cache individual residue cells
+      this.tileCache = new CanvasCache(); // cache individual residue cells
 
-      _this.residueTileCache = new CanvasCache(); // the manager which is in charge of drawing residues
+      this.residueTileCache = new CanvasCache(); // the manager which is in charge of drawing residues
 
-      _this.tilingGridManager = new CanvasTilingGridComponent();
-      return _this;
+      this.tilingGridManager = new CanvasTilingGridComponent();
     } // starts the drawing process
 
 
-    _createClass(SequenceViewerComponent, [{
-      key: "drawScene",
-      value: function drawScene() {
-        var positions = this.getTilePositions();
-        this.updateTileSpecs();
+    drawScene() {
+      const positions = this.getTilePositions();
+      this.updateTileSpecs();
 
-        this.drawTiles(positions);
-        this.drawHighlightedRegions();
-      } // figures out from where to start drawing
+      this.drawTiles(positions);
+      this.drawHighlightedRegions();
+    } // figures out from where to start drawing
 
-    }, {
-      key: "getTilePositions",
-      value: function getTilePositions() {
-        var startXTile = Math.max(0, this.props.position.currentViewSequencePosition - this.props.cacheElements);
-        var startYTile = Math.max(0, this.props.position.currentViewSequence - this.props.cacheElements);
-        var endYTile = Math.min(this.props.sequences.length, startYTile + this.props.nrYTiles + 2 * this.props.cacheElements);
-        var endXTile = Math.min(this.props.sequences.maxLength, startXTile + this.props.nrXTiles + 2 * this.props.cacheElements);
-        return {
-          startXTile,
-          startYTile,
-          endXTile,
-          endYTile
-        };
-      }
-    }, {
-      key: "drawTiles",
-      value: function drawTiles(_ref3) {
-        var startXTile = _ref3.startXTile,
-            startYTile = _ref3.startYTile,
-            endXTile = _ref3.endXTile,
-            endYTile = _ref3.endYTile;
-        var xGridSize = this.props.xGridSize;
-        var yGridSize = this.props.yGridSize;
-        var startY = roundMod(startYTile, yGridSize);
-        var startX = roundMod(startXTile, xGridSize);
 
-        for (var i = startY; i < endYTile; i = i + yGridSize) {
-          for (var j = startX; j < endXTile; j = j + xGridSize) {
-            var canvas = this.renderTile({
-              row: i,
-              column: j,
-              canvas: this.ctx
-            });
-            var width = xGridSize * this.props.tileWidth;
-            var height = yGridSize * this.props.tileHeight;
-            var yPos = (i - this.props.position.currentViewSequence) * this.props.tileHeight + this.props.position.yPosOffset;
-            var xPos = (j - this.props.position.currentViewSequencePosition) * this.props.tileWidth + this.props.position.xPosOffset;
-            this.ctx.drawImage(canvas, 0, 0, width, height, xPos, yPos, width, height);
-          }
+    getTilePositions() {
+      const startXTile = Math.max(0, this.props.position.currentViewSequencePosition - this.props.cacheElements);
+      const startYTile = Math.max(0, this.props.position.currentViewSequence - this.props.cacheElements);
+      const endYTile = Math.min(this.props.sequences.length, startYTile + this.props.nrYTiles + 2 * this.props.cacheElements);
+      const endXTile = Math.min(this.props.sequences.maxLength, startXTile + this.props.nrXTiles + 2 * this.props.cacheElements);
+      return {
+        startXTile,
+        startYTile,
+        endXTile,
+        endYTile
+      };
+    }
+
+    drawTiles({
+      startXTile,
+      startYTile,
+      endXTile,
+      endYTile
+    }) {
+      const xGridSize = this.props.xGridSize;
+      const yGridSize = this.props.yGridSize;
+      const startY = roundMod(startYTile, yGridSize);
+      const startX = roundMod(startXTile, xGridSize);
+
+      for (let i = startY; i < endYTile; i = i + yGridSize) {
+        for (let j = startX; j < endXTile; j = j + xGridSize) {
+          const canvas = this.renderTile({
+            row: i,
+            column: j,
+            canvas: this.ctx
+          });
+          const width = xGridSize * this.props.tileWidth;
+          const height = yGridSize * this.props.tileHeight;
+          const yPos = (i - this.props.position.currentViewSequence) * this.props.tileHeight + this.props.position.yPosOffset;
+          const xPos = (j - this.props.position.currentViewSequencePosition) * this.props.tileWidth + this.props.position.xPosOffset;
+          this.ctx.drawImage(canvas, 0, 0, width, height, xPos, yPos, width, height);
         }
       }
-    }, {
-      key: "positionToSequence",
-      value: function positionToSequence(pos) {
-        var sequences = this.props.sequences.raw;
-        var seqNr = clamp(floor((this.props.position.yPos + pos.yPos) / this.props.tileHeight), 0, sequences.length - 1);
-        var sequence = sequences[seqNr];
-        var position = clamp(floor((this.props.position.xPos + pos.xPos) / this.props.tileWidth), 0, sequence.sequence.length - 1);
-        return {
-          i: seqNr,
-          sequence,
-          position,
-          residue: sequence.sequence[position]
-        };
-      }
-    }, {
-      key: "currentPointerPosition",
+    }
 
-      /**
-       * Returns the position of the mouse position relative to the sequences
-       */
-      value: function currentPointerPosition(e) {
-        var _Mouse$rel = Mouse.rel(e),
+    positionToSequence(pos) {
+      const sequences = this.props.sequences.raw;
+      const seqNr = clamp(floor((this.props.position.yPos + pos.yPos) / this.props.tileHeight), 0, sequences.length - 1);
+      const sequence = sequences[seqNr];
+      const position = clamp(floor((this.props.position.xPos + pos.xPos) / this.props.tileWidth), 0, sequence.sequence.length - 1);
+      return {
+        i: seqNr,
+        sequence,
+        position,
+        residue: sequence.sequence[position]
+      };
+    }
+
+    /**
+     * Returns the position of the mouse position relative to the sequences
+     */
+    currentPointerPosition(e) {
+      const _Mouse$rel = Mouse.rel(e),
             _Mouse$rel2 = _slicedToArray(_Mouse$rel, 2),
             x = _Mouse$rel2[0],
             y = _Mouse$rel2[1];
 
-        return this.positionToSequence({
-          xPos: x,
-          yPos: y
-        });
-      }
-      /**
-       * Only sends an event if the actual function is set.
-       */
+      return this.positionToSequence({
+        xPos: x,
+        yPos: y
+      });
+    }
+    /**
+     * Only sends an event if the actual function is set.
+     */
 
-    }, {
-      key: "sendEvent",
-      value: function sendEvent(name, data) {
-        if (this.props[name] !== undefined) {
-          this.props[name](data);
-        }
-      }
-    }, {
-      key: "componentWillUnmount",
-      value: function componentWillUnmount() {
-        this.tileCache.invalidate();
-        this.residueTileCache.invalidate();
-      }
-    }, {
-      key: "updateTileSpecs",
-      value: function updateTileSpecs() {
-        var tileAttributes = ['tileWidth', 'tileHeight', 'colorScheme', 'textFont', 'borderColor'];
-        this.tileCache.updateTileSpecs(pick(this.props, [].concat(tileAttributes, ['xGridSize', 'yGridSize', 'sequences'])));
-        this.residueTileCache.updateTileSpecs(pick(this.props, tileAttributes));
-      }
-    }, {
-      key: "drawHighlightedRegions",
-      value: function drawHighlightedRegions() {
-        var _this2 = this;
 
-        if (this.props.highlight) if (Array.isArray(this.props.highlight)) {
-          var _step,
-              _iterator = function _createForOfIteratorHelper$$1(o) {
-            if ("undefined" == typeof Symbol || null == o[Symbol.iterator]) {
-              if (Array.isArray(o) || (o = _unsupportedIterableToArray(o))) {
-                var i = 0,
-                    F = function F() {};
+    sendEvent(name, data) {
+      if (this.props[name] !== undefined) {
+        this.props[name](data);
+      }
+    }
 
-                return {
-                  s: F,
-                  n: function n() {
-                    return i >= o.length ? {
-                      done: !0
-                    } : {
-                      done: !1,
-                      value: o[i++]
-                    };
-                  },
-                  e: function e(_e2) {
-                    throw _e2;
-                  },
-                  f: F
-                };
-              }
+    componentWillUnmount() {
+      this.tileCache.invalidate();
+      this.residueTileCache.invalidate();
+    }
 
-              throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+    updateTileSpecs() {
+      const tileAttributes = ['tileWidth', 'tileHeight', 'colorScheme', 'textFont', 'borderColor'];
+      this.tileCache.updateTileSpecs(pick(this.props, [...tileAttributes, 'xGridSize', 'yGridSize', 'sequences']));
+      this.residueTileCache.updateTileSpecs(pick(this.props, tileAttributes));
+    }
+
+    drawHighlightedRegions() {
+      if (this.props.highlight) if (Array.isArray(this.props.highlight)) {
+        var _step,
+            _iterator = function _createForOfIteratorHelper$$1(o) {
+          if ("undefined" == typeof Symbol || null == o[Symbol.iterator]) {
+            if (Array.isArray(o) || (o = _unsupportedIterableToArray(o))) {
+              var i = 0,
+                  F = function F() {};
+
+              return {
+                s: F,
+                n: function n() {
+                  return i >= o.length ? {
+                    done: !0
+                  } : {
+                    done: !1,
+                    value: o[i++]
+                  };
+                },
+                e: function e(_e2) {
+                  throw _e2;
+                },
+                f: F
+              };
             }
 
-            var it,
-                err,
-                normalCompletion = !0,
-                didErr = !1;
-            return {
-              s: function s() {
-                it = o[Symbol.iterator]();
-              },
-              n: function n() {
-                var step = it.next();
-                return normalCompletion = step.done, step;
-              },
-              e: function e(_e3) {
-                didErr = !0, err = _e3;
-              },
-              f: function f() {
-                try {
-                  normalCompletion || null == it.return || it.return();
-                } finally {
-                  if (didErr) throw err;
-                }
-              }
-            };
-          }(this.props.highlight);
-
-          try {
-            for (_iterator.s(); !(_step = _iterator.n()).done;) {
-              var h = _step.value;
-              this.drawHighligtedRegion(h);
-            }
-          } catch (err) {
-            _iterator.e(err);
-          } finally {
-            _iterator.f();
+            throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
           }
-        } else this.drawHighligtedRegion(this.props.highlight);
-        this.props.features && this.props.features.forEach(function (feature) {
-          _this2.drawHighligtedRegion(feature);
-        });
-      }
-    }, {
-      key: "drawHighligtedRegion",
-      value: function drawHighligtedRegion(region) {
-        var _this$mouseOverFeatur;
 
-        if (!this.ctx || !region) return;
-        var regionWidth = this.props.tileWidth * (1 + region.residues.to - region.residues.from),
+          var it,
+              err,
+              normalCompletion = !0,
+              didErr = !1;
+          return {
+            s: function s() {
+              it = o[Symbol.iterator]();
+            },
+            n: function n() {
+              var step = it.next();
+              return normalCompletion = step.done, step;
+            },
+            e: function e(_e3) {
+              didErr = !0, err = _e3;
+            },
+            f: function f() {
+              try {
+                normalCompletion || null == it.return || it.return();
+              } finally {
+                if (didErr) throw err;
+              }
+            }
+          };
+        }(this.props.highlight);
+
+        try {
+          for (_iterator.s(); !(_step = _iterator.n()).done;) {
+            const h = _step.value;
+            this.drawHighligtedRegion(h);
+          }
+        } catch (err) {
+          _iterator.e(err);
+        } finally {
+          _iterator.f();
+        }
+      } else this.drawHighligtedRegion(this.props.highlight);
+      this.props.features && this.props.features.forEach(feature => {
+        this.drawHighligtedRegion(feature);
+      });
+    }
+
+    drawHighligtedRegion(region) {
+      var _this$mouseOverFeatur;
+
+      if (!this.ctx || !region) return;
+      const regionWidth = this.props.tileWidth * (1 + region.residues.to - region.residues.from),
             regionHeight = this.props.tileHeight * (1 + region.sequences.to - region.sequences.from),
             yPosFrom = (region.sequences.from - this.props.position.currentViewSequence) * this.props.tileHeight + this.props.position.yPosOffset,
             xPosFrom = (region.residues.from - 1 - this.props.position.currentViewSequencePosition) * this.props.tileWidth + this.props.position.xPosOffset,
             canvas = document.createElement("canvas");
-        canvas.width = regionWidth, canvas.height = regionHeight;
-        var ctx = canvas.getContext("2d"),
-            mouseOver = null === (_this$mouseOverFeatur = this.mouseOverFeatureIds) || void 0 === _this$mouseOverFeatur ? void 0 : _this$mouseOverFeatur.some(function (id) {
-          return id === region.id;
-        });
-        ctx.globalAlpha = .3, ctx.fillStyle = mouseOver ? region.mouseOverFillColor || "green" : region.fillColor || "#9999FF", ctx.fillRect(0, 0, regionWidth, regionHeight), ctx.globalAlpha = 1, ctx.strokeStyle = mouseOver ? region.mouseOverBorderColor || "black " : region.borderColor || "777700", ctx.lineWidth = "4", ctx.rect(0, 0, regionWidth, regionHeight), ctx.stroke(), this.ctx.drawImage(canvas, 0, 0, regionWidth, regionHeight, xPosFrom, yPosFrom, regionWidth, regionHeight);
-      }
-    }, {
-      key: "render",
-      value: function render() {
-        return _get(_getPrototypeOf(SequenceViewerComponent.prototype), "render", this).call(this);
-      }
-    }]);
+      canvas.width = regionWidth, canvas.height = regionHeight;
+      const ctx = canvas.getContext("2d"),
+            mouseOver = null === (_this$mouseOverFeatur = this.mouseOverFeatureIds) || void 0 === _this$mouseOverFeatur ? void 0 : _this$mouseOverFeatur.some(id => id === region.id);
+      ctx.globalAlpha = .3, ctx.fillStyle = mouseOver ? region.mouseOverFillColor || "green" : region.fillColor || "#9999FF", ctx.fillRect(0, 0, regionWidth, regionHeight), ctx.globalAlpha = 1, ctx.strokeStyle = mouseOver ? region.mouseOverBorderColor || "black " : region.borderColor || "777700", ctx.lineWidth = "4", ctx.rect(0, 0, regionWidth, regionHeight), ctx.stroke(), this.ctx.drawImage(canvas, 0, 0, regionWidth, regionHeight, xPosFrom, yPosFrom, regionWidth, regionHeight);
+    }
 
-    return SequenceViewerComponent;
-  }(DraggingComponent);
+    render() {
+      return super.render();
+    }
+
+  }
 
   SequenceViewerComponent.defaultProps = {
     showModBar: false,
@@ -24361,10 +23904,10 @@
 
   SequenceViewerComponent.propKeys = Object.keys(SequenceViewerComponent.propTypes);
 
-  var mapStateToProps$3 = function mapStateToProps(state) {
+  const mapStateToProps$3 = state => {
     // Fallback to a smaller size if the given area is too large
-    var width = Math.min(state.props.width, state.sequences.maxLength * state.props.tileWidth);
-    var height = Math.min(state.props.height, state.sequences.length * state.props.tileHeight);
+    const width = Math.min(state.props.width, state.sequences.maxLength * state.props.tileWidth);
+    const height = Math.min(state.props.height, state.sequences.length * state.props.tileHeight);
     return {
       sequences: state.sequences,
       width,
@@ -24380,108 +23923,86 @@
     };
   };
 
-  var SV = withPositionConsumer(SequenceViewerComponent, {
+  const SV = withPositionConsumer(SequenceViewerComponent, {
     withX: true,
     withY: true
   });
   var SequenceViewer = msaConnect(mapStateToProps$3)(SV);
 
-  var SequenceOverviewComponent = /*#__PURE__*/function (_CanvasComponent) {
-    _inherits(SequenceOverviewComponent, _CanvasComponent);
+  class SequenceOverviewComponent extends CanvasComponent {
+    constructor(...args) {
+      super(...args);
 
-    var _super = _createSuper(SequenceOverviewComponent);
-
-    function SequenceOverviewComponent() {
-      var _this;
-
-      _classCallCheck(this, SequenceOverviewComponent);
-
-      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-        args[_key] = arguments[_key];
-      }
-
-      _this = _super.call.apply(_super, [this].concat(args));
-
-      _defineProperty(_assertThisInitialized(_this), "draw", function () {
+      _defineProperty(this, "draw", () => {
         // TODO: only update this if required
-        _this.drawScene();
+        this.drawScene();
       });
-
-      return _this;
     }
 
-    _createClass(SequenceOverviewComponent, [{
-      key: "updateScrollPosition",
-      value: function updateScrollPosition() {
-        this._draw();
-      }
-    }, {
-      key: "drawScene",
-      value: function drawScene() {
-        this.scene = {};
-        var _this$position = this.position;
-        this.scene.xViewPos = _this$position.xPos;
-        this.scene.yViewPos = _this$position.yPos;
-        this.scene.xScalingFactor = 1 / this.props.globalTileWidth * this.props.tileWidth;
-        this.scene.yScalingFactor = 1 / this.props.globalTileHeight * this.props.tileHeight;
-        this.drawCurrentViewpoint();
-        this.drawSequences();
-      }
-    }, {
-      key: "drawSequences",
-      value: function drawSequences() {
-        var _this$scene = this.scene,
+    updateScrollPosition() {
+      this._draw();
+    }
+
+    drawScene() {
+      this.scene = {};
+      var _this$position = this.position;
+      this.scene.xViewPos = _this$position.xPos;
+      this.scene.yViewPos = _this$position.yPos;
+      this.scene.xScalingFactor = 1 / this.props.globalTileWidth * this.props.tileWidth;
+      this.scene.yScalingFactor = 1 / this.props.globalTileHeight * this.props.tileHeight;
+      this.drawCurrentViewpoint();
+      this.drawSequences();
+    }
+
+    drawSequences() {
+      const _this$scene = this.scene,
             xViewPos = _this$scene.xViewPos,
             xScalingFactor = _this$scene.xScalingFactor;
-        var sequences = this.props.sequences.raw;
-        var xInitPos = 0; //let yPos = -(yViewPos % tileHeight);
-        // TODO: move into the reducer
-        //let i = clamp(floor(yViewPos / tileHeight), 0, sequences.length - 1);
+      const sequences = this.props.sequences.raw;
+      const xInitPos = 0; //let yPos = -(yViewPos % tileHeight);
+      // TODO: move into the reducer
+      //let i = clamp(floor(yViewPos / tileHeight), 0, sequences.length - 1);
 
-        var yPos = 0;
-        var i = 0; // sequences themselves
+      let yPos = 0;
+      let i = 0; // sequences themselves
 
-        for (; i < sequences.length; i++) {
-          var sequence = sequences[i].sequence;
-          var xPos = xInitPos;
-          var j = clamp(floor(xViewPos * xScalingFactor), 0, sequence.length - 1);
-          j = 0;
+      for (; i < sequences.length; i++) {
+        const sequence = sequences[i].sequence;
+        let xPos = xInitPos;
+        let j = clamp(floor(xViewPos * xScalingFactor), 0, sequence.length - 1);
+        j = 0;
 
-          for (; j < sequence.length; j++) {
-            var el = sequence[j];
-            this.ctx.fillStyle(this.props.colorScheme.getColor(el));
-            this.ctx.globalAlpha(0.5);
-            this.ctx.fillRect(xPos, yPos, this.props.tileWidth, this.props.tileHeight);
-            xPos += this.props.tileWidth;
-            if (xPos > this.props.globalWidth) break;
-          }
-
-          yPos += this.props.tileHeight;
-          if (yPos > this.props.height) break;
+        for (; j < sequence.length; j++) {
+          const el = sequence[j];
+          this.ctx.fillStyle(this.props.colorScheme.getColor(el));
+          this.ctx.globalAlpha(0.5);
+          this.ctx.fillRect(xPos, yPos, this.props.tileWidth, this.props.tileHeight);
+          xPos += this.props.tileWidth;
+          if (xPos > this.props.globalWidth) break;
         }
+
+        yPos += this.props.tileHeight;
+        if (yPos > this.props.height) break;
       }
-    }, {
-      key: "drawCurrentViewpoint",
-      value: function drawCurrentViewpoint() {
-        // currently selected area
-        var _this$scene2 = this.scene,
+    }
+
+    drawCurrentViewpoint() {
+      // currently selected area
+      const _this$scene2 = this.scene,
             xViewPos = _this$scene2.xViewPos,
             xScalingFactor = _this$scene2.xScalingFactor,
             yViewPos = _this$scene2.yViewPos,
             yScalingFactor = _this$scene2.yScalingFactor;
-        this.ctx.globalAlpha(0.8);
-        this.ctx.fillRect(xViewPos * xScalingFactor, yViewPos * yScalingFactor, this.props.globalWidth * xScalingFactor, this.props.globalHeight * yScalingFactor);
-      } // to make react-docgen happy
+      this.ctx.globalAlpha(0.8);
+      this.ctx.fillRect(xViewPos * xScalingFactor, yViewPos * yScalingFactor, this.props.globalWidth * xScalingFactor, this.props.globalHeight * yScalingFactor);
+    } // to make react-docgen happy
 
-    }, {
-      key: "render",
-      value: function render() {
-        return _get(_getPrototypeOf(SequenceOverviewComponent.prototype), "render", this).call(this);
-      }
-    }]);
 
-    return SequenceOverviewComponent;
-  }(CanvasComponent);
+    render() {
+      return super.render();
+    }
+
+  }
 
   SequenceOverviewComponent.defaultProps = _objectSpread2(_objectSpread2({}, CanvasComponent.defaultProps), {}, {
     height: 50,
@@ -24504,9 +24025,9 @@
      */
     tileHeight: PropTypes.number
   });
-  var SOC = withPositionConsumer(SequenceOverviewComponent);
+  const SOC = withPositionConsumer(SequenceOverviewComponent);
 
-  var mapStateToProps$4 = function mapStateToProps(state) {
+  const mapStateToProps$4 = state => {
     return {
       sequences: state.sequences,
       width: state.props.width,
@@ -24528,148 +24049,127 @@
   * LICENSE file in the root directory of this source tree.
   */
 
-  var reduxActions = {
+  const reduxActions = {
     "sequences": "updateSequences"
   };
-  Object.keys(MSAPropTypes).forEach(function (key) {
+  Object.keys(MSAPropTypes).forEach(key => {
     if (!(key in reduxActions) && MSAPropTypes[key] !== PropTypes.func) {
       reduxActions[key] = 'updateProp';
     }
   });
-  var attributesToStore = Object.keys(reduxActions); // precompute [action.key]: action for performance
+  const attributesToStore = Object.keys(reduxActions); // precompute [action.key]: action for performance
 
-  var mapToActionKeys = function mapToActionKeys(obj) {
-    return reduce(obj, function (acc, v, k) {
-      acc[v.key] = v;
-      return acc;
-    }, {});
-  };
+  const mapToActionKeys = obj => reduce(obj, (acc, v, k) => {
+    acc[v.key] = v;
+    return acc;
+  }, {});
 
-  var mainStoreActionKeys = mapToActionKeys(actions);
-  var positionStoreActionKeys = mapToActionKeys(actions$1);
-  var PropsToRedux = function PropsToRedux(WrappedComponent) {
-    var PropsToReduxComponent = /*#__PURE__*/function (_Component) {
-      _inherits(PropsToReduxComponent, _Component);
-
-      var _super = _createSuper(PropsToReduxComponent);
-
-      function PropsToReduxComponent(props) {
-        var _this;
-
-        _classCallCheck(this, PropsToReduxComponent);
-
-        _this = _super.call(this, props);
-        var storeProps = pick(props, attributesToStore) || {};
-        _this.el = createRef$1();
-        _this.msaStore = props.msaStore;
+  const mainStoreActionKeys = mapToActionKeys(actions);
+  const positionStoreActionKeys = mapToActionKeys(actions$1);
+  const PropsToRedux = WrappedComponent => {
+    class PropsToReduxComponent extends React.Component {
+      constructor(props) {
+        super(props);
+        const storeProps = pick(props, attributesToStore) || {};
+        this.el = createRef$1();
+        this.msaStore = props.msaStore;
 
         if (storeProps.sequences !== undefined) {
-          _this.msaStore = createMSAStore(storeProps);
+          this.msaStore = createMSAStore(storeProps);
         } else {
           console.warn("Check your MSA properties", storeProps);
         }
-
-        return _this;
       }
 
-      _createClass(PropsToReduxComponent, [{
-        key: "componentDidMount",
-        value: function componentDidMount() {
-          if (this.props.position !== undefined) {
-            this.updatePosition(this.props.position);
-          }
-        } // Notify the internal Redux store about property updates
-
-      }, {
-        key: "componentDidUpdate",
-        value: function componentDidUpdate(oldProps) {
-          var newProps = this.props; // TODO: support batch updates
-
-          for (var prop in pick(newProps, attributesToStore)) {
-            if (!isEqual(oldProps[prop], newProps[prop])) {
-              if (prop === "position") {
-                this.updatePosition(newProps[prop]);
-              } else if (prop in reduxActions) {
-                var action = void 0;
-
-                switch (reduxActions[prop]) {
-                  case 'updateProp':
-                    action = actions[reduxActions[prop]](prop, newProps[prop]);
-                    break;
-
-                  default:
-                    action = actions[reduxActions[prop]](newProps[prop]);
-                } //console.log("Prop -> Redux: ", action, newProps[prop]);
+      componentDidMount() {
+        if (this.props.position !== undefined) {
+          this.updatePosition(this.props.position);
+        }
+      } // Notify the internal Redux store about property updates
 
 
-                this.msaStore.dispatch(action);
-              } else {
-                console.error(prop, " is unknown.");
-              }
+      componentDidUpdate(oldProps) {
+        const newProps = this.props; // TODO: support batch updates
+
+        for (const prop in pick(newProps, attributesToStore)) {
+          if (!isEqual(oldProps[prop], newProps[prop])) {
+            if (prop === "position") {
+              this.updatePosition(newProps[prop]);
+            } else if (prop in reduxActions) {
+              let action;
+
+              switch (reduxActions[prop]) {
+                case 'updateProp':
+                  action = actions[reduxActions[prop]](prop, newProps[prop]);
+                  break;
+
+                default:
+                  action = actions[reduxActions[prop]](newProps[prop]);
+              } //console.log("Prop -> Redux: ", action, newProps[prop]);
+
+
+              this.msaStore.dispatch(action);
+            } else {
+              console.error(prop, " is unknown.");
             }
           }
         }
-        /**
-         * Dispatch actions into the MSAViewer component.
-         *
-         * @param {Object} Action to be be dispatched. Must contain "type" and "payload"
-         */
+      }
+      /**
+       * Dispatch actions into the MSAViewer component.
+       *
+       * @param {Object} Action to be be dispatched. Must contain "type" and "payload"
+       */
 
-      }, {
-        key: "dispatch",
-        value: function dispatch(action) {
-          if (action.type in mainStoreActionKeys) {
-            this.msaStore.dispatch(action);
-          } else if (action.type in positionStoreActionKeys) {
-            this.el.current.positionStore.dispatch(action);
-          } else {
-            throw new Error("Invalid action", action);
-          }
+
+      dispatch(action) {
+        if (action.type in mainStoreActionKeys) {
+          this.msaStore.dispatch(action);
+        } else if (action.type in positionStoreActionKeys) {
+          this.el.current.positionStore.dispatch(action);
+        } else {
+          throw new Error("Invalid action", action);
         }
-      }, {
-        key: "render",
-        value: function render() {
-          var _omit = omit(this.props, attributesToStore),
+      }
+
+      render() {
+        const _omit = omit(this.props, attributesToStore),
               msaStore = _omit.msaStore,
               props = _objectWithoutProperties(_omit, ["msaStore"]);
 
-          if (this.msaStore === undefined) {
-            return /*#__PURE__*/React__default.createElement("div", null, " Error initializing the MSAViewer. ");
-          } else {
-            return /*#__PURE__*/React__default.createElement(WrappedComponent, _extends({
-              ref: this.el,
-              msaStore: msaStore || this.msaStore
-            }, props));
-          }
+        if (this.msaStore === undefined) {
+          return /*#__PURE__*/React__default.createElement("div", null, " Error initializing the MSAViewer. ");
+        } else {
+          return /*#__PURE__*/React__default.createElement(WrappedComponent, _extends({
+            ref: this.el,
+            msaStore: msaStore || this.msaStore
+          }, props));
         }
-      }]);
+      }
 
-      return PropsToReduxComponent;
-    }(React.Component); // add action from the main store directly to the main MSA instance
+    } // add action from the main store directly to the main MSA instance
 
 
-    forOwn(actions, function (v, k) {
+    forOwn(actions, (v, k) => {
       PropsToReduxComponent.prototype[k] = function (payload) {
         this.msaStore.dispatch(v(payload));
       };
     }); // add action from the position store directly to the main MSA instance
 
-    forOwn(actions$1, function (v, k) {
+    forOwn(actions$1, (v, k) => {
       PropsToReduxComponent.prototype[k] = function (payload) {
-        var _this2 = this;
-
-        requestAnimation(this, function () {
-          _this2.el.current.positionStore.dispatch(v(payload));
+        requestAnimation(this, () => {
+          this.el.current.positionStore.dispatch(v(payload));
         });
       };
     });
     return PropsToReduxComponent;
   };
 
-  var same = "FORWARD_SAME_PROP_NAME"; // list of events with a default implementation
+  const same = "FORWARD_SAME_PROP_NAME"; // list of events with a default implementation
   // mapping: eventName -> DOM event name
 
-  var defaultEvents = {
+  const defaultEvents = {
     "onResidueClick": "residueClick"
   };
   /**
@@ -24680,124 +24180,101 @@
    * components.
    */
 
-  var MSAViewerComponent = /*#__PURE__*/function (_Component) {
-    _inherits(MSAViewerComponent, _Component);
+  class MSAViewerComponent extends React.Component {
+    constructor(props) {
+      super(props);
+      this.el = createRef$1(); // add default event callback
 
-    var _super = _createSuper(MSAViewerComponent);
-
-    function MSAViewerComponent(props) {
-      var _this;
-
-      _classCallCheck(this, MSAViewerComponent);
-
-      _this = _super.call(this, props);
-      _this.el = createRef$1(); // add default event callback
-
-      forOwn(defaultEvents, function (domEventName, eventName) {
-        _this["_" + eventName] = function (e) {
-          var event = new CustomEvent(domEventName, {
+      forOwn(defaultEvents, (domEventName, eventName) => {
+        this["_" + eventName] = e => {
+          const event = new CustomEvent(domEventName, {
             detail: e,
             bubbles: true
           });
-
-          _this.el.current.dispatchEvent(event);
+          this.el.current.dispatchEvent(event);
         };
       });
 
-      _this._setupStores();
-
-      return _this;
+      this._setupStores();
     } // List of props forwarded to the SequenceViewer component
 
 
-    _createClass(MSAViewerComponent, [{
-      key: "forwardProps",
-      value: function forwardProps(propsToBeForwarded) {
-        var _this2 = this;
+    forwardProps(propsToBeForwarded) {
+      const options = {};
+      forOwn(propsToBeForwarded, (forwardedName, currentName) => {
+        if (this.props[currentName] !== undefined) {
+          const name = forwardedName === same ? currentName : forwardedName;
+          options[name] = this.props[currentName];
+        } else if (currentName in defaultEvents) {
+          // inject default event handler
+          options[currentName] = this["_" + currentName];
+        }
+      });
+      return options;
+    }
 
-        var options = {};
-        forOwn(propsToBeForwarded, function (forwardedName, currentName) {
-          if (_this2.props[currentName] !== undefined) {
-            var name = forwardedName === same ? currentName : forwardedName;
-            options[name] = _this2.props[currentName];
-          } else if (currentName in defaultEvents) {
-            // inject default event handler
-            options[currentName] = _this2["_" + currentName];
-          }
-        });
-        return options;
-      }
-    }, {
-      key: "_setupStores",
-      value: function _setupStores() {
-        var _this3 = this;
-
-        this.positionStore = createStore(positionReducer);
+    _setupStores() {
+      this.positionStore = createStore(positionReducer);
+      this.positionStore.dispatch(actions$1.updateMainStore(this.props.msaStore.getState()));
+      this.msaStoreUnsubscribe = this.props.msaStore.subscribe(() => {
+        // forward the msaStore to the positionStore for convenience
         this.positionStore.dispatch(actions$1.updateMainStore(this.props.msaStore.getState()));
-        this.msaStoreUnsubscribe = this.props.msaStore.subscribe(function () {
-          // forward the msaStore to the positionStore for convenience
-          _this3.positionStore.dispatch(actions$1.updateMainStore(_this3.props.msaStore.getState()));
-        });
-      }
-    }, {
-      key: "componentWillUnmount",
-      value: function componentWillUnmount() {
-        this.msaStoreUnsubscribe();
-      } // TODO: we could inject this in the main redux store for better compatibility
+      });
+    }
 
-    }, {
-      key: "getChildContext",
-      value: function getChildContext() {
-        return {
-          positionMSAStore: this.positionStore
-        };
-      }
-    }, {
-      key: "render",
-      value: function render() {
-        var _this$props = this.props,
+    componentWillUnmount() {
+      this.msaStoreUnsubscribe();
+    } // TODO: we could inject this in the main redux store for better compatibility
+
+
+    getChildContext() {
+      return {
+        positionMSAStore: this.positionStore
+      };
+    }
+
+    render() {
+      const _this$props = this.props,
             children = _this$props.children,
             msaStore = _this$props.msaStore,
             otherProps = _objectWithoutProperties(_this$props, ["children", "msaStore"]);
 
-        if (children) {
-          return /*#__PURE__*/React__default.createElement(MSAProvider, {
-            store: msaStore
-          }, /*#__PURE__*/React__default.createElement("div", _extends({}, otherProps, {
-            ref: this.el
-          }), children));
-        } else {
-          // TODO: add more advanced layouts
-          var currentState = msaStore.getState();
-          var labelsPadding = currentState.props.tileHeight;
-          var overviewBarHeight = 50;
-          var labelsAndSequenceDiv = {
-            display: "flex"
-          };
-          var labelsStyle = {
-            paddingTop: labelsPadding + overviewBarHeight
-          };
-          var separatorPadding = {
-            height: 10
-          };
-          return /*#__PURE__*/React__default.createElement(MSAProvider, {
-            store: msaStore
-          }, /*#__PURE__*/React__default.createElement("div", {
-            style: labelsAndSequenceDiv,
-            ref: this.el
-          }, /*#__PURE__*/React__default.createElement(Labels, _extends({
-            style: labelsStyle
-          }, this.forwardProps(MSAViewerComponent.labelsProps))), /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(OverviewBar, _extends({
-            height: overviewBarHeight
-          }, this.forwardProps(MSAViewerComponent.overviewBarProps))), /*#__PURE__*/React__default.createElement(PositionBar, this.forwardProps(MSAViewerComponent.positionBarProps)), /*#__PURE__*/React__default.createElement(SequenceViewer, this.forwardProps(MSAViewerComponent.sequenceViewerProps)), /*#__PURE__*/React__default.createElement("div", {
-            style: separatorPadding
-          })))); //<SequenceOverview />
-        }
+      if (children) {
+        return /*#__PURE__*/React__default.createElement(MSAProvider, {
+          store: msaStore
+        }, /*#__PURE__*/React__default.createElement("div", _extends({}, otherProps, {
+          ref: this.el
+        }), children));
+      } else {
+        // TODO: add more advanced layouts
+        const currentState = msaStore.getState();
+        const labelsPadding = currentState.props.tileHeight;
+        const overviewBarHeight = 50;
+        const labelsAndSequenceDiv = {
+          display: "flex"
+        };
+        const labelsStyle = {
+          paddingTop: labelsPadding + overviewBarHeight
+        };
+        const separatorPadding = {
+          height: 10
+        };
+        return /*#__PURE__*/React__default.createElement(MSAProvider, {
+          store: msaStore
+        }, /*#__PURE__*/React__default.createElement("div", {
+          style: labelsAndSequenceDiv,
+          ref: this.el
+        }, /*#__PURE__*/React__default.createElement(Labels, _extends({
+          style: labelsStyle
+        }, this.forwardProps(MSAViewerComponent.labelsProps))), /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(OverviewBar, _extends({
+          height: overviewBarHeight
+        }, this.forwardProps(MSAViewerComponent.overviewBarProps))), /*#__PURE__*/React__default.createElement(PositionBar, this.forwardProps(MSAViewerComponent.positionBarProps)), /*#__PURE__*/React__default.createElement(SequenceViewer, this.forwardProps(MSAViewerComponent.sequenceViewerProps)), /*#__PURE__*/React__default.createElement("div", {
+          style: separatorPadding
+        })))); //<SequenceOverview />
       }
-    }]);
+    }
 
-    return MSAViewerComponent;
-  }(React.Component);
+  }
 
   _defineProperty(MSAViewerComponent, "sequenceViewerProps", {
     "showModBar": same,
@@ -24841,7 +24318,7 @@
   MSAViewerComponent.childContextTypes = {
     positionMSAStore: PropTypes.object
   };
-  var MSAViewer = PropsToRedux(MSAViewerComponent);
+  const MSAViewer = PropsToRedux(MSAViewerComponent);
   MSAViewer.defaultProps = msaDefaultProps;
   MSAViewer.propTypes = _objectSpread2({
     /**
@@ -24851,9 +24328,9 @@
     msaStore: PropTypes.object
   }, MSAPropTypes);
 
-  var VERSION$1 = "0.0.12";
+  const VERSION$1 = "0.0.12";
 
-  var actions$2 = _objectSpread2(_objectSpread2({}, actions), actions$1);
+  const actions$2 = _objectSpread2(_objectSpread2({}, actions), actions$1);
 
   exports.actions = actions$2;
   exports.ColorScheme = ColorScheme;

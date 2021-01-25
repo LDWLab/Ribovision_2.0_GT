@@ -14,6 +14,7 @@ webpack-stats.json
 populate_db/Alignments/missed_seqs/*
 pdb-topology-viewer/node_modules/*
 react-msa-viewer/node_modules/*
+react-msa-viewer/dist/*
 DESIRE/settings.py
 .vscode/settings.json
 *z_arx*

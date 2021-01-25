@@ -89,6 +89,24 @@
 
 	> npm run build
 
-6. Open a VS Code folder in the root directory of the project.
+6. Installing react MSA viewer for development
 
-7. The debugger should now work while connected to the GaTech VPN.
+	a. cd into the react-msa-viewer directory and execute the following (might need sudo and **do not** use VS code terminal)
+
+	> npm install
+	
+	> npm link
+
+	b. cd into the root of the project directory (one up from the previous location) and run:
+
+	> npm link react-msa-viewer
+
+	c. While editing files in the src folder the following command should be running **from the msa-viewer directory!**
+
+	> npm run watch
+
+	d. **npm run watch** can also be running from the project root directory to update the top level main buundle.
+
+7. Open a VS Code folder in the root directory of the project.
+
+8. The debugger should now work while connected to the GaTech VPN.
