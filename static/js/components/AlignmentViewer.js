@@ -168,7 +168,6 @@ var AlnViewer = class RV3AlnViewer extends Component {
                           markerSteps={5} 
                           startIndex={0} 
                         />
-                        {/* <OverviewBar method='proteovision'/> */}
                         <SequenceViewer
                           id="alnSequenceViewer"
                           onResidueMouseEnter={this.onResidueMouseEnter}
