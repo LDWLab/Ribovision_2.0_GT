@@ -11,7 +11,7 @@ export default {
   output: {
     sourcemap: true,
     name: "ReactMSAViewer",
-    file: "dist/index.umd.js",
+    file: "../static/js/components/MSAV.umd.js",
     format: "umd",
     exports: "named", // or: 'default', 'named', 'none'
     globals: {
