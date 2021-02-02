@@ -368,6 +368,7 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     vueObj.checked_propensities = null;
     vueObj.structure_mapping = null;
     vueObj.poor_structure_map = null;
+    vueObj.selected_property = null;
     window.ajaxRun = false;
     if (vueObj.topology_loaded) {vueObj.topology_loaded = false;}
     if (vueObj.raiseCustomCSVWarn) {vueObj.raiseCustomCSVWarn = null;}
