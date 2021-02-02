@@ -491,7 +491,8 @@ var setGlobalProperties = function(){
         ["Polarity",[viridis]],
         ["Mutability",[plasma]],
         ["Shannon entropy",[plasma]],
-        ["TwinCons",[RdPu, YlGn]],
+        ["TwinCons",[Reds, Blues]],
+        //["TwinCons",[RdPu, YlGn]],
     ]);
     window.aaColorData = aaColorData;
     window.aaPropertyConstants = aaPropertiesData;
