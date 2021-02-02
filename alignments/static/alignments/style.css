@@ -1,7 +1,9 @@
 #phylo_tree_dropdown {
     display: grid;
     height: 100vh;
-    grid-template: auto 1fr 1fr 1fr auto / auto 1fr 1fr
+    background: #f8efdd; 
+    grid-template: auto 1fr 1fr 1fr auto / auto 1fr 1fr 1fr 
+    /*grid-template: auto 1fr 1fr 1fr auto / auto 1fr 1fr */
   }
 
   header {
@@ -45,11 +47,20 @@
     text-align: center;
   }
 
-  .molstar_section{
+  .gradient_section{
     display: grid;
     place-items: center;
     background: #f8efdd;
     grid-column: 3 ;
+    grid-row: 3 ;
+    text-align: center;
+  }
+
+  .molstar_section{
+    display: grid;
+    place-items: center;
+    background: #f8efdd;
+    grid-column: 4;
     grid-row: 3 ;
     text-align: center;
   }

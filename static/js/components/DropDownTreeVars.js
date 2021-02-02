@@ -33,6 +33,7 @@ export function initialState (){
         checked_filter: false,
         checked_selection: false,
         checked_customMap: false,
+        selected_property: null,
         csv_data: null,
         custom_headers: [],
         raiseCustomCSVWarn: null,

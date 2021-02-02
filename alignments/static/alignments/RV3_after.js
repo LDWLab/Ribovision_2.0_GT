@@ -168,7 +168,6 @@ function colorResidue(index, masked_array) {
       f++;
   }
 };
-
 function clearInputFile(f){
     if(f.value){
         try{
