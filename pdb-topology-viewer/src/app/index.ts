@@ -1480,7 +1480,12 @@ class PdbTopologyViewerPlugin {
             
         }
     }
-
+    updateProperty() {
+        const selectBoxEle: any = this.targetEle.querySelector('.menuSelectbox');
+        const selectedIndex = parseInt(selectBoxEle.selectedIndex);
+        rv3VUEcomponent.selected_property = this.domainTypes[selectedIndex].label;
+        console.log("Selected: " + rv3VUEcomponent.selected_property);
+    }
     createDomainDropdown = function () {
         
         if(typeof this.domainTypes == 'undefined'){
@@ -1504,7 +1509,7 @@ class PdbTopologyViewerPlugin {
             selectBoxEle.innerHTML = optionList;
 
             selectBoxEle.addEventListener("change", this.displayDomain.bind(this));
-
+            selectBoxEle.addEventListener("change", this.updateProperty.bind(this));
             const resetIconEle = this.targetEle.querySelector('.resetIcon');
             resetIconEle.addEventListener("click", this.resetDisplay.bind(this));
             this.targetEle.querySelector(".saveSVG").addEventListener("click", this.saveSVG.bind(this))
@@ -1513,7 +1518,6 @@ class PdbTopologyViewerPlugin {
             this.targetEle.querySelector('.menuOptions').style.display = 'none';
         }
     }
-
     resetTheme() {
         const _this = this;
         this.svgEle.selectAll('.coloured').each(function(d:any){
@@ -1641,7 +1645,7 @@ class PdbTopologyViewerPlugin {
             }
         }         
     }
-
+    
     resetDisplay(){
         const selectBoxEle:any = this.targetEle.querySelector('.menuSelectbox');
         selectBoxEle.value = 0;

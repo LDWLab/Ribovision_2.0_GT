@@ -143,6 +143,27 @@
                 <div id="topview"></div>
             </span>
         </div>
+
+        <div class = "gradient_section">
+            <img v-if = "selected_property == 'Hydrophobicity'" id = 'gradientSVG'
+                src="static/alignments/svg/Hydrophobicity.svg" 
+            >
+            <img v-if = "selected_property == 'Charge'" id = 'gradientSVG'
+                src="static/alignments/svg/Charge.svg" 
+            >
+            <img v-if = "selected_property == 'Hydropathy'" id = 'gradientSVG'
+                src="static/alignments/svg/Hydropathy.svg" 
+            >
+            <img v-if = "selected_property == 'Polarity'" id = 'gradientSVG'
+                src="static/alignments/svg/Polarity.svg" 
+            >
+            <img v-if = "selected_property == 'Shannon entropy'" id = 'gradientSVG'
+                src="static/alignments/svg/Shannon.svg" 
+            >
+            <img v-if = "selected_property == 'Mutability'" id = 'gradientSVG'
+                src="static/alignments/svg/Mutability.svg" 
+            >
+        </div>
         <div class="molstar_section">
             <span id="molif" v-if="chainid.length>0">
                 <div id ="pdbeMolstarView">
@@ -167,6 +188,7 @@
   import {initialState} from './DropDownTreeVars.js'
   import {AlnViewer} from './AlignmentViewer.js'
   import {customCSVhandler} from './handleCSVdata.js'
+  import {updateProperty} from './handleCSVdata.js'
   import {populatePDBsFromCustomAln} from './populatePDBsFromCustomAln.js'
   import ReactDOM, { render } from 'react-dom';
   import React, { Component } from "react";
@@ -179,6 +201,7 @@
       data: function () {
         return initialState();
       },
+      
       watch: {
         type_tree: function (type_tree){
             if (this.type_tree == "orth"){
@@ -438,7 +461,8 @@
                     document.getElementById('alnDiv')
                   );
             })
-        }, showTopologyViewer (pdbid, chainid, fasta){
+        },  
+         showTopologyViewer (pdbid, chainid, fasta){
             this.topology_loaded = false;
             window.filterRange = "-10000,10000";
             if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(this);}
@@ -556,7 +580,7 @@
             var viewerContainer = document.getElementById('pdbeMolstarView');
             viewerInstance.render(viewerContainer, options);
             window.viewerInstance = viewerInstance;
-
+            
             document.addEventListener('PDB.topologyViewer.click', (e) => {
                 var molstar= viewerInstance;                            
                 var chainId=e.eventData.chainId;
