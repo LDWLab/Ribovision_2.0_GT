@@ -498,7 +498,8 @@
                 this.fasta_data = fasta['Alignment'];
                 this.aa_properties = calculateFrequencyData(fasta['AA frequencies']);
             })
-        }, showTopologyViewer (pdbid, chainid, fasta){
+        },  
+         showTopologyViewer (pdbid, chainid, fasta){
             this.topology_loaded = false;
             window.filterRange = "-10000,10000";
             if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(this);}

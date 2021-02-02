@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="85" height="484" viewBox="0 0 85 484">
+  <defs>
+    <style>
+      .cls-1, .cls-6 {
+        fill: none;
+      }
+
+      .cls-2 {
+        font-size: 24px;
+        font-family: MyriadPro-Regular, Myriad Pro;
+      }
+
+      .cls-3 {
+        fill: #fff;
+      }
+
+      .cls-4 {
+        clip-path: url(#clip-path);
+      }
+
+      .cls-5 {
+        isolation: isolate;
+      }
+
+      .cls-6 {
+        stroke: #000;
+        stroke-linecap: square;
+        stroke-width: 0.8px;
+      }
+    </style>
+    <clipPath id="clip-path">
+      <rect class="cls-1" x="11.77" y="9.39" width="34.76" height="465.22"/>
+    </clipPath>
+  </defs>
+  <g id="Layer_2" data-name="Layer 2">
+    <rect x="42.5" y="241.38" width="13.32" height="1.24"/>
+    <rect x="46.53" y="473.99" width="13.32" height="1.24"/>
+    <rect x="46.53" y="8.77" width="13.32" height="1.24"/>
+    <text class="cls-2" transform="translate(59.85 475.23)">52</text>
+  </g>
+  <g id="Layer_1" data-name="Layer 1">
+    <g id="figure_1" data-name="figure 1">
+      <g id="axes_1" data-name="axes 1">
+        <g id="patch_2" data-name="patch 2">
+          <path class="cls-3" d="M46.53,474.61V9.39H11.77V474.61Z"/>
+        </g>
+        <g class="cls-4">
+          <image id="image714ab6674f" class="cls-5" width="342" height="26" transform="matrix(0, -1.86, -23.98, 0, 332.01, 560.76)" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAVYAAAAaCAYAAADsQnQgAAAACXBIWXMAAAsSAAALEgHS3X78AAABj0lEQVR4Xu3Uy23FMAxE0Rm6tZSQ/kuxshD1e7ERIODyHiCAaJJ62mT85e8mW5IkhxyWHL0Oy7YUWefZY37Mhld/q23PndX3x3z+SWpx1nN2q5st5XVjts336NhvlhRb3+OObT909Jvd5479Nd+s2f81H9u32dd53t/22M+78t73fp4/6nN+ve0/+4+/P3zc9143Se+/N2s99dsf71399d521NOY9Xvt7b2y5O3+0Zvjbmsna4+dt1pSHP22/Ss0RX5Tzu3zMedXHTrnY++rKXyf87mz6lvXMT96/fua7fdcuo+79vryPefH+fLo37ryPZLm+djXvebVf3/1+/7Z798e67z7rNtW9/N676iVdY+Sa9bO2rlvXbIiN3o/FNm/HPMuAEARghUAihGsAFCMYAWAYgQrABQjWAGgGMEKAMUIVgAoRrACQDGCFQCKEawAUIxgBYBiBCsAFCNYAaAYwQoAxQhWAChGsAJAMYIVAIoRrABQjGAFgGIEKwAUI1gBoBjBCgDFCFYAKEawAkCxH9pqiTvoRzedAAAAAElFTkSuQmCC"/>
+        </g>
+        <g id="patch_3" data-name="patch 3">
+          <path class="cls-6" d="M46.53,474.61H11.77"/>
+        </g>
+        <g id="patch_4" data-name="patch 4">
+          <path class="cls-6" d="M46.53,9.39H11.77"/>
+        </g>
+        <g id="patch_5" data-name="patch 5">
+          <path class="cls-6" d="M46.53,474.61V9.39"/>
+        </g>
+        <g id="patch_6" data-name="patch 6">
+          <path class="cls-6" d="M11.77,474.61V9.39"/>
+        </g>
+      </g>
+    </g>
+    <text class="cls-2" transform="translate(65.45 22)">0</text>
+    <text class="cls-2" transform="translate(55.82 249.11)">26</text>
+  </g>
+</svg>
