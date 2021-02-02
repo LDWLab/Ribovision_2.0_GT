@@ -88,6 +88,7 @@ declare class PdbTopologyViewerPlugin {
     create2D3DAnnotations(name: string, residueDetails: any, TWCrgbMap: Map<number, any>, TWCData: Map<number, string>, chain_start: number, chain_end: number): any;
     getAnnotationFromRibovision(mapped_aa_properties: Map<string, Array<Array<number>>>): void;
     getAnnotationFromOutliers(): void;
+    updateProperty(): void;
     createDomainDropdown: () => void;
     resetTheme(): void;
     changeResidueColor(residueNumber: number, rgbColor: string, tooltipContent: string, tooltipPosition: string): void;

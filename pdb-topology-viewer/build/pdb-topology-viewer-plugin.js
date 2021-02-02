@@ -140,6 +140,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 var selectBoxEle = this.targetEle.querySelector('.menuSelectbox');
                 selectBoxEle.innerHTML = optionList_1;
                 selectBoxEle.addEventListener("change", this.displayDomain.bind(this));
+                selectBoxEle.addEventListener("change", this.updateProperty.bind(this));
                 var resetIconEle = this.targetEle.querySelector('.resetIcon');
                 resetIconEle.addEventListener("click", this.resetDisplay.bind(this));
                 this.targetEle.querySelector(".saveSVG").addEventListener("click", this.saveSVG.bind(this));
@@ -1454,6 +1455,12 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 });
             }
         }
+    };
+    PdbTopologyViewerPlugin.prototype.updateProperty = function () {
+        var selectBoxEle = this.targetEle.querySelector('.menuSelectbox');
+        var selectedIndex = parseInt(selectBoxEle.selectedIndex);
+        rv3VUEcomponent.selected_property = this.domainTypes[selectedIndex].label;
+        console.log("Selected: " + rv3VUEcomponent.selected_property);
     };
     PdbTopologyViewerPlugin.prototype.resetTheme = function () {
         var _this = this;
