@@ -143,25 +143,11 @@
                 <div id="topview"></div>
             </span>
         </div>
-
-        <div class = "gradient_section">
-            <img v-if = "selected_property == 'Hydrophobicity'" id = 'gradientSVG'
-                src="static/alignments/svg/Hydrophobicity.svg" 
-            >
-            <img v-if = "selected_property == 'Charge'" id = 'gradientSVG'
-                src="static/alignments/svg/Charge.svg" 
-            >
-            <img v-if = "selected_property == 'Hydropathy'" id = 'gradientSVG'
-                src="static/alignments/svg/Hydropathy.svg" 
-            >
-            <img v-if = "selected_property == 'Polarity'" id = 'gradientSVG'
-                src="static/alignments/svg/Polarity.svg" 
-            >
-            <img v-if = "selected_property == 'Shannon entropy'" id = 'gradientSVG'
-                src="static/alignments/svg/Shannon.svg" 
-            >
-            <img v-if = "selected_property == 'Mutability'" id = 'gradientSVG'
-                src="static/alignments/svg/Mutability.svg" 
+        <div class = "gradient_section" v-if = "selected_property">
+            <img id = 'gradientSVG' 
+                v-for="prop in available_properties" 
+                v-if = "selected_property == prop.Name"
+                :src="prop.url"
             >
         </div>
         <div class="molstar_section">
