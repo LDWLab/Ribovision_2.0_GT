@@ -16,10 +16,10 @@ export function initialState (){
             {Name:"Charge", url:"static/alignments/svg/Charge.svg"},
             {Name:"Hydropathy", url:"static/alignments/svg/Hydropathy.svg"},
             {Name:"Hydrophobicity", url:"static/alignments/svg/Hydrophobicity.svg"},
-            {Name:"Polarity", url:"static/alignments/svg/Polarity.svg"},
+            {Name:"Polarity", url:"static/alignments/svg/Polarity1.svg"},
             {Name:"Mutability", url:"static/alignments/svg/Mutability.svg"},
             {Name:"Shannon entropy", url:"static/alignments/svg/Shannon.svg"},
-            //{Name:"TwinCons", url:"static/alignments/svg/TwinCons.svg"}
+            {Name:"TwinCons", url:"static/alignments/svg/TwinCons.svg"}
             ],
         pdbid: null,
         chains: null,
