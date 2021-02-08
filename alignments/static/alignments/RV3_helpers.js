@@ -142,8 +142,7 @@ var downloadAlignmentData = function(fastaString){
 }
 
 var downloadAlignmentImage = function(){
-    var labelsDiv = document.querySelector("#alnViewerLabels");
-    var alnDiv = labelsDiv.parentElement;
+    var alnDiv = document.querySelector("#MSAViewer");
     var anchor = document.createElement('a');
     html2canvas(alnDiv).then(canvas => {
         var imageData = canvas.toDataURL("image/png");
@@ -179,10 +178,10 @@ var downloadFullAlignmentImage = function (){
     var maxLabelsWidth = getWidthOfText(longestName, 'Arial', '15px');
     labelsDiv.style.width = maxLabelsWidth;
     var anchor = document.createElement('a');
-    var alnDiv = labelsDiv.parentElement;
+    var alnDiv = document.querySelector("#MSAViewer");
     //Have to do 2 nested html2canvas so that canvas gets rerendered at the 0,0 position.
     html2canvas(alnDiv).then(() => {
-        var alnDivDownload = labelsDiv.parentElement;
+        var alnDivDownload = document.querySelector("#MSAViewer");
         html2canvas(alnDivDownload).then(canvas => {
             var imageData = canvas.toDataURL("image/png");
             labelsDiv.style.width = initialLabelsWidth;
@@ -353,7 +352,9 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
             {id: "4v6u", name: "4V6U P. furiosus"},
             {id: "4ug0", name: "4UG0 H. sapiens"},
         ];
-        vueObj.colorScheme = null;
+        vueObj.colorScheme = 'clustal2';
+        vueObj.msavWillMount = null;
+        vueObj.unmappedTWCdata = null;
         if (pdb_input) {
             if (pdb_input.getAttribute("value") != ""){vueObj.pdbid = null;}
         }
@@ -641,6 +642,14 @@ var indexMatchingText = function(ele, text) {
         }
     }
     return undefined;
+}
+
+function componentToHex(c) {
+    var hex = c.toString(16);
+    return hex.length == 1 ? "0" + hex : hex;
+  }
+var rgbToHex = function(r, g, b) {
+    return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
 }
 
 var masked_array = [];

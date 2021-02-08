@@ -114,19 +114,19 @@
         <div class="alignment_section">
             <div id="alnif" v-if="alnobj">
                 <div id="alnMenu" style="display: flex;">
-                    <button id="downloadFastaBtn" class="btn btn-outline-dark" style="margin: 0 1%;" v-if="colorScheme" type="button" v-on:click="downloadAlignmentData()">
+                    <button id="downloadFastaBtn" class="btn btn-outline-dark" style="margin: 0 1%;" v-if="msavWillMount" type="button" v-on:click="downloadAlignmentData()">
                         Download alignment
                     </button>
-                    <select id="downloadAlnImageBtn" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="downloadAlignmentOpt" v-if="colorScheme">
+                    <select id="downloadAlnImageBtn" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="downloadAlignmentOpt" v-if="msavWillMount">
                         <option :value="null" selected disabled>Download alignment image</option>
                         <option value='full'>Full alignment</option>
                         <option value='visible'>Visible alignment</option>
                     </select>
-                    <select id="selectColorMappingProps" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="selected_property" v-if = "topology_loaded">
+                    <select id="selectColorMappingProps" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="selected_property" v-if="msavWillMount">
                         <option :value="null" selected disabled>Annotation</option>
                         <option v-for="prop in available_properties" >{{ prop.Name }}</option>
                     </select>
-                    <select id="selectAlnColorScheme" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="colorScheme" v-if="colorScheme">
+                    <select id="selectAlnColorScheme" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="colorScheme" v-if="msavWillMount">
                         <option :value="null" selected disabled>Select a colorscheme</option>
                         <option v-for="colorscheme in availColorschemes" >{{ colorscheme }}</option>
                     </select>
@@ -150,7 +150,6 @@
             </span>
         </div>
         <div class = "gradient_section" v-if = "topology_loaded">
-
             <img id = 'gradientSVG' 
                 v-for="prop in available_properties" 
                 v-if = "selected_property == prop.Name"
@@ -255,7 +254,28 @@
             let min = Math.min(...aaPropertyConstants.get(name));
             let max = Math.max(...aaPropertyConstants.get(name));
             let colormapArray = aaColorData.get(name);
-            //const [rgbMap, MappingData] = viewerInstanceTop.pluginInstance.parsePVData(separatedData, min, max, colormapArray);
+            let propData = this.aa_properties.get(name);
+            var separatedData = [];
+            var updatedBarColors = [];
+            if (name != 'TwinCons'){
+                propData.forEach(function(data, index){
+                    separatedData.push([index+1, Number(math.sum(data).toFixed(2))]);
+                })
+            } else {
+                separatedData = this.unmappedTWCdata;
+            }
+            const [rgbMap, MappingData] = parsePVData(separatedData, min, max, colormapArray);
+            rgbMap.forEach(function (data){
+                updatedBarColors.push(rgbToHex(...data[0]))
+            })
+            window.barColors = updatedBarColors;
+            var alnDiv = document.querySelector('#alnDiv');
+            ReactDOM.unmountComponentAtNode(alnDiv);
+            window.msaOptions.colorScheme = this.colorScheme;
+            ReactDOM.render(
+                <AlnViewer ref={(PVAlnViewer) => {window.PVAlnViewer = PVAlnViewer}}/>,
+                document.getElementById('alnDiv')
+            );
             if (this.topology_loaded){
                 var selectBox = viewerInstanceTop.pluginInstance.targetEle.querySelector('.menuSelectbox');
                 var arrBoxOpts = Array.prototype.slice.call(selectBox.options)
@@ -495,8 +515,9 @@
                 this.structure_mapping = struct_mapping;
                 if (struct_mapping['BadMappingPositions']){this.poor_structure_map = struct_mapping['BadMappingPositions'];}
                 var mapped_aa_properties = mapAAProps(this.aa_properties, struct_mapping);
-                if ((this.tax_id != null && this.tax_id.length == 2) || (this.custom_aln_twc_flag != null && this.custom_aln_twc_flag == true) || (this.type_tree == 'para')) {
+                if (!vm.unmappedTWCdata && ((this.tax_id != null && this.tax_id.length == 2) || (this.custom_aln_twc_flag != null && this.custom_aln_twc_flag == true) || (this.type_tree == 'para'))) {
                     ajax('/twc-api/', {fasta}).then(twcDataUnmapped => {
+                        vm.unmappedTWCdata = twcDataUnmapped;
                         const build_mapped_props = function(mapped_props, twcDataUnmapped, structure_mapping){
                             mapped_props.set("TwinCons", [])
                             for (let i = 0; i < twcDataUnmapped.length; i++) {

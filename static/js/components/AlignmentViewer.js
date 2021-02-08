@@ -30,7 +30,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
         style.innerHTML = ".slider::-webkit-slider-thumb { width: "+(window.innerWidth - 300)*0.05+"px}"
     };
     componentDidMount() {
-        vm.colorScheme = 'clustal2';
+        vm.msavWillMount = true;
         var style = document.querySelector('[data="rv3_style"]');
         style.innerHTML = ".slider::-webkit-slider-thumb { width: "+(window.innerWidth - 300)*0.05+"px}";
         window.ajaxRun = false;
@@ -73,6 +73,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
         });
     };
     componentWillUnmount() {
+        vm.msavWillMount = null;
         window.removeEventListener("resize", this.handleResize);
     };
     onResidueMouseEnter = e => {
@@ -140,7 +141,8 @@ var AlnViewer = class RV3AlnViewer extends Component {
                   MSAVObject={this}
                 />
                 <MSAViewer 
-                  {...msaOptions}
+                  {...window.msaOptions}
+                  id = "MSAViewer"
                   ref={(ref) => (this.el = ref)}
                   highlight={this.state.highlight}
                   width={this.state.width}
