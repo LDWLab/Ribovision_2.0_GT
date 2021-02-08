@@ -1318,7 +1318,7 @@ class PdbTopologyViewerPlugin {
                 let min = Math.min(...aaPropertyConstants.get(name));
                 let max = Math.max(...aaPropertyConstants.get(name));
                 let colormapArray = aaColorData.get(name); 
-                const [TWCrgbMap, TWCData] = _this.parseTWCData(separatedData, min, max, colormapArray);
+                const [TWCrgbMap, TWCData] = parsePVData(separatedData, min, max, colormapArray);
 
                 selectSections_RV1.get(name).push({entity_id: _this.entityId, focus: true});
                 
@@ -1492,6 +1492,7 @@ class PdbTopologyViewerPlugin {
             resetIconEle.addEventListener("click", this.resetDisplay.bind(this));
             this.targetEle.querySelector(".saveSVG").addEventListener("click", this.saveSVG.bind(this))
             rv3VUEcomponent.topology_loaded=true;
+            //selectBoxEle.style.display = 'none';
         }else{
             this.targetEle.querySelector('.menuOptions').style.display = 'none';
         }
