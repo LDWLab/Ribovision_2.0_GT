@@ -146,7 +146,7 @@ export const MSAPropTypes = {
    */
   onResidueDoubleClick: PropTypes.func,
   //Highlights
-  highlight: PropTypes.oneOfType([Object, Array]),//??????
+  highlight: PropTypes.object,
 };
 
 

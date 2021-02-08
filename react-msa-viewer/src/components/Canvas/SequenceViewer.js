@@ -429,7 +429,7 @@ SequenceViewerComponent.propTypes = {
   scrollBarPositionY: PropTypes.oneOf(["left", "right"]),
 
   //Highlight
-  highlight: PropTypes.oneOfType([Object, Array]),//??????
+  highlight: PropTypes.object,
 };
 
 // hoist the list of accepted properties to the parent

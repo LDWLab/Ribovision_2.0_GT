@@ -20183,8 +20183,7 @@
      */
     onResidueDoubleClick: PropTypes.func,
     //Highlights
-    highlight: PropTypes.oneOfType([Object, Array]) //??????
-
+    highlight: PropTypes.object
   }; // TODO: separate individual properties into their components
 
   const msaDefaultProps = {
@@ -23916,8 +23915,7 @@
      */
     scrollBarPositionY: PropTypes.oneOf(["left", "right"]),
     //Highlight
-    highlight: PropTypes.oneOfType([Object, Array]) //??????
-
+    highlight: PropTypes.object
   }; // hoist the list of accepted properties to the parent
   // eslint-disable-next-line react/forbid-foreign-prop-types
 
