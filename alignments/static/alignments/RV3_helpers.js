@@ -370,6 +370,7 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     vueObj.poor_structure_map = null;
     vueObj.selected_property = null;
     window.ajaxRun = false;
+    window.custom_prop = null;
     if (vueObj.topology_loaded) {vueObj.topology_loaded = false;}
     if (vueObj.raiseCustomCSVWarn) {vueObj.raiseCustomCSVWarn = null;}
     if (window.masked_array.length > 0) {window.masked_array = [];}
@@ -492,7 +493,8 @@ var setGlobalProperties = function(){
         ["Polarity",[viridis]],
         ["Mutability",[plasma]],
         ["Shannon entropy",[plasma]],
-        ["TwinCons",[Reds, Blues]],
+        ["TwinCons",[Reds, Greens]],
+        //["TwinCons",[Reds, Blues]],
         //["TwinCons",[RdPu, YlGn]],
     ]);
     window.aaColorData = aaColorData;
@@ -602,5 +604,43 @@ function reviver(key, value) {
     return value;
   }
 
+var parsePVData = function (separatedData, lowVal, highVal, colormapArray, masking=null) {
+        let TWCData = new Map();
+        let TWCrgbMap = new Map();    
+        separatedData.forEach(function (item, index) {
+            let parsedItem = item[0];
+            //if(!masking || masking[index]) {
+                let itemValue = item[1];
+                TWCData.set(parsedItem, itemValue);
+                if (colormapArray.length === 1) {
+                    let newValue = itemValue - lowVal;
+                    TWCrgbMap.set(parsedItem, interpolateLinearly(newValue/(highVal - lowVal), colormapArray[0]));
+                }
+                else {
+                    if (itemValue === 'NA'){
+                        TWCrgbMap.set(parsedItem, [[192, 192, 192], {r:192, g:192, b:192}]);
+                    } else if (itemValue < 0){
+                        TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue/lowVal, colormapArray[0]));
+                    } else {
+                        TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue/highVal, colormapArray[1]));
+                    }
+                }
+            //}
+            /*else {
+                TWCrgbMap.set(parsedItem, [[255, 255, 255], {r:0, g:0, b:0, a:.4}]);
+                TWCData.set(parsedItem, null);
+            }*/
+        });
+        return [TWCrgbMap, TWCData];
+    }
+
+var indexMatchingText = function(ele, text) {
+    for (var i=0; i<ele.length;i++) {
+        if (ele[i].childNodes[0].nodeValue === text){
+            return i;
+        }
+    }
+    return undefined;
+}
 
 var masked_array = [];

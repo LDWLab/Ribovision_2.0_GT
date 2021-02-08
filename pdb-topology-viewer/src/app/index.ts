@@ -7,6 +7,7 @@ const aaPropertyConstants = (window as any).aaPropertyConstants;
 const aaColorData = (window as any).aaColorData;
 const masking_range_array = (window as any).masking_range_array;
 var masked_array = (window as any).masked_array;
+var parsePVData = (window as any).parsePVData;
 var viewerInstance = (window as any).viewerInstance;
 var selectSections_RV1 = (window as any).selectSections_RV1;
 var rv3VUEcomponent = (window as any).vm;
@@ -430,7 +431,15 @@ class PdbTopologyViewerPlugin {
             }if(eleData.type === 'coils'){
                 selectedPath.attr('stroke', this.defaultColours.mouseOver).attr('stroke-width', 1);
             }
-        
+            //Maybe add gradient line movement here as function of eleData.tooltipMsg
+            //var newLine = document.createElementNS('http://www.w3.org/2000/svg','line');
+            //newLine.setAttribute('id','line2');
+            //newLine.setAttribute('x1','22');
+            //newLine.setAttribute('y1','12');
+            //newLine.setAttribute('x2','55');
+            //newLine.setAttribute('y2','474');
+            //newLine.setAttribute("stroke", "black")
+            //document.querySelector('#imageaef08aed83').appendChild(newLine)
         
             //Dispatch custom mouseover event
             this.dispatchEvent('PDB.topologyViewer.mouseover', {
@@ -1248,37 +1257,6 @@ class PdbTopologyViewerPlugin {
         
     }
 
-    parseTWCData(separatedData: any[], lowVal: number, highVal: number, colormapArray: any[], masking?: boolean[]) {
-        let TWCData = new Map();
-        let TWCrgbMap = new Map();    
-        separatedData.forEach(function (item, index) {
-            let parsedItem = item[0];
-            //if(!masking || masking[index]) {
-                let itemValue = item[1];
-                TWCData.set(parsedItem, itemValue);
-                if (colormapArray.length === 1) {
-                    let newValue = itemValue - lowVal;
-                    TWCrgbMap.set(parsedItem, interpolateLinearly(newValue/(highVal - lowVal), colormapArray[0]));
-                }
-                else {
-                    if (itemValue === 'NA'){
-                        TWCrgbMap.set(parsedItem, [[192, 192, 192], {r:192, g:192, b:192}]);
-                    } else if (itemValue < 0){
-                        TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue/lowVal, colormapArray[0]));
-                    } else {
-                        TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue/highVal, colormapArray[1]));
-                    }
-                }
-            //}
-            /*else {
-                TWCrgbMap.set(parsedItem, [[255, 255, 255], {r:0, g:0, b:0, a:.4}]);
-                TWCData.set(parsedItem, null);
-            }*/
-        });
-        return [TWCrgbMap, TWCData];
-    }
-
-
     create2D3DAnnotations(name: string, residueDetails: any, 
                         TWCrgbMap: Map<number, any>, TWCData: Map<number, string>,
                         chain_start: number, chain_end: number) {
@@ -1340,7 +1318,7 @@ class PdbTopologyViewerPlugin {
                 let min = Math.min(...aaPropertyConstants.get(name));
                 let max = Math.max(...aaPropertyConstants.get(name));
                 let colormapArray = aaColorData.get(name); 
-                const [TWCrgbMap, TWCData] = _this.parseTWCData(separatedData, min, max, colormapArray);
+                const [TWCrgbMap, TWCData] = parsePVData(separatedData, min, max, colormapArray);
 
                 selectSections_RV1.get(name).push({entity_id: _this.entityId, focus: true});
                 
@@ -1484,7 +1462,7 @@ class PdbTopologyViewerPlugin {
         const selectBoxEle: any = this.targetEle.querySelector('.menuSelectbox');
         const selectedIndex = parseInt(selectBoxEle.selectedIndex);
         rv3VUEcomponent.selected_property = this.domainTypes[selectedIndex].label;
-        console.log("Selected: " + rv3VUEcomponent.selected_property);
+        //console.log("Selected: " + rv3VUEcomponent.selected_property);
     }
     createDomainDropdown = function () {
         
@@ -1514,6 +1492,7 @@ class PdbTopologyViewerPlugin {
             resetIconEle.addEventListener("click", this.resetDisplay.bind(this));
             this.targetEle.querySelector(".saveSVG").addEventListener("click", this.saveSVG.bind(this))
             rv3VUEcomponent.topology_loaded=true;
+            //selectBoxEle.style.display = 'none';
         }else{
             this.targetEle.querySelector('.menuOptions').style.display = 'none';
         }

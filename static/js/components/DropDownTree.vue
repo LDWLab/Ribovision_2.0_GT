@@ -122,17 +122,23 @@
                         <option value='full'>Full alignment</option>
                         <option value='visible'>Visible alignment</option>
                     </select>
+                    <select id="selectColorMappingProps" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="selected_property" v-if = "topology_loaded">
+                        <option :value="null" selected disabled>Annotation</option>
+                        <option v-for="prop in available_properties" >{{ prop.Name }}</option>
+                    </select>
                     <select id="selectAlnColorScheme" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="colorScheme" v-if="colorScheme">
                         <option :value="null" selected disabled>Select a colorscheme</option>
                         <option v-for="colorscheme in availColorschemes" >{{ colorscheme }}</option>
                     </select>
                 </div>
                 <div id="alnDiv">Loading alignment <img src="static/img/loading.gif" alt="Loading alignment" style="height:25px;"></div>
-                    <div v-if="poor_structure_map" id="warningPoorStructureAln">
-                        <b>Warning, poor alignment between the structure and sequences!!!<br/>
-                        Found {{poor_structure_map}} poorly aligned residues.
-                        Proceed with caution or try a different structure.</b>
-                    </div>
+            </div>
+        </div>
+        <div class="warningSection">
+            <div id="warningPoorStructureAln" v-if="poor_structure_map" >
+                <b>Warning, poor alignment between the structure and sequences!!!<br/>
+                Found {{poor_structure_map}} poorly aligned residues.
+                Proceed with caution or try a different structure.</b>
             </div>
         </div>
         <div class="topology_section">
@@ -143,12 +149,18 @@
                 <div id="topview"></div>
             </span>
         </div>
-        <div class = "gradient_section" v-if = "selected_property">
+        <div class = "gradient_section" v-if = "topology_loaded">
+
             <img id = 'gradientSVG' 
                 v-for="prop in available_properties" 
                 v-if = "selected_property == prop.Name"
                 :src="prop.url"
-            >
+            ><!--
+            <object id="gradientSVG"
+                v-for="prop in available_properties" 
+                v-if = "selected_property == prop.Name"
+                :data="prop.url" type="image/svg+xml">
+            </object>-->
         </div>
         <div class="molstar_section">
             <span id="molif" v-if="chainid.length>0">
@@ -237,6 +249,19 @@
             } else if (opt == 'pymol'){
                 downloadPyMOLscript();
                 this.downloadMapDataOpt = null;
+            }
+        },selected_property: function(name){
+            if (!name){return;}
+            let min = Math.min(...aaPropertyConstants.get(name));
+            let max = Math.max(...aaPropertyConstants.get(name));
+            let colormapArray = aaColorData.get(name);
+            //const [rgbMap, MappingData] = viewerInstanceTop.pluginInstance.parsePVData(separatedData, min, max, colormapArray);
+            if (this.topology_loaded){
+                var selectBox = viewerInstanceTop.pluginInstance.targetEle.querySelector('.menuSelectbox');
+                var arrBoxOpts = Array.prototype.slice.call(selectBox.options)
+                var newIndex = indexMatchingText(selectBox.options, name)
+                selectBox.selectedIndex = newIndex; 
+                viewerInstanceTop.pluginInstance.displayDomain();
             }
         }
     },methods: {
@@ -568,11 +593,11 @@
             window.viewerInstance = viewerInstance;
             
             document.addEventListener('PDB.topologyViewer.click', (e) => {
-                var molstar= viewerInstance;                            
+                var molstar= viewerInstance;
                 var chainId=e.eventData.chainId;
                 var entityId=e.eventData.entityId;
                 var residueNumber=e.eventData.residueNumber;
-                var types=e.eventData.type;                            
+                var types=e.eventData.type;
                 molstar.visual.select({
                     data:[
                         {
@@ -586,7 +611,7 @@
                 })
             })
             document.addEventListener('PDB.topologyViewer.mouseover', (e) => {
-                var molstar= viewerInstance;                            
+                var molstar= viewerInstance;
                 var chainId=e.eventData.chainId;
                 var entityId=e.eventData.entityId;
                 var residueNumber=e.eventData.residueNumber;
