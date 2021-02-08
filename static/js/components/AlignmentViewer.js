@@ -73,6 +73,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
         vm.msavWillMount = true;
     };
     componentWillUnmount() {
+        vm.msavWillMount = null;
         window.removeEventListener("resize", this.handleResize);
     };
     onResidueMouseEnter = e => {

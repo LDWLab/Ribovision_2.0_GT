@@ -521,8 +521,9 @@
                 this.structure_mapping = struct_mapping;
                 if (struct_mapping['BadMappingPositions']){this.poor_structure_map = struct_mapping['BadMappingPositions'];}
                 var mapped_aa_properties = mapAAProps(this.aa_properties, struct_mapping);
-                if ((this.tax_id != null && this.tax_id.length == 2) || (this.custom_aln_twc_flag != null && this.custom_aln_twc_flag == true) || (this.type_tree == 'para')) {
+                if (!vm.unmappedTWCdata && ((this.tax_id != null && this.tax_id.length == 2) || (this.custom_aln_twc_flag != null && this.custom_aln_twc_flag == true) || (this.type_tree == 'para'))) {
                     ajax('/twc-api/', {fasta}).then(twcDataUnmapped => {
+                        vm.unmappedTWCdata = twcDataUnmapped;
                         const build_mapped_props = function(mapped_props, twcDataUnmapped, structure_mapping){
                             mapped_props.set("TwinCons", [])
                             for (let i = 0; i < twcDataUnmapped.length; i++) {
