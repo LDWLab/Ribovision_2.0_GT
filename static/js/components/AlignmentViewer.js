@@ -14,8 +14,8 @@ var AlnViewer = class RV3AlnViewer extends Component {
     state = { 
         tileWidth: 17,
         tileHeight: 17,
-        aaPos: 0,
-        seqPos: 0,
+        aaPos: vm.aaPos,
+        seqPos: vm.seqPos,
         width: (window.innerWidth - 300) * 0.7,
         height: ((window.innerHeight - 171)/2) * 0.8,
         highlight: null,

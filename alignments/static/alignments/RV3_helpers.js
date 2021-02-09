@@ -353,6 +353,8 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
             {id: "4ug0", name: "4UG0 H. sapiens"},
         ];
         vueObj.colorScheme = 'clustal2';
+        vueObj.aaPos = 0;
+        vueObj.seqPos = 0;
         vueObj.msavWillMount = null;
         vueObj.unmappedTWCdata = null;
         if (pdb_input) {

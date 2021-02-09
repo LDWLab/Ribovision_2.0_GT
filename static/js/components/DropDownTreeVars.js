@@ -28,6 +28,7 @@ export function initialState (){
         fastaSeqNames: null,
         colorScheme: 'clustal2',
         msavWillMount: null,
+        aaPos: 0, seqPos: 0,
         hide_chains: null,
         type_tree: "orth",
         aa_properties: null,

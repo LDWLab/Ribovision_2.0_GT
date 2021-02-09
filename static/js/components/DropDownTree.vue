@@ -283,6 +283,8 @@
             window.barColors = updatedBarColors;
             var alnDiv = document.querySelector('#alnDiv');
             window.msaOptions.colorScheme = this.colorScheme;
+            this.aaPos = window.PVAlnViewer.state.aaPos;
+            this.seqPos = window.PVAlnViewer.state.seqPos;
             ReactDOM.unmountComponentAtNode(alnDiv);
             this.msavWillMount = null;
             this.$nextTick(function(){
