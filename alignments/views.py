@@ -16,6 +16,7 @@ from alignments.structure_api import *
 from alignments.fold_api import *
 from alignments.alignment_query_and_build import para_aln
 import alignments.alignment_query_and_build as aqab
+from TwinCons.bin.TwinCons import slice_by_name
 
 
 def trim_alignment(concat_fasta, filter_strain):
@@ -355,14 +356,22 @@ def simple_fasta(request, aln_id, tax_group, internal=False):
         nogap_tupaln, max_alnposition= aqab.query_to_dict_structure(rawsql, parent, nogap_tupaln, max_alnposition)
     
     fastastring, frequency_list = aqab.build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_alnposition)
+    
     if internal:
         return fastastring
+    
+    concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
+    alignment_obj = AlignIO.read(StringIO(concat_fasta), 'fasta')
+    sliced_alns = slice_by_name(alignment_obj)
+    twc = False
+    if len(sliced_alns.keys()) == 2:
+        twc = True
     
     gap_only_cols = extract_gap_only_cols(fastastring)
     filtered_spec_list = extract_species_list(fastastring)
 
-    concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
-    response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list])
+    
+    response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc])
 
     return JsonResponse(response_dict, safe = False)
 
@@ -429,7 +438,6 @@ def handle_custom_upload_alignment(request):
             return HttpResponseServerError("Alignment file had forbidden characters!\nWhat are you trying to do?")
     if request.method == 'GET':
         from alignments.Shannon import gap_adjusted_frequency
-        from TwinCons.bin.TwinCons import slice_by_name
         fastastring = request.session.get('custom_alignment_file')
         alignment_obj = AlignIO.read(StringIO(fastastring), 'fasta')
         sliced_alns = slice_by_name(alignment_obj)

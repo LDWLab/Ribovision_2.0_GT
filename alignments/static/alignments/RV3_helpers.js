@@ -652,4 +652,44 @@ var rgbToHex = function(r, g, b) {
     return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
 }
 
+var build_mapped_props = function(mapped_props, twcDataUnmapped, structure_mapping){
+    mapped_props.set("TwinCons", [])
+    for (let i = 0; i < twcDataUnmapped.length; i++) {
+        let mappedI0 = structure_mapping[twcDataUnmapped[i][0]];
+        if (mappedI0) {
+            mapped_props.get("TwinCons").push([mappedI0, twcDataUnmapped[i][1]]);
+        }
+    }
+    return mapped_props;
+}
+
+var mapTWCdata = function (structMap, twcDataUnmapped, mapped_aa_properties){
+    var topviewer = document.getElementById("PdbeTopViewer");
+    mapped_aa_properties = build_mapped_props(mapped_aa_properties, twcDataUnmapped, structMap);
+    window.mapped_aa_properties = mapped_aa_properties;
+    if (topviewer != null && topviewer.pluginInstance.domainTypes != undefined){
+        var empty_props = new Map();
+        let twc_props = build_mapped_props(empty_props, twcDataUnmapped, structMap);
+        topviewer.pluginInstance.getAnnotationFromRibovision(twc_props);
+        var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
+        var twc_option = document.createElement("option");
+        twc_option.setAttribute("value", selectBoxEle.options.length);
+        twc_option.appendChild(document.createTextNode("TwinCons"));
+        selectBoxEle.appendChild(twc_option);
+    }
+}
+
+var fetchTWCdata = function (fasta){
+    ajax('/twc-api/', {fasta}).then(twcDataUnmapped => {
+        vm.unmappedTWCdata = twcDataUnmapped;
+    })
+}
+
+var recolorTopStar = function (name){
+    var selectBox = viewerInstanceTop.pluginInstance.targetEle.querySelector('.menuSelectbox');
+    var newIndex = indexMatchingText(selectBox.options, name)
+    selectBox.selectedIndex = newIndex; 
+    viewerInstanceTop.pluginInstance.displayDomain();
+}
+
 var masked_array = [];

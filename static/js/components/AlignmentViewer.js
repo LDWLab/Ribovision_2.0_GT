@@ -30,7 +30,6 @@ var AlnViewer = class RV3AlnViewer extends Component {
         style.innerHTML = ".slider::-webkit-slider-thumb { width: "+(window.innerWidth - 300)*0.05+"px}"
     };
     componentDidMount() {
-        vm.msavWillMount = true;
         var style = document.querySelector('[data="rv3_style"]');
         style.innerHTML = ".slider::-webkit-slider-thumb { width: "+(window.innerWidth - 300)*0.05+"px}";
         window.ajaxRun = false;
@@ -71,9 +70,9 @@ var AlnViewer = class RV3AlnViewer extends Component {
             direction: 'horizontal',
             bounce: false,
         });
+        vm.msavWillMount = true;
     };
     componentWillUnmount() {
-        vm.msavWillMount = null;
         window.removeEventListener("resize", this.handleResize);
     };
     onResidueMouseEnter = e => {

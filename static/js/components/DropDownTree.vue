@@ -232,6 +232,9 @@
                 window.tempCSVdata = null;
                 customCSVhandler(vm.csv_data);
             }
+            if (this.selected_property){
+                recolorTopStar(this.selected_property);
+            }
         },downloadAlignmentOpt: function(opt){
             if (this.uploadSession){return;}
             else if (opt == 'visible'){
@@ -251,18 +254,27 @@
             }
         },selected_property: function(name){
             if (!name){return;}
+            if(!aaPropertyConstants.has(name)){return;}
             let min = Math.min(...aaPropertyConstants.get(name));
             let max = Math.max(...aaPropertyConstants.get(name));
             let colormapArray = aaColorData.get(name);
             let propData = this.aa_properties.get(name);
             var separatedData = [];
             var updatedBarColors = [];
-            if (name != 'TwinCons'){
+            if (this.aa_properties.has(name)){
                 propData.forEach(function(data, index){
                     separatedData.push([index+1, Number(math.sum(data).toFixed(2))]);
                 })
-            } else {
+            } else if (name == 'TwinCons'){
                 separatedData = this.unmappedTWCdata;
+            } else {
+                //assume custom data
+                if (this.structure_mapping && window.custom_prop){
+                    let invertedMap = _.invert(this.structure_mapping);
+                    window.custom_prop.get(name).forEach(function(data){
+                        separatedData.push([Number(invertedMap[data[0]]), data[1]]);
+                    })
+                }
             }
             const [rgbMap, MappingData] = parsePVData(separatedData, min, max, colormapArray);
             rgbMap.forEach(function (data){
@@ -270,18 +282,16 @@
             })
             window.barColors = updatedBarColors;
             var alnDiv = document.querySelector('#alnDiv');
-            ReactDOM.unmountComponentAtNode(alnDiv);
             window.msaOptions.colorScheme = this.colorScheme;
-            ReactDOM.render(
-                <AlnViewer ref={(PVAlnViewer) => {window.PVAlnViewer = PVAlnViewer}}/>,
-                document.getElementById('alnDiv')
-            );
+            ReactDOM.unmountComponentAtNode(alnDiv);
+            this.msavWillMount = null;
+            this.$nextTick(function(){
+                ReactDOM.render(
+                    <AlnViewer ref={(PVAlnViewer) => {window.PVAlnViewer = PVAlnViewer}}/>, alnDiv
+                );
+            });
             if (this.topology_loaded){
-                var selectBox = viewerInstanceTop.pluginInstance.targetEle.querySelector('.menuSelectbox');
-                var arrBoxOpts = Array.prototype.slice.call(selectBox.options)
-                var newIndex = indexMatchingText(selectBox.options, name)
-                selectBox.selectedIndex = newIndex; 
-                viewerInstanceTop.pluginInstance.displayDomain();
+                recolorTopStar(name);
             }
         }
     },methods: {
@@ -463,8 +473,9 @@
             if (type_tree == "upload"){
                 var url = '/custom-aln-data'}
             ajax(url).then(fasta => {
-                if (fasta['TwinCons'] != null){
-                    this.custom_aln_twc_flag = fasta['TwinCons']
+                if (fasta['TwinCons']){
+                    this.custom_aln_twc_flag = fasta['TwinCons'];
+                    fetchTWCdata(fasta['Alignment']);
                 }
                 vm.fastaSeqNames = fasta['Sequence names'];
                 window.aaFreqs = fasta['AA frequencies'];
@@ -515,33 +526,10 @@
                 this.structure_mapping = struct_mapping;
                 if (struct_mapping['BadMappingPositions']){this.poor_structure_map = struct_mapping['BadMappingPositions'];}
                 var mapped_aa_properties = mapAAProps(this.aa_properties, struct_mapping);
-                if (!vm.unmappedTWCdata && ((this.tax_id != null && this.tax_id.length == 2) || (this.custom_aln_twc_flag != null && this.custom_aln_twc_flag == true) || (this.type_tree == 'para'))) {
-                    ajax('/twc-api/', {fasta}).then(twcDataUnmapped => {
-                        vm.unmappedTWCdata = twcDataUnmapped;
-                        const build_mapped_props = function(mapped_props, twcDataUnmapped, structure_mapping){
-                            mapped_props.set("TwinCons", [])
-                            for (let i = 0; i < twcDataUnmapped.length; i++) {
-                                let mappedI0 = structure_mapping[twcDataUnmapped[i][0]];
-                                if (mappedI0) {
-                                    mapped_props.get("TwinCons").push([mappedI0, twcDataUnmapped[i][1]]);
-                                }
-                            }
-                            return mapped_props;
-                        }
-                        var topviewer = document.getElementById("PdbeTopViewer");
-                        mapped_aa_properties = build_mapped_props(mapped_aa_properties, twcDataUnmapped, this.structure_mapping);
-                        window.mapped_aa_properties = mapped_aa_properties;
-                        if (topviewer != null && topviewer.pluginInstance.domainTypes != undefined){
-                            var empty_props = new Map();
-                            let twc_props = build_mapped_props(empty_props, twcDataUnmapped, this.structure_mapping);
-                            topviewer.pluginInstance.getAnnotationFromRibovision(twc_props);
-                            var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
-                            var twc_option = document.createElement("option");
-                            twc_option.setAttribute("value", selectBoxEle.options.length);
-                            twc_option.appendChild(document.createTextNode("TwinCons"));
-                            selectBoxEle.appendChild(twc_option);
-                        }
-                    })
+                if (((this.tax_id != null && this.tax_id.length == 2) || (this.custom_aln_twc_flag != null && this.custom_aln_twc_flag == true) || (this.type_tree == 'para'))) {
+                    if (vm.unmappedTWCdata) {
+                        mapTWCdata(vm.structure_mapping, vm.unmappedTWCdata, mapped_aa_properties);
+                    }
                 }
                 window.mapped_aa_properties = mapped_aa_properties;
                 var topology_url = `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdblower}/chain/${chainid}`
