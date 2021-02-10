@@ -87,6 +87,11 @@ class AlignmentTxGrpSerializer(serializers.HyperlinkedModelSerializer):
         model = Alignment
         fields = ['url', 'name', 'method', 'source']
 
+class EcoDDomainsSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Ecoddomains
+        fields = '__all__'
+
 class TaxGroupSerializer(serializers.HyperlinkedModelSerializer):
     alignment_ids = serializers.SerializerMethodField()
     def get_alignment_ids(self, obj):

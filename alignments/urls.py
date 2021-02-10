@@ -48,4 +48,5 @@ urlpatterns = [
     path('propensities/<str:align_name>/<int:tax_group>', views.propensities, name = 'propensities'),
     path('propensities/<str:align_name>/<str:tax_group>', views.propensities, name = 'propensities'),
     path('custom-struc-data/<str:strucID>', views.handleCustomUploadStructure, name = 'custom_structure'),
+    path('authEcodQuery', views.ecodPassThroughQuery, name = 'ecodQuery'),
 ]

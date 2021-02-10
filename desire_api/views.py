@@ -2,8 +2,7 @@ from django.shortcuts import render
 from django.http import QueryDict, JsonResponse, Http404
 from django.db import connection
 from rest_framework import viewsets
-from rest_framework.views import APIView
-from rest_framework.reverse import reverse
+from rest_framework.permissions import IsAuthenticated
 from url_filter.integrations.drf import DjangoFilterBackend
 from url_filter.filtersets import ModelFilterSet
 
@@ -81,6 +80,13 @@ class ResiFilterSet(ModelFilterSet):
 class ResiAlnFilterSet(ModelFilterSet):
     class Meta(object):
         model = AlnData
+
+class EcodDomainFilterSet(viewsets.ModelViewSet):
+    queryset = Ecoddomains.objects.all()
+    serializer_class = EcoDDomainsSerializer
+    filter_backends = [DjangoFilterBackend]
+    permission_classes = [IsAuthenticated]
+    filter_fields = ['pdb', 'chain', 'arch_name', 'x_name', 'h_name', 't_name', 'f_name']
 
 def get_filter_set_results(query, filterset, queryset, field):
     curr_query = QueryDict(query)
