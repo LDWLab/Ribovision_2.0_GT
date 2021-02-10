@@ -1,13 +1,15 @@
-import re, os, io
+import re, os, io, base64, json
 import datetime
+import urllib.request
 from subprocess import Popen, PIPE
 from Bio import AlignIO
 from io import StringIO
 from Bio.SeqUtils import IUPACData
 
 from django.shortcuts import render
-from django.http import HttpResponse, Http404, JsonResponse, HttpResponseServerError
+from django.http import HttpResponse, JsonResponse, HttpResponseServerError
 from django.urls import reverse
+from django.contrib.sites.shortcuts import get_current_site
 
 from alignments.models import *
 from alignments.taxonomy_views import *
@@ -513,13 +515,31 @@ def propensities(request, align_name, tax_group):
     
     return render(request, 'alignments/propensities.html', context)
 
+def ecodPassThroughQuery(request):
+    '''Request a password protected URL from our website that returns a JSON object.
+    '''
+    baseURL = 'http://'+get_current_site(request).domain
+    url = baseURL+request.GET['url']
+    if ('&format=json' not in url):
+        url += '&format=json'
+    req = urllib.request.Request(url)
+    username = os.environ['DJANGO_USERNAME']
+    password = os.environ['DJANGO_PASSWORD']
+    credentials = (f'{username}:{password}')
+    encoded_credentials = base64.b64encode(credentials.encode('ascii'))
+    req.add_header('Authorization', 'Basic %s' % encoded_credentials.decode("ascii"))
+
+    response = urllib.request.urlopen(req)
+    encoding = response.info().get_content_charset('utf-8')
+    data = response.read()
+    return JsonResponse(json.loads(data.decode(encoding)), safe=False)
+
 def handleCustomUploadStructure (request, strucID):
     '''We will POST all structure chains we need with uniqueIDs.
     Then when we GET them we can list the strucIDs separated by coma 
     this would mean "combine these in one CIF and return them".
     '''
     if request.method == 'POST':
-        import json
         try:
             strucData = request.POST["custom_structure"]
         except:
