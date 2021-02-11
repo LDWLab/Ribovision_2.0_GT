@@ -62,7 +62,7 @@
             </p>
             <p><select multiple class="form-control btn-outline-dark" id="polymerSelect" v-bind:style="{ resize: 'both'}"  v-if="chains&&fasta_data&&pdbid||uploadSession" v-model="chainid" >
                 <option :value ="null" selected disabled>Select a polymer</option>
-                <option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid, chain.entityID); ">{{ chain.text }}</option>
+                <option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); getApiData(); showPDBViewer(pdbid, chainid, chain.entityID); ">{{ chain.text }}</option>
             </select></p>
             <div v-if="structure_mapping">
                 <select id="downloadDataBtn" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="downloadMapDataOpt" v-if="topology_loaded">
@@ -100,6 +100,15 @@
                         </button></p>
                     </div>
                 </p></div>
+                <div id="domainSelectionSection"><p>
+                    <div class="checkbox">
+                        <label><input type="checkbox" v-model="checked_domain" v-on:change="cleanSelection(checked_domain, true)">
+                        Select domain to show</label>
+                    </div>
+                </p></div>
+                <p><select multiple class="form-control btn-outline-dark" id="domainSelect" v-bind:style="{ resize: 'both'}"  v-if="domain_list&&checked_domain">
+                <option v-for="domain in domain_list" v-bind:value="selected_domain" @click="handleFilterRange(domain.range)">{{ domain.name + ' ' + domain.range }}</option>
+                </select></p>
             </div>
             <p><div v-if="alnobj" class="checkbox" id="showFrequencies">
                 <label><input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">
@@ -645,7 +654,33 @@
                     viewerInstance.plugin.behaviors.interaction.hover._value.current.loci.kind = "empty-loci"
                 }
             });
-        },downloadAlignmentData() {
+        }, getApiData() {
+                $.ajax
+                ({
+                type: "GET",
+                url: "/alignments/authEcodQuery",
+                data: {url: `/desire-api/ECOD-domains/?pdb=${vm.pdbid}&chain=${vm.chainid}`},
+                success: function (data){
+                    vm.domain_list = []
+                    for (var i = 0; i < data.results.length; i++) {
+                        let re = /\d+-\d+$/;
+                        let range_str = re.exec(data.results[i].pdb_range)[0] + ';';
+                        vm.domain_list.push({name: data.results[i].x_name + ' ' + data.results[i].f_name, range: range_str});
+                    }
+                }
+            });
+            $.ajax
+({
+  type: "GET",
+  url: "/alignments/authEcodQuery",
+  data: {url: "/desire-api/ECOD-domains/?pdb=4v9d&chain=CC"},
+  success: function (data){
+    console.log(data);
+  }
+});
+        },
+        
+        downloadAlignmentData() {
             downloadAlignmentData(vm.fasta_data);
         },downloadCSVData() {
             downloadPyMOLscript();

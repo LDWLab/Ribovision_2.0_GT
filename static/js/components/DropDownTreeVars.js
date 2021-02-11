@@ -21,6 +21,8 @@ export function initialState (){
             {Name:"Shannon entropy", url:"static/alignments/svg/Shannon.svg"},
             {Name:"TwinCons", url:"static/alignments/svg/TwinCons.svg"}
             ],
+        domain_list: null,
+        selected_domain: null,
         pdbid: null,
         chains: null,
         chainid: [],
@@ -42,6 +44,7 @@ export function initialState (){
         masking_range: null,
         filter_range: null,
         correct_mask: null,
+        checked_domain: false,
         checked_filter: false,
         checked_selection: false,
         checked_customMap: false,
