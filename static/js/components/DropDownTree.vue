@@ -110,6 +110,15 @@
                         </button></p>
                     </div>
                 </p></div>
+                <div id="domainSelectionSection"><p>
+                    <div class="checkbox">
+                        <label><input type="checkbox" v-model="checked_domain" v-on:change="cleanSelection(checked_domain, true)">
+                        Select domain to show</label>
+                    </div>
+                </p></div>
+                <p><select multiple class="form-control btn-outline-dark" id="domainSelect" v-bind:style="{ resize: 'both'}"  v-if="domain_list&&checked_domain">
+                <option v-for="domain in domain_list" v-bind:value="selected_domain" @click="handleFilterRange(domain.range)">{{ domain.name + ' ' + domain.range }}</option>
+                </select></p>
             </div>
             <p><div v-if="alnobj" class="checkbox" id="showFrequencies">
                 <label><input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">
