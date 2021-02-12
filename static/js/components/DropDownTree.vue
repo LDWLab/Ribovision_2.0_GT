@@ -110,6 +110,7 @@
                         </button></p>
                     </div>
                 </p></div>
+            </div>
             <p><div v-if="alnobj" class="checkbox" id="showFrequencies">
                 <label><input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">
                 Show amino-acid frequencies</label>
