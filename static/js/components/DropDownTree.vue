@@ -483,8 +483,15 @@
                 var url = `/ortholog-aln-api/${aln_id}/${taxid}`}
             if (type_tree == "para"){
                 var url = '/paralog-aln-api/'+aln_id.split(',')[1]}
-            if (type_tree == "upload"){
-                var url = '/custom-aln-data'}
+            if (type_tree == "upload" && !this.uploadSession){
+                var url = '/custom-aln-data'
+            }
+            if (type_tree == "upload" && this.uploadSession){
+                this.$nextTick(function(){
+                    loadAlignmentViewer (vm.fasta_data);
+                });
+                return;
+            }
             ajax(url).then(fasta => {
                 if (fasta['TwinCons']){
                     this.custom_aln_twc_flag = fasta['TwinCons'];
@@ -496,17 +503,14 @@
                 window.barColors = barColors;
                 this.fasta_data = fasta['Alignment'];
                 this.aa_properties = calculateFrequencyData(fasta['AA frequencies']);
+                loadAlignmentViewer (fasta['Alignment']);
             })
-        },  
-         showTopologyViewer (pdbid, chainid, fasta){
+        }, showTopologyViewer (pdbid, chainid, fasta){
             this.topology_loaded = false;
             window.filterRange = "-10000,10000";
-            if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(this);}
             if (chainid.length > 1){this.chainid = chainid[0];}
             const topview_item = document.getElementById("topview");
-            const molstar_item = document.getElementById("pdbeMolstarView");
             if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "")}
-            if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Loading Molstar Component ", true)}
             var minIndex = String(0)
             var maxIndex = String(100000)
             var pdblower = pdbid.toLocaleLowerCase();
@@ -516,24 +520,10 @@
             })[0];
             let ebi_sequence = temp["sequence"];
             let startIndex = temp["startIndex"];
-            ajax('/mapSeqAln/', {fasta, ebi_sequence, startIndex}).then(struct_mapping=>{
-                this.structure_mapping = struct_mapping;
-                if (struct_mapping['BadMappingPositions']){this.poor_structure_map = struct_mapping['BadMappingPositions'];}
-                var mapped_aa_properties = mapAAProps(this.aa_properties, struct_mapping);
-                if (((this.tax_id != null && this.tax_id.length == 2) || (this.custom_aln_twc_flag != null && this.custom_aln_twc_flag == true) || (this.type_tree == 'para'))) {
-                    if (vm.unmappedTWCdata) {
-                        mapTWCdata(vm.structure_mapping, vm.unmappedTWCdata, mapped_aa_properties);
-                    }
-                }
-                window.mapped_aa_properties = mapped_aa_properties;
-                topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);
-                topviewer.pluginInstance.createDomainDropdown();
-            }).catch(error => {
-                //var topview = document.querySelector('#topview');
-                console.log(error);
-                //this.topology_loaded = 'error';
-                //topview.innerHTML = "Failed to load the viewer!<br>Try another structure."
-            });
+            let struc_id = `${pdbid.toUpperCase()}-${temp["entityID"]}`
+            if (!this.uploadSession){
+                getStructMappingAndTWC (fasta, struc_id, this);
+            }
             var topology_url = `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdblower}/chain/${chainid}`
             ajax(topology_url).then(data => {
                 var entityid = Object.keys(data[pdblower])[0];
@@ -573,13 +563,13 @@
                     var topview = document.querySelector('#topview');
                     console.log(error);
                     this.topology_loaded = 'error';
-                    topview.innerHTML = "Failed to fetch the secondary structure!<br>Try another structure."
+                    topview.innerHTML = "Failed with 2D structure mapping to 3D!<br>Try another structure."
                 });
             }).catch(error => {
                 var topview = document.querySelector('#topview');
                 console.log(error);
                 this.topology_loaded = 'error';
-                topview.innerHTML = "Failed to load the viewer!<br>Try another structure."
+                topview.innerHTML = "Failed to fetch the secondary structure!<br>Try another structure."
             });
         }, showPDBViewer(pdbid, chainid, entityid){
             if (document.querySelector("pdbe-molstar")) {return;}
