@@ -619,6 +619,10 @@ var mapTWCdata = function (structMap, twcDataUnmapped, mapped_aa_properties){
 var fetchTWCdata = function (fasta){
     ajax('/twc-api/', {fasta}).then(twcDataUnmapped => {
         vm.unmappedTWCdata = twcDataUnmapped;
+        var settedProps = new Set(vm.available_properties.map(a=>{return a.Name}))
+        if (!settedProps.has("TwinCons")){
+            vm.available_properties.unshift({Name:"TwinCons", url:"static/alignments/svg/TwinCons.svg"});
+        }
     })
 }
 

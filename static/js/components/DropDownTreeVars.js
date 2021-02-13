@@ -19,7 +19,6 @@ export function initialState (){
             {Name:"Polarity", url:"static/alignments/svg/Polarity1.svg"},
             {Name:"Mutability", url:"static/alignments/svg/Mutability.svg"},
             {Name:"Shannon entropy", url:"static/alignments/svg/Shannon.svg"},
-            {Name:"TwinCons", url:"static/alignments/svg/TwinCons.svg"}
             ],
         domain_list: null,
         selected_domain: null,

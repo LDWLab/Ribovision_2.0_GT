@@ -186,7 +186,16 @@ function clearInputFile(f){
 function cleanCustomMap(checked_customMap){
     if (vm.uploadSession){return;}
     var topviewer = document.getElementById("PdbeTopViewer");
-    if (!topviewer.pluginInstance.domainTypes){return;}
+    if (!topviewer || !topviewer.pluginInstance.domainTypes){
+        if (checked_customMap){return;}
+        var sliceAvailProp = Array.prototype.slice.call(vm.available_properties).filter(availProp => {
+            return vm.custom_headers.includes(availProp.Name)
+        })
+        const setSlice = new Set(sliceAvailProp.map(a=>{return a.Name}));
+        const newArray = vm.available_properties.filter(obj => !setSlice.has(obj.Name));
+        vm.available_properties = newArray;
+        return;
+    }
     var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
     topviewer.pluginInstance.domainTypes = topviewer.pluginInstance.domainTypes.filter(obj => {
         return !vm.custom_headers.includes(obj.label)
@@ -198,8 +207,9 @@ function cleanCustomMap(checked_customMap){
     
     sliceChildren.forEach(function(){
         selectBoxEle.removeChild(selectBoxEle.childNodes[selectBoxEle.options.length-1]);
+        vm.available_properties.splice(-1,1)
     })
-    
+
     if (checked_customMap){return;}
     window.coilsOutOfCustom = null;
     window.custom_prop = null;

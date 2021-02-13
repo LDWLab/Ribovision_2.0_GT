@@ -292,10 +292,19 @@
             } else {
                 //assume custom data
                 if (this.structure_mapping && window.custom_prop){
-                    let invertedMap = _.invert(this.structure_mapping);
-                    window.custom_prop.get(name).forEach(function(data){
-                        separatedData.push([Number(invertedMap[data[0]]), data[1]]);
-                    })
+                    var customProp = window.custom_prop.get(name);
+                    window.aaFreqs.forEach(function(aaFr, alnIx){
+                        var strucIx = vm.structure_mapping[alnIx+1];
+                        if (strucIx && customProp[strucIx-1]){
+                            customProp.forEach(function(customData){
+                                if (customData[0] == strucIx){
+                                    separatedData.push([alnIx+1, Number(customData[1])]);
+                                }
+                            });
+                        } else {
+                            separatedData.push([alnIx+1, NaN]);
+                        }
+                    });
                 }
             }
             const [rgbMap, MappingData] = parsePVData(separatedData, min, max, colormapArray);
@@ -510,7 +519,7 @@
                 }
                 this.fastaSeqNames = fasta['Sequence names'];
                 window.aaFreqs = fasta['AA frequencies'];
-                var barColors = Array(aaFreqs.length).fill('#BA20B7');
+                var barColors = Array(aaFreqs.length).fill('#808080');
                 window.barColors = barColors;
                 this.fasta_data = fasta['Alignment'];
                 this.aa_properties = calculateFrequencyData(fasta['AA frequencies']);
