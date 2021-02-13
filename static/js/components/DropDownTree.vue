@@ -62,13 +62,14 @@
             </p>
             <p><select multiple class="form-control btn-outline-dark" id="polymerSelect" v-bind:style="{ resize: 'both'}"  v-if="chains&&fasta_data&&pdbid||uploadSession" v-model="chainid" >
                 <option :value ="null" selected disabled>Select a polymer</option>
-                <!--<option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid, chain.entityID); ">{{ chain.text }}</option>-->
-                <option v-for="chain in chains" v-bind:value="chain.value" @click="postStructureData(pdbid, chainid); showPDBViewer(pdbid, chainid, chain.entityID); ">{{ chain.text }}</option>
+                <option v-for="chain in chains" v-bind:value="chain.value" @click="postStructureData(pdbid, chainid); populateECODranges(); showPDBViewer(pdbid, chainid, chain.entityID); ">{{ chain.text }}</option>
             </select></p>
             <div v-if="structure_mapping">
-                <button id="downloadDataBtn" class="btn btn-outline-dark" type="button" v-on:click="downloadCSVData()">
-                    Download mapped data
-                </button>
+                <select id="downloadDataBtn" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="downloadMapDataOpt" v-if="topology_loaded">
+                    <option :value="null" selected disabled>Download mapped data</option>
+                    <option value='csv'>As CSV file</option>
+                    <option value='pymol'>As PyMOL script</option>
+                </select>
             </div>
             <div v-if="topology_loaded">
                 <div id="maskingSection"><p>
@@ -88,6 +89,16 @@
                     <span v-if="checked_selection"><b>Input single</b> residue range to <b>show</b>, ending with semicolon. <br> For example: 1-80;</span>
                     <input class="input-group-text" v-if="checked_selection" v-model="filter_range" v-on:input="handleFilterRange(filter_range)">
                 </p></div>
+                <div id="domainSelectionSection"><p>
+                    <div class="checkbox">
+                        <label><input type="checkbox" v-model="checked_domain" v-on:change="cleanSelection(checked_domain, true)">
+                        Select a domain to show</label>
+                    </div>
+                </p>
+                <p><select multiple class="form-control btn-outline-dark" id="domainSelect" v-bind:style="{ resize: 'both'}"  v-if="domain_list&&checked_domain">
+                    <option v-for="domain in domain_list" v-bind:value="selected_domain" @click="handleFilterRange(domain.range)">{{ domain.name + ' ' + domain.range }}</option>
+                </select></p>
+                </div>
                 <div id="customDataSection">
                 <p><div class="checkbox">
                         <label><input type="checkbox" v-model="checked_customMap" v-on:change="cleanCustomMap(checked_customMap)">
@@ -113,32 +124,52 @@
         <div class="alignment_section">
             <div id="alnif" v-if="alnobj">
                 <div id="alnMenu" style="display: flex;">
-                    <button id="downloadFastaBtn" class="btn btn-outline-dark" style="margin: 0 1%;" v-if="colorScheme" type="button" v-on:click="downloadAlignmentData()">
+                    <button id="downloadFastaBtn" class="btn btn-outline-dark" style="margin: 0 1%;" v-if="msavWillMount" type="button" v-on:click="downloadAlignmentData()">
                         Download alignment
                     </button>
-                    <button id="downloadAlnImageBtn" class="btn btn-outline-dark" style="margin: 0 1%;" v-if="colorScheme"  type="button" v-on:click="downloadAlignmentImage()">
-                        Download alignment image
-                    </button>
-                    <select id="selectAlnColorScheme" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="colorScheme" v-if="colorScheme">
+                    <select id="downloadAlnImageBtn" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="downloadAlignmentOpt" v-if="msavWillMount">
+                        <option :value="null" selected disabled>Download alignment image</option>
+                        <option value='full'>Full alignment</option>
+                        <option value='visible'>Visible alignment</option>
+                    </select>
+                    <select id="selectColorMappingProps" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="selected_property" v-if="msavWillMount">
+                        <option :value="null" selected disabled>Annotation</option>
+                        <option v-for="prop in available_properties" >{{ prop.Name }}</option>
+                    </select>
+                    <select id="selectAlnColorScheme" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="colorScheme" v-if="msavWillMount">
                         <option :value="null" selected disabled>Select a colorscheme</option>
                         <option v-for="colorscheme in availColorschemes" >{{ colorscheme }}</option>
                     </select>
                 </div>
                 <div id="alnDiv">Loading alignment <img src="static/img/loading.gif" alt="Loading alignment" style="height:25px;"></div>
-                    <div v-if="poor_structure_map" id="warningPoorStructureAln">
-                        <b>Warning, poor alignment between the structure and sequences!!!<br/>
-                        Found {{poor_structure_map}} poorly aligned residues.
-                        Proceed with caution or try a different structure.</b>
-                    </div>
+            </div>
+        </div>
+        <div class="warningSection">
+            <div id="warningPoorStructureAln" v-if="poor_structure_map" >
+                <b>Warning, poor alignment between the structure and sequences!!!<br/>
+                Found {{poor_structure_map}} poorly aligned residues.
+                Proceed with caution or try a different structure.</b>
             </div>
         </div>
         <div class="topology_section">
             <span id="topif" v-if="chainid.length>0">
                 <div v-if="!topology_loaded">
-                    Calculating conservation data and alignment <-> structure mapping <img src="static/img/loading.gif" alt="Loading topology viewer" style="height:25px;">
+                    Loading topology viewer and conservation data <img src="static/img/loading.gif" alt="Loading topology viewer" style="height:25px;">
                 </div>
                 <div id="topview"></div>
             </span>
+        </div>
+        <div class = "gradient_section" v-if = "topology_loaded">
+            <img id = 'gradientSVG' 
+                v-for="prop in available_properties" 
+                v-if = "selected_property == prop.Name"
+                :src="prop.url"
+            ><!--
+            <object id="gradientSVG"
+                v-for="prop in available_properties" 
+                v-if = "selected_property == prop.Name"
+                :data="prop.url" type="image/svg+xml">
+            </object>-->
         </div>
         <div class="molstar_section">
             <span id="molif" v-if="chainid.length>0">
@@ -166,6 +197,8 @@
   import {getStructMappingAndTWC} from './getStructMappingAndTWC.js'
   import {loadAlignmentViewer} from './loadAlignmentViewer.js'
   import {customCSVhandler} from './handleCSVdata.js'
+  import {AlnViewer} from './AlignmentViewer.js'
+  import {updateProperty} from './handleCSVdata.js'
   import {populatePDBsFromCustomAln} from './populatePDBsFromCustomAln.js'
   import {postCIFdata} from './postCustomStruct.js'
   import ReactDOM, { render } from 'react-dom';
@@ -173,12 +206,14 @@
   import Treeselect from '@riophae/vue-treeselect'
   import Autocomplete from './Autocomplete.vue'
   import { intersection } from 'lodash';
+  import {downloadPyMOLscript} from './handlePyMOLrequest.js'
   export default {
       // register the component
       components: { Treeselect, Autocomplete },
       data: function () {
         return initialState();
       },
+      
       watch: {
         type_tree: function (type_tree){
             if (this.type_tree == "orth"){
@@ -203,8 +238,8 @@
                 this.getPDBchains(pdbid, vm.alnobj.id);
             }
         },colorScheme: function (scheme){
-            if (window.AlnViewer){
-                window.AlnViewer.setState({colorScheme:scheme});
+            if (window.PVAlnViewer){
+                window.PVAlnViewer.setState({colorScheme:scheme});
             }
         },postedPDBEntities: function (successPost){
             if (successPost){
@@ -219,7 +254,70 @@
                 window.tempCSVdata = null;
                 customCSVhandler(vm.csv_data);
             }
-        },
+            if (this.selected_property){
+                recolorTopStar(this.selected_property);
+            }
+        },downloadAlignmentOpt: function(opt){
+            if (this.uploadSession){return;}
+            else if (opt == 'visible'){
+                downloadAlignmentImage();
+            } else if (opt == 'full'){
+                downloadFullAlignmentImage();
+            }
+            this.downloadAlignmentOpt = null;
+        },downloadMapDataOpt: function(opt){
+            if (this.uploadSession){return;}
+            else if (opt == 'csv'){
+                downloadCSVData();
+                this.downloadMapDataOpt = null;
+            } else if (opt == 'pymol'){
+                downloadPyMOLscript();
+                this.downloadMapDataOpt = null;
+            }
+        },selected_property: function(name){
+            if (!name){return;}
+            if(!aaPropertyConstants.has(name)){return;}
+            let min = Math.min(...aaPropertyConstants.get(name));
+            let max = Math.max(...aaPropertyConstants.get(name));
+            let colormapArray = aaColorData.get(name);
+            let propData = this.aa_properties.get(name);
+            var separatedData = [];
+            var updatedBarColors = [];
+            if (this.aa_properties.has(name)){
+                propData.forEach(function(data, index){
+                    separatedData.push([index+1, Number(math.sum(data).toFixed(2))]);
+                })
+            } else if (name == 'TwinCons'){
+                separatedData = this.unmappedTWCdata;
+            } else {
+                //assume custom data
+                if (this.structure_mapping && window.custom_prop){
+                    let invertedMap = _.invert(this.structure_mapping);
+                    window.custom_prop.get(name).forEach(function(data){
+                        separatedData.push([Number(invertedMap[data[0]]), data[1]]);
+                    })
+                }
+            }
+            const [rgbMap, MappingData] = parsePVData(separatedData, min, max, colormapArray);
+            rgbMap.forEach(function (data){
+                updatedBarColors.push(rgbToHex(...data[0]))
+            })
+            window.barColors = updatedBarColors;
+            var alnDiv = document.querySelector('#alnDiv');
+            window.msaOptions.colorScheme = this.colorScheme;
+            this.aaPos = window.PVAlnViewer.state.aaPos;
+            this.seqPos = window.PVAlnViewer.state.seqPos;
+            ReactDOM.unmountComponentAtNode(alnDiv);
+            this.msavWillMount = null;
+            this.$nextTick(function(){
+                ReactDOM.render(
+                    <AlnViewer ref={(PVAlnViewer) => {window.PVAlnViewer = PVAlnViewer}}/>, alnDiv
+                );
+            });
+            if (this.topology_loaded){
+                recolorTopStar(name);
+            }
+        }
     },methods: {
         handleFileUpload(){
             this.file = this.$refs.custom_aln_file.files[0];
@@ -361,7 +459,7 @@
                             if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
                             if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
                             if (typeof(chain_listI.source[0]) === "undefined") {continue;}
-                            let intersectedChains = intersection(chainsFromBlast, chain_listI["in_chains"]);
+                            let intersectedChains = _.intersection(chainsFromBlast, chain_listI["in_chains"]);
                             intersectedChains.forEach(function(chainVal){
                                 chain_options.push({
                                     text: `${chainVal} ${chain_listI["molecule_name"][0]}`,
@@ -406,10 +504,14 @@
                 return;
             }
             ajax(url).then(fasta => {
-                if (fasta['TwinCons'] != null){
-                    this.custom_aln_twc_flag = fasta['TwinCons']
+                if (fasta['TwinCons']){
+                    this.custom_aln_twc_flag = fasta['TwinCons'];
+                    fetchTWCdata(fasta['Alignment']);
                 }
                 this.fastaSeqNames = fasta['Sequence names'];
+                window.aaFreqs = fasta['AA frequencies'];
+                var barColors = Array(aaFreqs.length).fill('#BA20B7');
+                window.barColors = barColors;
                 this.fasta_data = fasta['Alignment'];
                 this.aa_properties = calculateFrequencyData(fasta['AA frequencies']);
                 loadAlignmentViewer (fasta['Alignment']);
@@ -447,6 +549,7 @@
                     var result = [];
                     customFilter(data, result, "chain_id", chainid);
                     result = result[0];
+                    
                     if(result != null) {
                         var pdb_start = parseInt(result["start"]["residue_number"]);
                         var pdb_end = parseInt(result["end"]["residue_number"]);
@@ -500,13 +603,13 @@
             var viewerContainer = document.getElementById('pdbeMolstarView');
             viewerInstance.render(viewerContainer, options);
             window.viewerInstance = viewerInstance;
-
+            
             document.addEventListener('PDB.topologyViewer.click', (e) => {
-                var molstar= viewerInstance;                            
+                var molstar= viewerInstance;
                 var chainId=e.eventData.chainId;
                 var entityId=e.eventData.entityId;
                 var residueNumber=e.eventData.residueNumber;
-                var types=e.eventData.type;                            
+                var types=e.eventData.type;
                 molstar.visual.select({
                     data:[
                         {
@@ -520,7 +623,7 @@
                 })
             })
             document.addEventListener('PDB.topologyViewer.mouseover', (e) => {
-                var molstar= viewerInstance;                            
+                var molstar= viewerInstance;
                 var chainId=e.eventData.chainId;
                 var entityId=e.eventData.entityId;
                 var residueNumber=e.eventData.residueNumber;
@@ -543,6 +646,20 @@
                     viewerInstance.plugin.behaviors.interaction.hover._value.current.loci.kind = "empty-loci"
                 }
             });
+        }, populateECODranges() {
+            $.ajax ({
+                type: "GET",
+                url: "/alignments/authEcodQuery",
+                data: {url: `/desire-api/ECOD-domains/?pdb=${vm.pdbid}&chain=${vm.chainid}`},
+                success: function (data){
+                    vm.domain_list = []
+                    for (var i = 0; i < data.results.length; i++) {
+                        let re = /\d+-\d+$/;
+                        let range_str = re.exec(data.results[i].pdb_range)[0] + ';';
+                        vm.domain_list.push({name: data.results[i].x_name + ' ' + data.results[i].f_name, range: range_str});
+                    }
+                }
+            });
         },postStructureData(pdbid, chainid) {
             const topview_item = document.getElementById("topview");
             if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Loading Structure Data ", true)}
@@ -559,6 +676,7 @@
         },downloadAlignmentData() {
             downloadAlignmentData(vm.fasta_data);
         },downloadCSVData() {
+            downloadPyMOLscript();
             downloadCSVData();
         },getExampleFile(url, name) {
             getExampleFile(url, name);

@@ -18,7 +18,7 @@ export function loadAlignmentViewer (fasta){
     };
     window.msaOptions = msaOptions;
     ReactDOM.render(
-        <AlnViewer ref={(AlnViewer) => {window.AlnViewer = AlnViewer}}/>,
+        <AlnViewer ref={(PVAlnViewer) => {window.PVAlnViewer = PVAlnViewer}}/>,
         document.getElementById('alnDiv')
       );
 }

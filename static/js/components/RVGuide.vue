@@ -69,6 +69,7 @@
             },
             saveRV3State(){
                 let anchor = document.createElement('a');
+                vm.uploadSession=true;
                 var saveData = _.cloneDeep(vm.$data);
                 saveData.topology_loaded = false;
                 saveData.postedPDBEntities = false;
@@ -80,6 +81,7 @@
                 anchor.target = '_blank';
                 anchor.download = "rv3State.json";
                 anchor.click();
+                vm.uploadSession=false;
             },
             loadRV3State(){
                 if (this.$refs.rv3_state_file.files.length == 0){return;}
@@ -128,7 +130,7 @@
             One ensures you do not see this message every time you visit the website;<br>
             the other ensures our server can validate a secure connection to your browser.<br>
             We do not store any other data from you. Uploaded CSV files are kept in your browser memory and are not stored between sessions. 
-            Uploaded alignments are sent to our server for processing, however they are deleted on exit from our website.<br>
+            Uploaded alignments are sent to our server for processing, however they are deleted immediately on completion of the job.<br>
             Continuing to use our website indicates you consent to this data processing.`
     }
 
@@ -219,7 +221,8 @@
             header: {
                 title: 'Download alignment image',
             },
-            content: `Download the visible part of the alignment as a png image.`,
+            content: `Download the visible part of the alignment or the entire alignment as a png image. 
+            Large alignments might take some time so please be patient.`,
             params: {
               placement: 'right'
             },
@@ -344,7 +347,10 @@
                 title: 'Download calculated data',
             },
             content: `Downloads data calculated from the 
-            alignment and mapped on the structure residues in csv format.`,
+            alignment and mapped on the structure residues as a PyMOL script or in csv format.`,
+            params: {
+              placement: 'right'
+            },
         },{
             target: '#maskingSection',
             header: {

@@ -254,3 +254,25 @@ class StrucfoldChains(models.Model):
         managed = False
         db_table = 'StrucFold_Chains'
         unique_together = (('strucfold', 'chain'),)
+
+class Ecoddomains(models.Model):
+    uid = models.BigIntegerField(primary_key=True)
+    ecod_domain_id = models.TextField(blank=True, null=True)
+    manual_rep = models.TextField(blank=True, null=True)
+    f_id = models.TextField(blank=True, null=True)
+    pdb = models.TextField(blank=True, null=True)
+    chain = models.TextField(blank=True, null=True)
+    pdb_range = models.TextField(blank=True, null=True)
+    seqid_range = models.TextField(blank=True, null=True)
+    unp_acc = models.TextField(blank=True, null=True)
+    arch_name = models.TextField(blank=True, null=True)
+    x_name = models.TextField(blank=True, null=True)
+    h_name = models.TextField(blank=True, null=True)
+    t_name = models.TextField(blank=True, null=True)
+    f_name = models.TextField(blank=True, null=True)
+    asm_status = models.TextField(blank=True, null=True)
+    ligand = models.TextField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'EcodDomains'

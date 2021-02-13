@@ -4,21 +4,10 @@ export function getStructMappingAndTWC (fasta, struc_id, vueObj){
         if (struct_mapping['BadMappingPositions']){vueObj.poor_structure_map = struct_mapping['BadMappingPositions'];}
         var mapped_aa_properties = mapAAProps(vueObj.aa_properties, struct_mapping);
         var topviewer = document.getElementById("PdbeTopViewer");
-        if ((vueObj.tax_id != null && vueObj.tax_id.length == 2) || (vueObj.custom_aln_twc_flag != null && vueObj.custom_aln_twc_flag == true) || (vueObj.type_tree == 'para')) {
-            ajax('/twc-api/', {fasta}).then(twcDataUnmapped => {
-                mapped_aa_properties = build_mapped_props(mapped_aa_properties, twcDataUnmapped, vueObj.structure_mapping);
-                window.mapped_aa_properties = mapped_aa_properties;
-                if (topviewer != null && topviewer.pluginInstance.domainTypes != undefined){
-                    var empty_props = new Map();
-                    let twc_props = build_mapped_props(empty_props, twcDataUnmapped, vueObj.structure_mapping);
-                    topviewer.pluginInstance.getAnnotationFromRibovision(twc_props);
-                    var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
-                    var twc_option = document.createElement("option");
-                    twc_option.setAttribute("value", selectBoxEle.options.length);
-                    twc_option.appendChild(document.createTextNode("TwinCons"));
-                    selectBoxEle.appendChild(twc_option);
-                }
-            })
+        if (((vueObj.tax_id != null && vueObj.tax_id.length == 2) || (vueObj.custom_aln_twc_flag != null && vueObj.custom_aln_twc_flag == true) || (vueObj.type_tree == 'para'))) {
+            if (vueObj.unmappedTWCdata) {
+                mapTWCdata(vueObj.structure_mapping, vueObj.unmappedTWCdata, mapped_aa_properties);
+            }
         }
         window.mapped_aa_properties = mapped_aa_properties;
         topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import re, csv, sys, getopt, getpass, mysql.connector, argparse
+import re, sys, getpass, mysql.connector, argparse
 from Bio import AlignIO
 
 def create_and_parse_argument_options(argument_list):

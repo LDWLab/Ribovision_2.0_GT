@@ -168,7 +168,6 @@ function colorResidue(index, masked_array) {
       f++;
   }
 };
-
 function clearInputFile(f){
     if(f.value){
         try{
@@ -227,6 +226,7 @@ var displayMappingDataByIndex = function(topviewer, selectedIndex){
         nonSelectedColor: {r:255,g:255,b:255}
     });
     selectBoxEle.selectedIndex = selectedIndex;
+    vm.selected_property = topviewer.pluginInstance.domainTypes[selectedIndex].label;
 }
 
 var mapCustomMappingData = function(custom_data, custom_data_name, topviewer){
@@ -249,6 +249,7 @@ var mapCustomMappingData = function(custom_data, custom_data_name, topviewer){
     custom_option.setAttribute("value", selectBoxEle.options.length);
     custom_option.appendChild(document.createTextNode(custom_data_name));
     selectBoxEle.appendChild(custom_option);
+    vm.available_properties.push({Name:custom_data_name, url:"static/alignments/svg/Custom.svg"})
     if(vm.correct_mask) {
         var j = topviewer.pluginInstance.domainTypes.length-1;
         colorResidue(j, window.masked_array);
@@ -501,7 +502,7 @@ var build_propensity_graph = function (data, amino_acids, title, div) {
     myPlot.on('plotly_hover', function(data){
         data.points.map(function(d){
             let seqname = d.text.split(' ').slice(1,).join(' ')
-            AlnViewer.highlightRegion({
+            PVAlnViewer.highlightRegion({
                 sequences: {from: vm.fastaSeqNames.indexOf(seqname), to: vm.fastaSeqNames.indexOf(seqname)},
                 residues: {from: 0, to: vm.fasta_data.split('>')[1].split('\n')[1].length}
             })
