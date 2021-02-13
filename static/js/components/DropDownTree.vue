@@ -195,7 +195,6 @@
   import {initialState} from './DropDownTreeVars.js'
   import {AlnViewer} from './AlignmentViewer.js'
   import {customCSVhandler} from './handleCSVdata.js'
-  import {AlnViewer} from './AlignmentViewer.js'
   import {updateProperty} from './handleCSVdata.js'
   import {populatePDBsFromCustomAln} from './populatePDBsFromCustomAln.js'
   import ReactDOM, { render } from 'react-dom';
@@ -562,14 +561,14 @@
                             }else{
                                 mapping.push(residue_number);
                             }
-                        }else{
-                            console.log("No mapping for pdb "+pdbid+" and chain"+ chainid)
-                            mapping = [range_string.split("-")[0],range_string.split("-")[1]];
                         }
-                        var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid} filter-range=${mapping}></pdb-topology-viewer>`
-                        document.getElementById('topview').innerHTML = topology_viewer;
-                        window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
-                    })
+                    }else{
+                        console.log("No mapping for pdb "+pdbid+" and chain"+ chainid)
+                        mapping = [range_string.split("-")[0],range_string.split("-")[1]];
+                    }
+                    var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid} filter-range=${mapping}></pdb-topology-viewer>`
+                    document.getElementById('topview').innerHTML = topology_viewer;
+                    window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
                 }).catch(error => {
                     var topview = document.querySelector('#topview');
                     console.log(error);

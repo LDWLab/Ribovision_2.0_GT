@@ -22013,25 +22013,6 @@
 
     }
 
-    class ColoredBar extends React.PureComponent {
-      render() {
-        const _this$props2 = this.props,
-              index = _this$props2.index,
-              otherProps = _objectWithoutProperties(_this$props2, ["index"]);
-
-        otherProps.style = {
-          height: Math.round(columnHeights[index] * height),
-          width: tileWidth,
-          display: "inline-block",
-          textAlign: "center",
-          backgroundColor: bgColor,
-          verticalAlign: "top"
-        };
-        return /*#__PURE__*/React__default.createElement("div", otherProps);
-      }
-
-    }
-
     return Bar;
   }
   /**
