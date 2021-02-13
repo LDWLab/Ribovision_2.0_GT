@@ -191,12 +191,16 @@
 
 
 <script>
+  import {ajaxProper} from './ajaxProper.js'
   import {addFooterImages} from './Footer.js'
   import {initialState} from './DropDownTreeVars.js'
-  import {AlnViewer} from './AlignmentViewer.js'
+  import {getStructMappingAndTWC} from './getStructMappingAndTWC.js'
+  import {loadAlignmentViewer} from './loadAlignmentViewer.js'
   import {customCSVhandler} from './handleCSVdata.js'
+  import {AlnViewer} from './AlignmentViewer.js'
   import {updateProperty} from './handleCSVdata.js'
   import {populatePDBsFromCustomAln} from './populatePDBsFromCustomAln.js'
+  import {postCIFdata} from './postCustomStruct.js'
   import ReactDOM, { render } from 'react-dom';
   import React, { Component } from "react";
   import Treeselect from '@riophae/vue-treeselect'
@@ -236,6 +240,13 @@
         },colorScheme: function (scheme){
             if (window.PVAlnViewer){
                 window.PVAlnViewer.setState({colorScheme:scheme});
+            }
+        },postedPDBEntities: function (successPost){
+            if (successPost){
+                this.showTopologyViewer(this.pdbid, this.chainid, this.fasta_data);
+            } else {
+                const topview_item = document.getElementById("topview");
+                if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Loading Structure Data ", true)}
             }
         },topology_loaded: function(topology_loaded){
             if (window.tempCSVdata!= null && this.topology_loaded){
@@ -572,7 +583,8 @@
                 topview.innerHTML = "Failed to fetch the secondary structure!<br>Try another structure."
             });
         }, showPDBViewer(pdbid, chainid, entityid){
-            if (document.querySelector("pdbe-molstar")) {return;}
+            const molstar_item = document.getElementById("pdbeMolstarView");
+            if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Loading Molstar Component ", true)}
             var minIndex = String(0)
             var maxIndex = String(100000)
             var pdblower = pdbid.toLocaleLowerCase();
@@ -650,7 +662,7 @@
             });
         },postStructureData(pdbid, chainid) {
             const topview_item = document.getElementById("topview");
-            if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Loading Structure Data", true)}
+            if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Loading Structure Data ", true)}
             let tempEntities = this.chains.filter(obj => {
                 return obj["value"] == chainid;
             });
@@ -658,7 +670,7 @@
             tempEntities.forEach(function(ent){
                 entityIDS.push(ent["entityID"])
             })
-            testingCIFParsing(pdbid, entityIDS);
+            postCIFdata(pdbid, entityIDS);
         },downloadAlignmentImage() {
             downloadAlignmentImage(document.querySelector('#alnDiv'));
         },downloadAlignmentData() {
@@ -692,10 +704,25 @@
             getPropensities(sequence_indices);
         },listSecondaryStructures() {
             listSecondaryStructures();
+        },flushDjangoSession(){
+            ajaxProper({
+                    url: `/flush-session`,
+                    type: `GET`,
+                    dataType: `text`,
+                }).then(response => {
+                if (response == 'Success!'){
+                    console.log("Session flushed successfully!") 
+                }
+            })
         }
     }, 
     mounted() {
         addFooterImages("footerDiv");
-    }
+    },
+    created() {
+        $(window).bind('beforeunload', function(){
+            vm.flushDjangoSession();
+        });
+    },
 }
 </script>
