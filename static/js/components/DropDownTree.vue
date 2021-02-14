@@ -92,12 +92,12 @@
                 <div id="domainSelectionSection"><p>
                     <div class="checkbox">
                         <label><input type="checkbox" v-model="checked_domain" v-on:change="cleanSelection(checked_domain, true)">
-                        Select a domain to show</label>
+                        Select an ECOD domain to show</label>
                     </div>
                 </p>
-                <p><select multiple class="form-control btn-outline-dark" id="domainSelect" v-bind:style="{ resize: 'both'}"  v-if="domain_list&&checked_domain">
-                    <option v-for="domain in domain_list" v-bind:value="selected_domain" @click="handleFilterRange(domain.range)">{{ domain.name + ' ' + domain.range }}</option>
-                </select></p>
+                <select multiple class="form-control btn-outline-dark" id="domainSelect" v-bind:style="{ resize: 'both'}"  v-if="domain_list&&checked_domain">
+                    <option v-for="domain in domain_list" v-bind:value="selected_domain" @click="handleFilterRange(domain.range)">{{ domain.name }}</option>
+                </select>
                 </div>
                 <div id="customDataSection">
                 <p><div class="checkbox">
@@ -659,13 +659,18 @@
             $.ajax ({
                 type: "GET",
                 url: "/alignments/authEcodQuery",
-                data: {url: `/desire-api/ECOD-domains/?pdb=${vm.pdbid}&chain=${vm.chainid}`},
+                data: {url: `/desire-api/ECOD-domains/?pdb=${vm.pdbid}&chain=${vm.chainid[0]}`},
                 success: function (data){
                     vm.domain_list = []
                     for (var i = 0; i < data.results.length; i++) {
-                        let re = /\d+-\d+$/;
-                        let range_str = re.exec(data.results[i].pdb_range)[0] + ';';
-                        vm.domain_list.push({name: data.results[i].x_name + ' ' + data.results[i].f_name, range: range_str});
+                        if (data.results[i].chain == vm.chainid[0]){
+                            let re = /\d+-\d+$/;
+                            let range_str = re.exec(data.results[i].pdb_range)[0] + ';';
+                            let xName = data.results[i].x_name.replace("NO_X_NAME", "");
+                            let fName = data.results[i].f_name.replace("NO_F_NAME", "");
+                            let domName = `${xName} ${fName}`.trim()
+                            vm.domain_list.push({name: domName, range: range_str});
+                        }
                     }
                 }
             });
