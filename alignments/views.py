@@ -16,7 +16,6 @@ from alignments.taxonomy_views import *
 from alignments.residue_api import *
 from alignments.structure_api import *
 from alignments.fold_api import *
-from alignments.alignment_query_and_build import para_aln
 import alignments.alignment_query_and_build as aqab
 from TwinCons.bin.TwinCons import slice_by_name
 
@@ -532,9 +531,10 @@ def ecodPassThroughQuery(request):
     if ('&format=json' not in url):
         url += '&format=json'
     req = urllib.request.Request(url)
-    username = os.environ['DJANGO_USERNAME']
-    password = os.environ['DJANGO_PASSWORD']
-    credentials = (f'{username}:{password}')
+    #username = os.environ['DJANGO_USERNAME']
+    #password = os.environ['DJANGO_PASSWORD']
+    #credentials = (f'{username}:{password}')
+    credentials = ('website:desire_RiboVision3')
     encoded_credentials = base64.b64encode(credentials.encode('ascii'))
     req.add_header('Authorization', 'Basic %s' % encoded_credentials.decode("ascii"))
 
