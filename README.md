@@ -33,7 +33,22 @@
 	
 	>export DJANGO_PASSWORD='' (MySQL password provided by admin)
 
-	g. Set up GaTech VPN with the Cisco AnyConnect Secure Mobility Client. Follow <a href="https://faq.oit.gatech.edu/content/how-do-i-get-started-campus-vpn">these</a> instructions.
+	g. **For the admin**: if necessary also add the user to the django authentication side. From the project root execute:
+
+	```bash
+	source env/bin/activate
+	python3 manage.py shell
+	```
+	```python
+	import django.contrib.auth
+	User = django.contrib.auth.get_user_model()
+	user = User.objects.create_user('USERNAME', password='PASSWORD')
+	user.is_superuser = False
+	user.save()
+	exit()
+	```
+
+	h. Set up GaTech VPN with the Cisco AnyConnect Secure Mobility Client. Follow <a href="https://faq.oit.gatech.edu/content/how-do-i-get-started-campus-vpn">these</a> instructions.
 
 2. Clone the <a href="https://github.com/LDWLab/DESIRE.git">project repository</a> in a new folder. Get on the latest development branch.
 
