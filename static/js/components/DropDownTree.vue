@@ -72,6 +72,16 @@
                 </select>
             </div>
             <div v-if="topology_loaded">
+                <div id="domainSelectionSection"><p>
+                    <div class="checkbox">
+                        <label><input type="checkbox" v-model="checked_domain" v-on:change="cleanSelection(checked_domain, true)">
+                        Select an ECOD domain to show</label>
+                    </div>
+                </p>
+                <select multiple class="form-control btn-outline-dark" id="domainSelect" v-bind:style="{ resize: 'both'}"  v-if="domain_list&&checked_domain">
+                    <option v-for="domain in domain_list" v-bind:value="selected_domain" @click="handleFilterRange(domain.range)">{{ domain.name }}</option>
+                </select>
+                </div>
                 <div id="maskingSection"><p>
                     <div class="checkbox">
                         <label><input type="checkbox" v-model="checked_filter" v-on:change="cleanFilter(checked_filter, masking_range)">
@@ -89,16 +99,7 @@
                     <span v-if="checked_selection"><b>Input single</b> residue range to <b>show</b>, ending with semicolon. <br> For example: 1-80;</span>
                     <input class="input-group-text" v-if="checked_selection" v-model="filter_range" v-on:input="handleFilterRange(filter_range)">
                 </p></div>
-                <div id="domainSelectionSection"><p>
-                    <div class="checkbox">
-                        <label><input type="checkbox" v-model="checked_domain" v-on:change="cleanSelection(checked_domain, true)">
-                        Select an ECOD domain to show</label>
-                    </div>
-                </p>
-                <select multiple class="form-control btn-outline-dark" id="domainSelect" v-bind:style="{ resize: 'both'}"  v-if="domain_list&&checked_domain">
-                    <option v-for="domain in domain_list" v-bind:value="selected_domain" @click="handleFilterRange(domain.range)">{{ domain.name }}</option>
-                </select>
-                </div>
+
                 <div id="customDataSection">
                 <p><div class="checkbox">
                         <label><input type="checkbox" v-model="checked_customMap" v-on:change="cleanCustomMap(checked_customMap)">
