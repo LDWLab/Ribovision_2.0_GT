@@ -1,27 +1,4 @@
-export function testingCIFParsing (){
-    let ebiURL = 'https://www.ebi.ac.uk/pdbe/coordinates/4v9d/chains?entityId=28';
-    ajaxProper({
-        url: ebiURL,
-        type: 'GET',
-        dataType: 'text',
-    }).then(strucData => {
-        let parseURL = `custom-struc-data/4V9D_28`
-        ajaxProper({
-            url: parseURL,
-            type: 'POST',
-            dataType: 'text',
-            postData: {"custom_structure": strucData}
-        }).then (parsedResponse => {
-            console.log(parsedResponse);
-        }).catch(error => {
-            console.log(error);
-        });
-    }).catch(error => {
-        console.log(error);
-    });
-}
-
-var ajaxProper = function ({url, type, dataType, postData}={}){
+export function ajaxProper ({url, type, dataType, postData}={}){
     if (type === 'POST'){
         return new Promise((resolve, reject) => {
             $.ajax({
@@ -29,6 +6,7 @@ var ajaxProper = function ({url, type, dataType, postData}={}){
                 type: type,
                 dataType: dataType,
                 data: postData,
+                traditional: true,
                 headers: {'X-CSRFToken': csrftoken},
                 success: function(data) {
                     resolve(data)

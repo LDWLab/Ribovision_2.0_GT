@@ -1,21 +1,23 @@
-import re, os, io
+import re, os, warnings, io, base64, json
 import datetime
+import urllib.request
 from subprocess import Popen, PIPE
-from Bio import AlignIO
+from Bio import AlignIO, BiopythonDeprecationWarning
 from io import StringIO
 from Bio.SeqUtils import IUPACData
 
 from django.shortcuts import render
-from django.http import HttpResponse, Http404, JsonResponse, HttpResponseServerError
+from django.http import HttpResponse, JsonResponse, HttpResponseServerError
 from django.urls import reverse
+from django.contrib.sites.shortcuts import get_current_site
 
 from alignments.models import *
 from alignments.taxonomy_views import *
 from alignments.residue_api import *
 from alignments.structure_api import *
 from alignments.fold_api import *
-from alignments.alignment_query_and_build import para_aln
 import alignments.alignment_query_and_build as aqab
+from TwinCons.bin.TwinCons import slice_by_name
 
 
 def trim_alignment(concat_fasta, filter_strain):
@@ -31,8 +33,10 @@ def trim_alignment(concat_fasta, filter_strain):
 def calculate_twincons(alignment):
     '''Calculates twincons score given an alignment object.
     Returns data in a list format for the topology viewer'''
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore', BiopythonDeprecationWarning)
     from TwinCons.bin import TwinCons
-    list_for_phymeas = ['-as',alignment.format("fasta"), '-r', '-mx', 'blosum62']
+    list_for_phymeas = ['-as',alignment, '-r', '-mx', 'blosum62']
     alnindex_score, sliced_alns, number_of_aligned_positions, gp_mapping = TwinCons.main(list_for_phymeas)
     list_for_topology_viewer = []
     for alnindex in alnindex_score:
@@ -356,14 +360,22 @@ def simple_fasta(request, aln_id, tax_group, internal=False):
         nogap_tupaln, max_alnposition= aqab.query_to_dict_structure(rawsql, parent, nogap_tupaln, max_alnposition)
     
     fastastring, frequency_list = aqab.build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_alnposition)
+    
     if internal:
         return fastastring
+    
+    concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
+    alignment_obj = AlignIO.read(StringIO(concat_fasta), 'fasta')
+    sliced_alns = slice_by_name(alignment_obj)
+    twc = False
+    if len(sliced_alns.keys()) == 2:
+        twc = True
     
     gap_only_cols = extract_gap_only_cols(fastastring)
     filtered_spec_list = extract_species_list(fastastring)
 
-    concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
-    response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list])
+    
+    response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc])
 
     return JsonResponse(response_dict, safe = False)
 
@@ -430,7 +442,6 @@ def handle_custom_upload_alignment(request):
             return HttpResponseServerError("Alignment file had forbidden characters!\nWhat are you trying to do?")
     if request.method == 'GET':
         from alignments.Shannon import gap_adjusted_frequency
-        from TwinCons.bin.TwinCons import slice_by_name
         fastastring = request.session.get('custom_alignment_file')
         alignment_obj = AlignIO.read(StringIO(fastastring), 'fasta')
         sliced_alns = slice_by_name(alignment_obj)
@@ -474,7 +485,7 @@ def propensity_data(request, aln_id, tax_group):
     if request.method == 'POST' and 'indices' in request.POST:
         indices = request.POST['indices']
         trimmed_fasta = trim_fasta_by_index(fasta, indices)
-        fasta = StringIO(trimmed_fasta.format('fasta'))
+        fasta = StringIO(format(trimmed_fasta, 'fasta'))
 
     aa = propensities.aa_composition(fasta, reduced = False)
     fasta.seek(0) # reload the fasta object
@@ -506,13 +517,39 @@ def propensities(request, align_name, tax_group):
     
     return render(request, 'alignments/propensities.html', context)
 
+def flushSession (request):
+    try:
+        request.session.flush()
+    except:
+        return HttpResponseServerError ("Failed to flush the session!")
+    return HttpResponse ("Success!")
+
+def ecodPassThroughQuery(request):
+    '''Request a password protected URL from our website that returns a JSON object.
+    '''
+    baseURL = 'http://'+get_current_site(request).domain
+    url = baseURL+request.GET['url']
+    if ('&format=json' not in url):
+        url += '&format=json'
+    req = urllib.request.Request(url)
+    #username = os.environ['DJANGO_USERNAME']
+    #password = os.environ['DJANGO_PASSWORD']
+    #credentials = (f'{username}:{password}')
+    credentials = ('website:desire_RiboVision3')
+    encoded_credentials = base64.b64encode(credentials.encode('ascii'))
+    req.add_header('Authorization', 'Basic %s' % encoded_credentials.decode("ascii"))
+
+    response = urllib.request.urlopen(req)
+    encoding = response.info().get_content_charset('utf-8')
+    data = response.read()
+    return JsonResponse(json.loads(data.decode(encoding)), safe=False)
+
 def handleCustomUploadStructure (request, strucID):
     '''We will POST all structure chains we need with uniqueIDs.
     Then when we GET them we can list the strucIDs separated by coma 
     this would mean "combine these in one CIF and return them".
     '''
     if request.method == 'POST':
-        import json
         try:
             strucData = request.POST["custom_structure"]
         except:

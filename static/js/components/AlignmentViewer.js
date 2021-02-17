@@ -6,15 +6,16 @@ import ScrollBooster from 'scrollbooster';
 import { MSAViewer, 
         SequenceViewer, 
         Labels, 
-        PositionBar, } from './MSAV.umd.js';
+        PositionBar,
+        OverviewBar } from './MSAV.umd.js';
 import React, { Component } from "react";
 
 var AlnViewer = class RV3AlnViewer extends Component {
     state = { 
         tileWidth: 17,
         tileHeight: 17,
-        aaPos: 0,
-        seqPos: 0,
+        aaPos: vm.aaPos,
+        seqPos: vm.seqPos,
         width: (window.innerWidth - 300) * 0.7,
         height: ((window.innerHeight - 171)/2) * 0.8,
         highlight: null,
@@ -29,7 +30,6 @@ var AlnViewer = class RV3AlnViewer extends Component {
         style.innerHTML = ".slider::-webkit-slider-thumb { width: "+(window.innerWidth - 300)*0.05+"px}"
     };
     componentDidMount() {
-        vm.colorScheme = 'clustal2';
         var style = document.querySelector('[data="rv3_style"]');
         style.innerHTML = ".slider::-webkit-slider-thumb { width: "+(window.innerWidth - 300)*0.05+"px}";
         window.ajaxRun = false;
@@ -70,6 +70,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
             direction: 'horizontal',
             bounce: false,
         });
+        vm.msavWillMount = true;
     };
     componentWillUnmount() {
         window.removeEventListener("resize", this.handleResize);
@@ -139,7 +140,8 @@ var AlnViewer = class RV3AlnViewer extends Component {
                   MSAVObject={this}
                 />
                 <MSAViewer 
-                  {...msaOptions}
+                  {...window.msaOptions}
+                  id = "MSAViewer"
                   ref={(ref) => (this.el = ref)}
                   highlight={this.state.highlight}
                   width={this.state.width}
@@ -150,6 +152,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
                   colorScheme={this.state.colorScheme}
                 >
                 <div style={{ position: "relative", display: "flex", height:this.state.height+this.state.tileHeight}}>
+                    <div>
                         <Labels 
                           id="alnViewerLabels"
                           style = {{
@@ -158,6 +161,8 @@ var AlnViewer = class RV3AlnViewer extends Component {
                             marginRight: 3,
                             }}
                         />
+                        
+                    </div>
                     <div>
                         <PositionBar 
                           markerSteps={5} 
@@ -168,6 +173,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
                           onResidueMouseEnter={this.onResidueMouseEnter}
                           onResidueMouseLeave={this.onResidueMouseLeave}
                         />
+                        <OverviewBar id="conservationBar" method='proteovision'/>
                         {this.state.fold && (
                           <div
                             style={{

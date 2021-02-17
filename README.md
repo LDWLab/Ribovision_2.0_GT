@@ -22,7 +22,7 @@
 	
 	>sudo apt-get install python3-dev
 	
-	e. Instal git and get an account on github.com. Contact the current admin to receive access to the project repository,
+	e. Instal git and get an account on github.com. Contact the current admin (anton.petrov@biology.gatech.edu) to receive access to the project repository,
 	as well as user account and password for the MySQL database.
 
 	f. In the Linux startup file (.bashrc or .bash_profile) add these lines:
@@ -33,7 +33,22 @@
 	
 	>export DJANGO_PASSWORD='' (MySQL password provided by admin)
 
-	g. Set up GaTech VPN with the Cisco AnyConnect Secure Mobility Client. Follow <a href="https://faq.oit.gatech.edu/content/how-do-i-get-started-campus-vpn">these</a> instructions.
+	g. **For the admin**: if necessary also add the user to the django authentication side. From the project root execute:
+
+	```bash
+	source env/bin/activate
+	python3 manage.py shell
+	```
+	```python
+	import django.contrib.auth
+	User = django.contrib.auth.get_user_model()
+	user = User.objects.create_user('USERNAME', password='PASSWORD')
+	user.is_superuser = False
+	user.save()
+	exit()
+	```
+
+	h. Set up GaTech VPN with the Cisco AnyConnect Secure Mobility Client. Follow <a href="https://faq.oit.gatech.edu/content/how-do-i-get-started-campus-vpn">these</a> instructions.
 
 2. Clone the <a href="https://github.com/LDWLab/DESIRE.git">project repository</a> in a new folder. Get on the latest development branch.
 
@@ -89,7 +104,25 @@
 
 	> npm run build
 
-6. Open a VS Code folder in the root directory of the project.
+6. Installing react MSA viewer for development
+
+	a. cd into the react-msa-viewer directory and execute the following (might need sudo and **do not** use VS code terminal)
+
+	> npm install
+	
+	> npm link
+
+	b. cd into the root of the project directory (one up from the previous location) and run:
+
+	> npm link react-msa-viewer
+
+	c. While editing files in the src folder the following command should be running **from the msa-viewer directory!**
+
+	> npm run watch
+
+	d. **npm run watch** can also be running from the project root directory to update the top level main buundle.
+
+7. Open a VS Code folder in the root directory of the project.
 
 7. The debugger should now work while connected to the GaTech VPN.
 

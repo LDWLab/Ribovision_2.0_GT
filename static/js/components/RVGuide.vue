@@ -65,6 +65,7 @@
                 Object.assign(vm.$data, initialState());
                 window.tempCSVdata = null;
                 clearInputFile(document.getElementById('inputRV3State'));
+                vm.flushDjangoSession();
             },
             saveRV3State(){
                 let anchor = document.createElement('a');
@@ -203,6 +204,14 @@
             The viewer window can be moved by dragging or by using the scrollbars.<br/>
             Hover over residue to reveal associated data for it.`,
         },{
+            target: '#conservationBar',
+            header: {
+                title: 'Sequence conservation',
+            },
+            content: `Bar representation of conservation for each alignment position.
+            The conservation is calculated as Shannon entropy and represented by the column heights.
+            The columns can be colored with custom data or with ProteoVision calculated data.`,
+        },{
             target: '#downloadFastaBtn',
             header: {
                 title: 'Download alignment',
@@ -221,6 +230,16 @@
             params: {
               placement: 'right'
             },
+        },{
+            target: '#selectColorMappingProps',
+            header: {
+                title: 'Select calculated data.',
+            },
+            content: `Select a property to color the conservation bar. Same coloring will be applied to the 
+            2D and 3D viewers if they are enabled.`,
+            params: {
+              placement: 'right'
+            }
         },{
             target: '#selectAlnColorScheme',
             header: {
@@ -304,7 +323,7 @@
                 title: 'Mapping data',
             },
             content: `Calculated mapping data from the alignment can be selected from this dropdown menu.<br/>
-            The data gets mapped on the topology and 3D viewers.`,
+            The data gets mapped on the alignment conservation bar as well as the topology and 3D viewers.`,
             params: {
               placement: 'left'
             },
@@ -313,11 +332,21 @@
                 var annotationSelect = document.querySelector(".menuSelectbox");
                 var exampleData = topviewer.pluginInstance.domainTypes[4];
                 resolve (
+                    vm.selected_property = "Polarity",
                     topviewer.pluginInstance.updateTheme(exampleData.data),
                     window.viewerInstance.visual.select({data: selectSections_RV1.get(exampleData.label), nonSelectedColor: {r:255,g:255,b:255}}),
                     annotationSelect.selectedIndex=4,
                 )
             })
+        },{
+            target: '.gradient_section',
+            header: {
+                title: 'Data range',
+            },
+            content: `Gradient bar showing the range of values for the currently selected mapping data.`,
+            params: {
+              placement: 'left'
+            },
         },{
             target: '.saveSVG',
             header: {
@@ -347,6 +376,37 @@
               placement: 'right'
             },
         },{
+            target: '#domainSelectionSection',
+            header: {
+                title: 'ECOD domains',
+            },
+            content: `ECOD annotations for the selected pdb and chain are retrieved and displayed here.
+            You can select a domain by which the 2D and 3D representations will be truncated.`,
+            params: {
+              placement: 'right'
+            },
+            before: type => new Promise((resolve, reject) => {
+                resolve (
+                    vm.domain_or_selection="domain"
+                )
+            })
+        },{
+            target: '#filterSection',
+            header: {
+                title: 'Truncation ranges',
+            },
+            content: `Here you can specify ranges that truncate the structure shown on the topology and 3D viewers.
+            <br>You can either truncate the structures by range or by ECOD domain.
+            Amino acid frequencies will be recalculated based on either one of these two selections.`,
+            params: {
+              placement: 'right'
+            },
+            before: type => new Promise((resolve, reject) => {
+                resolve (
+                    vm.domain_or_selection="selection"
+                )
+            })
+        },{
             target: '#maskingSection',
             header: {
                 title: 'Masking ranges',
@@ -357,22 +417,8 @@
             },
             before: type => new Promise((resolve, reject) => {
                 resolve (
+                    vm.domain_or_selection=null,
                     vm.checked_filter=true,
-                )
-            })
-        },{
-            target: '#filterSection',
-            header: {
-                title: 'Truncation ranges',
-            },
-            content: `Here you can specify ranges that truncate the structure shown on the topology and 3D viewers.`,
-            params: {
-              placement: 'right'
-            },
-            before: type => new Promise((resolve, reject) => {
-                resolve (
-                    vm.checked_filter=false,
-                    vm.checked_selection=true,
                 )
             })
         },{
@@ -380,13 +426,14 @@
             header: {
                 title: 'Upload custom data',
             },
-            content: `Upload custom data in csv format to be mapped on the topology and 3D viewers.`,
+            content: `Upload custom data in csv format to be mapped on the alignment conservation bar 
+            as well as the topology and 3D viewers.`,
             params: {
               placement: 'right'
             },
             before: type => new Promise((resolve, reject) => {
                 resolve (
-                    vm.checked_selection=false,
+                    vm.checked_filter=false,
                     vm.checked_customMap=true,
                 )
             })
