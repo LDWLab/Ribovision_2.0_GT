@@ -62,7 +62,7 @@ class AssociatedDataViewSet(viewsets.ModelViewSet):
     serializer_class = AssociatedDataSerializer
 
 class AlnDataViewSet(viewsets.ModelViewSet):
-    queryset = AlnData.objects.all()
+    queryset = AlnData.objects.all().order_by('aln_data_id')
     serializer_class = AlnDataSerializer
     filter_backends = [DjangoFilterBackend]
     filter_fields = '__all__'
@@ -85,7 +85,7 @@ class EcodDomainFilterSet(viewsets.ModelViewSet):
     queryset = Ecoddomains.objects.all().order_by('uid')
     serializer_class = EcoDDomainsSerializer
     filter_backends = [DjangoFilterBackend]
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
     filter_fields = ['pdb', 'chain', 'arch_name', 'x_name', 'h_name', 't_name', 'f_name']
 
 def get_filter_set_results(query, filterset, queryset, field):
@@ -105,7 +105,7 @@ def filterresi(request, resnum, strain, new_name, aln_id, parent_tx):
         raise Http404(f'The combination of residue number {resnum}, strain id {strain}, and polymer name {new_name} should filter down to a single residue!')
     
     alnpositions = list(get_filter_set_results(f'res={resis[0]}&aln={aln_id}',
-                                            ResiAlnFilterSet, AlnData.objects.all(), 'aln_pos'))
+                                            ResiAlnFilterSet, AlnData.objects.all().order_by('aln_data_id'), 'aln_pos'))
     if len(alnpositions) == 0:
         raise Http404(f'The combination of residue id {resis[0]}, and alignment id {aln_id} is not present in the database!\n\
     Likely the polymer name {new_name} does not correspond to alignment id {aln_id}.')
