@@ -52,8 +52,8 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping, struc_
     
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
-    aln_group_path = "./static/alignment" + fileNameSuffix + ".txt"
-    pdb_seq_path = "./static/ebi_sequence" + fileNameSuffix + ".txt"
+    aln_group_path = "/home/Desire-Server/DESIRE/static/alignment" + fileNameSuffix + ".txt"
+    pdb_seq_path = "/home/Desire-Server/DESIRE/static/ebi_sequence" + fileNameSuffix + ".txt"
     mappingFileName = pdb_seq_path + ".map"
     tempfiles = [aln_group_path, pdb_seq_path, mappingFileName]
     for tempf in tempfiles:
