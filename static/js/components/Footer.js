@@ -11,6 +11,16 @@ export function addFooterImages (divID){
     </div>
     <p style="padding:5px;"></p>
     <div class="white-box" style="float: left;">
+        <a href="https://ribosome.xyz/home/" target="_blank">
+            <img 
+                style="height:75px; padding:5px;"
+                src="static/alignments/png/riboXYZ.png" 
+                title="Ribosome.xyz" 
+                alt="Comprehensive Resource for Ribosome Structures">
+        </a>
+    </div>
+    <p style="padding:5px;"></p>
+    <div class="white-box" style="float: left;">
         <a href="http://ww2.chemistry.gatech.edu/~lw26/index.html" target="_blank">
             <img 
                 style="height:75px; padding:10px;padding-top:5px;"
