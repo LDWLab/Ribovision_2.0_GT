@@ -143,6 +143,8 @@ var downloadAlignmentData = function(fastaString){
 
 var downloadAlignmentImage = function(){
     var alnDiv = document.querySelector("#MSAViewer");
+    var styleHeight = Number(alnDiv.firstElementChild.style.height.replace("px",""))
+    alnDiv.firstElementChild.style.height = styleHeight + 50;
     var anchor = document.createElement('a');
     html2canvas(alnDiv).then(canvas => {
         var imageData = canvas.toDataURL("image/png");
