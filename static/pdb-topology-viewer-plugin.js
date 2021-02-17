@@ -43,6 +43,7 @@ var aaPropertyConstants = window.aaPropertyConstants;
 var aaColorData = window.aaColorData;
 var masking_range_array = window.masking_range_array;
 var masked_array = window.masked_array;
+var parsePVData = window.parsePVData;
 var viewerInstance = window.viewerInstance;
 var selectSections_RV1 = window.selectSections_RV1;
 var rv3VUEcomponent = window.vm;
@@ -124,7 +125,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         this.createDomainDropdown = function () {
             if (typeof this.domainTypes == 'undefined') {
                 this.domainTypes = [{
-                        label: 'Annotation',
+                        label: 'Calculated data',
                         data: null
                     }];
                 //this.getAnnotationFromMappings();
@@ -140,10 +141,12 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 var selectBoxEle = this.targetEle.querySelector('.menuSelectbox');
                 selectBoxEle.innerHTML = optionList_1;
                 selectBoxEle.addEventListener("change", this.displayDomain.bind(this));
+                selectBoxEle.addEventListener("change", this.updateProperty.bind(this));
                 var resetIconEle = this.targetEle.querySelector('.resetIcon');
                 resetIconEle.addEventListener("click", this.resetDisplay.bind(this));
                 this.targetEle.querySelector(".saveSVG").addEventListener("click", this.saveSVG.bind(this));
                 rv3VUEcomponent.topology_loaded = true;
+                //selectBoxEle.style.display = 'none';
             }
             else {
                 this.targetEle.querySelector('.menuOptions').style.display = 'none';
@@ -529,6 +532,15 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
             if (eleData.type === 'coils') {
                 selectedPath.attr('stroke', this.defaultColours.mouseOver).attr('stroke-width', 1);
             }
+            //Maybe add gradient line movement here as function of eleData.tooltipMsg
+            //var newLine = document.createElementNS('http://www.w3.org/2000/svg','line');
+            //newLine.setAttribute('id','line2');
+            //newLine.setAttribute('x1','22');
+            //newLine.setAttribute('y1','12');
+            //newLine.setAttribute('x2','55');
+            //newLine.setAttribute('y2','474');
+            //newLine.setAttribute("stroke", "black")
+            //document.querySelector('#imageaef08aed83').appendChild(newLine)
             //Dispatch custom mouseover event
             this.dispatchEvent('PDB.topologyViewer.mouseover', {
                 residueNumber: eleData.residue_number,
@@ -1252,37 +1264,6 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         }
         return chainRange;
     };
-    PdbTopologyViewerPlugin.prototype.parseTWCData = function (separatedData, lowVal, highVal, colormapArray, masking) {
-        var TWCData = new Map();
-        var TWCrgbMap = new Map();
-        separatedData.forEach(function (item, index) {
-            var parsedItem = item[0];
-            //if(!masking || masking[index]) {
-            var itemValue = item[1];
-            TWCData.set(parsedItem, itemValue);
-            if (colormapArray.length === 1) {
-                var newValue = itemValue - lowVal;
-                TWCrgbMap.set(parsedItem, interpolateLinearly(newValue / (highVal - lowVal), colormapArray[0]));
-            }
-            else {
-                if (itemValue === 'NA') {
-                    TWCrgbMap.set(parsedItem, [[192, 192, 192], { r: 192, g: 192, b: 192 }]);
-                }
-                else if (itemValue < 0) {
-                    TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue / lowVal, colormapArray[0]));
-                }
-                else {
-                    TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue / highVal, colormapArray[1]));
-                }
-            }
-            //}
-            /*else {
-                TWCrgbMap.set(parsedItem, [[255, 255, 255], {r:0, g:0, b:0, a:.4}]);
-                TWCData.set(parsedItem, null);
-            }*/
-        });
-        return [TWCrgbMap, TWCData];
-    };
     PdbTopologyViewerPlugin.prototype.create2D3DAnnotations = function (name, residueDetails, TWCrgbMap, TWCData, chain_start, chain_end) {
         var _this = this;
         TWCData.forEach(function (value, index) {
@@ -1338,7 +1319,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 var min = Math.min.apply(Math, aaPropertyConstants.get(name));
                 var max = Math.max.apply(Math, aaPropertyConstants.get(name));
                 var colormapArray = aaColorData.get(name);
-                var _a = _this.parseTWCData(separatedData, min, max, colormapArray), TWCrgbMap = _a[0], TWCData = _a[1];
+                var _a = parsePVData(separatedData, min, max, colormapArray), TWCrgbMap = _a[0], TWCData = _a[1];
                 selectSections_RV1.get(name).push({ entity_id: _this.entityId, focus: true });
                 if (void 0 !== TWCData) {
                     residueDetails = _this.create2D3DAnnotations(name, residueDetails, TWCrgbMap, TWCData, chainRange.start, chainRange.end);
@@ -1454,6 +1435,12 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 });
             }
         }
+    };
+    PdbTopologyViewerPlugin.prototype.updateProperty = function () {
+        var selectBoxEle = this.targetEle.querySelector('.menuSelectbox');
+        var selectedIndex = parseInt(selectBoxEle.selectedIndex);
+        rv3VUEcomponent.selected_property = this.domainTypes[selectedIndex].label;
+        //console.log("Selected: " + rv3VUEcomponent.selected_property);
     };
     PdbTopologyViewerPlugin.prototype.resetTheme = function () {
         var _this = this;

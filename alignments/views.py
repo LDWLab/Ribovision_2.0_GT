@@ -532,10 +532,9 @@ def ecodPassThroughQuery(request):
     if ('&format=json' not in url):
         url += '&format=json'
     req = urllib.request.Request(url)
-    #username = os.environ['DJANGO_USERNAME']
-    #password = os.environ['DJANGO_PASSWORD']
-    #credentials = (f'{username}:{password}')
-    credentials = ('website:desire_RiboVision3')
+    with open('/etc/desire_config.json') as config_file:
+        config = json.load(config_file)
+    credentials = (f'{config["DB_USER_NAME"]}:{config["DB_PASSWORD"]}')
     encoded_credentials = base64.b64encode(credentials.encode('ascii'))
     req.add_header('Authorization', 'Basic %s' % encoded_credentials.decode("ascii"))
 
