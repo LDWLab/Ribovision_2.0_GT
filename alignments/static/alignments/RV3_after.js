@@ -105,6 +105,7 @@ function handleMaskingRanges(mask_range){
 };
 function handleFilterRange(filter_range) {
     if (filter_range.match(/^\d+-\d+;/)) {
+        handlePropensities(vm.checked_propensities);
         var filter_range = filter_range.slice(0, -1);
         const temp_array = filter_range.split('-');
         if (Number(temp_array[0]) < Number(temp_array[1])){
@@ -326,6 +327,7 @@ function cleanSelection(checked_selection, filter_range){
   if(vm.correct_mask) {
       handleMaskingRanges(vm.masking_range)
   }
+    handlePropensities(vm.checked_propensities);
 };
 
 var populatePDBs = function (alndata){
@@ -418,18 +420,46 @@ function getPropensities(property) {
     vm.fasta_data
 }
 
+function handlePropensityIndicesOnTruncatedStructure(indices, startTrunc, endTrunc){
+    var newIndices = '';
+    if (!indices){
+        indices = vm.all_residues.join(',');
+    }
+    indices.split(',').forEach(function(entry){
+        if (startTrunc <= Number(entry) &&  Number(entry) <= endTrunc){
+            newIndices+=`${entry},`;
+        }
+    })
+    return newIndices.slice(0, -1);
+}
+
 function handlePropensities(checked_propensities) {
     if (checked_propensities) {
-        let indices = vm.propensity_indices
-        var full = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y'];
-        let customFasta = vm.fasta_data
         var title = 'Amino Acid Frequencies'
         if (vm.type_tree == "orth"){
-            var title = vm.alnobj.text + ' ' + 'Amino Acid Frequencies'
+            var title = `${vm.alnobj.text} ${title}`;
         }
+        if (vm.property){
+            title += ` for ${vm.property.text}`
+        }
+        let indices = vm.propensity_indices;
+        if (vm.selected_domain.length > 0){
+            title += `<br>of ECOD domain ${vm.selected_domain[0].name}`;
+            var startDomain = Number(vm.selected_domain[0].range.split('-')[0]);
+            var endDomain = Number(vm.selected_domain[0].range.split('-')[1].slice(0, -1));
+            indices = handlePropensityIndicesOnTruncatedStructure(indices, startDomain, endDomain);
+        }
+        if (vm.filter_range){
+            var startRange = Number(vm.filter_range.split('-')[0]);
+            var endRange = Number(vm.filter_range.split('-')[1].slice(0, -1));
+            title += `<br>between positions ${startRange} and ${endRange}`;
+            indices = handlePropensityIndicesOnTruncatedStructure(indices, startRange, endRange);
+        }
+        var full = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y'];
+        let customFasta = vm.fasta_data
         if (indices) {
             ajax("/propensity-data-custom/", {indices, customFasta}).then(data => {
-                build_propensity_graph(data['amino acid'], full, title+' for '+vm.property.text, 'total');
+                build_propensity_graph(data['amino acid'], full, title, 'total');
             });
         } else {
             ajax("/propensity-data-custom/", {customFasta}).then(data => {
@@ -440,12 +470,6 @@ function handlePropensities(checked_propensities) {
 }
 
 var listSecondaryStructures = function() {
-    // var coilsListOfLists = []
-    // var strandsListOfLists = []
-    // var helicesListOfLists = []
-    // parseConsecutiveIndices("Coil", coilsListOfLists, vm.coil_residues);
-    // parseConsecutiveIndices("Strand", strandsListOfLists, vm.strand_residues);
-    // parseConsecutiveIndices("Helix", helicesListOfLists, vm.helix_residues);
     vm.substructures = []
     let coilObject = {
         text: "Coil residues",
@@ -463,9 +487,6 @@ var listSecondaryStructures = function() {
         indices: vm.helix_residues
     };
     Array.prototype.push.apply(vm.substructures, [coilObject, strandObject, helixObject])
-    // Array.prototype.push.apply(vm.substructures, coilsListOfLists);
-    // Array.prototype.push.apply(vm.substructures, strandsListOfLists);
-    // Array.prototype.push.apply(vm.substructures, helicesListOfLists);
 }
 
 var build_propensity_graph = function (data, amino_acids, title, div) {

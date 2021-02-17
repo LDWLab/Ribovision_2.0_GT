@@ -65,7 +65,7 @@
                 <option v-for="chain in chains" v-bind:value="chain.value" @click="postStructureData(pdbid, chainid); populateECODranges(); showPDBViewer(pdbid, chainid, chain.entityID); ">{{ chain.text }}</option>
             </select></p>
             <div v-if="structure_mapping">
-                <select id="downloadDataBtn" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="downloadMapDataOpt" v-if="topology_loaded">
+                <select id="downloadDataBtn" class="btn btn-outline-dark dropdown-toggle" v-model="downloadMapDataOpt" v-if="topology_loaded">
                     <option :value="null" selected disabled>Download mapped data</option>
                     <option value='csv'>As CSV file</option>
                     <option value='pymol'>As PyMOL script</option>
@@ -74,23 +74,28 @@
             <div v-if="topology_loaded">
 
                 <div id="domainSelectionSection"><p>
-                    <div class="checkbox">
-                        <label><input type="checkbox" v-model="checked_domain" v-on:change="cleanSelection(checked_domain, true)">
+                    <div>
+                        <label><input type="radio" v-model="domain_or_selection" value="domain">
                         Select an ECOD domain to show</label>
                     </div>
-                </p>
                 <select multiple class="form-control btn-outline-dark" id="domainSelect" v-model="selected_domain" v-bind:style="{ resize: 'both'}"  v-if="domain_list&&checked_domain">
                     <option v-for="domain in domain_list" v-bind:value="domain" @click="handleFilterRange(domain.range)">{{ domain.name }}</option>
                 </select>
+                <p><button id="disableDomainTruncation" class="btn btn-outline-dark" v-if="selected_domain.length > 0" type="button" v-on:click="domain_or_selection=null;" style="margin: 3% 0;">
+                        Show the entire structure
+                </button></p>
                 </div>
 
                 <div id="filterSection"><p>
-                    <div class="checkbox">
-                        <label><input type="checkbox" v-model="checked_selection" v-on:change="cleanSelection(checked_selection, filter_range)">
+                    <div>
+                        <label><input type="radio" v-model="domain_or_selection" value="selection">
                         Cut/Uncut 2D and 3D structures</label>
                     </div>
                     <span v-if="checked_selection"><b>Input single</b> residue range to <b>show</b>, ending with semicolon. <br> For example: 1-80;</span>
                     <input class="input-group-text" v-if="checked_selection" v-model="filter_range" v-on:input="handleFilterRange(filter_range)">
+                    <p><button id="disableCutTruncation" class="btn btn-outline-dark" v-if="filter_range" type="button" v-on:click="domain_or_selection=null;" style="margin: 3% 0;">
+                        Show the entire structure
+                    </button></p>
                 </p></div>
 
                 <div id="maskingSection"><p>
@@ -277,6 +282,30 @@
             } else if (opt == 'pymol'){
                 downloadPyMOLscript();
                 this.downloadMapDataOpt = null;
+            }
+        },domain_or_selection: function(selection){
+            if (selection == 'domain'){
+                cleanSelection(vm.checked_domain, vm.filter_range);
+                vm.checked_domain = true;
+                vm.checked_selection = false;
+                if (vm.filter_range){
+                    vm.filter_range = null;
+                }
+            } else if (selection == 'selection'){
+                cleanSelection(vm.checked_selection, true)
+                vm.checked_selection = true;
+                vm.checked_domain = false;
+                if (vm.selected_domain.length > 0){
+                    vm.selected_domain = [];
+                }
+            } else {
+                if (vm.selected_domain.length > 0){
+                    vm.selected_domain = [];
+                }
+                vm.filter_range = null;
+                vm.checked_selection = false;
+                vm.checked_domain = false;
+                cleanSelection(false, true);
             }
         },selected_property: function(name){
             if (!name){return;}

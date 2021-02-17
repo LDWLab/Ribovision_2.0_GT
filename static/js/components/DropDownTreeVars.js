@@ -43,6 +43,7 @@ export function initialState (){
         masking_range: null,
         filter_range: null,
         correct_mask: null,
+        domain_or_selection: null,
         checked_domain: false,
         checked_filter: false,
         checked_selection: false,

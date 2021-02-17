@@ -303,7 +303,13 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
         if (aln_item) {aln_item.remove(); create_deleted_element("alnif", "alnDiv", aln_text, true)}
     }
     window.mapped_aa_properties = null;
+    vueObj.all_residues = null;
+    vueObj.coil_residues = null;
+    vueObj.helix_residues = null;
+    vueObj.strand_residues = null;
     vueObj.checked_propensities = null;
+    vueObj.checked_domain = null;
+    vueObj.selected_domain = [];
     vueObj.structure_mapping = null;
     vueObj.poor_structure_map = null;
     vueObj.selected_property = null;
@@ -431,8 +437,8 @@ var setGlobalProperties = function(){
         ["Polarity",[viridis]],
         ["Mutability",[plasma]],
         ["Shannon entropy",[plasma]],
-        ["TwinCons",[Reds, Greens]],
-        //["TwinCons",[Reds, Blues]],
+        //["TwinCons",[Reds, Greens]],
+        ["TwinCons",[Reds, Blues]],
         //["TwinCons",[RdPu, YlGn]],
     ]);
     window.aaColorData = aaColorData;
