@@ -697,8 +697,9 @@
         }, populateECODranges() {
             $.ajax ({
                 type: "GET",
-                url: "/alignments/authEcodQuery",
-                data: {url: `/desire-api/ECOD-domains/?pdb=${vm.pdbid}&chain=${vm.chainid[0]}`},
+                url: `/desire-api/ECOD-domains/?pdb=${vm.pdbid}&chain=${vm.chainid[0]}`,
+                //url: "/alignments/authEcodQuery",
+                //data: {url: `/desire-api/ECOD-domains/?pdb=${vm.pdbid}&chain=${vm.chainid[0]}`},
                 success: function (data){
                     vm.domain_list = []
                     for (var i = 0; i < data.results.length; i++) {
