@@ -72,16 +72,27 @@
                 </select>
             </div>
             <div v-if="topology_loaded">
+
                 <div id="domainSelectionSection"><p>
                     <div class="checkbox">
                         <label><input type="checkbox" v-model="checked_domain" v-on:change="cleanSelection(checked_domain, true)">
                         Select an ECOD domain to show</label>
                     </div>
                 </p>
-                <select multiple class="form-control btn-outline-dark" id="domainSelect" v-bind:style="{ resize: 'both'}"  v-if="domain_list&&checked_domain">
-                    <option v-for="domain in domain_list" v-bind:value="selected_domain" @click="handleFilterRange(domain.range)">{{ domain.name }}</option>
+                <select multiple class="form-control btn-outline-dark" id="domainSelect" v-model="selected_domain" v-bind:style="{ resize: 'both'}"  v-if="domain_list&&checked_domain">
+                    <option v-for="domain in domain_list" v-bind:value="domain" @click="handleFilterRange(domain.range)">{{ domain.name }}</option>
                 </select>
                 </div>
+
+                <div id="filterSection"><p>
+                    <div class="checkbox">
+                        <label><input type="checkbox" v-model="checked_selection" v-on:change="cleanSelection(checked_selection, filter_range)">
+                        Cut/Uncut 2D and 3D structures</label>
+                    </div>
+                    <span v-if="checked_selection"><b>Input single</b> residue range to <b>show</b>, ending with semicolon. <br> For example: 1-80;</span>
+                    <input class="input-group-text" v-if="checked_selection" v-model="filter_range" v-on:input="handleFilterRange(filter_range)">
+                </p></div>
+
                 <div id="maskingSection"><p>
                     <div class="checkbox">
                         <label><input type="checkbox" v-model="checked_filter" v-on:change="cleanFilter(checked_filter, masking_range)">
@@ -91,14 +102,6 @@
                     <input class="input-group-text" v-if="checked_filter" v-model="masking_range" v-on:input="handleMaskingRanges(masking_range)">
                 </p></div>
                 <p v-if="correct_mask!=true&&masking_range!=null">Incorrect range syntax!</p>
-                <div id="filterSection"><p>
-                    <div class="checkbox">
-                        <label><input type="checkbox" v-model="checked_selection" v-on:change="cleanSelection(checked_selection, filter_range)">
-                        Cut/Uncut 2D and 3D structures</label>
-                    </div>
-                    <span v-if="checked_selection"><b>Input single</b> residue range to <b>show</b>, ending with semicolon. <br> For example: 1-80;</span>
-                    <input class="input-group-text" v-if="checked_selection" v-model="filter_range" v-on:input="handleFilterRange(filter_range)">
-                </p></div>
 
                 <div id="customDataSection">
                 <p><div class="checkbox">
@@ -114,7 +117,7 @@
             </div>
             <p><div v-if="alnobj" class="checkbox" id="showFrequencies">
                 <label><input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">
-                Show amino-acid frequencies</label>
+                Show amino acid frequencies</label>
                 <select class="btn btn-outline-dark dropdown-toggle" id="propensitiesSubstructure" v-if="checked_propensities&&structure_mapping" v-model="property" v-on:change="getPropensities(property); handlePropensities(checked_propensities)">
                     <option :value="null" selected disabled hidden>Select secondary structure</option>
                     <option :value="0">All residues</option>
@@ -548,6 +551,9 @@
             var topology_url = `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdblower}/chain/${chainid}`
             ajax(topology_url).then(data => {
                 var entityid = Object.keys(data[pdblower])[0];
+                let termStart = Number(data[pdblower][entityid][chainid]["terms"][0].resnum);
+                let termEnd = Number(data[pdblower][entityid][chainid]["terms"][1].resnum);
+                vm.all_residues = filterCoilResidues([{start: termStart, stop: termEnd}])
                 vm.coil_residues = filterCoilResidues(data[pdblower][entityid][chainid]["coils"])
                 vm.helix_residues = filterCoilResidues(data[pdblower][entityid][chainid]["helices"])
                 vm.strand_residues = filterCoilResidues(data[pdblower][entityid][chainid]["strands"])
