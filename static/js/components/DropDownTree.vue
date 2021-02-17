@@ -76,7 +76,7 @@
                 <div id="domainSelectionSection"><p>
                     <div>
                         <label><input type="radio" v-model="domain_or_selection" value="domain">
-                        Select an ECOD domain to show</label>
+                        Cut structure by ECOD domain</label>
                     </div>
                 <select multiple class="form-control btn-outline-dark" id="domainSelect" v-model="selected_domain" v-bind:style="{ resize: 'both'}"  v-if="domain_list&&checked_domain">
                     <option v-for="domain in domain_list" v-bind:value="domain" @click="handleFilterRange(domain.range)">{{ domain.name }}</option>
@@ -89,7 +89,7 @@
                 <div id="filterSection"><p>
                     <div>
                         <label><input type="radio" v-model="domain_or_selection" value="selection">
-                        Cut/Uncut 2D and 3D structures</label>
+                        Cut structure by custom range</label>
                     </div>
                     <span v-if="checked_selection"><b>Input single</b> residue range to <b>show</b>, ending with semicolon. <br> For example: 1-80;</span>
                     <input class="input-group-text" v-if="checked_selection" v-model="filter_range" v-on:input="handleFilterRange(filter_range)">
@@ -287,16 +287,20 @@
             }
         },domain_or_selection: function(selection){
             if (selection == 'domain'){
-                cleanSelection(vm.checked_domain, vm.filter_range);
+                if (vm.checked_selection){
+                    cleanSelection(false, vm.filter_range);
+                    vm.checked_selection = false;
+                }
                 vm.checked_domain = true;
-                vm.checked_selection = false;
                 if (vm.filter_range){
                     vm.filter_range = null;
                 }
             } else if (selection == 'selection'){
-                cleanSelection(vm.checked_selection, true)
+                if (vm.checked_domain){
+                    cleanSelection(false, true)
+                    vm.checked_domain = false;
+                }
                 vm.checked_selection = true;
-                vm.checked_domain = false;
                 if (vm.selected_domain.length > 0){
                     vm.selected_domain = [];
                 }
