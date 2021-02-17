@@ -1468,7 +1468,7 @@ class PdbTopologyViewerPlugin {
         
         if(typeof this.domainTypes == 'undefined'){
             this.domainTypes = [{
-                label: 'Annotation',
+                label: 'Calculated data',
                 data: null
             }];
             //this.getAnnotationFromMappings();
