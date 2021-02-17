@@ -173,7 +173,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
                           onResidueMouseEnter={this.onResidueMouseEnter}
                           onResidueMouseLeave={this.onResidueMouseLeave}
                         />
-                        <OverviewBar method='proteovision'/>
+                        <OverviewBar id="conservationBar" method='proteovision'/>
                         {this.state.fold && (
                           <div
                             style={{
