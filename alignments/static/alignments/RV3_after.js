@@ -347,7 +347,7 @@ var populatePDBs = function (alndata){
                         pdb_entries.push({id: entry.parent.toLowerCase(), name:pdb_text})
                     });
                     if (pdb_entries.length == 0){return;}
-                    vm.pdbs.push(...pdb_entries);
+                    vm.pdbs.push(...pdb_entries.sort((a, b) => (a.id > b.id) ? 1 : -1));
                 }).catch(error => {
                     console.log(error);
                 })
