@@ -711,6 +711,9 @@
                             vm.domain_list.push({name: domName, range: range_str});
                         }
                     }
+                }, error: function(xhr, status, error){
+                    var errorMessage = xhr.status + ': ' + xhr.statusText
+                    console.log('Error - ' + errorMessage);
                 }
             });
         },postStructureData(pdbid, chainid) {
