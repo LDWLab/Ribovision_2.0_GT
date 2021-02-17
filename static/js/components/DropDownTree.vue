@@ -264,7 +264,9 @@
                 customCSVhandler(vm.csv_data);
             }
             if (this.selected_property){
-                recolorTopStar(this.selected_property);
+                this.$nextTick(function(){
+                    recolorTopStar(this.selected_property);
+                });
             }
         },downloadAlignmentOpt: function(opt){
             if (this.uploadSession){return;}

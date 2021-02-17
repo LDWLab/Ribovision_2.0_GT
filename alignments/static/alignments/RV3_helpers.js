@@ -308,6 +308,7 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     vueObj.helix_residues = null;
     vueObj.strand_residues = null;
     vueObj.checked_propensities = null;
+    vueObj.domain_or_selection = null;
     vueObj.checked_domain = null;
     vueObj.selected_domain = [];
     vueObj.structure_mapping = null;
