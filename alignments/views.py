@@ -36,7 +36,7 @@ def calculate_twincons(alignment):
     with warnings.catch_warnings():
         warnings.simplefilter('ignore', BiopythonDeprecationWarning)
     from TwinCons.bin import TwinCons
-    list_for_phymeas = ['-as',alignment.format("fasta"), '-r', '-mx', 'blosum62']
+    list_for_phymeas = ['-as',alignment, '-r', '-mx', 'blosum62']
     alnindex_score, sliced_alns, number_of_aligned_positions, gp_mapping = TwinCons.main(list_for_phymeas)
     list_for_topology_viewer = []
     for alnindex in alnindex_score:
@@ -484,7 +484,7 @@ def propensity_data(request, aln_id, tax_group):
     if request.method == 'POST' and 'indices' in request.POST:
         indices = request.POST['indices']
         trimmed_fasta = trim_fasta_by_index(fasta, indices)
-        fasta = StringIO(trimmed_fasta.format('fasta'))
+        fasta = StringIO(format(trimmed_fasta, 'fasta'))
 
     aa = propensities.aa_composition(fasta, reduced = False)
     fasta.seek(0) # reload the fasta object

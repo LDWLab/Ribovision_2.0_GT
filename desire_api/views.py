@@ -68,7 +68,7 @@ class AlnDataViewSet(viewsets.ModelViewSet):
     filter_fields = '__all__'
 
 class TaxGroupViewSet(viewsets.ModelViewSet):
-    queryset = Taxgroups.objects.all()
+    queryset = Taxgroups.objects.all().order_by('taxgroup_id')
     serializer_class = TaxGroupSerializer
     filter_backends = [DjangoFilterBackend]
     filter_fields = ['groupname', 'grouplevel', 'taxgroup_id']
@@ -82,7 +82,7 @@ class ResiAlnFilterSet(ModelFilterSet):
         model = AlnData
 
 class EcodDomainFilterSet(viewsets.ModelViewSet):
-    queryset = Ecoddomains.objects.all()
+    queryset = Ecoddomains.objects.all().order_by('uid')
     serializer_class = EcoDDomainsSerializer
     filter_backends = [DjangoFilterBackend]
     permission_classes = [IsAuthenticated]
