@@ -370,8 +370,8 @@
             header: {
                 title: 'Download calculated data',
             },
-            content: `Downloads data calculated from the 
-            alignment and mapped on the structure residues as a PyMOL script or in csv format.`,
+            content: `Downloads data calculated from the alignment and 
+            mapped on the structure residues as a PyMOL script or in csv format.`,
             params: {
               placement: 'right'
             },
@@ -393,11 +393,11 @@
         },{
             target: '#filterSection',
             header: {
-                title: 'Truncation ranges',
+                title: 'Custom truncation range',
             },
-            content: `Here you can specify ranges that truncate the structure shown on the topology and 3D viewers.
-            <br>You can either truncate the structures by range or by ECOD domain.
-            Amino acid frequencies will be recalculated based on either one of these two selections.`,
+            content: `Here you can specify a range to truncate the structure shown on the topology and 3D viewers.
+            <br>You can either truncate the structure by range or by ECOD domain.
+            Amino acid frequencies will be recalculated based on the active selection between these two.`,
             params: {
               placement: 'right'
             },
