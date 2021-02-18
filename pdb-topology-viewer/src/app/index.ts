@@ -35,6 +35,7 @@ class PdbTopologyViewerPlugin {
     entityId: string;
     entryId: string;
     //filterRange: string;
+    alreadyRan: boolean;
     chainId: string;
     apiData: any;
     targetEle: HTMLElement;
@@ -85,28 +86,30 @@ class PdbTopologyViewerPlugin {
     }
 
     initPainting(){
-        this.getApiData(this.entryId, this.chainId).then(result => {
-            if(result){
-                
-                //Validate required data in the API result set (0, 2, 4)
-                if(typeof result[0] == 'undefined' || typeof result[2] == 'undefined' || typeof result[4] == 'undefined'){ 
-                    this.displayError();
-                    return;
+        if(!this.alreadyRan){
+            this.alreadyRan = true;
+            this.getApiData(this.entryId, this.chainId).then(result => {
+                if(result){
+
+                    //Validate required data in the API result set (0, 2, 4)
+                    if(typeof result[0] == 'undefined' || typeof result[2] == 'undefined' || typeof result[4] == 'undefined'){ 
+                        this.displayError();
+                        return;
+                    }
+                    this.apiData = result;
+                    //default pdb events
+		    	    this.pdbevents = this.createNewEvent(['PDB.topologyViewer.click','PDB.topologyViewer.mouseover','PDB.topologyViewer.mouseout']);
+                    this.getPDBSequenceArray(this.apiData[0][this.entryId]);
+                    this.drawTopologyStructures();
+                    this.createDomainDropdown();
+
+                    if(this.subscribeEvents) this.subscribeWcEvents();
+
+                }else{
+
                 }
-
-                this.apiData = result;
-                //default pdb events
-			    this.pdbevents = this.createNewEvent(['PDB.topologyViewer.click','PDB.topologyViewer.mouseover','PDB.topologyViewer.mouseout']);
-                this.getPDBSequenceArray(this.apiData[0][this.entryId]);
-                this.drawTopologyStructures();
-                this.createDomainDropdown();
-
-                if(this.subscribeEvents) this.subscribeWcEvents();
-
-            }else{
-
-            }
-        });
+            });
+        }
     }
 
     displayError(errType?: string){
@@ -1490,11 +1493,11 @@ class PdbTopologyViewerPlugin {
             selectBoxEle.addEventListener("change", this.updateProperty.bind(this));
             const resetIconEle = this.targetEle.querySelector('.resetIcon');
             resetIconEle.addEventListener("click", this.resetDisplay.bind(this));
-            this.targetEle.querySelector(".saveSVG").addEventListener("click", this.saveSVG.bind(this))
+            this.targetEle.querySelector(".saveSVG").addEventListener("click", this.saveSVG.bind(this));
             rv3VUEcomponent.topology_loaded=true;
             //selectBoxEle.style.display = 'none';
         }else{
-            this.targetEle.querySelector('.menuOptions').style.display = 'none';
+            //this.targetEle.querySelector('.menuOptions').style.display = 'none';
         }
     }
     resetTheme() {
