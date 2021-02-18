@@ -143,3 +143,7 @@ n. After updating the dev branch bring the public branch up to speed
 	> python3 manage.py collectstatic
 	
 	> touch /home/Desire-Server/DESIRE/DESIRE/wsgi.py
+
+	If everything works fine push your changes to the origin/public:
+
+	> git push origin public
