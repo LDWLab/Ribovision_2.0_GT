@@ -149,7 +149,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 //selectBoxEle.style.display = 'none';
             }
             else {
-                this.targetEle.querySelector('.menuOptions').style.display = 'none';
+                //this.targetEle.querySelector('.menuOptions').style.display = 'none';
             }
         };
     }
@@ -192,25 +192,28 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
     };
     PdbTopologyViewerPlugin.prototype.initPainting = function () {
         var _this_1 = this;
-        this.getApiData(this.entryId, this.chainId).then(function (result) {
-            if (result) {
-                //Validate required data in the API result set (0, 2, 4)
-                if (typeof result[0] == 'undefined' || typeof result[2] == 'undefined' || typeof result[4] == 'undefined') {
-                    _this_1.displayError();
-                    return;
+        if (!this.alreadyRan) {
+            this.alreadyRan = true;
+            this.getApiData(this.entryId, this.chainId).then(function (result) {
+                if (result) {
+                    //Validate required data in the API result set (0, 2, 4)
+                    if (typeof result[0] == 'undefined' || typeof result[2] == 'undefined' || typeof result[4] == 'undefined') {
+                        _this_1.displayError();
+                        return;
+                    }
+                    _this_1.apiData = result;
+                    //default pdb events
+                    _this_1.pdbevents = _this_1.createNewEvent(['PDB.topologyViewer.click', 'PDB.topologyViewer.mouseover', 'PDB.topologyViewer.mouseout']);
+                    _this_1.getPDBSequenceArray(_this_1.apiData[0][_this_1.entryId]);
+                    _this_1.drawTopologyStructures();
+                    _this_1.createDomainDropdown();
+                    if (_this_1.subscribeEvents)
+                        _this_1.subscribeWcEvents();
                 }
-                _this_1.apiData = result;
-                //default pdb events
-                _this_1.pdbevents = _this_1.createNewEvent(['PDB.topologyViewer.click', 'PDB.topologyViewer.mouseover', 'PDB.topologyViewer.mouseout']);
-                _this_1.getPDBSequenceArray(_this_1.apiData[0][_this_1.entryId]);
-                _this_1.drawTopologyStructures();
-                _this_1.createDomainDropdown();
-                if (_this_1.subscribeEvents)
-                    _this_1.subscribeWcEvents();
-            }
-            else {
-            }
-        });
+                else {
+                }
+            });
+        }
     };
     PdbTopologyViewerPlugin.prototype.displayError = function (errType) {
         var errtxt = "Error: Data not available!";

@@ -136,6 +136,7 @@ function handleFilterRange(filter_range) {
                 }
                 topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex = selectedIndex;
             });
+            topviewer.pluginInstance.alreadyRan = false;
             topviewer.pluginInstance.initPainting(window.select_sections)
             let selectedData = topviewer.pluginInstance.domainTypes[selectedIndex];
             topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);   
@@ -306,6 +307,7 @@ function cleanSelection(checked_selection, filter_range){
   var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
   vm.filter_range = null;
   window.filterRange = "-10000,10000";
+  topviewer.pluginInstance.alreadyRan = false;
   topviewer.pluginInstance.initPainting();
   viewerInstance.visual.update({
       customData: {

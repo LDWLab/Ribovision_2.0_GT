@@ -29,6 +29,7 @@ declare class PdbTopologyViewerPlugin {
     sequenceArr: string[];
     entityId: string;
     entryId: string;
+    alreadyRan: boolean;
     chainId: string;
     apiData: any;
     targetEle: HTMLElement;
