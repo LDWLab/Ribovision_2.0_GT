@@ -67,5 +67,6 @@ export function initialState (){
         postedPDBEntities: false,
         downloadAlignmentOpt: null,
         downloadMapDataOpt: null,
+        freqCSV: null,
     }
 }

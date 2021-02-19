@@ -128,6 +128,9 @@
                     <option :value="0">All residues</option>
                     <option v-for="substructure in substructures" v-bind:value="{ id: substructure.value, text: substructure.text, indices: substructure.indices }">{{ substructure.text }}</option>
                 </select>
+                <p><button id="downloadFreqsBtn" class="btn btn-outline-dark" style="margin: 3% 0;" v-if="checked_propensities" type="button" v-on:click="downloadFreqsData()">
+                    Download AA frequencies
+                </button></p>
             </div></p>
         </div>
         <div class="alignment_section">
@@ -771,6 +774,12 @@
             getPropensities(sequence_indices);
         },listSecondaryStructures() {
             listSecondaryStructures();
+        },downloadFreqsData(){
+            let anchor = document.createElement('a');
+            anchor.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(vm.freqCSV);
+            anchor.target = '_blank';
+            anchor.download = 'PVfreqData.csv';
+            anchor.click();
         },flushDjangoSession(){
             ajaxProper({
                     url: `/flush-session`,
