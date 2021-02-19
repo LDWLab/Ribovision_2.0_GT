@@ -316,6 +316,7 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     vueObj.structure_mapping = null;
     vueObj.poor_structure_map = null;
     vueObj.selected_property = null;
+    vueObj.freqCSV = null;
     window.ajaxRun = false;
     window.custom_prop = null;
     if (vueObj.topology_loaded) {vueObj.topology_loaded = false;}

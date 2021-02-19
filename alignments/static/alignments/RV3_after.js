@@ -461,10 +461,12 @@ function handlePropensities(checked_propensities) {
         let customFasta = vm.fasta_data
         if (indices) {
             ajax("/propensity-data-custom/", {indices, customFasta}).then(data => {
+                storeFrequencyData(data['amino acid'],title);
                 build_propensity_graph(data['amino acid'], full, title, 'total');
             });
         } else {
             ajax("/propensity-data-custom/", {customFasta}).then(data => {
+                storeFrequencyData(data['amino acid'],title);
                 build_propensity_graph(data['amino acid'], full, title, 'total');
             });
         }
@@ -548,4 +550,26 @@ var build_propensity_graph = function (data, amino_acids, title, div) {
     }).on('plotly_unhover', function(data){
         //
     });
+}
+
+var storeFrequencyData = function (data, title){
+    csv_string = '';
+    aaNames = [];
+    aaList = [];
+    once = true;
+    for (var key of Object.keys(data)) {
+        var entry = data[key];
+        if (once){
+            once = false;
+            aaNames = Object.keys(entry).slice(1);
+            csv_string += 'Species\\AA,'+aaNames.join(',')+'\n';
+        }
+        csv_string += `${entry["name"]},`
+        aaNames.forEach(function(aa){
+            csv_string += `${entry[aa]},`
+        })
+        csv_string.slice(0, -1);
+        csv_string += '\n';
+    }
+    vm.freqCSV = `${title.replace('<br>',' ')}\n${csv_string}`;
 }

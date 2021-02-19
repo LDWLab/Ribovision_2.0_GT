@@ -265,6 +265,15 @@
                 )
             })
         },{
+            target: '#downloadFreqsBtn',
+            header: {
+                title: 'Download amino-acid frequencies',
+            },
+            content: `Download amino-acid frequencies showed in the graph as a csv file.`,
+            params: {
+              placement: 'right'
+            },
+        },{
             target: '#total',
             header: {
                 title: 'Frequency graph',
