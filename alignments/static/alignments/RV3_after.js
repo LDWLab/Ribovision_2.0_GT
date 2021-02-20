@@ -222,7 +222,7 @@ function handleCustomMappingData(){
   const readFile = function (fileInput) {
       var reader = new FileReader();
       reader.onload = function () {
-          vm.csv_data = reader.result;
+          vm.csv_data = reader.result.replace("\u00EF\u00BB\u00BF", '');
       };
       reader.readAsBinaryString(fileInput);
   };
