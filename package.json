@@ -30,6 +30,7 @@
     "webpack-cli": "^3.3.12"
   },
   "dependencies": {
+	"docute": "^4.23.3",
     "@plotly/react-msa-viewer": "0.0.12",
     "react": "^16.13.1",
     "react-dom": "^16.13.1"

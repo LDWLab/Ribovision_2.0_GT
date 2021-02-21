@@ -1,0 +1,21 @@
+{
+  "private": true,
+  "scripts": {
+    "start": "serve ."
+  },
+  "devDependencies": {
+    "serve": "^10.1.2"
+  },
+  "name": "demo",
+  "version": "1.0.0",
+  "main": "script.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "docute": "^4.23.3"
+  }
+}
