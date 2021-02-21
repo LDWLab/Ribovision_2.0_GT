@@ -138,7 +138,7 @@ n. After updating the dev branch bring the public branch up to speed
 
 	Merge the origin/dev branch onto public
 	
-	> npm run watch
+	> npm run buld
 
 	> python3 manage.py collectstatic
 	
