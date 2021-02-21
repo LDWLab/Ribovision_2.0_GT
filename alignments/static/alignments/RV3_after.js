@@ -125,7 +125,11 @@ function handleFilterRange(filter_range) {
             viewerInstance.events.loadComplete.subscribe(() => { 
                 let selectedData = topviewer.pluginInstance.domainTypes[selectedIndex];
                 if(selectSections_RV1.get(selectedData.label)) {
-                    let select_sections = selectSections_RV1.get(selectedData.label).slice(Number(temp_array[0]), Number(temp_array[1])+1);
+                    var select_sections = selectSections_RV1.get(selectedData.label).filter(resi3D  => {
+                        if (resi3D.start_residue_number >= Number(temp_array[0]) && resi3D.start_residue_number <= Number(temp_array[1])){
+                            return resi3D;
+                        }
+                    })
                     window.viewerInstance.visual.select({
                     data: select_sections,
                     nonSelectedColor: {r:255,g:255,b:255}});

@@ -1609,8 +1609,12 @@ class PdbTopologyViewerPlugin {
                 //Handle custom mapping data from RV3
                 if(rv3AnnotationLabels.includes(selectedDomain.label) && invokedFrom !== 'zoom'){
                     if (filterRange != "-10000,10000"){
-                        let filterRangeArr = filterRange.split(",")
-                        var select_sections = selectSections_RV1.get(selectedDomain.label).slice(Number(filterRangeArr[0]), Number(filterRangeArr[1])+1);
+                        let filterRangeArr = filterRange.split(",");
+                        var select_sections = selectSections_RV1.get(selectedDomain.label).filter((resi3D : any) => {
+                            if (resi3D.start_residue_number >= filterRangeArr[0] && resi3D.start_residue_number <= filterRangeArr[1]){
+                                return resi3D;
+                            }
+                        })
                     } else {
                         var select_sections = selectSections_RV1.get(selectedDomain.label)
                     }
