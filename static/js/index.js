@@ -14,6 +14,7 @@ function loadScript(src) {
 }
 var rand = Math.floor(Math.random() * 100) + 1;
 loadScript('/static/alignments/RV3_helpers.js?v='+rand)
+loadScript('/static/pdb-topology-viewer-component-2.0.0.js?v='+rand)
 //.catch(loadScript.bind(null, localSource))
 //.then(successCallback, failureCallback);
 //Use these two to catch failures

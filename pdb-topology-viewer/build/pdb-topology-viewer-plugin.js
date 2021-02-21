@@ -1560,8 +1560,13 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 //Handle custom mapping data from RV3
                 if (rv3AnnotationLabels.includes(selectedDomain.label) && invokedFrom !== 'zoom') {
                     if (filterRange != "-10000,10000") {
-                        var filterRangeArr = filterRange.split(",");
-                        var select_sections = selectSections_RV1.get(selectedDomain.label).slice(Number(filterRangeArr[0]), Number(filterRangeArr[1]) + 1);
+                        var filterRangeArr_1 = filterRange.split(",");
+                        var select_sections = selectSections_RV1.get(selectedDomain.label).filter(function (resi3D) {
+                            if (resi3D.start_residue_number >= filterRangeArr_1[0] && resi3D.start_residue_number <= filterRangeArr_1[1]) {
+                                return resi3D;
+                            }
+                        });
+                        //var select_sections = selectSections_RV1.get(selectedDomain.label).slice(Number(filterRangeArr[0]), Number(filterRangeArr[1])+1);
                     }
                     else {
                         var select_sections = selectSections_RV1.get(selectedDomain.label);
