@@ -406,13 +406,7 @@ function getPropensities(property) {
     if (vm.structure_mapping && property && property!=0) {
         var sequence_indices = property.indices;
         let alignment_indices = []
-        let inverse_structure_mapping = {}
-        for (var key in vm.structure_mapping) {
-            if (key != "BadMappingPositions"){
-                let value = vm.structure_mapping[key]
-                inverse_structure_mapping[value] = key
-            }
-        }
+        let inverse_structure_mapping = _.invert(vm.structure_mapping);
         for (var sequence_index of sequence_indices) {
             if (inverse_structure_mapping[sequence_index]){
                 alignment_indices.push(inverse_structure_mapping[sequence_index])
@@ -428,11 +422,16 @@ function getPropensities(property) {
 
 function handlePropensityIndicesOnTruncatedStructure(indices, startTrunc, endTrunc){
     var newIndices = '';
+    var invertedMap = _.invert(vm.structure_mapping)
     if (!indices){
-        indices = vm.all_residues.join(',');
+        tempIndices = [];
+        vm.all_residues.forEach(function(resi){
+            tempIndices.push(invertedMap[resi]);
+        })
+        indices = tempIndices.join(',');
     }
     indices.split(',').forEach(function(entry){
-        if (startTrunc <= Number(entry) &&  Number(entry) <= endTrunc){
+        if (invertedMap[startTrunc] <= Number(entry) &&  Number(entry) <= invertedMap[endTrunc]){
             newIndices+=`${entry},`;
         }
     })
