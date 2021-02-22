@@ -79,7 +79,7 @@
                         Cut structure by ECOD domain</label>
                     </div>
                 <select multiple class="form-control btn-outline-dark" id="domainSelect" v-model="selected_domain" v-bind:style="{ resize: 'both'}"  v-if="domain_list&&checked_domain">
-                    <option v-for="domain in domain_list" v-bind:value="domain" @click="handleFilterRange(domain.range)">{{ domain.name }}</option>
+                    <option v-for="domain in domain_list" v-bind:value="domain" @click="handleDomainRange(domain.range)">{{ domain.name }}</option>
                 </select>
                 <p><button id="disableDomainTruncation" class="btn btn-outline-dark" v-if="selected_domain.length > 0" type="button" v-on:click="domain_or_selection=null;" style="margin: 3% 0;">
                         Show the entire structure
@@ -736,6 +736,8 @@
             cleanCustomMap(checked_customMap);
         },handleCustomMappingData(){
             handleCustomMappingData();
+        },handleDomainRange(domain_range){
+            handleDomainRange(domain_range);
         },handleFilterRange(filter_range){
             handleFilterRange(filter_range);
         },handlePropensities(checked_propensities){

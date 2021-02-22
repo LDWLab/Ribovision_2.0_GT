@@ -103,6 +103,20 @@ function handleMaskingRanges(mask_range){
       vm.correct_mask = false;
   }
 };
+function handleDomainRange(domain_range) {
+    //handleFilterRange(domain_range);
+    domain_array = domain_range.split(';');
+    if(domain_array.length == 2) {
+        handleFilterRange(domain_range);
+    } else {
+        var first = domain_array[0].split('-')[0];
+        var last = domain_array[domain_array.length - 2].split('-')[1];
+        var full_range = first + "-" + last + ";";
+        vm.checked_filter = true;
+        vm.handleMaskingRanges(domain_range);
+        handleFilterRange(full_range);
+    }
+}
 function handleFilterRange(filter_range) {
     if (filter_range.match(/^\d+-\d+;/)) {
         handlePropensities(vm.checked_propensities);
