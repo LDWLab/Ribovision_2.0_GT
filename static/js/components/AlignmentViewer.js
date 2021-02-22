@@ -166,7 +166,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
                     <div>
                         <PositionBar 
                           markerSteps={5} 
-                          startIndex={0} 
+                          startIndex={1} 
                         />
                         <SequenceViewer
                           id="alnSequenceViewer"
