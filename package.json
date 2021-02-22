@@ -37,6 +37,7 @@
     "@riophae/vue-treeselect": "^0.4.0",
     "caniuse-lite": "^1.0.30001179",
     "lodash": "^4.17.20",
+    "docute": "^4.23.3",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-msa-viewer": "^1.0.1",

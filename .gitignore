@@ -20,3 +20,4 @@ DESIRE/settings.py
 .vscode/settings.json
 *z_arx*
 react-msa-viewer/dist/statistics.html
+documentation/node_modules/*
