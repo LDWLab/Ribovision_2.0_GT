@@ -11,6 +11,9 @@ export function populateECODranges (pdbid, chainid) {
 					var fetchedRange = data.results[i].pdb_range;
 					if (fetchedRange.split(';').length > 1){
 						//add handling of multiple ranges with masking the positions between them
+						vm.handleMaskingRanges(maskingRanges);
+						vm.checked_ = true;
+						fetchedRange = encompassingRange;
 					}
 					let re = /\d+-\d+$/;
 					let range_str = re.exec(fetchedRange)[0] + ';';
