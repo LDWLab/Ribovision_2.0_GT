@@ -433,7 +433,7 @@ def handle_custom_upload_alignment(request):
             return HttpResponseServerError("Wasn't able to parse the alignment file! Is your file in fasta format?")
         if len(alignments) > 1:
             return HttpResponseServerError("Alignment file had more than one alignments!\nPlease upload a single alignment.")
-        fastastring = alignments[0].format("fasta")
+        fastastring = format(alignments[0], "fasta")
         if validate_fasta_string(fastastring):
             request.session['custom_alignment_file'] = fastastring
             return HttpResponse('Success!')
@@ -462,9 +462,11 @@ def handle_custom_upload_alignment(request):
 def trim_fasta_by_index(input_file, indices):
     from Bio import AlignIO
     align = AlignIO.read(input_file, "fasta")
-    trimmed_align = align[:,int(indices[0]):int(indices[0])+1] # initialize align object
-    for i in indices.split(',')[1:]:
-        trimmed_align += align[:,int(i):int(i)+1]
+    trimmed_align = align[:,int(indices[0]):int(indices[0])] # initialize align object
+    for i in indices.split(','):
+        if (int(i)-1 < 0):
+            continue
+        trimmed_align += align[:,int(i)-1:int(i)]
     return trimmed_align
 
 def propensity_data_custom (request):
