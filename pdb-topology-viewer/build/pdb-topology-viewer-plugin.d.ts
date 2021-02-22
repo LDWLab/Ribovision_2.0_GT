@@ -6,7 +6,11 @@ declare const aaPropertyConstants: any;
 declare const aaColorData: any;
 declare const masking_range_array: any;
 declare var masked_array: any;
+declare var parsePVData: any;
+declare var viewerInstance: any;
 declare var selectSections_RV1: any;
+declare var rv3VUEcomponent: any;
+declare var filterRange: any;
 declare class PdbTopologyViewerPlugin {
     defaultColours: {
         domainSelection: string;
@@ -25,8 +29,7 @@ declare class PdbTopologyViewerPlugin {
     sequenceArr: string[];
     entityId: string;
     entryId: string;
-    entropyId: string;
-    filterRange: string;
+    alreadyRan: boolean;
     chainId: string;
     apiData: any;
     targetEle: HTMLElement;
@@ -43,7 +46,6 @@ declare class PdbTopologyViewerPlugin {
     render(target: HTMLElement, options: {
         entityId: string;
         entryId: string;
-        entropyId: string;
         filterRange?: string;
         chainId?: string;
         subscribeEvents?: boolean;
@@ -69,6 +71,7 @@ declare class PdbTopologyViewerPlugin {
     drawHelicesSubpaths(startResidueNumber: number, stopResidueNumber: number, index: number, curveYdiff: number): void;
     drawHelicesMaskShape(index: number): void;
     drawCoilsSubpaths(startResidueNumber: number, stopResidueNumber: number, index: number): void;
+    getAdjustedStartAndStop(secStrType: any, secStrData: any): any[];
     drawTopologyStructures(): void;
     zoomDraw(): void;
     clearHighlight(): void;
@@ -83,10 +86,10 @@ declare class PdbTopologyViewerPlugin {
         start: number;
         end: number;
     };
-    parseTWCData(separatedData: any[], lowVal: number, highVal: number, colormapArray: any[], masking?: boolean[]): Map<any, any>[];
     create2D3DAnnotations(name: string, residueDetails: any, TWCrgbMap: Map<number, any>, TWCData: Map<number, string>, chain_start: number, chain_end: number): any;
     getAnnotationFromRibovision(mapped_aa_properties: Map<string, Array<Array<number>>>): void;
     getAnnotationFromOutliers(): void;
+    updateProperty(): void;
     createDomainDropdown: () => void;
     resetTheme(): void;
     changeResidueColor(residueNumber: number, rgbColor: string, tooltipContent: string, tooltipPosition: string): void;

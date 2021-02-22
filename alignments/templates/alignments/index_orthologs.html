@@ -1,6 +1,10 @@
 <html>
 <head>
 	{% load static %}
+	<script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+	<script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/prop-types/15.5.2/prop-types.js"></script>
+	<script src="https://unpkg.com/@plotly/react-msa-viewer/dist/index.umd.min.js"></script>
 	<!-- include Ajax -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	<!-- include Vue 2.x -->
@@ -24,7 +28,7 @@
 
 	<!-- Topology and Mol* viewers -->
 	<script type="text/javascript" src={% static 'pdb-topology-viewer-component-2.0.0.js' %} defer></script>
-	<script type="text/javascript" src="https://www.ebi.ac.uk/pdbe/pdb-component-library/js/pdbe-molstar-component-1.1.0.js"></script>
+	<script type="text/javascript" src={% static 'alignments/pdbe-molstar-plugin-1.1.0.js' %}></script>
 	
 </head>
 <body>
@@ -68,16 +72,29 @@
 				<span v-if="alnobj&&alnobj!='custom'">Selected alignment: [[alnobj.text]].<br></span>
 				<span v-if="alnobj">Input PDB and polymer for mapping:</span>
 			</p>
-			<p><input id="pdb_input" v-if="alnobj" v-model="pdbid" v-on:input="getPDBchains(pdbid, alnobj.id)" placeholder="4v9d" maxlength="4"></p>
+			<p><input id="pdb_input" v-if="alnobj" v-model="pdbid" v-on:input="getPDBchains(pdbid, alnobj.id)" placeholder="4v9d" maxlength="4">
+				<div v-if="alnobj" class="checkbox">
+					<label><input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">Propensities</label>
+					<select v-if="checked_propensities&&structure_mapping" v-model="property">
+						<option :value="null" selected disabled hidden>Select a substructure</option>
+						<option v-for="substructure in substructures" v-bind:value="{ id: substructure.value, text: substructure.text }">[[ substructure.text ]]</option>
+					</select>
+				</div>
+			</p>
 			<p v-if="hide_chains">Looking for available polymers...</p>
 			<p><select v-bind:style="{ resize: 'both'}" multiple v-if="chains&&fasta_data" v-model="chainid" >
 				<option :value ="null" selected disabled>Select polymer</option>
-				<option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid)">[[ chain.text ]]</option>
+				<option v-for="chain in chains" v-bind:value="chain.value" @click="showTopologyViewer(pdbid, chainid, fasta_data); showPDBViewer(pdbid, chainid, chain.entityID)">[[ chain.text ]]</option>
 			</select></p>
+			<div v-if="chainid">
+				<button type="button" v-on:click="downloadCSVData()">
+					Download mapped data
+				</button>
+			</div>
 			<div v-if="topology_loaded != 'False'">
 				<p>
 					<div class="checkbox">
-						<label><input type="checkbox" v-model="checked_filter" v-on:change="cleanFilter(checked_filter)">Masking ranges</label>
+						<label><input type="checkbox" v-model="checked_filter" v-on:change="cleanFilter(checked_filter, masking_range)">Masking ranges</label>
 					</div>
 					<span v-if="checked_filter">Residue ranges to show, separated by semicolon. <br> For example: 1-80;91-111;</span>
 					<input v-if="checked_filter" v-model="masking_range" v-on:input="handleMaskingRanges(masking_range)">
@@ -95,6 +112,7 @@
 			<p></p>
 			<span id="alnif" v-if="alnobj">
 				<div id="alnDiv">Loading alignment...</div>
+				<div id="testaln"></div>
 			</span><br>
 			<span v-if="aln_meta_data">Selected residue: [[aln_meta_data]]</span>
 		</div>
@@ -110,8 +128,10 @@
 		</div>
 		<footer >Footer</footer>
 	</div>
+
 	<!-- include our custom Vue scripts -->
-	<script src="{% static "alignments/vue_tree_select2.js" %}"></script>
+	<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+	<script type="text/babel" src="{% static "alignments/vue_tree_select2.js" %}"></script>
 </body>
 
 </html>

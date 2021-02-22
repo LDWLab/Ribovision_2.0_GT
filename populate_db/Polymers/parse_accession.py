@@ -4,17 +4,18 @@ import numpy as np
 from Bio import AlignIO
 from Bio import SeqIO
 from io import StringIO
-import time
+import time, ntpath
 
 def usage():
 	print (\
 	"USAGE:\n./parse_accession.py -a [alignment_file_path]-h\n\
 	-a: defines path to alignment file with txids (%%%). Works only on fasta type of alignments.\tREQUIRED\n\
+	-o: defines path to output csv file \t\t\t\t\t\t\t\tREQUIRED\n\
 	-h: prints this\
 ")
 
 try:
-	opts, args = getopt.getopt(sys.argv[1:], 'a:h', ['alignment=', 'help'])
+	opts, args = getopt.getopt(sys.argv[1:], 'a:o:h', ['alignment=', 'help'])
 except getopt.GetoptError:
 	usage()
 	sys.exit(2)
@@ -25,6 +26,8 @@ for opt, arg in opts:
 		sys.exit(2)
 	elif opt in ('-a', '--alignment'):
 		aln_path = arg
+	elif opt in ('-o', '--output'):
+		output_path = arg
 	else:
 		usage()
 		sys.exit(2)
@@ -106,13 +109,14 @@ def fix_multispecie(query_term, orig_fasta_seq, write_list):
 	return True
 
 def write_csv(list_to_write):
-	with open('./CSV/acc_seqs_all_test.csv', mode='a') as output_file:
+	with open(output_path, mode='a') as output_file:
 		writer = csv.writer(output_file, delimiter=',')
 		writer.writerow(list_to_write)
 
 def output_csv(fastas_dict):
 	for i in fastas_dict:
-		prot_desc = ' '.join(fastas_dict[i][0].split(" ")[1:])
+		alnName = ntpath.basename(aln_path).replace('.txt','')
+		prot_desc = ' '.join(fastas_dict[i][0].split(" ")[1:]).rstrip()
 		if 'RecName: Full=' in prot_desc:
 			prot_desc = re.sub(r'RecName: Full=', '', prot_desc)
 		if '; AltName:' in prot_desc:
@@ -120,22 +124,22 @@ def output_csv(fastas_dict):
 		if 'PREDICTED: ' in prot_desc:
 			prot_desc = re.sub(r'PREDICTED: ', '', prot_desc)
 		if '|' in fastas_dict[i][0]:
-			write_csv([i,fastas_dict[i][0].split(" ")[0].split("|")[1], 'UNI',aln_path.replace('.txt', ''),prot_desc,fastas_dict[i][2]])
-			#print (i,fastas_dict[i][0].split(" ")[0].split("|")[1], 'UNI',aln_path.replace('.txt', ''),fastas_dict[i][2], sep=',')
+			write_csv([i,fastas_dict[i][0].split(" ")[0].split("|")[1], 'UNI',alnName,prot_desc,fastas_dict[i][2]])
+			#print (i,fastas_dict[i][0].split(" ")[0].split("|")[1], 'UNI',alnName,fastas_dict[i][2], sep=',')
 			pass
 		elif 'MULTISPECIES:' in fastas_dict[i][0]:
 			prot_desc = re.sub(r'MULTISPECIES: ', '', prot_desc)
 			query_term = 'txid'+i+'[Organism] AND'+fastas_dict[i][0].split(":")[1]
-			write_list = [i,fastas_dict[i][0].split(" ")[0], 'NCBI',aln_path.replace('.txt', ''),prot_desc,fastas_dict[i][2]]
+			write_list = [i,fastas_dict[i][0].split(" ")[0], 'NCBI',alnName,prot_desc,fastas_dict[i][2]]
 			write_csv(write_list)
 			#fix_multispecie(query_term, fastas_dict[i][2],write_list)
 		elif '(nucleomorph)' in prot_desc:
-			print(i,fastas_dict[i][0].split(" ")[0],aln_path.replace('.txt', ''),prot_desc,fastas_dict[i][2])
+			print(i,fastas_dict[i][0].split(" ")[0],alnName,prot_desc,fastas_dict[i][2])
 		elif '(macronuclear)' in prot_desc:
-			print(i,fastas_dict[i][0].split(" ")[0],aln_path.replace('.txt', ''),prot_desc,fastas_dict[i][2])
+			print(i,fastas_dict[i][0].split(" ")[0],alnName,prot_desc,fastas_dict[i][2])
 		else:
-			write_csv([i,fastas_dict[i][0].split(" ")[0], 'NCBI',aln_path.replace('.txt', ''),prot_desc,fastas_dict[i][2]])
-			#print (i,fastas_dict[i][0].split(" ")[0], 'NCBI',aln_path.replace('.txt', ''),fastas_dict[i][2], sep=',')
+			write_csv([i,fastas_dict[i][0].split(" ")[0], 'NCBI',alnName,prot_desc,fastas_dict[i][2]])
+			#print (i,fastas_dict[i][0].split(" ")[0], 'NCBI',alnName,fastas_dict[i][2], sep=',')
 			pass
 	return True
 

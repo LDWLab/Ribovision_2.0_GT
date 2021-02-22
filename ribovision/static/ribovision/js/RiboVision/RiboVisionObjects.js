@@ -328,7 +328,8 @@ function rvDataSet(DataSetName,SetNumber) {
 			// Come back, add real custom support, multiple structures, filtering, etc
 			rvds.CustomData = CustomData;
 		} else {
-			var molecules_names = rvds.SpeciesEntry.Molecule_Names.concat(rvds.SpeciesEntry.Molecule_Names_rProtein)
+			//var molecules_names = rvds.SpeciesEntry.Molecule_Names.concat(rvds.SpeciesEntry.Molecule_Names_rProtein)
+			var molecules_names = rvds.SpeciesEntry.RNA_Names
 			rvds.CustomData = $.grep(CustomData, function(value,index){
 				//var mol_name = value.resNum.split(':')[0];
 				return $.inArray(value.resNum.split(':')[0],molecules_names) >=0;

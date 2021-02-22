@@ -7,7 +7,11 @@ const aaPropertyConstants = (window as any).aaPropertyConstants;
 const aaColorData = (window as any).aaColorData;
 const masking_range_array = (window as any).masking_range_array;
 var masked_array = (window as any).masked_array;
+var parsePVData = (window as any).parsePVData;
+var viewerInstance = (window as any).viewerInstance;
 var selectSections_RV1 = (window as any).selectSections_RV1;
+var rv3VUEcomponent = (window as any).vm;
+var filterRange = (window as any).filterRange?(window as any).filterRange: "-10000,10000";
 
 class PdbTopologyViewerPlugin { 
     
@@ -25,13 +29,13 @@ class PdbTopologyViewerPlugin {
 
     displayStyle = 'border:1px solid #696969;';
     errorStyle = 'border:1px solid #696969; height:54%; padding-top:46%; text-align:center; font-weight:bold;';
-    menuStyle = 'position:relative;height:38px;line-height:38px;background-color:#696969;padding: 0 10px;font-size:16px; color: #efefef;';
+    menuStyle = 'position:relative;height:38px;line-height:38px;background-color:#96c9dc;padding: 0 10px;font-size:16px; color: black;';
 
     sequenceArr: string[];
     entityId: string;
     entryId: string;
-    entropyId: string;
-    filterRange: string;
+    //filterRange: string;
+    alreadyRan: boolean;
     chainId: string;
     apiData: any;
     targetEle: HTMLElement;
@@ -49,11 +53,12 @@ class PdbTopologyViewerPlugin {
 
     subscribeEvents = true;
 
-    render(target: HTMLElement, options:{entityId: string, entryId: string, entropyId: string, filterRange?: string, chainId?: string, subscribeEvents?:boolean, displayStyle?: string, errorStyle?: string, menuStyle?: string}) {
+    render(target: HTMLElement, options:{entityId: string, entryId: string, filterRange?: string, chainId?: string, subscribeEvents?:boolean, displayStyle?: string, errorStyle?: string, menuStyle?: string}) {
         if(options && typeof options.displayStyle != 'undefined' && options.displayStyle != null) this.displayStyle += options.displayStyle;
         if(options && typeof options.errorStyle != 'undefined' && options.errorStyle != null) this.errorStyle += options.errorStyle;
         if(options && typeof options.menuStyle != 'undefined' && options.menuStyle != null) this.menuStyle += options.menuStyle;
-        if(options && typeof options.filterRange != 'undefined' && options.filterRange != null) this.filterRange = options.filterRange;
+        //if(options && typeof options.filterRange != 'undefined' && options.filterRange != null) filterRange = options.filterRange;
+        
         this.targetEle = <HTMLElement> target;
         if(this.targetEle) this.targetEle.innerHTML = '';
         if(!target || !options || !options.entryId || !options.entityId){ 
@@ -63,7 +68,6 @@ class PdbTopologyViewerPlugin {
         if(options.subscribeEvents == false) this.subscribeEvents = false;
         this.entityId = options.entityId;
         this.entryId = options.entryId.toLowerCase();
-        this.entropyId = options.entropyId;
         //If chain id is not provided then get best chain id from observed residues api
         if(typeof options.chainId == 'undefined' || options.chainId == null){
             this.getObservedResidues(this.entryId).then((result) => {
@@ -82,28 +86,30 @@ class PdbTopologyViewerPlugin {
     }
 
     initPainting(){
-        this.getApiData(this.entryId, this.chainId).then(result => {
-            if(result){
-                
-                //Validate required data in the API result set (0, 2, 4)
-                if(typeof result[0] == 'undefined' || typeof result[2] == 'undefined' || typeof result[4] == 'undefined'){ 
-                    this.displayError();
-                    return;
+        if(!this.alreadyRan){
+            this.alreadyRan = true;
+            this.getApiData(this.entryId, this.chainId).then(result => {
+                if(result){
+
+                    //Validate required data in the API result set (0, 2, 4)
+                    if(typeof result[0] == 'undefined' || typeof result[2] == 'undefined' || typeof result[4] == 'undefined'){ 
+                        this.displayError();
+                        return;
+                    }
+                    this.apiData = result;
+                    //default pdb events
+		    	    this.pdbevents = this.createNewEvent(['PDB.topologyViewer.click','PDB.topologyViewer.mouseover','PDB.topologyViewer.mouseout']);
+                    this.getPDBSequenceArray(this.apiData[0][this.entryId]);
+                    this.drawTopologyStructures();
+                    this.createDomainDropdown();
+
+                    if(this.subscribeEvents) this.subscribeWcEvents();
+
+                }else{
+
                 }
-
-                this.apiData = result;
-                //default pdb events
-			    this.pdbevents = this.createNewEvent(['PDB.topologyViewer.click','PDB.topologyViewer.mouseover','PDB.topologyViewer.mouseout']);
-                this.getPDBSequenceArray(this.apiData[0][this.entryId]);
-                this.drawTopologyStructures();
-                this.createDomainDropdown();
-
-                if(this.subscribeEvents) this.subscribeWcEvents();
-
-            }else{
-
-            }
-        });
+            });
+        }
     }
 
     displayError(errType?: string){
@@ -187,8 +193,8 @@ class PdbTopologyViewerPlugin {
 
         //update domain start and end positions here
         const topologyData = this.apiData[2][this.entryId][this.entityId][this.chainId];
-        const istart=Number(this.filterRange.split(",")[0]);
-        const iend=Number(this.filterRange.split(",")[1]);
+        const istart=Number(filterRange.split(",")[0]);
+        const iend=Number(filterRange.split(",")[1]);
 
     //if (istart == 0 && iend == 100000) {istart = parseInt (t["terms"][0]["resnum"]); iend = parseInt (t["terms"][1]["resnum"]) }
 
@@ -258,7 +264,7 @@ class PdbTopologyViewerPlugin {
                     .on("zoom", () => this.zoomDraw())
                     //.scaleExtent([.5, 20])  // This control how much you can unzoom (x0.5) and zoom (x20)
                     // .transform(this.xScale, this.yScale)
-        
+                      
     }
 
     drawStrandSubpaths(startResidueNumber:number, stopResidueNumber:number, index:number) {
@@ -407,8 +413,7 @@ class PdbTopologyViewerPlugin {
                 type: eleObj.type,
                 entryId: this.entryId,
                 entityId: this.entityId,
-                entropyId: this.entropyId,
-                filterRange: this.filterRange,
+                filterRange: filterRange,
                 chainId: this.chainId,
                 // structAsymId: this.bestStructAsymId
             });
@@ -429,7 +434,15 @@ class PdbTopologyViewerPlugin {
             }if(eleData.type === 'coils'){
                 selectedPath.attr('stroke', this.defaultColours.mouseOver).attr('stroke-width', 1);
             }
-        
+            //Maybe add gradient line movement here as function of eleData.tooltipMsg
+            //var newLine = document.createElementNS('http://www.w3.org/2000/svg','line');
+            //newLine.setAttribute('id','line2');
+            //newLine.setAttribute('x1','22');
+            //newLine.setAttribute('y1','12');
+            //newLine.setAttribute('x2','55');
+            //newLine.setAttribute('y2','474');
+            //newLine.setAttribute("stroke", "black")
+            //document.querySelector('#imageaef08aed83').appendChild(newLine)
         
             //Dispatch custom mouseover event
             this.dispatchEvent('PDB.topologyViewer.mouseover', {
@@ -437,8 +450,7 @@ class PdbTopologyViewerPlugin {
                 type: eleData.type,
                 entryId: this.entryId,
                 entityId: this.entityId,
-                entropyId: this.entropyId,
-                filterRange: this.filterRange,
+                filterRange: filterRange,
                 chainId: this.chainId,
                 // structAsymId: scope.bestStructAsymId
             });
@@ -447,7 +459,8 @@ class PdbTopologyViewerPlugin {
     mouseoutAction(eleObj:any, eleData:any) {
         let mouseOverColor = 'white';
         let fillOpacity = 0;
-        let strokeOpacity = 0.3;
+        let strokeOpacity = 1;
+        let strokeWidth = 0.3;
         const pathElement = d3.select(eleObj);
         
         //Hide Tooltip
@@ -455,9 +468,13 @@ class PdbTopologyViewerPlugin {
         
         //if path colour is changed then get the colour
         if(pathElement.classed('coloured')){
-            mouseOverColor = pathElement.attr('data-color');
-            fillOpacity = 1;
-            strokeOpacity = 1;
+            if(eleData.type === 'coils' && (masked_array.length != 0 && masked_array[eleData.residue_number] == false)){
+                mouseOverColor = this.defaultColours.borderColor;
+            }else{
+                mouseOverColor = pathElement.attr('data-color');
+                fillOpacity = 1;
+                strokeWidth = 1;
+            }
         }else{
             if(eleData.type === 'coils'){
                 mouseOverColor = this.defaultColours.borderColor;
@@ -468,12 +485,12 @@ class PdbTopologyViewerPlugin {
             pathElement.attr('fill',mouseOverColor).attr('fill-opacity', fillOpacity)
         }if(eleData.type === 'coils'){
             pathElement.attr('stroke',mouseOverColor).attr('stroke-opacity', strokeOpacity);
+            pathElement.attr('stroke',mouseOverColor).attr('stroke-width', strokeWidth);
         }
         
         //Dispatch custom mouseover event
         this.dispatchEvent('PDB.topologyViewer.mouseout', {
-            entropyId: this.entropyId,
-            filterRange: this.filterRange,
+            filterRange: filterRange,
             entryId: this.entryId,
             entityId: this.entityId,
             chainId: this.chainId,
@@ -481,7 +498,7 @@ class PdbTopologyViewerPlugin {
         });
     }
 
-    drawHelicesSubpaths(startResidueNumber:number, stopResidueNumber:number, index:number, curveYdiff:number) {
+    drawHelicesSubpaths(startResidueNumber:number, stopResidueNumber:number, index:number, curveYdiff:number) { 
         const _this = this;
         curveYdiff = 0;
         const diffVal = 5;
@@ -752,24 +769,41 @@ class PdbTopologyViewerPlugin {
         }
         
     }
-
+    getAdjustedStartAndStop(secStrType: any, secStrData: any) {
+        if(secStrData == undefined) {
+            return null;
+        }
+        if(secStrType != 'helices' && secStrType != 'coils' && secStrType != 'strands') {
+            return [secStrData.start, secStrData.stop];
+        } else if(secStrData.start === -1) {
+            return [secStrData.start, secStrData.stop];
+        }
+        if((secStrData.stop  < Number(filterRange.split(",")[0]) || (secStrData.start > Number(filterRange.split(",")[1])))) {
+            return null;
+        } else if (secStrType === 'helices' || secStrType === 'strands') {
+            return [secStrData.start, secStrData.stop];
+        } else if (secStrData.stop > Number(filterRange.split(",")[1])) {
+            return [secStrData.start, Number(filterRange.split(",")[1])];
+        } else if (secStrData.start < Number(filterRange.split(",")[0])) {
+            return [Number(filterRange.split(",")[0]), secStrData.stop];
+        }  
+        return [secStrData.start, secStrData.stop];
+    }
     drawTopologyStructures() {
-
         //Add container elements
         this.targetEle.innerHTML = `<div style="${this.displayStyle}">
             <div class="svgSection" style="position:relative;width:100%;"></div>
             <div style="${this.menuStyle}">
-                <img src="https://www.ebi.ac.uk/pdbe/entry/static/images/logos/PDBe/logo_T_64.png" style="height:15px; width: 15px; border:0;position: absolute;margin-top: 11px;" />
-                <a style="color: #efefef;border-bottom:none; cursor:pointer;margin-left: 16px;" target="_blank" href="https://pdbe.org/${this.entryId}">${this.entryId}</a> | <span class="menuDesc">Entity ${this.entityId} | Chain ${this.chainId.toUpperCase()}</span>
+                <a style="color: black;border-bottom:none; cursor:pointer;margin-left: 16px;" target="_blank" href="https://pdbe.org/${this.entryId}">${this.entryId}</a> | <span class="menuDesc">Entity ${this.entityId} | Chain ${this.chainId.toUpperCase()}</span>
                 <div class="menuOptions" style="float:right;margin-right: 20px;">
                     <select class="menuSelectbox" style="margin-right: 10px;"><option value="">Select</option></select>
-                    <img class="saveSVG" src="http://apollo2.chemistry.gatech.edu/RiboVision3/pdb-topology-viewer-master_2/build/Save.png" style="height:15px; width: 15px; border:0;position: relative;margin-right: 15px;cursor:pointer;" title="saveSVG" />\n
-                    <img class="resetIcon" src="https://www.ebi.ac.uk/pdbe/pdb-component-library/images/refresh.png" style="height:15px; width: 15px; border:0;position: absolute;margin-top: 11px;cursor:pointer;" title="Reset view" />
+                    <img class="saveSVG" src="static/alignments/png/Save.png" style="height:15px; width: 15px; border:0;position: relative;margin-right: 15px;cursor:pointer;" title="saveSVG" />\n
+                    <img class="resetIcon" src="static/alignments/png/refresh.png" style="height:15px; width: 15px; border:0;position: absolute;margin-top: 11px;cursor:pointer;" title="Reset view" />
                 </div>
             </div>
         </div>`;
 
-        //Get dimenstions
+        //Get dimensions
         let targetEleWt = this.targetEle.offsetWidth;
         let targetEleHt = this.targetEle.offsetHeight;
         if(targetEleWt == 0) targetEleWt = (this.targetEle.parentElement as HTMLElement).offsetWidth;
@@ -799,112 +833,119 @@ class PdbTopologyViewerPlugin {
             const secStrArr =  topologyData[secStrType];
             if(!secStrArr) return;
             //iterating on secondary str data array
+            
             secStrArr.forEach((secStrData:any, secStrDataIndex: number) => {
-                if(typeof secStrData.path !== 'undefined' && secStrData.path.length > 0){
-                    if(secStrType === 'terms'){
-                        //Terms
-                    }else{
-                        let curveYdiff = 0
-                        //modify helices path data to create a capsule like structure
-                        if(secStrType === 'helices'){
-                            const curveCenter = secStrData.path[0] + ((secStrData.path[2] - secStrData.path[0])/2);
-                                                                
-                            curveYdiff = 2 * (secStrData.minoraxis * 1.3);
-                            if(secStrData.path[1] >  secStrData.path[3]){
-                                curveYdiff = -2 * (secStrData.minoraxis * 1.3);
-                            }
-                            
-                            const newPathCords = [
-                                secStrData.path[0], secStrData.path[1],
-                                curveCenter, secStrData.path[1] - curveYdiff,
-                                secStrData.path[2], secStrData.path[1],
-                                secStrData.path[2], secStrData.path[3],
-                                curveCenter, secStrData.path[3] + curveYdiff,
-                                secStrData.path[0], secStrData.path[3]
-                            ];
-                            
-                            secStrData.path = newPathCords;
-                        }
+                if(typeof secStrData.path !== 'undefined' && secStrData.path.length > 0 && this.getAdjustedStartAndStop(secStrType, secStrData) != null){  
+
+                        var istart = this.getAdjustedStartAndStop(secStrType, secStrData)[0];
+                        var istop = this.getAdjustedStartAndStop(secStrType, secStrData)[1];
+                        if(istart !== -1 || (secStrType === "coils" && istart=== -1 && istop === -1 && this.getAdjustedStartAndStop(secStrType, secStrArr[secStrDataIndex + 1]) != null && this.getAdjustedStartAndStop(secStrType, secStrArr[secStrDataIndex - 1]) != null)){
                         
-                        secStrData.secStrType = secStrType;
-                        secStrData.pathIndex = secStrDataIndex;
-                        const newEle = this.svgEle.selectAll('path.'+secStrType+''+secStrDataIndex)
-                        .data([secStrData])
-                        .enter()
-                        .append('path')  
-                        .attr('class', () => {
-                            if(secStrData.start === -1 && secStrData.stop === -1 && secStrType !== 'terms'){
-                                return 'dashedEle topologyEle '+secStrType+' '+secStrType+''+secStrDataIndex+' topoEleRange_'+secStrData.start+'-'+secStrData.stop;
-                            }else{
-                                return 'topologyEle '+secStrType+' '+secStrType+''+secStrDataIndex+' topoEleRange_'+secStrData.start+'-'+secStrData.stop;
-                            }
-                        })
-                        .attr('d', (d: any) => {
-                            let dVal = 'M';
-                            const pathLenth = secStrData.path.length;
-                            let xScaleFlag = true;
-                            //if(secStrData.path[1] > secStrData.path[7]) maskDiff = 1;
-                            for(let i=0; i<pathLenth; i++){
-                                if(secStrType === 'helices' && (i === 2 || i === 8)) dVal += ' Q'
-                                //if(secStrType === 'coils' && secStrData.path.length < 12 && i === 2) dVal += ' C'
-                                //if(secStrType === 'coils' && secStrData.path.length < 14 && secStrData.path.length > 12 && i === 4) dVal += ' C'
-                                if((secStrType === 'helices' && i === 6) || (secStrType === 'coils' && secStrData.path.length < 12 && i === 8)) dVal += ' L'
-                                if(xScaleFlag){
-                                    const xScaleValue = this.xScale(secStrData.path[i]);
-                                    dVal += ' '+xScaleValue;
-                                    this.scaledPointsArr.push(xScaleValue);
-                                }else{
-                                    const yScaleValue = this.yScale(secStrData.path[i]);
-                                    dVal += ' '+yScaleValue;
-                                    this.scaledPointsArr.push(yScaleValue);
+                        if(secStrType === 'terms'){
+                            //Terms
+                        }else{
+                            let curveYdiff = 0
+                            //modify helices path data to create a capsule like structure
+                            if(secStrType === 'helices'){
+                                const curveCenter = secStrData.path[0] + ((secStrData.path[2] - secStrData.path[0])/2);
+                                                                    
+                                curveYdiff = 2 * (secStrData.minoraxis * 1.3);
+                                if(secStrData.path[1] >  secStrData.path[3]){
+                                    curveYdiff = -2 * (secStrData.minoraxis * 1.3);
                                 }
                                 
-                                xScaleFlag = !xScaleFlag;
+                                const newPathCords = [
+                                    secStrData.path[0], secStrData.path[1],
+                                    curveCenter, secStrData.path[1] - curveYdiff,
+                                    secStrData.path[2], secStrData.path[1],
+                                    secStrData.path[2], secStrData.path[3],
+                                    curveCenter, secStrData.path[3] + curveYdiff,
+                                    secStrData.path[0], secStrData.path[3]
+                                ];
+                                
+                                secStrData.path = newPathCords;
                             }
-                            if(secStrType === 'strands' || secStrType === 'helices') dVal += ' Z'
-                            return dVal;
-                        })
-                        .attr('fill', 'none')
-                        .attr('stroke-width', 0.3)
-                        .attr('stroke', this.defaultColours.borderColor)
-                    
-                        if(secStrData.start === -1 && secStrData.stop === -1){
-                            newEle.attr('stroke-dasharray', '0.9')
-                        }
-                    
-                        //hightlight node calculations
-                        if(secStrType === 'strands'){
-                            //create subsections/paths
-                            this.drawStrandSubpaths(secStrData.start, secStrData.stop, secStrDataIndex)
                             
-                            //Create mask to restore shape
-                            this.drawStrandMaskShape(secStrDataIndex);
-                            
-                            //bring original/complete helices in front newEle
-                            // this.svgEle.append(newEle.node());		
-                            this.svgEle._groups[0][0].append(newEle.node());						
-                        }
+                            secStrData.secStrType = secStrType;
+                            secStrData.pathIndex = secStrDataIndex;
+                            const newEle = this.svgEle.selectAll('path.'+secStrType+''+secStrDataIndex)
+                            .data([secStrData])
+                            .enter()
+                            .append('path')  
+                            .attr('class', () => {
+                                if( secStrData.start=== -1 && secStrData.stop === -1 && secStrType !== 'terms'){
+                                    return 'dashedEle topologyEle '+secStrType+' '+secStrType+''+secStrDataIndex+' topoEleRange_'+secStrData.start+'-'+secStrData.stop;
+                                } else{
+                                    return 'topologyEle '+secStrType+' '+secStrType+''+secStrDataIndex+' topoEleRange_'+istart+'-'+istop;
+                                } 
+                            })
+                            .attr('d', (d: any) => {
+                                let dVal = 'M';
+                                const pathLenth = secStrData.path.length;
+                                let xScaleFlag = true;
+                                //if(secStrData.path[1] > secStrData.path[7]) maskDiff = 1;
+                                for(let i=0; i<pathLenth; i++){
+                                    if(secStrType === 'helices' && (i === 2 || i === 8)) dVal += ' Q'
+                                    //if(secStrType === 'coils' && secStrData.path.length < 12 && i === 2) dVal += ' C'
+                                    //if(secStrType === 'coils' && secStrData.path.length < 14 && secStrData.path.length > 12 && i === 4) dVal += ' C'
+                                    if((secStrType === 'helices' && i === 6) || (secStrType === 'coils' && secStrData.path.length < 12 && i === 8)) dVal += ' L'
+                                    if(xScaleFlag){
+                                        const xScaleValue = this.xScale(secStrData.path[i]);
+                                        dVal += ' '+xScaleValue;
+                                        this.scaledPointsArr.push(xScaleValue);
+                                    }else{
+                                        const yScaleValue = this.yScale(secStrData.path[i]);
+                                        dVal += ' '+yScaleValue;
+                                        this.scaledPointsArr.push(yScaleValue);
+                                    }
+                                    
+                                    xScaleFlag = !xScaleFlag;
+                                }
+                                if(secStrType === 'strands' || secStrType === 'helices') dVal += ' Z'
+                                return dVal;
+                            })
+                            .attr('fill', 'none')
+                            .attr('stroke-width', 0.3)
+                            .attr('stroke', this.defaultColours.borderColor)
                         
-                        //for helices
-                        if(secStrType === 'helices'){
-                            //create subsections/paths
-                            this.drawHelicesSubpaths(secStrData.start, secStrData.stop, secStrDataIndex, curveYdiff)
+                            if(secStrData.start === -1 && secStrData.stop === -1){
+                                newEle.attr('stroke-dasharray', '0.9')
+                            }
+                        
+                            //hightlight node calculations
+                            if(secStrType === 'strands'){
+                                //create subsections/paths
+                                this.drawStrandSubpaths(istart, istop, secStrDataIndex)
+
+                                //Create mask to restore shape
+                                this.drawStrandMaskShape(secStrDataIndex);
+                                
+                                //bring original/complete helices in front newEle
+                                // this.svgEle.append(newEle.node());		
+                                this.svgEle._groups[0][0].append(newEle.node());						
+                            }
                             
-                            //Create mask to restore shape
-                            this.drawHelicesMaskShape(secStrDataIndex);
-                            
-                            // //bring original/complete helices in front
-                            // angular.element(element[0].querySelector('.topoSvg')).append(newEle.node());
-                            this.svgEle._groups[0][0].append(newEle.node());
+                            //for helices
+                            if(secStrType === 'helices'){
+                                //create subsections/paths
+                                this.drawHelicesSubpaths(istart, istop, secStrDataIndex, curveYdiff)
+
+                                //Create mask to restore shape
+                                this.drawHelicesMaskShape(secStrDataIndex);
+                                
+                                // //bring original/complete helices in front
+                                // angular.element(element[0].querySelector('.topoSvg')).append(newEle.node());
+                                this.svgEle._groups[0][0].append(newEle.node());
+                            }
+                        
+                            //for coils
+                            if(secStrType === 'coils'){
+                                //create subsections/paths
+                                this.drawCoilsSubpaths(istart, istop, secStrDataIndex);                       
+                            }
+                        
+                            this.scaledPointsArr = []; //empty the arr for next iteration
                         }
-                    
-                        //for coils
-                        if(secStrType === 'coils'){
-                            //create subsections/paths
-                            this.drawCoilsSubpaths(secStrData.start, secStrData.stop, secStrDataIndex);
-                        }
-                    
-                        this.scaledPointsArr = []; //empty the arr for next iteration
                     }
                 }
                 
@@ -1156,7 +1197,7 @@ class PdbTopologyViewerPlugin {
                     for(let accKey in mappingRecords){
 
                         mappingRecords[accKey].mappings.forEach((domainMappings:any) => {
-                            if(domainMappings.entity_id == this.entityId && domainMappings.chain_id == this.chainId && domainMappings.entropy_id == this.entropy_id){
+                            if(domainMappings.entity_id == this.entityId && domainMappings.chain_id == this.chainId){
                                 
                                 residueDetails.push({
                                     start: domainMappings.start.residue_number,
@@ -1219,37 +1260,6 @@ class PdbTopologyViewerPlugin {
         
     }
 
-    parseTWCData(separatedData: any[], lowVal: number, highVal: number, colormapArray: any[], masking?: boolean[]) {
-        let TWCData = new Map();
-        let TWCrgbMap = new Map();    
-        separatedData.forEach(function (item, index) {
-            let parsedItem = item[0];
-            //if(!masking || masking[index]) {
-                let itemValue = item[1];
-                TWCData.set(parsedItem, itemValue);
-                if (colormapArray.length === 1) {
-                    let newValue = itemValue - lowVal;
-                    TWCrgbMap.set(parsedItem, interpolateLinearly(newValue/(highVal - lowVal), colormapArray[0]));
-                }
-                else {
-                    if (itemValue === 'NA'){
-                        TWCrgbMap.set(parsedItem, [[192, 192, 192], {r:192, g:192, b:192}]);
-                    } else if (itemValue < 0){
-                        TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue/lowVal, colormapArray[0]));
-                    } else {
-                        TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue/highVal, colormapArray[1]));
-                    }
-                }
-            //}
-            /*else {
-                TWCrgbMap.set(parsedItem, [[255, 255, 255], {r:0, g:0, b:0, a:.4}]);
-                TWCData.set(parsedItem, null);
-            }*/
-        });
-        return [TWCrgbMap, TWCData];
-    }
-
-
     create2D3DAnnotations(name: string, residueDetails: any, 
                         TWCrgbMap: Map<number, any>, TWCData: Map<number, string>,
                         chain_start: number, chain_end: number) {
@@ -1266,17 +1276,28 @@ class PdbTopologyViewerPlugin {
                 });
                 _this.defaultColours.qualityRiboVision= "rgb("+String(rgb_color[0].join(','))+")";
                 var colors = "rgb("+String(rgb_color[0].join(','))+")"
-                _this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
+                //_this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
                 residueDetails.push({ //2d
                     start: index,
                     end: index,
                     color: colors,
                     tooltipMsg: Number.parseFloat(value).toPrecision(3),
                     tooltipPosition: "prefix"
-                }),
-                _this.drawValidationShape(index, "circle", colors);
+                });
+                //_this.drawValidationShape(index, "circle", colors);
             }
         })
+        if (TWCData.size < mapped_aa_properties.get("Charge").length) {
+            for(var i = TWCData.size - 1; i < mapped_aa_properties.get("Charge").length; i++) {
+                selectSections_RV1.get(name).push({ //3d
+                    entity_id: _this.entityId,
+                    start_residue_number: i, 
+                    end_residue_number: i,
+                    color: {r:255, g:255, b:255},
+                    sideChain: false,
+                });
+            }
+        }
         return residueDetails;
     }
 
@@ -1284,13 +1305,13 @@ class PdbTopologyViewerPlugin {
         const _this = this;
         const chainRange:any = this.getChainStartAndEnd();
         
-        if (void 0 !== this.entropyId) {
+        if (mapped_aa_properties) {
             mapped_aa_properties.forEach(function(value, index) {    
                 let residueDetails:any = [{
-                    start: chainRange.start,
-                    end: chainRange.end,
-                    color: _this.defaultColours.qualityBlank,
-                    tooltipMsg: 'No data for '
+                    //start: chainRange.start,
+                    //end: chainRange.end,
+                    //color: _this.defaultColours.qualityBlank,
+                    //tooltipMsg: 'No data for '
                 }];
                 let name = index;
                 let separatedData = value;
@@ -1300,7 +1321,7 @@ class PdbTopologyViewerPlugin {
                 let min = Math.min(...aaPropertyConstants.get(name));
                 let max = Math.max(...aaPropertyConstants.get(name));
                 let colormapArray = aaColorData.get(name); 
-                const [TWCrgbMap, TWCData] = _this.parseTWCData(separatedData, min, max, colormapArray);
+                const [TWCrgbMap, TWCData] = parsePVData(separatedData, min, max, colormapArray);
 
                 selectSections_RV1.get(name).push({entity_id: _this.entityId, focus: true});
                 
@@ -1323,8 +1344,8 @@ class PdbTopologyViewerPlugin {
             });
         }
         else {
-        //catch block
-        };     
+            //catch block
+        };
       }
       
 
@@ -1440,16 +1461,21 @@ class PdbTopologyViewerPlugin {
             
         }
     }
-
+    updateProperty() {
+        const selectBoxEle: any = this.targetEle.querySelector('.menuSelectbox');
+        const selectedIndex = parseInt(selectBoxEle.selectedIndex);
+        rv3VUEcomponent.selected_property = this.domainTypes[selectedIndex].label;
+        //console.log("Selected: " + rv3VUEcomponent.selected_property);
+    }
     createDomainDropdown = function () {
         
         if(typeof this.domainTypes == 'undefined'){
             this.domainTypes = [{
-                label: 'Annotation',
+                label: 'Calculated data',
                 data: null
             }];
-            this.getAnnotationFromMappings();
-            this.getAnnotationFromOutliers();
+            //this.getAnnotationFromMappings();
+            //this.getAnnotationFromOutliers();
             this.getAnnotationFromRibovision(mapped_aa_properties);
             this.selectedDomain = this.domainTypes[0];
         }
@@ -1464,16 +1490,16 @@ class PdbTopologyViewerPlugin {
             selectBoxEle.innerHTML = optionList;
 
             selectBoxEle.addEventListener("change", this.displayDomain.bind(this));
-
+            selectBoxEle.addEventListener("change", this.updateProperty.bind(this));
             const resetIconEle = this.targetEle.querySelector('.resetIcon');
             resetIconEle.addEventListener("click", this.resetDisplay.bind(this));
-            this.targetEle.querySelector(".saveSVG").addEventListener("click", this.saveSVG.bind(this))
-
+            this.targetEle.querySelector(".saveSVG").addEventListener("click", this.saveSVG.bind(this));
+            rv3VUEcomponent.topology_loaded=true;
+            //selectBoxEle.style.display = 'none';
         }else{
-            this.targetEle.querySelector('.menuOptions').style.display = 'none';
+            //this.targetEle.querySelector('.menuOptions').style.display = 'none';
         }
     }
-
     resetTheme() {
         const _this = this;
         this.svgEle.selectAll('.coloured').each(function(d:any){
@@ -1567,39 +1593,49 @@ class PdbTopologyViewerPlugin {
           downloadLink.click();
           document.body.removeChild(downloadLink);
       }
-	    saveSvg1(svg, 'test.svg')	
+        saveSvg1(svg, 'rv3Topology.svg')
   }
 
     displayDomain(invokedFrom?: string) {
-
         const selectBoxEle:any = this.targetEle.querySelector('.menuSelectbox');
         const selectedValue = parseInt(selectBoxEle.value);
-        const selectedDomain = this.domainTypes[selectedValue];
-        const rv3AnnotationLabels = Array.from(aaPropertyConstants.keys())
-        if(selectedDomain.data !== null){
-            this.resetTheme();
-            this.updateTheme(selectedDomain.data);
-            
-            //Handle custom mapping data from RV3
-            if(rv3AnnotationLabels.includes(selectedDomain.label) && invokedFrom !== 'zoom'){
-                let PdbeMolstarComponent = document.getElementById('PdbeMolstarComponent');
-                let viewerInstance3 = (PdbeMolstarComponent as any).viewerInstance;
-                viewerInstance3.visual.select({ data: selectSections_RV1.get(selectedDomain.label), nonSelectedColor: {r:0,g:0,b:0}})
-            }
-            //show rsrz validation circles if Quality
-            if(selectedDomain.label === 'Quality'){
-                this.svgEle.selectAll('.validationResidue').style('display', 'block');
-            }
-        }else{
-            if(invokedFrom !== 'zoom'){
+        if(selectedValue) {
+            const selectedDomain = this.domainTypes[selectedValue];
+            const rv3AnnotationLabels = Array.from(aaPropertyConstants.keys())
+            if(selectedDomain.data !== null){
                 this.resetTheme();
+                this.updateTheme(selectedDomain.data);
+                
+                //Handle custom mapping data from RV3
+                if(rv3AnnotationLabels.includes(selectedDomain.label) && invokedFrom !== 'zoom'){
+                    if (filterRange != "-10000,10000"){
+                        let filterRangeArr = filterRange.split(",");
+                        var select_sections = selectSections_RV1.get(selectedDomain.label).filter((resi3D : any) => {
+                            if (resi3D.start_residue_number >= filterRangeArr[0] && resi3D.start_residue_number <= filterRangeArr[1]){
+                                return resi3D;
+                            }
+                        })
+                    } else {
+                        var select_sections = selectSections_RV1.get(selectedDomain.label)
+                    }
+                    viewerInstance.visual.select({ data: select_sections, nonSelectedColor: {r:0,g:0,b:0}})
+                }
+                //show rsrz validation circles if Quality
+                if(selectedDomain.label === 'Quality'){
+                    this.svgEle.selectAll('.validationResidue').style('display', 'block');
+                }
+            }else{
+                if(invokedFrom !== 'zoom'){
+                    this.resetTheme();
+                }
             }
-        }
+        }         
     }
-
+    
     resetDisplay(){
         const selectBoxEle:any = this.targetEle.querySelector('.menuSelectbox');
         selectBoxEle.value = 0;
+        this.resetTheme();
         this.displayDomain();
     }
 

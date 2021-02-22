@@ -87,13 +87,18 @@ class AlignmentTxGrpSerializer(serializers.HyperlinkedModelSerializer):
         model = Alignment
         fields = ['url', 'name', 'method', 'source']
 
+class EcoDDomainsSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Ecoddomains
+        fields = '__all__'
+
 class TaxGroupSerializer(serializers.HyperlinkedModelSerializer):
     alignment_ids = serializers.SerializerMethodField()
     def get_alignment_ids(self, obj):
-        if obj.grouplevel == 'strain':
-            return list(["Implement case of strain."])
-        rawsql = "\
-        SELECT DISTINCT Alignment.Aln_id, Alignment.name FROM Alignment\
+        #if obj.grouplevel == 'strain':
+        #    return list(["Implement case of strain."])
+        rawsql = f"\
+        SELECT DISTINCT Alignment.Aln_id, Alignment.name, Alignment.Method FROM Alignment\
         INNER JOIN Polymer_Alignments ON Alignment.Aln_id = Polymer_Alignments.Aln_id\
         INNER JOIN Polymer_Data on Polymer_Alignments.PData_id = Polymer_Data.PData_id\
         WHERE Polymer_Data.strain_id IN\
@@ -101,7 +106,7 @@ class TaxGroupSerializer(serializers.HyperlinkedModelSerializer):
         (\
         select taxgroup_id, groupName, parent, groupLevel\
             from TaxGroups\
-            where parent = %s\
+            where parent = {str(obj.taxgroup_id)} or taxgroup_id = {str(obj.taxgroup_id)}\
             union all\
             select p.taxgroup_id, p.groupName, p.parent, p.groupLevel\
             from TaxGroups p\
@@ -109,9 +114,9 @@ class TaxGroupSerializer(serializers.HyperlinkedModelSerializer):
                 on p.parent = cte.taxgroup_id\
         )\
         select taxgroup_id from cte where (groupLevel REGEXP 'strain')\
-        )"%(str(obj.taxgroup_id))
+        )"
         aln_ids = Alignment.objects.raw(rawsql)
-        outlist = [(x.aln_id, x.name) for x in aln_ids]
+        outlist = [(x.aln_id, x.name, x.method) for x in aln_ids]
         return list(outlist)
     class Meta:
         model = Taxgroups

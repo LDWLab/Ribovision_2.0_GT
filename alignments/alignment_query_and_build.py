@@ -12,18 +12,18 @@ def dictfetchall(cursor):
 	]
 
 def construct_query(aln_id, parent_id):
-	return 'SELECT CONCAT(Aln_Data.aln_id,"_",Aln_Data.res_id) AS id,strain,unModResName,aln_pos,Species.strain_id FROM SEREB.Aln_Data\
+	return f'SELECT CONCAT(Aln_Data.aln_id,"_",Aln_Data.res_id) AS id,strain,unModResName,aln_pos,Species.strain_id FROM SEREB.Aln_Data\
 		INNER JOIN SEREB.Alignment ON SEREB.Aln_Data.aln_id = SEREB.Alignment.Aln_id\
 		INNER JOIN SEREB.Residues ON SEREB.Aln_Data.res_id = SEREB.Residues.resi_id\
 		INNER JOIN (\
 			SELECT * from SEREB.Polymer_Data WHERE SEREB.Polymer_Data.PData_id IN \
-				(SELECT PData_id from SEREB.Polymer_Alignments WHERE SEREB.Polymer_Alignments.Aln_id = %s)\
+				(SELECT PData_id from SEREB.Polymer_Alignments WHERE SEREB.Polymer_Alignments.Aln_id = {str(aln_id)})\
 			AND SEREB.Polymer_Data.strain_id IN \
 				(with recursive cte (taxgroup_id, groupName, parent, groupLevel) as \
 		(\
 		select taxgroup_id, groupName, parent, groupLevel\
 			from TaxGroups\
-			where parent = %s\
+			where parent = {str(parent_id)} or taxgroup_id = {str(parent_id)}\
 			union all\
 			select p.taxgroup_id, p.groupName, p.parent, p.groupLevel\
 			from TaxGroups p\
@@ -33,7 +33,7 @@ def construct_query(aln_id, parent_id):
 		select taxgroup_id from cte where (groupLevel REGEXP "strain"))) as filtered_polymers\
 		ON SEREB.Residues.PolData_id = filtered_polymers.PData_id\
 		INNER JOIN SEREB.Species ON filtered_polymers.strain_id = SEREB.Species.strain_id\
-		WHERE SEREB.Alignment.aln_id = %s'%(str(aln_id),str(parent_id),str(aln_id))
+		WHERE SEREB.Alignment.aln_id = {str(aln_id)}'
 
 def sql_filtered_aln_query(aln_id, parent_id):
 	from django.db import connection
@@ -61,7 +61,7 @@ def para_aln(request, aln_id):
 	if alignment.method != 'structure_based':
 		raise Http404("Alignment id "+str(aln_id)+" is not paralogous!")
 	
-	SQLStatement = 'SELECT CONCAT(Aln_Data.aln_id,"_",Aln_Data.res_id) AS id,resi_id,strain,unModResName,aln_pos,Species.strain_id FROM SEREB.Aln_Data\
+	SQLStatement = 'SELECT CONCAT(Aln_Data.aln_id,"_",Aln_Data.res_id) AS id,resi_id,strain,unModResName,aln_pos,Species.strain_id,nomgd_id FROM SEREB.Aln_Data\
 		INNER JOIN SEREB.Alignment ON SEREB.Aln_Data.aln_id = SEREB.Alignment.Aln_id\
 		INNER JOIN SEREB.Residues ON SEREB.Aln_Data.res_id = SEREB.Residues.resi_id\
 		INNER JOIN SEREB.Polymer_Data ON SEREB.Residues.PolData_id = SEREB.Polymer_Data.PData_id\
@@ -88,12 +88,15 @@ def para_aln(request, aln_id):
 			ranges_of_permutation.append((startpos, currpos))
 			break
 		currpos+=1
-
+	
 	last_strain = ''
-	fold_pattern_over_ranges = list()
+	fold_pattern_over_ranges, folds_with_ranges = list(), list()
 	for single_range in ranges_of_permutation:
 		if last_strain != '':
 			if raw_result[single_range[0]]['strain'] != last_strain:
+				if len(set(fold_pattern_over_ranges)) == 2:
+					for i, j in enumerate(ranges_of_permutation): 
+						folds_with_ranges.append((j, fold_pattern_over_ranges[i % len(fold_pattern_over_ranges)]))
 				break
 			fold_pattern_over_ranges.append(get_fold_for_raw_result_range(single_range, raw_result))
 		else:
@@ -101,9 +104,17 @@ def para_aln(request, aln_id):
 			last_strain = raw_result[single_range[0]]['strain']
 
 	if len(set(fold_pattern_over_ranges)) == 1:
-		#This will happen when the alignment has some species with permutation and others with a different fold.
-		#Needs different handling
-		pass
+		last_nom = ''
+		for i, single_range in enumerate(ranges_of_permutation):
+			if last_nom != '':
+				if raw_result[single_range[0]]['nomgd_id'] != last_nom:
+					last_fold = get_fold_for_raw_result_range(single_range, raw_result)
+					last_nom = raw_result[single_range[0]]['nomgd_id']
+				folds_with_ranges.append((single_range, last_fold))
+			else:
+				last_fold = get_fold_for_raw_result_range(single_range, raw_result)
+				folds_with_ranges.append((single_range, last_fold))
+				last_nom = raw_result[single_range[0]]['nomgd_id']
 
 	if len(set(fold_pattern_over_ranges)) > 2:
 		raise Http404("Alignment with id "+str(aln_id)+" has more than 2 structural folds!")
@@ -114,9 +125,6 @@ def para_aln(request, aln_id):
 		raise Http404("Alignment with id "+str(aln_id)+" has strains with unequal fold assignments!")
 	number_of_pattern_repeats = len(ranges_of_permutation)/len(fold_pattern_over_ranges)
 
-	folds_with_ranges = []
-	for i, j in enumerate(ranges_of_permutation): 
-		folds_with_ranges.append((j, fold_pattern_over_ranges[i % len(fold_pattern_over_ranges)]))
 
 	rawsqls = dict()
 	for single_range, fold in folds_with_ranges:
