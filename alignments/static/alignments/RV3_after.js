@@ -475,7 +475,7 @@ function handlePropensities(checked_propensities) {
             title += `<br>between positions ${startRange} and ${endRange}`;
             indices = handlePropensityIndicesOnTruncatedStructure(indices, startRange, endRange);
         }
-        var full = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y'];
+        var full = ['C', 'S', 'T', 'P', 'A', 'G', 'N', 'D', 'E', 'Q', 'H', 'R', 'K', 'M', 'I', 'L', 'V', 'F', 'Y', 'W'];
         let customFasta = vm.fasta_data
         if (indices) {
             ajax("/propensity-data-custom/", {indices, customFasta}).then(data => {
