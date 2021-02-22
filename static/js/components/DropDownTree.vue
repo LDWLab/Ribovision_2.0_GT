@@ -62,7 +62,7 @@
             </p>
             <p><select multiple class="form-control btn-outline-dark" id="polymerSelect" v-bind:style="{ resize: 'both'}"  v-if="chains&&fasta_data&&pdbid||uploadSession" v-model="chainid" >
                 <option :value ="null" selected disabled>Select a polymer</option>
-                <option v-for="chain in chains" v-bind:value="chain.value" @click="postStructureData(pdbid, chainid); populateECODranges(); showPDBViewer(pdbid, chainid, chain.entityID); ">{{ chain.text }}</option>
+                <option v-for="chain in chains" v-bind:value="chain.value" @click="postStructureData(pdbid, chainid); populateECODranges(pdbid, chainid); showPDBViewer(pdbid, chainid, chain.entityID); ">{{ chain.text }}</option>
             </select></p>
             <div v-if="structure_mapping">
                 <select id="downloadDataBtn" class="btn btn-outline-dark dropdown-toggle" v-model="downloadMapDataOpt" v-if="topology_loaded">
@@ -212,6 +212,7 @@
   import {AlnViewer} from './AlignmentViewer.js'
   import {updateProperty} from './handleCSVdata.js'
   import {populatePDBsFromCustomAln} from './populatePDBsFromCustomAln.js'
+  import {populateECODranges} from './populateECODranges.js'
   import {postCIFdata} from './postCustomStruct.js'
   import ReactDOM, { render } from 'react-dom';
   import React, { Component } from "react";
@@ -703,33 +704,8 @@
                     viewerInstance.plugin.behaviors.interaction.hover._value.current.loci.kind = "empty-loci"
                 }
             });
-        }, populateECODranges() {
-            vm.domain_list = [];
-            $.ajax ({
-                type: "GET",
-                url: `/desire-api/ECOD-domains/?pdb=${vm.pdbid}&chain=${vm.chainid[0]}`,
-                //url: "/alignments/authEcodQuery",
-                //data: {url: `/desire-api/ECOD-domains/?pdb=${vm.pdbid}&chain=${vm.chainid[0]}`},
-                success: function (data){
-                    for (var i = 0; i < data.results.length; i++) {
-                        if (data.results[i].chain == vm.chainid[0]){
-                            let re = /\d+-\d+$/;
-                            let range_str = re.exec(data.results[i].pdb_range)[0] + ';';
-                            let xName = data.results[i].x_name.replace("NO_X_NAME", "");
-                            let fName = data.results[i].f_name.replace("NO_F_NAME", "");
-                            let domName = `${xName} ${fName}`.trim()
-                            vm.domain_list.push({name: domName, range: range_str});
-                        }
-                    }
-                    if (vm.domain_list.length == 0){
-                        vm.domain_list.push({name: "No ECOD match!", range: null});
-                    }
-                }, error: function(xhr, status, error){
-                    vm.domain_list.push({name: "Failed getting ECOD domains!", range: null});
-                    var errorMessage = xhr.status + ': ' + xhr.statusText
-                    console.log('Error - ' + errorMessage);
-                }
-            });
+        }, populateECODranges(pdbid, chainid) {
+            populateECODranges(pdbid, chainid);
         },postStructureData(pdbid, chainid) {
             const topview_item = document.getElementById("topview");
             if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Loading Structure Data ", true)}
