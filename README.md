@@ -147,3 +147,10 @@ n. After updating the dev branch bring the public branch up to speed
 	If everything works fine push your changes to the origin/public:
 
 	> git push origin public
+
+	To build documentation in the correct directory:
+
+	```bash
+	cd mkdocs
+	mkdocs build -d /home/Desire-Server/proteovision_docs/
+	```
