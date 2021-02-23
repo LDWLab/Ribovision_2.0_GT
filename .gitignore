@@ -2,6 +2,7 @@
 *.pyc
 *~
 env/*
+DESIRE/env/*
 venv/*
 jalview-js/*
 alignments/static/alignments/swingjs/*
@@ -22,4 +23,6 @@ static/rest_framework*
 static/ribovision*
 .vscode/settings.json
 *z_arx*
+react-msa-viewer/dist/statistics.html
+documentation/node_modules/*
 react-msa-viewer/dist/statistics.html

@@ -37,7 +37,7 @@ function createMarker({markerSteps, startIndex, tileWidth,
           ...markerStyle
         }
         let name;
-        if (index % markerSteps === 0) {
+        if (index % markerSteps === markerSteps-1) {
           name = index+ 0 + startIndex;
         } else {
           name = '.';

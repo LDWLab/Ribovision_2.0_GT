@@ -106,24 +106,6 @@ var parseFastaSeqForMSAViewer = function (fasta){
   }
 })();
 
-function initializeMaskedArray() {
-  var topviewer = document.getElementById("PdbeTopViewer");
-  var masked_array = [];
-  var j = 0;
-  while(j < mapped_aa_properties.get(topviewer.pluginInstance.domainTypes[4].label).length) {
-      masked_array[j] = false;
-      var i = 0;
-      while(i < window.masking_range_array.length && !masked_array[j]) {
-          if(j >= window.masking_range_array[i] && j <= window.masking_range_array[i + 1]) {
-              masked_array[j] = true;
-          }
-          i = i+2;
-      }
-      j = j+1;
-  }
-  return masked_array;
-};
-
 function downloadCSVData() {
   let csv = generateCSVstring(mapped_aa_properties);
   let anchor = document.createElement('a');

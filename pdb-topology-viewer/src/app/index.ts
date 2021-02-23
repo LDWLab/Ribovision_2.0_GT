@@ -756,7 +756,7 @@ class PdbTopologyViewerPlugin {
                     .data([termsData[1]])
                     .enter()
                     .append('text')
-                    .attr('class', 'terminals terminal_N')
+                    .attr('class', 'terminals terminal_C')
                     .attr('text-anchor','middle')
                     .text('C')
                     .attr('x', subPathCordsArr[totalAaInPath - 1]['pathData'][pathDataLen - 2])

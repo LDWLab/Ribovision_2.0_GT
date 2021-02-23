@@ -62,7 +62,7 @@
             </p>
             <p><select multiple class="form-control btn-outline-dark" id="polymerSelect" v-bind:style="{ resize: 'both'}"  v-if="chains&&fasta_data&&pdbid||uploadSession" v-model="chainid" >
                 <option :value ="null" selected disabled>Select a polymer</option>
-                <option v-for="chain in chains" v-bind:value="chain.value" @click="postStructureData(pdbid, chainid); populateECODranges(); showPDBViewer(pdbid, chainid, chain.entityID); ">{{ chain.text }}</option>
+                <option v-for="chain in chains" v-bind:value="chain.value" @click="postStructureData(pdbid, chainid); populateECODranges(pdbid, chainid); showPDBViewer(pdbid, chainid, chain.entityID); ">{{ chain.text }}</option>
             </select></p>
             <div v-if="structure_mapping">
                 <select id="downloadDataBtn" class="btn btn-outline-dark dropdown-toggle" v-model="downloadMapDataOpt" v-if="topology_loaded">
@@ -79,7 +79,7 @@
                         Cut structure by ECOD domain</label>
                     </div>
                 <select multiple class="form-control btn-outline-dark" id="domainSelect" v-model="selected_domain" v-bind:style="{ resize: 'both'}"  v-if="domain_list&&checked_domain">
-                    <option v-for="domain in domain_list" v-bind:value="domain" @click="handleFilterRange(domain.range)">{{ domain.name }}</option>
+                    <option v-for="domain in domain_list" v-bind:value="domain" @click="handleDomainRange(domain.range)">{{ domain.name }}</option>
                 </select>
                 <p><button id="disableDomainTruncation" class="btn btn-outline-dark" v-if="selected_domain.length > 0" type="button" v-on:click="domain_or_selection=null;" style="margin: 3% 0;">
                         Show the entire structure
@@ -212,6 +212,7 @@
   import {AlnViewer} from './AlignmentViewer.js'
   import {updateProperty} from './handleCSVdata.js'
   import {populatePDBsFromCustomAln} from './populatePDBsFromCustomAln.js'
+  import {populateECODranges} from './populateECODranges.js'
   import {postCIFdata} from './postCustomStruct.js'
   import ReactDOM, { render } from 'react-dom';
   import React, { Component } from "react";
@@ -289,6 +290,9 @@
                 this.downloadMapDataOpt = null;
             }
         },domain_or_selection: function(selection){
+            this.checked_filter = false;
+            cleanFilter(this.checked_filter, this.masking_range);
+            this.masking_range = null;
             if (selection == 'domain'){
                 if (vm.checked_selection){
                     cleanSelection(false, vm.filter_range);
@@ -703,33 +707,8 @@
                     viewerInstance.plugin.behaviors.interaction.hover._value.current.loci.kind = "empty-loci"
                 }
             });
-        }, populateECODranges() {
-            vm.domain_list = [];
-            $.ajax ({
-                type: "GET",
-                url: `/desire-api/ECOD-domains/?pdb=${vm.pdbid}&chain=${vm.chainid[0]}`,
-                //url: "/alignments/authEcodQuery",
-                //data: {url: `/desire-api/ECOD-domains/?pdb=${vm.pdbid}&chain=${vm.chainid[0]}`},
-                success: function (data){
-                    for (var i = 0; i < data.results.length; i++) {
-                        if (data.results[i].chain == vm.chainid[0]){
-                            let re = /\d+-\d+$/;
-                            let range_str = re.exec(data.results[i].pdb_range)[0] + ';';
-                            let xName = data.results[i].x_name.replace("NO_X_NAME", "");
-                            let fName = data.results[i].f_name.replace("NO_F_NAME", "");
-                            let domName = `${xName} ${fName}`.trim()
-                            vm.domain_list.push({name: domName, range: range_str});
-                        }
-                    }
-                    if (vm.domain_list.length == 0){
-                        vm.domain_list.push({name: "No ECOD match!", range: null});
-                    }
-                }, error: function(xhr, status, error){
-                    vm.domain_list.push({name: "Failed getting ECOD domains!", range: null});
-                    var errorMessage = xhr.status + ': ' + xhr.statusText
-                    console.log('Error - ' + errorMessage);
-                }
-            });
+        }, populateECODranges(pdbid, chainid) {
+            populateECODranges(pdbid, chainid);
         },postStructureData(pdbid, chainid) {
             const topview_item = document.getElementById("topview");
             if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Loading Structure Data ", true)}
@@ -760,6 +739,8 @@
             cleanCustomMap(checked_customMap);
         },handleCustomMappingData(){
             handleCustomMappingData();
+        },handleDomainRange(domain_range){
+            handleDomainRange(domain_range);
         },handleFilterRange(filter_range){
             handleFilterRange(filter_range);
         },handlePropensities(checked_propensities){

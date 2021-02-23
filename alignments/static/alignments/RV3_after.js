@@ -75,6 +75,24 @@ function isCorrectMask(mask_range){
     return isCorrect;
   };
 
+function initializeMaskedArray() {
+    var topviewer = document.getElementById("PdbeTopViewer");
+    var masked_array = [];
+    var j = 0;
+    while(j < mapped_aa_properties.get(topviewer.pluginInstance.domainTypes[4].label).length) {
+        masked_array[j] = false;
+        var i = 0;
+        while(i < window.masking_range_array.length && !masked_array[j]) {
+            if(j >= window.masking_range_array[i] && j <= window.masking_range_array[i + 1]) {
+                masked_array[j] = true;
+            }
+            i = i+2;
+        }
+        j = j+1;
+    }
+    return masked_array;
+};
+
 function handleMaskingRanges(mask_range){
   vm.masking_range = mask_range;
   window.masking_range_array = null;
@@ -103,6 +121,20 @@ function handleMaskingRanges(mask_range){
       vm.correct_mask = false;
   }
 };
+function handleDomainRange(domain_range) {
+    //handleFilterRange(domain_range);
+    domain_array = domain_range.split(';');
+    if(domain_array.length == 2) {
+        handleFilterRange(domain_range);
+    } else {
+        var first = domain_array[0].split('-')[0];
+        var last = domain_array[domain_array.length - 2].split('-')[1];
+        var full_range = first + "-" + last + ";";
+        vm.checked_filter = true;
+        vm.handleMaskingRanges(domain_range);
+        handleFilterRange(full_range);
+    }
+}
 function handleFilterRange(filter_range) {
     if (filter_range.match(/^\d+-\d+;/)) {
         handlePropensities(vm.checked_propensities);
@@ -159,20 +191,21 @@ function handleFilterRange(filter_range) {
 };
 
 function colorResidue(index, masked_array) {
-  var topviewer = document.getElementById("PdbeTopViewer");
-  var f = 0;
-  while(f < topviewer.pluginInstance.domainTypes[4].data.length) {
-      if(!masked_array[f] && topviewer.pluginInstance.domainTypes[index].data[f]) {
-          topviewer.pluginInstance.domainTypes[index].data[f].color = "rgb(255,255,255)";
-          topviewer.pluginInstance.domainTypes[index].data[f].tooltipMsg = "NaN";                   
-          selectSections_RV1.get(topviewer.pluginInstance.domainTypes[index].label)[f].color = {r: 255, g: 255, b: 255};
-      }   
-      if(!masked_array[f] && vm.coil_residues.includes(f) && topviewer.pluginInstance.domainTypes[index].data[f]) {
-          topviewer.pluginInstance.domainTypes[index].data[f].color = "rgb(0,0,0)";
-          topviewer.pluginInstance.domainTypes[index].data[f].tooltipMsg = "NaN";
-      }                        
-      f++;
-  }
+    viewerInstanceTop.pluginInstance.domainTypes[index].data.forEach(function(resiEntry){
+        if (!masked_array[resiEntry.start]){
+            resiEntry.color = "rgb(255,255,255)";
+            resiEntry.tooltipMsg = "NaN";
+        } 
+        if (!masked_array[resiEntry.start] && vm.coil_residues.includes(resiEntry.start)){
+            resiEntry.color = "rgb(0,0,0)";
+            resiEntry.tooltipMsg = "NaN";
+        }
+    })
+    selectSections_RV1.get(viewerInstanceTop.pluginInstance.domainTypes[index].label).forEach(function(resiEntry){
+        if (!masked_array[resiEntry.start_residue_number]){
+            resiEntry.color = {r: 255, g: 255, b: 255};
+        }
+    })
 };
 function clearInputFile(f){
     if(f.value){
@@ -406,13 +439,7 @@ function getPropensities(property) {
     if (vm.structure_mapping && property && property!=0) {
         var sequence_indices = property.indices;
         let alignment_indices = []
-        let inverse_structure_mapping = {}
-        for (var key in vm.structure_mapping) {
-            if (key != "BadMappingPositions"){
-                let value = vm.structure_mapping[key]
-                inverse_structure_mapping[value] = key
-            }
-        }
+        let inverse_structure_mapping = _.invert(vm.structure_mapping);
         for (var sequence_index of sequence_indices) {
             if (inverse_structure_mapping[sequence_index]){
                 alignment_indices.push(inverse_structure_mapping[sequence_index])
@@ -428,11 +455,16 @@ function getPropensities(property) {
 
 function handlePropensityIndicesOnTruncatedStructure(indices, startTrunc, endTrunc){
     var newIndices = '';
+    var invertedMap = _.invert(vm.structure_mapping);
     if (!indices){
-        indices = vm.all_residues.join(',');
+        tempIndices = [];
+        vm.all_residues.forEach(function(resi){
+            tempIndices.push(invertedMap[resi]);
+        })
+        indices = tempIndices.join(',');
     }
     indices.split(',').forEach(function(entry){
-        if (startTrunc <= Number(entry) &&  Number(entry) <= endTrunc){
+        if (invertedMap[startTrunc] <= Number(entry) &&  Number(entry) <= invertedMap[endTrunc]){
             newIndices+=`${entry},`;
         }
     })
@@ -451,9 +483,27 @@ function handlePropensities(checked_propensities) {
         let indices = vm.propensity_indices;
         if (vm.selected_domain.length > 0){
             title += `<br>of ECOD domain ${vm.selected_domain[0].name}`;
-            var startDomain = Number(vm.selected_domain[0].range.split('-')[0]);
-            var endDomain = Number(vm.selected_domain[0].range.split('-')[1].slice(0, -1));
-            indices = handlePropensityIndicesOnTruncatedStructure(indices, startDomain, endDomain);
+            var domainIndices = '';
+            var invertedMap = _.invert(vm.structure_mapping);
+            vm.selected_domain[0].range.split(';').forEach(function(singleRange){
+                if (singleRange == ''){return;}
+                var startDomain = Number(singleRange.split('-')[0]);
+                var endDomain = Number(singleRange.split('-')[1]);
+                for (let i = invertedMap[startDomain]; i <= invertedMap[endDomain]; i++){
+                    domainIndices += `${i},`;
+                }
+            });
+            if (indices == ''){
+                indices = domainIndices.slice(0, -1);
+            } else {
+                let tempIndices = ''
+                indices.split(',').forEach(function(entry){
+                    if (entry in domainIndices.split(',')){
+                        tempIndices += `${entry},`;
+                    }
+                })
+                indices = tempIndices.slice(0, -1);
+            }
         }
         if (vm.filter_range){
             var startRange = Number(vm.filter_range.split('-')[0]);
@@ -461,7 +511,7 @@ function handlePropensities(checked_propensities) {
             title += `<br>between positions ${startRange} and ${endRange}`;
             indices = handlePropensityIndicesOnTruncatedStructure(indices, startRange, endRange);
         }
-        var full = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y'];
+        var full = ['C', 'S', 'T', 'P', 'A', 'G', 'N', 'D', 'E', 'Q', 'H', 'R', 'K', 'M', 'I', 'L', 'V', 'F', 'Y', 'W'];
         let customFasta = vm.fasta_data
         if (indices) {
             ajax("/propensity-data-custom/", {indices, customFasta}).then(data => {
