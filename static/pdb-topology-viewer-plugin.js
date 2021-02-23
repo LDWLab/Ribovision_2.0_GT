@@ -125,7 +125,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         this.createDomainDropdown = function () {
             if (typeof this.domainTypes == 'undefined') {
                 this.domainTypes = [{
-                        label: 'Calculated data',
+                        label: 'Select data',
                         data: null
                     }];
                 //this.getAnnotationFromMappings();
