@@ -21,7 +21,9 @@ Amino acid frequencies in each column of an MSA were adjusted for presence of ga
 
 ### Shannon Entropy
 The Shannon entropy (as well as all properties listed below) was computed from the gap adjusted probabilities as:
- 
+
+<img src="https://render.githubusercontent.com/render/math?math=H_{SE}(n) = -\sum_{i=1}^c p_i(n)log_2p_i(n) \approx -\sum_{i=1}^c f_i(n)log_2f_i(n)">
+
 ### Two group comparison (TwinCons)
 In case of two groups selected in the phylogeny browser, ProteoVision provides an additional option to compute an in house developed score, TwinCons. TwinCons is computed for a single position of the MSA that compares two pre-defined groups (represented by vectors of the gap adjusted amino acid frequencies) based on their similarity defined by the pre-computed substitution matrix. TwinCons represents the transformation price between the two vector columns related by the substitution matrix.
 
