@@ -11,13 +11,12 @@ export function populateECODranges (pdbid, chainid) {
 					var range_str = null;
 					var fetchedRange = data.results[i].pdb_range;
 					if (fetchedRange.split(';').length > 1){
-						//add handling of multiple ranges with masking the positions between them
 						let rangeArray = fetchedRange.split(';');
 						range_str = '';
 						let re = /\d+-\d+/
 						for(var j in rangeArray) {
-                            range_str += re.exec(rangeArray[j]) + ';'
-                        }
+							range_str += re.exec(rangeArray[j]) + ';'
+						}
 					}
 					if(!range_str) {
 						let re = /\d+-\d+$/;
@@ -25,8 +24,7 @@ export function populateECODranges (pdbid, chainid) {
 					}
 					let xName = data.results[i].x_name.replace("NO_X_NAME", "");
 					let fName = data.results[i].f_name.replace("NO_F_NAME", "");
-					let domName = `${xName} ${fName}`.trim()
-					console.log(range_str)
+					let domName = `${xName} ${fName}`.trim();
 					vm.domain_list.push({name: domName, range: range_str});
 				}
 			}

@@ -290,6 +290,9 @@
                 this.downloadMapDataOpt = null;
             }
         },domain_or_selection: function(selection){
+            this.checked_filter = false;
+            cleanFilter(this.checked_filter, this.masking_range);
+            this.masking_range = null;
             if (selection == 'domain'){
                 if (vm.checked_selection){
                     cleanSelection(false, vm.filter_range);
