@@ -75,6 +75,24 @@ function isCorrectMask(mask_range){
     return isCorrect;
   };
 
+function initializeMaskedArray() {
+    var topviewer = document.getElementById("PdbeTopViewer");
+    var masked_array = [];
+    var j = 0;
+    while(j < mapped_aa_properties.get(topviewer.pluginInstance.domainTypes[4].label).length) {
+        masked_array[j] = false;
+        var i = 0;
+        while(i < window.masking_range_array.length && !masked_array[j]) {
+            if(j >= window.masking_range_array[i] && j <= window.masking_range_array[i + 1]) {
+                masked_array[j] = true;
+            }
+            i = i+2;
+        }
+        j = j+1;
+    }
+    return masked_array;
+};
+
 function handleMaskingRanges(mask_range){
   vm.masking_range = mask_range;
   window.masking_range_array = null;
@@ -436,7 +454,7 @@ function getPropensities(property) {
 
 function handlePropensityIndicesOnTruncatedStructure(indices, startTrunc, endTrunc){
     var newIndices = '';
-    var invertedMap = _.invert(vm.structure_mapping)
+    var invertedMap = _.invert(vm.structure_mapping);
     if (!indices){
         tempIndices = [];
         vm.all_residues.forEach(function(resi){
@@ -464,9 +482,27 @@ function handlePropensities(checked_propensities) {
         let indices = vm.propensity_indices;
         if (vm.selected_domain.length > 0){
             title += `<br>of ECOD domain ${vm.selected_domain[0].name}`;
-            var startDomain = Number(vm.selected_domain[0].range.split('-')[0]);
-            var endDomain = Number(vm.selected_domain[0].range.split('-')[1].slice(0, -1));
-            indices = handlePropensityIndicesOnTruncatedStructure(indices, startDomain, endDomain);
+            var domainIndices = '';
+            var invertedMap = _.invert(vm.structure_mapping);
+            vm.selected_domain[0].range.split(';').forEach(function(singleRange){
+                if (singleRange == ''){return;}
+                var startDomain = Number(singleRange.split('-')[0]);
+                var endDomain = Number(singleRange.split('-')[1]);
+                for (let i = invertedMap[startDomain]; i <= invertedMap[endDomain]; i++){
+                    domainIndices += `${i},`;
+                }
+            });
+            if (indices == ''){
+                indices = domainIndices.slice(0, -1);
+            } else {
+                let tempIndices = ''
+                indices.split(',').forEach(function(entry){
+                    if (entry in domainIndices.split(',')){
+                        tempIndices += `${entry},`;
+                    }
+                })
+                indices = tempIndices.slice(0, -1);
+            }
         }
         if (vm.filter_range){
             var startRange = Number(vm.filter_range.split('-')[0]);
