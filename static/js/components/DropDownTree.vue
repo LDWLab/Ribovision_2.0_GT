@@ -145,7 +145,7 @@
                         <option value='visible'>Visible alignment</option>
                     </select>
                     <select id="selectColorMappingProps" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="selected_property" v-if="msavWillMount">
-                        <option :value="null" selected disabled>Calculated data</option>
+                        <option :value="null" selected disabled>Select data</option>
                         <option v-for="prop in available_properties" >{{ prop.Name }}</option>
                     </select>
                     <select id="selectAlnColorScheme" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="colorScheme" v-if="msavWillMount">
