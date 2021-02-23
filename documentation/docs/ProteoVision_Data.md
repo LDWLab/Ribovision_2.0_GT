@@ -29,11 +29,11 @@ In case of two groups selected in the phylogeny browser, ProteoVision provides a
 
 ### Charge, hydropathy, hydrophobicity, polarity, mutability
 The physico-chemical properties for each position within an MSA are computed as average properties for a given distribution of the amino acid frequencies. The tabulated values for each property were obtained from the available literature:
-- [charges](10.1186/1758-2946-5-39)
-- [hydropathy](10.1016/0022-2836(82)90515-0)
-- [hydrophobicity](10.1093/protein/5.5.373)
-- [polarity](10.1016/0022-5193(68)90069-6)
-- [mutability](10.1093/bioinformatics/8.3.275)
+- [charges](https://doi.org/10.1186/1758-2946-5-39)
+- [hydropathy](https://doi.org/10.1016/0022-2836(82)90515-0)
+- [hydrophobicity](https://doi.org/10.1093/protein/5.5.373)
+- [polarity](https://doi.org/10.1016/0022-5193(68)90069-6)
+- [mutability](https://doi.org/10.1093/bioinformatics/8.3.275)
 
 ### Color Schemes
 Each calculated attribute is mapped on a matplotlib colorscheme. For single continuum attributes (like Shannon entropy or Polarity), ProteoVision uses single continuum colormaps like plasma and viridis. For diverging data attributes (like Charge or TwinCons), ProteoVision uses diverging colormaps like Blue-White-Red or Green-White-Purple. All colormaps were generated with the python matplotlib library and exported to JavaScript with the [js-colormaps package](https://github.com/timothygebhard/js-colormaps). Further information about colormaps in [matplotlib](https://bids.github.io/colormap/).
