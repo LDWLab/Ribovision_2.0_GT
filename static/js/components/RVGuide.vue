@@ -7,7 +7,7 @@
             <div class="headerOptions" style="margin-left: auto;padding-top:10px;">
                 <button class="btn btn-outline-dark" v-on:click="startTour();" style="float: right;">Help</button>
                 <p style="padding:2px;float: right;"></p>
-                <button class="btn btn-outline-dark" id="aboutButton" v-on:click="downloadAboutDoc();" style="float: right;">About</button>
+                <button class="btn btn-outline-dark" id="aboutButton" v-on:click="goToAboutPage();" style="float: right;">About</button>
                 <p style="padding:2px;float: right;"></p>
                 <a href="/desire-api/" id="desireAPIButton" class="btn btn-outline-dark" style="float: right;">API</a>
                 <p style="padding:2px;float: right;"></p>
@@ -98,7 +98,9 @@
                   link.click();
                 };
                 req.send();
-            }
+            }, goToAboutPage(){
+                window.open("https://apollo2.chemistry.gatech.edu/AboutProteoVision/", "_blank"); 
+            },
         },
         mounted: function () {
             if (localStorage.getItem("hasCodeRunBefore") === null) {
