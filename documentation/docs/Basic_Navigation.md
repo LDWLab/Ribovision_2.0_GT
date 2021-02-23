@@ -1,7 +1,12 @@
 # Basic Navigation 
 
 ## Overview
-ProteoVision is operated via the main Navigation panel for selection/filtering and contains three main applets: i) Alignment Viewer for representation of multiple sequence alignments; ii) PDB topology Viewer for depiction of protein secondary structures; iii) MolStar viewer for visualization of three-dimensional structures. Additionally, non-mappable statistical data (e.g. amino acids frequencies) are visualized in a separate window using Plotly applet. Detailed description of all functions for ProteoVision is listed below. ProteoVision also contains an optional interactive guided tour with a brief description of each functional element.
+ProteoVision is operated via the main Navigation panel for selection/filtering and contains three main applets:
+- Alignment Viewer for representation of multiple sequence alignments; 
+- PDB topology Viewer for depiction of protein secondary structures; 
+- MolStar viewer for visualization of three-dimensional structures. 
+
+Additionally, non-mappable statistical data (e.g. amino acids frequencies) are visualized in a separate window using Plotly applet. Detailed description of all functions for ProteoVision is listed in this documentation. ProteoVision also contains an optional interactive guided tour with a brief description of each functional element.
 
 ## Selecting phylogenetic group(s) 
 To retrieve a specified alignment from the DESIRE database, follow the steps below: 
