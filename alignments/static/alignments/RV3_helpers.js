@@ -215,10 +215,10 @@ var filterAvailablePolymers = function(chain_list, aln_id, vueObj) {
           if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
           if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
           for (let ix =0; ix < aln_data["polymers"].length; ix++){
-              let desirePolymerName = aln_data["polymers"][ix]["genedescription"].trim();
+              let desirePolymerName = aln_data["polymers"][ix]["genedescription"].trim().replace(/-[\w]{1}$/,'').replace(/ubiquitin/ig,'');
               let pdbePolymerNames = chain_list[i]["molecule_name"];
               for (let nameIx =0; nameIx < pdbePolymerNames.length; nameIx++){
-                  let pdbeName = pdbePolymerNames[nameIx].replace(/-[A-Z]{1}$/,'');
+                  let pdbeName = pdbePolymerNames[nameIx].replace(/-[\w]{1}$/,'').replace(/ubiquitin/ig,'');
                   if (pdbeName == desirePolymerName){
                     temp_arr = pushChainData(temp_arr, chain_listI);
                     break;
