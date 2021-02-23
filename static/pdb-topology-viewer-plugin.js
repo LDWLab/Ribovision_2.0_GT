@@ -839,7 +839,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 .data([termsData[1]])
                 .enter()
                 .append('text')
-                .attr('class', 'terminals terminal_N')
+                .attr('class', 'terminals terminal_C')
                 .attr('text-anchor', 'middle')
                 .text('C')
                 .attr('x', subPathCordsArr[totalAaInPath - 1]['pathData'][pathDataLen - 2])
@@ -1566,7 +1566,6 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                                 return resi3D;
                             }
                         });
-                        //var select_sections = selectSections_RV1.get(selectedDomain.label).slice(Number(filterRangeArr[0]), Number(filterRangeArr[1])+1);
                     }
                     else {
                         var select_sections = selectSections_RV1.get(selectedDomain.label);
