@@ -191,20 +191,21 @@ function handleFilterRange(filter_range) {
 };
 
 function colorResidue(index, masked_array) {
-  var topviewer = document.getElementById("PdbeTopViewer");
-  var f = 0;
-  while(f < topviewer.pluginInstance.domainTypes[4].data.length) {
-      if(!masked_array[f] && topviewer.pluginInstance.domainTypes[index].data[f]) {
-          topviewer.pluginInstance.domainTypes[index].data[f].color = "rgb(255,255,255)";
-          topviewer.pluginInstance.domainTypes[index].data[f].tooltipMsg = "NaN";                   
-          selectSections_RV1.get(topviewer.pluginInstance.domainTypes[index].label)[f].color = {r: 255, g: 255, b: 255};
-      }   
-      if(!masked_array[f] && vm.coil_residues.includes(f) && topviewer.pluginInstance.domainTypes[index].data[f]) {
-          topviewer.pluginInstance.domainTypes[index].data[f].color = "rgb(0,0,0)";
-          topviewer.pluginInstance.domainTypes[index].data[f].tooltipMsg = "NaN";
-      }                        
-      f++;
-  }
+    viewerInstanceTop.pluginInstance.domainTypes[index].data.forEach(function(resiEntry){
+        if (!masked_array[resiEntry.start]){
+            resiEntry.color = "rgb(255,255,255)";
+            resiEntry.tooltipMsg = "NaN";
+        } 
+        if (!masked_array[resiEntry.start] && vm.coil_residues.includes(resiEntry.start)){
+            resiEntry.color = "rgb(0,0,0)";
+            resiEntry.tooltipMsg = "NaN";
+        }
+    })
+    selectSections_RV1.get(viewerInstanceTop.pluginInstance.domainTypes[index].label).forEach(function(resiEntry){
+        if (!masked_array[resiEntry.start_residue_number]){
+            resiEntry.color = {r: 255, g: 255, b: 255};
+        }
+    })
 };
 function clearInputFile(f){
     if(f.value){
