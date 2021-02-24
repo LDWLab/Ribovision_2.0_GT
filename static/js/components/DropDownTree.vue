@@ -73,17 +73,20 @@
             </div>
             <div v-if="topology_loaded">
 
-                <div id="domainSelectionSection"><p>
+                <div id="domainSelectionSection" style="margin: 3% 0;">
                     <div>
                         <label><input type="radio" v-model="domain_or_selection" value="domain">
                         Cut structure by ECOD domain</label>
                     </div>
-                <select multiple class="form-control btn-outline-dark" id="domainSelect" v-model="selected_domain" v-bind:style="{ resize: 'both'}"  v-if="domain_list&&checked_domain">
-                    <option v-for="domain in domain_list" v-bind:value="domain" @click="handleDomainRange(domain.range)">{{ domain.name }}</option>
-                </select>
-                <p><button id="disableDomainTruncation" class="btn btn-outline-dark" v-if="selected_domain.length > 0" type="button" v-on:click="domain_or_selection=null;" style="margin: 3% 0;">
-                        Show the entire structure
-                </button></p>
+                    <div v-if="selected_domain.length > 0" style="text-align: center;">
+                        <a :href="'http://prodata.swmed.edu/ecod/complete/domain/' + selected_domain[0].id" target="_blank">See {{selected_domain[0].id}} on ECOD</a>
+                    </div>
+                    <select multiple class="form-control btn-outline-dark" id="domainSelect" v-model="selected_domain" v-bind:style="{ resize: 'both'}" style="margin: 1.5% 0;" v-if="domain_list&&checked_domain">
+                        <option v-for="domain in domain_list" v-bind:value="domain" @click="handleDomainRange(domain.range)">{{ domain.name }}</option>
+                    </select>
+                    <button id="disableDomainTruncation" class="btn btn-outline-dark" v-if="selected_domain.length > 0" type="button" v-on:click="domain_or_selection=null;" style="margin: 1.5% 0;">
+                            Show the entire structure
+                    </button>
                 </div>
 
                 <div id="filterSection"><p>

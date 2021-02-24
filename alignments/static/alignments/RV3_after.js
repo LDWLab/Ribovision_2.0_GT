@@ -487,22 +487,17 @@ function handlePropensities(checked_propensities) {
             var invertedMap = _.invert(vm.structure_mapping);
             vm.selected_domain[0].range.split(';').forEach(function(singleRange){
                 if (singleRange == ''){return;}
-                var startDomain = Number(singleRange.split('-')[0]);
-                var endDomain = Number(singleRange.split('-')[1]);
-                for (let i = invertedMap[startDomain]; i <= invertedMap[endDomain]; i++){
+                var startDomain = Number(invertedMap[Number(singleRange.split('-')[0])]);
+                var endDomain = Number(invertedMap[Number(singleRange.split('-')[1])]);
+                for (let i = startDomain; i <= endDomain; i++){
                     domainIndices += `${i},`;
                 }
             });
             if (!indices || indices == ''){
                 indices = domainIndices.slice(0, -1);
             } else {
-                let tempIndices = ''
-                indices.split(',').forEach(function(entry){
-                    if (entry in domainIndices.split(',')){
-                        tempIndices += `${entry},`;
-                    }
-                })
-                indices = tempIndices.slice(0, -1);
+                let tempIndices = _.intersection(indices.split(','),domainIndices.slice(0, -1).split(','));
+                indices = tempIndices.join(',')
             }
         }
         if (vm.filter_range){
