@@ -24,15 +24,16 @@ export function populateECODranges (pdbid, chainid) {
 					}
 					let xName = data.results[i].x_name.replace("NO_X_NAME", "");
 					let fName = data.results[i].f_name.replace("NO_F_NAME", "");
+					let ecodID = data.results[i].ecod_domain_id;
 					let domName = `${xName} ${fName}`.trim();
-					vm.domain_list.push({name: domName, range: range_str});
+					vm.domain_list.push({name: domName, range: range_str, id: ecodID});
 				}
 			}
 			if (vm.domain_list.length == 0){
-				vm.domain_list.push({name: "No ECOD match!", range: null});
+				vm.domain_list.push({name: "No ECOD match!", range: null, id: null});
 			}
 		}, error: function(xhr, status, error){
-			vm.domain_list.push({name: "Failed getting ECOD domains!", range: null});
+			vm.domain_list.push({name: "Failed getting ECOD domains!", range: null, id: null});
 			var errorMessage = xhr.status + ': ' + xhr.statusText
 			console.log('Error - ' + errorMessage);
 		}
