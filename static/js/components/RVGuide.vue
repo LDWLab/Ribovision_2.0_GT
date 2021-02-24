@@ -72,7 +72,9 @@
                 vm.uploadSession=true;
                 var saveData = _.cloneDeep(vm.$data);
                 saveData.topology_loaded = false;
+                saveData.postedPDBEntities = false;
                 saveData["window.selectSections_RV1"]=window.selectSections_RV1;
+                saveData["window.aaFreqs"]=window.aaFreqs;
                 anchor.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(saveData, replacer));
                 anchor.target = '_blank';
                 anchor.download = "rv3State.json";

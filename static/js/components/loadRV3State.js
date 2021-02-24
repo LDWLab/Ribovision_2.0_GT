@@ -6,6 +6,7 @@ export function readLoadRV3State (fileInput) {
 		Object.assign(vm.$data, uploadedState);
 		let aaPropertiesData = setGlobalProperties();
 		window.selectSections_RV1 = uploadedState["window.selectSections_RV1"];
+		window.aaFreqs = uploadedState["window.aaFreqs"];
 		vm.$nextTick(function(){
 			vm.chains = uploadedState.chains;
 			vm.$nextTick(function(){
@@ -20,6 +21,7 @@ export function readLoadRV3State (fileInput) {
 						}
 					})
 					window.selectSections_RV1 = uploadedState["window.selectSections_RV1"];
+					window.aaFreqs = uploadedState["window.aaFreqs"];
 					if (uploadedState.checked_propensities){
 						vm.checked_propensities = uploadedState.checked_propensities;
 						handlePropensities(vm.checked_propensities);

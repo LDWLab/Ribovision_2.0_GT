@@ -26,7 +26,7 @@ function createBar({columnHeights, columnColors, tileWidth, height, fillColor,
       render() {
         const { index, ...otherProps} = this.props;
         
-        if (columnColors.length == 0){
+        if (!columnColors || columnColors.length == 0){
           var bgColor = fillColor
         }else{
           var bgColor = columnColors[index]
@@ -95,7 +95,7 @@ class HTMLOverviewBarComponent extends PureComponent {
           break;
         case "proteovision":
           var tempArr = [];
-          let maxEntr = aaPropertiesData.get("Shannon entropy")[1];
+          let maxEntr = window.aaPropertyConstants.get("Shannon entropy")[1];
           let pvEntropy = vm.aa_properties.get("Shannon entropy");
           pvEntropy.forEach(function(column){
             tempArr.push((maxEntr - column.reduce((a, b) => a + b, 0))/maxEntr)

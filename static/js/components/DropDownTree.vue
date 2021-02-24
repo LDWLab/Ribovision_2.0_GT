@@ -293,6 +293,7 @@
                 this.downloadMapDataOpt = null;
             }
         },domain_or_selection: function(selection){
+            if (this.uploadSession){return;}
             this.checked_filter = false;
             cleanFilter(this.checked_filter, this.masking_range);
             this.masking_range = null;
@@ -327,6 +328,7 @@
                 recolorTopStar(vm.selected_property);
             }
         },selected_property: function(name){
+            if (this.uploadSession){return;}
             if (!name){return;}
             if(!aaPropertyConstants.has(name)){return;}
             let min = Math.min(...aaPropertyConstants.get(name));
@@ -488,6 +490,7 @@
                 loadParaAlns (value, this)
             }
         }, getPDBchains(pdbid, aln_id) {
+            if (this.uploadSession){return;}
             if (pdbid.length === 4) {
                 if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(this);}
                 this.chains = null;
