@@ -493,7 +493,7 @@ function handlePropensities(checked_propensities) {
                     domainIndices += `${i},`;
                 }
             });
-            if (indices == ''){
+            if (!indices || indices == ''){
                 indices = domainIndices.slice(0, -1);
             } else {
                 let tempIndices = ''
