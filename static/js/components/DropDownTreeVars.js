@@ -7,7 +7,7 @@ export function initialState (){
         pdbs: [
             {id: "4v9d", name: "4V9D E. coli"},
             {id: "4v6u", name: "4V6U P. furiosus"},
-            {id: "4ug0", name: "4UG0 H. sapiens"},
+            {id: "4v6x", name: "4V6X H. sapiens"},
             ],
         availColorschemes: [
             "buried","cinema","clustal","clustal2","helix","lesk","mae","strand","taylor","turn","zappo",

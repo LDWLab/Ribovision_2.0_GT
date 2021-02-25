@@ -82,7 +82,7 @@
                         <a :href="'http://prodata.swmed.edu/ecod/complete/domain/' + selected_domain[0].id" target="_blank">See {{selected_domain[0].id}} on ECOD</a>
                     </div>
                     <select multiple class="form-control btn-outline-dark" id="domainSelect" v-model="selected_domain" v-bind:style="{ resize: 'both'}" style="margin: 1.5% 0;" v-if="domain_list&&checked_domain">
-                        <option v-for="domain in domain_list" v-bind:value="domain" @click="handleDomainRange(domain.range)">{{ domain.name }}</option>
+                        <option v-for="domain in domain_list" v-bind:value="domain">{{ domain.name }}</option>
                     </select>
                     <button id="disableDomainTruncation" class="btn btn-outline-dark" v-if="selected_domain.length > 0" type="button" v-on:click="domain_or_selection=null;" style="margin: 1.5% 0;">
                             Show the entire structure
@@ -327,6 +327,9 @@
             if (vm.selected_property){
                 recolorTopStar(vm.selected_property);
             }
+        },selected_domain: function (domainObj){
+            if(domainObj.length == 0){return}
+            handleDomainRange(domainObj[0].range);
         },selected_property: function(name){
             if (this.uploadSession){return;}
             if (!name){return;}

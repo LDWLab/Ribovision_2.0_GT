@@ -375,7 +375,8 @@ var populatePDBs = function (alndata){
     if (alndata != null){
         let alnPolurl = `/desire-api/polymers/?alns_of_polymer=${alndata.id}`
         ajax(alnPolurl).then(polymersForAln => {
-            let trueNom = polymersForAln.results[0].nomgd.split('/')[5]
+            let trueNom = polymersForAln.results[0].nomgd.split('/')[5];
+            var polNames = polymersForAln.results.map(entry => entry.genedescription.trim().replace(/-[\w]{1}$/,'').replace(/ubiquitin/ig,''));
             let url = `/desire-api/old-nomenclatures/?n_b_y_h_a=BAN&nn_fk=${trueNom}`;
             ajax(url).then(oldnomData => {
                 if (oldnomData.count == 0){return;}
@@ -385,7 +386,10 @@ var populatePDBs = function (alndata){
                     var pdb_entries = []
                     data.forEach(function(entry){
                         let pdb_text = `${entry.parent} ${entry.orgname[0].slice(0,39)}`
-                        pdb_entries.push({id: entry.parent.toLowerCase(), name:pdb_text})
+                        let pdbxDescription = entry.protein.rcsb_pdbx_description.trim().replace(/-[\w]{1}$/,'').replace(/ubiquitin/ig,'')
+                        if (polNames.includes(pdbxDescription)){
+                            pdb_entries.push({id: entry.parent.toLowerCase(), name:pdb_text})
+                        }
                     });
                     if (pdb_entries.length == 0){return;}
                     vm.pdbs.push(...pdb_entries.sort((a, b) => (a.id > b.id) ? 1 : -1));
