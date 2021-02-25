@@ -38,6 +38,7 @@ var fetchBLASTresult = function (jobID){
 	ebiAjax(`https://www.ebi.ac.uk/Tools/services/rest/ncbiblast/result/${jobID}/out?format=10`).then(csvResult=>{
 		let csvArr = csvResult.split(/\n/g);
 		var filteredPDBs = new Map();
+		var tempPDB = new Array();
 		csvArr.forEach(function(blastRow){
 			let blastEval = Number(blastRow.split(',')[10]);
 			if (blastEval < 0.00001){
@@ -46,11 +47,12 @@ var fetchBLASTresult = function (jobID){
 				if (filteredPDBs.has(pdb)){
 					filteredPDBs.get(pdb).push(chain);
 				} else {
-					vm.blastPDBresult.push(pdb)
+					tempPDB.push(pdb)
 					filteredPDBs.set(pdb, [chain]);
 				}
 			}
 		})
+		vm.blastPDBresult.push(...tempPDB.sort());
 		vm.blastMAPresult = filteredPDBs;
 		vm.fetchingPDBwithCustomAln = 'complete';
 	}).catch(error => {

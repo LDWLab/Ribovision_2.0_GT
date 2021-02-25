@@ -1,7 +1,7 @@
 export function getStructMappingAndTWC (fasta, struc_id, vueObj){
     ajax('/mapSeqAln/', {fasta, struc_id}).then(struct_mapping=>{
         vueObj.structure_mapping = struct_mapping;
-        if (struct_mapping['BadMappingPositions']){vueObj.poor_structure_map = struct_mapping['BadMappingPositions'];}
+        vueObj.poor_structure_map = struct_mapping['BadMappingPositions'];
         var mapped_aa_properties = mapAAProps(vueObj.aa_properties, struct_mapping);
         if (((vueObj.tax_id != null && vueObj.tax_id.length == 2) || (vueObj.custom_aln_twc_flag != null && vueObj.custom_aln_twc_flag == true) || (vueObj.type_tree == 'para'))) {
             if (vueObj.unmappedTWCdata) {
