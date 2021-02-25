@@ -1,3 +1,4 @@
+import {reviver} from './jsonMapReplacer.js'
 export function readLoadRV3State (fileInput) {
 	var reader = new FileReader();
 	reader.onload = function () {
@@ -7,6 +8,7 @@ export function readLoadRV3State (fileInput) {
 		let aaPropertiesData = setGlobalProperties();
 		window.selectSections_RV1 = uploadedState["window.selectSections_RV1"];
 		window.aaFreqs = uploadedState["window.aaFreqs"];
+		window.barColors = uploadedState["window.barColors"];
 		vm.$nextTick(function(){
 			vm.chains = uploadedState.chains;
 			vm.$nextTick(function(){
@@ -22,6 +24,7 @@ export function readLoadRV3State (fileInput) {
 					})
 					window.selectSections_RV1 = uploadedState["window.selectSections_RV1"];
 					window.aaFreqs = uploadedState["window.aaFreqs"];
+					window.barColors = uploadedState["window.barColors"];
 					if (uploadedState.checked_propensities){
 						vm.checked_propensities = uploadedState.checked_propensities;
 						handlePropensities(vm.checked_propensities);

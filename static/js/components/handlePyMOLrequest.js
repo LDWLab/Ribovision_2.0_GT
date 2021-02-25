@@ -38,12 +38,13 @@ var buildPyMOLscriptASstring = function () {
 }
 
 var downloadPyMOLscript = function () {
+    let [month, date, year] = new Date().toLocaleDateString("en-US").split("/");
     var PyMOLstring = buildPyMOLscriptASstring();
     if (vm.uploadSession){return;}
     let anchor = document.createElement('a');
     anchor.href = 'data:text;charset=utf-8,' + encodeURIComponent(PyMOLstring);
     anchor.target = '_blank';
-    anchor.download = `PVPyMOL_${vm.pdbid}.pml`;
+    anchor.download = `PVPyMOL_${vm.pdbid}-${month}-${date}-${year}.pml`;
     anchor.click();
 }
 

@@ -35,7 +35,7 @@
                 Select an alignment file:
                 <p><input id="inputUploadFasta" class="btn btn-outline-dark" type = "file" accept=".fasta,.fas,.fa" ref="custom_aln_file" v-on:change="handleFileUpload()"/></p>
                 <p><button id="uploadShowFasta" class="btn btn-outline-dark" v-on:click="submitCustomAlignment()" v-if="file&&type_tree=='upload'">Upload the alignment</button></p>
-                <p><button id="downloadExampleFasta" class="btn btn-outline-dark" v-on:click="getExampleFile(`static/alignments/EFTU_example.fas`, `rv3ExampleAlignment.fas`)" v-if="!file&&type_tree=='upload'">Download example alignment</button></p>
+                <p><button id="downloadExampleFasta" class="btn btn-outline-dark" v-on:click="getExampleFile(`static/alignments/EFTU_example.fas`, `PVExampleAlignment.fas`)" v-if="!file&&type_tree=='upload'">Download example alignment</button></p>
             </div>
             <p>
                 <select class="btn btn-outline-dark dropdown-toggle" id="selectaln" v-if="tax_id" v-model="alnobj">
@@ -117,7 +117,7 @@
                         Upload custom mapping data</label>
                         <p><input class="btn btn-outline-dark" id="inputUploadCSV" v-if="checked_customMap" type="file" accept=".csv" ref="custom_csv_file" v-on:change="handleCustomMappingData()"/></p>
                         <p v-if="raiseCustomCSVWarn" v-html="raiseCustomCSVWarn"></p>
-                        <p><button class="btn btn-outline-dark" id="downloadExampleCSV" v-if="checked_customMap&&csv_data==null" type="button" v-on:click="getExampleFile(`static/alignments/rv3_example_cusom_mapping.csv`, `rv3ExampleCusomMapping.csv`)">
+                        <p><button class="btn btn-outline-dark" id="downloadExampleCSV" v-if="checked_customMap&&csv_data==null" type="button" v-on:click="getExampleFile(`static/alignments/rv3_example_cusom_mapping.csv`, `PVExampleCustomMapping.csv`)">
                         Download example mapping data
                         </button></p>
                     </div>
@@ -561,7 +561,7 @@
             if (type_tree == "upload" && !this.uploadSession){
                 var url = '/custom-aln-data'
             }
-            if (type_tree == "upload" && this.uploadSession){
+            if (this.uploadSession){
                 this.$nextTick(function(){
                     loadAlignmentViewer (vm.fasta_data);
                 });
@@ -762,10 +762,11 @@
         },listSecondaryStructures() {
             listSecondaryStructures();
         },downloadFreqsData(){
+            let [month, date, year] = new Date().toLocaleDateString("en-US").split("/");
             let anchor = document.createElement('a');
             anchor.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(vm.freqCSV);
             anchor.target = '_blank';
-            anchor.download = 'PVfreqData.csv';
+            anchor.download = `PVfreqData-${month}-${date}-${year}.csv`;
             anchor.click();
         },flushDjangoSession(){
             ajaxProper({
