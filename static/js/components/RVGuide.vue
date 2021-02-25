@@ -31,6 +31,7 @@
 
 <script>
     import {initialState} from './DropDownTreeVars.js'
+    import {replacer} from './jsonMapReplacer.js'
     import {readLoadRV3State} from './loadRV3State.js'
     import {cloneDeep} from 'lodash'
     export default {
@@ -68,16 +69,23 @@
                 vm.flushDjangoSession();
             },
             saveRV3State(){
+                let [month, date, year] = new Date().toLocaleDateString("en-US").split("/");
                 let anchor = document.createElement('a');
                 vm.uploadSession=true;
                 var saveData = _.cloneDeep(vm.$data);
                 saveData.topology_loaded = false;
                 saveData.postedPDBEntities = false;
+                saveData.domain_or_selection = null;
+                saveData.checked_domain = false;
+                saveData.checked_selection = false;
+                saveData.filter_range = null;
+                saveData.selected_domain = [];
                 saveData["window.selectSections_RV1"]=window.selectSections_RV1;
                 saveData["window.aaFreqs"]=window.aaFreqs;
+                saveData["window.barColors"]=window.barColors;
                 anchor.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(saveData, replacer));
                 anchor.target = '_blank';
-                anchor.download = "rv3State.json";
+                anchor.download = `PVState-${month}-${date}-${year}.json`;
                 anchor.click();
                 vm.uploadSession=false;
             },

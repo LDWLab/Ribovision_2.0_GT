@@ -107,23 +107,26 @@ var parseFastaSeqForMSAViewer = function (fasta){
 })();
 
 function downloadCSVData() {
+  let [month, date, year] = new Date().toLocaleDateString("en-US").split("/");
   let csv = generateCSVstring(mapped_aa_properties);
   let anchor = document.createElement('a');
   anchor.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
   anchor.target = '_blank';
-  anchor.download = 'PVdata.csv';
+  anchor.download = `PVData-${month}-${date}-${year}.csv`;
   anchor.click();
 };
 
 var downloadAlignmentData = function(fastaString){
+    let [month, date, year] = new Date().toLocaleDateString("en-US").split("/");
     let anchor = document.createElement('a');
     anchor.href = 'data:text;charset=utf-8,' + encodeURIComponent(fastaString);
     anchor.target = '_blank';
-    anchor.download = 'PValignment.fas';
+    anchor.download = `PValignment-${month}-${date}-${year}.fas`;
     anchor.click();
 }
 
 var downloadAlignmentImage = function(){
+    var [month, date, year] = new Date().toLocaleDateString("en-US").split("/");
     var alnDiv = document.querySelector("#MSAViewer");
     var styleHeight = Number(alnDiv.firstElementChild.style.height.replace("px",""))
     alnDiv.firstElementChild.style.height = styleHeight + 50;
@@ -132,12 +135,13 @@ var downloadAlignmentImage = function(){
         var imageData = canvas.toDataURL("image/png");
         anchor.href = imageData.replace(/^data:image\/png/, "data:application/octet-stream");
         anchor.target = '_blank';
-        anchor.download = 'PValignment.png';
+        anchor.download = `PValignment-${month}-${date}-${year}.png`;
         anchor.click();
     })
 }
 
 var downloadFullAlignmentImage = function (){
+    var [month, date, year] = new Date().toLocaleDateString("en-US").split("/");
     var handleCanvasErr = function (err, labelsDiv, initialLabelsWidth){
         labelsDiv.style.width = initialLabelsWidth;
         PVAlnViewer.handleResize();
@@ -172,7 +176,7 @@ var downloadFullAlignmentImage = function (){
             PVAlnViewer.handleResize();
             anchor.href = imageData.replace(/^data:image\/png/, "data:application/octet-stream");
             anchor.target = '_blank';
-            anchor.download = 'PValignment.png';
+            anchor.download = `PValignment-full-${month}-${date}-${year}.png`;
             anchor.click();
         }).catch(err => {
             handleCanvasErr(err, labelsDiv, initialLabelsWidth);
@@ -512,27 +516,6 @@ var generateCSVstring = function (mapped_data){
 
   return csv;
 };
-
-function replacer(key, value) {
-    const originalObject = this[key];
-    if(originalObject instanceof Map) {
-      return {
-        dataType: 'Map',
-        value: Array.from(originalObject.entries()), // or with spread: value: [...originalObject]
-      };
-    } else {
-      return value;
-    }
-  }
-
-function reviver(key, value) {
-    if(typeof value === 'object' && value !== null) {
-      if (value.dataType === 'Map') {
-        return new Map(value.value);
-      }
-    }
-    return value;
-  }
 
 var parsePVData = function (separatedData, lowVal, highVal, colormapArray, masking=null) {
         let TWCData = new Map();
