@@ -128,19 +128,27 @@
 
 ## Public Set-up
 
-...
-
-n. After updating the dev branch bring the public branch up to speed
+8. After updating the dev branch bring the public branch up to speed
 
 	> git fetch
 
-	> source ./env/bin/activate
+	Merge the origin/dev branch onto public (which you should be on)
 
-	Merge the origin/dev branch onto public
+	>git merge origin/dev
+
+	Rebuild Node.js scripts
 	
 	> npm run build
 
+	Activate virtual environment
+	
+	> source ./env/bin/activate
+
+	Collect any new or changed static files
+
 	> python3 manage.py collectstatic
+
+	Touch this so that Apache knows things have changed
 	
 	> touch /home/Desire-Server/DESIRE/DESIRE/wsgi.py
 
