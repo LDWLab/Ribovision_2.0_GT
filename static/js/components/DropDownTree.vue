@@ -44,12 +44,12 @@
                 </select>
             </p>
 
-                <span v-if="alnobj&&alnobj!='custom'">Select PDB for mapping:</span>
-                <span v-if="alnobj&&alnobj=='custom'">Type PDB for mapping:</span>
+                <span v-if="alnobj&&alnobj!='custom'">Select structure for mapping:</span>
+                <span v-if="alnobj&&alnobj=='custom'">Type PDB entry for mapping:</span>
 
             <p>
                 <select class="btn btn-outline-dark dropdown-toggle" id="pdb_input" v-if="alnobj&&alnobj!='custom'" v-model="pdbid">
-                    <option :value="null" selected disabled hidden>Select structure</option>
+                    <option :value="null" selected disabled hidden>Select PDB entry</option>
                     <option v-for="pdb in pdbs" v-bind:value="pdb.id">{{pdb.name}}</option>
                 </select>
                 <autocomplete isAsync:true :items="blastPDBresult" v-if="alnobj&&alnobj=='custom'" v-model="pdbid"></autocomplete>

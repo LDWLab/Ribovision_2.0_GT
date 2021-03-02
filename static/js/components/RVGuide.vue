@@ -159,7 +159,7 @@
                 title: 'Welcome to ProteoVision!',
             },
             content: `ProteoVision is a visualization tool for ribosomal proteins 
-            designed to visualize phylogenetic, structural, and physicochemical 
+            designed to display phylogenetic, structural, and physicochemical 
             properties in primary, secondary, and tertiary representations.`
         },{
             target: '#tree_type',
@@ -670,7 +670,7 @@
             header: {
                 title: 'About ProteoVision',
             },
-            content: `Download a comprehensive pdf document that describes
+            content: `Redirects to a comprehensive online documentation that describes
             all functions and features of ProteoVision.`,
         },{
             target: '#desireAPIButton',
