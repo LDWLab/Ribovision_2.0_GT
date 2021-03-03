@@ -28,7 +28,7 @@
               :flat="true"
               :limit="3"
               :default-expand-level="1"
-              >Loading phylogenetic tree <img src="static/img/loading.gif" alt="BLASTing available PDBs" style="height:25px;">
+              >Loading phylogenetic tree <img src="static/img/loading.gif" alt="Loading phylogenetic tree" style="height:25px;">
               </treeselect>
             </div>
             <div v-else>
@@ -53,9 +53,15 @@
                     <option v-for="pdb in pdbs" v-bind:value="pdb.id">{{pdb.name}}</option>
                 </select>
                 <autocomplete isAsync:true :items="blastPDBresult" v-if="alnobj&&alnobj=='custom'" v-model="pdbid"></autocomplete>
-                <div id="blastingPDBsMSG" v-if="alnobj&&alnobj=='custom'&&fetchingPDBwithCustomAln&&fetchingPDBwithCustomAln!='complete'">
+                <div id="blastingPDBsMSG" v-if="alnobj&&alnobj=='custom'&&fetchingPDBwithCustomAln&&fetchingPDBwithCustomAln==true">
                     <b>BLASTing available PDBs</b>
                     <img src="static/img/loading.gif" alt="BLASTing available PDBs" style="height:25px;">
+                </div>
+                <div id="blastedPDBsNoneMSG" v-if="alnobj&&alnobj=='custom'&&fetchingPDBwithCustomAln&&fetchingPDBwithCustomAln=='none'">
+                    <b>BLAST didn't match any PDBs!<br>You can still type in any PDB.</b>
+                </div>
+                <div id="blastedPDBsNoneMSG" v-if="alnobj&&alnobj=='custom'&&fetchingPDBwithCustomAln&&fetchingPDBwithCustomAln=='error'">
+                    <b>BLAST error! Please try different alignment or refreshing the page!</b>
                 </div>
                 <span id="completeBLASTsMSG" v-if="alnobj&&alnobj=='custom'&&fetchingPDBwithCustomAln=='complete'"><b>Completed BLAST for similar PDBs.</b></span>
                 <div v-if="hide_chains" id="onFailedChains">Looking for available polymers <img src='static/img/loading.gif' alt='Searching available polymers' style='height:25px;'></div>

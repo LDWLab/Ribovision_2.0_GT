@@ -10,38 +10,41 @@ export function populatePDBsFromCustomAln (firstSeq) {
 		contentType: 'application/json',
 		data: `email=anton.petrov%40biology.gatech.edu&program=blastp&stype=protein&sequence=${firstSeq}&database=pdb`,
 		success: function (data){
-			repeatingFunc(data);
+			repeatingFunc(data, firstSeq.length);
 		},
 		error: function(error){
-			vm.fetchingPDBwithCustomAln = false;
+			vm.fetchingPDBwithCustomAln = 'error';
 			console.log(error);
 		}
 	});
 };
 
-var repeatingFunc = function(jobid) {
+var repeatingFunc = function(jobid, qLength) {
 	ebiAjax(`https://www.ebi.ac.uk/Tools/services/rest/ncbiblast/status/${jobid}`).then(jobStatus=>{
 		if (jobStatus == 'RUNNING'){
-			setTimeout(repeatingFunc(jobid), 1000);
+			setTimeout(repeatingFunc(jobid, qLength), 1000);
 		} else if (jobStatus == 'FINISHED'){
-			fetchBLASTresult(jobid);
+			fetchBLASTresult(jobid, qLength);
 		} else {
-			vm.fetchingPDBwithCustomAln = false;
+			vm.fetchingPDBwithCustomAln = 'error';
 			console.log(`Error with blast job! Job finished with status ${jobStatus}`);
 		}
 	}).catch(error => {
+		vm.fetchingPDBwithCustomAln = 'error';
 		console.log(`Error with status blast job! Error: ${error}`);
 	})
 }
 
-var fetchBLASTresult = function (jobID){
+var fetchBLASTresult = function (jobID, qLength){
 	ebiAjax(`https://www.ebi.ac.uk/Tools/services/rest/ncbiblast/result/${jobID}/out?format=10`).then(csvResult=>{
 		let csvArr = csvResult.split(/\n/g);
 		var filteredPDBs = new Map();
 		var tempPDB = new Array();
 		csvArr.forEach(function(blastRow){
 			let blastEval = Number(blastRow.split(',')[10]);
-			if (blastEval < 0.00001){
+			let blastLength = Number(blastRow.split(',')[3]);
+			let blastCoverage = blastLength/qLength;
+			if (blastEval < 0.00001 && blastCoverage > 0.75){
 				var pdb = blastRow.split(',')[1].split(/:|_/)[1];
 				var chain = blastRow.split(',')[1].split(/:|_/)[2];
 				if (filteredPDBs.has(pdb)){
@@ -52,10 +55,15 @@ var fetchBLASTresult = function (jobID){
 				}
 			}
 		})
-		vm.blastPDBresult.push(...tempPDB.sort());
-		vm.blastMAPresult = filteredPDBs;
-		vm.fetchingPDBwithCustomAln = 'complete';
+		if (tempPDB.length > 0){
+			vm.blastPDBresult.push(...tempPDB.sort());
+			vm.blastMAPresult = filteredPDBs;
+			vm.fetchingPDBwithCustomAln = 'complete';
+		} else {
+			vm.fetchingPDBwithCustomAln = 'none';
+		}
 	}).catch(error => {
+		vm.fetchingPDBwithCustomAln = 'error';
 		console.log(`Error with result blast job! Error: ${error}`);
 	})
 }
@@ -71,7 +79,7 @@ var ebiAjax = function (url){
 			},
 			error: function(error) {
 				console.log(`Error ${error}`);
-				vm.fetchingPDBwithCustomAln = false;
+				vm.fetchingPDBwithCustomAln = 'error';
 				reject(error);
 			}
 		})
