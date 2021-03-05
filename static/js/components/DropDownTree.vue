@@ -82,7 +82,7 @@
                 <div id="domainSelectionSection" style="margin: 3% 0;">
                     <div>
                         <label><input type="radio" v-model="domain_or_selection" value="domain">
-                        Cut structure by ECOD domain</label>
+                        Select by ECOD domain</label>
                     </div>
                     <div v-if="selected_domain.length > 0" style="text-align: center;">
                         <a :href="'http://prodata.swmed.edu/ecod/complete/domain/' + selected_domain[0].id" target="_blank">See {{selected_domain[0].id}} on ECOD</a>
@@ -98,7 +98,7 @@
                 <div id="filterSection"><p>
                     <div>
                         <label><input type="radio" v-model="domain_or_selection" value="selection">
-                        Cut structure by custom range</label>
+                        Select custom range</label>
                     </div>
                     <span v-if="checked_selection"><b>Input single</b> residue range to <b>show</b>, ending with semicolon. <br> For example: 1-80;</span>
                     <input class="input-group-text" v-if="checked_selection" v-model="filter_range" v-on:input="handleFilterRange(filter_range)">
@@ -175,7 +175,7 @@
         <div class="topology_section">
             <span id="topif" v-if="chainid.length>0">
                 <div v-if="!topology_loaded">
-                    Loading topology viewer and conservation data <img src="static/img/loading.gif" alt="Loading topology viewer" style="height:25px;">
+                    Loading alignment-structure mapping <img src="static/img/loading.gif" alt="Loading topology viewer" style="height:25px;">
                 </div>
                 <div id="topview"></div>
             </span>
@@ -532,16 +532,21 @@
                             if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
                             if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
                             if (typeof(chain_listI.source[0]) === "undefined") {continue;}
-                            let intersectedChains = _.intersection(chainsFromBlast, chain_listI["in_chains"]);
-                            intersectedChains.forEach(function(chainVal){
-                                chain_options.push({
-                                    text: `${chainVal} ${chain_listI["molecule_name"][0]}`,
-                                    value: chainVal,
-                                    sequence: chain_listI["sequence"],
-                                    entityID: chain_listI["entity_id"],
-                                    startIndex: chain_listI.source[0].mappings[0].start.residue_number
+                            if (!chainsFromBlast){
+                                chain_options = pushChainData(chain_options, chain_listI);
+                            } else {
+                                let intersectedChains = _.intersection(chainsFromBlast, chain_listI["in_chains"]);
+                                intersectedChains.forEach(function(chainVal){
+                                    chain_options.push({
+                                        text: `${chainVal} ${chain_listI["molecule_name"][0]}`,
+                                        value: chainVal,
+                                        sequence: chain_listI["sequence"],
+                                        entityID: chain_listI["entity_id"],
+                                        startIndex: chain_listI.source[0].mappings[0].start.residue_number,
+                                        endIndex: chain_listI.source[0].mappings[0].end.residue_number
+                                    });
                                 });
-                            });
+                            }
                         }
                         if (chain_options.length === 0) {
                             chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
@@ -604,9 +609,10 @@
             })[0];
             let ebi_sequence = temp["sequence"];
             let startIndex = temp["startIndex"];
+            let stopIndex = temp["endIndex"];
             let struc_id = `${pdbid.toUpperCase()}-${temp["entityID"]}`
             if (!this.uploadSession){
-                getStructMappingAndTWC (fasta, struc_id, this);
+                getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, ebi_sequence, this);
             }
             var topology_url = `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdblower}/chain/${chainid}`
             ajax(topology_url).then(data => {
