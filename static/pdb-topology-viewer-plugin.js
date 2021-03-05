@@ -1239,8 +1239,9 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
     };
     PdbTopologyViewerPlugin.prototype.getChainStartAndEnd = function () {
         //chains array from polymerCoveragePerChain api result
-        if (typeof this.apiData[4] == 'undefined')
+        if (!this.apiData) {
             return;
+        }
         var chainsData = this.apiData[4][this.entryId].molecules[0].chains;
         //Iterate molecule data to get chain start and end residue
         var chainRange = { start: 0, end: 0 };
