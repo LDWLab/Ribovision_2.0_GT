@@ -246,6 +246,7 @@
         },csv_data: function(csv_data){
             customCSVhandler(csv_data);
         },alnobj: function (data){
+            if (!data){return;}
             if (data == "custom"){
                 this.showAlignment(null, null, vm.type_tree);
             }else{
@@ -610,7 +611,7 @@
             let ebi_sequence = temp["sequence"];
             let startIndex = temp["startIndex"];
             let stopIndex = temp["endIndex"];
-            let struc_id = `${pdbid.toUpperCase()}-${temp["entityID"]}`
+            let struc_id = `${pdbid.toUpperCase()}-${temp["entityID"]}-${chainid}`
             if (!this.uploadSession){
                 getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, ebi_sequence, this);
             }
@@ -671,10 +672,12 @@
             var minIndex = String(0)
             var maxIndex = String(100000)
             var pdblower = pdbid.toLocaleLowerCase();
+            //var coordURL = `https://www.ebi.ac.uk/pdbe/coordinates/${pdblower}/chains?entityId=${entityid}&encoding=bcif`
+            var coordURL = `https://coords.litemol.org/${pdblower}/chains?entityId=${entityid}&authAsymId=${chainid}&encoding=bcif`;
             window.pdblower = pdblower;
             var viewerInstance = new PDBeMolstarPlugin();
             var options = {
-                customData: { url: `https://www.ebi.ac.uk/pdbe/coordinates/${pdblower}/chains?entityId=${entityid}&encoding=bcif`, 
+                customData: { url: coordURL,
                                 format: 'cif', 
                                 binary:true },
                 hideCanvasControls: ["expand", "selection", " animation"],
@@ -737,11 +740,11 @@
             let tempEntities = this.chains.filter(obj => {
                 return obj["value"] == chainid;
             });
-            let entityIDS = [];
+            let entities = [];
             tempEntities.forEach(function(ent){
-                entityIDS.push(ent["entityID"])
+                entities.push({ entityID: ent["entityID"], chainID: ent["value"] })
             })
-            postCIFdata(pdbid, entityIDS);
+            postCIFdata(pdbid, entities);
         },downloadAlignmentImage() {
             downloadAlignmentImage(document.querySelector('#alnDiv'));
         },downloadAlignmentData() {
