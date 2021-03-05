@@ -428,9 +428,14 @@ def handle_custom_upload_alignment(request):
         alignment_string = ''
         for aln_part in aln_file.chunks():
             alignment_string += aln_part.decode()
-        alignments = list(AlignIO.parse(StringIO(alignment_string), 'fasta'))
+        try:
+            alignments = list(AlignIO.parse(StringIO(alignment_string), 'fasta'))
+        except ValueError as e:
+            return HttpResponseServerError(f"Wasn't able to parse the alignment file with error: {e.args[0]}")
+        except:
+            return HttpResponseServerError("Wasn't able to parse the alignment file! Is the file in FASTA format?")
         if len(alignments) == 0:
-            return HttpResponseServerError("Wasn't able to parse the alignment file! Is your file in fasta format?")
+            return HttpResponseServerError("Wasn't able to parse the alignment file! Is the file in FASTA format?")
         if len(alignments) > 1:
             return HttpResponseServerError("Alignment file had more than one alignments!\nPlease upload a single alignment.")
         fastastring = format(alignments[0], "fasta")
