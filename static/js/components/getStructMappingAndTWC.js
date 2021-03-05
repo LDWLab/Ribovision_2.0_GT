@@ -2,7 +2,7 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
     ajax('/mapSeqAln/', {fasta, struc_id}).then(struct_mapping=>{
         var largestKey = Math.max(...Object.values(struct_mapping).filter(a=>typeof(a)=="number"))
         var smallestKey = Math.min(...Object.values(struct_mapping).filter(a=>typeof(a)=="number"))
-        if (largestKey > stopIndex && smallestKey > startIndex){
+        if (largestKey > stopIndex || smallestKey > startIndex){
             ajax('/mapSeqAlnOrig/', {fasta, ebi_sequence, startIndex:1}).then(orig_struct_mapping=>{
                 if (struct_mapping["gapsInStruc"].length > 0){
                     struct_mapping["gapsInStruc"].forEach(function(gapTup){
@@ -46,12 +46,6 @@ var delayedMapping = function (){
     viewerInstanceTop.pluginInstance.createDomainDropdown();
 }
 
-function wait (ms) {
-    return new Promise((resolve) => {
-      setTimeout(resolve, ms)
-    })
-  }
-  
 function retry (fn, maxAttempts = 1, delay = 0, attempts = 0) {
     return Promise.resolve()
       .then(fn)

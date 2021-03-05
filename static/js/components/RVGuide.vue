@@ -93,6 +93,9 @@
                 if (this.$refs.rv3_state_file.files.length == 0){return;}
                 Object.assign(vm.$data, initialState());
                 window.tempCSVdata = null;
+                window.selectSections_RV1 = null;
+                window.barColors = null;
+                window.aaFreqs = null;
                 readLoadRV3State(this.$refs.rv3_state_file.files[0]);
                 clearInputFile(document.getElementById('inputRV3State'));
             }, downloadAboutDoc(){
