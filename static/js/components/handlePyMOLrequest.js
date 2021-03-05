@@ -19,7 +19,7 @@ var buildPyMOLscriptASstring = function () {
         return vm.chainid[0].indexOf(itm.value) > -1;
     });
     
-    var chainText = filteredChain[0].text.replace(/ /g, '_').replace(/'/g, '')
+    var chainText = filteredChain[0].text.replace(/ /g, '_').replace(/'/g, '').replace(/\W/g, '')
 
     vm.chains.text;
     pmlString += `fetch ${vm.pdbid}, async=0\n`;
