@@ -16,8 +16,9 @@ def make_map_from_alnix_to_sequenceix_new(request):
     fasta, struc_id = request_post_data(request.POST)
     serializeData = request.session[struc_id]
     strucObj = parse_string_structure(serializeData, struc_id)
-    seq_ix_mapping, struc_seq = constructStrucSeqMap(strucObj)
-    mapping = create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping, struc_id)
+    seq_ix_mapping, struc_seq, gapsInStruc = constructStrucSeqMap(strucObj)
+    mapping = create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping)
+    mapping["gapsInStruc"] = gapsInStruc
     if type(mapping) != dict:
         return mapping
     return JsonResponse(mapping, safe = False)
@@ -26,12 +27,16 @@ def constructStrucSeqMap(structure):
     chains = list()
     for chain in structure.get_chains():
         chains.append(chain)
-    sequence = str()
-    seq_ix_mapping = dict()
-    untrue_seq_ix = 1
+    sequence, gapsInStruc, seq_ix_mapping = str(), list(), dict()
+    old_resi, untrue_seq_ix = 0, 1
+
     residues = list(chains[0].get_residues())
     for resi in residues:
         resi_id = resi.get_id()
+        if (old_resi == 0):
+            old_resi = resi_id[1]
+        if (resi_id[1] - old_resi > 1):
+            gapsInStruc.append((old_resi,resi_id[1]))
         if not re.match(r' ', resi_id[2]):
             continue
         if re.match(r'^H_', resi_id[0]):
@@ -39,12 +44,13 @@ def constructStrucSeqMap(structure):
         sequence += resi.get_resname().replace(' ','')
         seq_ix_mapping[untrue_seq_ix] = int(resi_id[1])
         untrue_seq_ix += 1
+        old_resi = resi_id[1]
     if len(seq1(residues[0].get_resname().replace(' ',''))) != 0:
         sequence = seq1(sequence)
 
-    return seq_ix_mapping, SeqRecord(Seq(sequence))
+    return seq_ix_mapping, SeqRecord(Seq(sequence)), gapsInStruc
 
-def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping, struc_path):
+def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
     from subprocess import Popen, PIPE
     from os import remove, path
     from warnings import warn
