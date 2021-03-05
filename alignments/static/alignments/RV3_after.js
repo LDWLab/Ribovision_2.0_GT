@@ -144,10 +144,12 @@ function handleFilterRange(filter_range) {
             window.filterRange = temp_array.join(",");
             var topviewer = document.getElementById("PdbeTopViewer");
             var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
+            var coordURL = `https://coords.litemol.org/${vm.pdbid.toLowerCase()}/residueRange?entityId=${topviewer.entityId}&authAsymId=${topviewer.chainId}&range=${filter_range}&encoding=bcif`
+            //var coordURL = `https://www.ebi.ac.uk/pdbe/coordinates/${window.pdblower}/residueRange?entityId=${topviewer.entityId}&range=${filter_range}&encoding=bcif`
             topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);   
             viewerInstance.visual.update({
                 customData: {
-                    url: `https://www.ebi.ac.uk/pdbe/coordinates/${window.pdblower}/residueRange?entityId=${topviewer.entityId}&range=${filter_range}&encoding=bcif`,
+                    url: coordURL,
                     format: 'cif',
                     binary:true },
                 assemblyId: '1',
@@ -348,9 +350,11 @@ function cleanSelection(checked_selection, filter_range){
   window.filterRange = "-10000,10000";
   topviewer.pluginInstance.alreadyRan = false;
   topviewer.pluginInstance.initPainting();
+  var coordURL = `https://coords.litemol.org/${vm.pdbid.toLowerCase()}/chains?entityId=${topviewer.entityId}&authAsymId=${topviewer.chainid}&encoding=bcif`;
+  //var coordURL = `https://www.ebi.ac.uk/pdbe/coordinates/${window.pdblower}/chains?entityId=${topviewer.entityId}&encoding=bcif`;
   viewerInstance.visual.update({
       customData: {
-          url: `https://www.ebi.ac.uk/pdbe/coordinates/${window.pdblower}/chains?entityId=${topviewer.entityId}&encoding=bcif`,
+          url: coordURL,
           format: 'cif',
           binary:true },
       assemblyId: '1',
