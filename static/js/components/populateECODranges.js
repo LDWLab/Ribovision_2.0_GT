@@ -30,10 +30,10 @@ export function populateECODranges (pdbid, chainid) {
 				}
 			}
 			if (vm.domain_list.length == 0){
-				vm.domain_list.push({name: "No ECOD match!", range: null, id: null});
+				vm.domain_list.push({name: "No ECOD match!"});
 			}
 		}, error: function(xhr, status, error){
-			vm.domain_list.push({name: "Failed getting ECOD domains!", range: null, id: null});
+			vm.domain_list.push({name: "Failed getting ECOD domains!"});
 			var errorMessage = xhr.status + ': ' + xhr.statusText
 			console.log('Error - ' + errorMessage);
 		}
