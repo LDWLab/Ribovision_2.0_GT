@@ -350,7 +350,7 @@ function cleanSelection(checked_selection, filter_range){
   window.filterRange = "-10000,10000";
   topviewer.pluginInstance.alreadyRan = false;
   topviewer.pluginInstance.initPainting();
-  var coordURL = `https://coords.litemol.org/${vm.pdbid.toLowerCase()}/chains?entityId=${topviewer.entityId}&authAsymId=${topviewer.chainid}&encoding=bcif`;
+  var coordURL = `https://coords.litemol.org/${vm.pdbid.toLowerCase()}/chains?entityId=${topviewer.entityId}&authAsymId=${topviewer.chainId}&encoding=bcif`;
   //var coordURL = `https://www.ebi.ac.uk/pdbe/coordinates/${window.pdblower}/chains?entityId=${topviewer.entityId}&encoding=bcif`;
   viewerInstance.visual.update({
       customData: {
