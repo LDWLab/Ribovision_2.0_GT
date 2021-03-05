@@ -38,6 +38,27 @@ var assignColorsAndStrucMappings = function (vueObj, struct_mapping){
         }
     }
     window.mapped_aa_properties = mapped_aa_properties;
+    retry(delayedMapping, 10, 1000);
+}
+
+var delayedMapping = function (){
     viewerInstanceTop.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);
     viewerInstanceTop.pluginInstance.createDomainDropdown();
 }
+
+function wait (ms) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, ms)
+    })
+  }
+  
+function retry (fn, maxAttempts = 1, delay = 0, attempts = 0) {
+    return Promise.resolve()
+      .then(fn)
+      .catch(err => {
+        if (attempts < maxAttempts) {
+          return retry (fn, maxAttempts, delay, attempts + 1)
+        }
+        throw err
+      })
+  }
