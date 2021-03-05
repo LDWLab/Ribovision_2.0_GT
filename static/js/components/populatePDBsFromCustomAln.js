@@ -50,13 +50,14 @@ var fetchBLASTresult = function (jobID, qLength){
 				if (filteredPDBs.has(pdb)){
 					filteredPDBs.get(pdb).push(chain);
 				} else {
-					tempPDB.push(pdb)
+					tempPDB.push({pdb:pdb, coverage:blastCoverage, eval:blastEval})
 					filteredPDBs.set(pdb, [chain]);
 				}
 			}
 		})
 		if (tempPDB.length > 0){
-			vm.blastPDBresult.push(...tempPDB.sort());
+			tempPDB.sort((a, b) => parseFloat(b.blastCoverage) - parseFloat(a.blastCoverage) || parseFloat(a.blastEval) - parseFloat(b.blastEval));
+			vm.blastPDBresult.push(...tempPDB.map(a => a.pdb));
 			vm.blastMAPresult = filteredPDBs;
 			vm.fetchingPDBwithCustomAln = 'complete';
 		} else {

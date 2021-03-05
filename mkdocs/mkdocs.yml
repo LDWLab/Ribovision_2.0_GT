@@ -3,6 +3,7 @@ nav:
     - Home: index.md
     - About: About.md
     - Guide:
+        - ProteoVision Summary: ProteoVision_Summary.md
         - Basic Navigation: Basic_Navigation.md
         - Advanced features: Advanced_Features.md
         - Saving: Saving.md

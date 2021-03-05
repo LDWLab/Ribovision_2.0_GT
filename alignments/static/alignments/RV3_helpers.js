@@ -62,7 +62,7 @@ var validateFasta = function (fasta) {
         return false;
     }
 
-    return /^[-ACDEFGHIKLMNPQRSTUVWY\s]+$/i.test(fastaSeqs);
+    return /^[-ACDEFGHIKLMNPQRSTUVWYX\s]+$/i.test(fastaSeqs);
 }
 
 var parseFastaSeqForMSAViewer = function (fasta){
@@ -204,7 +204,8 @@ var pushChainData = function(temp_arr, chain_listI){
         value: chain_listI["in_chains"][0],
         sequence: chain_listI["sequence"],
         entityID: chain_listI["entity_id"],
-        startIndex: chain_listI.source[0].mappings[0].start.residue_number
+        startIndex: chain_listI.source[0].mappings[0].start.residue_number,
+        endIndex: chain_listI.source[0].mappings[0].end.residue_number
     })
     }catch(err){console.log(err);}
   return temp_arr;
