@@ -125,6 +125,8 @@ function handleDomainRange(domain_range) {
     //handleFilterRange(domain_range);
     domain_array = domain_range.split(';');
     if(domain_array.length == 2) {
+        vm.masking_range = null;
+        vm.checked_filter = false;
         handleFilterRange(domain_range);
     } else {
         var first = domain_array[0].split('-')[0];
