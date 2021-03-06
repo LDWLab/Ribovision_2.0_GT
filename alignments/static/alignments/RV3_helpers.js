@@ -604,9 +604,25 @@ var fetchTWCdata = function (fasta){
 
 var recolorTopStar = function (name){
     var selectBox = viewerInstanceTop.pluginInstance.targetEle.querySelector('.menuSelectbox');
-    var newIndex = indexMatchingText(selectBox.options, name)
+    if (selectBox[selectBox.selectedIndex].text == name) {return;}
+    var newIndex = indexMatchingText(selectBox.options, name);
+    var selectedDomain = viewerInstanceTop.pluginInstance.domainTypes[newIndex];
     selectBox.selectedIndex = newIndex; 
-    viewerInstanceTop.pluginInstance.displayDomain();
+    viewerInstanceTop.pluginInstance.updateTheme(selectedDomain.data); 
+
+    viewerInstance.visual.select({
+       data: selectSections_RV1.get(name), 
+       nonSelectedColor: {r:255,g:255,b:255}
+    }).catch(err => {
+        console.log(err);
+        vm.$nextTick(function(){
+            viewerInstance.visual.select({
+                data: selectSections_RV1.get(name), 
+                nonSelectedColor: {r:255,g:255,b:255}
+             })
+        })
+    })
+
 }
 
 var masked_array = [];
