@@ -43,15 +43,14 @@
                     <option v-if="tax_id" v-for="aln in alignments" v-bind:value="{ id: aln.value, text: aln.text }">{{ aln.text }}</option>
                 </select>
             </p>
-
-                <span v-if="alnobj&&alnobj!='custom'">Select structure for mapping:</span>
-                <span v-if="alnobj&&alnobj=='custom'">Type PDB entry for mapping:</span>
-
+                <!--<span v-if="alnobj&&alnobj!='custom'">Select structure for mapping:</span>-->
+                <span v-if="alnobj">Type PDB entry:</span>
             <p>
-                <select class="btn btn-outline-dark dropdown-toggle" id="pdb_input" v-if="alnobj&&alnobj!='custom'" v-model="pdbid">
+                <!--<select class="btn btn-outline-dark dropdown-toggle" id="pdb_input" v-if="alnobj&&alnobj!='custom'" v-model="pdbid">
                     <option :value="null" selected disabled hidden>Select PDB entry</option>
                     <option v-for="pdb in pdbs" v-bind:value="pdb.id">{{pdb.name}}</option>
-                </select>
+                </select>-->
+                <autocompleteobj id="pdb_input" isAsync:true :items="pdbs" v-if="alnobj&&alnobj!='custom'" v-model="pdbid"></autocompleteobj>
                 <autocomplete isAsync:true :items="blastPDBresult" v-if="alnobj&&alnobj=='custom'" v-model="pdbid"></autocomplete>
                 <div id="blastingPDBsMSG" v-if="alnobj&&alnobj=='custom'&&fetchingPDBwithCustomAln&&fetchingPDBwithCustomAln==true">
                     <b>BLASTing available PDBs</b>
