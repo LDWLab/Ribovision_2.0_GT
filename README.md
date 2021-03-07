@@ -130,7 +130,7 @@
 
 8. After updating the dev branch bring the public branch up to speed
 
-	> git fetch
+	>git fetch
 
 	Merge the origin/dev branch onto public (which you should be on)
 
