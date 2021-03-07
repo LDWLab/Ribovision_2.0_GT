@@ -3,7 +3,6 @@
     <input
       class="input-group-text"
       type="text"
-      maxlength="4"
       @input="onChange"
       v-model="search"
       @keydown.down="onArrowDown"
