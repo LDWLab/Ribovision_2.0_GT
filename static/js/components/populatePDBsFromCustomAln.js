@@ -57,9 +57,8 @@ var fetchBLASTresult = function (jobID, qLength){
 		})
 		if (tempPDB.length > 0){
 			tempPDB.sort((a, b) => parseFloat(b.blastCoverage) - parseFloat(a.blastCoverage) || parseFloat(a.blastEval) - parseFloat(b.blastEval));
-			vm.blastPDBresult.push(...tempPDB.map(a => a.pdb));
 			vm.blastMAPresult = filteredPDBs;
-			vm.fetchingPDBwithCustomAln = 'complete';
+			fetchAndParsePDBnames(constructRCSBGraphQuery(tempPDB), tempPDB);
 		} else {
 			vm.fetchingPDBwithCustomAln = 'none';
 		}
@@ -87,6 +86,51 @@ var ebiAjax = function (url){
 	})
 }
 
+var constructRCSBGraphQuery = function (pdblist){
+	var queryString = '{polymer_entities(entity_ids: ["';
+	pdblist.forEach(function(pdb){
+		queryString += `${pdb.pdb}_1","`
+	});
+	var query = queryString.slice(0,-1);
+	query += ']) {rcsb_entity_source_organism {ncbi_scientific_name}}}'
+	return encodeURIComponent(query);
+}
+
+var fetchAndParsePDBnames = function(query, tempPDB){
+	$.ajax({
+		url: `https://data.rcsb.org/graphql?query=${query}`,
+		type: 'GET',
+		contentType: 'json',
+		success: function (data){
+			var tempNames = [];
+			data.data.polymer_entities.forEach(function(pol){
+				if (pol.rcsb_entity_source_organism && pol.rcsb_entity_source_organism[0]){
+					tempNames.push(pol.rcsb_entity_source_organism[0].ncbi_scientific_name);
+				} else {
+					tempNames.push('');
+				}
+			})
+			combineAndAssignNames(tempNames, tempPDB);
+		},
+		error: function(error){
+			var tempNames = [];
+			tempPDB.forEach(function(pol){
+				tempNames.push('');
+			});
+			combineAndAssignNames(tempNames, tempPDB);
+			console.log(error);
+		}
+	});
+}
+
+var combineAndAssignNames = function(tempNames, tempPDB){
+	var namedPDBs = tempPDB.map(function (entry, index){
+		return { id:entry.pdb, name: `${entry.pdb} ${tempNames[index]}` }
+	 });
+	vm.blastPDBresult.push(...namedPDBs);
+	vm.fetchingPDBwithCustomAln = 'complete';
+}
+
 //qaccver		EMBOSS_001,
 //saccver		PDB:4V8S_BC,
 //pident		48.507,
@@ -99,5 +143,5 @@ var ebiAjax = function (url){
 //send			390,
 //evalue		3.73e-115,
 //bitscore		344
-
-
+//https://www.ebi.ac.uk/Tools/common/tools/help/index.html?tool=ncbiblast
+//https://data.rcsb.org/#gql-api

@@ -3,7 +3,6 @@
     <input
       class="input-group-text"
       type="text"
-      maxlength="4"
       @input="onChange"
       v-model="search"
       @keydown.down="onArrowDown"
@@ -26,11 +25,11 @@
         v-else
         v-for="(result, i) in results"
         :key="i"
-        @click="setResult(result)"
+        @click="setResult(result.id)"
         class="autocomplete-result"
         :class="{ 'is-active': i === arrowCounter }"
       >
-        {{ result }}
+        {{ result.name }}
       </li>
     </ul>
   </div>
@@ -81,7 +80,7 @@
       filterResults() {
         // first uncapitalize all the things
         this.results = this.items.filter((item) => {
-          return item.toLowerCase().indexOf(this.search.toLowerCase()) > -1;
+            return item.name.toLowerCase().indexOf(this.search.toLowerCase()) > -1;
         });
       },
       setResult(result) {
