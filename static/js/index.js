@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import RV3 from './RV3.vue';
 import VueTour from 'vue-tour'
+import Autocompleteobj from './components/Autocompleteobj.vue'
 
 function loadScript(src) {
   return new Promise(function (resolve, reject) {
@@ -22,6 +23,7 @@ loadScript('/static/alignments/RV3_after.js?v='+rand)
 
 //From here https://github.com/pulsardev/vue-tour
 Vue.use(VueTour)
+Vue.component('autocompleteobj', Autocompleteobj);
 
 var vm_both = new Vue({
   el: '#app',

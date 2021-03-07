@@ -9,7 +9,7 @@
                 <p style="padding:2px;float: right;"></p>
                 <button class="btn btn-outline-dark" id="aboutButton" v-on:click="goToAboutPage();" style="float: right;">About</button>
                 <p style="padding:2px;float: right;"></p>
-                <a href="/desire-api/" id="desireAPIButton" class="btn btn-outline-dark" style="float: right;">API</a>
+                <a href="/desire-api/" target="_blank" id="desireAPIButton" class="btn btn-outline-dark" style="float: right;">API</a>
                 <p style="padding:2px;float: right;"></p>
                 <button class="btn btn-outline-dark" id="resetButton" v-on:click="resetRV3State();" style="float: right;">Reset</button>
                 <p style="padding:2px;float: right;"></p>
@@ -300,7 +300,7 @@
             header: {
                 title: 'Select a structure for 2D and 3D display',
             },
-            content: `Select a PDB from the available ones in the dropdown menu.`,
+            content: `Type any PDB ID or select a one from the dropdown menu. PDBs can be searched by the species name or PDB ID.`,
             params: {
               placement: 'right'
             },
@@ -308,6 +308,7 @@
                 resolve (
                     vm.checked_propensities = false,
                     vm.pdbid = "4v9d",
+                    vm.$children[1].search = "4v9d",
                 )
             })
         },{
