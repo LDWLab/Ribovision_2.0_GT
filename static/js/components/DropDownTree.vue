@@ -50,7 +50,7 @@
                     <option :value="null" selected disabled hidden>Select PDB entry</option>
                     <option v-for="pdb in pdbs" v-bind:value="pdb.id">{{pdb.name}}</option>
                 </select>-->
-                <autocompleteobj id="pdb_input" isAsync:true :items="pdbs" v-if="alnobj&&alnobj!='custom'" v-model="pdbid"></autocompleteobj>
+                <autocomplete id="pdb_input" isAsync:true :items="pdbs" v-if="alnobj&&alnobj!='custom'" v-model="pdbid"></autocomplete>
                 <autocomplete isAsync:true :items="blastPDBresult" v-if="alnobj&&alnobj=='custom'" v-model="pdbid"></autocomplete>
                 <div id="blastingPDBsMSG" v-if="alnobj&&alnobj=='custom'&&fetchingPDBwithCustomAln&&fetchingPDBwithCustomAln==true">
                     <b>BLASTing available PDBs</b>
