@@ -505,6 +505,100 @@ def propensity_data(request, aln_id, tax_group):
     }
     return JsonResponse(data)
 
+def permutation_data_custom(request):
+    return permutation_data(request, None, None)
+
+def permutation_data(request, aln_id, tax_group):
+    from io import StringIO
+    from Bio import AlignIO
+    # if request.method == 'POST' and 'customFasta' in request.POST and aln_id is None:
+    #     fastastring = request.POST['customFasta']
+    # else:
+    #     fastastring = simple_fasta(request, aln_id, tax_group, internal=True).replace('\\n', '\n')
+    # fasta = StringIO(fastastring)
+    # if request.method == 'POST' and 'indices' in request.POST:
+    #     indices = request.POST['indices']
+    #     trimmed_fasta = trim_fasta_by_index(fasta, indices)
+    #     fasta = StringIO(format(trimmed_fasta, 'fasta'))
+    fasta_variable_name = 'customFasta'
+    if request.method == 'POST' and fasta_variable_name in request.POST:
+        fastastring = request.POST[fasta_variable_name]
+        fasta = StringIO(fastastring)
+        align = AlignIO.read(fasta, "fasta")
+        # column_dimension = align.get_alignment_length()
+        # midIndex = column_dimension // 2
+        # permutation_index_variable_name = 'permutation_index'
+        # if permutation_index_variable_name in request.POST:
+        #     midIndex = int(request.POST[permutation_index_variable_name])
+        # else:
+        #     midIndex = 0
+        indices_variable_name = 'indices'
+        if indices_variable_name in request.POST:
+            indices = request.POST[indices_variable_name]
+            indexPairs = indices.replace(" ", "").split(',')
+            indexPair = indexPairs[0]
+            indexPair = indexPair.split('-')
+            newAlign = align[:, int(indexPair[0]) - 1:int(indexPair[1])]
+            label_modifiers = []
+            for rowIndex in range(len(align)):
+                pass
+            for indexPair in indexPairs[1:]:
+                indexPair = indexPair.split('-')
+                newAlign += align[:, int(indexPair[0]) - 1:int(indexPair[1])]
+            align = newAlign
+        #     minimumIndex = column_dimension
+        #     maximumIndex = 0
+        #     for index in indices.split(','):
+        #         index = int(index)
+        #         if (index < minimumIndex):
+        #             minimumIndex = index
+        #         if (index > maximumIndex):
+        #             maximumIndex = index
+        #     midIndex = (minimumIndex + maximumIndex) // 2
+
+        # This is the top row of the alignment. It makes for easy checking of the permutation; it serves no other purpose.
+        # align = align[0:1, midIndex:] + align[0:1, :midIndex]
+        # align = align[:, midIndex:] + align[:, :midIndex]
+    else:
+        raise NotImplementedError()
+    fasta = StringIO(format(align, 'fasta'))
+    # lines = fasta.split("\n")
+    # linePairs = []
+    # labelLine = lines[0]
+    # alignmentLine = ""
+    # for line in lines[1:]:
+    #     if line.startswith('>'):
+    #         linePairs.append((labelLine, alignmentLine))
+    #         labelLine = line
+    #         alignmentLine = ""
+    #     else:
+    #         alignmentLine += line
+    permutation_string = fasta.getvalue()
+    # request.FILES['permuted_fasta'] = permutation_string
+
+    now = datetime.datetime.now()
+    fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
+    alignmentFileName = "./static/permuted_alignment" + fileNameSuffix + ".fasta"
+
+    fh = open(alignmentFileName, "w")
+    fh.write(permutation_string)
+    fh.close()
+
+    os.remove(alignmentFileName)
+
+    response = HttpResponse(permutation_string, content_type="text/plain")
+    return response
+# >Bacteria_Synechococcus_sp._PCC_7335_\n
+# NALPLHRIPLGTTVHNVELVPGRGGQVVRAAGAGAQLVAKEGG--YVTLKLPSSEVRMIR\nRECYATIGQVGNVEHRNLSLGKAGRKRWA-------GRRPEVRGSVMNPVDHPHGGGE--\n-GRAPIG-----RSGPVTP-WGKPALGYKTRKKKK----GSDAMIVRRRRRSSKRGRGGR\nNAMGIRSYRPLTPGTRERTV-SDFSTVTADK-PEKSLTYSV-----------HRPKG-RN\nN-RGVITCRHRGGGH-----KRLYR--------EIDFRRN--------KFNVPAKVATIE\nYDPNRNARISLLHYE-DGE-----KRYILHPIGLEVGATIVSG---EDAPFEVG\n
+
+
+# HRIPLGTTVHNVELVPGRGGQVVRAAGAGAQLVAKEGG--YVTLKLPSSEVRMIRRECYA
+# TIGQVGNVEHRNLSLGKAGRKRWA-------GRRPEVRGSVMNPVDHPHGGGE---GRAP
+# IG-----RSGPVTP-WGKPALGYKTRKKKK----GSDAMIVRRRRRSSKRGRGGRNAMGI
+# RSYRPLTPGTRERTV-SDFSTVTADK-PEKSLTYSV-----------HRPKG-RNN-RGV
+# ITCRHRGGGH-----KRLYR--------EIDFRRN--------KFNVPAKVATIEYDPNR
+# NARISLLHYE-DGE-----KRYILHPIGLEVGATIVSG---EDAPFEVGNALPL
+
 def propensities(request, align_name, tax_group):
     aln_id = Alignment.objects.filter(name = align_name)[0].aln_id
     propensity_data = reverse('alignments:propensity_data', kwargs={'aln_id': aln_id, 'tax_group' : tax_group})

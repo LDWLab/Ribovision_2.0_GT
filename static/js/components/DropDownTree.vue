@@ -140,6 +140,15 @@
                     Download AA frequencies
                 </button></p>
             </div></p>
+            <p><div v-if="true" class="checkbox" id="calculatePermutation">
+                <label><input type="checkbox" v-model="checked_permutation" v-on:change="handlePermutation(checked_permutation)">
+                Calculate Permutation</label>
+                <select class="btn btn-outline-dark dropdown-toggle" id="permutationSubstructure" v-if="checked_permutation&&structure_mapping" v-model="property" v-on:change=" getPropensities(property); handlePermutation(checked_permutation)">
+                    <option :value="null" selected disabled hidden>Select secondary structure</option>
+                    <option :value="0">All residues</option>
+                    <option v-for="substructure in substructures" v-bind:value="{ id: substructure.value, text: substructure.text, indices: substructure.indices }">{{ substructure.text }}</option>
+                </select>
+            </div></p>
         </div>
         <div class="alignment_section">
             <div id="alnif" v-if="alnobj">
@@ -769,6 +778,8 @@
             handleFilterRange(filter_range);
         },handlePropensities(checked_propensities){
             handlePropensities(checked_propensities);
+        },handlePermutation(checked_permutation){
+            handlePermutation(checked_permutation);
         },populatePDBs(alndata){
             populatePDBs(alndata);
         },populatePDBsFromCustomAln(firstSeq){
