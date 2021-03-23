@@ -585,7 +585,7 @@ function handlePermutation(checked_permutation) {
         // }
         let
             customFasta = vm.fasta_data;
-        indices = '1-3, 5-8';
+        indices = '1-3, 5-8, 20-25';
         ajax(url_name, {indices, customFasta/*, permutation_index*/}).then(data => {
             
         });

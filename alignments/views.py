@@ -19,6 +19,10 @@ from alignments.fold_api import *
 import alignments.alignment_query_and_build as aqab
 from TwinCons.bin.TwinCons import slice_by_name
 
+from Bio.Alphabet import generic_dna
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
+from Bio.Align import MultipleSeqAlignment
 
 def trim_alignment(concat_fasta, filter_strain):
     '''Reads a fasta string into alignment and trims it down by filter sequence'''
@@ -536,15 +540,83 @@ def permutation_data(request, aln_id, tax_group):
         if indices_variable_name in request.POST:
             indices = request.POST[indices_variable_name]
             indexPairs = indices.replace(" ", "").split(',')
-            indexPair = indexPairs[0]
-            indexPair = indexPair.split('-')
-            newAlign = align[:, int(indexPair[0]) - 1:int(indexPair[1])]
             label_modifiers = []
-            for rowIndex in range(len(align)):
-                pass
-            for indexPair in indexPairs[1:]:
+            per_row_gap_counts = []
+            # align = align[0:1, :]
+            row_range = range(len(align))
+            column_range = range(align.get_alignment_length())
+            for row_index in row_range:
+                label_modifiers.append("")
+                gap_counts_at_row_index = [(0, 0)]
+                per_row_gap_counts.append(gap_counts_at_row_index)
+                running_concurrent_gap_count = 0
+                running_gap_count = 0
+                for column_index in column_range:
+                    if align[row_index, column_index] == '-':
+                        running_concurrent_gap_count += 1
+                    elif running_concurrent_gap_count > 0:
+                        running_gap_count += running_concurrent_gap_count
+                        running_concurrent_gap_count = 0
+                        gap_counts_at_row_index.append((column_index, running_gap_count))
+            newAlign = align[:, 0:0]
+
+            # recordList = []
+            # newAlign = MultipleSeqAlignment(recordList)
+
+            valid_index_pair_flag = False
+            for indexPair in indexPairs:
                 indexPair = indexPair.split('-')
-                newAlign += align[:, int(indexPair[0]) - 1:int(indexPair[1])]
+                column_index_0 = int(indexPair[0]) - 1
+                column_index_1 = int(indexPair[1])
+                if 0 <= column_index_0 < column_index_1:
+                    valid_index_pair_flag = True
+                    for row_index in row_range:
+                        base_column_index = column_index_0
+                        while align[row_index, base_column_index] == '-':
+                            base_column_index += 1
+                        previous_column_index_gap_flag = False
+                        _range = range(base_column_index + 1, column_index_1)
+                        for column_index in _range:
+                            column_index_gap_flag = align[row_index, column_index] == '-'
+                            if column_index_gap_flag != previous_column_index_gap_flag:
+                                if column_index_gap_flag:
+                                    if column_index == base_column_index + 1:
+                                        label_modifiers[row_index] += str(base_column_index + 1) + ", "
+                                    else:
+                                        label_modifiers[row_index] += str(base_column_index + 1) + "-" + str(column_index + 1) + ", "
+                                else:
+                                    base_column_index = column_index
+                            previous_column_index_gap_flag = column_index_gap_flag
+                        if align[row_index, column_index_1 - 1] != '-':
+                            if base_column_index == column_index_1 - 1:
+                                label_modifiers[row_index] += str(base_column_index + 1) + ", "
+                            else:
+                                label_modifiers[row_index] += str(base_column_index + 1) + "-" + str(column_index_1) + ", "
+                    newAlign += align[:, column_index_0:column_index_1]
+                #     for row_index in row_range:
+                #         gap_counts_at_row_index = per_row_gap_counts[row_index]
+                #         gap_counts_at_row_index_range = range(len(gap_counts_at_row_index))
+                #         lower_gap_count_index = 0
+                #         for gap_count_index in gap_counts_at_row_index_range:
+                #             gap_count = gap_counts_at_row_index[gap_count_index]
+                #             gap_count_column_index = gap_count[0]
+                #             if gap_count_column_index > column_index_0:
+                #                 break
+                #             lower_gap_count_index = gap_count_index
+                #         upper_gap_count_index = lower_gap_count_index
+                #         for gap_count_index in gap_counts_at_row_index_range[lower_gap_count_index + 1:]:
+                #             gap_count = gap_counts_at_row_index[gap_count_index]
+                #             gap_count_column_index = gap_count[0]
+                #             if gap_count_column_index > column_index_1:
+                #                 break
+                #             upper_gap_count_index = gap_count_index
+                        
+                #         label_modifiers[row_index] += str(column_index_0 - gap_counts_at_row_index[lower_gap_count_index][1] + 1) + "-" + str(column_index_1 - gap_counts_at_row_index[upper_gap_count_index][1]) + ", "
+            if valid_index_pair_flag:
+                for row_index in row_range:
+                    if len(label_modifiers[row_index]) > 0:
+                        newAlign[row_index].id = re.sub('([^_]*)_?$', r'\1_', newAlign[row_index].id) + label_modifiers[row_index][:-2]
+                        newAlign[row_index].description = ""
             align = newAlign
         #     minimumIndex = column_dimension
         #     maximumIndex = 0
