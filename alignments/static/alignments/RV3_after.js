@@ -543,6 +543,8 @@ function handlePropensities(checked_propensities) {
 
 function handlePermutation(checked_permutation) {
     if (checked_permutation) {
+        let
+            permutation_indices = document.getElementById("permutation_indices").value;
         invertedMap = _.invert(vm.structure_mapping);
         let
             indices = [];
@@ -585,7 +587,8 @@ function handlePermutation(checked_permutation) {
         // }
         let
             customFasta = vm.fasta_data;
-        indices = '1-3, 5-8, 20-25';
+        // indices = '1-3, 5-8, 20-25';
+        indices = permutation_indices;
         ajax(url_name, {indices, customFasta/*, permutation_index*/}).then(data => {
             
         });

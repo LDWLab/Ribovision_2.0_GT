@@ -143,6 +143,7 @@
             <p><div v-if="true" class="checkbox" id="calculatePermutation">
                 <label><input type="checkbox" v-model="checked_permutation" v-on:change="handlePermutation(checked_permutation)">
                 Calculate Permutation</label>
+                <p>Input Permutation indices:<input text="text" id="permutation_indices"></p>
                 <select class="btn btn-outline-dark dropdown-toggle" id="permutationSubstructure" v-if="checked_permutation&&structure_mapping" v-model="property" v-on:change=" getPropensities(property); handlePermutation(checked_permutation)">
                     <option :value="null" selected disabled hidden>Select secondary structure</option>
                     <option :value="0">All residues</option>
