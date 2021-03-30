@@ -125,7 +125,7 @@ var fetchAndParsePDBnames = function(query, tempPDB){
 
 var combineAndAssignNames = function(tempNames, tempPDB){
 	var namedPDBs = tempPDB.map(function (entry, index){
-		return { id:entry.pdb, name: `${entry.pdb} ${tempNames[index]}` }
+		return { id:entry.pdb, name: `${entry.pdb} ${tempNames[index]}`, stats: `Eval:${entry.eval} Cov:${entry.coverage}`}
 	 });
 	vm.blastPDBresult.push(...namedPDBs);
 	vm.fetchingPDBwithCustomAln = 'complete';
