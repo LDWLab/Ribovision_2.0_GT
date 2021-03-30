@@ -44,7 +44,7 @@
                 </select>
             </p>
                 <!--<span v-if="alnobj&&alnobj!='custom'">Select structure for mapping:</span>-->
-                <span v-if="alnobj">Type PDB entry:</span>
+                <span v-if="alnobj">Select or type PDB entry:</span>
             <p>
                 <!--<select class="btn btn-outline-dark dropdown-toggle" id="pdb_input" v-if="alnobj&&alnobj!='custom'" v-model="pdbid">
                     <option :value="null" selected disabled hidden>Select PDB entry</option>
@@ -53,7 +53,7 @@
                 <autocomplete id="pdb_input" isAsync:true :items="pdbs" v-if="alnobj&&alnobj!='custom'" v-model="pdbid"></autocomplete>
                 <autocomplete isAsync:true :items="blastPDBresult" v-if="alnobj&&alnobj=='custom'" v-model="pdbid"></autocomplete>
                 <div id="blastingPDBsMSG" v-if="alnobj&&alnobj=='custom'&&fetchingPDBwithCustomAln&&fetchingPDBwithCustomAln==true">
-                    <b>BLASTing available PDBs</b>
+                    <b>BLASTing first alignment sequence against PDBs</b>
                     <img src="static/img/loading.gif" alt="BLASTing available PDBs" style="height:25px;">
                 </div>
                 <div id="blastedPDBsNoneMSG" v-if="alnobj&&alnobj=='custom'&&fetchingPDBwithCustomAln&&fetchingPDBwithCustomAln=='none'">
