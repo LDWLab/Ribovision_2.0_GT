@@ -5,7 +5,7 @@
                 <span class="title" >ProteoVision: Advanced Visualization of Ribosomal Proteins </span>
             </div>
             <div class="headerOptions" style="margin-left: auto;padding-top:10px;">
-                <button class="btn btn-outline-dark" v-on:click="startTour();" style="float: right;">Help</button>
+                <button class="btn btn-outline-dark" v-on:click="startTour();" style="float: right;">Guide</button>
                 <p style="padding:2px;float: right;"></p>
                 <button class="btn btn-outline-dark" id="aboutButton" v-on:click="goToAboutPage();" style="float: right;">About</button>
                 <p style="padding:2px;float: right;"></p>

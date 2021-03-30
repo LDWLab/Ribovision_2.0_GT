@@ -306,6 +306,7 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     vueObj.freqCSV = null;
     window.ajaxRun = false;
     window.custom_prop = null;
+    if (vueObj.fasta_data) {vueObj.fasta_data = vueObj.fasta_data.replace(/^>Structure sequence\n(.+\n)+?>/i, ">");}
     if (vueObj.topology_loaded) {vueObj.topology_loaded = false;}
     if (vueObj.raiseCustomCSVWarn) {vueObj.raiseCustomCSVWarn = null;}
     if (window.masked_array.length > 0) {window.masked_array = [];}

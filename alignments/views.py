@@ -87,7 +87,7 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
     fh.close()
 
     fh = open(ebiFileName, "w")
-    fh.write(">ebi_sequence\n")
+    fh.write(">Structure sequence\n")
     fh.write(ebi_sequence)
     fh.close()
 
@@ -105,6 +105,7 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
         return HttpResponseServerError("Failed mapping the polymer sequence to the alignment!\nTry a different structure.")
 
     text = decoded_text.split('\n#')[1]
+    amendedAln = re.sub('>Structure sequence$','',decoded_text.split('\n#')[0])
     mapping, firstLine, badMapping = dict(), True, 0
     for line in text.split('\n'):
         if firstLine:
@@ -125,6 +126,7 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
 
     for removeFile in [alignmentFileName, ebiFileName, mappingFileName]:
         os.remove(removeFile)
+    mapping["amendedAln"] = f'>Structure sequence{amendedAln.split(">Structure sequence")[1]}{amendedAln.split(">Structure sequence")[0]}'
     return mapping
 
 def request_post_data(post_data):

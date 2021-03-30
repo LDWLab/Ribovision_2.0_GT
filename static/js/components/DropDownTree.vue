@@ -53,7 +53,7 @@
                 <autocomplete id="pdb_input" isAsync:true :items="pdbs" v-if="alnobj&&alnobj!='custom'" v-model="pdbid"></autocomplete>
                 <autocomplete isAsync:true :items="blastPDBresult" v-if="alnobj&&alnobj=='custom'" v-model="pdbid"></autocomplete>
                 <div id="blastingPDBsMSG" v-if="alnobj&&alnobj=='custom'&&fetchingPDBwithCustomAln&&fetchingPDBwithCustomAln==true">
-                    <b>BLASTing first alignment sequence against PDBs</b>
+                    <b>BLASTing first alignment sequence against PDB sequences</b>
                     <img src="static/img/loading.gif" alt="BLASTing available PDBs" style="height:25px;">
                 </div>
                 <div id="blastedPDBsNoneMSG" v-if="alnobj&&alnobj=='custom'&&fetchingPDBwithCustomAln&&fetchingPDBwithCustomAln=='none'">
@@ -254,6 +254,10 @@
             }
         },pdbid: function (pdbid){
             if (!pdbid){return;}
+            // if (vm.fasta_data){
+            //     let cleanFasta = vm.fasta_data.replace(/^>Structure sequence\n(.+\n)+?>/i, ">");
+            //     vm.fasta_data = cleanFasta;
+            // }
             if (vm.type_tree == "upload"){
                 this.getPDBchains(pdbid, null);
             }else{
@@ -502,6 +506,7 @@
             if (this.uploadSession){return;}
             if (pdbid.length === 4) {
                 if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(this);}
+                loadAlignmentViewer(vm.fasta_data);
                 this.chains = null;
                 this.chainid = [];
                 this.hide_chains = true;
@@ -614,6 +619,7 @@
             if (!this.uploadSession){
                 getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, ebi_sequence, this);
             }
+            loadAlignmentViewer (vm.fasta_data);
             var topology_url = `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdblower}/chain/${chainid}`
             ajax(topology_url).then(data => {
                 var entityid = Object.keys(data[pdblower])[0];
