@@ -6,7 +6,7 @@
             </div>
             <div class="headerOptions" style="margin-left: auto;padding-top:10px;">
                 <span title="Start an interactive guide">
-                    <button class="btn btn-outline-dark" v-on:click="startTour();" style="float: right;">Guide</button>
+                    <button class="btn btn-outline-dark" v-on:click="startTour();" style="float: right;">Help</button>
                 </span>
                 <p style="padding:2px;float: right;"></p>
                 <span title="Go to ProteoVision Wiki page">

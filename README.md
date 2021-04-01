@@ -14,7 +14,7 @@
 	
 	b. <a href=" https://code.visualstudio.com/docs/setup/setup-overview">Visual Studio Code</a> (VS Code)
 
-	c. Follow the first two sections of <a href="https://code.visualstudio.com/docs/setup/setup-overview">this guide</a> to install a virtual python environment for the Django project (at least python3.6).
+	c. Follow the first two sections of <a href="https://code.visualstudio.com/docs/python/tutorial-django#_create-a-project-environment-for-the-django-tutorial">this guide</a> to install a virtual python environment for the Django project (at least python3.6).
 
 	d. Install Mafft and python3-dev:
 
@@ -27,7 +27,7 @@
 
 	f. In the Linux startup file (.bashrc or .bash_profile) add these lines:
 
-	>export DJANGO_SECRET_KEY='' (provided by admin)
+	>export DJANGO_SECRET_KEY='' (random character string of length 50)
 	
 	>export DJANGO_USERNAME='' (MySQL username provided by admin)
 	
