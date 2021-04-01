@@ -1,6 +1,6 @@
 import io, json
 from django.http import JsonResponse, HttpResponse, HttpResponseServerError
-from Bio.PDB import MMCIFParser
+from Bio.PDB import MMCIFParser, PDBParser
 from Bio.PDB.mmcifio import MMCIFIO
 
 def handleCustomUploadStructure (request, strucID):
@@ -16,6 +16,11 @@ def handleCustomUploadStructure (request, strucID):
         except:
             return HttpResponseServerError("POST was sent without entities to parse!")
         deStrEnt = json.loads(entities)
+        if strucID == "CUST":
+            strucString = parseCustomPDB(deStrEnt["stringData"])
+            #make topology data
+            request.session[f'{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = strucString
+            return JsonResponse("Success!", safe=False)
         for entry in deStrEnt:
             if request.session.get(f'{strucID}-{entry["entityID"]}-{entry["chainID"]}'):
                 continue
@@ -90,3 +95,9 @@ def combineChainsInSingleStruc(structureList):
         chain = list(strucToMerge.get_chains())
         structureList[0][0].add(chain[0])
     return structureList
+
+def parseCustomPDB(stringData):
+    parser = PDBParser()
+    strucFile = io.StringIO(stringData)
+    structureObj = parser.get_structure("CUST",strucFile)
+    return strucToString(structureObj)
