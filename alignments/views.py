@@ -367,11 +367,12 @@ def simple_fasta(request, aln_id, tax_group, internal=False):
     
     concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
     alignment_obj = AlignIO.read(StringIO(concat_fasta), 'fasta')
-    sliced_alns = slice_by_name(alignment_obj)
     twc = False
-    if len(sliced_alns.keys()) == 2:
-        twc = True
-    
+    if (len(alignment_obj) < 1000):
+        sliced_alns = slice_by_name(alignment_obj)
+        if len(sliced_alns.keys()) == 2:
+            twc = True
+
     gap_only_cols = extract_gap_only_cols(fastastring)
     filtered_spec_list = extract_species_list(fastastring)
 
@@ -450,10 +451,12 @@ def handle_custom_upload_alignment(request):
         from alignments.Shannon import gap_adjusted_frequency
         fastastring = request.session.get('custom_alignment_file')
         alignment_obj = AlignIO.read(StringIO(fastastring), 'fasta')
-        sliced_alns = slice_by_name(alignment_obj)
         twc = False
-        if len(sliced_alns.keys()) == 2:
-        	twc = True			
+        if (len(alignment_obj) < 1000):
+            sliced_alns = slice_by_name(alignment_obj)
+            if len(sliced_alns.keys()) == 2:
+                twc = True
+        
         fastastring = fastastring.replace('\n','\\n')
         gap_only_cols = extract_gap_only_cols(fastastring)
         filtered_spec_list = extract_species_list(fastastring)

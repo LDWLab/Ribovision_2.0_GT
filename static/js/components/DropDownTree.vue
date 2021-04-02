@@ -440,8 +440,6 @@
                             alert(`${error.responseText}`);
                         }
                     });
-                }else{
-                    alert("Check the fasta format of the uploaded file!")
                 }
             };
             fr.readAsText(this.file)
