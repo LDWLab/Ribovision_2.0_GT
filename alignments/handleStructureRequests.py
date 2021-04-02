@@ -1,4 +1,4 @@
-import io, json
+import io, json, os
 from django.http import JsonResponse, HttpResponse, HttpResponseServerError
 from Bio.PDB import MMCIFParser, PDBParser
 from Bio.PDB.mmcifio import MMCIFIO
@@ -18,6 +18,7 @@ def handleCustomUploadStructure (request, strucID):
         deStrEnt = json.loads(entities)
         if strucID == "CUST":
             strucString = parseCustomPDB(deStrEnt["stringData"])
+            topology = handleTopologyBuilding(deStrEnt["stringData"], "/f/Programs/ProOrigami-master/cde-root/home/proorigami/")
             #make topology data
             request.session[f'{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = strucString
             return JsonResponse("Success!", safe=False)
@@ -101,3 +102,26 @@ def parseCustomPDB(stringData):
     strucFile = io.StringIO(stringData)
     structureObj = parser.get_structure("CUST",strucFile)
     return strucToString(structureObj)
+
+def handleTopologyBuilding(pdbString, proorigamiLocation):
+    from subprocess import Popen, PIPE
+    from os import remove, path
+    import datetime
+
+    cwd = os.getcwd()
+    now = datetime.datetime.now()
+    fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
+    pdbFileLoc = f"{proorigamiLocation}CUSTOMPDB{fileNameSuffix}.pdb"
+    if path.isfile(pdbFileLoc):
+        remove(pdbFileLoc)
+    
+    fh = open(pdbFileLoc, "w")
+    fh.write(pdbString)
+    fh.close()
+
+    os.chdir(proorigamiLocation)
+    pipe = Popen(f"./make_cartoon.sh.cde {pdbFileLoc}", stdout=PIPE, shell=True)
+    output = pipe.communicate()[0]
+    os.chdir(cwd)
+    remove(pdbFileLoc)
+    return output
