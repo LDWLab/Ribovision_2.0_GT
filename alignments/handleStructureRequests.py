@@ -19,6 +19,7 @@ def handleCustomUploadStructure (request, strucID):
         if strucID == "CUST":
             strucString = parseCustomPDB(deStrEnt["stringData"])
             topology = handleTopologyBuilding(deStrEnt["stringData"], "/f/Programs/ProOrigami-master/cde-root/home/proorigami/")
+            request.session[f'TOPOLOGY-{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = topology
             #make topology data
             request.session[f'{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = strucString
             return JsonResponse("Success!", safe=False)
@@ -110,18 +111,35 @@ def handleTopologyBuilding(pdbString, proorigamiLocation):
 
     cwd = os.getcwd()
     now = datetime.datetime.now()
-    fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
-    pdbFileLoc = f"{proorigamiLocation}CUSTOMPDB{fileNameSuffix}.pdb"
-    if path.isfile(pdbFileLoc):
-        remove(pdbFileLoc)
     
-    fh = open(pdbFileLoc, "w")
+    fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
+    fileLoc = f"{proorigamiLocation}CUSTOMPDB{fileNameSuffix}"
+    tempfiles = [f"{fileLoc}.pdb", f"{fileLoc}.svg", f"{fileLoc}.png"]
+    for tempf in tempfiles:
+        if path.isfile(tempf):
+            remove(tempf)
+    
+    fh = open(f"{fileLoc}.pdb", "w")
     fh.write(pdbString)
     fh.close()
 
     os.chdir(proorigamiLocation)
-    pipe = Popen(f"./make_cartoon.sh.cde {pdbFileLoc}", stdout=PIPE, shell=True)
+    pipe = Popen(f"./make_cartoon.sh.cde {fileLoc}.pdb ; cat {fileLoc}.svg", stdout=PIPE, shell=True)
     output = pipe.communicate()[0]
     os.chdir(cwd)
-    remove(pdbFileLoc)
-    return output
+
+    if len(output.decode("ascii")) <= 0:
+        for removeFile in tempfiles:
+            remove(removeFile)
+        return HttpResponseServerError("Failed creating topology diagram!\nTry a different structure.")
+
+    svgData = output.decode("ascii")
+    for removeFile in tempfiles:
+        remove(removeFile)
+
+    return svgData
+
+def getTopology (request, topID):
+    if request.session.get(topID):
+        topology = request.session[topID]
+        return HttpResponse(topology, content_type="text/plain")

@@ -44,5 +44,5 @@ urlpatterns = [
     path('propensities/<str:align_name>/<str:tax_group>', views.propensities, name = 'propensities'),
     path('custom-struc-data/<str:strucID>', handleStructureRequests.handleCustomUploadStructure, name = 'custom_structure'),
     path('authEcodQuery', views.ecodPassThroughQuery, name = 'ecodQuery'),
-    path('proOrigamiTest', views.proOrigamiTest, name = 'proOrigamiTest'),
+    path('proOrigamiTopology/<str:topID>', handleStructureRequests.getTopology, name = 'proOrigamiTopology'),
 ]
