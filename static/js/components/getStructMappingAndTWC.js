@@ -1,8 +1,9 @@
+import {loadAlignmentViewer} from './loadAlignmentViewer.js'
 export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, ebi_sequence, vueObj){
     ajax('/mapSeqAln/', {fasta, struc_id}).then(struct_mapping=>{
         var largestKey = Math.max(...Object.values(struct_mapping).filter(a=>typeof(a)=="number"))
         var smallestKey = Math.min(...Object.values(struct_mapping).filter(a=>typeof(a)=="number"))
-        if (largestKey != stopIndex || smallestKey != startIndex){
+        if ((largestKey != stopIndex || smallestKey != startIndex)&&ebi_sequence){
             ajax('/mapSeqAlnOrig/', {fasta, ebi_sequence, startIndex:1}).then(orig_struct_mapping=>{
                 if (struct_mapping["gapsInStruc"].length > 0){
                     struct_mapping["gapsInStruc"].forEach(function(gapTup){
@@ -31,6 +32,8 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
 var assignColorsAndStrucMappings = function (vueObj, struct_mapping){
     vueObj.structure_mapping = struct_mapping;
     vueObj.poor_structure_map = struct_mapping['BadMappingPositions'];
+    vueObj.fasta_data = struct_mapping["amendedAln"]
+    loadAlignmentViewer (struct_mapping["amendedAln"]);
     var mapped_aa_properties = mapAAProps(vueObj.aa_properties, struct_mapping);
     if (((vueObj.tax_id != null && vueObj.tax_id.length == 2) || (vueObj.custom_aln_twc_flag != null && vueObj.custom_aln_twc_flag == true) || (vueObj.type_tree == 'para'))) {
         if (vueObj.unmappedTWCdata) {

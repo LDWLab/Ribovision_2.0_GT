@@ -5,9 +5,13 @@
                 <span class="title" >ProteoVision: Advanced Visualization of Ribosomal Proteins </span>
             </div>
             <div class="headerOptions" style="margin-left: auto;padding-top:10px;">
-                <button class="btn btn-outline-dark" v-on:click="startTour();" style="float: right;">Help</button>
+                <span title="Start an interactive guide">
+                    <button class="btn btn-outline-dark" v-on:click="startTour();" style="float: right;">Help</button>
+                </span>
                 <p style="padding:2px;float: right;"></p>
-                <button class="btn btn-outline-dark" id="aboutButton" v-on:click="goToAboutPage();" style="float: right;">About</button>
+                <span title="Go to ProteoVision Wiki page">
+                    <button class="btn btn-outline-dark" id="aboutButton" v-on:click="goToAboutPage();" style="float: right;">About</button>
+                </span>
                 <p style="padding:2px;float: right;"></p>
                 <a href="/desire-api/" target="_blank" id="desireAPIButton" class="btn btn-outline-dark" style="float: right;">API</a>
                 <p style="padding:2px;float: right;"></p>

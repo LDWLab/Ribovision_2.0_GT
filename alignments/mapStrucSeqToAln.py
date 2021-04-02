@@ -75,7 +75,7 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
     fh.close()
 
     fh = open(pdb_seq_path, "w")
-    fh.write(">ebi_sequence\n")
+    fh.write(">Structure sequence\n")
     fh.write(str(struc_seq.seq))
     fh.close()
     
@@ -88,6 +88,7 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
         return HttpResponseServerError("Failed mapping the polymer sequence to the alignment!\nTry a different structure.")
 
     mapping_file = output.decode("ascii").split('\n#')[1]
+    amendedAln = re.sub('>Structure sequence$','',output.decode("ascii").split('\n#')[0])
     groupName = output.decode('ascii').split('>')[1].split('_')[0]
     firstLine = True
     mapping, bad_map_positions, fail_map = dict(), 0, False
@@ -110,4 +111,5 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
         return HttpResponseServerError("Failed mapping the polymer sequence to the alignment!\nTry a different structure.")
     if bad_map_positions > 0:
         mapping['BadMappingPositions'] = bad_map_positions
+    mapping["amendedAln"] = f'>Structure sequence{amendedAln.split(">Structure sequence")[1]}{amendedAln.split(">Structure sequence")[0]}'
     return mapping

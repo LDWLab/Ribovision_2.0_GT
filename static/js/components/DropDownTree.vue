@@ -44,7 +44,12 @@
                 </select>
             </p>
                 <!--<span v-if="alnobj&&alnobj!='custom'">Select structure for mapping:</span>-->
-                <span v-if="alnobj">Type PDB entry:</span>
+                <div v-if="alnobj&&alnobj=='custom'&&file&&type_tree=='upload'">
+                    <label for="uploadCustomPDB" id="pdb-upload" class="btn btn-outline-dark">Upload a custom PDB</label>
+                    <input id="uploadCustomPDB" class="btn btn-outline-dark" type="file" accept=".pdb" ref="customPDBfile" v-on:change="uploadCustomPDB()"/>
+                    OR<br>
+                </div>
+                <span v-if="alnobj">Select/type PDB entry:</span>
             <p>
                 <!--<select class="btn btn-outline-dark dropdown-toggle" id="pdb_input" v-if="alnobj&&alnobj!='custom'" v-model="pdbid">
                     <option :value="null" selected disabled hidden>Select PDB entry</option>
@@ -53,7 +58,7 @@
                 <autocomplete id="pdb_input" isAsync:true :items="pdbs" v-if="alnobj&&alnobj!='custom'" v-model="pdbid"></autocomplete>
                 <autocomplete isAsync:true :items="blastPDBresult" v-if="alnobj&&alnobj=='custom'" v-model="pdbid"></autocomplete>
                 <div id="blastingPDBsMSG" v-if="alnobj&&alnobj=='custom'&&fetchingPDBwithCustomAln&&fetchingPDBwithCustomAln==true">
-                    <b>BLASTing available PDBs</b>
+                    <b>BLASTing first alignment sequence against PDB sequences</b>
                     <img src="static/img/loading.gif" alt="BLASTing available PDBs" style="height:25px;">
                 </div>
                 <div id="blastedPDBsNoneMSG" v-if="alnobj&&alnobj=='custom'&&fetchingPDBwithCustomAln&&fetchingPDBwithCustomAln=='none'">
@@ -172,7 +177,7 @@
             </div>
         </div>
         <div class="topology_section">
-            <span id="topif" v-if="chainid.length>0">
+            <span id="topif" v-if="chainid.length>0||customPDBsuccess">
                 <div v-if="!topology_loaded">
                     Loading alignment-structure mapping <img src="static/img/loading.gif" alt="Loading topology viewer" style="height:25px;">
                 </div>
@@ -192,7 +197,7 @@
             </object>-->
         </div>
         <div class="molstar_section">
-            <span id="molif" v-if="chainid.length>0">
+            <span id="molif" v-if="chainid.length>0||customPDBsuccess">
                 <div id ="pdbeMolstarView">
                     Loading Molstar Component <img src="static/img/loading.gif" alt="Loading MolStar" style="height:25px;">
                 </div>
@@ -222,6 +227,8 @@
   import {populatePDBsFromCustomAln} from './populatePDBsFromCustomAln.js'
   import {populateECODranges} from './populateECODranges.js'
   import {postCIFdata} from './postCustomStruct.js'
+  import {uploadCustomPDB} from './handleUploadPDB.js'
+  import {loadViewersWithCustomUploadStructure} from './handleViewersWithUploadPDB.js'
   import ReactDOM, { render } from 'react-dom';
   import React, { Component } from "react";
   import Treeselect from '@riophae/vue-treeselect'
@@ -254,6 +261,10 @@
             }
         },pdbid: function (pdbid){
             if (!pdbid){return;}
+            // if (vm.fasta_data){
+            //     let cleanFasta = vm.fasta_data.replace(/^>Structure sequence\n(.+\n)+?>/i, ">");
+            //     vm.fasta_data = cleanFasta;
+            // }
             if (vm.type_tree == "upload"){
                 this.getPDBchains(pdbid, null);
             }else{
@@ -269,6 +280,12 @@
             } else {
                 const topview_item = document.getElementById("topview");
                 if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Loading Structure Data ", true)}
+            }
+        },customPDBsuccess:function(successPost){
+            if (successPost){
+                this.$nextTick(function(){
+                    loadViewersWithCustomUploadStructure();
+                })
             }
         },topology_loaded: function(topology_loaded){
             if (window.tempCSVdata!= null && this.topology_loaded){
@@ -502,6 +519,7 @@
             if (this.uploadSession){return;}
             if (pdbid.length === 4) {
                 if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(this);}
+                loadAlignmentViewer(vm.fasta_data);
                 this.chains = null;
                 this.chainid = [];
                 this.hide_chains = true;
@@ -614,6 +632,7 @@
             if (!this.uploadSession){
                 getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, ebi_sequence, this);
             }
+            loadAlignmentViewer (vm.fasta_data);
             var topology_url = `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdblower}/chain/${chainid}`
             ajax(topology_url).then(data => {
                 var entityid = Object.keys(data[pdblower])[0];
@@ -668,17 +687,23 @@
         }, showPDBViewer(pdbid, chainid, entityid){
             const molstar_item = document.getElementById("pdbeMolstarView");
             if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Loading Molstar Component ", true)}
-            var minIndex = String(0)
-            var maxIndex = String(100000)
             var pdblower = pdbid.toLocaleLowerCase();
-            //var coordURL = `https://www.ebi.ac.uk/pdbe/coordinates/${pdblower}/chains?entityId=${entityid}&encoding=bcif`
-            var coordURL = `https://coords.litemol.org/${pdblower}/chains?entityId=${entityid}&authAsymId=${chainid}&encoding=bcif`;
+            if (pdbid == "CUST"){
+                var coordURL = `/custom-struc-data/${pdblower}-${entityid}-${chainid}`;
+                var binaryCif = false;
+                var structFormat = "cif";
+            }else{
+                //var coordURL = `https://www.ebi.ac.uk/pdbe/coordinates/${pdblower}/chains?entityId=${entityid}&encoding=bcif`
+                var coordURL = `https://coords.litemol.org/${pdblower}/chains?entityId=${entityid}&authAsymId=${chainid}&encoding=bcif`;
+                var binaryCif = true;
+                var structFormat = "cif";
+            }
             window.pdblower = pdblower;
             var viewerInstance = new PDBeMolstarPlugin();
             var options = {
                 customData: { url: coordURL,
-                                format: 'cif', 
-                                binary:true },
+                                format: structFormat, 
+                                binary: binaryCif },
                 hideCanvasControls: ["expand", "selection", " animation"],
                 assemblyId: '1',
                 hideControls: true,
@@ -796,6 +821,8 @@
                     console.log("Session flushed successfully!") 
                 }
             })
+        }, uploadCustomPDB(){
+            uploadCustomPDB();
         }
     }, 
     mounted() {

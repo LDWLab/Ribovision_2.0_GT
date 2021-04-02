@@ -68,5 +68,7 @@ export function initialState (){
         downloadAlignmentOpt: null,
         downloadMapDataOpt: null,
         freqCSV: null,
+        customPDBsuccess: null,
+        customPDBid: null,
     }
 }
