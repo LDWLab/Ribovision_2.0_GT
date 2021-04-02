@@ -600,9 +600,3 @@ def strucToString(strucObj):
     mmCIFio.set_structure(strucObj)
     mmCIFio.save(strucFile)
     return strucFile.getvalue()
-
-def proOrigamiTest(request):
-    os.chdir(r"/f/Programs/proorigami-cde-package/cde-root/home/proorigami")
-    os.system("./make_cartoon.sh.cde ./1b23.pdb")
-    os.chdir(r"/f/Programs/DESIRE")
-    return JsonResponse(os.getcwd(), safe = False)
