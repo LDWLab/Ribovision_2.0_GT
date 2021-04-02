@@ -18,7 +18,7 @@ def handleCustomUploadStructure (request, strucID):
         deStrEnt = json.loads(entities)
         if strucID == "CUST":
             strucString = parseCustomPDB(deStrEnt["stringData"])
-            topology = handleTopologyBuilding(deStrEnt["stringData"], "/f/Programs/ProOrigami-master/cde-root/home/proorigami/")
+            topology = handleTopologyBuilding(deStrEnt["stringData"], "/home/Desire-Server/proorigami-cde-package/cde-root/home/proorigami")
             request.session[f'TOPOLOGY-{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = topology
             #make topology data
             request.session[f'{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = strucString
