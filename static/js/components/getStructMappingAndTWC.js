@@ -30,10 +30,12 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
 }
 
 var assignColorsAndStrucMappings = function (vueObj, struct_mapping){
-    vueObj.structure_mapping = struct_mapping;
     vueObj.poor_structure_map = struct_mapping['BadMappingPositions'];
-    vueObj.fasta_data = struct_mapping["amendedAln"]
-    loadAlignmentViewer (struct_mapping["amendedAln"]);
+    vueObj.fasta_data = struct_mapping["amendedAln"];
+    delete struct_mapping["amendedAln"];
+    delete struct_mapping["BadMappingPositions"];
+    vueObj.structure_mapping = struct_mapping;
+    loadAlignmentViewer (vueObj.fasta_data);
     var mapped_aa_properties = mapAAProps(vueObj.aa_properties, struct_mapping);
     if (((vueObj.tax_id != null && vueObj.tax_id.length == 2) || (vueObj.custom_aln_twc_flag != null && vueObj.custom_aln_twc_flag == true) || (vueObj.type_tree == 'para'))) {
         if (vueObj.unmappedTWCdata) {
