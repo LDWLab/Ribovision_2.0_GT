@@ -25,6 +25,7 @@ export function initialState (){
         pdbid: null,
         chains: null,
         chainid: [],
+        entityID: null,
         fasta_data: null,
         fastaSeqNames: null,
         colorScheme: 'clustal2',
@@ -70,5 +71,6 @@ export function initialState (){
         freqCSV: null,
         customPDBsuccess: null,
         customPDBid: null,
+        checkedRNA: false,
     }
 }

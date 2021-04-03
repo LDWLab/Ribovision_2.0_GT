@@ -1700,7 +1700,7 @@ class PdbTopologyViewerPlugin {
                     } else {
                         var select_sections = selectSections_RV1.get(selectedDomain.label)
                     }
-                    viewerInstance.visual.select({ data: select_sections, nonSelectedColor: {r:0,g:0,b:0}})
+                    viewerInstance.visual.select({ data: select_sections, nonSelectedColor: {r:180,g:180,b:180}})
                 }
                 //show rsrz validation circles if Quality
                 if(selectedDomain.label === 'Quality'){

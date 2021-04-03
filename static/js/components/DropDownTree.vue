@@ -81,8 +81,11 @@
                     <option value='pymol'>As PyMOL script</option>
                 </select>
             </div>
-            <div v-if="topology_loaded">
-
+            <p><div v-if="topology_loaded" class="checkbox" id="showRNAcontext">
+                <label><input type="checkbox" v-model="checkedRNA" v-on:change="updateMolStarWithRibosome(checkedRNA)">
+                    Show ribosomal context in 3D</label>
+            </p></div>
+            <div v-if="topology_loaded&&!checkedRNA">
                 <div id="domainSelectionSection" style="margin: 3% 0;">
                     <div>
                         <label><input type="radio" v-model="domain_or_selection" value="domain">
@@ -235,6 +238,7 @@
   import Autocomplete from './Autocomplete.vue'
   import { intersection } from 'lodash';
   import {downloadPyMOLscript} from './handlePyMOLrequest.js'
+  //import {parseRNAchains} from './handleRNAchains.js'
   export default {
       // register the component
       components: { Treeselect, Autocomplete },
@@ -525,6 +529,7 @@
                     var chain_list = struc_data[pdbid.toLowerCase()];
                     if (this.type_tree == "para") {aln_id = aln_id.split(',')[1]}
                     if (this.type_tree != "upload") {
+                        //parseRNAchains(chain_list);
                         filterAvailablePolymers(chain_list, aln_id, vm);
                     } else if (vm.blastMAPresult == null){
                         let chain_options = []
@@ -571,6 +576,7 @@
                         this.hide_chains = null;
                     }
                 }).catch(error => {
+                    console.log(error);
                     var elt = document.querySelector("#onFailedChains");
                     this.pdbid = null;
                     if (error.status == 404){
@@ -765,7 +771,8 @@
             let entities = [];
             tempEntities.forEach(function(ent){
                 entities.push({ entityID: ent["entityID"], chainID: ent["value"] })
-            })
+            });
+            this.entityID = tempEntities[0]["entityID"];
             postCIFdata(pdbid, entities);
         },downloadAlignmentImage() {
             downloadAlignmentImage(document.querySelector('#alnDiv'));
@@ -821,6 +828,36 @@
             })
         }, uploadCustomPDB(){
             uploadCustomPDB();
+        }, updateMolStarWithRibosome(checkRibo){
+            if(checkRibo&&viewerInstance&&this.pdbid&&this.entityID){
+                this.completeRiboContext = false;
+                viewerInstance.visual.update({
+                    moleculeId: this.pdbid, 
+                    assemblyId: '1',
+                    bgColor: {r:255,g:255,b:255},
+                });
+                viewerInstance.events.loadComplete.subscribe(function (e) {
+                    //vm.completeRiboContext = true;
+                    let prom = viewerInstance.visual.select({ 
+                        data: [{entity_id: `${vm.entityID}` }], 
+                        nonSelectedColor: {r:180, g:180, b:180} 
+                    });
+                    prom.then(function(v){
+                        viewerInstance.visual.focus([{ entity_id: `${vm.entityID}` }]);
+                        if(viewerInstanceTop&&vm.selected_property){
+                            viewerInstanceTop.pluginInstance.displayDomain();
+                        }
+                    })
+                });
+            }
+            if (!checkRibo&&viewerInstance&&this.pdbid&&this.entityID){
+                this.showPDBViewer(this.pdbid, this.chainid[0], this.entityID);
+                viewerInstance.events.loadComplete.subscribe(function (e) {
+                    if(viewerInstanceTop&&vm.selected_property){
+                        viewerInstanceTop.pluginInstance.displayDomain();
+                    }
+                });
+            }
         }
     }, 
     mounted() {
