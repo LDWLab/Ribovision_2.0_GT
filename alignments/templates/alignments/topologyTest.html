@@ -1,29 +1,34 @@
 <html>
 <head>
 	{% load static %}
-	<!-- Favicon -->
-	<link rel="shortcut icon" href="{% static 'img/favicon128.png' %}"/>
-
-	<!-- include Ajax -->
-	<script src={% static 'alignments/external/jquery.min.js' %}></script>
-	<!-- include styles -->
-
-	<style data="rv3_style" type="text/css"></style>
-	<!-- Lodash script -->
-
-	<!-- Complied & minified d3 and math libraries -->
 	<script src={% static 'alignments/external/d3@5.9.2' %}></script>
+	<script type="text/javascript" src={% static 'pdb-topology-viewer-plugin-2.0.0.js' %} defer></script>
 
-
-	<script type="text/javascript" src={% static 'alignments/colormaps.js' %} defer></script>
-
-	<script type="text/javascript" src={% static 'pdb-topology-viewer-component-2.0.0.js' %} defer></script>
-
-	
-	<!-- Support scripts for RV3 -->
-	<script type="text/javascript" src={% static 'alignments/RV3_before.js' %}></script>
 </head>
 <body>
-	<pdb-topology-viewer entry-id="1b23" entity-id="2" chain-id ="P" height="325" width="400"></pdb-topology-viewer>
+	<div id="myViewer"></div>
+	<script>
+		//Instantiate plugin after DOM content is loaded
+		document.addEventListener('DOMContentLoaded', () => {
+	 
+			 //Create plugin instance
+			 var viewerInstance = new PdbTopologyViewerPlugin();
+	 
+			 //Set options (** All the available options are listed below in the documentation)
+			 var options = {
+			 entryId: '1b23',
+			 entityId: '2',
+			 chainId: 'P',
+			 pvAPI: true,
+			 }
+		 
+			 //Get element from HTML/Template to place the viewer 
+			 var viewerContainer = document.getElementById('myViewer');
+	 
+			 //Call render method to display the 2D view
+			 viewerInstance.render(viewerContainer, options);
+		});
+	 </script>
+	<!-- <pdb-topology-viewer entry-id="1b23" entity-id="2" chain-id ="P" proteovision-api="true" subscribe-events="false"></pdb-topology-viewer> -->
 </body>
 </html>
