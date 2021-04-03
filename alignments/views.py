@@ -603,3 +603,6 @@ def strucToString(strucObj):
     mmCIFio.set_structure(strucObj)
     mmCIFio.save(strucFile)
     return strucFile.getvalue()
+
+def topologyTest(request):
+    return render(request, 'alignments/topologyTest.html')
