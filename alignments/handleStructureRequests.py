@@ -128,11 +128,9 @@ def handleTopologyBuilding(pdbString, proorigamiLocation):
     cwd = os.getcwd()
     now = datetime.datetime.now()
     
-    #fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
-    fileNameSuffix = "_" + str(now.year) + "_" + str(now.month)
+    fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     fileLoc = f"{proorigamiLocation}CUSTOMPDB{fileNameSuffix}"
-    #tempfiles = [f"{fileLoc}.pdb", f"{fileLoc}.svg", f"{fileLoc}.png"]
-    tempfiles = [f"{fileLoc}.pdb", f"{fileLoc}.png"]
+    tempfiles = [f"{fileLoc}.pdb", f"{fileLoc}.svg", f"{fileLoc}.png"]
     for tempf in tempfiles:
         if path.isfile(tempf):
             remove(tempf)
