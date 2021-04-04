@@ -160,11 +160,11 @@ class PdbTopologyViewerPlugin {
         if (this.pvAPI){
             console.log("can use custom urls")
             var dataUrls = [
-                `https://apollo2.chemistry.gatech.edu/RiboVision3/pdb-topology-viewer-master_2/build/entry_entities_1b23.txt`,
-                `https://apollo2.chemistry.gatech.edu/RiboVision3/pdb-topology-viewer-master_2/build/mappings_1b23.txt`,
-                `https://apollo2.chemistry.gatech.edu/RiboVision3/pdb-topology-viewer-master_2/build/Topology_1b23_m9.txt`,
+                `https://apollo2.chemistry.gatech.edu/RiboVision3/pdb-topology-viewer-master_2/build/1b23Entities.json`,
+                `https://www.ebi.ac.uk/pdbe/api/mappings/${pdbId}`,
+                `https://apollo2.chemistry.gatech.edu/RiboVision3/pdb-topology-viewer-master_2/build/1b23TopologyProOrigamiVertical.json`,
                 `https://www.ebi.ac.uk/pdbe/api/validation/residuewise_outlier_summary/entry/${pdbId}`,
-                `https://www.ebi.ac.uk/pdbe/api/pdb/entry/polymer_coverage/${pdbId}/chain/${chainId}`
+                `https://apollo2.chemistry.gatech.edu/RiboVision3/pdb-topology-viewer-master_2/build/1b23Outliers.json`
             ]
         }
         return Promise.all(dataUrls.map(url => fetch(url)))
