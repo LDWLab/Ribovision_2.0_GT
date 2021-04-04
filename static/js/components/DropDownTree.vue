@@ -81,8 +81,11 @@
                     <option value='pymol'>As PyMOL script</option>
                 </select>
             </div>
-            <div v-if="topology_loaded">
-
+            <p><div v-if="topology_loaded&&type_tree=='orth'" class="checkbox" id="showRNAcontext">
+                <label><input type="checkbox" v-model="checkedRNA" v-on:change="updateMolStarWithRibosome(checkedRNA)">
+                    Show ribosomal context in 3D</label>
+            </p></div>
+            <div v-if="topology_loaded&&!checkedRNA&&!customPDBid">
                 <div id="domainSelectionSection" style="margin: 3% 0;">
                     <div>
                         <label><input type="radio" v-model="domain_or_selection" value="domain">
@@ -235,6 +238,7 @@
   import Autocomplete from './Autocomplete.vue'
   import { intersection } from 'lodash';
   import {downloadPyMOLscript} from './handlePyMOLrequest.js'
+  //import {parseRNAchains} from './handleRNAchains.js'
   export default {
       // register the component
       components: { Treeselect, Autocomplete },
@@ -261,10 +265,6 @@
             }
         },pdbid: function (pdbid){
             if (!pdbid){return;}
-            // if (vm.fasta_data){
-            //     let cleanFasta = vm.fasta_data.replace(/^>Structure sequence\n(.+\n)+?>/i, ">");
-            //     vm.fasta_data = cleanFasta;
-            // }
             if (vm.type_tree == "upload"){
                 this.getPDBchains(pdbid, null);
             }else{
@@ -413,6 +413,11 @@
             if (this.tax_id != null){this.tax_id = null;}
         },
         submitCustomAlignment(){
+            if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(this);}
+            if (vm.fasta_data){
+                let cleanFasta = vm.fasta_data.replace(/^>Structure sequence\n(.+\n)+?>/i, ">");
+                vm.fasta_data = cleanFasta;
+            }
             let formData = new FormData();
             var fr = new FileReader();
             var uploadedFile = this.file;
@@ -440,8 +445,6 @@
                             alert(`${error.responseText}`);
                         }
                     });
-                }else{
-                    alert("Check the fasta format of the uploaded file!")
                 }
             };
             fr.readAsText(this.file)
@@ -527,6 +530,7 @@
                     var chain_list = struc_data[pdbid.toLowerCase()];
                     if (this.type_tree == "para") {aln_id = aln_id.split(',')[1]}
                     if (this.type_tree != "upload") {
+                        //parseRNAchains(chain_list);
                         filterAvailablePolymers(chain_list, aln_id, vm);
                     } else if (vm.blastMAPresult == null){
                         let chain_options = []
@@ -573,6 +577,7 @@
                         this.hide_chains = null;
                     }
                 }).catch(error => {
+                    console.log(error);
                     var elt = document.querySelector("#onFailedChains");
                     this.pdbid = null;
                     if (error.status == 404){
@@ -628,7 +633,7 @@
             let ebi_sequence = temp["sequence"];
             let startIndex = temp["startIndex"];
             let stopIndex = temp["endIndex"];
-            let struc_id = `${pdbid.toUpperCase()}-${temp["entityID"]}-${chainid}`
+            let struc_id = `${pdbid}-${temp["entityID"]}-${chainid}`
             if (!this.uploadSession){
                 getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, ebi_sequence, this);
             }
@@ -688,7 +693,7 @@
             const molstar_item = document.getElementById("pdbeMolstarView");
             if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Loading Molstar Component ", true)}
             var pdblower = pdbid.toLocaleLowerCase();
-            if (pdbid == "CUST"){
+            if (pdbid == "cust"){
                 var coordURL = `/custom-struc-data/${pdblower}-${entityid}-${chainid}`;
                 var binaryCif = false;
                 var structFormat = "cif";
@@ -767,7 +772,8 @@
             let entities = [];
             tempEntities.forEach(function(ent){
                 entities.push({ entityID: ent["entityID"], chainID: ent["value"] })
-            })
+            });
+            this.entityID = tempEntities[0]["entityID"];
             postCIFdata(pdbid, entities);
         },downloadAlignmentImage() {
             downloadAlignmentImage(document.querySelector('#alnDiv'));
@@ -823,6 +829,35 @@
             })
         }, uploadCustomPDB(){
             uploadCustomPDB();
+        }, updateMolStarWithRibosome(checkRibo){
+            if(checkRibo&&viewerInstance&&this.pdbid&&this.entityID){
+                this.completeRiboContext = false;
+                viewerInstance.visual.update({
+                    moleculeId: this.pdbid, 
+                    assemblyId: '1',
+                    bgColor: {r:255,g:255,b:255},
+                });
+                viewerInstance.events.loadComplete.subscribe(function (e) {
+                    let prom = viewerInstance.visual.select({ 
+                        data: [{entity_id: `${vm.entityID}` }], 
+                        nonSelectedColor: {r:180, g:180, b:180} 
+                    });
+                    prom.then(function(v){
+                        viewerInstance.visual.focus([{ entity_id: `${vm.entityID}` }]);
+                        if(viewerInstanceTop&&vm.selected_property){
+                            viewerInstanceTop.pluginInstance.displayDomain();
+                        }
+                    })
+                });
+            }
+            if (!checkRibo&&viewerInstance&&this.pdbid&&this.entityID){
+                this.showPDBViewer(this.pdbid, this.chainid[0], this.entityID);
+                viewerInstance.events.loadComplete.subscribe(function (e) {
+                    if(viewerInstanceTop&&vm.selected_property){
+                        viewerInstanceTop.pluginInstance.displayDomain();
+                    }
+                });
+            }
         }
     }, 
     mounted() {

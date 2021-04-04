@@ -3,12 +3,16 @@ from django.http import JsonResponse, HttpResponse, HttpResponseServerError
 from Bio.PDB import MMCIFParser, PDBParser
 from Bio.PDB.mmcifio import MMCIFIO
 
+from alignments.views import parse_string_structure
+from alignments.topologyAPIgenerators import generateTopologyJSONfromSVG, generateEntityJSON, generatePolCoverageJSON
+from alignments.mapStrucSeqToAln import constructStrucSeqMap
+
 def handleCustomUploadStructure (request, strucID):
     '''We will POST all structure chains we need with uniqueIDs.
     Then when we GET them we can list the strucIDs separated by coma 
     this would mean "combine these in one CIF and return them".
     '''
-    strucID = strucID.upper()
+    strucID = strucID
     if request.method == 'POST':
         from urllib.request import urlopen
         try:
@@ -16,12 +20,27 @@ def handleCustomUploadStructure (request, strucID):
         except:
             return HttpResponseServerError("POST was sent without entities to parse!")
         deStrEnt = json.loads(entities)
-        if strucID == "CUST":
-            strucString = parseCustomPDB(deStrEnt["stringData"])
-            topology = handleTopologyBuilding(deStrEnt["stringData"], "/home/Desire-Server/proorigami-cde-package/cde-root/home/proorigami/")
-            request.session[f'TOPOLOGY-{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = topology
-            #make topology data
-            request.session[f'{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = strucString
+        if strucID == "cust":
+            #### This is not dependent on topology and should return success
+            strucObj = parseCustomPDB(deStrEnt["stringData"])
+            strucString = strucToString(strucObj)
+            outStruc = fixEntityFieldofParsedCIF(strucString, {deStrEnt["chainID"]:deStrEnt["entityID"]})
+            request.session[f'{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = outStruc
+            ###
+
+            seq_ix_mapping, struc_seq, gapsInStruc = constructStrucSeqMap(strucObj)
+            startNum, endNum = 1, len(seq_ix_mapping)
+            startAuth, endAuth = seq_ix_mapping[startNum], seq_ix_mapping[endNum]
+            entityJSON = generateEntityJSON (strucID, deStrEnt["entityID"], str(struc_seq.seq), startNum, endNum)
+            coverageJSON = generatePolCoverageJSON (strucID, deStrEnt["chainID"], deStrEnt["entityID"], startAuth, startNum, endAuth, endNum)
+            topologySVG = handleTopologyBuilding(deStrEnt["stringData"], "/f/Programs/ProOrigami-master/cde-root/home/proorigami/")
+            try:
+                topologyJSON = generateTopologyJSONfromSVG(topologySVG, strucID, deStrEnt["chainID"], deStrEnt["entityID"])
+            except:
+                return HttpResponseServerError("Failed to generate topology from the provided structure!")
+            request.session[f'TOPOLOGY-{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = topologyJSON
+            request.session[f'ENTITY-{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = entityJSON
+            request.session[f'COVERAGE-{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = coverageJSON
             return JsonResponse("Success!", safe=False)
         for entry in deStrEnt:
             if request.session.get(f'{strucID}-{entry["entityID"]}-{entry["chainID"]}'):
@@ -60,25 +79,22 @@ def handleCustomUploadStructure (request, strucID):
             if len(structureList) > 1:
                 structureList = combineChainsInSingleStruc(structureList)
             stringStruc = strucToString(structureList[0])
-            listStruc = stringStruc.split('\n')
-            tempStruc = listStruc[:21]
-            for row in listStruc[21:]:
-                rowList = row.split()
-                if len(rowList) > 10:
-                    rowList[7] = chainToEntity[rowList[16]]
-                tempStruc.append(' '.join(rowList))
-            request.session[strucID] = '\n'.join(tempStruc)
-            stringStruc = '\n'.join(tempStruc)
+            outStruc = fixEntityFieldofParsedCIF(stringStruc, chainToEntity)
+            request.session[strucID] = outStruc
+            stringStruc = outStruc
         except:
             return HttpResponseServerError("Failed to parse structures!")
         return HttpResponse(stringStruc, content_type="text/plain")
 
-def parse_string_structure(stringData, strucID):
-
-    parser = MMCIFParser()
-    strucFile = io.StringIO(stringData)
-    structureObj = parser.get_structure(strucID,strucFile)
-    return structureObj
+def fixEntityFieldofParsedCIF(stringStruc, chainToEntity):
+    listStruc = stringStruc.split('\n')
+    outStruc = listStruc[:21]
+    for row in listStruc[21:]:
+        rowList = row.split()
+        if len(rowList) > 10:
+            rowList[7] = chainToEntity[rowList[16]]
+        outStruc.append(' '.join(rowList))
+    return '\n'.join(outStruc)
 
 def strucToString(strucObj):
     
@@ -102,7 +118,7 @@ def parseCustomPDB(stringData):
     parser = PDBParser()
     strucFile = io.StringIO(stringData)
     structureObj = parser.get_structure("CUST",strucFile)
-    return strucToString(structureObj)
+    return structureObj
 
 def handleTopologyBuilding(pdbString, proorigamiLocation):
     from subprocess import Popen, PIPE
@@ -135,11 +151,14 @@ def handleTopologyBuilding(pdbString, proorigamiLocation):
 
     svgData = output.decode("ascii")
     for removeFile in tempfiles:
-        remove(removeFile)
+        if path.isfile(tempf):
+            remove(tempf)
 
     return svgData
 
 def getTopology (request, topID):
+    if topID == "EMPTY":
+        return JsonResponse({}, safe=False)
     if request.session.get(topID):
         topology = request.session[topID]
-        return HttpResponse(topology, content_type="text/plain")
+        return JsonResponse(topology, safe=False)

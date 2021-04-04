@@ -33,7 +33,8 @@ var absolutePosition = function (el) {
 
 var parseFastaString = function(fastaString){
     let arrayFasta = [];
-    let tempFasta = String(fastaString).split('>');
+    let tempFasta = String(fastaString).split('\n>');
+    tempFasta[0] = tempFasta[0].slice(1);
     tempFasta = tempFasta.filter(n => n);
     tempFasta.forEach(seq =>{
         let splitSeq = seq.split(/\n/);
@@ -47,22 +48,50 @@ var validateFasta = function (fasta) {
     //From here https://www.blopig.com/blog/2013/03/a-javascript-function-to-validate-fasta-sequences/
     
     if (!fasta) { // check there is something first of all
+        alert("Empty file was uploaded!");
         return false;
     }
     
     fastaArr = parseFastaString(fasta);
     var fastaSeqs = '';
+    var nameSeqs = '';
+    var badName = false
+    if (fastaArr.length > 4000){
+        alert("Fasta file has over 2000 sequences! We currently do not support that many sequences.");
+        return false;
+    }
+
+    if (fastaArr[1].length*fastaArr.length > 2000000){
+        alert("Fasta file has over 1000000 positions! We currently do not support such big files.");
+        return false;
+    }
+
     fastaArr.map(function(element, index) {
         if (index % 2 == 1){
             fastaSeqs += fastaArr[index];
+        } else {
+            if (fastaArr[index].includes('>')){
+                badName = true;
+            }
         }
     });
 
     if (!fastaSeqs) { // is it empty whatever we collected ? re-check not efficient 
+        alert("No sequences were found in the file!");
         return false;
     }
 
-    return /^[-ACDEFGHIKLMNPQRSTUVWYX\s]+$/i.test(fastaSeqs);
+    if (badName){
+        alert("The character > should appear only once in sequence headers!");
+        return false;
+    }
+
+    if (!/^[-ACDEFGHIKLMNPQRSTUVWYX\s]+$/i.test(fastaSeqs)){
+        alert("Found non-standard characters in the sequences!");
+        return false;
+    }
+
+    return true;
 }
 
 var parseFastaSeqForMSAViewer = function (fasta){
@@ -292,6 +321,10 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
         if (aln_item) {aln_item.remove(); create_deleted_element("alnif", "alnDiv", aln_text, true)}
     }
     window.mapped_aa_properties = null;
+    vueObj.checkedRNA = false,
+    vueObj.customPDBid = null,
+    vueObj.customPDBsuccess = null,
+    vueObj.entityID = null,
     vueObj.all_residues = null;
     vueObj.coil_residues = null;
     vueObj.helix_residues = null;

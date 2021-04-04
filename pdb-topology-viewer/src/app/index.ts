@@ -31,6 +31,7 @@ class PdbTopologyViewerPlugin {
     errorStyle = 'border:1px solid #696969; height:54%; padding-top:46%; text-align:center; font-weight:bold;';
     menuStyle = 'position:relative;height:38px;line-height:38px;background-color:#96c9dc;padding: 0 10px;font-size:16px; color: black;';
 
+
     sequenceArr: string[];
     entityId: string;
     entryId: string;
@@ -50,10 +51,10 @@ class PdbTopologyViewerPlugin {
     svgHeight = 100;
 
     svgEle: any;
-
+    pvAPI = false;
     subscribeEvents = true;
 
-    render(target: HTMLElement, options:{entityId: string, entryId: string, filterRange?: string, chainId?: string, subscribeEvents?:boolean, displayStyle?: string, errorStyle?: string, menuStyle?: string}) {
+    render(target: HTMLElement, options:{entityId: string, entryId: string, filterRange?: string, chainId?: string, subscribeEvents?:boolean, displayStyle?: string, errorStyle?: string, menuStyle?: string, pvAPI?: boolean}) {
         if(options && typeof options.displayStyle != 'undefined' && options.displayStyle != null) this.displayStyle += options.displayStyle;
         if(options && typeof options.errorStyle != 'undefined' && options.errorStyle != null) this.errorStyle += options.errorStyle;
         if(options && typeof options.menuStyle != 'undefined' && options.menuStyle != null) this.menuStyle += options.menuStyle;
@@ -66,6 +67,7 @@ class PdbTopologyViewerPlugin {
             return;
         }
         if(options.subscribeEvents == false) this.subscribeEvents = false;
+        if(options.pvAPI == true) this.pvAPI = true;
         this.entityId = options.entityId;
         this.entryId = options.entryId.toLowerCase();
         //If chain id is not provided then get best chain id from observed residues api
@@ -148,13 +150,22 @@ class PdbTopologyViewerPlugin {
     }
 
     async getApiData(pdbId: string, chainId: string) {
-        const dataUrls = [
+        var dataUrls = [
             `https://www.ebi.ac.uk/pdbe/api/pdb/entry/entities/${pdbId}`,
             `https://www.ebi.ac.uk/pdbe/api/mappings/${pdbId}`,
             `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdbId}`,
             `https://www.ebi.ac.uk/pdbe/api/validation/residuewise_outlier_summary/entry/${pdbId}`,
             `https://www.ebi.ac.uk/pdbe/api/pdb/entry/polymer_coverage/${pdbId}/chain/${chainId}`
         ]
+        if (this.pvAPI){
+            var dataUrls = [
+                `/proOrigamiTopology/ENTITY-${pdbId}-${this.entityId}-${chainId}`,
+                `/proOrigamiTopology/EMPTY`,
+                `/proOrigamiTopology/TOPOLOGY-${pdbId}-${this.entityId}-${chainId}`,
+                `/proOrigamiTopology/EMPTY`,
+                `/proOrigamiTopology/COVERAGE-${pdbId}-${this.entityId}-${chainId}`
+            ]
+        }
         return Promise.all(dataUrls.map(url => fetch(url)))
         .then(resp => Promise.all( 
                 resp.map((r) => { 
@@ -1688,7 +1699,7 @@ class PdbTopologyViewerPlugin {
                     } else {
                         var select_sections = selectSections_RV1.get(selectedDomain.label)
                     }
-                    viewerInstance.visual.select({ data: select_sections, nonSelectedColor: {r:0,g:0,b:0}})
+                    viewerInstance.visual.select({ data: select_sections, nonSelectedColor: {r:180,g:180,b:180}})
                 }
                 //show rsrz validation circles if Quality
                 if(selectedDomain.label === 'Quality'){
