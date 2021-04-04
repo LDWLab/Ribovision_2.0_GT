@@ -85,7 +85,7 @@
                 <label><input type="checkbox" v-model="checkedRNA" v-on:change="updateMolStarWithRibosome(checkedRNA)">
                     Show ribosomal context in 3D</label>
             </p></div>
-            <div v-if="topology_loaded&&!checkedRNA">
+            <div v-if="topology_loaded&&!checkedRNA&&!customPDBid">
                 <div id="domainSelectionSection" style="margin: 3% 0;">
                     <div>
                         <label><input type="radio" v-model="domain_or_selection" value="domain">
