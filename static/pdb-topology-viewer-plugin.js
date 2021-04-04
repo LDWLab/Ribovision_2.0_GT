@@ -66,6 +66,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         this.menuStyle = 'position:relative;height:38px;line-height:38px;background-color:#96c9dc;padding: 0 10px;font-size:16px; color: black;';
         this.svgWidth = 100;
         this.svgHeight = 100;
+        this.pvAPI = false;
         this.subscribeEvents = true;
         this.createNewEvent = function (eventTypeArr) {
             var eventObj = {};
@@ -171,6 +172,8 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         }
         if (options.subscribeEvents == false)
             this.subscribeEvents = false;
+        if (options.pvAPI == true)
+            this.pvAPI = true;
         this.entityId = options.entityId;
         this.entryId = options.entryId.toLowerCase();
         //If chain id is not provided then get best chain id from observed residues api
@@ -243,7 +246,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
     };
     PdbTopologyViewerPlugin.prototype.getApiData = function (pdbId, chainId) {
         return __awaiter(this, void 0, void 0, function () {
-            var dataUrls;
+            var dataUrls, dataUrls;
             return __generator(this, function (_a) {
                 dataUrls = [
                     "https://www.ebi.ac.uk/pdbe/api/pdb/entry/entities/" + pdbId,
@@ -252,6 +255,15 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                     "https://www.ebi.ac.uk/pdbe/api/validation/residuewise_outlier_summary/entry/" + pdbId,
                     "https://www.ebi.ac.uk/pdbe/api/pdb/entry/polymer_coverage/" + pdbId + "/chain/" + chainId
                 ];
+                if (this.pvAPI) {
+                    dataUrls = [
+                        "/proOrigamiTopology/ENTITY-" + pdbId + "-" + this.entityId + "-" + chainId,
+                        "/proOrigamiTopology/EMPTY",
+                        "/proOrigamiTopology/TOPOLOGY-" + pdbId + "-" + this.entityId + "-" + chainId,
+                        "/proOrigamiTopology/EMPTY",
+                        "/proOrigamiTopology/COVERAGE-" + pdbId + "-" + this.entityId + "-" + chainId
+                    ];
+                }
                 return [2 /*return*/, Promise.all(dataUrls.map(function (url) { return fetch(url); }))
                         .then(function (resp) { return Promise.all(resp.map(function (r) {
                         if (r.status == 200) {
@@ -1638,7 +1650,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                     else {
                         var select_sections = selectSections_RV1.get(selectedDomain.label);
                     }
-                    viewerInstance.visual.select({ data: select_sections, nonSelectedColor: { r: 0, g: 0, b: 0 } });
+                    viewerInstance.visual.select({ data: select_sections, nonSelectedColor: { r: 180, g: 180, b: 180 } });
                 }
                 //show rsrz validation circles if Quality
                 if (selectedDomain.label === 'Quality') {
