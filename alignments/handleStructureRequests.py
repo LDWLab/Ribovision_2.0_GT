@@ -123,11 +123,11 @@ def parseCustomPDB(stringData):
 def handleTopologyBuilding(pdbString, proorigamiLocation):
     from subprocess import Popen, PIPE
     from os import remove, path
-    import datetime
+    import datetime, re
 
     cwd = os.getcwd()
     now = datetime.datetime.now()
-    
+    pdbString = re.sub(r'^HEADER.*\n','',pdbString)
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     fileLoc = f"{proorigamiLocation}CUSTOMPDB{fileNameSuffix}"
     tempfiles = [f"{fileLoc}.pdb", f"{fileLoc}.svg", f"{fileLoc}.png"]
