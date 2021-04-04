@@ -81,7 +81,7 @@
                     <option value='pymol'>As PyMOL script</option>
                 </select>
             </div>
-            <p><div v-if="topology_loaded" class="checkbox" id="showRNAcontext">
+            <p><div v-if="topology_loaded&&type_tree=='orth'" class="checkbox" id="showRNAcontext">
                 <label><input type="checkbox" v-model="checkedRNA" v-on:change="updateMolStarWithRibosome(checkedRNA)">
                     Show ribosomal context in 3D</label>
             </p></div>
@@ -265,10 +265,6 @@
             }
         },pdbid: function (pdbid){
             if (!pdbid){return;}
-            // if (vm.fasta_data){
-            //     let cleanFasta = vm.fasta_data.replace(/^>Structure sequence\n(.+\n)+?>/i, ">");
-            //     vm.fasta_data = cleanFasta;
-            // }
             if (vm.type_tree == "upload"){
                 this.getPDBchains(pdbid, null);
             }else{
@@ -417,6 +413,11 @@
             if (this.tax_id != null){this.tax_id = null;}
         },
         submitCustomAlignment(){
+            if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(this);}
+            if (vm.fasta_data){
+                let cleanFasta = vm.fasta_data.replace(/^>Structure sequence\n(.+\n)+?>/i, ">");
+                vm.fasta_data = cleanFasta;
+            }
             let formData = new FormData();
             var fr = new FileReader();
             var uploadedFile = this.file;
@@ -632,7 +633,7 @@
             let ebi_sequence = temp["sequence"];
             let startIndex = temp["startIndex"];
             let stopIndex = temp["endIndex"];
-            let struc_id = `${pdbid.toUpperCase()}-${temp["entityID"]}-${chainid}`
+            let struc_id = `${pdbid}-${temp["entityID"]}-${chainid}`
             if (!this.uploadSession){
                 getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, ebi_sequence, this);
             }
@@ -692,7 +693,7 @@
             const molstar_item = document.getElementById("pdbeMolstarView");
             if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Loading Molstar Component ", true)}
             var pdblower = pdbid.toLocaleLowerCase();
-            if (pdbid == "CUST"){
+            if (pdbid == "cust"){
                 var coordURL = `/custom-struc-data/${pdblower}-${entityid}-${chainid}`;
                 var binaryCif = false;
                 var structFormat = "cif";
@@ -837,7 +838,6 @@
                     bgColor: {r:255,g:255,b:255},
                 });
                 viewerInstance.events.loadComplete.subscribe(function (e) {
-                    //vm.completeRiboContext = true;
                     let prom = viewerInstance.visual.select({ 
                         data: [{entity_id: `${vm.entityID}` }], 
                         nonSelectedColor: {r:180, g:180, b:180} 

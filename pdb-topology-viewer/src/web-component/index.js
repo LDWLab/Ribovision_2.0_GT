@@ -1,7 +1,7 @@
 class PdbTopologyViewer extends HTMLElement {
 
   static get observedAttributes() {
-    return ['entry-id', 'entity-id', 'filter-range', 'chain-id', 'display-style', 'error-style', 'menu-style', 'subscribe-events', 'proteovision-api'];
+    return ['entry-id', 'entity-id', 'filter-range', 'chain-id', 'display-style', 'error-style', 'menu-style', 'subscribe-events', 'pvapi'];
   }
 
   constructor() {
@@ -46,7 +46,7 @@ class PdbTopologyViewer extends HTMLElement {
     this.errorStyle = this.getAttribute("error-style");
     this.menuStyle = this.getAttribute("menu-style");
     this.subscribeEvents = this.getAttribute("subscribe-events");
-    this.pvAPI = this.getAttribute("proteovision-api");
+    this.pvAPI = (/true/i).test(this.getAttribute("pvapi"));
     this.invokePlugin();
   }
 

@@ -81,7 +81,7 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
     alignmentFileName = "./static/alignment" + fileNameSuffix + ".txt"
     ebiFileName = "./static/ebi_sequence" + fileNameSuffix + ".txt"
     mappingFileName = ebiFileName + ".map"
-
+    fasta = re.sub('>Structure sequence[\s\S]*?>','>',fasta)
     fh = open(alignmentFileName, "w")
     fh.write(fasta)
     fh.close()
@@ -106,7 +106,7 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
 
     text = decoded_text.split('\n#')[1]
     amendedAln = re.sub('>Structure sequence$','',decoded_text.split('\n#')[0])
-    mapping, firstLine, badMapping = dict(), True, 0
+    outputDict, mapping, firstLine, badMapping = dict(), dict(), True, 0
     for line in text.split('\n'):
         if firstLine:
             firstLine = False
@@ -121,13 +121,14 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
             return HttpResponseServerError("Failed mapping the polymer sequence to the alignment!\nTry a different structure.")
         mapping[int(row[2])] = int(row[1]) + shiftIndexBy
 
+    outputDict["structureMapping"] = mapping
     if badMapping > 0:
-        mapping['BadMappingPositions'] = badMapping
+        outputDict['BadMappingPositions'] = badMapping
 
     for removeFile in [alignmentFileName, ebiFileName, mappingFileName]:
         os.remove(removeFile)
-    mapping["amendedAln"] = f'>Structure sequence{amendedAln.split(">Structure sequence")[1]}{amendedAln.split(">Structure sequence")[0]}'
-    return mapping
+    outputDict["amendedAln"] = f'>Structure sequence{amendedAln.split(">Structure sequence")[1]}{amendedAln.split(">Structure sequence")[0]}'
+    return outputDict
 
 def request_post_data(post_data):
     fasta = post_data["fasta"]
@@ -606,3 +607,10 @@ def strucToString(strucObj):
 
 def topologyTest(request):
     return render(request, 'alignments/topologyTest.html')
+
+def parse_string_structure(stringData, strucID):
+    from Bio.PDB import MMCIFParser
+    parser = MMCIFParser()
+    strucFile = io.StringIO(stringData)
+    structureObj = parser.get_structure(strucID,strucFile)
+    return structureObj

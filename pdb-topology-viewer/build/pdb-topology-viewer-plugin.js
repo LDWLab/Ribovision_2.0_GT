@@ -256,13 +256,12 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                     "https://www.ebi.ac.uk/pdbe/api/pdb/entry/polymer_coverage/" + pdbId + "/chain/" + chainId
                 ];
                 if (this.pvAPI) {
-                    console.log("can use custom urls");
                     dataUrls = [
-                        "https://apollo2.chemistry.gatech.edu/RiboVision3/pdb-topology-viewer-master_2/build/entry_entities_1b23.txt",
-                        "https://apollo2.chemistry.gatech.edu/RiboVision3/pdb-topology-viewer-master_2/build/mappings_1b23.txt",
-                        "https://apollo2.chemistry.gatech.edu/RiboVision3/pdb-topology-viewer-master_2/build/Topology_1b23_m9.txt",
-                        "https://www.ebi.ac.uk/pdbe/api/validation/residuewise_outlier_summary/entry/" + pdbId,
-                        "https://www.ebi.ac.uk/pdbe/api/pdb/entry/polymer_coverage/" + pdbId + "/chain/" + chainId
+                        "/proOrigamiTopology/ENTITY-" + pdbId + "-" + this.entityId + "-" + chainId,
+                        "/proOrigamiTopology/EMPTY",
+                        "/proOrigamiTopology/TOPOLOGY-" + pdbId + "-" + this.entityId + "-" + chainId,
+                        "/proOrigamiTopology/EMPTY",
+                        "/proOrigamiTopology/COVERAGE-" + pdbId + "-" + this.entityId + "-" + chainId
                     ];
                 }
                 return [2 /*return*/, Promise.all(dataUrls.map(function (url) { return fetch(url); }))
@@ -1651,7 +1650,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                     else {
                         var select_sections = selectSections_RV1.get(selectedDomain.label);
                     }
-                    viewerInstance.visual.select({ data: select_sections, nonSelectedColor: { r: 0, g: 0, b: 0 } });
+                    viewerInstance.visual.select({ data: select_sections, nonSelectedColor: { r: 180, g: 180, b: 180 } });
                 }
                 //show rsrz validation circles if Quality
                 if (selectedDomain.label === 'Quality') {

@@ -18,8 +18,8 @@ function submitCustomPDB(file){
                     alert("Detected multiple chains! Currently supports only single chain PDBs!");
                     return;
                 } else{
-                    vm.customPDBid = `CUST-CUSTOM-${chainID[0]}`;
-                    postPDBdata("CUST", { entityID: "CUSTOM", chainID: chainID[0], stringData: fr.result });
+                    vm.customPDBid = `cust-1-${chainID[0]}`;
+                    postPDBdata("cust", { entityID: "1", chainID: chainID[0], stringData: fr.result });
                 }
             }).catch(error => {
                 console.log(error)
