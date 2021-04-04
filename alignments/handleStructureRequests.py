@@ -33,7 +33,7 @@ def handleCustomUploadStructure (request, strucID):
             startAuth, endAuth = seq_ix_mapping[startNum], seq_ix_mapping[endNum]
             entityJSON = generateEntityJSON (strucID, deStrEnt["entityID"], str(struc_seq.seq), startNum, endNum)
             coverageJSON = generatePolCoverageJSON (strucID, deStrEnt["chainID"], deStrEnt["entityID"], startAuth, startNum, endAuth, endNum)
-            topologySVG = handleTopologyBuilding(deStrEnt["stringData"], "/f/Programs/ProOrigami-master/cde-root/home/proorigami/")
+            topologySVG = handleTopologyBuilding(deStrEnt["stringData"], "/home/Desire-Server/proorigami-cde-package/cde-root/home/proorigami/")
             try:
                 topologyJSON = generateTopologyJSONfromSVG(topologySVG, strucID, deStrEnt["chainID"], deStrEnt["entityID"])
             except:
