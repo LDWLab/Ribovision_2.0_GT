@@ -660,8 +660,10 @@
                     fetchTWCdata(fasta['Alignment']);
                 }
                 this.cdHITReport = fasta["cdHitReport"]
-                let cdNums = this.cdHITReport.split('\n>Cluster')[0].split('\n')[28].split(/ +/);
-                this.cdHITnums = [cdNums[1], cdNums[3]];
+                if (this.cdHITReport){
+                    let cdNums = this.cdHITReport.split('\n>Cluster')[0].split('\n')[28].split(/ +/);
+                    this.cdHITnums = [cdNums[1], cdNums[3]];
+                }
                 this.fastaSeqNames = fasta['Sequence names'];
                 window.aaFreqs = fasta['AA frequencies'];
                 var barColors = Array(aaFreqs.length).fill('#808080');
