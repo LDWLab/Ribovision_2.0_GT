@@ -16,11 +16,13 @@
 
 	c. Follow the first two sections of <a href="https://code.visualstudio.com/docs/python/tutorial-django#_create-a-project-environment-for-the-django-tutorial">this guide</a> to install a virtual python environment for the Django project (at least python3.6).
 
-	d. Install Mafft and python3-dev:
+	d. Install Mafft, python3-dev, and cdhit:
 
 	>sudo apt-get install -y mafft
 	
 	>sudo apt-get install python3-dev
+
+	>sudo apt-get install cdhit
 	
 	e. Instal git and get an account on github.com. Contact the current admin (anton.petrov@biology.gatech.edu) to receive access to the project repository,
 	as well as user account and password for the MySQL database.
