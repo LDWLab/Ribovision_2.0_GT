@@ -306,6 +306,8 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
             {id: "4v6x", name: "4V6X H. sapiens"},
         ];
         vueObj.colorScheme = 'clustal2';
+        vueObj.fetchUNtruncatedAln = false;
+        vueObj.cdHITReport = false;
         vueObj.aaPos = 0;
         vueObj.seqPos = 0;
         vueObj.msavWillMount = null;

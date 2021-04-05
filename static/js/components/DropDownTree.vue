@@ -155,6 +155,10 @@
                     <button id="downloadFastaBtn" class="btn btn-outline-dark" style="margin: 0 1%;" v-if="msavWillMount" type="button" v-on:click="downloadAlignmentData()">
                         Download alignment
                     </button>
+                    <select id="cdHITResults" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="cdhitSelectedOpt" v-if="cdHITReport">
+                        <option :value="null" selected disabled>See cdhit options</option>
+                        <option v-for="prop in cdhitOpts" :value="prop.value" >{{ prop.Name }}</option>
+                    </select>
                     <select id="downloadAlnImageBtn" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="downloadAlignmentOpt" v-if="msavWillMount">
                         <option :value="null" selected disabled>Download alignment image</option>
                         <option value='full'>Full alignment</option>
@@ -173,6 +177,10 @@
             </div>
         </div>
         <div class="warningSection">
+            <div id="warningCDHITtruncation" v-if="cdHITReport&&didCDHit_truncate" >
+                <b>Warning, your alignment was truncated by cdhit!!!<br/>
+                Original alignment had {{this.cdHITnums[0]}} sequences, which were clustered in {{this.cdHITnums[1]}} groups using threshold of 90% identity.</b>
+            </div>
             <div id="warningPoorStructureAln" v-if="poor_structure_map" >
                 <b>Warning, poor alignment between the structure and sequences!!!<br/>
                 Found {{poor_structure_map}} poorly aligned residues.
@@ -406,6 +414,40 @@
             if (this.topology_loaded){
                 recolorTopStar(name);
             }
+        },cdhitSelectedOpt: function(opt){
+            if (opt=="untrunc"){
+                this.cdhitOpts = this.cdhitOpts.filter(function( obj ) {
+                    return obj.value !== 'untrunc';
+                });
+                if (this.cdhitOpts.filter(e => e.value === 'trunc').length === 0) {
+                    this.cdhitOpts.push({Name:'Reload truncated alignment', value:'trunc'});
+                }
+                cleanupOnNewAlignment(vm, "Loading alignment...");
+                vm.showAlignment(null, null, "upload");
+                vm.didCDHit_truncate = false;
+            }
+            if (opt=="trunc"){
+                this.cdhitOpts = this.cdhitOpts.filter(function( obj ) {
+                    return obj.value !== 'trunc';
+                });
+                if (this.cdhitOpts.filter(e => e.value === 'untrunc').length === 0) {
+                    this.cdhitOpts.push({Name:'Reload original alignment', value:'untrunc'})
+                }
+                cleanupOnNewAlignment(vm, "Loading alignment...");
+                vm.showAlignment(null, null, "upload");
+                vm.didCDHit_truncate = true;
+            }
+            if (opt=="download"){
+                let [month, date, year] = new Date().toLocaleDateString("en-US").split("/");
+                let anchor = document.createElement('a');
+                anchor.href = 'data:text;charset=utf-8,' + encodeURIComponent(vm.cdHITReport);
+                anchor.target = '_blank';
+                anchor.download = `PVcdhitReport-${month}-${date}-${year}.txt`;
+                anchor.click();
+            }
+            if (!this.opt){
+                this.cdhitSelectedOpt = null;
+            }
         }
     },methods: {
         handleFileUpload(){
@@ -428,6 +470,7 @@
                     let firstSeq = parseFastaString(fr.result)[1].replace(/-/g,'');
                     vm.populatePDBsFromCustomAln(firstSeq);
                     formData.append('custom_aln_file', uploadedFile)
+                    cleanupOnNewAlignment(vm, "Loading alignment...");
                     $.ajax({
                         url: '/custom-aln-data',
                         data: formData,
@@ -437,7 +480,11 @@
                         method: 'POST',
                         type: 'POST', // For jQuery < 1.9
                         success: function(data){
-                            cleanupOnNewAlignment(vm, "Loading alignment...");
+                            if (data == "Success!"){
+                                vm.didCDHit_truncate = true;
+                            } else {
+                                vm.didCDHit_truncate = false;
+                            }
                             vm.alnobj = "custom";
                             vm.showAlignment(null, null, "upload");
                         },
@@ -595,8 +642,11 @@
                 var url = `/ortholog-aln-api/${aln_id}/${taxid}`}
             if (type_tree == "para"){
                 var url = '/paralog-aln-api/'+aln_id.split(',')[1]}
-            if (type_tree == "upload" && !this.uploadSession){
+            if (type_tree == "upload" && !this.uploadSession&& this.cdhitSelectedOpt != "untrunc"){
                 var url = '/custom-aln-data'
+            }
+            if (type_tree == "upload" && !this.uploadSession && this.cdhitSelectedOpt == "untrunc"){
+                var url = '/custom-aln-data-nocdhit'
             }
             if (this.uploadSession){
                 this.$nextTick(function(){
@@ -608,6 +658,11 @@
                 if (fasta['TwinCons']){
                     this.custom_aln_twc_flag = fasta['TwinCons'];
                     fetchTWCdata(fasta['Alignment']);
+                }
+                this.cdHITReport = fasta["cdHitReport"]
+                if (this.cdHITReport){
+                    let cdNums = this.cdHITReport.split('\n>Cluster')[0].split('\n')[28].split(/ +/);
+                    this.cdHITnums = [cdNums[1], cdNums[3]];
                 }
                 this.fastaSeqNames = fasta['Sequence names'];
                 window.aaFreqs = fasta['AA frequencies'];

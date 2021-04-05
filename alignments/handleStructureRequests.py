@@ -1,6 +1,6 @@
 import io, json, os
 from django.http import JsonResponse, HttpResponse, HttpResponseServerError
-from Bio.PDB import MMCIFParser, PDBParser
+from Bio.PDB import PDBParser
 from Bio.PDB.mmcifio import MMCIFIO
 
 from alignments.views import parse_string_structure

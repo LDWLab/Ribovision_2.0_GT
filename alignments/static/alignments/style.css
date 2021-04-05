@@ -177,7 +177,8 @@
     padding: 1%;
   }
 
-  #warningPoorStructureAln{
+  #warningPoorStructureAln,
+  #warningCDHITtruncation{
     padding-top: 1%;
     color:#DE3163; 
     text-align: center;
