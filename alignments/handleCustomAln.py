@@ -26,15 +26,25 @@ def handle_custom_upload_alignment(request):
         if validate_fasta_string(fastastring):
             cdHitTruncatedAln, cdHitReport = handleCDhit(alignments[0])
             request.session['custom_alignment_file'] = cdHitTruncatedAln
-            request.session['cdHitTruncatedAln'] = fastastring
+            request.session['cdHitUnTruncatedAln'] = fastastring
             request.session['cdHitReport'] = cdHitReport
-            return HttpResponse('Success!')
+            if cdHitReport:
+                return HttpResponse('Success!')
+            else:
+                return HttpResponse('No CDHITS')
         else:
             return HttpResponseServerError("Alignment file had forbidden characters!\nWhat are you trying to do?")
     if request.method == 'GET':
         fastastring = request.session.get('custom_alignment_file')
         response_dict = handleCustomAlnGETRequest(fastastring)
+        response_dict['cdHitReport'] = request.session['cdHitReport']
         return JsonResponse(response_dict, safe = False)
+
+def getUntruncAln(request):
+    fastastring = request.session.get('cdHitUnTruncatedAln')
+    response_dict = handleCustomAlnGETRequest(fastastring)
+    response_dict['cdHitReport'] = request.session['cdHitReport']
+    return JsonResponse(response_dict, safe = False)
 
 def handleCustomAlnGETRequest(fastastring):
     from alignments.Shannon import gap_adjusted_frequency
@@ -92,7 +102,11 @@ def executeCDHit(fasta):
     return clusters, cdHitClusterOut
 
 def parseCDHitClusters(cdHitclusterOut):
-    cdHitclusterStrings = cdHitclusterOut.split('\n>Cluster')[1:]
+    cdHitListResults = cdHitclusterOut.split('\n>Cluster')
+    resultNums = cdHitListResults[0].split('\n')[28].split()
+    if resultNums[0] == resultNums[2]:
+        return False
+    cdHitclusterStrings = cdHitListResults[1:]
     clusterSeqs = list()
     for clusterString in cdHitclusterStrings:
         clusterEntry = clusterString.split('>')
@@ -117,6 +131,8 @@ def handleCDhit(alnObj):
     import re
     cleanFasta, seqNameDict = prepareCDHit (alnObj)
     cdHitclusters, cdHitReport = executeCDHit(cleanFasta)
+    if not cdHitclusters:
+        return format(alnObj, "fasta"), False
     translDict = dict()
     for num, name in seqNameDict.items():
         translDict[f'>{num}...'] = f'>{name}...'

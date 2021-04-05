@@ -36,6 +36,7 @@ urlpatterns = [
     path('upload-custom-csv/<str:anchor_structure>/<str:chain>', views.twincons_handler, name='custom_csv_data_viewer'),
     path('custom-csv-data', views.upload_custom_data_for_mapping, name='custom_csv_data_handler'),
     path('custom-aln-data', handleCustomAln.handle_custom_upload_alignment, name='custom_aln_data_handler'),
+    path('custom-aln-data-nocdhit', handleCustomAln.getUntruncAln, name='custom_aln_data_handler_without_cdhitTrunc'),
     path('upload-custom-csv/', views.upload_custom_data, name='upload_custom_data'),
     path('propensity-data/<int:aln_id>/<int:tax_group>', views.propensity_data, name = 'propensity_data'),
     path('propensity-data/<int:aln_id>/<str:tax_group>', views.propensity_data, name = 'propensity_data'),

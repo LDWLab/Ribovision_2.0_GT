@@ -72,5 +72,12 @@ export function initialState (){
         customPDBsuccess: null,
         customPDBid: null,
         checkedRNA: false,
+        didCDHit_truncate: null,
+        cdhitSelectedOpt: null,
+        cdHITReport: null,
+        cdhitOpts: [
+            {Name:'Download cdhit report', value:'download'},
+            {Name:'Reload original alignment', value:'untrunc'}
+        ]
     }
 }
