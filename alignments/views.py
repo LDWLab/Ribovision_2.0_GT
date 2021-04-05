@@ -16,6 +16,7 @@ from alignments.taxonomy_views import *
 from alignments.residue_api import *
 from alignments.structure_api import *
 from alignments.fold_api import *
+from alignments.handleCustomAln import handleCDhit
 import alignments.alignment_query_and_build as aqab
 from TwinCons.bin.TwinCons import slice_by_name
 
@@ -444,7 +445,10 @@ def handle_custom_upload_alignment(request):
             return HttpResponseServerError("Alignment file had more than one alignments!\nPlease upload a single alignment.")
         fastastring = format(alignments[0], "fasta")
         if validate_fasta_string(fastastring):
-            request.session['custom_alignment_file'] = fastastring
+            cdHitTruncatedAln, cdHitReport = handleCDhit(alignments[0])
+            request.session['custom_alignment_file'] = cdHitTruncatedAln
+            request.session['cdHitTruncatedAln'] = fastastring
+            request.session['cdHitReport'] = cdHitReport
             return HttpResponse('Success!')
         else:
             return HttpResponseServerError("Alignment file had forbidden characters!\nWhat are you trying to do?")
