@@ -1,5 +1,51 @@
-from django.http import JsonResponse, HttpResponseServerError
+from django.http import JsonResponse, HttpResponseServerError, HttpResponse
+from io import StringIO
+from Bio import AlignIO
 from Bio.Align import MultipleSeqAlignment
+from Bio.SeqUtils import IUPACData
+
+from alignments.views import validate_fasta_string, calculateFastaProps, construct_dict_for_json_response
+
+def handle_custom_upload_alignment(request):
+    if request.method == 'POST' and 'custom_aln_file' in request.FILES:
+        aln_file = request.FILES['custom_aln_file']
+        alignment_string = ''
+        for aln_part in aln_file.chunks():
+            alignment_string += aln_part.decode()
+        try:
+            alignments = list(AlignIO.parse(StringIO(alignment_string), 'fasta'))
+        except ValueError as e:
+            return HttpResponseServerError(f"Wasn't able to parse the alignment file with error: {e.args[0]}")
+        except:
+            return HttpResponseServerError("Wasn't able to parse the alignment file! Is the file in FASTA format?")
+        if len(alignments) == 0:
+            return HttpResponseServerError("Wasn't able to parse the alignment file! Is the file in FASTA format?")
+        if len(alignments) > 1:
+            return HttpResponseServerError("Alignment file had more than one alignments!\nPlease upload a single alignment.")
+        fastastring = format(alignments[0], "fasta")
+        if validate_fasta_string(fastastring):
+            cdHitTruncatedAln, cdHitReport = handleCDhit(alignments[0])
+            request.session['custom_alignment_file'] = cdHitTruncatedAln
+            request.session['cdHitTruncatedAln'] = fastastring
+            request.session['cdHitReport'] = cdHitReport
+            return HttpResponse('Success!')
+        else:
+            return HttpResponseServerError("Alignment file had forbidden characters!\nWhat are you trying to do?")
+    if request.method == 'GET':
+        fastastring = request.session.get('custom_alignment_file')
+        response_dict = handleCustomAlnGETRequest(fastastring)
+        return JsonResponse(response_dict, safe = False)
+
+def handleCustomAlnGETRequest(fastastring):
+    from alignments.Shannon import gap_adjusted_frequency
+    fastastring = fastastring.replace('\n','\\n')
+    concat_fasta, twc, gap_only_cols, filtered_spec_list, alignment_obj = calculateFastaProps(fastastring)
+    frequency_list = list()
+    for i in range(0, alignment_obj.get_alignment_length()):
+        frequency_list.append(gap_adjusted_frequency(alignment_obj[:,i], IUPACData.protein_letters))
+    response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc])
+
+    return response_dict
 
 def prepareCDHit (alnObj):
     seqNameDict = dict()

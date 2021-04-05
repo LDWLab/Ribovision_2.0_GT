@@ -4,7 +4,6 @@ import urllib.request
 from subprocess import Popen, PIPE
 from Bio import AlignIO, BiopythonDeprecationWarning
 from io import StringIO
-from Bio.SeqUtils import IUPACData
 
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, HttpResponseServerError
@@ -16,7 +15,6 @@ from alignments.taxonomy_views import *
 from alignments.residue_api import *
 from alignments.structure_api import *
 from alignments.fold_api import *
-from alignments.handleCustomAln import handleCDhit
 import alignments.alignment_query_and_build as aqab
 from TwinCons.bin.TwinCons import slice_by_name
 
@@ -367,6 +365,12 @@ def simple_fasta(request, aln_id, tax_group, internal=False):
     if internal:
         return fastastring
     
+    concat_fasta, twc, gap_only_cols, filtered_spec_list, alignment_obj = calculateFastaProps(fastastring)
+    response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc])
+
+    return JsonResponse(response_dict, safe = False)
+
+def calculateFastaProps(fastastring):
     concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
     alignment_obj = AlignIO.read(StringIO(concat_fasta), 'fasta')
     twc = False
@@ -374,14 +378,10 @@ def simple_fasta(request, aln_id, tax_group, internal=False):
         sliced_alns = slice_by_name(alignment_obj)
         if len(sliced_alns.keys()) == 2:
             twc = True
-
     gap_only_cols = extract_gap_only_cols(fastastring)
     filtered_spec_list = extract_species_list(fastastring)
 
-    
-    response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc])
-
-    return JsonResponse(response_dict, safe = False)
+    return concat_fasta, twc, gap_only_cols, filtered_spec_list, alignment_obj
 
 def rProtein(request, align_name, tax_group):
     #if tax_group == 0 - no filter
@@ -426,52 +426,6 @@ def validate_fasta_string(fastaString):
         if re.search(regex, fastaString):
             return False
     return True
-
-def handle_custom_upload_alignment(request):
-    if request.method == 'POST' and 'custom_aln_file' in request.FILES:
-        aln_file = request.FILES['custom_aln_file']
-        alignment_string = ''
-        for aln_part in aln_file.chunks():
-            alignment_string += aln_part.decode()
-        try:
-            alignments = list(AlignIO.parse(StringIO(alignment_string), 'fasta'))
-        except ValueError as e:
-            return HttpResponseServerError(f"Wasn't able to parse the alignment file with error: {e.args[0]}")
-        except:
-            return HttpResponseServerError("Wasn't able to parse the alignment file! Is the file in FASTA format?")
-        if len(alignments) == 0:
-            return HttpResponseServerError("Wasn't able to parse the alignment file! Is the file in FASTA format?")
-        if len(alignments) > 1:
-            return HttpResponseServerError("Alignment file had more than one alignments!\nPlease upload a single alignment.")
-        fastastring = format(alignments[0], "fasta")
-        if validate_fasta_string(fastastring):
-            cdHitTruncatedAln, cdHitReport = handleCDhit(alignments[0])
-            request.session['custom_alignment_file'] = cdHitTruncatedAln
-            request.session['cdHitTruncatedAln'] = fastastring
-            request.session['cdHitReport'] = cdHitReport
-            return HttpResponse('Success!')
-        else:
-            return HttpResponseServerError("Alignment file had forbidden characters!\nWhat are you trying to do?")
-    if request.method == 'GET':
-        from alignments.Shannon import gap_adjusted_frequency
-        fastastring = request.session.get('custom_alignment_file')
-        alignment_obj = AlignIO.read(StringIO(fastastring), 'fasta')
-        twc = False
-        if (len(alignment_obj) < 1000):
-            sliced_alns = slice_by_name(alignment_obj)
-            if len(sliced_alns.keys()) == 2:
-                twc = True
-        
-        fastastring = fastastring.replace('\n','\\n')
-        gap_only_cols = extract_gap_only_cols(fastastring)
-        filtered_spec_list = extract_species_list(fastastring)
-        concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
-        frequency_list = list()
-        for i in range(0, alignment_obj.get_alignment_length()):
-            frequency_list.append(gap_adjusted_frequency(alignment_obj[:,i], IUPACData.protein_letters))
-        
-        response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc])
-        return JsonResponse(response_dict, safe = False)
 
 # trims fasta by a list of indices
 def trim_fasta_by_index(input_file, indices):

@@ -1,4 +1,4 @@
-from alignments import handleStructureRequests, mapStrucSeqToAln, alignment_query_and_build
+from alignments import handleCustomAln, handleStructureRequests, mapStrucSeqToAln, alignment_query_and_build
 from django.urls import include, path
 from django.views.generic.base import RedirectView
 from django.contrib.staticfiles.storage import staticfiles_storage
@@ -35,7 +35,7 @@ urlpatterns = [
     path('upload/twc-api/<str:anchor_structure>', views.api_twc_with_upload, name='api_twc_with_upload'),
     path('upload-custom-csv/<str:anchor_structure>/<str:chain>', views.twincons_handler, name='custom_csv_data_viewer'),
     path('custom-csv-data', views.upload_custom_data_for_mapping, name='custom_csv_data_handler'),
-    path('custom-aln-data', views.handle_custom_upload_alignment, name='custom_aln_data_handler'),
+    path('custom-aln-data', handleCustomAln.handle_custom_upload_alignment, name='custom_aln_data_handler'),
     path('upload-custom-csv/', views.upload_custom_data, name='upload_custom_data'),
     path('propensity-data/<int:aln_id>/<int:tax_group>', views.propensity_data, name = 'propensity_data'),
     path('propensity-data/<int:aln_id>/<str:tax_group>', views.propensity_data, name = 'propensity_data'),
