@@ -96,7 +96,11 @@ def parseCDHitClusters(cdHitclusterOut):
     clusterSeqs = list()
     for clusterString in cdHitclusterStrings:
         clusterEntry = clusterString.split('>')
-        clusterSeqs.append(clusterEntry[1].split('... *')[0])
+        for seqName in clusterEntry:
+            entryNames = seqName.split('... *')
+            if len(entryNames) == 2:
+                clusterSeqs.append(entryNames[0])
+                break
     return clusterSeqs
 
 def truncateAlnByCDHitClusters(alnObj, clusters, seqNameDict):
