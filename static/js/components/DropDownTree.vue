@@ -661,7 +661,7 @@
                 }
                 this.cdHITReport = fasta["cdHitReport"]
                 if (this.cdHITReport){
-                    let cdNums = this.cdHITReport.split('\n>Cluster')[0].split('\n')[28].split(/ +/);
+                    let cdNums = this.cdHITReport.split('\n>Cluster')[0].split('\n')[29].split(/ +/);
                     this.cdHITnums = [cdNums[1], cdNums[3]];
                 }
                 this.fastaSeqNames = fasta['Sequence names'];
