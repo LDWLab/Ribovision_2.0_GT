@@ -72,9 +72,9 @@ def executeCDHit(fasta):
 
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
-    fastaName = f"./static/cleanFastaCD{fileNameSuffix}.fa"
-    cdHitOut = f"./static/cleanFastaCD{fileNameSuffix}"
-    cdHitClusters = f"./static/cleanFastaCD{fileNameSuffix}.clstr"
+    fastaName = f"/home/Desire-Server/DESIRE/static/cleanFastaCD{fileNameSuffix}.fa"
+    cdHitOut = f"/home/Desire-Server/DESIRE/static/cleanFastaCD{fileNameSuffix}"
+    cdHitClusters = f"/home/Desire-Server/DESIRE/static/cleanFastaCD{fileNameSuffix}.clstr"
     tempfiles = [fastaName, cdHitOut, cdHitClusters]
     for tempf in tempfiles:
         if path.isfile(tempf):
@@ -103,7 +103,7 @@ def executeCDHit(fasta):
 
 def parseCDHitClusters(cdHitclusterOut):
     cdHitListResults = cdHitclusterOut.split('\n>Cluster')
-    resultNums = cdHitListResults[0].split('\n')[28].split()
+    resultNums = cdHitListResults[0].split('\n')[29].split()
     if resultNums[0] == resultNums[2]:
         return False
     cdHitclusterStrings = cdHitListResults[1:]
