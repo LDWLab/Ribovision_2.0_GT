@@ -659,7 +659,6 @@
                     this.custom_aln_twc_flag = fasta['TwinCons'];
                     fetchTWCdata(fasta['Alignment']);
                 }
-                this.al2coData = fasta["al2co"]
                 this.cdHITReport = fasta["cdHitReport"]
                 if (this.cdHITReport){
                     let cdNums = this.cdHITReport.split(/comparing sequences from.*\n/)[1].split(/\n/)[1].split(/ +/);
