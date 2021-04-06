@@ -22,7 +22,7 @@
 	
 	>sudo apt-get install python3-dev
 
-	>sudo apt-get install cdhit
+	>sudo apt install cd-hit
 	
 	e. Instal git and get an account on github.com. Contact the current admin (anton.petrov@biology.gatech.edu) to receive access to the project repository,
 	as well as user account and password for the MySQL database.
