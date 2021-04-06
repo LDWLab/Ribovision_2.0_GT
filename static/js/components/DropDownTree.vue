@@ -230,6 +230,7 @@
   import {ajaxProper} from './ajaxProper.js'
   import {addFooterImages} from './Footer.js'
   import {initialState} from './DropDownTreeVars.js'
+  import {filterAvailablePolymers} from './filterRiboChains.js'
   import {getStructMappingAndTWC} from './getStructMappingAndTWC.js'
   import {loadAlignmentViewer} from './loadAlignmentViewer.js'
   import {customCSVhandler} from './handleCSVdata.js'
