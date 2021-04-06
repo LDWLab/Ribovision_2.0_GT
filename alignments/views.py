@@ -15,6 +15,7 @@ from alignments.taxonomy_views import *
 from alignments.residue_api import *
 from alignments.structure_api import *
 from alignments.fold_api import *
+from alignments.runal2co import executeAl2co
 import alignments.alignment_query_and_build as aqab
 from TwinCons.bin.TwinCons import slice_by_name
 
@@ -329,6 +330,9 @@ def construct_dict_for_json_response(response_data):
     Returns them as a dictionary.'''
     response_dict = dict()
     for entry in response_data:
+        if type(entry) == dict:
+            response_dict['al2co'] = entry
+            continue
         if type(entry) == str:
             response_dict['Alignment'] = entry
             continue
@@ -365,8 +369,8 @@ def simple_fasta(request, aln_id, tax_group, internal=False):
     if internal:
         return fastastring
     
-    concat_fasta, twc, gap_only_cols, filtered_spec_list, alignment_obj = calculateFastaProps(fastastring)
-    response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc])
+    concat_fasta, twc, gap_only_cols, filtered_spec_list, al2coData, alignment_obj = calculateFastaProps(fastastring)
+    response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc,al2coData])
 
     return JsonResponse(response_dict, safe = False)
 
@@ -380,8 +384,11 @@ def calculateFastaProps(fastastring):
             twc = True
     gap_only_cols = extract_gap_only_cols(fastastring)
     filtered_spec_list = extract_species_list(fastastring)
-
-    return concat_fasta, twc, gap_only_cols, filtered_spec_list, alignment_obj
+    try:
+        al2coData = executeAl2co(format(alignment_obj, "clustal"))
+    except:
+        al2coData = None
+    return concat_fasta, twc, gap_only_cols, filtered_spec_list, al2coData, alignment_obj
 
 def rProtein(request, align_name, tax_group):
     #if tax_group == 0 - no filter

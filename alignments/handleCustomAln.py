@@ -49,11 +49,11 @@ def getUntruncAln(request):
 def handleCustomAlnGETRequest(fastastring):
     from alignments.Shannon import gap_adjusted_frequency
     fastastring = fastastring.replace('\n','\\n')
-    concat_fasta, twc, gap_only_cols, filtered_spec_list, alignment_obj = calculateFastaProps(fastastring)
+    concat_fasta, twc, gap_only_cols, filtered_spec_list, al2coData, alignment_obj = calculateFastaProps(fastastring)
     frequency_list = list()
     for i in range(0, alignment_obj.get_alignment_length()):
         frequency_list.append(gap_adjusted_frequency(alignment_obj[:,i], IUPACData.protein_letters))
-    response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc])
+    response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc,al2coData])
 
     return response_dict
 

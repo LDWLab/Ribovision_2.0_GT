@@ -78,6 +78,7 @@ export function initialState (){
         cdhitOpts: [
             {Name:'Download cdhit report', value:'download'},
             {Name:'Reload original alignment', value:'untrunc'}
-        ]
+        ],
+        al2coData: null,
     }
 }
