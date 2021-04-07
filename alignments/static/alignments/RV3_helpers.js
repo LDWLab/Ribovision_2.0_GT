@@ -278,6 +278,8 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     window.mapped_aa_properties = null;
     vueObj.checkedRNA = false,
     vueObj.customPDBid = null,
+    vueObj.pdbStart = null,
+    vueObj.pdbEnd = null,
     vueObj.customPDBsuccess = null,
     vueObj.entityID = null,
     vueObj.all_residues = null;

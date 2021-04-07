@@ -10,7 +10,7 @@ export function loadViewersWithCustomUploadStructure(){
     var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid} pvapi="true" filter-range=1,100000></pdb-topology-viewer>`
     document.getElementById('topview').innerHTML = topology_viewer;
     window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
-    getStructMappingAndTWC (vm.fasta_data, vm.customPDBid, 1, 100000, null, vm);
+    getStructMappingAndTWC (vm.fasta_data, vm.customPDBid, vm.pdbStart, vm.pdbEnd, null, vm);
     vm.showPDBViewer(pdbid, chainid, entityid);
 
 }

@@ -66,6 +66,8 @@ export function initialState (){
         blastMAPresult: null,
         guideOff: true,
         postedPDBEntities: false,
+        pdbStart: null,
+        pdbEnd: null,
         downloadAlignmentOpt: null,
         downloadMapDataOpt: null,
         freqCSV: null,
