@@ -178,7 +178,7 @@
         </div>
         <div class="warningSection">
             <div id="warningCDHITtruncation" v-if="cdHITReport&&didCDHit_truncate" >
-                <b>Warning, your alignment was truncated by cdhit!!!<br/>
+                <b>Warning, your alignment sequences were clustered by cdhit! See dropdown menu above the alignment for options.<br/>
                 Original alignment had {{this.cdHITnums[0]}} sequences, which were clustered in {{this.cdHITnums[1]}} groups using threshold of 90% identity.</b>
             </div>
             <div id="warningPoorStructureAln" v-if="poor_structure_map" >
