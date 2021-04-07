@@ -103,7 +103,7 @@ def executeCDHit(fasta):
 
 def parseCDHitClusters(cdHitclusterOut):
     cdHitListResults = cdHitclusterOut.split('\n>Cluster')
-    resultNums = cdHitListResults[0].split('\n')[29].split()
+    resultNums = cdHitListResults[0].split('comparing sequences from')[1].split('\n')[2].split()
     if resultNums[0] == resultNums[2]:
         return False
     cdHitclusterStrings = cdHitListResults[1:]

@@ -226,53 +226,6 @@ var getWidthOfText = function (txt, fontname, fontsize){
     return getWidthOfText.ctx.measureText(txt).width;
 }
 
-var pushChainData = function(temp_arr, chain_listI){
-  try{
-    temp_arr.push({
-        text: chain_listI["molecule_name"][0],
-        value: chain_listI["in_chains"][0],
-        sequence: chain_listI["sequence"],
-        entityID: chain_listI["entity_id"],
-        startIndex: chain_listI.source[0].mappings[0].start.residue_number,
-        endIndex: chain_listI.source[0].mappings[0].end.residue_number
-    })
-    }catch(err){console.log(err);}
-  return temp_arr;
-};
-
-var filterAvailablePolymers = function(chain_list, aln_id, vueObj) {
-  let temp_arr = [];
-  let url = `/desire-api/alignments/${aln_id}/?format=json`;
-  ajax(url).then( aln_data => {
-      for (let i = 0; i < chain_list.length; i++) {
-          let chain_listI = chain_list[i]
-          if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
-          if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
-          for (let ix =0; ix < aln_data["polymers"].length; ix++){
-              let desirePolymerName = aln_data["polymers"][ix]["genedescription"].trim().replace(/-[\w]{1}$/,'').replace(/ubiquitin/ig,'');
-              let pdbePolymerNames = chain_list[i]["molecule_name"];
-              for (let nameIx =0; nameIx < pdbePolymerNames.length; nameIx++){
-                  let pdbeName = pdbePolymerNames[nameIx].replace(/-[\w]{1}$/,'').replace(/ubiquitin/ig,'');
-                  if (pdbeName == desirePolymerName){
-                    temp_arr = pushChainData(temp_arr, chain_listI);
-                    break;
-                  }
-              }
-          }
-      }
-  let chain_options = Array.from(new Set(temp_arr.map(JSON.stringify))).map(JSON.parse);
-  if (chain_options.length === 0) {
-      var elt = document.querySelector("#onFailedChains");
-      elt.innerHTML  = "Couldn't find a matching chain!<br>Try a different PDB ID."
-      vueObj.pdbid = null;
-      chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
-  }else{
-    vueObj.hide_chains = null;
-  }
-  vueObj.chains = chain_options;
-  });
-};
-
 var create_deleted_element = function (parent_id, child_id, child_text, optionalLoadIMG=null) {
     const parent = document.getElementById(parent_id);
     const child_elt = document.createElement("div");
@@ -325,6 +278,8 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     window.mapped_aa_properties = null;
     vueObj.checkedRNA = false,
     vueObj.customPDBid = null,
+    vueObj.pdbStart = null,
+    vueObj.pdbEnd = null,
     vueObj.customPDBsuccess = null,
     vueObj.entityID = null,
     vueObj.all_residues = null;

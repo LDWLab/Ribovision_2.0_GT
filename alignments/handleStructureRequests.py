@@ -24,7 +24,8 @@ def handleCustomUploadStructure (request, strucID):
             #### This is not dependent on topology and should return success
             strucObj = parseCustomPDB(deStrEnt["stringData"])
             strucString = strucToString(strucObj)
-            outStruc = fixEntityFieldofParsedCIF(strucString, {deStrEnt["chainID"]:deStrEnt["entityID"]})
+            fixedEntityStruc = fixEntityFieldofParsedCIF(strucString, {deStrEnt["chainID"]:deStrEnt["entityID"]})
+            outStruc = fixResiFieldsofParsedCIF(fixedEntityStruc)
             request.session[f'{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = outStruc
             ###
 
@@ -93,6 +94,16 @@ def fixEntityFieldofParsedCIF(stringStruc, chainToEntity):
         rowList = row.split()
         if len(rowList) > 10:
             rowList[7] = chainToEntity[rowList[16]]
+        outStruc.append(' '.join(rowList))
+    return '\n'.join(outStruc)
+
+def fixResiFieldsofParsedCIF(stringStruc):
+    listStruc = stringStruc.split('\n')
+    outStruc = listStruc[:21]
+    for row in listStruc[21:]:
+        rowList = row.split()
+        if len(rowList) > 10:
+            rowList[8] = rowList[15]
         outStruc.append(' '.join(rowList))
     return '\n'.join(outStruc)
 

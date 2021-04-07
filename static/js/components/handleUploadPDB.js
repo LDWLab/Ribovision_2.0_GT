@@ -51,7 +51,9 @@ function checkAndPopulateChains(strucString){
 
 function validatePDB(strucString){
     try {
-        let parsed = parsePdb(strucString)
+        let parsed = parsePdb(strucString);
+        vm.pdbStart = parsed.atoms[0].resSeq;
+        vm.pdbEnd = parsed.atoms[parsed.atoms.length-1].resSeq
         return true;
     }catch(error){
         console.log(error);

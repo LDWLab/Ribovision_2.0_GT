@@ -15,6 +15,7 @@ from alignments.taxonomy_views import *
 from alignments.residue_api import *
 from alignments.structure_api import *
 from alignments.fold_api import *
+from alignments.runal2co import executeAl2co
 import alignments.alignment_query_and_build as aqab
 from TwinCons.bin.TwinCons import slice_by_name
 
@@ -381,7 +382,6 @@ def calculateFastaProps(fastastring):
             twc = True
     gap_only_cols = extract_gap_only_cols(fastastring)
     filtered_spec_list = extract_species_list(fastastring)
-
     return concat_fasta, twc, gap_only_cols, filtered_spec_list, alignment_obj
 
 def rProtein(request, align_name, tax_group):

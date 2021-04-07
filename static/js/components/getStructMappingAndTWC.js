@@ -57,11 +57,21 @@ var delayedMapping = function (){
 
 function retry (fn, maxAttempts = 1, delay = 0, attempts = 0) {
     return Promise.resolve()
-      .then(fn)
+      .then(sleeper(delay)).then(fn)
       .catch(err => {
         if (attempts < maxAttempts) {
           return retry (fn, maxAttempts, delay, attempts + 1)
         }
+        var topview = document.querySelector('#topview');
+        console.log(err);
+        vm.topology_loaded = 'error';
+        topview.innerHTML = "Failed to generate topology diagram!<br>Try another structure."
         throw err
       })
   }
+
+function sleeper(ms) {
+    return function(x) {
+        return new Promise(resolve => setTimeout(() => resolve(x), ms));
+    };
+}

@@ -178,7 +178,7 @@
         </div>
         <div class="warningSection">
             <div id="warningCDHITtruncation" v-if="cdHITReport&&didCDHit_truncate" >
-                <b>Warning, your alignment was truncated by cdhit!!!<br/>
+                <b>Warning, your alignment sequences were clustered by cdhit! See dropdown menu above the alignment for options.<br/>
                 Original alignment had {{this.cdHITnums[0]}} sequences, which were clustered in {{this.cdHITnums[1]}} groups using threshold of 90% identity.</b>
             </div>
             <div id="warningPoorStructureAln" v-if="poor_structure_map" >
@@ -230,6 +230,7 @@
   import {ajaxProper} from './ajaxProper.js'
   import {addFooterImages} from './Footer.js'
   import {initialState} from './DropDownTreeVars.js'
+  import {filterAvailablePolymers} from './filterRiboChains.js'
   import {getStructMappingAndTWC} from './getStructMappingAndTWC.js'
   import {loadAlignmentViewer} from './loadAlignmentViewer.js'
   import {customCSVhandler} from './handleCSVdata.js'
@@ -661,7 +662,7 @@
                 }
                 this.cdHITReport = fasta["cdHitReport"]
                 if (this.cdHITReport){
-                    let cdNums = this.cdHITReport.split('\n>Cluster')[0].split('\n')[29].split(/ +/);
+                    let cdNums = this.cdHITReport.split(/comparing sequences from.*\n/)[1].split(/\n/)[1].split(/ +/);
                     this.cdHITnums = [cdNums[1], cdNums[3]];
                 }
                 this.fastaSeqNames = fasta['Sequence names'];
