@@ -32,7 +32,7 @@ def handleCustomUploadStructure (request, strucID):
             seq_ix_mapping, struc_seq, gapsInStruc = constructStrucSeqMap(strucObj)
             startNum, endNum = 1, len(seq_ix_mapping)
             startAuth, endAuth = seq_ix_mapping[startNum], seq_ix_mapping[endNum]
-            entityJSON = generateEntityJSON (strucID, deStrEnt["entityID"], str(struc_seq.seq), startNum, endNum)
+            entityJSON = generateEntityJSON (strucID, deStrEnt["entityID"], (startAuth-1)*'-'+str(struc_seq.seq), startNum, endNum)
             coverageJSON = generatePolCoverageJSON (strucID, deStrEnt["chainID"], deStrEnt["entityID"], startAuth, startNum, endAuth, endNum)
             topologySVG = handleTopologyBuilding(deStrEnt["stringData"], "/home/Desire-Server/proorigami-cde-package/cde-root/home/proorigami/")
             try:
