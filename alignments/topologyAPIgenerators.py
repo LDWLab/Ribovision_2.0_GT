@@ -8,6 +8,8 @@ def generateTopologyJSONfromSVG(svgContents, pdbID, chainID, entityID):
     strands = []
     terms = []
     extents = []
+    non_printable_data_map = {}
+    maximum_stop_found = -1
     for helixMatch in re.findall(r"<rect\s+[^>]*dunnart:type\s*=\s*\"bioHelix\"[^>]*>", svgContents):
         helixXMatch = re.search(r"\s+x\s*=\s*\"(-?[\d.]*)\"", helixMatch)
         if helixXMatch is None:
@@ -45,16 +47,31 @@ def generateTopologyJSONfromSVG(svgContents, pdbID, chainID, entityID):
         residueSequenceNumbers = residueSequenceNumbers.group(0)
         firstQuoteIndex = residueSequenceNumbers.index('\"')
         secondQuoteIndex = residueSequenceNumbers.index('\"', firstQuoteIndex + 1)
-        residueSequenceNumbers = residueSequenceNumbers[firstQuoteIndex + 1:secondQuoteIndex].split()
+        residueSequenceNumbers = parseSequentialResidueSequenceNumbers(residueSequenceNumbers[firstQuoteIndex + 1:secondQuoteIndex])
         start = int(residueSequenceNumbers[0])
         stop = int(residueSequenceNumbers[-1])
-        helices.append({
+        if stop > maximum_stop_found:
+            maximum_stop_found = stop
+
+        dunnart_reversed = re.search(r"\s+dunnart:reversed\s*=\s*\"([01]{1})\"", helixMatch)
+        if dunnart_reversed is None:
+            raise Exception("Dunnart:reversed flag not found within dunnart bioHelix object.")
+        dunnart_reversed = dunnart_reversed.group(1)
+        
+        # print ("Dunnart_reversed:", dunnart_reversed, (dunnart_reversed == "0"))
+        helix_reversed_flag = dunnart_reversed == "0"
+        path = [x, y, x + width, y + height]
+        new_helix = {
             "start" : start,
             "stop" : stop,
-            "path" : [x, y, x + width, y + height],
-            "minoraxis" : rx,
-            "majoraxis" : ry
-        })
+            "path" : path
+        }
+        non_printable_data_map[(start, stop)] = {
+            "reversed" : helix_reversed_flag,
+            "rx" : rx,
+            "ry" : ry
+        }
+        helices.append(new_helix)
     for strandMatch in re.findall(r"<path\s+[^>]*dunnart:type\s*=\s*\"bioStrand\"[^>]*>", svgContents):
         strandPath = re.search(r"\s+d\s*=\s*\"[MLCZz.,\-\d\s]*\"", strandMatch)
         if strandPath is None:
@@ -80,9 +97,11 @@ def generateTopologyJSONfromSVG(svgContents, pdbID, chainID, entityID):
         residueSequenceNumbers = residueSequenceNumbers.group(0)
         firstQuoteIndex = residueSequenceNumbers.index('\"')
         secondQuoteIndex = residueSequenceNumbers.index('\"', firstQuoteIndex + 1)
-        residueSequenceNumbers = residueSequenceNumbers[firstQuoteIndex + 1:secondQuoteIndex].split()
+        residueSequenceNumbers = parseSequentialResidueSequenceNumbers(residueSequenceNumbers[firstQuoteIndex + 1:secondQuoteIndex])
         start = int(residueSequenceNumbers[0])
         stop = int(residueSequenceNumbers[-1])
+        if stop > maximum_stop_found:
+            maximum_stop_found = stop
         strands.append({
             "start" : start,
             "stop" : stop,
@@ -129,7 +148,7 @@ def generateTopologyJSONfromSVG(svgContents, pdbID, chainID, entityID):
         residueSequenceNumbers = residueSequenceNumbers.group(0)
         firstQuoteIndex = residueSequenceNumbers.index('\"')
         secondQuoteIndex = residueSequenceNumbers.index('\"', firstQuoteIndex + 1)
-        residueSequenceNumbers = residueSequenceNumbers[firstQuoteIndex + 1:secondQuoteIndex].split()
+        residueSequenceNumbers = parseSequentialResidueSequenceNumbers(residueSequenceNumbers[firstQuoteIndex + 1:secondQuoteIndex])
         # print ("__len(residueSequenceNumbers): ", len(residueSequenceNumbers), "__")
         if len(residueSequenceNumbers) > 0:
             start = int(residueSequenceNumbers[0])
@@ -137,11 +156,95 @@ def generateTopologyJSONfromSVG(svgContents, pdbID, chainID, entityID):
         else:
             start = -1
             stop = -1
+
+        if stop > maximum_stop_found:
+            maximum_stop_found = stop
+
         coils.append({
             "start" : start,
             "stop" : stop,
             "path" : lineCoordinates
         })
+    
+    n_terminus_match = re.search(r"<rect\s+[^>]*dunnart:label\s*=\s*\"N\"[^>]*>", svgContents)
+    if n_terminus_match is None:
+        raise Exception("N terminus not found SVG file.")
+    n_terminus_match = n_terminus_match.group(0)
+
+    xMatch = re.search(r"\s+x\s*=\s*\"([\d\-.]+)\"", n_terminus_match)
+    if xMatch is None:
+        raise Exception("x variable not found within n terminus")
+    x = float(xMatch.group(1))
+
+    yMatch = re.search(r"\s+y\s*=\s*\"([\d\-.]+)\"", n_terminus_match)
+    if yMatch is None:
+        raise Exception("y variable not found within n terminus")
+    y = float(yMatch.group(1))
+    
+    widthMatch = re.search(r"\s+width\s*=\s*\"([\d.]+)\"", n_terminus_match)
+    if widthMatch is None:
+        raise Exception("width variable not found within n terminus")
+    width = float(widthMatch.group(1))
+
+    heightMatch = re.search(r"\s+height\s*=\s*\"([\d.]+)\"", n_terminus_match)
+    if heightMatch is None:
+        raise Exception("height variable not found within n terminus")
+    height = float(heightMatch.group(1))
+
+    # print ("N: " + n_terminus_match + "\n\tx: " + str(x) + "\n\ty: " + str(y) + "\n\twidth: " + str(width) + "\n\theight: " + str(height))
+    terms.append({
+        "resnum" : "1",
+        "type" : "N",
+        "start" : -1,
+        "stop" : -1,
+        "path" : [
+            x, y,
+            x + width, y,
+            x + width, y + height,
+            x, y + height
+        ]
+    })
+    
+    c_terminus_match = re.search(r"<rect\s+[^>]*dunnart:label\s*=\s*\"C\"[^>]*>", svgContents)
+    if c_terminus_match is None:
+        raise Exception("C terminus not found SVG file.")
+    c_terminus_match = c_terminus_match.group(0)
+
+    xMatch = re.search(r"\s+x\s*=\s*\"([\d\-.]+)\"", c_terminus_match)
+    if xMatch is None:
+        raise Exception("x variable not found within n terminus")
+    x = float(xMatch.group(1))
+
+    yMatch = re.search(r"\s+y\s*=\s*\"([\d\-.]+)\"", c_terminus_match)
+    # print ("yMatch: " + yMatch.group(0) + " " + yMatch.group(1))
+    if yMatch is None:
+        raise Exception("y variable not found within n terminus")
+    y = float(yMatch.group(1))
+    
+    widthMatch = re.search(r"\s+width\s*=\s*\"([\d.]+)\"", c_terminus_match)
+    if widthMatch is None:
+        raise Exception("width variable not found within n terminus")
+    width = float(widthMatch.group(1))
+
+    heightMatch = re.search(r"\s+height\s*=\s*\"([\d.]+)\"", c_terminus_match)
+    if heightMatch is None:
+        raise Exception("height variable not found within n terminus")
+    height = float(heightMatch.group(1))
+
+    # print ("C: " + c_terminus_match + "\n\tx: " + str(x) + "\n\ty: " + str(y) + "\n\twidth: " + str(width) + "\n\theight: " + str(height))
+    terms.append({
+        "resnum" : str(maximum_stop_found),
+        "type" : "C",
+        "start" : -1,
+        "stop" : -1,
+        "path" : [
+            x, y,
+            x + width, y,
+            x + width, y + height,
+            x, y + height
+        ]
+    })
+
     for coil in coils:
         coil_path = coil["path"]
         coil_start_clipped_flag = False
@@ -253,7 +356,7 @@ def generateTopologyJSONfromSVG(svgContents, pdbID, chainID, entityID):
         
         start = coil["start"]
         stop = coil["stop"]
-        minimum_num_vertices_per_coil = stop - start + 1
+        minimum_num_vertices_per_coil = stop - start + 3
         deficit = minimum_num_vertices_per_coil - len(coil_path) // 2
         # print ("Start: " + str(start) + "\tStop: " + str(stop) + "\tMinimum #Verts: " + str(minimum_num_vertices_per_coil) + "\tDeficit: " + str(deficit))
         if deficit > 0:
@@ -268,24 +371,34 @@ def generateTopologyJSONfromSVG(svgContents, pdbID, chainID, entityID):
                 t += dt
                 # print ("T: " + str(t))
                 interpolated_x, interpolated_y = interpolate(x0, y0, x1, y1, t)
-                dummy_points.append(interpolated_x)
-                dummy_points.append(interpolated_y)
+                dummy_points.append(round(interpolated_x, 3))
+                dummy_points.append(round(interpolated_y, 3))
             coil_path = coil_path[0:2] + dummy_points + coil_path[2:]
             coil["path"] = coil_path
 
     for helix in helices:
+        non_printable_data_map_entry = non_printable_data_map[(helix["start"], helix["stop"])]
         min_x, min_y, max_x, max_y = helix["path"]
         width = max_x - min_x
         height = max_y - min_y
         if width > height:
-            dx = helix["minoraxis"]
+            smaller_dimension = height
+            # helix["minoraxis"]
+            dx = non_printable_data_map_entry["rx"]
             min_x += dx
             max_x -= dx
         else:
-            dy = helix["majoraxis"]
+            smaller_dimension = width
+            # helix["majoraxis"]
+            dy = non_printable_data_map_entry["ry"]
             min_y += dy
             max_y -= dy
-        helix["path"] = [min_x, min_y, max_x, max_y]
+        helix["majoraxis"] = smaller_dimension / 2
+        helix["minoraxis"] = smaller_dimension / 4
+        if non_printable_data_map_entry["reversed"]:
+            helix["path"] = [max_x, max_y, min_x, min_y]
+        else:
+            helix["path"] = [min_x, min_y, max_x, max_y]
     tree = {
         pdbID : {
             entityID : {
@@ -316,6 +429,26 @@ def interpolate_1d(x0, x1, t):
 
 def interpolate(x0, y0, x1, y1, t):
     return interpolate_1d(x0, x1, t), interpolate_1d(y0, y1, t)
+
+def parseSequentialResidueSequenceNumbers(residueSequenceNumbersString):
+    residueSequenceNumberStrings = residueSequenceNumbersString.split()
+    residueSequenceNumbers = []
+    for residueSequenceNumberString in residueSequenceNumberStrings:
+        residueSequenceNumbers.append(int(residueSequenceNumberString))
+    if (len(residueSequenceNumbers) > 0):
+        nextResidueSequenceNumber = residueSequenceNumbers[-1]
+        sequentialResidueSequenceNumbers = [nextResidueSequenceNumber]
+        for i in range(len(residueSequenceNumbers) - 2, -1, -1):
+            # print (i)
+            residueSequenceNumber = residueSequenceNumbers[i]
+            if residueSequenceNumber != nextResidueSequenceNumber - 1:
+                break
+            sequentialResidueSequenceNumbers = [residueSequenceNumber] + sequentialResidueSequenceNumbers
+            nextResidueSequenceNumber = residueSequenceNumber
+        # print ()
+        return sequentialResidueSequenceNumbers
+    else:
+        return []
 
 def generateEntityJSON (pdbID, entityID, sequenceStr, start, end):
     return {pdbID:[{

@@ -19,7 +19,7 @@ query = '\
 '''
 
 def buildTaxonomy(request):
-	taxgroups = Taxgroups.objects.raw('SELECT * FROM SEREB.TaxGroups WHERE SEREB.TaxGroups.groupLevel = "superkingdom";')
+	taxgroups = Taxgroups.objects.raw('SELECT * FROM TaxGroups WHERE TaxGroups.groupLevel = "superkingdom";')
 	taxonomy = []
 	for taxgroup in taxgroups:
 		subtaxonomy = {
@@ -38,7 +38,7 @@ def buildTaxonomy(request):
 def api_showTaxonomy(request, current_tax):
 	if current_tax == 0:
 		toplevel_label = "Root"
-		taxgroups = Taxgroups.objects.raw('SELECT * FROM SEREB.TaxGroups WHERE SEREB.TaxGroups.groupLevel = "superkingdom";')
+		taxgroups = Taxgroups.objects.raw('SELECT * FROM TaxGroups WHERE TaxGroups.groupLevel = "superkingdom";')
 		curent_parent = 0
 		level = "root"
 	else:
@@ -48,11 +48,11 @@ def api_showTaxonomy(request, current_tax):
 		else:
 			curent_parent = Taxgroups.objects.get(pk=current_tax).parent.pk
 		level = Taxgroups.objects.get(pk=current_tax).grouplevel
-		mySQLStr = 'SELECT * FROM SEREB.TaxGroups WHERE SEREB.TaxGroups.parent = "' + str(current_tax) + '";'
+		mySQLStr = 'SELECT * FROM TaxGroups WHERE TaxGroups.parent = "' + str(current_tax) + '";'
 		taxgroups = Taxgroups.objects.raw(mySQLStr)
 	nodes = list()
 	for taxgroup in taxgroups:
-		sql_for_children = f'SELECT * FROM SEREB.TaxGroups WHERE SEREB.TaxGroups.parent = "{taxgroup.taxgroup_id}"'
+		sql_for_children = f'SELECT * FROM TaxGroups WHERE TaxGroups.parent = "{taxgroup.taxgroup_id}"'
 		# children = Taxgroups.objects.raw(sql_for_children)
 		# children_for_json = list()
 		# for child in children:
@@ -77,7 +77,7 @@ def api_showTaxonomy(request, current_tax):
 	return JsonResponse(taxonomy, safe = False)
 
 def buildTaxonomyRecurse(parentIndex):
-	mySQLStr = 'SELECT * FROM SEREB.TaxGroups WHERE SEREB.TaxGroups.parent = "' + str(parentIndex) + '";'
+	mySQLStr = 'SELECT * FROM TaxGroups WHERE TaxGroups.parent = "' + str(parentIndex) + '";'
 	taxgroups = Taxgroups.objects.raw(mySQLStr)
 	taxonomy = []
 	for taxgroup in taxgroups:
@@ -90,7 +90,7 @@ def buildTaxonomyRecurse(parentIndex):
 	return taxonomy
 
 def buildFoldTaxonomy(request):
-	struc_groups = StructuralFolds.objects.raw('SELECT * FROM SEREB.Structural_Folds WHERE SEREB.Structural_Folds.Level = "Architecture";')
+	struc_groups = StructuralFolds.objects.raw('SELECT * FROM Structural_Folds WHERE Structural_Folds.Level = "Architecture";')
 	taxonomy = []
 	for taxgroup in struc_groups:
 		subtaxonomy = {
@@ -109,7 +109,7 @@ def buildFoldTaxonomy(request):
 	return JsonResponse(tree, safe = False)
 
 def buildFoldTaxonomyRecurse(parentIndex):
-	mySQLStr = 'SELECT * FROM SEREB.Structural_Folds WHERE SEREB.Structural_Folds.parent = "' + str(parentIndex) + '";'
+	mySQLStr = 'SELECT * FROM Structural_Folds WHERE Structural_Folds.parent = "' + str(parentIndex) + '";'
 	struc_groups = StructuralFolds.objects.raw(mySQLStr)
 	taxonomy = []
 	for curr_group in struc_groups:

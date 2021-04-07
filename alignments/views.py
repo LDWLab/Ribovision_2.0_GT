@@ -258,8 +258,8 @@ def api_entropy(request, align_name, tax_group, anchor_structure):
 
 def index_test(request):
     some_Alignments = Alignment.objects.all()
-    superKingdoms = Taxgroups.objects.raw('SELECT * FROM SEREB.TaxGroups WHERE\
-         SEREB.TaxGroups.groupLevel = "superkingdom";')
+    superKingdoms = Taxgroups.objects.raw('SELECT * FROM TaxGroups WHERE\
+         TaxGroups.groupLevel = "superkingdom";')
     
     context = {
         'props': list(Taxgroups.objects.values('taxgroup_id', 'groupname')),
