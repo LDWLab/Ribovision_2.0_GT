@@ -40,10 +40,10 @@ def superkingdom_info(ID):
     Gets the superkingdom for a strain ID
     '''
     #print(ID)
-    cursor.execute("SELECT SEREB.TaxGroups.groupName FROM SEREB.Species_TaxGroup\
-        INNER JOIN SEREB.TaxGroups ON SEREB.Species_TaxGroup.taxgroup_id=SEREB.TaxGroups.taxgroup_id\
-        INNER JOIN SEREB.Species ON SEREB.Species_TaxGroup.strain_id=SEREB.Species.strain_id\
-        WHERE SEREB.TaxGroups.groupLevel = 'superkingdom' AND SEREB.Species.strain_id = '"+ID+"'")
+    cursor.execute("SELECT TaxGroups.groupName FROM Species_TaxGroup\
+        INNER JOIN TaxGroups ON Species_TaxGroup.taxgroup_id=TaxGroups.taxgroup_id\
+        INNER JOIN Species ON Species_TaxGroup.strain_id=Species.strain_id\
+        WHERE TaxGroups.groupLevel = 'superkingdom' AND Species.strain_id = '"+ID+"'")
     results = cursor.fetchall()
     #print(ID,results)
     try:
@@ -56,11 +56,11 @@ def check_nomo_id(occur, name):
     '''
     Gets nom_id for new name and superkingdom
     '''
-    #cursor.execute("SELECT SEREB.Nomenclature.nom_id FROM SEREB.Nomenclature\
-    #    INNER JOIN SEREB.Old_name ON SEREB.Nomenclature.nom_id=SEREB.Old_name.nomo_id\
-    #    WHERE SEREB.Old_name.old_name = '"+name+"' AND SEREB.Old_name.N_B_Y_H_A = 'BAN' AND SEREB.Nomenclature.occurrence = '"+occur+"'")
-    cursor.execute("SELECT SEREB.Nomenclature.nom_id FROM SEREB.Nomenclature\
-        WHERE SEREB.Nomenclature.new_name = '"+name+"' AND SEREB.Nomenclature.occurrence = '"+occur+"'")
+    #cursor.execute("SELECT Nomenclature.nom_id FROM Nomenclature\
+    #    INNER JOIN Old_name ON Nomenclature.nom_id=Old_name.nomo_id\
+    #    WHERE Old_name.old_name = '"+name+"' AND Old_name.N_B_Y_H_A = 'BAN' AND Nomenclature.occurrence = '"+occur+"'")
+    cursor.execute("SELECT Nomenclature.nom_id FROM Nomenclature\
+        WHERE Nomenclature.new_name = '"+name+"' AND Nomenclature.occurrence = '"+occur+"'")
     result = cursor.fetchall()
     #nom_id=result[0][0]
     try:
@@ -72,7 +72,7 @@ def check_nomo_id(occur, name):
 def upload_resi(poldata_id, fullseq):
     i = 1
     for resi in fullseq:
-        query = "INSERT INTO `SEREB`.`Residues`(`PolData_id`,`resNum`,`unModResName`) VALUES('"+poldata_id+"','"+str(i)+"','"+resi+"')"
+        query = "INSERT INTO `Residues`(`PolData_id`,`resNum`,`unModResName`) VALUES('"+poldata_id+"','"+str(i)+"','"+resi+"')"
         cursor.execute(query)
         #print(query)
         i+=1
@@ -85,12 +85,12 @@ def main():
             continue
         superK = superkingdom_info(entry[0])
         nom_id = check_nomo_id(superK[0], entry[3])
-        query = "INSERT INTO `SEREB`.`Polymer_Data`(`GI`,`strain_ID`,`nomgd_id`, `GeneDescription`) \
+        query = "INSERT INTO `Polymer_Data`(`GI`,`strain_ID`,`nomgd_id`, `GeneDescription`) \
                         VALUES('"+entry[1]+"','"+str(entry[0])+"','"+str(nom_id)+"','"+entry[4].rstrip()+"')"
         print(query)
         cursor.execute(query)
         lastrow_id = str(cursor.lastrowid)
-        query = "INSERT INTO `SEREB`.`Polymer_metadata`(`polymer_id`,`accession_type`,`polymer_type`, `Fullseq`) \
+        query = "INSERT INTO `Polymer_metadata`(`polymer_id`,`accession_type`,`polymer_type`, `Fullseq`) \
                                             VALUES('"+str(lastrow_id)+"','LDW-prot','protein','"+entry[5]+"')"
         cursor.execute(query)
         #print(query)
