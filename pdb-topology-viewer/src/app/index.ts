@@ -153,9 +153,10 @@ class PdbTopologyViewerPlugin {
         var dataUrls = [
             `https://www.ebi.ac.uk/pdbe/api/pdb/entry/entities/${pdbId}`,
             `https://www.ebi.ac.uk/pdbe/api/mappings/${pdbId}`,
-            `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdbId}`,
+            `https://apollo2.chemistry.gatech.edu/RiboVision3/pdb-topology-viewer-master_2/build/Topology_1b23_Holly.txt`,
             `https://www.ebi.ac.uk/pdbe/api/validation/residuewise_outlier_summary/entry/${pdbId}`,
             `https://www.ebi.ac.uk/pdbe/api/pdb/entry/polymer_coverage/${pdbId}/chain/${chainId}`
+            
         ]
         if (this.pvAPI){
             var dataUrls = [
@@ -282,7 +283,7 @@ class PdbTopologyViewerPlugin {
         const _this = this;
         const totalAaInPath = (stopResidueNumber - startResidueNumber) + 1
         const subPathHeight = (this.scaledPointsArr[7] - this.scaledPointsArr[1])/totalAaInPath;
-        
+        console.log(this.scaledPointsArr);
         //create subsections/paths
         let dValArr = [];
         for(let subPathIndex=0; subPathIndex<totalAaInPath; subPathIndex++){
@@ -331,14 +332,25 @@ class PdbTopologyViewerPlugin {
         let maskPointsArr = this.scaledPointsArr;
         
         const adjustmentFactor = 0.3
-        let adjustIndexAddArr = [7,8,10,12];
-        let adjustIndexSubtractArr = [0,1,2,3,4,5,9,11,13];
-        //For arrow pointing upwards
-        if(maskPointsArr[0] > maskPointsArr[6]){
-            adjustIndexAddArr = [0,1,2,3,4,5,9,11,13];
-            adjustIndexSubtractArr = [7,8,10,12];
+        var adjustIndexAddArr:number[] = []
+        var adjustIndexSubtractArr:number[] = []
+        if(this.pvAPI) {
+            adjustIndexAddArr = [1, 8, 10, 12, 13];
+            adjustIndexSubtractArr = [0,2,3,4,5,7,9,11];
+            //For arrow pointing upwards
+            if(maskPointsArr[0] > maskPointsArr[6]){
+                adjustIndexAddArr = [0,2,3,4,5,7,9,11];
+                adjustIndexSubtractArr = [1, 8, 10, 12, 13];
+            }
+        } else {
+            adjustIndexAddArr = [7,8,10,12];
+            adjustIndexSubtractArr = [0,1,2,3,4,5,9,11,13];
+            //For arrow pointing upwards
+            if(maskPointsArr[0] > maskPointsArr[6]){
+                adjustIndexAddArr = [0,1,2,3,4,5,9,11,13];
+                adjustIndexSubtractArr = [7,8,10,12];
+            }
         }
-        
         
         let addIndexLength = adjustIndexAddArr.length;
         for(let maskPtIndex = 0; maskPtIndex < addIndexLength; maskPtIndex++){
