@@ -402,6 +402,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         var _this = this;
         var totalAaInPath = (stopResidueNumber - startResidueNumber) + 1;
         var subPathHeight = (this.scaledPointsArr[7] - this.scaledPointsArr[1]) / totalAaInPath;
+        console.log(this.scaledPointsArr);
         //create subsections/paths
         var dValArr = [];
         for (var subPathIndex = 0; subPathIndex < totalAaInPath; subPathIndex++) {
@@ -445,12 +446,25 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
     PdbTopologyViewerPlugin.prototype.drawStrandMaskShape = function (index) {
         var maskPointsArr = this.scaledPointsArr;
         var adjustmentFactor = 0.3;
-        var adjustIndexAddArr = [7, 8, 10, 12];
-        var adjustIndexSubtractArr = [0, 1, 2, 3, 4, 5, 9, 11, 13];
-        //For arrow pointing upwards
-        if (maskPointsArr[0] > maskPointsArr[6]) {
-            adjustIndexAddArr = [0, 1, 2, 3, 4, 5, 9, 11, 13];
-            adjustIndexSubtractArr = [7, 8, 10, 12];
+        var adjustIndexAddArr = [];
+        var adjustIndexSubtractArr = [];
+        if (this.pvAPI) {
+            adjustIndexAddArr = [1, 8, 10, 12, 13];
+            adjustIndexSubtractArr = [0, 2, 3, 4, 5, 7, 9, 11];
+            //For arrow pointing upwards
+            if (maskPointsArr[0] > maskPointsArr[6]) {
+                adjustIndexAddArr = [0, 2, 3, 4, 5, 7, 9, 11];
+                adjustIndexSubtractArr = [1, 8, 10, 12, 13];
+            }
+        }
+        else {
+            adjustIndexAddArr = [7, 8, 10, 12];
+            adjustIndexSubtractArr = [0, 1, 2, 3, 4, 5, 9, 11, 13];
+            //For arrow pointing upwards
+            if (maskPointsArr[0] > maskPointsArr[6]) {
+                adjustIndexAddArr = [0, 1, 2, 3, 4, 5, 9, 11, 13];
+                adjustIndexSubtractArr = [7, 8, 10, 12];
+            }
         }
         var addIndexLength = adjustIndexAddArr.length;
         for (var maskPtIndex = 0; maskPtIndex < addIndexLength; maskPtIndex++) {
