@@ -153,7 +153,7 @@ class PdbTopologyViewerPlugin {
         var dataUrls = [
             `https://www.ebi.ac.uk/pdbe/api/pdb/entry/entities/${pdbId}`,
             `https://www.ebi.ac.uk/pdbe/api/mappings/${pdbId}`,
-            `https://apollo2.chemistry.gatech.edu/RiboVision3/pdb-topology-viewer-master_2/build/Topology_1b23_Holly.txt`,
+            `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdbId}`,
             `https://www.ebi.ac.uk/pdbe/api/validation/residuewise_outlier_summary/entry/${pdbId}`,
             `https://www.ebi.ac.uk/pdbe/api/pdb/entry/polymer_coverage/${pdbId}/chain/${chainId}`
             
