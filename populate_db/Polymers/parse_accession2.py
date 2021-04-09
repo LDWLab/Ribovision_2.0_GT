@@ -35,12 +35,13 @@ for opt, arg in opts:
 def parse_align(seqObj):
 	''''
 	Parses through the sequence object and generates a dictionary with
-	keys the taxids and values the accession, name and sequence
+	keys the taxids and values the accession, name, sequence, and should add description for now it duplicates with name.
+	Cuts off the last letter from the name to remove uL02e etc.
 	'''
 	outDict = dict()
 	for seq in seqObj:
 		name = '|'.join(seq.id.split('|')[1:])
-		outDict[seq.id.split('_')[1]] = [name, seq.id.split('_')[0], str(seq.seq), seq.id.split('_')[0]]
+		outDict[seq.id.split('_')[1]] = [name, seq.id.split('_')[0][:4], str(seq.seq), seq.id.split('_')[0][:4]]
 	return outDict
 
 def write_csv(list_to_write):
