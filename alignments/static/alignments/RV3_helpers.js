@@ -327,6 +327,20 @@ var loadParaOptions = function (action, callback, vm) {
   }
 };
 
+var pushChainData = function(temp_arr, chain_listI){
+    try{
+      temp_arr.push({
+          text: chain_listI["molecule_name"][0],
+          value: chain_listI["in_chains"][0],
+          sequence: chain_listI["sequence"],
+          entityID: chain_listI["entity_id"],
+          startIndex: chain_listI.source[0].mappings[0].start.residue_number,
+          endIndex: chain_listI.source[0].mappings[0].end.residue_number
+      })
+      }catch(err){console.log(err);}
+    return temp_arr;
+  };
+
 var intersection = function () {
     var result = [];
     var lists;

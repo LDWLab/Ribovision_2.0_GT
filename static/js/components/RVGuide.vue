@@ -413,6 +413,18 @@
               placement: 'right'
             },
         },{
+            target: '#showRNAcontext',
+            header: {
+                title: 'Show ribosomal context in 3D Viewer',
+            },
+            content: `When selected, the 3D viewer shows the entire ribosomal structure in gray
+            and the protein of interest is highlighted. Color mapping is possible but can 
+            take a while, since the entire ribosome is being recolored.
+            The user is advised to exercise patience as the web server might be unresponsive when colormapping with this option.`,
+            params: {
+              placement: 'right'
+            },
+        },{
             target: '#domainSelectionSection',
             header: {
                 title: 'ECOD domains',
@@ -564,6 +576,32 @@
                 )
             })
         },{
+            target: '#warningCDHITtruncation',
+            header: {
+                title: 'Warning for clustering of alignment.',
+            },
+            content: `A warning will be displayed here when the uploaded alignment sequences 
+            have been clustered by CD-HIT. This is done to ensure there is no overrepresentation of certain sequences.<br/>
+            The number of clustered sequences at 90% identity threshold will be indicated.<br/>
+            The user can input a different PDB or select a new polymer or restart with a new alignment.`,
+        },{
+            target: '#cdHITResults',
+            header: {
+                title: 'CD-HIT options.',
+            },
+            content: `The user can select to use their original unclustered alignment from this dropdown menu.
+            The user can also download the CD-HIT report from their alignment.`,
+        },{
+            target: '#pdb-upload',
+            header: {
+                title: 'Upload custom PDB file.',
+            },
+            content: `When using custom alignment ProteoVision supports a custom PDB structure file.
+            The structure file must be in PDB format and must contain only a single chain.`,
+            params: {
+              placement: 'right'
+            },
+        },{
             target: '.autocomplete',
             header: {
                 title: 'Write a PDB ID for structure display',
@@ -635,7 +673,8 @@
                 tempMap.set("1EFU", ["A", "C"]);
                 vm.fetchingPDBwithCustomAln = 'complete';
                 resolve (
-                    vm.blastPDBresult = ["1EFT","1EFU"],
+                    vm.blastPDBresult = [{id:"1EFT", name:"1EFT"},
+                                        {id:"1EFU", name:"1EFU"}],
                     vm.blastMAPresult = tempMap,
                 );
             })
