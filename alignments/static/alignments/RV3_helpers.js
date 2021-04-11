@@ -62,7 +62,7 @@ var validateFasta = function (fasta) {
     }
 
     if (fastaArr[1].length*fastaArr.length > 2000000){
-        alert("Fasta file has over 1000000 positions! We currently do not support such big files.");
+        alert("Fasta file has over 1000000 letters! We currently do not support such big files.");
         return false;
     }
 
@@ -71,7 +71,11 @@ var validateFasta = function (fasta) {
             fastaSeqs += fastaArr[index];
         } else {
             if (fastaArr[index].includes('>')){
-                badName = true;
+                badName = '>';
+                break;
+            }
+            if (fastaArr[index].includes('Structure sequence')){
+                badName = 'struct';
             }
         }
     });
@@ -81,8 +85,11 @@ var validateFasta = function (fasta) {
         return false;
     }
 
-    if (badName){
+    if (badName == '>'){
         alert("The character > should appear only once in sequence headers!");
+        return false;
+    } else if (badName == 'struct'){
+        alert("Structure sequence is a protected sequence id! ProteoVision uses it to append the structure-derived sequence!");
         return false;
     }
 
