@@ -72,7 +72,6 @@ var validateFasta = function (fasta) {
         } else {
             if (fastaArr[index].includes('>')){
                 badName = '>';
-                break;
             }
             if (fastaArr[index].includes('Structure sequence')){
                 badName = 'struct';
