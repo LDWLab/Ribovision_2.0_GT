@@ -62,7 +62,7 @@ var validateFasta = function (fasta) {
     }
 
     if (fastaArr[1].length*fastaArr.length > 2000000){
-        alert("Fasta file has over 1000000 positions! We currently do not support such big files.");
+        alert("Fasta file has over 1000000 letters! We currently do not support such big files.");
         return false;
     }
 
@@ -71,7 +71,10 @@ var validateFasta = function (fasta) {
             fastaSeqs += fastaArr[index];
         } else {
             if (fastaArr[index].includes('>')){
-                badName = true;
+                badName = '>';
+            }
+            if (fastaArr[index].includes('Structure sequence')){
+                badName = 'struct';
             }
         }
     });
@@ -81,8 +84,11 @@ var validateFasta = function (fasta) {
         return false;
     }
 
-    if (badName){
+    if (badName == '>'){
         alert("The character > should appear only once in sequence headers!");
+        return false;
+    } else if (badName == 'struct'){
+        alert("Structure sequence is a protected sequence id! ProteoVision uses it to append the structure-derived sequence!");
         return false;
     }
 
@@ -281,6 +287,7 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     vueObj.pdbStart = null,
     vueObj.pdbEnd = null,
     vueObj.customPDBsuccess = null,
+    vueObj.PDBparsing = false;
     vueObj.entityID = null,
     vueObj.all_residues = null;
     vueObj.coil_residues = null;
@@ -320,6 +327,20 @@ var loadParaOptions = function (action, callback, vm) {
       })
   }
 };
+
+var pushChainData = function(temp_arr, chain_listI){
+    try{
+      temp_arr.push({
+          text: chain_listI["molecule_name"][0],
+          value: chain_listI["in_chains"][0],
+          sequence: chain_listI["sequence"],
+          entityID: chain_listI["entity_id"],
+          startIndex: chain_listI.source[0].mappings[0].start.residue_number,
+          endIndex: chain_listI.source[0].mappings[0].end.residue_number
+      })
+      }catch(err){console.log(err);}
+    return temp_arr;
+  };
 
 var intersection = function () {
     var result = [];

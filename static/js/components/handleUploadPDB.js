@@ -3,6 +3,7 @@ import parsePdb from 'parse-pdb'
 
 export function uploadCustomPDB(){
     if (vm.$refs.customPDBfile.files.length == 0){return;}
+    vm.PDBparsing = true;
     vm.customPDBsuccess = null;
     vm.customPDBid = null;
     submitCustomPDB(vm.$refs.customPDBfile.files[0]);
@@ -71,14 +72,16 @@ function postPDBdata (pdbID, entities){
         dataType: 'json',
         postData: {"entities": stringEntities}
     }).then (parsedResponse => {
+        vm.PDBparsing = false;
         if (parsedResponse == "Success!"){
             console.log("Posted PDB data successfully!");
             vm.customPDBsuccess = true;
         }
     }).catch(error => {
+        vm.PDBparsing = 'error';
         var topview = document.querySelector('#topview');
         console.log(error);
-        this.topology_loaded = 'error';
+        vm.topology_loaded = 'error';
         topview.innerHTML = "Failed to POST structure to our server!<br>Try refreshing the webpage."
     });
 }

@@ -35,12 +35,13 @@ for opt, arg in opts:
 def parse_align(seqObj):
 	''''
 	Parses through the sequence object and generates a dictionary with
-	keys the taxids and values the accession, name and sequence
+	keys the taxids and values the accession, name, sequence, and should add description for now it duplicates with name.
+	Cuts off the last letter from the name to remove uL02e etc.
 	'''
 	outDict = dict()
 	for seq in seqObj:
 		name = '|'.join(seq.id.split('|')[1:])
-		outDict[seq.id.split('_')[1]] = [name, seq.id.split('_')[0], str(seq.seq), seq.id.split('_')[0]]
+		outDict[seq.id.split('_')[1]] = [name, seq.id.split('_')[0][:4], str(seq.seq), seq.id.split('_')[0][:4]]
 	return outDict
 
 def write_csv(list_to_write):
@@ -50,8 +51,8 @@ def write_csv(list_to_write):
 
 def output_csv(fastas_dict):
 	for i in fastas_dict:
-		alnName = ntpath.basename(aln_path).replace('.txt','').replace('e_new.fa','')
-		prot_desc = f'Ribosomal protein {fastas_dict[i][3]}'
+		alnName = ntpath.basename(aln_path).replace('.txt','').replace('e_new.fa','').replace('_new.fas','')
+		prot_desc = f'Ribosomal protein {alnName}'
 		if 'RecName: Full=' in prot_desc:
 			prot_desc = re.sub(r'RecName: Full=', '', prot_desc)
 		if '; AltName:' in prot_desc:

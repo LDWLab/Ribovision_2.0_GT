@@ -9,5 +9,8 @@ Different columns in the csv file will appear as different **Annotations** in th
 ## Upload an external multiple sequence alignment. 
 The **User Upload** mode allows the user to use all the ProteoVision features with an external MSA. An alignment in a .fasta file format must be selected and then uploaded with the **Upload alignment** button. Once an alignment is uploaded, it will be displayed in the Alignment viewer. The steps for structure selection, mapping, attribute calculation, and saving are the same as previously described.
 
+## Upload an external PDB structure file. 
+The **User Upload** mode allows the user to use all the ProteoVision features with an external structure. A structural model in a .pdb file format containing a single chain must be selected and then uploaded with the **Upload a custom PDB** button (available after uploading a custom alignment). Once a structure is uploaded, ProteoVision will process it and display 2D and 3D representations. The steps for mapping, attribute calculation, and saving are the same as previously described.
+
 ## Import a saved ProteoVision session file. 
 At any time, the user can upload a previously saved ProteoVision session file with the **Load session** button. This will restore the progress at time of saving for selected/uploaded alignment, calculated/uploaded data attributes, and selected structures in the 2D and 3D viewers. Currently the sessions do not recover masking or truncation ranges.

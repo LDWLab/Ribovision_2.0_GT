@@ -26,6 +26,8 @@ Our webserver would not be possible without these free resources:
 
 - PDB topologies provided through the [EBI PDBe REST API](https://www.ebi.ac.uk/pdbe/api/doc/topology.html)
 
+- PDB topologies for custom structures are generated with [Pro-Origami](http://munk.cis.unimelb.edu.au/pro-origami/)
+
 - [MolStar Viewer](https://molstar.org/viewer/) ; [Github](https://github.com/molstar/molstar)
 
 - Parsing of sequences and alignments and calculation of frequencies was possible thanks to the [Biopython package](https://biopython.org/)
