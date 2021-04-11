@@ -26,7 +26,8 @@ export function filterAvailablePolymers(chain_list, aln_id, vueObj) {
                             value: chain_listI["in_chains"][0],
                             entityID: chain_listI["entity_id"],
                             startIndex: chain_listI.source[0].mappings[0].start.residue_number,
-                            endIndex: chain_listI.source[0].mappings[0].end.residue_number
+                            endIndex: chain_listI.source[0].mappings[0].end.residue_number,
+                            sequence: chain_listI["sequence"]
                         });
                     }catch(err){console.log(err);}
                 }
