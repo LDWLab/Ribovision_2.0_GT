@@ -287,6 +287,7 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     vueObj.pdbStart = null,
     vueObj.pdbEnd = null,
     vueObj.customPDBsuccess = null,
+    vueObj.PDBparsing = false;
     vueObj.entityID = null,
     vueObj.all_residues = null;
     vueObj.coil_residues = null;

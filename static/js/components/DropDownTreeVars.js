@@ -73,6 +73,7 @@ export function initialState (){
         freqCSV: null,
         customPDBsuccess: null,
         customPDBid: null,
+        PDBparsing: false,
         checkedRNA: false,
         didCDHit_truncate: null,
         cdhitSelectedOpt: null,

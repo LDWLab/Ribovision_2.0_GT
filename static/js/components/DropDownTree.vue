@@ -208,6 +208,12 @@
             </object>-->
         </div>
         <div class="molstar_section">
+            <div v-if="PDBparsing==true">
+                Parsing PDB structure <img src="static/img/loading.gif" alt="Parsing PDB structure" style="height:25px;">
+            </div>
+            <div v-if="PDBparsing=='error'">
+                Failed to parse the PDB structure! Try a different structure.
+            </div>
             <span id="molif" v-if="chainid.length>0||customPDBsuccess">
                 <div id ="pdbeMolstarView">
                     Loading Molstar Component <img src="static/img/loading.gif" alt="Loading MolStar" style="height:25px;">
@@ -570,6 +576,7 @@
             if (this.uploadSession){return;}
             if (pdbid.length === 4) {
                 if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(this);}
+                this.PDBparsing = false;
                 loadAlignmentViewer(vm.fasta_data);
                 this.chains = null;
                 this.chainid = [];
