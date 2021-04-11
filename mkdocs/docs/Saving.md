@@ -4,6 +4,9 @@ The alignment retrieved from the DESIRE database can be downloaded in fasta form
 The current viewport of the alignment can also be saved as a png image with the **Download alignment image** dropdown menu. 
 The user can select whether to download the currently visible region of the alignment or the entire alignment.
 
+
+## Saving a CD-HIT report
+When using custom alignment ProteoVision runs [CD-HIT](http://weizhongli-lab.org/cd-hit/) to ensure there is no overrepresentation in the sequences. The user can download the complete CD-HIT report from the CD-HIT dropdown menu above the alignment.
 ## Saving secondary structure image (svg) 
 The secondary structure image may be downloaded as a .svg file by clicking the “**S**” button in the bottom right corner of the topology viewer. 
 
