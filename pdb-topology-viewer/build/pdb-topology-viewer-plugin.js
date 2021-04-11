@@ -402,7 +402,7 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
         var _this = this;
         var totalAaInPath = (stopResidueNumber - startResidueNumber) + 1;
         var subPathHeight = (this.scaledPointsArr[7] - this.scaledPointsArr[1]) / totalAaInPath;
-        console.log(this.scaledPointsArr);
+        //console.log(this.scaledPointsArr);
         //create subsections/paths
         var dValArr = [];
         for (var subPathIndex = 0; subPathIndex < totalAaInPath; subPathIndex++) {
