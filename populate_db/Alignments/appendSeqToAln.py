@@ -3,7 +3,7 @@ import re, sys, json, getpass, mysql.connector, argparse
 
 from Bio import SeqIO, AlignIO
 from subprocess import Popen, PIPE
-from os import remove, path
+from os import error, remove, path, mkdir
 from urllib.request import urlopen
 from io import StringIO
 import ssl
@@ -76,8 +76,9 @@ def main(commandline_arguments):
     cnx = mysql.connector.connect(user=comm_args.uname, password=pw, host=comm_args.db_host, database=comm_args.db_schema)
     cursor = cnx.cursor()
 
-    dirPath = f"{path.dirname(seq_path)}/"
-
+    dirPath = f"{path.dirname(seq_path)}/temp/"
+    if not path.isdir(dirPath):
+        mkdir(dirPath)
     sequences = list(SeqIO.parse(seq_path, "fasta"))
     for sequence in sequences:
         sequence.id = re.sub('\|.*','',sequence.id)
@@ -140,7 +141,12 @@ def main(commandline_arguments):
     cnx.close()
     
     if comm_args.commit_changes:
-        uploadMain([upAln,"e","-schema",comm_args.db_schema,"-pw",pw, "-aln_id",f"{alnID}","-commit"])
+        try:
+            print("Running upload alignment with arguments:\n",upAln,source_string,"-schema",comm_args.db_schema, "-aln_id",f"{alnID}","-commit")
+            uploadMain([upAln,source_string,"-schema",comm_args.db_schema,"-pw",pw, "-aln_id",f"{alnID}","-commit"])
+        except(error):
+            print(f"Uploading alignment failed with error\n{error}")
+            sys.exit()
 
     print("Success!")
 
