@@ -215,6 +215,7 @@ def main(commandline_arguments):
     aln_name = aln_path.split("/")[-1]\
         .replace('_txid_tagged_nucl.fas', '')\
         .replace('_txid_tagged.fas', '')\
+        .replace('_new.fas', '')\
         .replace('.fas', '')\
         .replace('.fa', '')    #Fix that with re
     if comm_args.alignment_id:

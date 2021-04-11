@@ -51,8 +51,8 @@ def write_csv(list_to_write):
 
 def output_csv(fastas_dict):
 	for i in fastas_dict:
-		alnName = ntpath.basename(aln_path).replace('.txt','').replace('e_new.fa','')
-		prot_desc = f'Ribosomal protein {fastas_dict[i][3]}'
+		alnName = ntpath.basename(aln_path).replace('.txt','').replace('e_new.fa','').replace('_new.fas','')
+		prot_desc = f'Ribosomal protein {alnName}'
 		if 'RecName: Full=' in prot_desc:
 			prot_desc = re.sub(r'RecName: Full=', '', prot_desc)
 		if '; AltName:' in prot_desc:

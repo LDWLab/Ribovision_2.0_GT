@@ -38,8 +38,8 @@ def getAlnId(cursor, alnName):
         print (f"More than one alignment with name {alnName}! Skipping!")
         return False
 
-def fetchAlnOnline(alnID):
-    url = f'https://proteovision.chemistry.gatech.edu/ortholog-aln-api/{alnID}/2,2157,2759'
+def fetchAlnOnline(alnID, source):
+    url = f'https://proteovision.chemistry.gatech.edu/ortholog-aln-api/{alnID}/{source}'
     data = urlopen(url)
     tempStr = str()
     outDat = str()
@@ -70,6 +70,11 @@ def main(commandline_arguments):
     seq_path = comm_args.seq_file
     ###Use source_string to generalize fetchAlnOnline
     source_string = comm_args.source
+    translator = {'b': 2, 'a': 2157, 'e':2759}
+    sourceDigits = ''
+    for letter in source_string:
+        sourceDigits += f"{translator[letter]},"
+    sourceDigits = sourceDigits[:-1]
     pw = comm_args.password
     if pw is None:
         pw = getpass.getpass("Password: ")
@@ -92,6 +97,7 @@ def main(commandline_arguments):
         .replace('_txid_tagged_nucl.fas', '')\
         .replace('_txid_tagged.fas', '')\
         .replace('e_new.fa', '')\
+        .replace('_new.fas', '')\
         .replace('.fas', '')\
         .replace('.fa', '')
     if not comm_args.alignment_id:
@@ -99,15 +105,19 @@ def main(commandline_arguments):
         if alnID == False:
             closeAndExitWithErr('Couldn\'t get alignment ID!', cursor, cnx)
     
-    alnString = fetchAlnOnline(alnID)
+    alnString = fetchAlnOnline(alnID, sourceDigits)
     if alnString == False:
         closeAndExitWithErr(f'Couldn\'t get alignment id {alnID} from ProteoVision!', cursor, cnx)
 
     alnStringFile = StringIO(alnString)
     origAln = AlignIO.read(alnStringFile, "fasta")
 
+    truncName = aln_name
+    if len(aln_name) > 4:
+        truncName=aln_name[1:]
+
     for seq in origAln:
-        seq.id = fixSeqID(' '.join(seq.id.split('_')[1:]), aln_name, cursor)
+        seq.id = fixSeqID(' '.join(seq.id.split('_')[1:]), truncName, cursor)
         seq.description = ''
     
     tempAlnPath = f'{dirPath}temp_{path.split(seq_path)[-1]}'
