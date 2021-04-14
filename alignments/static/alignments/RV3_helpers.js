@@ -286,6 +286,7 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     vueObj.customPDBid = null,
     vueObj.pdbStart = null,
     vueObj.pdbEnd = null,
+    vueObj.pdbSeq = null,
     vueObj.customPDBsuccess = null,
     vueObj.PDBparsing = false;
     vueObj.entityID = null,
@@ -575,6 +576,14 @@ function componentToHex(c) {
   }
 var rgbToHex = function(r, g, b) {
     return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+}
+var hexToRgb = function (hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : null;
 }
 
 var build_mapped_props = function(mapped_props, twcDataUnmapped, structure_mapping){
