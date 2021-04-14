@@ -1722,7 +1722,9 @@ class PdbTopologyViewerPlugin {
                     this.resetTheme();
                 }
             }
-        }         
+        } else if (rv3VUEcomponent.colorSchemeData){
+            this.updateTheme(rv3VUEcomponent.colorSchemeData[0]);
+        }
     }
     
     resetDisplay(){

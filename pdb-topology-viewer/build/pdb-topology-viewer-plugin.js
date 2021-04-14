@@ -1677,6 +1677,9 @@ var PdbTopologyViewerPlugin = /** @class */ (function () {
                 }
             }
         }
+        else if (rv3VUEcomponent.colorSchemeData) {
+            this.updateTheme(rv3VUEcomponent.colorSchemeData[0]);
+        }
     };
     PdbTopologyViewerPlugin.prototype.resetDisplay = function () {
         var selectBoxEle = this.targetEle.querySelector('.menuSelectbox');

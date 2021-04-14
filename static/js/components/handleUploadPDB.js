@@ -56,11 +56,50 @@ function validatePDB(strucString){
         let parsed = parsePdb(strucString);
         vm.pdbStart = parsed.atoms[0].resSeq;
         vm.pdbEnd = parsed.atoms[parsed.atoms.length-1].resSeq
+        vm.pdbSeq = getSeqFromAtoms(parsed.atoms)
         return true;
     }catch(error){
         console.log(error);
         return false;
     }
+}
+
+var getSeqFromAtoms = function (atoms){
+    let set  = new Set(atoms.map(item => [item.resSeq, item.resName]).map(JSON.stringify));
+    let seqData = Array.from(set).map(JSON.parse);
+    var sequence = '';
+    seqData.forEach((a)=>{
+        try{
+            var oneLetter = threeLetterToOne[a[1]];
+        }catch{
+            var oneLetter = 'X';
+        }
+        sequence += oneLetter;
+    })
+    return sequence;
+}
+
+var threeLetterToOne = {
+    ALA: 'A',
+    ARG: 'R',
+    ASN: 'N',
+    ASP: 'D',
+    CYS: 'C',
+    GLN: 'Q',
+    GLU: 'E',
+    GLY: 'G',
+    HIS: 'H',
+    ILE: 'I',
+    LEU: 'L',
+    LYS: 'K',
+    MET: 'M',
+    PHE: 'F',
+    PRO: 'P',
+    SER: 'S',
+    THR: 'T',
+    TRP: 'W',
+    TYR: 'Y',
+    VAL: 'V',
 }
 
 function postPDBdata (pdbID, entities){
