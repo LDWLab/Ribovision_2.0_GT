@@ -28,9 +28,9 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
             assignColorsAndStrucMappings(vueObj, structMappingAndData)
         }
     }).catch(error => {
-        var topview = document.querySelector('#topview');
-        console.log(error);
         vueObj.topology_loaded = 'error';
+        console.log(error);
+        var topview = document.querySelector('#topview');
         topview.innerHTML = "Failed to load the alignment-structure mapping!<br>Try another structure."
     });
 }

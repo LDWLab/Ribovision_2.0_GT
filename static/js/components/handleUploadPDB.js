@@ -1,5 +1,6 @@
 import {ajaxProper} from './ajaxProper.js'
 import parsePdb from 'parse-pdb'
+import {getStructMappingAndTWC} from './getStructMappingAndTWC.js'
 
 export function uploadCustomPDB(){
     if (vm.$refs.customPDBfile.files.length == 0){return;}
@@ -65,6 +66,7 @@ function validatePDB(strucString){
 function postPDBdata (pdbID, entities){
     vm.postedPDBEntities = false;
     let parseURL = `custom-struc-data/${pdbID}`;
+    let postTopologyURL = `proOrigamiPOSTTopology/${pdbID}-${entities.entityID}-${entities.chainID}`;
     var stringEntities = JSON.stringify(entities); 
     ajaxProper({
         url: parseURL,
@@ -76,12 +78,26 @@ function postPDBdata (pdbID, entities){
         if (parsedResponse == "Success!"){
             console.log("Posted PDB data successfully!");
             vm.customPDBsuccess = true;
+            getStructMappingAndTWC (vm.fasta_data, vm.customPDBid, vm.pdbStart, vm.pdbEnd, null, vm);
+            ajaxProper({
+                url: postTopologyURL,
+                type: 'POST',
+                dataType: 'json'
+            }).then (parsedResponse => {
+                if (parsedResponse == "Success!"){
+                    var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid} pvapi="true" filter-range=1,100000></pdb-topology-viewer>`
+                    document.getElementById('topview').innerHTML = topology_viewer;
+                    window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
+                }
+            }).catch(error => {
+                var topview = document.querySelector('#topview');
+                vm.topology_loaded = 'error';
+                topview.innerHTML = "Failed to generate topology from the structure file!<br>Try different PDB."
+                console.log(error.responseText);
+            });
         }
     }).catch(error => {
         vm.PDBparsing = 'error';
-        var topview = document.querySelector('#topview');
-        console.log(error);
-        vm.topology_loaded = 'error';
-        topview.innerHTML = "Failed to POST structure to our server!<br>Try refreshing the webpage."
+        console.log(error.responseText);
     });
 }
