@@ -50,7 +50,7 @@ export function filterAvailablePolymers(chain_list, aln_id, vueObj) {
 }
 
 var searchNewNames = function(nomIDS, chainList, vueObj){
-    let url = `/desire-api/old-nomenclatures/?format=json&n_b_y_h_a=BAN&nn_fk__in=${nomIDS.join(',')}`
+    let url = `/desire-api/old-nomenclatures/?format=json&nn_fk__in=${nomIDS.join(',')}`
     ajax(url).then( nomData => {
         var matchingChains = [];
         var filteredChains = [];
