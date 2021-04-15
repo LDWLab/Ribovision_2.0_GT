@@ -4,14 +4,13 @@ export function colorByMSAColorScheme(scheme, vm) {
 		viewerInstanceTop.pluginInstance.resetDisplay();
 		//Reset the 3D colors?
 	}
-	if (vm.chains.length > 0){
+	if (vm.chains){
 		var tempEntity = vm.chains.filter(obj => {
 			return obj["entityID"] == vm.entityID;
 		});
 	} else {
 		//assume customPDB
 		var tempEntity = [{ entityID: vm.entityID, startIndex: vm.pdbStart, endIndex: vm.pdbEnd, sequence: vm.pdbSeq }]
-		return;
 	}
 	var currScheme = vm.schemesMgr.getScheme(scheme);
 	var colorData2D = [];
