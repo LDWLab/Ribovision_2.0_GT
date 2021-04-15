@@ -1,6 +1,6 @@
 import io, json, os
 from django.http import JsonResponse, HttpResponse, HttpResponseServerError
-from Bio.PDB import PDBParser
+from Bio.PDB import PDBParser, MMCIFParser, PDBIO
 from Bio.PDB.mmcifio import MMCIFIO
 
 from alignments.views import parse_string_structure
@@ -27,21 +27,22 @@ def handleCustomUploadStructure (request, strucID):
             fixedEntityStruc = fixEntityFieldofParsedCIF(strucString, {deStrEnt["chainID"]:deStrEnt["entityID"]})
             outStruc = fixResiFieldsofParsedCIF(fixedEntityStruc)
             request.session[f'{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = outStruc
+            request.session[f'PDB-{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = deStrEnt["stringData"]
             ###
 
-            seq_ix_mapping, struc_seq, gapsInStruc = constructStrucSeqMap(strucObj)
-            startNum, endNum = 1, len(seq_ix_mapping)
-            startAuth, endAuth = seq_ix_mapping[startNum], seq_ix_mapping[endNum]
-            entityJSON = generateEntityJSON (strucID, deStrEnt["entityID"], (startAuth-1)*'-'+str(struc_seq.seq), startNum, endNum)
-            coverageJSON = generatePolCoverageJSON (strucID, deStrEnt["chainID"], deStrEnt["entityID"], startAuth, startNum, endAuth, endNum)
-            topologySVG = handleTopologyBuilding(deStrEnt["stringData"], "/home/Desire-Server/proorigami-cde-package/cde-root/home/proorigami/")
-            try:
-                topologyJSON = generateTopologyJSONfromSVG(topologySVG, strucID, deStrEnt["chainID"], deStrEnt["entityID"])
-            except:
-                return HttpResponseServerError("Failed to generate topology from the provided structure!")
-            request.session[f'TOPOLOGY-{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = topologyJSON
-            request.session[f'ENTITY-{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = entityJSON
-            request.session[f'COVERAGE-{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = coverageJSON
+            #seq_ix_mapping, struc_seq, gapsInStruc = constructStrucSeqMap(strucObj)
+            #startNum, endNum = 1, len(seq_ix_mapping)
+            #startAuth, endAuth = seq_ix_mapping[startNum], seq_ix_mapping[endNum]
+            #entityJSON = generateEntityJSON (strucID, deStrEnt["entityID"], (startAuth-1)*'-'+str(struc_seq.seq), startNum, endNum)
+            #coverageJSON = generatePolCoverageJSON (strucID, deStrEnt["chainID"], deStrEnt["entityID"], startAuth, startNum, endAuth, endNum)
+            #topologySVG = handleTopologyBuilding(deStrEnt["stringData"], "/f/Programs/ProOrigami-master/cde-root/home/proorigami/")
+            #try:
+            #    topologyJSON = generateTopologyJSONfromSVG(topologySVG, strucID, deStrEnt["chainID"], deStrEnt["entityID"])
+            #except:
+            #    return HttpResponseServerError("Failed to generate topology from the provided structure!")
+            #request.session[f'TOPOLOGY-{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = topologyJSON
+            #request.session[f'ENTITY-{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = entityJSON
+            #request.session[f'COVERAGE-{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = coverageJSON
             return JsonResponse("Success!", safe=False)
         for entry in deStrEnt:
             if request.session.get(f'{strucID}-{entry["entityID"]}-{entry["chainID"]}'):
@@ -115,6 +116,14 @@ def strucToString(strucObj):
     mmCIFio.save(strucFile)
     return strucFile.getvalue()
 
+def strucToPDBString(strucObj):
+    strucFile = io.StringIO("")
+    pdbIO=PDBIO()
+    chainmap = rename_chains(strucObj)
+    pdbIO.set_structure(strucObj)
+    pdbIO.save(strucFile)
+    return strucFile.getvalue()
+
 def combineChainsInSingleStruc(structureList):
     for singleStruc in structureList:
         chains = list(singleStruc.get_chains())
@@ -130,6 +139,41 @@ def parseCustomPDB(stringData):
     strucFile = io.StringIO(stringData)
     structureObj = parser.get_structure("CUST",strucFile)
     return structureObj
+
+def parseCustomCIF(stringData, pdbid):
+    parser = MMCIFParser()
+    strucFile = io.StringIO(stringData)
+    structureObj = parser.get_structure(pdbid,strucFile)
+    return structureObj
+
+def postTopology(request, strucID):
+    if request.method == 'POST':
+        structureIDs = strucID.split('-')
+        strucString = request.session[strucID]
+        strucObj = parseCustomCIF(strucString, structureIDs[0])
+        pdbString = strucToPDBString(strucObj)
+        seq_ix_mapping, struc_seq, gapsInStruc = constructStrucSeqMap(strucObj)
+        startNum, endNum = 1, len(seq_ix_mapping)
+        startAuth, endAuth = seq_ix_mapping[startNum], seq_ix_mapping[endNum]
+        entityJSON = generateEntityJSON (structureIDs[0], structureIDs[1], (startAuth-1)*'-'+str(struc_seq.seq), startNum, endNum)
+        coverageJSON = generatePolCoverageJSON (structureIDs[0], structureIDs[2], structureIDs[1], startAuth, startNum, endAuth, endNum)
+        topologySVG = handleTopologyBuilding(pdbString, "/f/Programs/ProOrigami-master/cde-root/home/proorigami/")
+        try:
+            topologyJSON = generateTopologyJSONfromSVG(topologySVG, structureIDs[0], structureIDs[2], structureIDs[1])
+        except:
+            return HttpResponseServerError("Failed to generate topology from the provided structure!")
+        request.session[f'TOPOLOGY-{strucID}'] = topologyJSON
+        request.session[f'ENTITY-{strucID}'] = entityJSON
+        request.session[f'COVERAGE-{strucID}'] = coverageJSON
+        return JsonResponse("Success!", safe=False)
+    return JsonResponse("Only for custom structure post!", safe=False)
+
+def getTopology (request, topID):
+    if topID == "EMPTY":
+        return JsonResponse({}, safe=False)
+    if request.session.get(topID):
+        topology = request.session[topID]
+        return JsonResponse(topology, safe=False)
 
 def handleTopologyBuilding(pdbString, proorigamiLocation):
     from subprocess import Popen, PIPE
@@ -167,9 +211,58 @@ def handleTopologyBuilding(pdbString, proorigamiLocation):
 
     return svgData
 
-def getTopology (request, topID):
-    if topID == "EMPTY":
-        return JsonResponse({}, safe=False)
-    if request.session.get(topID):
-        topology = request.session[topID]
-        return JsonResponse(topology, safe=False)
+class OutOfChainsError(Exception): pass
+def rename_chains(structure):
+    """Renames chains to be one-letter chains
+    
+    Existing one-letter chains will be kept. Multi-letter chains will be truncated
+    or renamed to the next available letter of the alphabet.
+    
+    If more than 62 chains are present in the structure, raises an OutOfChainsError
+    
+    Returns a map between new and old chain IDs, as well as modifying the input structure
+    """
+    next_chain = 0 #
+    # single-letters stay the same
+    chainmap = {c.id:c.id for c in structure.get_chains() if len(c.id) == 1}
+    for o in structure.get_chains():
+        if len(o.id) != 1:
+            if o.id[0] not in chainmap:
+                chainmap[o.id[0]] = o.id
+                o.id = o.id[0]
+            else:
+                c = int_to_chain(next_chain)
+                while c in chainmap:
+                    next_chain += 1
+                    c = int_to_chain(next_chain)
+                    if next_chain >= 62:
+                        raise OutOfChainsError()
+                chainmap[c] = o.id
+                o.id = c
+    return chainmap
+
+def int_to_chain(i,base=62):
+    """
+    int_to_chain(int,int) -> str
+    Converts a positive integer to a chain ID. Chain IDs include uppercase
+    characters, numbers, and optionally lowercase letters.
+    i = a positive integer to convert
+    base = the alphabet size to include. Typically 36 or 62.
+    """
+    if i < 0:
+        raise ValueError("positive integers only")
+    if base < 0 or 62 < base:
+        raise ValueError("Invalid base")
+
+    quot = int(i)//base
+    rem = i%base
+    if rem < 26:
+        letter = chr( ord("A") + rem)
+    elif rem < 36:
+        letter = str( rem-26)
+    else:
+        letter = chr( ord("a") + rem - 36)
+    if quot == 0:
+        return letter
+    else:
+        return int_to_chain(quot-1,base) + letter

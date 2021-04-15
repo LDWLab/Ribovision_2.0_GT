@@ -233,10 +233,12 @@
 
 
 <script>
+  import schemes from './msaColorSchemes/index.js'
   import {ajaxProper} from './ajaxProper.js'
   import {addFooterImages} from './Footer.js'
   import {initialState} from './DropDownTreeVars.js'
   import {filterAvailablePolymers} from './filterRiboChains.js'
+  import {colorByMSAColorScheme} from './handleMSAbasedColoring.js'
   import {getStructMappingAndTWC} from './getStructMappingAndTWC.js'
   import {loadAlignmentViewer} from './loadAlignmentViewer.js'
   import {customCSVhandler} from './handleCSVdata.js'
@@ -288,6 +290,9 @@
         },colorScheme: function (scheme){
             if (window.PVAlnViewer){
                 window.PVAlnViewer.setState({colorScheme:scheme});
+            }
+            if (this.topology_loaded == true){
+                colorByMSAColorScheme(scheme, this);
             }
         },postedPDBEntities: function (successPost){
             if (successPost){
@@ -372,6 +377,7 @@
             if (this.uploadSession){return;}
             if (!name){return;}
             if(!aaPropertyConstants.has(name)){return;}
+            if(this.colorSchemeData){this.colorSchemeData = null;}
             let min = Math.min(...aaPropertyConstants.get(name));
             let max = Math.max(...aaPropertyConstants.get(name));
             let colormapArray = aaColorData.get(name);
@@ -508,6 +514,7 @@
             Object.assign(vm.$data, initialState());
             this.type_tree="upload";
             this.topology_loaded=false;
+            this.schemesMgr = new schemes();
             //cleanupOnNewAlignment(this, "Select new alignment!");
             //[this.options, this.tax_id, this.alnobj, this.chainid] = [null, null, null, null];
             //var topview = document.getElementById("PdbeTopViewer");
@@ -637,6 +644,8 @@
                     this.pdbid = null;
                     if (error.status == 404){
                         elt.innerHTML  = "Couldn't find this PDB ID!<br/>Try a different PDB ID."
+                    } else if (error.status == 0){
+                        elt.innerHTML  = "It looks like PDBe is down! Try using custom mode."
                     } else {
                         elt.innerHTML  = "Problem with parsing the chains! Try a different PDB ID."
                     }
@@ -925,6 +934,7 @@
     }, 
     mounted() {
         addFooterImages("footerDiv");
+        this.schemesMgr = new schemes();
     },
     created() {
         $(window).bind('beforeunload', function(){

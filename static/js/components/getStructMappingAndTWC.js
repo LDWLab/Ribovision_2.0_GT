@@ -1,4 +1,6 @@
 import {loadAlignmentViewer} from './loadAlignmentViewer.js'
+import {ajaxProper} from './ajaxProper.js'
+
 export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, ebi_sequence, vueObj){
     if (vm.fasta_data){
         let cleanFasta = vm.fasta_data.replace(/^>Structure sequence\n(.+\n)+?>/i, ">");
@@ -28,9 +30,9 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
             assignColorsAndStrucMappings(vueObj, structMappingAndData)
         }
     }).catch(error => {
-        var topview = document.querySelector('#topview');
-        console.log(error);
         vueObj.topology_loaded = 'error';
+        console.log(error);
+        var topview = document.querySelector('#topview');
         topview.innerHTML = "Failed to load the alignment-structure mapping!<br>Try another structure."
     });
 }
@@ -65,10 +67,31 @@ function retry (fn, maxAttempts = 1, delay = 0, attempts = 0) {
         var topview = document.querySelector('#topview');
         console.log(err);
         vm.topology_loaded = 'error';
-        topview.innerHTML = "Failed to generate topology diagram!<br>Try another structure."
+        topview.innerHTML = "EBI topology diagram is taking too long!<br>Trying to generate topology from custom mode..."
+        tryCustomTopology(vm.pdbid, vm.entityID, vm.chainid[0]);
         throw err
       })
   }
+
+var tryCustomTopology = function (pdbid, entityid, chainid){
+    var postTopologyURL = `proOrigamiPOSTTopology/${pdbid}-${entityid}-${chainid}`;
+    ajaxProper({
+        url: postTopologyURL,
+        type: 'POST',
+        dataType: 'json'
+    }).then (parsedResponse => {
+        if (parsedResponse == "Success!"){
+            var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid} pvapi="true" filter-range=1,100000></pdb-topology-viewer>`
+            document.getElementById('topview').innerHTML = topology_viewer;
+            window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
+        }
+    }).catch(error => {
+        var topview = document.querySelector('#topview');
+        vm.topology_loaded = 'error';
+        topview.innerHTML = "Failed to generate topology from the structure file!<br>Try different PDB."
+        console.log(error.responseText);
+    });
+}
 
 function sleeper(ms) {
     return function(x) {
