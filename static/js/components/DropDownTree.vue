@@ -724,7 +724,6 @@
                 var range_string = minIndex.concat("-").concat(maxIndex);
                 let ebiMappingURL = 'https://www.ebi.ac.uk/pdbe/api/mappings/uniprot/'+pdbid;
                 ajax(ebiMappingURL).then(data=>{
-                    if (vm.topology_loaded&&vm.topology_loaded!='error'){return;}
                     var result = [];
                     customFilter(data, result, "chain_id", chainid);
                     result = result[0];
@@ -750,6 +749,7 @@
                     document.getElementById('topview').innerHTML = topology_viewer;
                     window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
                 }).catch(error => {
+                    if (vm.topology_loaded&&vm.topology_loaded!='error'){return;}
                     mapping = [range_string.split("-")[0],range_string.split("-")[1]];
                     var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid} filter-range=${mapping}></pdb-topology-viewer>`
                     document.getElementById('topview').innerHTML = topology_viewer;
@@ -757,6 +757,7 @@
                     console.log(error);
                 });
             }).catch(error => {
+                if (vm.topology_loaded&&vm.topology_loaded!='error'){return;}
                 var topview = document.querySelector('#topview');
                 console.log(error);
                 this.topology_loaded = 'error';
