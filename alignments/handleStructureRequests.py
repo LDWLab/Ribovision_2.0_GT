@@ -157,7 +157,7 @@ def postTopology(request, strucID):
         startAuth, endAuth = seq_ix_mapping[startNum], seq_ix_mapping[endNum]
         entityJSON = generateEntityJSON (structureIDs[0], structureIDs[1], (startAuth-1)*'-'+str(struc_seq.seq), startNum, endNum)
         coverageJSON = generatePolCoverageJSON (structureIDs[0], structureIDs[2], structureIDs[1], startAuth, startNum, endAuth, endNum)
-        topologySVG = handleTopologyBuilding(pdbString, "/f/Programs/ProOrigami-master/cde-root/home/proorigami/")
+        topologySVG = handleTopologyBuilding(pdbString, "/home/Desire-Server/proorigami-cde-package/cde-root/home/proorigami/")
         try:
             topologyJSON = generateTopologyJSONfromSVG(topologySVG, structureIDs[0], structureIDs[2], structureIDs[1])
         except:
