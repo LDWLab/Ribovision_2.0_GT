@@ -644,6 +644,8 @@
                     this.pdbid = null;
                     if (error.status == 404){
                         elt.innerHTML  = "Couldn't find this PDB ID!<br/>Try a different PDB ID."
+                    } else if (error.status == 0){
+                        elt.innerHTML  = "It looks like PDBe is down! Try using custom mode."
                     } else {
                         elt.innerHTML  = "Problem with parsing the chains! Try a different PDB ID."
                     }
