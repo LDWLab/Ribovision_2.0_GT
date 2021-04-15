@@ -724,7 +724,7 @@
                 var range_string = minIndex.concat("-").concat(maxIndex);
                 let ebiMappingURL = 'https://www.ebi.ac.uk/pdbe/api/mappings/uniprot/'+pdbid;
                 ajax(ebiMappingURL).then(data=>{
-                    if (vm.topology_loaded){return;}
+                    if (vm.topology_loaded&&vm.topology_loaded!='error'){return;}
                     var result = [];
                     customFilter(data, result, "chain_id", chainid);
                     result = result[0];
