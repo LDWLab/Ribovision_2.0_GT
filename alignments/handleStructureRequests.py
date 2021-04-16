@@ -28,21 +28,6 @@ def handleCustomUploadStructure (request, strucID):
             outStruc = fixResiFieldsofParsedCIF(fixedEntityStruc)
             request.session[f'{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = outStruc
             request.session[f'PDB-{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = deStrEnt["stringData"]
-            ###
-
-            #seq_ix_mapping, struc_seq, gapsInStruc = constructStrucSeqMap(strucObj)
-            #startNum, endNum = 1, len(seq_ix_mapping)
-            #startAuth, endAuth = seq_ix_mapping[startNum], seq_ix_mapping[endNum]
-            #entityJSON = generateEntityJSON (strucID, deStrEnt["entityID"], (startAuth-1)*'-'+str(struc_seq.seq), startNum, endNum)
-            #coverageJSON = generatePolCoverageJSON (strucID, deStrEnt["chainID"], deStrEnt["entityID"], startAuth, startNum, endAuth, endNum)
-            #topologySVG = handleTopologyBuilding(deStrEnt["stringData"], "/f/Programs/ProOrigami-master/cde-root/home/proorigami/")
-            #try:
-            #    topologyJSON = generateTopologyJSONfromSVG(topologySVG, strucID, deStrEnt["chainID"], deStrEnt["entityID"])
-            #except:
-            #    return HttpResponseServerError("Failed to generate topology from the provided structure!")
-            #request.session[f'TOPOLOGY-{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = topologyJSON
-            #request.session[f'ENTITY-{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = entityJSON
-            #request.session[f'COVERAGE-{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = coverageJSON
             return JsonResponse("Success!", safe=False)
         for entry in deStrEnt:
             if request.session.get(f'{strucID}-{entry["entityID"]}-{entry["chainID"]}'):
@@ -157,6 +142,7 @@ def postTopology(request, strucID):
         startAuth, endAuth = seq_ix_mapping[startNum], seq_ix_mapping[endNum]
         entityJSON = generateEntityJSON (structureIDs[0], structureIDs[1], (startAuth-1)*'-'+str(struc_seq.seq), startNum, endNum)
         coverageJSON = generatePolCoverageJSON (structureIDs[0], structureIDs[2], structureIDs[1], startAuth, startNum, endAuth, endNum)
+        ### BE CAREFUL WHEN MERGING THE FOLLOWING LINE TO PUBLIC; PATH IS HARDCODED FOR THE APACHE SERVER ###
         topologySVG = handleTopologyBuilding(pdbString, "/f/Programs/ProOrigami-master/cde-root/home/proorigami/")
         try:
             topologyJSON = generateTopologyJSONfromSVG(topologySVG, structureIDs[0], structureIDs[2], structureIDs[1])
