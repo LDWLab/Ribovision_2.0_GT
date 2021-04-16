@@ -16,14 +16,7 @@ export function colorByMSAColorScheme(scheme, vm) {
 	var colorData2D = [];
 	var colorData3D = [{entity_id: `${vm.entityID}`, focus: true}];
 	for (var i=1; i < tempEntity[0].sequence.length; i++) {
-		if (i < tempEntity[0].startIndex || i > tempEntity[0].endIndex){
-			colorData2D.push({color: 'rgb(180,180,180)', start: i, end: i,
-			});
-			colorData3D.push({
-				entity_id: `${vm.entityID}`, start_residue_number: i, end_residue_number: i,
-				color: {r:180, g:180, b:180}
-			})
-		} else {
+		if (i >= tempEntity[0].startIndex && i <= tempEntity[0].endIndex){
 			let rgbColors = hexToRgb(currScheme.getColor(tempEntity[0].sequence[i-1]));
 			colorData2D.push({
 				start: i, end: i, color: `rgb(${rgbColors.r},${rgbColors.g},${rgbColors.b})`,

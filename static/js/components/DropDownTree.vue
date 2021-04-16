@@ -640,18 +640,17 @@
                 this.chains = null;
                 this.chainid = [];
                 this.hide_chains = true;
-                generateChainsFromLiteMol(pdbid);
+                generateChainsFromLiteMol(`https://coords.litemol.org/${pdbid.toLowerCase()}/assembly?id=1&lowPrecisionCoords=1&encoding=BCIF`, "unfilteredChains");
                 ajax(`https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/${pdbid.toLowerCase()}`).then(struc_data => {
                     if(vm.unfilteredChains){return;}
                     vm.unfilteredChains = struc_data[pdbid.toLowerCase()];
                 }).catch(error => {
                     console.log(error);
                     var elt = document.querySelector("#onFailedChains");
-                    this.pdbid = null;
                     if (error.status == 404){
-                        elt.innerHTML  = "Couldn't find this PDB ID!<br/>Try a different PDB ID."
+                        elt.innerHTML  = "Couldn't find this PDB on EBI!<br/>Try a different PDB ID."
                     } else if (error.status == 0){
-                        elt.innerHTML  = "It looks like PDBe is down! Try using custom mode."
+                        elt.innerHTML  = "It looks like PDBe is down! Running alternative chain parser..."
                     } else {
                         elt.innerHTML  = "Problem with parsing the chains! Try a different PDB ID."
                     }
