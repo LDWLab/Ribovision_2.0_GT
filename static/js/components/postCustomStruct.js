@@ -15,7 +15,7 @@ export function postCIFdata (pdbID, entities){
     }).catch(error => {
         var topview = document.querySelector('#topview');
         console.log(error);
-        this.topology_loaded = 'error';
+        vm.topology_loaded = 'error';
         topview.innerHTML = "Failed to POST structure to our server!<br>Try refreshing the webpage."
     });
 }
