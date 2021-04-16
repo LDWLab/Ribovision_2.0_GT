@@ -290,6 +290,8 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     vueObj.customPDBsuccess = null,
     vueObj.PDBparsing = false;
     vueObj.entityID = null,
+    vueObj.unfilteredChains = null,
+    vueObj.hide_chains = null,
     vueObj.all_residues = null;
     vueObj.coil_residues = null;
     vueObj.helix_residues = null;

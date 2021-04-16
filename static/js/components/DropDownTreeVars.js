@@ -25,6 +25,7 @@ export function initialState (){
         pdbid: null,
         chains: null,
         chainid: [],
+        unfilteredChains: null,
         entityID: null,
         fasta_data: null,
         fastaSeqNames: null,
