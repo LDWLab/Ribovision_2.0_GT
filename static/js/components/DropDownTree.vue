@@ -238,6 +238,7 @@
   import {addFooterImages} from './Footer.js'
   import {initialState} from './DropDownTreeVars.js'
   import {filterAvailablePolymers} from './filterRiboChains.js'
+  import {generateChainsFromLiteMol} from './handleChainData.js'
   import {colorByMSAColorScheme} from './handleMSAbasedColoring.js'
   import {getStructMappingAndTWC} from './getStructMappingAndTWC.js'
   import {loadAlignmentViewer} from './loadAlignmentViewer.js'
@@ -286,6 +287,56 @@
                 this.getPDBchains(pdbid, null);
             }else{
                 this.getPDBchains(pdbid, vm.alnobj.id);
+            }
+        },unfilteredChains: function(chain_list){
+            if (!chain_list){return;}
+            if (this.type_tree == "para") {aln_id = aln_id.split(',')[1]}
+            if (this.type_tree != "upload") {
+                //parseRNAchains(chain_list);
+                filterAvailablePolymers(chain_list, this.alnobj.id, this);
+            } else if (vm.blastMAPresult == null){
+                let chain_options = []
+                for (let i = 0; i < chain_list.length; i++) {
+                    let chain_listI = chain_list[i]
+                    if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
+                    if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
+                    if (typeof(chain_listI.source[0]) === "undefined") {continue;}
+                    chain_options = pushChainData(chain_options, chain_listI);
+                }
+                if (chain_options.length === 0) {
+                    chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
+                }
+                vm.chains = chain_options;
+                this.hide_chains = null;
+            } else {
+                let chain_options = [];
+                var chainsFromBlast = vm.blastMAPresult.get(pdbid);
+                for (let i = 0; i < chain_list.length; i++) {
+                    let chain_listI = chain_list[i]
+                    if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
+                    if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
+                    if (typeof(chain_listI.source[0]) === "undefined") {continue;}
+                    if (!chainsFromBlast){
+                        chain_options = pushChainData(chain_options, chain_listI);
+                    } else {
+                        let intersectedChains = _.intersection(chainsFromBlast, chain_listI["in_chains"]);
+                        intersectedChains.forEach(function(chainVal){
+                            chain_options.push({
+                                text: `${chainVal} ${chain_listI["molecule_name"][0]}`,
+                                value: chainVal,
+                                sequence: chain_listI["sequence"],
+                                entityID: chain_listI["entity_id"],
+                                startIndex: chain_listI.source[0].mappings[0].start.residue_number,
+                                endIndex: chain_listI.source[0].mappings[0].end.residue_number
+                            });
+                        });
+                    }
+                }
+                if (chain_options.length === 0) {
+                    chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
+                }
+                vm.chains = chain_options;
+                this.hide_chains = null;
             }
         },colorScheme: function (scheme){
             if (window.PVAlnViewer){
@@ -583,61 +634,16 @@
             if (this.uploadSession){return;}
             if (pdbid.length === 4) {
                 if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(this);}
+                this.unfilteredChains = null;
                 this.PDBparsing = false;
                 loadAlignmentViewer(vm.fasta_data);
                 this.chains = null;
                 this.chainid = [];
                 this.hide_chains = true;
-                ajax('https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/' + pdbid.toLowerCase()).then(struc_data => {
-                    var chain_list = struc_data[pdbid.toLowerCase()];
-                    if (this.type_tree == "para") {aln_id = aln_id.split(',')[1]}
-                    if (this.type_tree != "upload") {
-                        //parseRNAchains(chain_list);
-                        filterAvailablePolymers(chain_list, aln_id, vm);
-                    } else if (vm.blastMAPresult == null){
-                        let chain_options = []
-                        for (let i = 0; i < chain_list.length; i++) {
-                            let chain_listI = chain_list[i]
-                            if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
-                            if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
-                            if (typeof(chain_listI.source[0]) === "undefined") {continue;}
-                            chain_options = pushChainData(chain_options, chain_listI);
-                        }
-                        if (chain_options.length === 0) {
-                            chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
-                        }
-                        vm.chains = chain_options;
-                        this.hide_chains = null;
-                    } else {
-                        let chain_options = [];
-                        var chainsFromBlast = vm.blastMAPresult.get(pdbid);
-                        for (let i = 0; i < chain_list.length; i++) {
-                            let chain_listI = chain_list[i]
-                            if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
-                            if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
-                            if (typeof(chain_listI.source[0]) === "undefined") {continue;}
-                            if (!chainsFromBlast){
-                                chain_options = pushChainData(chain_options, chain_listI);
-                            } else {
-                                let intersectedChains = _.intersection(chainsFromBlast, chain_listI["in_chains"]);
-                                intersectedChains.forEach(function(chainVal){
-                                    chain_options.push({
-                                        text: `${chainVal} ${chain_listI["molecule_name"][0]}`,
-                                        value: chainVal,
-                                        sequence: chain_listI["sequence"],
-                                        entityID: chain_listI["entity_id"],
-                                        startIndex: chain_listI.source[0].mappings[0].start.residue_number,
-                                        endIndex: chain_listI.source[0].mappings[0].end.residue_number
-                                    });
-                                });
-                            }
-                        }
-                        if (chain_options.length === 0) {
-                            chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
-                        }
-                        vm.chains = chain_options;
-                        this.hide_chains = null;
-                    }
+                generateChainsFromLiteMol(pdbid);
+                ajax(`https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/${pdbid.toLowerCase()}`).then(struc_data => {
+                    if(vm.unfilteredChains){return;}
+                    vm.unfilteredChains = struc_data[pdbid.toLowerCase()];
                 }).catch(error => {
                     console.log(error);
                     var elt = document.querySelector("#onFailedChains");
