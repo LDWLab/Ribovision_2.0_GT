@@ -718,6 +718,7 @@
             loadAlignmentViewer (vm.fasta_data);
             var topology_url = `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdblower}/chain/${chainid}`
             ajax(topology_url).then(data => {
+                if(vm.topology_loaded){return;}
                 var entityid = Object.keys(data[pdblower])[0];
                 let termStart = Number(data[pdblower][entityid][chainid]["terms"][0].resnum);
                 let termEnd = Number(data[pdblower][entityid][chainid]["terms"][1].resnum);
