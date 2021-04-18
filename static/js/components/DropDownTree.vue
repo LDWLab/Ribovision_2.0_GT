@@ -310,7 +310,7 @@
                 this.hide_chains = null;
             } else {
                 let chain_options = [];
-                var chainsFromBlast = vm.blastMAPresult.get(pdbid);
+                var chainsFromBlast = vm.blastMAPresult.get(this.pdbid);
                 for (let i = 0; i < chain_list.length; i++) {
                     let chain_listI = chain_list[i]
                     if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
