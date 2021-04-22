@@ -15,14 +15,9 @@ from alignments.taxonomy_views import *
 from alignments.residue_api import *
 from alignments.structure_api import *
 from alignments.fold_api import *
-from alignments.runal2co import executeAl2co
 import alignments.alignment_query_and_build as aqab
 from TwinCons.bin.TwinCons import slice_by_name
 
-from Bio.Alphabet import generic_dna
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
-from Bio.Align import MultipleSeqAlignment
 
 def trim_alignment(concat_fasta, filter_strain):
     '''Reads a fasta string into alignment and trims it down by filter sequence'''
