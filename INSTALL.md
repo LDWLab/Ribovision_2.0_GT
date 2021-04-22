@@ -170,6 +170,7 @@ Public set-up does not differ significantly from local installations. There are 
 	- alignments/views.py :80; :613
 	- alignments/mapStrucSeqToAln.py :63
 	- alignments/handleStructureRequests.py :146
+	- alignments/handleCustomAln.py :75
 
 	Keep in mind these line numbers might change as the code gets updated. 
 	

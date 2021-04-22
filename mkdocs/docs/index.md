@@ -1,6 +1,6 @@
 # Welcome to ProteoVision
 
-If you have found ProteoVision useful in your research please cite our publication http://dx.doi.org/10.1093/nar/gkab351
+If you have found ProteoVision useful in your research please cite our publication [http://dx.doi.org/10.1093/nar/gkab351](http://dx.doi.org/10.1093/nar/gkab351)
 
 ## About
 
