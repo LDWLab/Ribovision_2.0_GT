@@ -19,7 +19,15 @@ Navigation between all panels is synchronized. Hovering over an alignment positi
 ProteoVision offers an interactive guide that demonstrates the steps a user can take to fully utilize ProteoVision capabilities. The guide always starts on the users first visit and can be launched at any time with the **Help** button. The user can step through the guide using the keyboard arrow keys or the **Next** and **Previous** buttons on the guide pop-ups. Ending the guide with **Skip tour** button will erase the current session and reset the viewports.
 
 ## User upload mode
-ProteoVision supports the upload of custom alignments. The user can upload any fasta format alignment through the **User upload** menu and calculate amino-acid frequencies and mapping data from it. The user can select a PDB ID to visualize a structure and map the calculated data from their alignment.
+
+### Custom alignments
+ProteoVision supports the upload of custom alignments. The user can upload any fasta format alignment through the **User upload** menu and calculate amino-acid frequencies and mapping data from it. The user can select a PDB ID or upload a custom PDB file to visualize a structure and map the calculated data from their alignment.
+
+#### CD-HIT analysis
+When using custom alignment ProteoVision runs [CD-HIT](http://weizhongli-lab.org/cd-hit/) to ensure there is no overrepresentation in the sequences. By default ProteoVision uses 90% identity clustering threshold. Sequences with greater similarity are automatically removed from the uploaded alignment. The user can elect to use their original alignment by selecting the option from the CD-HIT dropdown menu above the alignment.
+
+### Custom structures
+ProteoVision supports the upload of custom PDB structures. The web server supports PDB files with only a single chain. The user can upload PDB format structure through the **Upload a custom PDB** button (available after uploading a custom alignment). ProteoVision connects the structural sequence to the alignment, displays the tertiary structure in the Mol* viewer, generates a topology representation with [Pro-Origami](http://munk.cis.unimelb.edu.au/pro-origami/), and displays the topology with the Topology Viewer.
 
 ## Selecting a structure for visualization and mapping in user upload mode
 After uploading an alignment, ProteoVision will use the first sequence of the alignment to perform a BLAST search of the [PDB database](https://www.ebi.ac.uk/Tools/common/tools/help). BLAST results are filtered by E-value lower than 10<sup>-5</sup> and coverage of the query sequence greater than 75%. The BLAST results are used to populate a dropdown menu in the PDB input field. The dropdown menu is searchable, and shows filtered results depending on the user input. After a BLAST is complete the polymers associated with the polymer selection box will be filtered by the BLAST results.

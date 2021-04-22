@@ -5,18 +5,30 @@
                 <span class="title" >ProteoVision: Advanced Visualization of Ribosomal Proteins </span>
             </div>
             <div class="headerOptions" style="margin-left: auto;padding-top:10px;">
-                <button class="btn btn-outline-dark" v-on:click="startTour();" style="float: right;">Help</button>
+                <span title="Start an interactive guide">
+                    <button class="btn btn-outline-dark" v-on:click="startTour();" style="float: right;">Help</button>
+                </span>
                 <p style="padding:2px;float: right;"></p>
-                <button class="btn btn-outline-dark" id="aboutButton" v-on:click="goToAboutPage();" style="float: right;">About</button>
+                <span title="Go to ProteoVision documentation">
+                    <button class="btn btn-outline-dark" id="aboutButton" v-on:click="goToAboutPage();" style="float: right;">About</button>
+                </span>
                 <p style="padding:2px;float: right;"></p>
-                <a href="/desire-api/" target="_blank" id="desireAPIButton" class="btn btn-outline-dark" style="float: right;">API</a>
+                <span title="Go to DESIRE api">
+                    <a href="/desire-api/" target="_blank" id="desireAPIButton" class="btn btn-outline-dark" style="float: right;">API</a>
+                </span>
                 <p style="padding:2px;float: right;"></p>
-                <button class="btn btn-outline-dark" id="resetButton" v-on:click="resetRV3State();" style="float: right;">Reset</button>
+                <span title="Reset the current session">
+                    <button class="btn btn-outline-dark" id="resetButton" v-on:click="resetRV3State();" style="float: right;">Reset</button>
+                </span>
                 <p style="padding:2px;float: right;"></p>
-                <button class="btn btn-outline-dark" id="saveButton" v-on:click="saveRV3State();" style="float: right;">Save session</button>
+                <span title="Save a ProteoVision session file">
+                    <button class="btn btn-outline-dark" id="saveButton" v-on:click="saveRV3State();" style="float: right;">Save session</button>
+                </span>
                 <p style="padding:2px;float: right;"></p>
-                <label for="inputRV3State" id="rv3-state-upload" class="btn btn-outline-dark">Load session</label>
-                <input id="inputRV3State" type="file" accept=".json" ref="rv3_state_file" v-on:change="loadRV3State()"/>
+                <span title="Load a ProteoVision session file">
+                    <label for="inputRV3State" id="rv3-state-upload" class="btn btn-outline-dark">Load session</label>
+                    <input id="inputRV3State" type="file" accept=".json" ref="rv3_state_file" v-on:change="loadRV3State()"/>
+                </span>
             </div>
         </header>
         <v-tour 
@@ -401,6 +413,18 @@
               placement: 'right'
             },
         },{
+            target: '#showRNAcontext',
+            header: {
+                title: 'Show ribosomal context in 3D Viewer',
+            },
+            content: `When selected, the 3D viewer shows the entire ribosomal structure in gray
+            and the protein of interest is highlighted. Color mapping is possible but can 
+            take a while, since the entire ribosome is being recolored.
+            The user is advised to exercise patience as the web server might be unresponsive when colormapping with this option.`,
+            params: {
+              placement: 'right'
+            },
+        },{
             target: '#domainSelectionSection',
             header: {
                 title: 'ECOD domains',
@@ -552,6 +576,32 @@
                 )
             })
         },{
+            target: '#warningCDHITtruncation',
+            header: {
+                title: 'Warning for clustering of alignment.',
+            },
+            content: `A warning will be displayed here when the uploaded alignment sequences 
+            have been clustered by CD-HIT. This is done to ensure there is no overrepresentation of certain sequences.<br/>
+            The number of clustered sequences at 90% identity threshold will be indicated.<br/>
+            The user can input a different PDB or select a new polymer or restart with a new alignment.`,
+        },{
+            target: '#cdHITResults',
+            header: {
+                title: 'CD-HIT options.',
+            },
+            content: `The user can select to use their original unclustered alignment from this dropdown menu.
+            The user can also download the CD-HIT report from their alignment.`,
+        },{
+            target: '#pdb-upload',
+            header: {
+                title: 'Upload custom PDB file.',
+            },
+            content: `When using custom alignment ProteoVision supports a custom PDB structure file.
+            The structure file must be in PDB format and must contain only a single chain.`,
+            params: {
+              placement: 'right'
+            },
+        },{
             target: '.autocomplete',
             header: {
                 title: 'Write a PDB ID for structure display',
@@ -623,7 +673,8 @@
                 tempMap.set("1EFU", ["A", "C"]);
                 vm.fetchingPDBwithCustomAln = 'complete';
                 resolve (
-                    vm.blastPDBresult = ["1EFT","1EFU"],
+                    vm.blastPDBresult = [{id:"1EFT", name:"1EFT"},
+                                        {id:"1EFU", name:"1EFU"}],
                     vm.blastMAPresult = tempMap,
                 );
             })

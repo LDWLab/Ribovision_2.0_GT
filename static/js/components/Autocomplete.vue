@@ -29,7 +29,9 @@
         class="autocomplete-result"
         :class="{ 'is-active': i === arrowCounter }"
       >
-        {{ result.name }}
+        <span :title="result.stats">
+          {{ result.name }}
+        </span>
       </li>
     </ul>
   </div>

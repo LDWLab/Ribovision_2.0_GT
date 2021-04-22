@@ -4,7 +4,6 @@ import urllib.request
 from subprocess import Popen, PIPE
 from Bio import AlignIO, BiopythonDeprecationWarning
 from io import StringIO
-from Bio.SeqUtils import IUPACData
 
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, HttpResponseServerError
@@ -16,6 +15,7 @@ from alignments.taxonomy_views import *
 from alignments.residue_api import *
 from alignments.structure_api import *
 from alignments.fold_api import *
+from alignments.runal2co import executeAl2co
 import alignments.alignment_query_and_build as aqab
 from TwinCons.bin.TwinCons import slice_by_name
 
@@ -82,16 +82,17 @@ def api_twc_with_upload(request, anchor_structure):
 def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
+    ### BE CAREFUL WHEN MERGING THE FOLLOWING LINES TO PUBLIC; PATHS ARE HARDCODED FOR THE APACHE SERVER ###
     alignmentFileName = "./static/alignment" + fileNameSuffix + ".txt"
     ebiFileName = "./static/ebi_sequence" + fileNameSuffix + ".txt"
     mappingFileName = ebiFileName + ".map"
-
+    fasta = re.sub('>Structure sequence[\s\S]*?>','>',fasta)
     fh = open(alignmentFileName, "w")
     fh.write(fasta)
     fh.close()
 
     fh = open(ebiFileName, "w")
-    fh.write(">ebi_sequence\n")
+    fh.write(">Structure sequence\n")
     fh.write(ebi_sequence)
     fh.close()
 
@@ -109,7 +110,8 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
         return HttpResponseServerError("Failed mapping the polymer sequence to the alignment!\nTry a different structure.")
 
     text = decoded_text.split('\n#')[1]
-    mapping, firstLine, badMapping = dict(), True, 0
+    amendedAln = re.sub('>Structure sequence$','',decoded_text.split('\n#')[0])
+    outputDict, mapping, firstLine, badMapping = dict(), dict(), True, 0
     for line in text.split('\n'):
         if firstLine:
             firstLine = False
@@ -124,12 +126,14 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
             return HttpResponseServerError("Failed mapping the polymer sequence to the alignment!\nTry a different structure.")
         mapping[int(row[2])] = int(row[1]) + shiftIndexBy
 
+    outputDict["structureMapping"] = mapping
     if badMapping > 0:
-        mapping['BadMappingPositions'] = badMapping
+        outputDict['BadMappingPositions'] = badMapping
 
     for removeFile in [alignmentFileName, ebiFileName, mappingFileName]:
         os.remove(removeFile)
-    return mapping
+    outputDict["amendedAln"] = f'>Structure sequence{amendedAln.split(">Structure sequence")[1]}{amendedAln.split(">Structure sequence")[0]}'
+    return outputDict
 
 def request_post_data(post_data):
     fasta = post_data["fasta"]
@@ -258,8 +262,8 @@ def api_entropy(request, align_name, tax_group, anchor_structure):
 
 def index_test(request):
     some_Alignments = Alignment.objects.all()
-    superKingdoms = Taxgroups.objects.raw('SELECT * FROM SEREB.TaxGroups WHERE\
-         SEREB.TaxGroups.groupLevel = "superkingdom";')
+    superKingdoms = Taxgroups.objects.raw('SELECT * FROM TaxGroups WHERE\
+         TaxGroups.groupLevel = "superkingdom";')
     
     context = {
         'props': list(Taxgroups.objects.values('taxgroup_id', 'groupname')),
@@ -367,20 +371,22 @@ def simple_fasta(request, aln_id, tax_group, internal=False):
     if internal:
         return fastastring
     
-    concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
-    alignment_obj = AlignIO.read(StringIO(concat_fasta), 'fasta')
-    sliced_alns = slice_by_name(alignment_obj)
-    twc = False
-    if len(sliced_alns.keys()) == 2:
-        twc = True
-    
-    gap_only_cols = extract_gap_only_cols(fastastring)
-    filtered_spec_list = extract_species_list(fastastring)
-
-    
+    concat_fasta, twc, gap_only_cols, filtered_spec_list, alignment_obj = calculateFastaProps(fastastring)
     response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc])
 
     return JsonResponse(response_dict, safe = False)
+
+def calculateFastaProps(fastastring):
+    concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
+    alignment_obj = AlignIO.read(StringIO(concat_fasta), 'fasta')
+    twc = False
+    if (len(alignment_obj) < 1000):
+        sliced_alns = slice_by_name(alignment_obj)
+        if len(sliced_alns.keys()) == 2:
+            twc = True
+    gap_only_cols = extract_gap_only_cols(fastastring)
+    filtered_spec_list = extract_species_list(fastastring)
+    return concat_fasta, twc, gap_only_cols, filtered_spec_list, alignment_obj
 
 def rProtein(request, align_name, tax_group):
     #if tax_group == 0 - no filter
@@ -425,47 +431,6 @@ def validate_fasta_string(fastaString):
         if re.search(regex, fastaString):
             return False
     return True
-
-def handle_custom_upload_alignment(request):
-    if request.method == 'POST' and 'custom_aln_file' in request.FILES:
-        aln_file = request.FILES['custom_aln_file']
-        alignment_string = ''
-        for aln_part in aln_file.chunks():
-            alignment_string += aln_part.decode()
-        try:
-            alignments = list(AlignIO.parse(StringIO(alignment_string), 'fasta'))
-        except ValueError as e:
-            return HttpResponseServerError(f"Wasn't able to parse the alignment file with error: {e.args[0]}")
-        except:
-            return HttpResponseServerError("Wasn't able to parse the alignment file! Is the file in FASTA format?")
-        if len(alignments) == 0:
-            return HttpResponseServerError("Wasn't able to parse the alignment file! Is the file in FASTA format?")
-        if len(alignments) > 1:
-            return HttpResponseServerError("Alignment file had more than one alignments!\nPlease upload a single alignment.")
-        fastastring = format(alignments[0], "fasta")
-        if validate_fasta_string(fastastring):
-            request.session['custom_alignment_file'] = fastastring
-            return HttpResponse('Success!')
-        else:
-            return HttpResponseServerError("Alignment file had forbidden characters!\nWhat are you trying to do?")
-    if request.method == 'GET':
-        from alignments.Shannon import gap_adjusted_frequency
-        fastastring = request.session.get('custom_alignment_file')
-        alignment_obj = AlignIO.read(StringIO(fastastring), 'fasta')
-        sliced_alns = slice_by_name(alignment_obj)
-        twc = False
-        if len(sliced_alns.keys()) == 2:
-        	twc = True			
-        fastastring = fastastring.replace('\n','\\n')
-        gap_only_cols = extract_gap_only_cols(fastastring)
-        filtered_spec_list = extract_species_list(fastastring)
-        concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
-        frequency_list = list()
-        for i in range(0, alignment_obj.get_alignment_length()):
-            frequency_list.append(gap_adjusted_frequency(alignment_obj[:,i], IUPACData.protein_letters))
-        
-        response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc])
-        return JsonResponse(response_dict, safe = False)
 
 # trims fasta by a list of indices
 def trim_fasta_by_index(input_file, indices):
@@ -716,51 +681,10 @@ def ecodPassThroughQuery(request):
     data = response.read()
     return JsonResponse(json.loads(data.decode(encoding)), safe=False)
 
-def handleCustomUploadStructure (request, strucID):
-    '''We will POST all structure chains we need with uniqueIDs.
-    Then when we GET them we can list the strucIDs separated by coma 
-    this would mean "combine these in one CIF and return them".
-    '''
-    if request.method == 'POST':
-        try:
-            strucData = request.POST["custom_structure"]
-        except:
-            return HttpResponseServerError("POST was sent without structure to parse!")
-        try:
-            serializeData = json.dumps(strucData)
-        except:
-            return HttpResponseServerError("Failed to parse the provided structure!")
-        request.session[strucID] = serializeData
-        return HttpResponse('Success!')
-    
-    if request.method == 'GET':
-        structureDict = dict()
-        for singleID in strucID.split(','):
-            serializeData = request.session[singleID]
-            strucObj = parse_serialized_structure(serializeData, singleID)
-            structureDict[singleID] = strucObj
-        if len(structureDict) == 1:
-            stringStruc = strucToString(next(iter(structureDict.values())))
-            return HttpResponse(stringStruc, content_type="text/plain")
-        elif len(structureDict) > 1:
-            #combine into single structure and return
-            pass
-        else:
-            return HttpResponseServerError("Failed to parse structures!")
 
-def parse_serialized_structure(serializeData, strucID):
-
+def parse_string_structure(stringData, strucID):
     from Bio.PDB import MMCIFParser
     parser = MMCIFParser()
-    strucFile = io.StringIO(serializeData.replace('\\n','\n')[1:-1])
+    strucFile = io.StringIO(stringData)
     structureObj = parser.get_structure(strucID,strucFile)
     return structureObj
-
-def strucToString(strucObj):
-    
-    from Bio.PDB.mmcifio import MMCIFIO
-    strucFile = io.StringIO("")
-    mmCIFio=MMCIFIO()
-    mmCIFio.set_structure(strucObj)
-    mmCIFio.save(strucFile)
-    return strucFile.getvalue()

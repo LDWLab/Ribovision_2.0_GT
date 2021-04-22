@@ -526,7 +526,7 @@ function handlePropensities(checked_propensities) {
             indices = handlePropensityIndicesOnTruncatedStructure(indices, startRange, endRange);
         }
         var full = ['C', 'S', 'T', 'P', 'A', 'G', 'N', 'D', 'E', 'Q', 'H', 'R', 'K', 'M', 'I', 'L', 'V', 'F', 'Y', 'W'];
-        let customFasta = vm.fasta_data
+        let customFasta = vm.fasta_data.replace(/^>Structure sequence\n(.+\n)+?>/i, ">");
         if (indices) {
             ajax("/propensity-data-custom/", {indices, customFasta}).then(data => {
                 storeFrequencyData(data['amino acid'],title);

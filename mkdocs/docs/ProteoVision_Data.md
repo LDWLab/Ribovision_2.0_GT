@@ -1,7 +1,7 @@
 # ProteoVision Data
 ## Phylogeny (SEREB)
-The subset of 152 species from the [SEREB](https://doi.org/10.1093/molbev/msy101) (Sparse and Efficient Representation of Extant Biology), 
-database was organized into a phylogenetic browser using a tree topology from the [Banfiled lab](https://doi.org/10.1038/nmicrobiol.2016.48).
+The subset of 179 species from the [SEREB](https://doi.org/10.1093/molbev/msy101) (Sparse and Efficient Representation of Extant Biology), 
+database was organized into a phylogenetic browser using a tree topology from [NCBI](https://www.ncbi.nlm.nih.gov/taxonomy).
 
 ## Alignments 
 Each ribosomal protein has an associated MSA. First, an MSA reference was generated with [MATRAS](https://doi.org/10.1093/nar/gkg581) from multiple structure superimpositions. Then, amino acid sequences of species from the SEREB database were added to the reference alignment using [MAFFT](https://doi.org/10.1093/bioinformatics/bts578).

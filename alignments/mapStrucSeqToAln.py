@@ -5,7 +5,7 @@ from Bio.SeqUtils import seq1
 from Bio.SeqRecord import SeqRecord
 import re
 
-from alignments.handleStructureRequests import parse_string_structure
+from alignments.views import parse_string_structure
 
 def request_post_data(post_data):
     fasta = post_data["fasta"]
@@ -56,8 +56,10 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
     from warnings import warn
     import datetime
     
+    fasta = re.sub('>Structure sequence[\s\S]*?>','>',fasta)
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
+    ### BE CAREFUL WHEN MERGING THE FOLLOWING LINES TO PUBLIC; PATHS ARE HARDCODED FOR THE APACHE SERVER ###
     aln_group_path = "./static/alignment" + fileNameSuffix + ".txt"
     pdb_seq_path = "./static/ebi_sequence" + fileNameSuffix + ".txt"
     mappingFileName = pdb_seq_path + ".map"
@@ -75,7 +77,7 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
     fh.close()
 
     fh = open(pdb_seq_path, "w")
-    fh.write(">ebi_sequence\n")
+    fh.write(">Structure sequence\n")
     fh.write(str(struc_seq.seq))
     fh.close()
     
@@ -88,9 +90,10 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
         return HttpResponseServerError("Failed mapping the polymer sequence to the alignment!\nTry a different structure.")
 
     mapping_file = output.decode("ascii").split('\n#')[1]
+    amendedAln = re.sub('>Structure sequence$','',output.decode("ascii").split('\n#')[0])
     groupName = output.decode('ascii').split('>')[1].split('_')[0]
     firstLine = True
-    mapping, bad_map_positions, fail_map = dict(), 0, False
+    outputDict, mapping, bad_map_positions, fail_map = dict(), dict(), 0, False
     for line in mapping_file.split('\n'):
         if firstLine:
             firstLine = False
@@ -109,5 +112,7 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
     if fail_map:
         return HttpResponseServerError("Failed mapping the polymer sequence to the alignment!\nTry a different structure.")
     if bad_map_positions > 0:
-        mapping['BadMappingPositions'] = bad_map_positions
-    return mapping
+        outputDict['BadMappingPositions'] = bad_map_positions
+    outputDict["amendedAln"] = f'>Structure sequence{amendedAln.split(">Structure sequence")[1]}{amendedAln.split(">Structure sequence")[0]}'
+    outputDict["structureMapping"] = mapping
+    return outputDict

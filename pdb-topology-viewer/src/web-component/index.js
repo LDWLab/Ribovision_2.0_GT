@@ -1,7 +1,7 @@
 class PdbTopologyViewer extends HTMLElement {
 
   static get observedAttributes() {
-    return ['entry-id', 'entity-id', 'filter-range', 'chain-id', 'display-style', 'error-style', 'menu-style', 'subscribe-events'];
+    return ['entry-id', 'entity-id', 'filter-range', 'chain-id', 'display-style', 'error-style', 'menu-style', 'subscribe-events', 'pvapi'];
   }
 
   constructor() {
@@ -31,6 +31,7 @@ class PdbTopologyViewer extends HTMLElement {
     if(typeof this.errorStyle !== 'undefined' && this.errorStyle !== null) options['errorStyle'] = this.errorStyle;
     if(typeof this.menuStyle !== 'undefined' && this.menuStyle !== null) options['menuStyle'] = this.menuStyle;
     if(typeof this.subscribeEvents !== 'undefined' && this.subscribeEvents !== null) options['subscribeEvents'] = this.subscribeEvents;
+    if(typeof this.pvAPI !== 'undefined' && this.pvAPI !== null) options['pvAPI'] = this.pvAPI;
     if(typeof this.filterRange !== 'undefined' && this.filterRange !== null) options['filterRange'] = this.filterRange;
     this.pluginInstance.render(this, options);
 
@@ -45,6 +46,7 @@ class PdbTopologyViewer extends HTMLElement {
     this.errorStyle = this.getAttribute("error-style");
     this.menuStyle = this.getAttribute("menu-style");
     this.subscribeEvents = this.getAttribute("subscribe-events");
+    this.pvAPI = (/true/i).test(this.getAttribute("pvapi"));
     this.invokePlugin();
   }
 

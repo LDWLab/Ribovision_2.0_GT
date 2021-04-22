@@ -44,7 +44,12 @@
                 </select>
             </p>
                 <!--<span v-if="alnobj&&alnobj!='custom'">Select structure for mapping:</span>-->
-                <span v-if="alnobj">Type PDB entry:</span>
+                <div v-if="alnobj&&alnobj=='custom'&&file&&type_tree=='upload'">
+                    <label for="uploadCustomPDB" id="pdb-upload" class="btn btn-outline-dark">Upload a custom PDB</label>
+                    <input id="uploadCustomPDB" class="btn btn-outline-dark" type="file" accept=".pdb" ref="customPDBfile" v-on:change="uploadCustomPDB()"/>
+                    OR<br>
+                </div>
+                <span v-if="alnobj">Select/type PDB entry:</span>
             <p>
                 <!--<select class="btn btn-outline-dark dropdown-toggle" id="pdb_input" v-if="alnobj&&alnobj!='custom'" v-model="pdbid">
                     <option :value="null" selected disabled hidden>Select PDB entry</option>
@@ -53,7 +58,7 @@
                 <autocomplete id="pdb_input" isAsync:true :items="pdbs" v-if="alnobj&&alnobj!='custom'" v-model="pdbid"></autocomplete>
                 <autocomplete isAsync:true :items="blastPDBresult" v-if="alnobj&&alnobj=='custom'" v-model="pdbid"></autocomplete>
                 <div id="blastingPDBsMSG" v-if="alnobj&&alnobj=='custom'&&fetchingPDBwithCustomAln&&fetchingPDBwithCustomAln==true">
-                    <b>BLASTing available PDBs</b>
+                    <b>BLASTing first alignment sequence against PDB sequences</b>
                     <img src="static/img/loading.gif" alt="BLASTing available PDBs" style="height:25px;">
                 </div>
                 <div id="blastedPDBsNoneMSG" v-if="alnobj&&alnobj=='custom'&&fetchingPDBwithCustomAln&&fetchingPDBwithCustomAln=='none'">
@@ -76,8 +81,11 @@
                     <option value='pymol'>As PyMOL script</option>
                 </select>
             </div>
-            <div v-if="topology_loaded">
-
+            <p><div v-if="topology_loaded&&type_tree=='orth'" class="checkbox" id="showRNAcontext">
+                <label><input type="checkbox" v-model="checkedRNA" v-on:change="updateMolStarWithRibosome(checkedRNA)">
+                    Show ribosomal context in 3D</label>
+            </p></div>
+            <div v-if="topology_loaded&&!checkedRNA&&!customPDBid">
                 <div id="domainSelectionSection" style="margin: 3% 0;">
                     <div>
                         <label><input type="radio" v-model="domain_or_selection" value="domain">
@@ -157,6 +165,10 @@
                     <button id="downloadFastaBtn" class="btn btn-outline-dark" style="margin: 0 1%;" v-if="msavWillMount" type="button" v-on:click="downloadAlignmentData()">
                         Download alignment
                     </button>
+                    <select id="cdHITResults" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="cdhitSelectedOpt" v-if="cdHITReport">
+                        <option :value="null" selected disabled>See cdhit options</option>
+                        <option v-for="prop in cdhitOpts" :value="prop.value" >{{ prop.Name }}</option>
+                    </select>
                     <select id="downloadAlnImageBtn" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="downloadAlignmentOpt" v-if="msavWillMount">
                         <option :value="null" selected disabled>Download alignment image</option>
                         <option value='full'>Full alignment</option>
@@ -175,6 +187,10 @@
             </div>
         </div>
         <div class="warningSection">
+            <div id="warningCDHITtruncation" v-if="cdHITReport&&didCDHit_truncate" >
+                <b>Warning, your alignment sequences were clustered by cdhit! See dropdown menu above the alignment for options.<br/>
+                Original alignment had {{this.cdHITnums[0]}} sequences, which were clustered in {{this.cdHITnums[1]}} groups using threshold of 90% identity.</b>
+            </div>
             <div id="warningPoorStructureAln" v-if="poor_structure_map" >
                 <b>Warning, poor alignment between the structure and sequences!!!<br/>
                 Found {{poor_structure_map}} poorly aligned residues.
@@ -182,7 +198,7 @@
             </div>
         </div>
         <div class="topology_section">
-            <span id="topif" v-if="chainid.length>0">
+            <span id="topif" v-if="chainid.length>0||customPDBsuccess">
                 <div v-if="!topology_loaded">
                     Loading alignment-structure mapping <img src="static/img/loading.gif" alt="Loading topology viewer" style="height:25px;">
                 </div>
@@ -202,7 +218,13 @@
             </object>-->
         </div>
         <div class="molstar_section">
-            <span id="molif" v-if="chainid.length>0">
+            <div v-if="PDBparsing==true">
+                Parsing PDB structure <img src="static/img/loading.gif" alt="Parsing PDB structure" style="height:25px;">
+            </div>
+            <div v-if="PDBparsing=='error'">
+                Failed to parse the PDB structure! Try a different structure.
+            </div>
+            <span id="molif" v-if="chainid.length>0||customPDBsuccess">
                 <div id ="pdbeMolstarView">
                     Loading Molstar Component <img src="static/img/loading.gif" alt="Loading MolStar" style="height:25px;">
                 </div>
@@ -221,9 +243,13 @@
 
 
 <script>
+  import schemes from './msaColorSchemes/index.js'
   import {ajaxProper} from './ajaxProper.js'
   import {addFooterImages} from './Footer.js'
   import {initialState} from './DropDownTreeVars.js'
+  import {filterAvailablePolymers} from './filterRiboChains.js'
+  import {generateChainsFromLiteMol} from './handleChainData.js'
+  import {colorByMSAColorScheme} from './handleMSAbasedColoring.js'
   import {getStructMappingAndTWC} from './getStructMappingAndTWC.js'
   import {loadAlignmentViewer} from './loadAlignmentViewer.js'
   import {customCSVhandler} from './handleCSVdata.js'
@@ -232,12 +258,15 @@
   import {populatePDBsFromCustomAln} from './populatePDBsFromCustomAln.js'
   import {populateECODranges} from './populateECODranges.js'
   import {postCIFdata} from './postCustomStruct.js'
+  import {uploadCustomPDB} from './handleUploadPDB.js'
+  import {loadViewersWithCustomUploadStructure} from './handleViewersWithUploadPDB.js'
   import ReactDOM, { render } from 'react-dom';
   import React, { Component } from "react";
   import Treeselect from '@riophae/vue-treeselect'
   import Autocomplete from './Autocomplete.vue'
   import { intersection } from 'lodash';
   import {downloadPyMOLscript} from './handlePyMOLrequest.js'
+  //import {parseRNAchains} from './handleRNAchains.js'
   export default {
       // register the component
       components: { Treeselect, Autocomplete },
@@ -269,9 +298,62 @@
             }else{
                 this.getPDBchains(pdbid, vm.alnobj.id);
             }
+        },unfilteredChains: function(chain_list){
+            if (!chain_list){return;}
+            if (this.type_tree == "para") {aln_id = aln_id.split(',')[1]}
+            if (this.type_tree != "upload") {
+                //parseRNAchains(chain_list);
+                filterAvailablePolymers(chain_list, this.alnobj.id, this);
+            } else if (vm.blastMAPresult == null){
+                let chain_options = []
+                for (let i = 0; i < chain_list.length; i++) {
+                    let chain_listI = chain_list[i]
+                    if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
+                    if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
+                    if (typeof(chain_listI.source[0]) === "undefined") {continue;}
+                    chain_options = pushChainData(chain_options, chain_listI);
+                }
+                if (chain_options.length === 0) {
+                    chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
+                }
+                vm.chains = chain_options;
+                this.hide_chains = null;
+            } else {
+                let chain_options = [];
+                var chainsFromBlast = vm.blastMAPresult.get(this.pdbid);
+                for (let i = 0; i < chain_list.length; i++) {
+                    let chain_listI = chain_list[i]
+                    if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
+                    if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
+                    if (typeof(chain_listI.source[0]) === "undefined") {continue;}
+                    if (!chainsFromBlast){
+                        chain_options = pushChainData(chain_options, chain_listI);
+                    } else {
+                        let intersectedChains = _.intersection(chainsFromBlast, chain_listI["in_chains"]);
+                        intersectedChains.forEach(function(chainVal){
+                            chain_options.push({
+                                text: `${chainVal} ${chain_listI["molecule_name"][0]}`,
+                                value: chainVal,
+                                sequence: chain_listI["sequence"],
+                                entityID: chain_listI["entity_id"],
+                                startIndex: chain_listI.source[0].mappings[0].start.residue_number,
+                                endIndex: chain_listI.source[0].mappings[0].end.residue_number
+                            });
+                        });
+                    }
+                }
+                if (chain_options.length === 0) {
+                    chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
+                }
+                vm.chains = chain_options;
+                this.hide_chains = null;
+            }
         },colorScheme: function (scheme){
             if (window.PVAlnViewer){
                 window.PVAlnViewer.setState({colorScheme:scheme});
+            }
+            if (this.topology_loaded == true){
+                colorByMSAColorScheme(scheme, this);
             }
         },postedPDBEntities: function (successPost){
             if (successPost){
@@ -279,6 +361,12 @@
             } else {
                 const topview_item = document.getElementById("topview");
                 if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Loading Structure Data ", true)}
+            }
+        },customPDBsuccess:function(successPost){
+            if (successPost){
+                this.$nextTick(function(){
+                    loadViewersWithCustomUploadStructure();
+                })
             }
         },topology_loaded: function(topology_loaded){
             if (window.tempCSVdata!= null && this.topology_loaded){
@@ -350,6 +438,7 @@
             if (this.uploadSession){return;}
             if (!name){return;}
             if(!aaPropertyConstants.has(name)){return;}
+            if(this.colorSchemeData){this.colorSchemeData = null;}
             let min = Math.min(...aaPropertyConstants.get(name));
             let max = Math.max(...aaPropertyConstants.get(name));
             let colormapArray = aaColorData.get(name);
@@ -399,6 +488,40 @@
             if (this.topology_loaded){
                 recolorTopStar(name);
             }
+        },cdhitSelectedOpt: function(opt){
+            if (opt=="untrunc"){
+                this.cdhitOpts = this.cdhitOpts.filter(function( obj ) {
+                    return obj.value !== 'untrunc';
+                });
+                if (this.cdhitOpts.filter(e => e.value === 'trunc').length === 0) {
+                    this.cdhitOpts.push({Name:'Reload truncated alignment', value:'trunc'});
+                }
+                cleanupOnNewAlignment(vm, "Loading alignment...");
+                vm.showAlignment(null, null, "upload");
+                vm.didCDHit_truncate = false;
+            }
+            if (opt=="trunc"){
+                this.cdhitOpts = this.cdhitOpts.filter(function( obj ) {
+                    return obj.value !== 'trunc';
+                });
+                if (this.cdhitOpts.filter(e => e.value === 'untrunc').length === 0) {
+                    this.cdhitOpts.push({Name:'Reload original alignment', value:'untrunc'})
+                }
+                cleanupOnNewAlignment(vm, "Loading alignment...");
+                vm.showAlignment(null, null, "upload");
+                vm.didCDHit_truncate = true;
+            }
+            if (opt=="download"){
+                let [month, date, year] = new Date().toLocaleDateString("en-US").split("/");
+                let anchor = document.createElement('a');
+                anchor.href = 'data:text;charset=utf-8,' + encodeURIComponent(vm.cdHITReport);
+                anchor.target = '_blank';
+                anchor.download = `PVcdhitReport-${month}-${date}-${year}.txt`;
+                anchor.click();
+            }
+            if (!this.opt){
+                this.cdhitSelectedOpt = null;
+            }
         }
     },methods: {
         handleFileUpload(){
@@ -406,6 +529,11 @@
             if (this.tax_id != null){this.tax_id = null;}
         },
         submitCustomAlignment(){
+            if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(this);}
+            if (vm.fasta_data){
+                let cleanFasta = vm.fasta_data.replace(/^>Structure sequence\n(.+\n)+?>/i, ">");
+                vm.fasta_data = cleanFasta;
+            }
             let formData = new FormData();
             var fr = new FileReader();
             var uploadedFile = this.file;
@@ -416,6 +544,7 @@
                     let firstSeq = parseFastaString(fr.result)[1].replace(/-/g,'');
                     vm.populatePDBsFromCustomAln(firstSeq);
                     formData.append('custom_aln_file', uploadedFile)
+                    cleanupOnNewAlignment(vm, "Loading alignment...");
                     $.ajax({
                         url: '/custom-aln-data',
                         data: formData,
@@ -425,7 +554,11 @@
                         method: 'POST',
                         type: 'POST', // For jQuery < 1.9
                         success: function(data){
-                            cleanupOnNewAlignment(vm, "Loading alignment...");
+                            if (data == "Success!"){
+                                vm.didCDHit_truncate = true;
+                            } else {
+                                vm.didCDHit_truncate = false;
+                            }
                             vm.alnobj = "custom";
                             vm.showAlignment(null, null, "upload");
                         },
@@ -433,8 +566,6 @@
                             alert(`${error.responseText}`);
                         }
                     });
-                }else{
-                    alert("Check the fasta format of the uploaded file!")
                 }
             };
             fr.readAsText(this.file)
@@ -444,6 +575,7 @@
             Object.assign(vm.$data, initialState());
             this.type_tree="upload";
             this.topology_loaded=false;
+            this.schemesMgr = new schemes();
             //cleanupOnNewAlignment(this, "Select new alignment!");
             //[this.options, this.tax_id, this.alnobj, this.chainid] = [null, null, null, null];
             //var topview = document.getElementById("PdbeTopViewer");
@@ -512,63 +644,23 @@
             if (this.uploadSession){return;}
             if (pdbid.length === 4) {
                 if (document.querySelector("pdb-topology-viewer") || document.querySelector("pdbe-molstar")) {cleanupOnNewAlignment(this);}
+                this.unfilteredChains = null;
+                this.PDBparsing = false;
+                loadAlignmentViewer(vm.fasta_data);
                 this.chains = null;
                 this.chainid = [];
                 this.hide_chains = true;
-                ajax('https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/' + pdbid.toLowerCase()).then(struc_data => {
-                    var chain_list = struc_data[pdbid.toLowerCase()];
-                    if (this.type_tree == "para") {aln_id = aln_id.split(',')[1]}
-                    if (this.type_tree != "upload") {
-                        filterAvailablePolymers(chain_list, aln_id, vm);
-                    } else if (vm.blastMAPresult == null){
-                        let chain_options = []
-                        for (let i = 0; i < chain_list.length; i++) {
-                            let chain_listI = chain_list[i]
-                            if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
-                            if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
-                            if (typeof(chain_listI.source[0]) === "undefined") {continue;}
-                            chain_options = pushChainData(chain_options, chain_listI);
-                        }
-                        if (chain_options.length === 0) {
-                            chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
-                        }
-                        vm.chains = chain_options;
-                        this.hide_chains = null;
-                    } else {
-                        let chain_options = [];
-                        var chainsFromBlast = vm.blastMAPresult.get(pdbid);
-                        for (let i = 0; i < chain_list.length; i++) {
-                            let chain_listI = chain_list[i]
-                            if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
-                            if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
-                            if (typeof(chain_listI.source[0]) === "undefined") {continue;}
-                            if (!chainsFromBlast){
-                                chain_options = pushChainData(chain_options, chain_listI);
-                            } else {
-                                let intersectedChains = _.intersection(chainsFromBlast, chain_listI["in_chains"]);
-                                intersectedChains.forEach(function(chainVal){
-                                    chain_options.push({
-                                        text: `${chainVal} ${chain_listI["molecule_name"][0]}`,
-                                        value: chainVal,
-                                        sequence: chain_listI["sequence"],
-                                        entityID: chain_listI["entity_id"],
-                                        startIndex: chain_listI.source[0].mappings[0].start.residue_number,
-                                        endIndex: chain_listI.source[0].mappings[0].end.residue_number
-                                    });
-                                });
-                            }
-                        }
-                        if (chain_options.length === 0) {
-                            chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
-                        }
-                        vm.chains = chain_options;
-                        this.hide_chains = null;
-                    }
+                generateChainsFromLiteMol(`https://coords.litemol.org/${pdbid.toLowerCase()}/assembly?id=1&lowPrecisionCoords=1&encoding=BCIF`, "unfilteredChains");
+                ajax(`https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/${pdbid.toLowerCase()}`).then(struc_data => {
+                    if(vm.unfilteredChains){return;}
+                    vm.unfilteredChains = struc_data[pdbid.toLowerCase()];
                 }).catch(error => {
+                    console.log(error);
                     var elt = document.querySelector("#onFailedChains");
-                    this.pdbid = null;
                     if (error.status == 404){
-                        elt.innerHTML  = "Couldn't find this PDB ID!<br/>Try a different PDB ID."
+                        elt.innerHTML  = "Couldn't find this PDB on EBI!<br/>Try a different PDB ID."
+                    } else if (error.status == 0){
+                        elt.innerHTML  = "It looks like PDBe is down! Running alternative chain parser..."
                     } else {
                         elt.innerHTML  = "Problem with parsing the chains! Try a different PDB ID."
                     }
@@ -582,8 +674,11 @@
                 var url = `/ortholog-aln-api/${aln_id}/${taxid}`}
             if (type_tree == "para"){
                 var url = '/paralog-aln-api/'+aln_id.split(',')[1]}
-            if (type_tree == "upload" && !this.uploadSession){
+            if (type_tree == "upload" && !this.uploadSession&& this.cdhitSelectedOpt != "untrunc"){
                 var url = '/custom-aln-data'
+            }
+            if (type_tree == "upload" && !this.uploadSession && this.cdhitSelectedOpt == "untrunc"){
+                var url = '/custom-aln-data-nocdhit'
             }
             if (this.uploadSession){
                 this.$nextTick(function(){
@@ -595,6 +690,11 @@
                 if (fasta['TwinCons']){
                     this.custom_aln_twc_flag = fasta['TwinCons'];
                     fetchTWCdata(fasta['Alignment']);
+                }
+                this.cdHITReport = fasta["cdHitReport"]
+                if (this.cdHITReport){
+                    let cdNums = this.cdHITReport.split(/comparing sequences from.*\n/)[1].split(/\n/)[1].split(/ +/);
+                    this.cdHITnums = [cdNums[1], cdNums[3]];
                 }
                 this.fastaSeqNames = fasta['Sequence names'];
                 window.aaFreqs = fasta['AA frequencies'];
@@ -620,12 +720,14 @@
             let ebi_sequence = temp["sequence"];
             let startIndex = temp["startIndex"];
             let stopIndex = temp["endIndex"];
-            let struc_id = `${pdbid.toUpperCase()}-${temp["entityID"]}-${chainid}`
+            let struc_id = `${pdbid}-${temp["entityID"]}-${chainid}`
             if (!this.uploadSession){
                 getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, ebi_sequence, this);
             }
+            loadAlignmentViewer (vm.fasta_data);
             var topology_url = `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdblower}/chain/${chainid}`
             ajax(topology_url).then(data => {
+                if(vm.topology_loaded){return;}
                 var entityid = Object.keys(data[pdblower])[0];
                 let termStart = Number(data[pdblower][entityid][chainid]["terms"][0].resnum);
                 let termEnd = Number(data[pdblower][entityid][chainid]["terms"][1].resnum);
@@ -663,6 +765,7 @@
                     document.getElementById('topview').innerHTML = topology_viewer;
                     window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
                 }).catch(error => {
+                    if (vm.topology_loaded&&vm.topology_loaded!='error'){return;}
                     mapping = [range_string.split("-")[0],range_string.split("-")[1]];
                     var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid} filter-range=${mapping}></pdb-topology-viewer>`
                     document.getElementById('topview').innerHTML = topology_viewer;
@@ -670,6 +773,7 @@
                     console.log(error);
                 });
             }).catch(error => {
+                if (vm.topology_loaded&&vm.topology_loaded!='error'){return;}
                 var topview = document.querySelector('#topview');
                 console.log(error);
                 this.topology_loaded = 'error';
@@ -678,17 +782,23 @@
         }, showPDBViewer(pdbid, chainid, entityid){
             const molstar_item = document.getElementById("pdbeMolstarView");
             if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Loading Molstar Component ", true)}
-            var minIndex = String(0)
-            var maxIndex = String(100000)
             var pdblower = pdbid.toLocaleLowerCase();
-            //var coordURL = `https://www.ebi.ac.uk/pdbe/coordinates/${pdblower}/chains?entityId=${entityid}&encoding=bcif`
-            var coordURL = `https://coords.litemol.org/${pdblower}/chains?entityId=${entityid}&authAsymId=${chainid}&encoding=bcif`;
+            if (pdbid == "cust"){
+                var coordURL = `/custom-struc-data/${pdblower}-${entityid}-${chainid}`;
+                var binaryCif = false;
+                var structFormat = "cif";
+            }else{
+                //var coordURL = `https://www.ebi.ac.uk/pdbe/coordinates/${pdblower}/chains?entityId=${entityid}&encoding=bcif`
+                var coordURL = `https://coords.litemol.org/${pdblower}/chains?entityId=${entityid}&authAsymId=${chainid}&encoding=bcif`;
+                var binaryCif = true;
+                var structFormat = "cif";
+            }
             window.pdblower = pdblower;
             var viewerInstance = new PDBeMolstarPlugin();
             var options = {
                 customData: { url: coordURL,
-                                format: 'cif', 
-                                binary:true },
+                                format: structFormat, 
+                                binary: binaryCif },
                 hideCanvasControls: ["expand", "selection", " animation"],
                 assemblyId: '1',
                 hideControls: true,
@@ -752,7 +862,8 @@
             let entities = [];
             tempEntities.forEach(function(ent){
                 entities.push({ entityID: ent["entityID"], chainID: ent["value"] })
-            })
+            });
+            this.entityID = tempEntities[0]["entityID"];
             postCIFdata(pdbid, entities);
         },downloadAlignmentImage() {
             downloadAlignmentImage(document.querySelector('#alnDiv'));
@@ -808,10 +919,42 @@
                     console.log("Session flushed successfully!") 
                 }
             })
+        }, uploadCustomPDB(){
+            uploadCustomPDB();
+        }, updateMolStarWithRibosome(checkRibo){
+            if(checkRibo&&viewerInstance&&this.pdbid&&this.entityID){
+                this.completeRiboContext = false;
+                viewerInstance.visual.update({
+                    moleculeId: this.pdbid, 
+                    assemblyId: '1',
+                    bgColor: {r:255,g:255,b:255},
+                });
+                viewerInstance.events.loadComplete.subscribe(function (e) {
+                    let prom = viewerInstance.visual.select({ 
+                        data: [{entity_id: `${vm.entityID}` }], 
+                        nonSelectedColor: {r:180, g:180, b:180} 
+                    });
+                    prom.then(function(v){
+                        viewerInstance.visual.focus([{ entity_id: `${vm.entityID}` }]);
+                        if(viewerInstanceTop&&vm.selected_property){
+                            viewerInstanceTop.pluginInstance.displayDomain();
+                        }
+                    })
+                });
+            }
+            if (!checkRibo&&viewerInstance&&this.pdbid&&this.entityID){
+                this.showPDBViewer(this.pdbid, this.chainid[0], this.entityID);
+                viewerInstance.events.loadComplete.subscribe(function (e) {
+                    if(viewerInstanceTop&&vm.selected_property){
+                        viewerInstanceTop.pluginInstance.displayDomain();
+                    }
+                });
+            }
         }
     }, 
     mounted() {
         addFooterImages("footerDiv");
+        this.schemesMgr = new schemes();
     },
     created() {
         $(window).bind('beforeunload', function(){

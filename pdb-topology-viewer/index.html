@@ -34,10 +34,12 @@
         //Get element from HTML/Template to place the view
         const viewContainer = document.getElementById('pdb-topology-viewer');
 
-        const options = {
-          entryId: '1cbs',
-          entityId: '1'
-        } 
+        var options = {
+			 entryId: '1b23',
+			 entityId: '2',
+			 chainId: 'P',
+			 pvAPI: true,
+			 }
     
         //Call render method to display the 2D view
         pluginInstance.render(viewContainer, options);

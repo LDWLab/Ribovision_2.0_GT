@@ -31,6 +31,7 @@ class PdbTopologyViewerPlugin {
     errorStyle = 'border:1px solid #696969; height:54%; padding-top:46%; text-align:center; font-weight:bold;';
     menuStyle = 'position:relative;height:38px;line-height:38px;background-color:#96c9dc;padding: 0 10px;font-size:16px; color: black;';
 
+
     sequenceArr: string[];
     entityId: string;
     entryId: string;
@@ -50,10 +51,10 @@ class PdbTopologyViewerPlugin {
     svgHeight = 100;
 
     svgEle: any;
-
+    pvAPI = false;
     subscribeEvents = true;
 
-    render(target: HTMLElement, options:{entityId: string, entryId: string, filterRange?: string, chainId?: string, subscribeEvents?:boolean, displayStyle?: string, errorStyle?: string, menuStyle?: string}) {
+    render(target: HTMLElement, options:{entityId: string, entryId: string, filterRange?: string, chainId?: string, subscribeEvents?:boolean, displayStyle?: string, errorStyle?: string, menuStyle?: string, pvAPI?: boolean}) {
         if(options && typeof options.displayStyle != 'undefined' && options.displayStyle != null) this.displayStyle += options.displayStyle;
         if(options && typeof options.errorStyle != 'undefined' && options.errorStyle != null) this.errorStyle += options.errorStyle;
         if(options && typeof options.menuStyle != 'undefined' && options.menuStyle != null) this.menuStyle += options.menuStyle;
@@ -66,6 +67,7 @@ class PdbTopologyViewerPlugin {
             return;
         }
         if(options.subscribeEvents == false) this.subscribeEvents = false;
+        if(options.pvAPI == true) this.pvAPI = true;
         this.entityId = options.entityId;
         this.entryId = options.entryId.toLowerCase();
         //If chain id is not provided then get best chain id from observed residues api
@@ -148,13 +150,23 @@ class PdbTopologyViewerPlugin {
     }
 
     async getApiData(pdbId: string, chainId: string) {
-        const dataUrls = [
+        var dataUrls = [
             `https://www.ebi.ac.uk/pdbe/api/pdb/entry/entities/${pdbId}`,
             `https://www.ebi.ac.uk/pdbe/api/mappings/${pdbId}`,
             `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdbId}`,
             `https://www.ebi.ac.uk/pdbe/api/validation/residuewise_outlier_summary/entry/${pdbId}`,
             `https://www.ebi.ac.uk/pdbe/api/pdb/entry/polymer_coverage/${pdbId}/chain/${chainId}`
+            
         ]
+        if (this.pvAPI){
+            var dataUrls = [
+                `/proOrigamiTopology/ENTITY-${pdbId}-${this.entityId}-${chainId}`,
+                `/proOrigamiTopology/EMPTY`,
+                `/proOrigamiTopology/TOPOLOGY-${pdbId}-${this.entityId}-${chainId}`,
+                `/proOrigamiTopology/EMPTY`,
+                `/proOrigamiTopology/COVERAGE-${pdbId}-${this.entityId}-${chainId}`
+            ]
+        }
         return Promise.all(dataUrls.map(url => fetch(url)))
         .then(resp => Promise.all( 
                 resp.map((r) => { 
@@ -271,7 +283,7 @@ class PdbTopologyViewerPlugin {
         const _this = this;
         const totalAaInPath = (stopResidueNumber - startResidueNumber) + 1
         const subPathHeight = (this.scaledPointsArr[7] - this.scaledPointsArr[1])/totalAaInPath;
-        
+        //console.log(this.scaledPointsArr);
         //create subsections/paths
         let dValArr = [];
         for(let subPathIndex=0; subPathIndex<totalAaInPath; subPathIndex++){
@@ -320,14 +332,25 @@ class PdbTopologyViewerPlugin {
         let maskPointsArr = this.scaledPointsArr;
         
         const adjustmentFactor = 0.3
-        let adjustIndexAddArr = [7,8,10,12];
-        let adjustIndexSubtractArr = [0,1,2,3,4,5,9,11,13];
-        //For arrow pointing upwards
-        if(maskPointsArr[0] > maskPointsArr[6]){
-            adjustIndexAddArr = [0,1,2,3,4,5,9,11,13];
-            adjustIndexSubtractArr = [7,8,10,12];
+        var adjustIndexAddArr:number[] = []
+        var adjustIndexSubtractArr:number[] = []
+        if(this.pvAPI) {
+            adjustIndexAddArr = [1, 8, 10, 12, 13];
+            adjustIndexSubtractArr = [0,2,3,4,5,7,9,11];
+            //For arrow pointing upwards
+            if(maskPointsArr[0] > maskPointsArr[6]){
+                adjustIndexAddArr = [0,2,3,4,5,7,9,11];
+                adjustIndexSubtractArr = [1, 8, 10, 12, 13];
+            }
+        } else {
+            adjustIndexAddArr = [7,8,10,12];
+            adjustIndexSubtractArr = [0,1,2,3,4,5,9,11,13];
+            //For arrow pointing upwards
+            if(maskPointsArr[0] > maskPointsArr[6]){
+                adjustIndexAddArr = [0,1,2,3,4,5,9,11,13];
+                adjustIndexSubtractArr = [7,8,10,12];
+            }
         }
-        
         
         let addIndexLength = adjustIndexAddArr.length;
         for(let maskPtIndex = 0; maskPtIndex < addIndexLength; maskPtIndex++){
@@ -406,7 +429,7 @@ class PdbTopologyViewerPlugin {
     };
     clickAction(eleObj:any) {
         //Dispatch custom click event
-        console.log(eleObj);
+        
         if(masked_array[eleObj.residue_number - 1] == true) {
             this.dispatchEvent('PDB.topologyViewer.click', {
                 residueNumber: eleObj.residue_number,
@@ -767,7 +790,45 @@ class PdbTopologyViewerPlugin {
                     .attr('font-size', '3px')
                     .attr('style',"-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; line-height: normal; font-family: Arial;")
         }
-        
+        /*
+       if(index === totalCoilsInStr - 1){
+        this.svgEle.selectAll('.terminal_N').remove();
+        this.svgEle.selectAll('.terminal_N')
+                .data([termsData[0]])
+                .enter()
+                .append('text')
+                .attr('class', 'terminals terminal_N')
+                .attr('text-anchor','middle')
+                .text('N')
+                .attr('x', subPathCordsArr[0]['pathData'][0])
+                .attr('y', subPathCordsArr[0]['pathData'][1])
+                .attr('stroke','#0000ff')
+                .attr('stroke-width','0.3')
+                // .attr('font-size', 3 * this.zoom.scale() +'px')
+                .attr('font-size', '3px')
+                .attr('style',"-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; line-height: normal; font-family: Arial;")
+    }else if(index === 0){
+    const pathDataLen = subPathCordsArr[totalAaInPath - 1]['pathData'].length;
+        let adjustmentFactor = -2;
+        if(subPathCordsArr[totalAaInPath - 1]['pathData'][pathDataLen - 1] > subPathCordsArr[totalAaInPath - 1]['pathData'][pathDataLen - 3]){
+            adjustmentFactor = 2;
+        }
+        this.svgEle.selectAll('.terminal_C').remove();
+        this.svgEle.selectAll('.terminal_C')
+                .data([termsData[1]])
+                .enter()
+                .append('text')
+                .attr('class', 'terminals terminal_C')
+                .attr('text-anchor','middle')
+                .text('C')
+                .attr('x', subPathCordsArr[totalAaInPath - 1]['pathData'][pathDataLen - 2])
+                .attr('y', subPathCordsArr[totalAaInPath - 1]['pathData'][pathDataLen - 1] + adjustmentFactor)
+                .attr('stroke','#ff0000')
+                .attr('stroke-width','0.3')
+                // .attr('font-size', 3 * this.zoom.scale() +'px')
+                .attr('font-size', '3px')
+                .attr('style',"-webkit-tap-highlight-color: rgba(0, 0, 0, 0); text-anchor: middle; font-style: normal; font-variant: normal; font-weight: normal; font-stretch: normal; line-height: normal; font-family: Arial;")
+    }*/
     }
     getAdjustedStartAndStop(secStrType: any, secStrData: any) {
         if(secStrData == undefined) {
@@ -828,6 +889,41 @@ class PdbTopologyViewerPlugin {
         this.scaledPointsArr = [];
         this.svgEle.call(this.zoom).on("contextmenu", function (d:any, i:number) { d3.event.preventDefault(); }); //add zoom event and block right click event
         const topologyData = this.apiData[2][this.entryId][this.entityId][this.chainId];
+        var midCenters:any[] = [];
+        
+        topologyData['helices'].forEach((secStrData:any, secStrSataIndex: number) => {
+            let curveYdiff = 0
+             //modify helices path data to create a capsule like structure
+            const curveCenter = secStrData.path[0] + ((secStrData.path[2] - secStrData.path[0])/2);
+                                                                    
+            curveYdiff = 2 * (secStrData.minoraxis * 1.3);
+            if(secStrData.path[1] >  secStrData.path[3]){
+                curveYdiff = -2 * (secStrData.minoraxis * 1.3);
+            }
+                                
+            const newPathCords = [
+            secStrData.path[0], secStrData.path[1],
+            curveCenter, secStrData.path[1] - curveYdiff,
+            secStrData.path[2], secStrData.path[1],
+            secStrData.path[2], secStrData.path[3],
+            curveCenter, secStrData.path[3] + curveYdiff,
+            secStrData.path[0], secStrData.path[3]
+            ];
+                                
+            secStrData.path = newPathCords;
+            if(this.getAdjustedStartAndStop('helices', secStrData) != null) {
+                midCenters.push([Math.round(secStrData.path[2]), secStrData.path[3], secStrData.path[6]])
+            }
+        })
+        topologyData['strands'].forEach((secStrData:any, secStrSataIndex: number) => {
+            if(this.getAdjustedStartAndStop('strands', secStrData) != null) {
+                if(secStrData.path[9] > secStrData.path[1]) {
+                    midCenters.push([Math.round(secStrData.path[6]), secStrData.path[1], secStrData.path[9]])
+                } else {
+                    midCenters.push([Math.round(secStrData.path[6]), secStrData.path[9], secStrData.path[1]])
+                }
+            }
+        })
         for(let secStrType in topologyData){
         // angular.forEach(this.apiResult.data[_this.entryId].topology[scope.entityId][scope.bestChainId], function(secStrArr, secStrType) {
             const secStrArr =  topologyData[secStrType];
@@ -839,33 +935,30 @@ class PdbTopologyViewerPlugin {
 
                         var istart = this.getAdjustedStartAndStop(secStrType, secStrData)[0];
                         var istop = this.getAdjustedStartAndStop(secStrType, secStrData)[1];
-                        if(istart !== -1 || (secStrType === "coils" && istart=== -1 && istop === -1 && this.getAdjustedStartAndStop(secStrType, secStrArr[secStrDataIndex + 1]) != null && this.getAdjustedStartAndStop(secStrType, secStrArr[secStrDataIndex - 1]) != null)){
+                        var includeDashes = false;
+                        if(istart == -1 && istop == -1 && secStrType === "coils") {
+                            var endCount = 0;
+                            for(var i = 0; i < midCenters.length; i++) {
+                                if ((Math.round(secStrData.path[0]) == midCenters[i][0] && (((Math.abs(secStrData.path[1] - midCenters[i][1])) < 20) || ((Math.abs(secStrData.path[1] - midCenters[i][2])) < 20)))
+                                || ((Math.round(secStrData.path[secStrData.path.length - 2]) == midCenters[i][0]) && (Math.abs(secStrData.path[secStrData.path.length - 1] - midCenters[i][1]) < 20 || Math.abs(secStrData.path[secStrData.path.length - 1] - midCenters[i][2]) < 20)))
+                                {
+                                    endCount = endCount + 1;
+                                }
+                            }
+                        if(endCount == 2) {
+                            includeDashes = true;
+                        }
+                    }
+                        if(istart !== -1 || (secStrType === "coils" && istart=== -1 && istop === -1 && this.getAdjustedStartAndStop(secStrType, secStrArr[secStrDataIndex + 1]) != null && this.getAdjustedStartAndStop(secStrType, secStrArr[secStrDataIndex - 1]) != null)
+                        || includeDashes){
                         
                         if(secStrType === 'terms'){
                             //Terms
                         }else{
-                            let curveYdiff = 0
-                            //modify helices path data to create a capsule like structure
-                            if(secStrType === 'helices'){
-                                const curveCenter = secStrData.path[0] + ((secStrData.path[2] - secStrData.path[0])/2);
-                                                                    
-                                curveYdiff = 2 * (secStrData.minoraxis * 1.3);
-                                if(secStrData.path[1] >  secStrData.path[3]){
-                                    curveYdiff = -2 * (secStrData.minoraxis * 1.3);
-                                }
-                                
-                                const newPathCords = [
-                                    secStrData.path[0], secStrData.path[1],
-                                    curveCenter, secStrData.path[1] - curveYdiff,
-                                    secStrData.path[2], secStrData.path[1],
-                                    secStrData.path[2], secStrData.path[3],
-                                    curveCenter, secStrData.path[3] + curveYdiff,
-                                    secStrData.path[0], secStrData.path[3]
-                                ];
-                                
-                                secStrData.path = newPathCords;
-                            }
                             
+                            let curveYdiff = 0
+                           
+
                             secStrData.secStrType = secStrType;
                             secStrData.pathIndex = secStrDataIndex;
                             const newEle = this.svgEle.selectAll('path.'+secStrType+''+secStrDataIndex)
@@ -1618,7 +1711,7 @@ class PdbTopologyViewerPlugin {
                     } else {
                         var select_sections = selectSections_RV1.get(selectedDomain.label)
                     }
-                    viewerInstance.visual.select({ data: select_sections, nonSelectedColor: {r:0,g:0,b:0}})
+                    viewerInstance.visual.select({ data: select_sections, nonSelectedColor: {r:180,g:180,b:180}})
                 }
                 //show rsrz validation circles if Quality
                 if(selectedDomain.label === 'Quality'){
@@ -1629,7 +1722,9 @@ class PdbTopologyViewerPlugin {
                     this.resetTheme();
                 }
             }
-        }         
+        } else if (rv3VUEcomponent.colorSchemeData){
+            this.updateTheme(rv3VUEcomponent.colorSchemeData[0]);
+        }
     }
     
     resetDisplay(){
