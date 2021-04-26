@@ -66,6 +66,10 @@
 	```
 
 	The path to this folder should be updated in project_root/alignments/handleStructureRequests.py around line 146!
+
+	Substitute line 15 of /proorigami-cde-package/cde-root/home/proorigami/make_cartoon.sh with:
+	
+	> PTGRAPH2_OPTIONS="-t dssp -k purple -l crossing:black,red,green,navy,blue -b sequential -j -e auto -f auto -o gradient -p ddomain -u -w"
 	
 	Unfortunately ProOrigami seems to be broken in WSL.
 
