@@ -611,7 +611,7 @@ def permutation_data(request, aln_id, tax_group):
 
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
-    alignmentFileName = "./static/permuted_alignment" + fileNameSuffix + ".fasta"
+    alignmentFileName = "/home/Desire-DEV/PVDev/static/permuted_alignment" + fileNameSuffix + ".fasta"
 
     fh = open(alignmentFileName, "w")
     fh.write(permutation_string)
