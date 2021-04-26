@@ -56,6 +56,7 @@ export function initialState (){
         custom_headers: [],
         raiseCustomCSVWarn: null,
         checked_propensities: false,
+        checked_permutation: false,
         all_residues: null,
         coil_residues: null,
         helix_residues: null,

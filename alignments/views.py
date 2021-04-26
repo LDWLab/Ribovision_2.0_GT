@@ -15,7 +15,6 @@ from alignments.taxonomy_views import *
 from alignments.residue_api import *
 from alignments.structure_api import *
 from alignments.fold_api import *
-from alignments.runal2co import executeAl2co
 import alignments.alignment_query_and_build as aqab
 from TwinCons.bin.TwinCons import slice_by_name
 
@@ -470,6 +469,168 @@ def propensity_data(request, aln_id, tax_group):
         'amino acid' : aa
     }
     return JsonResponse(data)
+
+def permutation_data_custom(request):
+    return permutation_data(request, None, None)
+
+def permutation_data(request, aln_id, tax_group):
+    from io import StringIO
+    from Bio import AlignIO
+    # if request.method == 'POST' and 'customFasta' in request.POST and aln_id is None:
+    #     fastastring = request.POST['customFasta']
+    # else:
+    #     fastastring = simple_fasta(request, aln_id, tax_group, internal=True).replace('\\n', '\n')
+    # fasta = StringIO(fastastring)
+    # if request.method == 'POST' and 'indices' in request.POST:
+    #     indices = request.POST['indices']
+    #     trimmed_fasta = trim_fasta_by_index(fasta, indices)
+    #     fasta = StringIO(format(trimmed_fasta, 'fasta'))
+    fasta_variable_name = 'customFasta'
+    if request.method == 'POST' and fasta_variable_name in request.POST:
+        fastastring = request.POST[fasta_variable_name]
+        fasta = StringIO(fastastring)
+        align = AlignIO.read(fasta, "fasta")
+        # column_dimension = align.get_alignment_length()
+        # midIndex = column_dimension // 2
+        # permutation_index_variable_name = 'permutation_index'
+        # if permutation_index_variable_name in request.POST:
+        #     midIndex = int(request.POST[permutation_index_variable_name])
+        # else:
+        #     midIndex = 0
+        indices_variable_name = 'indices'
+        if indices_variable_name in request.POST:
+            indices = request.POST[indices_variable_name]
+            indexPairs = indices.replace(" ", "").split(',')
+            label_modifiers = []
+            per_row_gap_counts = []
+            # align = align[0:1, :]
+            row_range = range(len(align))
+            column_range = range(align.get_alignment_length())
+            for row_index in row_range:
+                label_modifiers.append("")
+                gap_counts_at_row_index = [(0, 0)]
+                per_row_gap_counts.append(gap_counts_at_row_index)
+                running_concurrent_gap_count = 0
+                running_gap_count = 0
+                for column_index in column_range:
+                    if align[row_index, column_index] == '-':
+                        running_concurrent_gap_count += 1
+                    elif running_concurrent_gap_count > 0:
+                        running_gap_count += running_concurrent_gap_count
+                        running_concurrent_gap_count = 0
+                        gap_counts_at_row_index.append((column_index, running_gap_count))
+            newAlign = align[:, 0:0]
+
+            # recordList = []
+            # newAlign = MultipleSeqAlignment(recordList)
+
+            valid_index_pair_flag = False
+            for indexPair in indexPairs:
+                indexPair = indexPair.split('-')
+                column_index_0 = int(indexPair[0]) - 1
+                column_index_1 = int(indexPair[1])
+                if 0 <= column_index_0 < column_index_1:
+                    valid_index_pair_flag = True
+                    for row_index in row_range:
+                        base_column_index = column_index_0
+                        while align[row_index, base_column_index] == '-':
+                            base_column_index += 1
+                        previous_column_index_gap_flag = False
+                        _range = range(base_column_index + 1, column_index_1)
+                        for column_index in _range:
+                            column_index_gap_flag = align[row_index, column_index] == '-'
+                            if column_index_gap_flag != previous_column_index_gap_flag:
+                                if column_index_gap_flag:
+                                    if column_index == base_column_index + 1:
+                                        label_modifiers[row_index] += str(base_column_index + 1) + ", "
+                                    else:
+                                        label_modifiers[row_index] += str(base_column_index + 1) + "-" + str(column_index + 1) + ", "
+                                else:
+                                    base_column_index = column_index
+                            previous_column_index_gap_flag = column_index_gap_flag
+                        if align[row_index, column_index_1 - 1] != '-':
+                            if base_column_index == column_index_1 - 1:
+                                label_modifiers[row_index] += str(base_column_index + 1) + ", "
+                            else:
+                                label_modifiers[row_index] += str(base_column_index + 1) + "-" + str(column_index_1) + ", "
+                    newAlign += align[:, column_index_0:column_index_1]
+                #     for row_index in row_range:
+                #         gap_counts_at_row_index = per_row_gap_counts[row_index]
+                #         gap_counts_at_row_index_range = range(len(gap_counts_at_row_index))
+                #         lower_gap_count_index = 0
+                #         for gap_count_index in gap_counts_at_row_index_range:
+                #             gap_count = gap_counts_at_row_index[gap_count_index]
+                #             gap_count_column_index = gap_count[0]
+                #             if gap_count_column_index > column_index_0:
+                #                 break
+                #             lower_gap_count_index = gap_count_index
+                #         upper_gap_count_index = lower_gap_count_index
+                #         for gap_count_index in gap_counts_at_row_index_range[lower_gap_count_index + 1:]:
+                #             gap_count = gap_counts_at_row_index[gap_count_index]
+                #             gap_count_column_index = gap_count[0]
+                #             if gap_count_column_index > column_index_1:
+                #                 break
+                #             upper_gap_count_index = gap_count_index
+                        
+                #         label_modifiers[row_index] += str(column_index_0 - gap_counts_at_row_index[lower_gap_count_index][1] + 1) + "-" + str(column_index_1 - gap_counts_at_row_index[upper_gap_count_index][1]) + ", "
+            if valid_index_pair_flag:
+                for row_index in row_range:
+                    if len(label_modifiers[row_index]) > 0:
+                        newAlign[row_index].id = re.sub('([^_]*)_?$', r'\1_', newAlign[row_index].id) + label_modifiers[row_index][:-2]
+                        newAlign[row_index].description = ""
+            align = newAlign
+        #     minimumIndex = column_dimension
+        #     maximumIndex = 0
+        #     for index in indices.split(','):
+        #         index = int(index)
+        #         if (index < minimumIndex):
+        #             minimumIndex = index
+        #         if (index > maximumIndex):
+        #             maximumIndex = index
+        #     midIndex = (minimumIndex + maximumIndex) // 2
+
+        # This is the top row of the alignment. It makes for easy checking of the permutation; it serves no other purpose.
+        # align = align[0:1, midIndex:] + align[0:1, :midIndex]
+        # align = align[:, midIndex:] + align[:, :midIndex]
+    else:
+        raise NotImplementedError()
+    fasta = StringIO(format(align, 'fasta'))
+    # lines = fasta.split("\n")
+    # linePairs = []
+    # labelLine = lines[0]
+    # alignmentLine = ""
+    # for line in lines[1:]:
+    #     if line.startswith('>'):
+    #         linePairs.append((labelLine, alignmentLine))
+    #         labelLine = line
+    #         alignmentLine = ""
+    #     else:
+    #         alignmentLine += line
+    permutation_string = fasta.getvalue()
+    # request.FILES['permuted_fasta'] = permutation_string
+
+    now = datetime.datetime.now()
+    fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
+    alignmentFileName = "./static/permuted_alignment" + fileNameSuffix + ".fasta"
+
+    fh = open(alignmentFileName, "w")
+    fh.write(permutation_string)
+    fh.close()
+
+    os.remove(alignmentFileName)
+
+    response = HttpResponse(permutation_string, content_type="text/plain")
+    return response
+# >Bacteria_Synechococcus_sp._PCC_7335_\n
+# NALPLHRIPLGTTVHNVELVPGRGGQVVRAAGAGAQLVAKEGG--YVTLKLPSSEVRMIR\nRECYATIGQVGNVEHRNLSLGKAGRKRWA-------GRRPEVRGSVMNPVDHPHGGGE--\n-GRAPIG-----RSGPVTP-WGKPALGYKTRKKKK----GSDAMIVRRRRRSSKRGRGGR\nNAMGIRSYRPLTPGTRERTV-SDFSTVTADK-PEKSLTYSV-----------HRPKG-RN\nN-RGVITCRHRGGGH-----KRLYR--------EIDFRRN--------KFNVPAKVATIE\nYDPNRNARISLLHYE-DGE-----KRYILHPIGLEVGATIVSG---EDAPFEVG\n
+
+
+# HRIPLGTTVHNVELVPGRGGQVVRAAGAGAQLVAKEGG--YVTLKLPSSEVRMIRRECYA
+# TIGQVGNVEHRNLSLGKAGRKRWA-------GRRPEVRGSVMNPVDHPHGGGE---GRAP
+# IG-----RSGPVTP-WGKPALGYKTRKKKK----GSDAMIVRRRRRSSKRGRGGRNAMGI
+# RSYRPLTPGTRERTV-SDFSTVTADK-PEKSLTYSV-----------HRPKG-RNN-RGV
+# ITCRHRGGGH-----KRLYR--------EIDFRRN--------KFNVPAKVATIEYDPNR
+# NARISLLHYE-DGE-----KRYILHPIGLEVGATIVSG---EDAPFEVGNALPL
 
 def propensities(request, align_name, tax_group):
     aln_id = Alignment.objects.filter(name = align_name)[0].aln_id

@@ -41,6 +41,7 @@ urlpatterns = [
     path('propensity-data/<int:aln_id>/<int:tax_group>', views.propensity_data, name = 'propensity_data'),
     path('propensity-data/<int:aln_id>/<str:tax_group>', views.propensity_data, name = 'propensity_data'),
     path('propensity-data-custom/', views.propensity_data_custom, name = 'propensity_data_custom'),
+    path('permutation-data-custom/', views.permutation_data_custom, name = 'permutation_data_custom'),
     path('propensities/<str:align_name>/<int:tax_group>', views.propensities, name = 'propensities'),
     path('propensities/<str:align_name>/<str:tax_group>', views.propensities, name = 'propensities'),
     path('custom-struc-data/<str:strucID>', handleStructureRequests.handleCustomUploadStructure, name = 'custom_structure'),

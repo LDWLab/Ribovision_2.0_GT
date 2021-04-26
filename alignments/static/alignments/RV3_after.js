@@ -541,6 +541,69 @@ function handlePropensities(checked_propensities) {
     }
 }
 
+function handlePermutation(checked_permutation) {
+    if (checked_permutation) {
+        let
+            permutation_indices = document.getElementById("permutation_indices").value;
+        invertedMap = _.invert(vm.structure_mapping);
+        let
+            indices = [];
+        vm.all_residues.forEach(index => indices.push(invertedMap[index]));
+        indices = indices.join(',');
+        // if (vm.selected_domain.length > 0) {
+        //     throw "Unfinished";
+        // }
+        // if (vm.filter_range) {
+        //     throw "Unfinished";
+        // }
+
+        let
+        //     coil_residues = vm.coil_residues,
+        //     customFasta = vm.fasta_data,
+        //     permutation_index,
+            url_name = "/permutation-data-custom/";
+        // coil_residues.sort((a, b) => a - b);
+        // let
+        //     length = coil_residues.length;
+        // if (length > 0) {
+        //     let
+        //         previous_coil_index = coil_residues[0],
+        //         current_list = [previous_coil_index],
+        //         coil_residue_list_of_lists = [current_list];
+        //     coil_residues.slice(1).forEach(coil_index => {
+        //         if (coil_index == previous_coil_index + 1) {
+        //             current_list.push(coil_index);
+        //         } else {
+        //             current_list = [coil_index];
+        //             coil_residue_list_of_lists.push(current_list);
+        //         }
+        //         previous_coil_index = coil_index;
+        //     });
+        //     let
+        //         middle_coil_residue_list = coil_residue_list_of_lists[Math.floor(coil_residue_list_of_lists.length / 2)];
+        //     permutation_index = invertedMap[middle_coil_residue_list[Math.floor(middle_coil_residue_list.length / 2)]];
+        // } else {
+        //     permutation_index = 0;
+        // }
+        let
+            customFasta = vm.fasta_data;
+        // indices = '1-3, 5-8, 20-25';
+        indices = permutation_indices;
+        ajax(url_name, {indices, customFasta/*, permutation_index*/}).then(data => {
+            
+        });
+        // if (indices) {
+        //     ajax(url_name, {indices, customFasta}).then(data => {
+
+        //     });
+        // } else {
+        //     ajax(url_name, {customFasta}).then(data => {
+
+        //     });
+        // }
+    }
+}
+
 var listSecondaryStructures = function() {
     vm.substructures = []
     let coilObject = {
