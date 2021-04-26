@@ -72,9 +72,9 @@ def executeCDHit(fasta):
 
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
-    fastaName = f"/home/Desire-Server/DESIRE/static/cleanFastaCD{fileNameSuffix}.fa"
-    cdHitOut = f"/home/Desire-Server/DESIRE/static/cleanFastaCD{fileNameSuffix}"
-    cdHitClusters = f"/home/Desire-Server/DESIRE/static/cleanFastaCD{fileNameSuffix}.clstr"
+    fastaName = f"/home/Desire-DEV/PVDev/static/cleanFastaCD{fileNameSuffix}.fa"
+    cdHitOut = f"/home/Desire-DEV/PVDev/static/cleanFastaCD{fileNameSuffix}"
+    cdHitClusters = f"/home/Desire-DEV/PVDev/static/cleanFastaCD{fileNameSuffix}.clstr"
     tempfiles = [fastaName, cdHitOut, cdHitClusters]
     for tempf in tempfiles:
         if path.isfile(tempf):
