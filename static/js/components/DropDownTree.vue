@@ -640,7 +640,9 @@
                 this.chains = null;
                 this.chainid = [];
                 this.hide_chains = true;
-                generateChainsFromLiteMol(`https://coords.litemol.org/${pdbid.toLowerCase()}/assembly?id=1&lowPrecisionCoords=1&encoding=BCIF`, "unfilteredChains");
+                if (!this.blastMAPresult){
+                    generateChainsFromLiteMol(`https://coords.litemol.org/${pdbid.toLowerCase()}/assembly?id=1&lowPrecisionCoords=1&encoding=BCIF`, "unfilteredChains");
+                }
                 ajax(`https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/${pdbid.toLowerCase()}`).then(struc_data => {
                     if(vm.unfilteredChains){return;}
                     vm.unfilteredChains = struc_data[pdbid.toLowerCase()];

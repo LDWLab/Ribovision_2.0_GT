@@ -46,6 +46,5 @@ urlpatterns = [
     path('custom-struc-data/<str:strucID>', handleStructureRequests.handleCustomUploadStructure, name = 'custom_structure'),
     path('authEcodQuery', views.ecodPassThroughQuery, name = 'ecodQuery'),
     path('proOrigamiTopology/<str:topID>', handleStructureRequests.getTopology, name = 'proOrigamiTopology'),
-    path('proOrigamiTopology/<str:topID>', handleStructureRequests.getTopology, name = 'proOrigamiTopology'),
     path('proOrigamiPOSTTopology/<str:strucID>', handleStructureRequests.postTopology, name = 'proOrigamiTopology'),
 ]
