@@ -209,7 +209,7 @@ Public set-up does not differ significantly from local installations. There are 
 
 	Touch this so that Apache knows things have changed
 	
-	> touch /home/Desire-Server/DESIRE/DESIRE/wsgi.py
+	> touch ./DESIRE/wsgi.py
 
 	After this command the public online web-server will be updated.
 
