@@ -158,6 +158,11 @@ Public set-up does not differ significantly from local installations. There are 
 3. All steps are the same, except:
 
 	e. Execute the commands from the home directory of the server. The folder called proorigami-cde-package should be located within the web-server home folder (NOT the web-server root directory).
+	Additionally set the owner and group to apache so that writing is allowed.
+	```bash
+	sudo chgrp -R apache ./proorigami-cde-package/
+	sudo chown -R apache ./proorigami-cde-package/
+	```
 
 4. Steps are not necessary since all development of PDB-toplogy viewer and MSA viewer should be done locally and after compiling, the .js files should be synced with git. 
 
