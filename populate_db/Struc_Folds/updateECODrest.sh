@@ -8,4 +8,4 @@ sed -i 's/\t/,/g' ./ecod.latest.domains.txt
 mv ./ecod.latest.domains.txt /var/lib/mysql-files/ecod.latest.csv
 
 echo "Uploading data to MYSQL"
-mysql -h "130.207.36.76" SEREB_test -e "LOAD DATA INFILE '/var/lib/mysql-files/ecod.latest.csv' INTO TABLE SEREB.EcodDomains FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\n' IGNORE 5 ROWS;"
+mysql -h "130.207.36.76" SEREB_test -e "LOAD DATA INFILE '/var/lib/mysql-files/ecod.latest.csv' IGNORE INTO TABLE SEREB.EcodDomains FIELDS TERMINATED BY ',' ENCLOSED BY '\"' LINES TERMINATED BY '\n' IGNORE 5 ROWS;"
