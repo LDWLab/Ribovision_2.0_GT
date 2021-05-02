@@ -44,11 +44,11 @@ Uploading new polymer entries to the database comes next. This involves generati
 
 1. Parsing accessions - to generate the csv from a fasta file there are 2 files that can be used: [parse_accession.py](./Polymers/parse_accession.py) and [parse_accession2.py](./Polymers/parse_accession2.py). Both of them try to do some cleanup of the fasta and generate as clean of a csv as possible. The difference is [parse_accession.py](./Polymers/parse_accession.py) was written to facilitate the initial upload of DESIRE data and uses %%% as identifier for lines that should contain the taxids.
 
-	Therefore for new data with properly formatted fasta you should be using [parse_accession2.py](./Polymers/parse_accession2.py). The format of the identifier line in the fast should look like the following:
+	Therefore for new data with properly formatted fasta you should be using [parse_accession2.py](./Polymers/parse_accession2.py). The format of the identifier line in the fasta should look like this:
 
 	> eL06_13706_SYNRA|ORZ00342.1
 
-	The identifier is spearated in two by the | symbol. The first element defines the polymer name, species taxid, and up to 5 letter species abbreviation, separated by _. The 5 letter species abbreviation is optional, but the separator isn't (eL06_13706_|ORZ00342.1). The second element is the accession ID. The script tries to guess whether the accession comes from UNIPROT or NCBI but can make mistakes with pdb ids, so any csv output should be **manually checked**. To parse many fasta files in a directory you can execute script like so:
+	The identifier is spearated in two by the pipe symbol (\|). The first element defines the polymer name, species taxid, and up to 5 letter species abbreviation, separated by underscore (\_). The 5 letter species abbreviation is optional, but the separator isn't (eL06_13706\_\|ORZ00342.1). The second element is the accession ID. The script tries to guess whether the accession comes from UNIPROT or NCBI but can make mistakes with pdb ids, so any csv output should be **manually checked**. To parse many fasta files in a directory you can execute script like so:
 
 	> for f in PATH_TO_FASTAS/*.fas; do ./parse_accession2.py -a $f -o ./CSV/OUTPUT_CSV.csv ;done
 
