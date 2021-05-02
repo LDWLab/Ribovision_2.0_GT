@@ -28,7 +28,7 @@ superkingdom, phylum, class, order, family, genus, species, strain
 
 each taxonomic level has a parent, except the superkingdoms, which have a parent set to 0.
 
-New species can uploaded by providing a list of taxonomic identifiers to the [upload_taxonomy2.py](./Phylogeny/upload_taxonomy2.py) script:
+New species can be uploaded by providing a list of taxonomic identifiers to the [upload_taxonomy2.py](./Phylogeny/upload_taxonomy2.py) script:
 
 > upload_taxonomy2.py PATH_TO_NEW_TAXIDS NEW_TAXONOMY_JSON DB_USERNAME -dl -commit
 
