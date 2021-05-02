@@ -14,7 +14,7 @@ Every month a backup of the MySQL database is created at /home/Desire-Server/SER
 
 To correctly update each of these tables and their relationships there are python scripts which establish a connection to the server and take different data as inputs. The scripts are organized in folders that indicate what type of data will be handled.
 
-When adding new data to the database you are changing the data served to users online, therefore it is imperative to have multiple checks on the accuracy of the data. This is also the reason many of hte upload steps are broken down in smaller steps and involve intermediary files. My reccomendation is to use the test schema SEREB_test on Apollo2 to ensure you are adding things correctly and without errors, before amending the SEREB schema which is being shown to users online.
+When adding new data to the database you are changing the data served to users online, therefore it is imperative to have multiple checks on the accuracy of the data. This is also the reason many of the upload steps are broken down in smaller steps and involve intermediary files. My reccomendation is to use the test schema SEREB_test on Apollo2 to ensure you are adding things correctly and without errors, before amending the SEREB schema which is being shown to users online.
 
 This guide will go over the steps for uploading new species, their taxonomy, and updating the existing alignments with sequences for these species. Additionally, the guide has a section on uploading a new alignment to the server.
 
