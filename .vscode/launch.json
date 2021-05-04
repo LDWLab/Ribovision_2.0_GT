@@ -47,6 +47,17 @@
             ]
         },
         {
+            "name": "Parse accession",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/populate_db/Polymers/parse_accession.py",
+            "console": "integratedTerminal",
+            "args": [
+                "-a",
+                "~/Desktop/CPR_new/uL01.txt"
+            ]
+        },
+        {
             "name": "Upload accession",
             "type": "python",
             "request": "launch",
