@@ -43,7 +43,7 @@ def parse_align(data):
 	Parses through the text file and cuts it into a dictionary with
 	keys the taxids and values the accession, name and sequence
 	'''
-	data = data.replace('OS=','[').replace(r' OX=.*\n',']\n')
+	data = data.replace('OS=','[')
 	data = re.sub(' OX=.+\n',']\n',data)
 	data = data.replace('\n', '')
 	data_list = re.split('%%%|>|\]|\[',data)

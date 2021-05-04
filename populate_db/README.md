@@ -92,7 +92,7 @@ If the alignment already exists within DESIRE the script to use is [appendSeqToA
 The PATH_TO_FASTA.fas variable is a path to a fasta file with **UNALIGNED** sequences. This script will fetch the corresponding alignment you are trying to append to and use mafft-add to align the provided sequences, then it will reupload the modified alignment.
 
 The SOURCE_STRING argument is required and it determines the superkingdom of the **alignment**. Note this is not of the sequences being uploaded. For example, when adding eukaryotic sequences to an Archaea-Eukarya alignment the SOURCE_STRING should be **ae**.
-For now it does not support cellular compartment SOURCE_STRING (e.g. **m** or **c**) but small modifications in the SQL can allow it to do that too.
+For now it does not support cellular compartment SOURCE_STRING (e.g. **m** or **c**) but some modifications in the SQL and script should allow it to do that too.
 
 ### Adding a new alignment
 
