@@ -48,7 +48,7 @@ Uploading new polymer entries to the database comes next. This involves generati
 
 	> eL06_13706_SYNRA|ORZ00342.1
 
-	The identifier is spearated in two by the pipe symbol (\|). The first element defines the polymer name, species taxid, and up to 5 letter species abbreviation, separated by underscore (\_). The 5 letter species abbreviation is optional, but the separator isn't (eL06_13706\_\|ORZ00342.1). The second element is the accession ID. The script tries to guess whether the accession comes from UNIPROT or NCBI but can make mistakes with pdb ids, so any csv output should be **manually checked**. To parse many fasta files in a directory you can execute script like so:
+	The identifier is spearated in two by the pipe symbol (\|). The first element defines the polymer name, species taxid, and up to 5 letter species abbreviation, separated by underscore (\_). The species abbreviation is optional, but the separator isn't (eL06_13706\_\|ORZ00342.1). The second element is the accession ID. The script tries to guess whether the accession comes from UNIPROT or NCBI but can make mistakes with pdb ids, so any csv output should be **manually checked**. To parse many fasta files in a directory you can execute script like so:
 
 	> for f in PATH_TO_FASTAS/*.fas; do ./parse_accession2.py -a $f -o ./CSV/OUTPUT_CSV.csv ;done
 
@@ -63,3 +63,45 @@ Uploading new polymer entries to the database comes next. This involves generati
 
 ## Alignments
 
+The format of the sequence identifier line of a alignment or sequence file has 3 fields separated by \_:
+
+> uL02b_190304_FUSNN
+
+The first **FOUR letters** in the first field indicate the protein name. In the given example the protein name is uL02. The second field provides the taxID of the species. The third field is optional (but the separator is required) and it gives a species abbreviation, which is not uploaded.
+
+The format of the sequence identifier line of a permuted alignment has 4 fields separated by \_:
+
+> uL02b_190304_FUSNN/1-276_161-185,134-143
+
+Notice the third field here is FUSNN/1-276, the numbers after the slash are a leftover of jalview and this is one of the reasons the scripts mostly ignore the third field.
+
+The fourth field in this example is 161-185,134-143. The comma here separates different ranges that correspond to residue numbering present in the polymer entry for the given sequence. In this alignment, the sequence of uL02 FUSNN is permuted and has two ranges of residues, ordered like so:
+1. from the 161st residue to the 185th residue, 
+2. from the 134th residue to the 143rd residue.
+
+There can be more any number of ranges.
+
+### Appending to existing alignment
+
+Prerequisite - MAFFT
+
+If the alignment already exists within DESIRE the script to use is [appendSeqToAln.py](./Alignments/appendSeqToAln.py). If you know the alignment id it can be specified with an input argument -aln_id, otherwise the script will try to find it by using the provided fasta file name. 
+
+> ./appendSeqToAln.py PATH_TO_FASTA.fas SOURCE_STRING -commit
+
+The PATH_TO_FASTA.fas variable is a path to a fasta file with **UNALIGNED** sequences. This script will fetch the corresponding alignment you are trying to append to and use mafft-add to align the provided sequences, then it will reupload the modified alignment.
+
+The SOURCE_STRING argument is required and it determines the superkingdom of the **alignment**. Note this is not of the sequences being uploaded. For example, when adding eukaryotic sequences to an Archaea-Eukarya alignment the SOURCE_STRING should be **ae**.
+For now it does not support cellular compartment SOURCE_STRING (e.g. **m** or **c**) but small modifications in the SQL can allow it to do that too.
+
+### Adding a new alignment
+
+If you are adding a new alignment entry to DESIRE the script to use is [upload_aln.py](./Alignments/upload_aln.py).
+
+> ./upload_aln.py PATH_TO_FASTA_ALN.fas SOURCE_STRING -commit
+
+The PATH_TO_FASTA_ALN.fas variable is a path to a fasta file with **ALIGNED** sequences. This script directly adds the alignment data to DESIRE as provided.
+
+This script can also use the input argument -aln_id. If provided it will append the provided **alignment** data. However, it does not perform checks on appending sequences to an existing alignment, therefore you need to know that the added sequences **WILL NOT** introduce gaps in the already present sequences. For that reason it is not reccomended to use it for adding new aligned sequences to already present alignment, to do that use[appendSeqToAln.py](./Alignments/appendSeqToAln.py) instead.
+
+The SOURCE_STRING argument is required and is the same as previously described, however since this script is used to **ADD** new alignments you should be able to push **m** or **c** to DESIRE.
