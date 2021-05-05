@@ -2,6 +2,8 @@
 import sys, re, os, csv, getpass, argparse, mysql.connector, time, json
 from Bio import Entrez
 import pandas as pd
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
 
 def create_and_parse_argument_options(argument_list):
 	parser = argparse.ArgumentParser(description='Update species taxonomy given a list of taxids')
@@ -17,9 +19,7 @@ def create_and_parse_argument_options(argument_list):
 	return commandline_args
 
 def initiate_connection(uname, host, database):
-	pw = comm_args.password
-	if pw is None:
-		pw = getpass.getpass("Password: ")
+	pw = getpass.getpass("Password: ")
 	cnx = mysql.connector.connect(user=uname, password=pw, host=host, database=database)
 	return cnx
 
