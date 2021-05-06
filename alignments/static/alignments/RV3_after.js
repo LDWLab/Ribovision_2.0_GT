@@ -397,11 +397,11 @@ var populatePDBs = function (alndata){
                 let riboXYZurl = `https://ribosome.xyz:8000/neo4j/gmo_nom_class/?banName=${oldName}&format=json`
                 ajax(riboXYZurl).then(data => {
                     var pdb_entries = []
-                    data.forEach(function(entry){
-                        let pdb_text = `${entry.parent} ${entry.orgname[0].slice(0,39)}`
-                        let pdbxDescription = entry.protein.rcsb_pdbx_description.trim().replace(/-[\w]{1}$/,'').replace(/ubiquitin/ig,'')
+                    data[0].forEach(function(entry){
+                        let pdb_text = `${entry.parent_rcsb_id} ${entry.rcsb_source_organism_description[0]}`
+                        let pdbxDescription = entry.rcsb_pdbx_description.trim().replace(/-[\w]{1}$/,'').replace(/ubiquitin/ig,'')
                         if (polNames.includes(pdbxDescription)){
-                            pdb_entries.push({id: entry.parent.toLowerCase(), name:pdb_text})
+                            pdb_entries.push({id: entry.parent_rcsb_id.toLowerCase(), name:pdb_text})
                         }
                     });
                     if (pdb_entries.length == 0){return;}
