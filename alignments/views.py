@@ -267,6 +267,9 @@ def index_test(request):
     }
     return render(request, 'alignments/index_test.html', context)
 
+def desireAPI (request):
+    return render(request, 'alignments/desireAPIindex.html')
+
 def index_orthologs(request):
     print ("request.method == 'POST': " + str(request.method == 'POST'))
     print ("'custom_propensity_data' in request.FILES: " + str('custom_propensity_data' in request.FILES))
