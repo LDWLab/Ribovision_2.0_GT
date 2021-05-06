@@ -163,7 +163,6 @@ def getTopology (request, topID):
 
 def handleTopologyBuilding(pdbString, proorigamiLocation):
     from subprocess import Popen, PIPE
-    from os import remove, path
     import datetime, re
 
     cwd = os.getcwd()
@@ -172,9 +171,7 @@ def handleTopologyBuilding(pdbString, proorigamiLocation):
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     fileLoc = f"{proorigamiLocation}CUSTOMPDB{fileNameSuffix}"
     tempfiles = [f"{fileLoc}.pdb", f"{fileLoc}.svg", f"{fileLoc}.png"]
-    for tempf in tempfiles:
-        if path.isfile(tempf):
-            remove(tempf)
+    deleteFilesFromList(tempfiles)
     
     fh = open(f"{fileLoc}.pdb", "w")
     fh.write(pdbString)
@@ -185,17 +182,23 @@ def handleTopologyBuilding(pdbString, proorigamiLocation):
     output = pipe.communicate()[0]
     os.chdir(cwd)
 
+    for filePath in tempfiles:
+        os.chmod(filePath, 0o777)
+
     if len(output.decode("ascii")) <= 0:
-        for removeFile in tempfiles:
-            remove(removeFile)
+        deleteFilesFromList(tempfiles)
         return HttpResponseServerError("Failed creating topology diagram!\nTry a different structure.")
 
     svgData = output.decode("ascii")
-    for removeFile in tempfiles:
-        if path.isfile(tempf):
-            remove(tempf)
+    deleteFilesFromList(tempfiles)
 
     return svgData
+
+def deleteFilesFromList(fileList):
+    from os import remove, path
+    for tempf in fileList:
+        if path.isfile(tempf):
+            remove(tempf)
 
 class OutOfChainsError(Exception): pass
 def rename_chains(structure):

@@ -2,15 +2,18 @@
 import sys, re, os, csv, getpass, argparse, mysql.connector, time, json
 from Bio import Entrez
 import pandas as pd
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
 
 def create_and_parse_argument_options(argument_list):
-	parser = argparse.ArgumentParser(description='Update structural folds tables from ECOD and SCOPe, given a PDB ID')
-	parser.add_argument('input_taxids', help='PDB identifier to query', type=str)
+	parser = argparse.ArgumentParser(description='Update species taxonomy given a list of taxids')
+	parser.add_argument('input_taxids', help='Path to file with taxids, each taxid should be on a single line.', type=str)
+	parser.add_argument('phylogeny_file', help='Use this file to store and read phylogeny.', type=str)
 	parser.add_argument('user_name', help='Username for connecting to DESIRE', type=str)
+	parser.add_argument('-pw','--password', help='Defines user password to use', type=str)
 	parser.add_argument('-host','--db_host', help='Defines database host (default: 130.207.36.76)', type=str, default='130.207.36.76')
 	parser.add_argument('-schema','--db_schema', help='Defines schema to use (default: SEREB)', type=str, default='SEREB')
 	parser.add_argument('-dl','--download_most_recent_phylogeny', help='Update latest phylogeny.', default=False, action="store_true")
-	parser.add_argument('-pf','--phylogeny_file', help='Use this file to store and read phylogeny.', type=str, default='./data/downloaded_phylogeny.json')
 	parser.add_argument('-commit','--commit_changes', help='Commit the changes to the DB', action="store_true")
 	commandline_args = parser.parse_args(argument_list)
 	return commandline_args
