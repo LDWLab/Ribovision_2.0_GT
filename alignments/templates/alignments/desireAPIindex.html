@@ -5,10 +5,64 @@
 
 	<!-- Support scripts for RV3 -->
 	<script type="text/javascript" src={% static 'alignments/RV3_before.js' %}></script>
-
+	<script type="text/javascript" src={% static 'alignments/API_helper.js' %}></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script>
+		function displayData(api_link, entry1, entry2) {
+			callUrl = "https://proteovision.chemistry.gatech.edu/" + api_link + entry1 + '/' + entry2
+			$(function(){
+			$.ajax({
+					"url" : callUrl,
+					"type" : "GET",
+					"success" : function(data) {              
+							var projectData= JSON.stringify(data, undefined, 1);
+							document.getElementById("projectInfo").textContent =  projectData;
+							//$("#projectInfo").text(projectData);
+					},
+					"error" : function(response,error)
+					{
+						console.log("ERROR: "+JSON.stringify(response));
+					}
+				});
+			});
+		}
+		</script>
 	<title>DESIRE API</title>
 </head>
 <body>
+	<div class = "gridContainer">
+		<div class = "gridEle" id = 'Nomenclature'>Alignment
+			<table style="width:100%">
+				<tr>
+					<td>
+						Protein #
+						<input type="text" id = "protein_entry"/>
+					</td>
+					<td>
+						Integer
+					</td>
+					<td>
+						Enter an integer representing the protein, i.e. 2 for uL02. 
+					</td>
+				</tr>
+				<tr>
+					<td>
+						TaxID
+						<input type="text" id = "taxID_entry"/>
+					</td>
+					<td>
+						Integer
+					</td>
+					<td>
+						Enter the taxonomy id. This is 2 for bacteria, 2157 for archaea, and 2759 for eukarya. 
+					</td>
+				</tr>
+			</table>
+			<button type="button" onclick = "displayData('ortholog-aln-api/', document.getElementById('protein_entry').value, document.getElementById('taxID_entry').value)">Enter</button>
+		</div>
+	</div>
+	<pre id="projectInfo"></pre>
 </body>
 
 </html>
+
