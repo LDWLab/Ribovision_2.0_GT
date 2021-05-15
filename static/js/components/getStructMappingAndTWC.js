@@ -10,7 +10,7 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
         var struct_mapping = structMappingAndData["structureMapping"];
         var largestKey = Math.max(...Object.values(struct_mapping).filter(a=>typeof(a)=="number"))
         var smallestKey = Math.min(...Object.values(struct_mapping).filter(a=>typeof(a)=="number"))
-        if ((largestKey != stopIndex || smallestKey != startIndex)&&ebi_sequence){
+        if ((largestKey != stopIndex || smallestKey != startIndex || structMappingAndData["gapsInStruc"][0])&&ebi_sequence){
             ajax('/mapSeqAlnOrig/', {fasta, ebi_sequence, startIndex:1}).then(origStructMappingAndData=>{
                 var orig_struct_mapping = origStructMappingAndData["structureMapping"];
                 if (structMappingAndData["gapsInStruc"]&&structMappingAndData["gapsInStruc"].length > 0){
