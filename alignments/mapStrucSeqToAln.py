@@ -28,13 +28,11 @@ def constructStrucSeqMap(structure):
     for chain in structure.get_chains():
         chains.append(chain)
     sequence, gapsInStruc, seq_ix_mapping = str(), list(), dict()
-    old_resi, untrue_seq_ix = 0, 1
+    old_resi, untrue_seq_ix = 1, 1
 
     residues = list(chains[0].get_residues())
     for resi in residues:
         resi_id = resi.get_id()
-        if (old_resi == 0):
-            old_resi = resi_id[1]
         if (resi_id[1] - old_resi > 1):
             gapsInStruc.append((old_resi,resi_id[1]))
         if not re.match(r' ', resi_id[2]):
