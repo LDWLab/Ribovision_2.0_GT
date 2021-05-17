@@ -49,7 +49,7 @@ var assignColorsAndStrucMappings = function (vueObj, struct_mapping){
         }
     }
     window.mapped_aa_properties = mapped_aa_properties;
-    retry(delayedMapping, 10, 1000);
+    retry(delayedMapping, 15, 1000);
 }
 
 var delayedMapping = function (){
