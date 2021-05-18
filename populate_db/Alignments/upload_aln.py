@@ -11,6 +11,7 @@ def create_and_parse_argument_options(argument_list):
     parser.add_argument('-host','--db_host', help='Defines database host (default: 130.207.36.76)', type=str, default='130.207.36.76')
     parser.add_argument('-schema','--db_schema', help='Defines schema to use (default: SEREB)', type=str, default='SEREB')
     parser.add_argument('-user_name','--uname', help='Defines user name to use (default: ppenev)', type=str, default='ppenev')
+    parser.add_argument('-pw','--password', help='Defines user password to use', type=str)
     parser.add_argument('-aln_id','--alignment_id', help='Defines alignment id to add entries to. If not specified makes a new alignment entry.', type=int)
     parser.add_argument('-commit','--commit_changes', help='Commit the changes to the DB', action="store_true")
     commandline_args = parser.parse_args(argument_list)
@@ -28,10 +29,10 @@ def superkingdom_info(cursor, ID):
     Gets the superkingdom for a strain ID
     '''
     #print(ID)
-    cursor.execute("SELECT SEREB.TaxGroups.groupName FROM SEREB.Species_TaxGroup\
-        INNER JOIN SEREB.TaxGroups ON SEREB.Species_TaxGroup.taxgroup_id=SEREB.TaxGroups.taxgroup_id\
-        INNER JOIN SEREB.Species ON SEREB.Species_TaxGroup.strain_id=SEREB.Species.strain_id\
-        WHERE SEREB.TaxGroups.groupLevel = 'superkingdom' AND SEREB.Species.strain_id = '"+ID+"'")
+    cursor.execute("SELECT TaxGroups.groupName FROM Species_TaxGroup\
+        INNER JOIN TaxGroups ON Species_TaxGroup.taxgroup_id=TaxGroups.taxgroup_id\
+        INNER JOIN Species ON Species_TaxGroup.strain_id=Species.strain_id\
+        WHERE TaxGroups.groupLevel = 'superkingdom' AND Species.strain_id = '"+ID+"'")
     results = cursor.fetchall()
     #print(ID,results)
     try:
@@ -45,17 +46,17 @@ def check_nomo_id(cursor, occur, name):
     Gets nom_id for new name and superkingdom
     '''
     occur = occur.capitalize() 
-    cursor.execute("SELECT SEREB.Nomenclature.nom_id FROM SEREB.Nomenclature\
-        WHERE SEREB.Nomenclature.new_name = '"+name+"' AND SEREB.Nomenclature.occurrence = '"+occur+"'")
+    cursor.execute("SELECT Nomenclature.nom_id FROM Nomenclature\
+        WHERE Nomenclature.new_name = '"+name+"' AND Nomenclature.occurrence = '"+occur+"'")
     result = cursor.fetchall()
     try:
         nom_id=result[0][0]
     #If no result maybe alignment is using BAN nomenclature
     except:
-        cursor.execute("SELECT SEREB.Nomenclature.nom_id FROM SEREB.Nomenclature\
-            INNER JOIN SEREB.Old_name ON SEREB.Nomenclature.nom_id=SEREB.Old_name.nn_fk_id\
-            WHERE SEREB.Old_name.old_name = '"+name+"' AND SEREB.Old_name.N_B_Y_H_A = 'BAN'\
-            AND SEREB.Nomenclature.occurrence = '"+occur+"'")
+        cursor.execute("SELECT Nomenclature.nom_id FROM Nomenclature\
+            INNER JOIN Old_name ON Nomenclature.nom_id=Old_name.nn_fk_id\
+            WHERE Old_name.old_name = '"+name+"' AND Old_name.N_B_Y_H_A = 'BAN'\
+            AND Nomenclature.occurrence = '"+occur+"'")
         result = cursor.fetchall()
         try:
             nom_id=result[0][0]
@@ -67,11 +68,11 @@ def check_polymer(cursor, taxid, nomid):
     '''
     Gets polymer id for a given taxid and nomid (LDW-prot requirement)
     '''
-    cursor.execute("SELECT SEREB.Polymer_Data.PData_id FROM SEREB.Polymer_Data\
-                    INNER JOIN SEREB.Polymer_metadata ON SEREB.Polymer_Data.PData_id = SEREB.Polymer_metadata.polymer_id WHERE \
-                    SEREB.Polymer_metadata.accession_type = 'LDW-prot' AND \
-                    SEREB.Polymer_Data.nomgd_id = "+nomid+" AND \
-                    SEREB.Polymer_Data.strain_id = "+taxid)
+    cursor.execute("SELECT Polymer_Data.PData_id FROM Polymer_Data\
+                    INNER JOIN Polymer_metadata ON Polymer_Data.PData_id = Polymer_metadata.polymer_id WHERE \
+                    Polymer_metadata.accession_type = 'LDW-prot' AND \
+                    Polymer_Data.nomgd_id = "+nomid+" AND \
+                    Polymer_Data.strain_id = "+taxid)
     result = cursor.fetchall()
     try:
         pol_id=result[0][0]
@@ -86,7 +87,7 @@ def upaln_getid(cursor, aln_name, source_string, method_name):
     Uploads alignment name and method, then returns its primary key from the DB.
     '''
 
-    query = "INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('"+aln_name+"','"+method_name+"','"+source_string+"')"
+    query = "INSERT INTO `Alignment`(`Name`,`Method`,`Source`) VALUES('"+aln_name+"','"+method_name+"','"+source_string+"')"
     print(query)
     cursor.execute(query)
     lastrow_id = str(cursor.lastrowid)
@@ -94,12 +95,12 @@ def upaln_getid(cursor, aln_name, source_string, method_name):
 
 def upload_pol_aln(cursor, pol_id, aln_id):
     '''Populate table Polymer_Alignments'''
-    cursor.execute("SELECT PData_id,Aln_id FROM SEREB.Polymer_Alignments WHERE\
+    cursor.execute("SELECT PData_id,Aln_id FROM Polymer_Alignments WHERE\
                     PData_id = '"+pol_id+"' AND\
                     Aln_id = '"+aln_id+"'")
     result = cursor.fetchall()
     if len(result) == 0:
-        query = "INSERT INTO `SEREB`.`Polymer_Alignments`(`PData_id`, `Aln_id`) VALUES('"+pol_id+"','"+aln_id+"')"
+        query = "INSERT INTO `Polymer_Alignments`(`PData_id`, `Aln_id`) VALUES('"+pol_id+"','"+aln_id+"')"
         cursor.execute(query)
         return True
     if len(result) == 1:
@@ -112,12 +113,12 @@ def upload_aln_data(cursor, entry, seq_aln_pos, aln_id, polymer_id):
     #print (entry.seq[seq_aln_pos[1]-1],end='')
     resi_id = check_resi_id(cursor, str(seq_aln_pos[0]), str(polymer_id), str(entry.seq[seq_aln_pos[1]-1]))
     #print(resi_id)
-    cursor.execute("SELECT aln_id,res_id FROM SEREB.Aln_Data WHERE\
+    cursor.execute("SELECT aln_id,res_id FROM Aln_Data WHERE\
             res_id = '"+str(resi_id)+"' AND\
             aln_id = '"+str(aln_id)+"'")
     result = cursor.fetchall()
     if len(result) == 0:
-        query = "INSERT INTO `SEREB`.`Aln_Data`(`aln_id`,`res_id`,`aln_pos`) VALUES('"+str(aln_id)+"','"+str(resi_id)+"','"+str(seq_aln_pos[1])+"')"
+        query = "INSERT INTO `Aln_Data`(`aln_id`,`res_id`,`aln_pos`) VALUES('"+str(aln_id)+"','"+str(resi_id)+"','"+str(seq_aln_pos[1])+"')"
         #print(query)
         cursor.execute(query)
         return True
@@ -164,9 +165,9 @@ def check_resi_id(cursor, seqnum, polid, resname):
     Gets residue id for a given polymer and a sequence number.
     Also checks if the data (resname) is correct.
     '''
-    query = "SELECT SEREB.Residues.resi_id, SEREB.Residues.unModResName FROM SEREB.Residues WHERE \
-            SEREB.Residues.PolData_id = "+polid+" AND \
-            SEREB.Residues.resNum = "+seqnum
+    query = "SELECT Residues.resi_id, Residues.unModResName FROM Residues WHERE \
+            Residues.PolData_id = "+polid+" AND \
+            Residues.resNum = "+seqnum
     cursor.execute(query)
     result = cursor.fetchall()
     try:
@@ -203,7 +204,10 @@ def main(commandline_arguments):
     comm_args = create_and_parse_argument_options(commandline_arguments)
     aln_path = comm_args.alignment_file
     source_string = comm_args.source
-    pw = getpass.getpass("Password: ")
+    pw = comm_args.password
+    if pw is None:
+        pw = getpass.getpass("Password: ")
+
     cnx = mysql.connector.connect(user=comm_args.uname, password=pw, host=comm_args.db_host, database=comm_args.db_schema)
     cursor = cnx.cursor()
 
@@ -211,6 +215,7 @@ def main(commandline_arguments):
     aln_name = aln_path.split("/")[-1]\
         .replace('_txid_tagged_nucl.fas', '')\
         .replace('_txid_tagged.fas', '')\
+        .replace('_new.fas', '')\
         .replace('.fas', '')\
         .replace('.fa', '')    #Fix that with re
     if comm_args.alignment_id:

@@ -12,13 +12,13 @@ def dictfetchall(cursor):
 	]
 
 def construct_query(aln_id, parent_id):
-	return f'SELECT CONCAT(Aln_Data.aln_id,"_",Aln_Data.res_id) AS id,strain,unModResName,aln_pos,Species.strain_id FROM SEREB.Aln_Data\
-		INNER JOIN SEREB.Alignment ON SEREB.Aln_Data.aln_id = SEREB.Alignment.Aln_id\
-		INNER JOIN SEREB.Residues ON SEREB.Aln_Data.res_id = SEREB.Residues.resi_id\
+	return f'SELECT CONCAT(Aln_Data.aln_id,"_",Aln_Data.res_id) AS id,strain,unModResName,aln_pos,Species.strain_id FROM Aln_Data\
+		INNER JOIN Alignment ON Aln_Data.aln_id = Alignment.Aln_id\
+		INNER JOIN Residues ON Aln_Data.res_id = Residues.resi_id\
 		INNER JOIN (\
-			SELECT * from SEREB.Polymer_Data WHERE SEREB.Polymer_Data.PData_id IN \
-				(SELECT PData_id from SEREB.Polymer_Alignments WHERE SEREB.Polymer_Alignments.Aln_id = {str(aln_id)})\
-			AND SEREB.Polymer_Data.strain_id IN \
+			SELECT * from Polymer_Data WHERE Polymer_Data.PData_id IN \
+				(SELECT PData_id from Polymer_Alignments WHERE Polymer_Alignments.Aln_id = {str(aln_id)})\
+			AND Polymer_Data.strain_id IN \
 				(with recursive cte (taxgroup_id, groupName, parent, groupLevel) as \
 		(\
 		select taxgroup_id, groupName, parent, groupLevel\
@@ -31,9 +31,9 @@ def construct_query(aln_id, parent_id):
 				on p.parent = cte.taxgroup_id\
 		)\
 		select taxgroup_id from cte where (groupLevel REGEXP "strain"))) as filtered_polymers\
-		ON SEREB.Residues.PolData_id = filtered_polymers.PData_id\
-		INNER JOIN SEREB.Species ON filtered_polymers.strain_id = SEREB.Species.strain_id\
-		WHERE SEREB.Alignment.aln_id = {str(aln_id)}'
+		ON Residues.PolData_id = filtered_polymers.PData_id\
+		INNER JOIN Species ON filtered_polymers.strain_id = Species.strain_id\
+		WHERE Alignment.aln_id = {str(aln_id)}'
 
 def sql_filtered_aln_query(aln_id, parent_id):
 	from django.db import connection
@@ -61,12 +61,12 @@ def para_aln(request, aln_id):
 	if alignment.method != 'structure_based':
 		raise Http404("Alignment id "+str(aln_id)+" is not paralogous!")
 	
-	SQLStatement = 'SELECT CONCAT(Aln_Data.aln_id,"_",Aln_Data.res_id) AS id,resi_id,strain,unModResName,aln_pos,Species.strain_id,nomgd_id FROM SEREB.Aln_Data\
-		INNER JOIN SEREB.Alignment ON SEREB.Aln_Data.aln_id = SEREB.Alignment.Aln_id\
-		INNER JOIN SEREB.Residues ON SEREB.Aln_Data.res_id = SEREB.Residues.resi_id\
-		INNER JOIN SEREB.Polymer_Data ON SEREB.Residues.PolData_id = SEREB.Polymer_Data.PData_id\
-		INNER JOIN SEREB.Species ON SEREB.Polymer_Data.strain_id = SEREB.Species.strain_id\
-		WHERE SEREB.Alignment.aln_id = '+str(aln_id)
+	SQLStatement = 'SELECT CONCAT(Aln_Data.aln_id,"_",Aln_Data.res_id) AS id,resi_id,strain,unModResName,aln_pos,Species.strain_id,nomgd_id FROM Aln_Data\
+		INNER JOIN Alignment ON Aln_Data.aln_id = Alignment.Aln_id\
+		INNER JOIN Residues ON Aln_Data.res_id = Residues.resi_id\
+		INNER JOIN Polymer_Data ON Residues.PolData_id = Polymer_Data.PData_id\
+		INNER JOIN Species ON Polymer_Data.strain_id = Species.strain_id\
+		WHERE Alignment.aln_id = '+str(aln_id)
 
 	with connection.cursor() as cursor:
 		cursor.execute(SQLStatement)

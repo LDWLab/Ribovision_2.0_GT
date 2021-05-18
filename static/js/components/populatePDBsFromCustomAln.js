@@ -22,7 +22,7 @@ export function populatePDBsFromCustomAln (firstSeq) {
 var repeatingFunc = function(jobid, qLength) {
 	ebiAjax(`https://www.ebi.ac.uk/Tools/services/rest/ncbiblast/status/${jobid}`).then(jobStatus=>{
 		if (jobStatus == 'RUNNING'){
-			setTimeout(repeatingFunc(jobid, qLength), 1000);
+			setTimeout(repeatingFunc, 2500, jobid, qLength);
 		} else if (jobStatus == 'FINISHED'){
 			fetchBLASTresult(jobid, qLength);
 		} else {
@@ -125,7 +125,7 @@ var fetchAndParsePDBnames = function(query, tempPDB){
 
 var combineAndAssignNames = function(tempNames, tempPDB){
 	var namedPDBs = tempPDB.map(function (entry, index){
-		return { id:entry.pdb, name: `${entry.pdb} ${tempNames[index]}` }
+		return { id:entry.pdb, name: `${entry.pdb} ${tempNames[index]}`, stats: `E-value: ${entry.eval}\nCoverage: ${entry.coverage.toFixed(2)}`}
 	 });
 	vm.blastPDBresult.push(...namedPDBs);
 	vm.fetchingPDBwithCustomAln = 'complete';

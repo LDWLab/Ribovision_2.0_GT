@@ -33,10 +33,10 @@ var AlnViewer = class RV3AlnViewer extends Component {
         var style = document.querySelector('[data="rv3_style"]');
         style.innerHTML = ".slider::-webkit-slider-thumb { width: "+(window.innerWidth - 300)*0.05+"px}";
         window.ajaxRun = false;
-        var handleMolStarTopViewHovers = function (alnViewerClass, residueNumber){
+        var handleMolStarTopViewHovers = function (alnViewerClass, residueNumber, eventEntityID){
             var alignmentNumber = Number(_.invert(vm.structure_mapping)[residueNumber]);
             var numVisibleTiles = Math.round(alnViewerClass.state.width/alnViewerClass.state.tileWidth);
-            if (!isNaN(alignmentNumber)){
+            if (!isNaN(alignmentNumber)&&eventEntityID==vm.entityID){
                 if (alnViewerClass.state.aaPos > alignmentNumber || alignmentNumber > alnViewerClass.state.aaPos+numVisibleTiles){
                     let visiblePos = alignmentNumber-Math.round(numVisibleTiles/2);
                     if (visiblePos < 0) {visiblePos = 0};
@@ -50,13 +50,13 @@ var AlnViewer = class RV3AlnViewer extends Component {
         }
         window.addEventListener("resize", this.handleResize);
         document.addEventListener('PDB.topologyViewer.mouseover', (e) => {
-            handleMolStarTopViewHovers(this, e.eventData.residueNumber);
+            handleMolStarTopViewHovers(this, e.eventData.residueNumber, e.eventData.entityId);
         });
         document.addEventListener('PDB.topologyViewer.mouseout', () => {
             this.removeHighlightRegion();
         });
         document.addEventListener('PDB.molstar.mouseover', (e) => {
-            handleMolStarTopViewHovers(this, e.eventData.seq_id);
+            handleMolStarTopViewHovers(this, e.eventData.seq_id, e.eventData.entity_id);
         });
         document.addEventListener('PDB.molstar.mouseout', () => {
             this.removeHighlightRegion();
@@ -86,7 +86,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
                 viewerInstanceTop.pluginInstance.highlight(resiPos, resiPos);
                 viewerInstance.visual.highlight({
                     data:[{
-                            entity_id:vm.entityId,
+                            entity_id:`${vm.entityID}`,
                             start_residue_number:resiPos,
                             end_residue_number:resiPos,
                         },],

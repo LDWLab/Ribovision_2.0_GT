@@ -5,6 +5,7 @@ def create_and_parse_argument_options(argument_list):
 	parser = argparse.ArgumentParser(description='Update structural folds tables from ECOD and SCOPe, given a PDB ID')
 	parser.add_argument('pdb_id', help='PDB identifier to query', type=str)
 	parser.add_argument('user_name', help='Username for connecting to DESIRE', type=str)
+	parser.add_argument('-pw','--password', help='Defines user password to use', type=str)
 	parser.add_argument('-host','--db_host', help='Defines database host (default: 130.207.36.76)', type=str, default='130.207.36.76')
 	parser.add_argument('-schema','--db_schema', help='Defines schema to use (default: SEREB)', type=str, default='SEREB')
 	parser.add_argument('-dl','--download_most_recent_fold_definitions', help='Update latest fold definitions.', default=False, action="store_true")
@@ -21,8 +22,10 @@ def download_latest_fold_defs(url, file_name):
 		raise ConnectionError("Failed downloading "+ url)
 	return True
 
-def initiate_connection(uname, host, database):
-	pw = getpass.getpass("Password: ")
+def initiate_connection(comm_args):
+	uname, host, database, pw = comm_args.user_name, comm_args.db_host, comm_args.db_schema, comm_args.password
+	if pw is None:
+		pw = getpass.getpass("Password: ")
 	cnx = mysql.connector.connect(user=uname, password=pw, host=host, database=database)
 	return cnx
 
@@ -144,7 +147,7 @@ def main(commandline_arguments):
 	file_loc = "/ecod.latest.domains.txt"
 	ecod_defs = parse_ecod_definitions(pdbid, file_loc)
 
-	cnx = initiate_connection(comm_args.user_name, comm_args.db_host, comm_args.db_schema)
+	cnx = initiate_connection(comm_args)
 	cursor = cnx.cursor()
 
 	check_then_upload_struc_fold(ecod_defs, cursor, cnx, pdbid)

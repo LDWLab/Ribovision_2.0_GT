@@ -42,6 +42,7 @@ declare class PdbTopologyViewerPlugin {
     svgWidth: number;
     svgHeight: number;
     svgEle: any;
+    pvAPI: boolean;
     subscribeEvents: boolean;
     render(target: HTMLElement, options: {
         entityId: string;
@@ -52,6 +53,7 @@ declare class PdbTopologyViewerPlugin {
         displayStyle?: string;
         errorStyle?: string;
         menuStyle?: string;
+        pvAPI?: boolean;
     }): void;
     initPainting(): void;
     displayError(errType?: string): void;

@@ -86,7 +86,7 @@ class EcodDomainFilterSet(viewsets.ModelViewSet):
     serializer_class = EcoDDomainsSerializer
     filter_backends = [DjangoFilterBackend]
     #permission_classes = [IsAuthenticated]
-    filter_fields = ['pdb', 'chain', 'arch_name', 'x_name', 'h_name', 't_name', 'f_name']
+    filter_fields = ['pdb', 'chain', 'arch_name', 'x_name', 'h_name', 't_name', 'f_name', 'ecod_domain_id']
 
 def get_filter_set_results(query, filterset, queryset, field):
     curr_query = QueryDict(query)

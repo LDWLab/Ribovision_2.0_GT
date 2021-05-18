@@ -35,7 +35,7 @@ for opt, arg in opts:
 def read_align_txt(alignment_path):
 	'Reads the txt file'''
 	with open(alignment_path, 'r') as myfile:
-		data = myfile.read().replace('\n', '')
+		data = myfile.read()
 	return data
 
 def parse_align(data):
@@ -43,6 +43,9 @@ def parse_align(data):
 	Parses through the text file and cuts it into a dictionary with
 	keys the taxids and values the accession, name and sequence
 	'''
+	data = data.replace('OS=','[')
+	data = re.sub(' OX=.+\n',']\n',data)
+	data = data.replace('\n', '')
 	data_list = re.split('%%%|>|\]|\[',data)
 	i=0
 	data_list=list(filter(None, data_list))
@@ -51,7 +54,7 @@ def parse_align(data):
 		try:
 			fasta_data[data_list[i]]=[data_list[i+1],data_list[i+2],data_list[i+3]]
 		except IndexError:
-			print("Splitting failed on",aln_path,data_list[i])
+			print("Splitting failed on",aln_path,data_list)
 			sys.exit(2)
 		i+=4
 	return fasta_data

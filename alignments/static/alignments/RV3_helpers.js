@@ -33,7 +33,8 @@ var absolutePosition = function (el) {
 
 var parseFastaString = function(fastaString){
     let arrayFasta = [];
-    let tempFasta = String(fastaString).split('>');
+    let tempFasta = String(fastaString).split('\n>');
+    tempFasta[0] = tempFasta[0].slice(1);
     tempFasta = tempFasta.filter(n => n);
     tempFasta.forEach(seq =>{
         let splitSeq = seq.split(/\n/);
@@ -47,22 +48,56 @@ var validateFasta = function (fasta) {
     //From here https://www.blopig.com/blog/2013/03/a-javascript-function-to-validate-fasta-sequences/
     
     if (!fasta) { // check there is something first of all
+        alert("Empty file was uploaded!");
         return false;
     }
     
     fastaArr = parseFastaString(fasta);
     var fastaSeqs = '';
+    var nameSeqs = '';
+    var badName = false
+    if (fastaArr.length > 4000){
+        alert("Fasta file has over 2000 sequences! We currently do not support that many sequences.");
+        return false;
+    }
+
+    if (fastaArr[1].length*fastaArr.length > 2000000){
+        alert("Fasta file has over 1000000 letters! We currently do not support such big files.");
+        return false;
+    }
+
     fastaArr.map(function(element, index) {
         if (index % 2 == 1){
             fastaSeqs += fastaArr[index];
+        } else {
+            if (fastaArr[index].includes('>')){
+                badName = '>';
+            }
+            if (fastaArr[index].includes('Structure sequence')){
+                badName = 'struct';
+            }
         }
     });
 
     if (!fastaSeqs) { // is it empty whatever we collected ? re-check not efficient 
+        alert("No sequences were found in the file!");
         return false;
     }
 
-    return /^[-ACDEFGHIKLMNPQRSTUVWYX\s]+$/i.test(fastaSeqs);
+    if (badName == '>'){
+        alert("The character > should appear only once in sequence headers!");
+        return false;
+    } else if (badName == 'struct'){
+        alert("Structure sequence is a protected sequence id! ProteoVision uses it to append the structure-derived sequence!");
+        return false;
+    }
+
+    if (!/^[-ACDEFGHIKLMNPQRSTUVWYX\s]+$/i.test(fastaSeqs)){
+        alert("Found non-standard characters in the sequences!");
+        return false;
+    }
+
+    return true;
 }
 
 var parseFastaSeqForMSAViewer = function (fasta){
@@ -197,53 +232,6 @@ var getWidthOfText = function (txt, fontname, fontsize){
     return getWidthOfText.ctx.measureText(txt).width;
 }
 
-var pushChainData = function(temp_arr, chain_listI){
-  try{
-    temp_arr.push({
-        text: chain_listI["molecule_name"][0],
-        value: chain_listI["in_chains"][0],
-        sequence: chain_listI["sequence"],
-        entityID: chain_listI["entity_id"],
-        startIndex: chain_listI.source[0].mappings[0].start.residue_number,
-        endIndex: chain_listI.source[0].mappings[0].end.residue_number
-    })
-    }catch(err){console.log(err);}
-  return temp_arr;
-};
-
-var filterAvailablePolymers = function(chain_list, aln_id, vueObj) {
-  let temp_arr = [];
-  let url = `/desire-api/alignments/${aln_id}/?format=json`;
-  ajax(url).then( aln_data => {
-      for (let i = 0; i < chain_list.length; i++) {
-          let chain_listI = chain_list[i]
-          if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
-          if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
-          for (let ix =0; ix < aln_data["polymers"].length; ix++){
-              let desirePolymerName = aln_data["polymers"][ix]["genedescription"].trim().replace(/-[\w]{1}$/,'').replace(/ubiquitin/ig,'');
-              let pdbePolymerNames = chain_list[i]["molecule_name"];
-              for (let nameIx =0; nameIx < pdbePolymerNames.length; nameIx++){
-                  let pdbeName = pdbePolymerNames[nameIx].replace(/-[\w]{1}$/,'').replace(/ubiquitin/ig,'');
-                  if (pdbeName == desirePolymerName){
-                    temp_arr = pushChainData(temp_arr, chain_listI);
-                    break;
-                  }
-              }
-          }
-      }
-  let chain_options = Array.from(new Set(temp_arr.map(JSON.stringify))).map(JSON.parse);
-  if (chain_options.length === 0) {
-      var elt = document.querySelector("#onFailedChains");
-      elt.innerHTML  = "Couldn't find a matching chain!<br>Try a different PDB ID."
-      vueObj.pdbid = null;
-      chain_options.push({text: "Couldn't find polymers from this structure!", value: null})
-  }else{
-    vueObj.hide_chains = null;
-  }
-  vueObj.chains = chain_options;
-  });
-};
-
 var create_deleted_element = function (parent_id, child_id, child_text, optionalLoadIMG=null) {
     const parent = document.getElementById(parent_id);
     const child_elt = document.createElement("div");
@@ -277,6 +265,8 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
             {id: "4v6x", name: "4V6X H. sapiens"},
         ];
         vueObj.colorScheme = 'clustal2';
+        vueObj.fetchUNtruncatedAln = false;
+        vueObj.cdHITReport = false;
         vueObj.aaPos = 0;
         vueObj.seqPos = 0;
         vueObj.msavWillMount = null;
@@ -292,6 +282,16 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
         if (aln_item) {aln_item.remove(); create_deleted_element("alnif", "alnDiv", aln_text, true)}
     }
     window.mapped_aa_properties = null;
+    vueObj.checkedRNA = false,
+    vueObj.customPDBid = null,
+    vueObj.pdbStart = null,
+    vueObj.pdbEnd = null,
+    vueObj.pdbSeq = null,
+    vueObj.customPDBsuccess = null,
+    vueObj.PDBparsing = false;
+    vueObj.entityID = null,
+    vueObj.unfilteredChains = null,
+    vueObj.hide_chains = null,
     vueObj.all_residues = null;
     vueObj.coil_residues = null;
     vueObj.helix_residues = null;
@@ -306,6 +306,7 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     vueObj.freqCSV = null;
     window.ajaxRun = false;
     window.custom_prop = null;
+    if (vueObj.fasta_data) {vueObj.fasta_data = vueObj.fasta_data.replace(/^>Structure sequence\n(.+\n)+?>/i, ">");}
     if (vueObj.topology_loaded) {vueObj.topology_loaded = false;}
     if (vueObj.raiseCustomCSVWarn) {vueObj.raiseCustomCSVWarn = null;}
     if (window.masked_array.length > 0) {window.masked_array = [];}
@@ -329,6 +330,20 @@ var loadParaOptions = function (action, callback, vm) {
       })
   }
 };
+
+var pushChainData = function(temp_arr, chain_listI){
+    try{
+      temp_arr.push({
+          text: chain_listI["molecule_name"][0],
+          value: chain_listI["in_chains"][0],
+          sequence: chain_listI["sequence"],
+          entityID: chain_listI["entity_id"],
+          startIndex: chain_listI.source[0].mappings[0].start.residue_number,
+          endIndex: chain_listI.source[0].mappings[0].end.residue_number
+      })
+      }catch(err){console.log(err);}
+    return temp_arr;
+  };
 
 var intersection = function () {
     var result = [];
@@ -563,6 +578,14 @@ function componentToHex(c) {
   }
 var rgbToHex = function(r, g, b) {
     return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+}
+var hexToRgb = function (hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : null;
 }
 
 var build_mapped_props = function(mapped_props, twcDataUnmapped, structure_mapping){

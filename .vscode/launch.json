@@ -47,6 +47,17 @@
             ]
         },
         {
+            "name": "Parse accession",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/populate_db/Polymers/parse_accession.py",
+            "console": "integratedTerminal",
+            "args": [
+                "-a",
+                "~/Desktop/CPR_new/uL01.txt"
+            ]
+        },
+        {
             "name": "Upload accession",
             "type": "python",
             "request": "launch",
@@ -56,6 +67,33 @@
                 "-c",
                 "${workspaceFolder}/populate_db/Polymers/CSV/acc_seqs_missed.csv"
             ]
-        }
+        },
+        {
+            "name": "Upload taxonomy",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/populate_db/Phylogeny/upload_taxonomy2.py",
+            "console": "integratedTerminal",
+            "args": [
+                "~/Dropbox-Gatech/ProteinProject/Phylogeny/txid_e_new.txt",
+                "${workspaceFolder}/populate_db/Phylogeny/data/newEuk.json",
+                "ppenev",
+                "-schema", "SEREB",
+                "-host", "130.207.36.76",
+                "-commit"
+            ]
+        },
+        {
+            "name": "Append seq to aln",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/populate_db/Alignments/appendSeqToAln.py",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}/populate_db/Alignments/sequences/uL02e_new.fa",
+                "e",
+                "-schema", "SEREB_test",
+            ]
+        },
     ]
 }
