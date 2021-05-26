@@ -615,6 +615,11 @@ def permutation_data(request, aln_id, tax_group):
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     alignmentFileName = "./static/permuted_alignment" + fileNameSuffix + ".fasta"
 
+    # hhblits
+    # command: /usr/local/bin/hh-suite/bin/hhsearch -i /home/blastdb/alignments/beta_barrels/OB_aIF1.fa -d /home/blastdb/ecod_F_fasta/ecod215/ecod215_numk3 -maxres 550000 -o OB_aIF1.txt -M 50 -add_cons
+    # Convert to standard JSON:
+    # NOTE: add any installed prerequisites to the README.md (/DESIRE/README.md)
+
     fh = open(alignmentFileName, "w")
     fh.write(permutation_string)
     fh.close()
