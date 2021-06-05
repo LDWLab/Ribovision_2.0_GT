@@ -9,6 +9,7 @@ def generateTopologyJSONfromSVG(svgContents, pdbID, chainID, entityID):
     terms = []
     extents = []
     non_printable_data_map = {}
+    starts_found = []
     maximum_stop_found = -1
     for helixMatch in re.findall(r"<rect\s+[^>]*dunnart:type\s*=\s*\"bioHelix\"[^>]*>", svgContents):
         helixXMatch = re.search(r"\s+x\s*=\s*\"(-?[\d.]*)\"", helixMatch)
@@ -50,6 +51,7 @@ def generateTopologyJSONfromSVG(svgContents, pdbID, chainID, entityID):
         residueSequenceNumbers = parseSequentialResidueSequenceNumbers(residueSequenceNumbers[firstQuoteIndex + 1:secondQuoteIndex])
         start = int(residueSequenceNumbers[0])
         stop = int(residueSequenceNumbers[-1])
+        starts_found.append(start)
         if stop > maximum_stop_found:
             maximum_stop_found = stop
 
@@ -100,6 +102,7 @@ def generateTopologyJSONfromSVG(svgContents, pdbID, chainID, entityID):
         residueSequenceNumbers = parseSequentialResidueSequenceNumbers(residueSequenceNumbers[firstQuoteIndex + 1:secondQuoteIndex])
         start = int(residueSequenceNumbers[0])
         stop = int(residueSequenceNumbers[-1])
+        starts_found.append(start)
         if stop > maximum_stop_found:
             maximum_stop_found = stop
         strands.append({
@@ -153,6 +156,7 @@ def generateTopologyJSONfromSVG(svgContents, pdbID, chainID, entityID):
         if len(residueSequenceNumbers) > 0:
             start = int(residueSequenceNumbers[0])
             stop = int(residueSequenceNumbers[-1])
+            starts_found.append(start)
         else:
             start = -1
             stop = -1
@@ -193,7 +197,7 @@ def generateTopologyJSONfromSVG(svgContents, pdbID, chainID, entityID):
 
     # print ("N: " + n_terminus_match + "\n\tx: " + str(x) + "\n\ty: " + str(y) + "\n\twidth: " + str(width) + "\n\theight: " + str(height))
     terms.append({
-        "resnum" : "1",
+        "resnum" : str(max(starts_found)),
         "type" : "N",
         "start" : -1,
         "stop" : -1,
