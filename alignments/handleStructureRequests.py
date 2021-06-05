@@ -140,7 +140,7 @@ def postTopology(request, strucID):
         seq_ix_mapping, struc_seq, gapsInStruc = constructStrucSeqMap(strucObj)
         startNum, endNum = 1, len(seq_ix_mapping)
         startAuth, endAuth = seq_ix_mapping[startNum], seq_ix_mapping[endNum]
-        entityJSON = generateEntityJSON (structureIDs[0], structureIDs[1], str(struc_seq.seq), startNum, endNum)
+        entityJSON = generateEntityJSON (structureIDs[0], structureIDs[1], (startAuth-1)*'-'+str(struc_seq.seq), startNum, endNum)
         coverageJSON = generatePolCoverageJSON (structureIDs[0], structureIDs[2], structureIDs[1], startAuth, startNum, endAuth, endNum)
         ### BE CAREFUL WHEN MERGING THE FOLLOWING LINE TO PUBLIC; PATH IS HARDCODED FOR THE APACHE SERVER ###
         topologySVG = handleTopologyBuilding(pdbString, "/f/Programs/ProOrigami-master/cde-root/home/proorigami/")
