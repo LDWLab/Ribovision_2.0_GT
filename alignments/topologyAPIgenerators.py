@@ -197,7 +197,7 @@ def generateTopologyJSONfromSVG(svgContents, pdbID, chainID, entityID):
 
     # print ("N: " + n_terminus_match + "\n\tx: " + str(x) + "\n\ty: " + str(y) + "\n\twidth: " + str(width) + "\n\theight: " + str(height))
     terms.append({
-        "resnum" : str(max(starts_found)),
+        "resnum" : str(min(starts_found)),
         "type" : "N",
         "start" : -1,
         "stop" : -1,
