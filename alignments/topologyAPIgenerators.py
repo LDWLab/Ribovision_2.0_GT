@@ -1,7 +1,7 @@
 import re
 from shapely.geometry import Point, Polygon, LineString
 
-def generateTopologyJSONfromSVG(svgContents, pdbID, chainID, entityID):
+def generateTopologyJSONfromSVG(svgContents, pdbID, chainID, entityID, startAuth=0):
     '''Generates topology JSON from ProOrigami svg output'''
     helices = []
     coils = []
@@ -49,8 +49,8 @@ def generateTopologyJSONfromSVG(svgContents, pdbID, chainID, entityID):
         firstQuoteIndex = residueSequenceNumbers.index('\"')
         secondQuoteIndex = residueSequenceNumbers.index('\"', firstQuoteIndex + 1)
         residueSequenceNumbers = parseSequentialResidueSequenceNumbers(residueSequenceNumbers[firstQuoteIndex + 1:secondQuoteIndex])
-        start = int(residueSequenceNumbers[0])
-        stop = int(residueSequenceNumbers[-1])
+        start = int(residueSequenceNumbers[0])-startAuth
+        stop = int(residueSequenceNumbers[-1])-startAuth
         starts_found.append(start)
         if stop > maximum_stop_found:
             maximum_stop_found = stop
@@ -100,8 +100,8 @@ def generateTopologyJSONfromSVG(svgContents, pdbID, chainID, entityID):
         firstQuoteIndex = residueSequenceNumbers.index('\"')
         secondQuoteIndex = residueSequenceNumbers.index('\"', firstQuoteIndex + 1)
         residueSequenceNumbers = parseSequentialResidueSequenceNumbers(residueSequenceNumbers[firstQuoteIndex + 1:secondQuoteIndex])
-        start = int(residueSequenceNumbers[0])
-        stop = int(residueSequenceNumbers[-1])
+        start = int(residueSequenceNumbers[0])-startAuth
+        stop = int(residueSequenceNumbers[-1])-startAuth
         starts_found.append(start)
         if stop > maximum_stop_found:
             maximum_stop_found = stop
@@ -154,8 +154,8 @@ def generateTopologyJSONfromSVG(svgContents, pdbID, chainID, entityID):
         residueSequenceNumbers = parseSequentialResidueSequenceNumbers(residueSequenceNumbers[firstQuoteIndex + 1:secondQuoteIndex])
         # print ("__len(residueSequenceNumbers): ", len(residueSequenceNumbers), "__")
         if len(residueSequenceNumbers) > 0:
-            start = int(residueSequenceNumbers[0])
-            stop = int(residueSequenceNumbers[-1])
+            start = int(residueSequenceNumbers[0])-startAuth
+            stop = int(residueSequenceNumbers[-1])-startAuth
             starts_found.append(start)
         else:
             start = -1
@@ -197,7 +197,7 @@ def generateTopologyJSONfromSVG(svgContents, pdbID, chainID, entityID):
 
     # print ("N: " + n_terminus_match + "\n\tx: " + str(x) + "\n\ty: " + str(y) + "\n\twidth: " + str(width) + "\n\theight: " + str(height))
     terms.append({
-        "resnum" : str(min(starts_found)),
+        "resnum" : str(min(starts_found)+startAuth),
         "type" : "N",
         "start" : -1,
         "stop" : -1,
@@ -237,7 +237,7 @@ def generateTopologyJSONfromSVG(svgContents, pdbID, chainID, entityID):
 
     # print ("C: " + c_terminus_match + "\n\tx: " + str(x) + "\n\ty: " + str(y) + "\n\twidth: " + str(width) + "\n\theight: " + str(height))
     terms.append({
-        "resnum" : str(maximum_stop_found),
+        "resnum" : str(maximum_stop_found+startAuth),
         "type" : "C",
         "start" : -1,
         "stop" : -1,
