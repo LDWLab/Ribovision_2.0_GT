@@ -769,7 +769,7 @@
                 var topview = document.querySelector('#topview');
                 console.log(error);
                 this.topology_loaded = 'error';
-                topview.innerHTML = "Failed to fetch the secondary structure!<br>Try another structure."
+                topview.innerHTML = "Failed to fetch the secondary structure!<br>Try another structure or wait for custom mode..."
             });
         }, showPDBViewer(pdbid, chainid, entityid){
             const molstar_item = document.getElementById("pdbeMolstarView");
