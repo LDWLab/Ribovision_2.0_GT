@@ -75,7 +75,7 @@ function retry (fn, maxAttempts = 1, delay = 0, attempts = 0) {
 
 var tryCustomTopology = function (pdbid, entityid, chainid){
     vm.topology_loaded = false;
-    var postTopologyURL = `proOrigamiPOSTTopology/${pdbid}-${entityid}-${chainid}`;
+    var postTopologyURL = `proOrigamiPOSTTopology/${pdbid}-${entityid}-${chainid}-HYBRID`;
     ajaxProper({
         url: postTopologyURL,
         type: 'POST',

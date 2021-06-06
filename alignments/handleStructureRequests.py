@@ -134,18 +134,26 @@ def parseCustomCIF(stringData, pdbid):
 def postTopology(request, strucID):
     if request.method == 'POST':
         structureIDs = strucID.split('-')
+        if len(structureIDs) == 4:
+            strucID = '-'.join(structureIDs[:3])
         strucString = request.session[strucID]
         strucObj = parseCustomCIF(strucString, structureIDs[0])
         pdbString = strucToPDBString(strucObj)
         seq_ix_mapping, struc_seq, gapsInStruc = constructStrucSeqMap(strucObj)
         startNum, endNum = 1, len(seq_ix_mapping)
         startAuth, endAuth = seq_ix_mapping[startNum], seq_ix_mapping[endNum]
-        entityJSON = generateEntityJSON (structureIDs[0], structureIDs[1], (startAuth-1)*'-'+str(struc_seq.seq), startNum, endNum)
+        if len(structureIDs) == 4:
+            entityJSON = generateEntityJSON (structureIDs[0], structureIDs[1], str(struc_seq.seq), startNum, endNum)
+        else:
+            entityJSON = generateEntityJSON (structureIDs[0], structureIDs[1], (startAuth-1)*'-'+str(struc_seq.seq), startNum, endNum)
         coverageJSON = generatePolCoverageJSON (structureIDs[0], structureIDs[2], structureIDs[1], startAuth, startNum, endAuth, endNum)
         ### BE CAREFUL WHEN MERGING THE FOLLOWING LINE TO PUBLIC; PATH IS HARDCODED FOR THE APACHE SERVER ###
         topologySVG = handleTopologyBuilding(pdbString, "/home/Desire-Server/proorigami-cde-package/cde-root/home/proorigami/")
         try:
-            topologyJSON = generateTopologyJSONfromSVG(topologySVG, structureIDs[0], structureIDs[2], structureIDs[1])
+            if len(structureIDs) == 4:
+                topologyJSON = generateTopologyJSONfromSVG(topologySVG, structureIDs[0], structureIDs[2], structureIDs[1], startAuth-1)
+            else:
+                topologyJSON = generateTopologyJSONfromSVG(topologySVG, structureIDs[0], structureIDs[2], structureIDs[1])
         except:
             return HttpResponseServerError("Failed to generate topology from the provided structure!")
         request.session[f'TOPOLOGY-{strucID}'] = topologyJSON
