@@ -14,6 +14,7 @@ export function readLoadRV3State (fileInput) {
 			vm.$nextTick(function(){
 				vm.fasta_data = uploadedState.fasta_data;
 				vm.alnobj = uploadedState.alnobj;
+				vm.protein_type_obj = uploadedState.protein_type_obj;
 				vm.chainid = uploadedState.chainid;
 				vm.$nextTick(function(){
 					var polSele = document.querySelector("#polymerSelect");

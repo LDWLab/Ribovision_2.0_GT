@@ -78,7 +78,7 @@
                 "~/Dropbox-Gatech/ProteinProject/Phylogeny/txid_e_new.txt",
                 "${workspaceFolder}/populate_db/Phylogeny/data/newEuk.json",
                 "ppenev",
-                "-schema", "SEREB",
+                "-schema", "DESIRE",
                 "-host", "130.207.36.76",
                 "-commit"
             ]

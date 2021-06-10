@@ -405,6 +405,10 @@ var loadOrthAlns = function(data, vm){
     vm.alignments = fpa_viz
 }
 
+var loadProteinTypes = function(data, vm) {
+
+}
+
 var loadParaAlns = function (value, vm) {
   vm.alignments = null;
   ajax('/alignments/fold-api/'+value).then(data=>{

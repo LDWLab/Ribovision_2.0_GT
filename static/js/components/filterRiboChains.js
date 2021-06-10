@@ -3,21 +3,26 @@ export function filterAvailablePolymers(chain_list, aln_id, vueObj) {
     var geneDescs = [];
     var cleanedChains = [];
     let url = `/desire-api/alignments/${aln_id}/?format=json`;
-    ajax(url).then( aln_data => {
-        for (let ix =0; ix < aln_data["polymers"].length; ix++){
+    ajax(url).then(aln_data => {
+        console.log("aln_data:\n" + aln_data + "\n");
+        console.log();
+        for (let ix = 0; ix < aln_data["polymers"].length; ix++){
             let desirePolymerName = aln_data["polymers"][ix]["genedescription"].trim().replace(/-[\w]{1}$/,'').replace(/ubiquitin/ig,'');
             let desireNomList = aln_data["polymers"][ix]["nomgd"].split('/');
             nomIDs.push(desireNomList[desireNomList.length - 2]);
             geneDescs.push(desirePolymerName);
         }
+        console.log("nomIDs: " + nomIDs);
         for (let i = 0; i < chain_list.length; i++) {
             let chain_listI = chain_list[i]
+            // console.log("chain_listI: " + chain_listI.getOwnPropertyNames());
             if (chain_listI["molecule_type"].toLowerCase() == "bound") {continue;}
             if (chain_listI["molecule_type"].toLowerCase() == "water") {continue;}
             if (chain_listI["molecule_type"].toLowerCase() == "polyribonucleotide") {continue;}
             let pdbePolymerNames = chain_listI["molecule_name"];
             for (let nameIx =0; nameIx < pdbePolymerNames.length; nameIx++){
                 let polName = pdbePolymerNames[nameIx].replace(/-[\w]{1}$/,'').replace(/ubiquitin/ig,'');
+                console.log("polName: " + polName);
                 const nameIndex = cleanedChains.findIndex(chain => chain.text === polName);
                 if (nameIndex === -1){
                     try{
@@ -34,7 +39,9 @@ export function filterAvailablePolymers(chain_list, aln_id, vueObj) {
             }
         }
         var uniqGeneDescs = geneDescs.filter((v, i, a) => a.indexOf(v) === i);
+        console.log("uniqGeneDescs: " + uniqGeneDescs);
         var uniqNomIDs = nomIDs.filter((v, i, a) => a.indexOf(v) === i);
+        console.log("uniqNomIDs: " + uniqNomIDs);
         var filteredChains = cleanedChains.filter(e => uniqGeneDescs.indexOf(e.text) !== -1);
         if (filteredChains.length === 0) {
             searchNewNames(uniqNomIDs, cleanedChains, vueObj);

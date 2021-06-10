@@ -26,7 +26,7 @@ for opt, arg in opts:
 
 uname = input("User name: ")
 pw = getpass.getpass("Password: ")
-cnx = mysql.connector.connect(user=uname, password=pw, host='130.207.36.76', database='SEREB')
+cnx = mysql.connector.connect(user=uname, password=pw, host='130.207.36.76', database='DESIRE')
 cursor = cnx.cursor()
 
 def read_csv(csv_path):
@@ -60,13 +60,14 @@ def check_nomo_id(occur, name):
     #    INNER JOIN Old_name ON Nomenclature.nom_id=Old_name.nomo_id\
     #    WHERE Old_name.old_name = '"+name+"' AND Old_name.N_B_Y_H_A = 'BAN' AND Nomenclature.occurrence = '"+occur+"'")
     cursor.execute("SELECT Nomenclature.nom_id FROM Nomenclature\
-        WHERE Nomenclature.new_name = '"+name+"' AND Nomenclature.occurrence = '"+occur+"'")
+        WHERE Nomenclature.new_name = '"+name+"' AND Nomenclature.PhylogeneticOccurrence = '"+occur+"'")
     result = cursor.fetchall()
+    # print ("result: " + str(result))
     #nom_id=result[0][0]
     try:
         nom_id=result[0][0]
     except:
-        raise ValueError ("No result for nom_id "+name+" and occurrence "+occur+" in the MYSQL query")
+        raise ValueError ("No result for new_name "+name+" and occurrence "+occur+" in the MYSQL query")
     return nom_id
 
 def upload_resi(poldata_id, fullseq):

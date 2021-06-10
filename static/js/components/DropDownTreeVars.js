@@ -2,8 +2,10 @@ export function initialState (){
     return {
         tax_id: null,
         alnobj: null,
+        protein_type_obj: null,
         options: null,
         alignments: null,
+        proteinTypes: null,
         pdbs: [
             {id: "4v9d", name: "4V9D E. coli"},
             {id: "4v6u", name: "4V6U P. furiosus"},

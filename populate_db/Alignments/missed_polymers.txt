@@ -1,12 +1,12 @@
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('bL19','PROMALS3D','b')
+INSERT INTO `DESIRE`.`Alignment`(`Name`,`Method`,`Source`) VALUES('bL19','PROMALS3D','b')
 L117 Wrong residue name for polymer id 7925 and residue 123. Is there something wrong with the numbering?
 
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('bL28','PROMALS3D','b')
+INSERT INTO `DESIRE`.`Alignment`(`Name`,`Method`,`Source`) VALUES('bL28','PROMALS3D','b')
 No result for nomgd_id 57 and taxid 214092 in the MYSQL query!
 L117 Wrong residue name for polymer id 8246 and residue 1. Is there something wrong with the numbering?
 
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('bL31','PROMALS3D','b')
+INSERT INTO `DESIRE`.`Alignment`(`Name`,`Method`,`Source`) VALUES('bL31','PROMALS3D','b')
 L117 Wrong residue name for polymer id 8339 and residue 2. Is there something wrong with the numbering?
 
-INSERT INTO `SEREB`.`Alignment`(`Name`,`Method`,`Source`) VALUES('bL35','PROMALS3D','b')
+INSERT INTO `DESIRE`.`Alignment`(`Name`,`Method`,`Source`) VALUES('bL35','PROMALS3D','b')
 L117 Wrong residue name for polymer id 8604 and residue 1. Is there something wrong with the numbering?

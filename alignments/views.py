@@ -17,7 +17,7 @@ from alignments.structure_api import *
 from alignments.fold_api import *
 import alignments.alignment_query_and_build as aqab
 from TwinCons.bin.TwinCons import slice_by_name
-
+from django.db import connection
 
 def trim_alignment(concat_fasta, filter_strain):
     '''Reads a fasta string into alignment and trims it down by filter sequence'''
@@ -270,6 +270,69 @@ def index_test(request):
 def desireAPI (request):
     return render(request, 'alignments/desireAPIindex.html')
 
+def proteinTypes(request):
+    results = []
+    if request.method == 'POST' and 'taxIDs' in request.POST:
+        taxIDs = request.POST['taxIDs'][:-1].split(',')
+        with connection.cursor() as cursor:
+            for taxID in taxIDs:
+                taxID = int(taxID)
+                proteinTypesList = []
+                # sql = 'SET sql_mode=(SELECT REPLACE(@@sql_mode,\'ONLY_FULL_GROUP_BY\',\'\'));'
+                sql = 'select Nomenclature.MoleculeGroup from TaxGroups join Species_TaxGroup on Species_TaxGroup.taxgroup_id = TaxGroups.taxgroup_id join Species on Species.strain_id = Species_TaxGroup.strain_id join Polymer_Data on Polymer_Data.strain_id = Species.strain_id join Nomenclature on Nomenclature.nom_id = Polymer_Data.nomgd_id where TaxGroups.taxgroup_id = ' + str(taxID) + ' group by Nomenclature.MoleculeGroup;'
+
+                print ('\n')
+                print (sql)
+
+                cursor.execute(sql)
+                # results = Taxgroups.objects.raw(sql)
+                for row in cursor.fetchall():
+                    proteinTypesList.append(row[0])
+                results.append(proteinTypesList)
+    context = {'results' : results}
+    return JsonResponse(context)
+
+def getAlignmentsFilterByProteinType(request):
+    results = []
+    if request.method == 'POST' and 'selectedProteinType' in request.POST and 'taxIDs' in request.POST:
+        selectedProteinType = request.POST['selectedProteinType']
+        taxIDs = request.POST['taxIDs'][:-1].split(',')
+        with connection.cursor() as cursor:
+            for taxID in taxIDs:
+                taxID = int(taxID)
+                alignmentNamesAndPrimaryKeys = []
+                sql = "select Alignment.Name, Alignment.Aln_id from Nomenclature join Polymer_Data on Polymer_Data.nomgd_id = Nomenclature.nom_id join Polymer_Alignments on Polymer_Alignments.PData_id = Polymer_Data.PData_id join Alignment on Alignment.Aln_id = Polymer_Alignments.Aln_id join Species on Species.strain_id = Polymer_Data.strain_id join Species_TaxGroup on Species.strain_id = Species_TaxGroup.strain_id join TaxGroups on TaxGroups.taxgroup_id = Species_TaxGroup.taxgroup_id where Nomenclature.MoleculeGroup = '" + selectedProteinType + "' and TaxGroups.taxgroup_id in (" + str(taxID) + ") group by Alignment.Aln_id;"
+
+                print ('\n')
+                print (sql)
+                print ('\n')
+                cursor.execute(sql)
+                for row in cursor.fetchall():
+                    alignmentNamesAndPrimaryKeys.append([row[0], row[1]])
+                results.append(alignmentNamesAndPrimaryKeys)
+    context = {'results' : results}
+    return JsonResponse(context)
+    # alignmentNamesAndPrimaryKeys = []
+    # condition = request.method == 'POST' and 'selectedProteinType' in request.POST and 'taxIDs' in request.POST
+    # if condition:
+    #     selectedProteinType = request.POST['selectedProteinType']
+    #     taxIDs = request.POST['taxIDs']
+    #     taxIDsList = []
+    #     for taxID in taxIDs:
+    #         taxIDsList.append(taxID)
+    #     sql = "select Alignment.Name, Alignment.Aln_id from Nomenclature join Polymer_Data on Polymer_Data.nomgd_id = Nomenclature.nom_id join Polymer_Alignments on Polymer_Alignments.PData_id = Polymer_Data.PData_id join Alignment on Alignment.Aln_id = Polymer_Alignments.Aln_id join Species on Species.strain_id = Polymer_Data.strain_id join Species_TaxGroup on Species.strain_id = Species_TaxGroup.strain_id join TaxGroups on TaxGroups.taxgroup_id = Species_TaxGroup.taxgroup_id where Nomenclature.MoleculeGroup = '" + selectedProteinType + "' and TaxGroups.taxgroup_id in (" + str(taxIDsList)[1:-1] + ") group by Alignment.Aln_id;"
+    #     print('\n')
+    #     print(sql)
+    #     print('\n')
+    #     # sql = "select Alignment.Name, Alignment.Aln_id from Nomenclature join Polymer_Data on Polymer_Data.nomgd_id = Nomenclature.nom_id join Polymer_Alignments on Polymer_Alignments.PData_id = Polymer_Data.PData_id join Alignment on Alignment.Aln_id = Polymer_Alignments.Aln_id join Species on Species.strain_id = PolymerData.strain_id join Species_TaxGroup on Species_TaxGroup.strain_id = TaxGroups.taxgroup_id where Nomenclature.MoleculeGroup = '" + selectedProteinType + "' group by Alignment.Aln_id and TaxGroups.taxgroup_id in (" + str(taxIDsList)[1:-1] + ");"
+    #     with connection.cursor() as cursor:
+    #         cursor.execute(sql)
+    #         for row in cursor.fetchall():
+    #             alignmentNamesAndPrimaryKeys.append([row[0], row[1]])
+    # context = {'alignmentNamesAndPrimaryKeys' : alignmentNamesAndPrimaryKeys}
+    # return JsonResponse(context)
+        
+
 def index_orthologs(request):
     print ("request.method == 'POST': " + str(request.method == 'POST'))
     print ("'custom_propensity_data' in request.FILES: " + str('custom_propensity_data' in request.FILES))
@@ -373,6 +436,40 @@ def simple_fasta(request, aln_id, tax_group, internal=False):
     response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc])
 
     return JsonResponse(response_dict, safe = False)
+
+def string_fasta(request, protein_type, aln_name, tax_group):
+    if type(tax_group) == int:
+        tax_group = str(tax_group)
+    with connection.cursor() as cursor:
+        sql = 'SET sql_mode=(SELECT REPLACE(@@sql_mode,\'ONLY_FULL_GROUP_BY\',\'\'));'
+        cursor.execute(sql)
+        sql = "select Alignment.*, Polymer_Data.*, Nomenclature.* from Alignment join Polymer_Alignments on Polymer_Alignments.Aln_id = Alignment.Aln_id join Polymer_Data on Polymer_Data.PData_id = Polymer_Alignments.PData_id join Nomenclature on Nomenclature.nom_id = Polymer_Data.nomgd_id join Species on Polymer_Data.strain_id = Species.strain_id join Species_TaxGroup on Species_TaxGroup.strain_id = Species.strain_id join TaxGroups on Species_TaxGroup.taxgroup_id = Species_TaxGroup.taxgroup_id where Alignment.Name = '" + aln_name + "' and MoleculeGroup = '" + protein_type + "' and TaxGroups.taxgroup_id = " + tax_group + " group by Alignment.Name;"
+        cursor.execute(sql)
+        raw_result = aqab.dictfetchall(cursor)
+    return simple_fasta(request, raw_result[0]['Aln_id'], tax_group)
+    # return JsonResponse("Test", safe=False)
+    # from django.db import connection
+    # raw_sql = "select * from Nomenclature where MoleculeGroup = '" + protein_type + "' and new_name = '" + aln_name + "';"
+    # with connection.cursor() as cursor:
+    #     cursor.execute(raw_sql)
+    #     raw_result = aqab.dictfetchall(cursor)
+    # if len(raw_result) == 0:
+    #     raise Http404("We do not have this combination of arguments in our database.")
+    
+    # rawsqls = []
+    
+    # nogap_tupaln = dict()
+    # max_alnposition = 0
+
+    # for rawsql, parent in rawsqls:
+    #     nogap_tupaln, max_alnposition= aqab.query_to_dict_structure(rawsql, parent, nogap_tupaln, max_alnposition)
+    
+    # fastastring, frequency_list = aqab.build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_alnposition)
+    
+    # concat_fasta, twc, gap_only_cols, filtered_spec_list, alignment_obj = calculateFastaProps(fastastring)
+    # response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc])
+
+    # return JsonResponse(response_dict, safe = False)
 
 def calculateFastaProps(fastastring):
     concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
