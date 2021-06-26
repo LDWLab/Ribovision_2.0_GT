@@ -82,6 +82,7 @@ export function initialState (){
         didCDHit_truncate: null,
         cdhitSelectedOpt: null,
         cdHITReport: null,
+        cdHITnums: [],
         cdhitOpts: [
             {Name:'Download cdhit report', value:'download'},
             {Name:'Reload original alignment', value:'untrunc'}
