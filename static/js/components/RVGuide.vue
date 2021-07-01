@@ -2,7 +2,7 @@
     <div>
         <header class="pink section" style="display:flex;">
             <div style="padding-top:10px">
-                <span class="title" >ProteoVision: Advanced Visualization of Ribosomal Proteins </span>
+                <span class="title" >ProteoVision: Advanced Visualization of (Ribosomal) Proteins </span>
             </div>
             <div class="headerOptions" style="margin-left: auto;padding-top:10px;">
                 <span title="Start an interactive guide">
