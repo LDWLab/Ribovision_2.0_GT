@@ -394,7 +394,7 @@ var populatePDBs = function (alndata){
             ajax(url).then(oldnomData => {
                 if (oldnomData.count == 0){return;}
                 let oldName = oldnomData.results[0].old_name.replace(/^(.{2})(0)/,"$1")
-                let riboXYZurl = `https://ribosome.xyz:8000/neo4j/gmo_nom_class/?banName=${oldName}&format=json`
+                let riboXYZurl = `https://api.ribosome.xyz/neo4j/gmo_nom_class/?banName=${oldName}&format=json`
                 ajax(riboXYZurl).then(data => {
                     var pdb_entries = []
                     data.forEach(function(entry){
