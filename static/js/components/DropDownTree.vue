@@ -641,14 +641,19 @@
                 });
                 ajax(url, {taxIDs}).then(data => {
                     let results = data["results"];
-                    let numSublists = results.length;
-                    let intersection = results[0];
-                    for (let i = 1; i < numSublists; i++) {
-                        intersection = intersection.filter(value => results[i].includes(value));
-                    }
-                    vm.proteinTypes = intersection;
-                    // let proteinTypes = data["proteinTypesList"];
-                    // vm.proteinTypes = proteinTypes;
+                    let intersectionSet = new Set();
+                    results.forEach(sublist => {
+                        sublist.forEach(proteinType => {
+                            intersectionSet.add(proteinType);
+                        });
+                    });
+                    vm.proteinTypes = Array.from(intersectionSet);
+                    // let numSublists = results.length;
+                    // let intersection = results[0];
+                    // for (let i = 1; i < numSublists; i++) {
+                    //     intersection = intersection.filter(value => results[i].includes(value));
+                    // }
+                    // vm.proteinTypes = intersection;
                 });
             }
         }, loadData (value, type_tree) {
@@ -660,7 +665,7 @@
             if (this.alnobj != null) {this.alnobj = null;}
             if (type_tree == "orth"){
                 this.alignments = null;
-                var url = '/getAlignmentsFilterByProteinType';
+                var url = '/getAlignmentsFilterByProteinTypeAndTaxIds';
                 let selectedProteinType = vm.protein_type_obj;
                 let taxIDs = '';
                 vm.tax_id.forEach(element => {

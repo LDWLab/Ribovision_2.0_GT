@@ -40,9 +40,11 @@
             "program": "${workspaceFolder}/populate_db/Alignments/upload_aln.py",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}/populate_db/Alignments/missed_seqs/YERPE_bS21.fas",
-                "b",
-                "-aln_id", "122",
+                "${workspaceFolder}/Upload/uL24m.test_v2.fas",
+                "-user_name", "CaedenM",
+                "-pw", "Awawef1760!",
+                "-schema", "DESIRE",
+                "bm",
                 "-commit"
             ]
         },

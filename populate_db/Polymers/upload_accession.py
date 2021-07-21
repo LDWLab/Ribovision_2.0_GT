@@ -86,22 +86,29 @@ def main():
             continue
         superK = superkingdom_info(entry[0])
         nom_id = check_nomo_id(superK[0], entry[3])
-        query = "INSERT INTO `Polymer_Data`(`GI`,`strain_ID`,`nomgd_id`, `GeneDescription`) \
-                        VALUES('"+entry[1]+"','"+str(entry[0])+"','"+str(nom_id)+"','"+entry[4].rstrip()+"')"
+        strain_id = str(entry[0])
+        gi = entry[1]
+        query = "INSERT INTO `Polymer_Data`(`GI`,`strain_ID`,`nomgd_id`, `GeneDescription`, `GI_type`) \
+                        VALUES('"+gi+"','"+strain_id+"','"+str(nom_id)+"','"+entry[4].rstrip()+"','"+entry[2]+"')"
         print(query)
         cursor.execute(query)
+
         lastrow_id = str(cursor.lastrowid)
         query = "INSERT INTO `Polymer_metadata`(`polymer_id`,`accession_type`,`polymer_type`, `Fullseq`) \
                                             VALUES('"+str(lastrow_id)+"','LDW-prot','protein','"+entry[5]+"')"
         cursor.execute(query)
-        #print(query)
+
+        # pdata_id = cursor.lastrow_id
+
+
+        query = "INSERT INTO `Species_Polymer`(`strain_id`, `nomgd_id`, `GI`) VALUES("+strain_id+","+str(nom_id)+",'" + gi + "')"
+        print(query)
+        cursor.execute(query)
+
         upload_resi(str(lastrow_id), entry[5])
     
     cnx.commit()
     cursor.close()
     cnx.close()
     print("Success!")
-
-if __name__ == "__main__":
-    main()
 

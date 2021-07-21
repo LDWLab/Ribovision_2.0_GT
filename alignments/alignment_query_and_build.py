@@ -12,7 +12,7 @@ def dictfetchall(cursor):
 	]
 
 def construct_query(aln_id, parent_id):
-	return f'SELECT CONCAT(Aln_Data.aln_id,"_",Aln_Data.res_id) AS id,strain,unModResName,aln_pos,Species.strain_id FROM Aln_Data\
+	return f'SELECT CONCAT(Aln_Data.aln_id,"_",Aln_Data.res_id) AS id,strain,unModResName,aln_pos,Species.strain_id, filtered_polymers.GI FROM Aln_Data\
 		INNER JOIN Alignment ON Aln_Data.aln_id = Alignment.Aln_id\
 		INNER JOIN Residues ON Aln_Data.res_id = Residues.resi_id\
 		INNER JOIN (\
@@ -154,11 +154,11 @@ def query_to_dict_structure(rawMYSQLresult, filter_element, nogap_tupaln=dict(),
 	for row in rawMYSQLresult:
 		if int(row['aln_pos']) > max_alnposition:
 			max_alnposition = int(row['aln_pos'])
-		if (row['strain'], filter_element) in nogap_tupaln:
-			nogap_tupaln[(row['strain'], filter_element)].append((row['unModResName'], row['aln_pos'], row['id'].split("_")[1]))
+		if (row['strain'], row['GI'], filter_element) in nogap_tupaln:
+			nogap_tupaln[(row['strain'], row['GI'], filter_element)].append((row['unModResName'], row['aln_pos'], row['id'].split("_")[1]))
 		else:
-			nogap_tupaln[(row['strain'], filter_element)]=[]
-			nogap_tupaln[(row['strain'], filter_element)].append((row['unModResName'], row['aln_pos'], row['id'].split("_")[1]))
+			nogap_tupaln[(row['strain'], row['GI'], filter_element)]=[]
+			nogap_tupaln[(row['strain'], row['GI'], filter_element)].append((row['unModResName'], row['aln_pos'], row['id'].split("_")[1]))
 	return nogap_tupaln, max_alnposition
 
 def build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_alnposition, all_residues=IUPACData.protein_letters):

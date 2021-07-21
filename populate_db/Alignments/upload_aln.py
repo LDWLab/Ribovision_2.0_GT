@@ -64,7 +64,7 @@ def check_nomo_id(cursor, occur, name):
             raise ValueError ("No result for name "+name+" and phylogenetic occurrence "+occur+" in the MYSQL query!")
     return nom_id
 
-def check_polymer(cursor, taxid, nomid):
+def check_polymer(cursor, taxid, nomid, gi):
     '''
     Gets polymer id for a given taxid and nomid (LDW-prot requirement)
     '''
@@ -72,13 +72,14 @@ def check_polymer(cursor, taxid, nomid):
                     INNER JOIN Polymer_metadata ON Polymer_Data.PData_id = Polymer_metadata.polymer_id WHERE \
                     Polymer_metadata.accession_type = 'LDW-prot' AND \
                     Polymer_Data.nomgd_id = "+nomid+" AND \
-                    Polymer_Data.strain_id = "+taxid)
+                    Polymer_Data.strain_id = "+taxid+" AND \
+                    Polymer_Data.GI = '"+gi+"'")
     result = cursor.fetchall()
     try:
         pol_id=result[0][0]
     except:
         pol_id = 'NOVAL'
-        print("No result for nomgd_id "+nomid+" and taxid "+taxid+" in the MYSQL query!")
+        print("No result for nomgd_id "+nomid+" and taxid "+taxid+" and gi "+gi+" in the MYSQL query!")
         #raise ValueError ("No result for nom_id "+nomid+" and taxid "+taxid+" in the MYSQL query!")
     return pol_id
 
@@ -111,6 +112,8 @@ def upload_pol_aln(cursor, pol_id, aln_id):
 def upload_aln_data(cursor, entry, seq_aln_pos, aln_id, polymer_id):
     '''Uploads aln_data table'''
     #print (entry.seq[seq_aln_pos[1]-1],end='')
+    # if str(seq_aln_pos[0]) == '1' and str(polymer_id) == '11090' and str(entry.seq[seq_aln_pos[1]-1]) == 'T':
+    #     flag = True
     resi_id = check_resi_id(cursor, str(seq_aln_pos[0]), str(polymer_id), str(entry.seq[seq_aln_pos[1]-1]))
     #print(resi_id)
     cursor.execute("SELECT aln_id,res_id FROM Aln_Data WHERE\
@@ -168,6 +171,7 @@ def check_resi_id(cursor, seqnum, polid, resname):
     query = "SELECT Residues.resi_id, Residues.unModResName FROM Residues WHERE \
             Residues.PolData_id = "+polid+" AND \
             Residues.resNum = "+seqnum
+    # print (query)
     cursor.execute(query)
     result = cursor.fetchall()
     try:
@@ -224,12 +228,15 @@ def main(commandline_arguments):
     else:
         aln_id = upaln_getid(cursor, aln_name, source_string, comm_args.alignment_method)
     for entry in alns:
-        taxid = fix_old_taxid(entry.id.split('_')[1])
+        entry_id_split = entry.id.split('_')
+        taxid = fix_old_taxid(entry_id_split[1])
         superK = superkingdom_info(cursor, taxid)
+        entry_id_split_2 = entry_id_split[2]
+        gi = entry_id_split_2[entry_id_split_2.index('|') + 1:]
         # nom_id = check_nomo_id(cursor, superK[0], entry.id.split('_')[0][:4])
         print ('entry.id: ' + str(entry.id))
         nom_id = check_nomo_id(cursor, superK[0], entry.id.split('_')[0])
-        polymer_id = check_polymer(cursor, str(taxid),str(nom_id))
+        polymer_id = check_polymer(cursor, str(taxid),str(nom_id), gi)
         if polymer_id == 'NOVAL':
             continue
         upload_pol_aln(cursor, str(polymer_id), str(aln_id))

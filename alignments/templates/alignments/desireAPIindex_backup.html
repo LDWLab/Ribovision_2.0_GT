@@ -1,0 +1,206 @@
+<html>
+<head>
+	{% csrf_token %}
+	{% load static %}
+
+	<!-- Support scripts for RV3 -->
+	<!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script> -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script type="text/javascript" src={% static 'alignments/RV3_before.js' %}></script>
+	<script type="text/javascript" src={% static 'alignments/API_helper.js' %}></script>
+	<script>
+		function concat(api_link, ...entries) {
+			let callUrl = api_link;
+			entries.forEach(entry => {
+				callUrl += '/' + entry;
+			});
+			return callUrl;
+		}
+		function displayData(api_link, ...entries) {
+			let callUrl = concat(api_link, ...entries);
+			$(function(){
+				$.ajax({
+					"url" : callUrl,
+					"type" : "GET",
+					"success" : function(data) {              
+						document.getElementById("projectInfo").textContent = data.Alignment;
+					},
+					"error" : function(response,error) {
+						console.log("ERROR: " + JSON.stringify(response));
+					}
+				});
+			});
+		}
+	</script>
+	<script>
+		let taxID = null;
+		let proteinTypes = [];
+		let selectedProteinType = null;
+		let url = null;
+		// function ajax(url, data = null) {
+			// if (data == null) {
+			// 	$.ajax({
+			// 		"url": url,
+			// 		"dataType": "json",
+			// 		"type": "POST",
+			// 		"data": data,
+            //     	"headers": {'X-CSRFToken': csrftoken},
+			// 		""
+			// 	});
+			// } else {
+			// 	$.ajax({
+			// 		"url": url,
+			// 		"dataType": "json",
+			// 		"type": "GET"
+			// 	});
+			// }
+		// }
+		function clearSelect(selectElement) {
+			let numSelectOptions = selectElement.length;
+			for (let i = numSelectOptions - 1; i >= 0; i--) {
+				selectElement[i] = null;
+			}
+		}
+		function getProteinTypes() {
+			proteinTypes = [];
+			let taxIDs = "" + taxID + ",";
+			$.ajax({
+				"url": "/proteinTypes",
+				"type": "POST",
+				"dataType": "json",
+				"data": {taxIDs},
+                "headers": {'X-CSRFToken': csrftoken},
+				"success": function(data) {
+					results = data["results"][0];
+					let proteinTypeSelector = document.getElementById("protein_type");
+					clearSelect(proteinTypeSelector);
+					let numSelectOptions = 0;
+					results.forEach(result => {
+						proteinTypeSelector[numSelectOptions] = new Option(result);
+						numSelectOptions++;
+					});
+					proteinTypeSelector.selectedIndex = -1;
+				},
+				"error": function(response, error) {
+					console.log("ERROR: " + JSON.stringify(response));
+				}
+			});
+		};
+		function getAlignmentNames() {
+			let taxIDs = "" + taxID + ",";
+			$.ajax({
+				"url": "/getAlignmentsFilterByProteinTypeAndTaxIds",
+				"type": "POST",
+				"dataType": "json",
+				"data": {selectedProteinType, taxIDs},
+                "headers": {'X-CSRFToken': csrftoken},
+				"success": function(data) {
+					results = data["results"][0];
+					let alignmentNameSelector = document.getElementById("alignment_name");
+					clearSelect(alignmentNameSelector);
+					let numSelectOptions = 0;
+					results.forEach(result => {
+						alignmentNameSelector[numSelectOptions] = new Option(result[0], result[1]);
+						numSelectOptions++;
+					});
+					alignmentNameSelector.selectedIndex = -1;
+				},
+				"error": function(response, error) {
+					console.log("ERROR: " + JSON.stringify(response));
+				}
+			});
+		}
+	</script>
+	<title>DESIRE API</title>
+</head>
+<body>
+	<div class = "gridContainer">
+		<div class = "gridEle" id = 'Nomenclature'>Alignment
+			<!-- <table style="width:100%">
+				<tr>
+					<td>
+						Protein #
+						<input type="text" id = "protein_entry"/>
+					</td>
+					<td>
+						Integer
+					</td>
+					<td>
+						Enter an integer representing the protein, i.e. 2 for uL02. 
+					</td>
+				</tr>
+				<tr>
+					<td>
+						TaxID
+						<input type="text" id = "taxID_entry"/>
+					</td>
+					<td>
+						Integer
+					</td>
+					<td>
+						Enter the taxonomy id. This is 2 for bacteria, 2157 for archaea, and 2759 for eukarya. 
+					</td>
+				</tr>
+			</table>
+			<button type="button" onclick = "displayData('ortholog-aln-api', document.getElementById('protein_entry').value, document.getElementById('taxID_entry').value)">Enter</button> -->
+			<table style="width:100%">
+				<div id="tax_selection">
+					<tr>
+						<td>
+							<input type="checkbox" id="b_checkbox" onclick="if (this.checked) {taxID = document.getElementById('tax_selection').value=2; getProteinTypes(); } else { clearSelect(document.getElementById('protein_type')); clearSelect(document.getElementById('alignment_name')); }">Bacteria
+							<input type="checkbox" id="a_checkbox" onclick="if (this.checked) {taxID = document.getElementById('tax_selection').value=2157; getProteinTypes(); } else { clearSelect(document.getElementById('protein_type')); clearSelect(document.getElementById('alignment_name')); }">Archaea
+							<input type="checkbox" id="e_checkbox" onclick="if (this.checked) {taxID = document.getElementById('tax_selection').value=2759; getProteinTypes(); } else { clearSelect(document.getElementById('protein_type')); clearSelect(document.getElementById('alignment_name')); }">Eukarya
+						</td>
+					</tr>
+				</div>
+				<tr>
+					<td>
+						Protein Type
+						<select id="protein_type" onchange="selectedProteinType=this.value; getAlignmentNames();">
+						</select>
+					</td>
+					<td>
+						String
+					</td>
+					<td>
+						Enter the protein type (e.g. LSU, SSU, Initiation Factor)
+					</td>
+				</tr>
+				<tr>
+					<td>
+						Alignment Name
+						<select id="alignment_name" onchange="url = concat('http:/127.0.0.1:8000/ortholog-aln-api', document.getElementById('protein_type').value, this[this.selectedIndex].text, document.getElementById('tax_selection').value); document.getElementById('url_display').innerHTML = String(url)">
+						</select>
+					</td>
+					<td>
+						String
+					</td>
+					<td>
+						Enter the alignment name (e.g. uL02)
+					</td>
+				</tr>
+			</table>
+			<!-- <table style="width:100%">
+				<tr>
+					<td>
+						<input type="checkbox" id="b_checkbox_2" onclick="if (this.checked) {taxID = document.getElementById('tax_selection').value=2; getProteinTypes(); } else { clearSelect(document.getElementById('protein_type')); clearSelect(document.getElementById('alignment_name')); }">Bacteria
+						<input type="checkbox" id="a_checkbox_2" onclick="">Archaea
+						<input type="checkbox" id="e_checkbox_2" onclick="">Eukarya
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<ul id="available_protein_types">
+						</ul>
+					</td>
+				</tr>
+			</table> -->
+			<p id="url_display"></p>
+			<button type="button" onclick="let alignmentNameSelector = document.getElementById('alignment_name'); displayData('ortholog-aln-api', document.getElementById('protein_type').value, alignmentNameSelector[alignmentNameSelector.selectedIndex].text, document.getElementById('tax_selection').value)">Enter</button>
+		</div>
+	</div>
+	<pre id="projectInfo"></pre>
+</body>
+
+</html>
+
