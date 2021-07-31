@@ -7,6 +7,82 @@
   PropTypes = PropTypes && PropTypes.hasOwnProperty('default') ? PropTypes['default'] : PropTypes;
   var React__default = 'default' in React ? React['default'] : React;
 
+  function ownKeys(object, enumerableOnly) {
+    var keys = Object.keys(object);
+
+    if (Object.getOwnPropertySymbols) {
+      var symbols = Object.getOwnPropertySymbols(object);
+
+      if (enumerableOnly) {
+        symbols = symbols.filter(function (sym) {
+          return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+        });
+      }
+
+      keys.push.apply(keys, symbols);
+    }
+
+    return keys;
+  }
+
+  function _objectSpread2(target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i] != null ? arguments[i] : {};
+
+      if (i % 2) {
+        ownKeys(Object(source), true).forEach(function (key) {
+          _defineProperty(target, key, source[key]);
+        });
+      } else if (Object.getOwnPropertyDescriptors) {
+        Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+      } else {
+        ownKeys(Object(source)).forEach(function (key) {
+          Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+        });
+      }
+    }
+
+    return target;
+  }
+
+  function _typeof(obj) {
+    "@babel/helpers - typeof";
+
+    if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
+      _typeof = function (obj) {
+        return typeof obj;
+      };
+    } else {
+      _typeof = function (obj) {
+        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+      };
+    }
+
+    return _typeof(obj);
+  }
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  function _defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }
+
+  function _createClass(Constructor, protoProps, staticProps) {
+    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) _defineProperties(Constructor, staticProps);
+    return Constructor;
+  }
+
   function _defineProperty(obj, key, value) {
     if (key in obj) {
       Object.defineProperty(obj, key, {
@@ -40,38 +116,48 @@
     return _extends.apply(this, arguments);
   }
 
-  function ownKeys(object, enumerableOnly) {
-    var keys = Object.keys(object);
-
-    if (Object.getOwnPropertySymbols) {
-      var symbols = Object.getOwnPropertySymbols(object);
-      if (enumerableOnly) symbols = symbols.filter(function (sym) {
-        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-      });
-      keys.push.apply(keys, symbols);
+  function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+      throw new TypeError("Super expression must either be null or a function");
     }
 
-    return keys;
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+      constructor: {
+        value: subClass,
+        writable: true,
+        configurable: true
+      }
+    });
+    if (superClass) _setPrototypeOf(subClass, superClass);
   }
 
-  function _objectSpread2(target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i] != null ? arguments[i] : {};
+  function _getPrototypeOf(o) {
+    _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+      return o.__proto__ || Object.getPrototypeOf(o);
+    };
+    return _getPrototypeOf(o);
+  }
 
-      if (i % 2) {
-        ownKeys(Object(source), true).forEach(function (key) {
-          _defineProperty(target, key, source[key]);
-        });
-      } else if (Object.getOwnPropertyDescriptors) {
-        Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
-      } else {
-        ownKeys(Object(source)).forEach(function (key) {
-          Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
-        });
-      }
+  function _setPrototypeOf(o, p) {
+    _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+      o.__proto__ = p;
+      return o;
+    };
+
+    return _setPrototypeOf(o, p);
+  }
+
+  function _isNativeReflectConstruct() {
+    if (typeof Reflect === "undefined" || !Reflect.construct) return false;
+    if (Reflect.construct.sham) return false;
+    if (typeof Proxy === "function") return true;
+
+    try {
+      Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
+      return true;
+    } catch (e) {
+      return false;
     }
-
-    return target;
   }
 
   function _objectWithoutPropertiesLoose(source, excluded) {
@@ -110,23 +196,103 @@
     return target;
   }
 
+  function _assertThisInitialized(self) {
+    if (self === void 0) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
+
+    return self;
+  }
+
+  function _possibleConstructorReturn(self, call) {
+    if (call && (typeof call === "object" || typeof call === "function")) {
+      return call;
+    }
+
+    return _assertThisInitialized(self);
+  }
+
+  function _createSuper(Derived) {
+    var hasNativeReflectConstruct = _isNativeReflectConstruct();
+
+    return function _createSuperInternal() {
+      var Super = _getPrototypeOf(Derived),
+          result;
+
+      if (hasNativeReflectConstruct) {
+        var NewTarget = _getPrototypeOf(this).constructor;
+
+        result = Reflect.construct(Super, arguments, NewTarget);
+      } else {
+        result = Super.apply(this, arguments);
+      }
+
+      return _possibleConstructorReturn(this, result);
+    };
+  }
+
+  function _superPropBase(object, property) {
+    while (!Object.prototype.hasOwnProperty.call(object, property)) {
+      object = _getPrototypeOf(object);
+      if (object === null) break;
+    }
+
+    return object;
+  }
+
+  function _get(target, property, receiver) {
+    if (typeof Reflect !== "undefined" && Reflect.get) {
+      _get = Reflect.get;
+    } else {
+      _get = function _get(target, property, receiver) {
+        var base = _superPropBase(target, property);
+
+        if (!base) return;
+        var desc = Object.getOwnPropertyDescriptor(base, property);
+
+        if (desc.get) {
+          return desc.get.call(receiver);
+        }
+
+        return desc.value;
+      };
+    }
+
+    return _get(target, property, receiver || target);
+  }
+
   function _slicedToArray(arr, i) {
     return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray$1(arr, i) || _nonIterableRest();
+  }
+
+  function _toConsumableArray(arr) {
+    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray$1(arr) || _nonIterableSpread();
+  }
+
+  function _arrayWithoutHoles(arr) {
+    if (Array.isArray(arr)) return _arrayLikeToArray(arr);
   }
 
   function _arrayWithHoles(arr) {
     if (Array.isArray(arr)) return arr;
   }
 
+  function _iterableToArray(iter) {
+    if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
+  }
+
   function _iterableToArrayLimit(arr, i) {
-    if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return;
+    var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"];
+
+    if (_i == null) return;
     var _arr = [];
     var _n = true;
     var _d = false;
-    var _e = undefined;
+
+    var _s, _e;
 
     try {
-      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+      for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) {
         _arr.push(_s.value);
 
         if (i && _arr.length === i) break;
@@ -162,14 +328,27 @@
     return arr2;
   }
 
+  function _nonIterableSpread() {
+    throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
+
   function _nonIterableRest() {
     throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
+
+  function _setPrototypeOf$1(o, p) {
+    _setPrototypeOf$1 = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+      o.__proto__ = p;
+      return o;
+    };
+
+    return _setPrototypeOf$1(o, p);
   }
 
   function _inheritsLoose$1(subClass, superClass) {
     subClass.prototype = Object.create(superClass.prototype);
     subClass.prototype.constructor = subClass;
-    subClass.__proto__ = superClass;
+    _setPrototypeOf$1(subClass, superClass);
   }
 
   var subscriptionShape = PropTypes.shape({
@@ -862,41 +1041,21 @@
     return true;
   }
 
-  function symbolObservablePonyfill(root) {
-  	var result;
-  	var Symbol = root.Symbol;
-
-  	if (typeof Symbol === 'function') {
-  		if (Symbol.observable) {
-  			result = Symbol.observable;
-  		} else {
-  			result = Symbol('observable');
-  			Symbol.observable = result;
-  		}
-  	} else {
-  		result = '@@observable';
-  	}
-
-  	return result;
+  /**
+   * Adapted from React: https://github.com/facebook/react/blob/master/packages/shared/formatProdErrorMessage.js
+   *
+   * Do not require this module directly! Use normal throw error calls. These messages will be replaced with error codes
+   * during build.
+   * @param {number} code
+   */
+  function formatProdErrorMessage(code) {
+    return "Minified Redux error #" + code + "; visit https://redux.js.org/Errors?code=" + code + " for the full message or " + 'use the non-minified dev environment for full errors. ';
   }
 
-  /* global window */
-
-  var root;
-
-  if (typeof self !== 'undefined') {
-    root = self;
-  } else if (typeof window !== 'undefined') {
-    root = window;
-  } else if (typeof global !== 'undefined') {
-    root = global;
-  } else if (typeof module !== 'undefined') {
-    root = module;
-  } else {
-    root = Function('return this')();
-  }
-
-  var result = symbolObservablePonyfill(root);
+  // Inlined version of the `symbol-observable` polyfill
+  var $$observable = (function () {
+    return typeof Symbol === 'function' && Symbol.observable || '@@observable';
+  })();
 
   /**
    * These are private action types reserved by Redux.
@@ -961,7 +1120,7 @@
     var _ref2;
 
     if (typeof preloadedState === 'function' && typeof enhancer === 'function' || typeof enhancer === 'function' && typeof arguments[3] === 'function') {
-      throw new Error('It looks like you are passing several store enhancers to ' + 'createStore(). This is not supported. Instead, compose them ' + 'together to a single function.');
+      throw new Error(formatProdErrorMessage(0));
     }
 
     if (typeof preloadedState === 'function' && typeof enhancer === 'undefined') {
@@ -971,14 +1130,14 @@
 
     if (typeof enhancer !== 'undefined') {
       if (typeof enhancer !== 'function') {
-        throw new Error('Expected the enhancer to be a function.');
+        throw new Error(formatProdErrorMessage(1));
       }
 
       return enhancer(createStore)(reducer, preloadedState);
     }
 
     if (typeof reducer !== 'function') {
-      throw new Error('Expected the reducer to be a function.');
+      throw new Error(formatProdErrorMessage(2));
     }
 
     var currentReducer = reducer;
@@ -1008,7 +1167,7 @@
 
     function getState() {
       if (isDispatching) {
-        throw new Error('You may not call store.getState() while the reducer is executing. ' + 'The reducer has already received the state as an argument. ' + 'Pass it down from the top reducer instead of reading it from the store.');
+        throw new Error(formatProdErrorMessage(3));
       }
 
       return currentState;
@@ -1040,11 +1199,11 @@
 
     function subscribe(listener) {
       if (typeof listener !== 'function') {
-        throw new Error('Expected the listener to be a function.');
+        throw new Error(formatProdErrorMessage(4));
       }
 
       if (isDispatching) {
-        throw new Error('You may not call store.subscribe() while the reducer is executing. ' + 'If you would like to be notified after the store has been updated, subscribe from a ' + 'component and invoke store.getState() in the callback to access the latest state. ' + 'See https://redux.js.org/api-reference/store#subscribelistener for more details.');
+        throw new Error(formatProdErrorMessage(5));
       }
 
       var isSubscribed = true;
@@ -1056,7 +1215,7 @@
         }
 
         if (isDispatching) {
-          throw new Error('You may not unsubscribe from a store listener while the reducer is executing. ' + 'See https://redux.js.org/api-reference/store#subscribelistener for more details.');
+          throw new Error(formatProdErrorMessage(6));
         }
 
         isSubscribed = false;
@@ -1095,15 +1254,15 @@
 
     function dispatch(action) {
       if (!isPlainObject(action)) {
-        throw new Error('Actions must be plain objects. ' + 'Use custom middleware for async actions.');
+        throw new Error(formatProdErrorMessage(7));
       }
 
       if (typeof action.type === 'undefined') {
-        throw new Error('Actions may not have an undefined "type" property. ' + 'Have you misspelled a constant?');
+        throw new Error(formatProdErrorMessage(8));
       }
 
       if (isDispatching) {
-        throw new Error('Reducers may not dispatch actions.');
+        throw new Error(formatProdErrorMessage(9));
       }
 
       try {
@@ -1136,7 +1295,7 @@
 
     function replaceReducer(nextReducer) {
       if (typeof nextReducer !== 'function') {
-        throw new Error('Expected the nextReducer to be a function.');
+        throw new Error(formatProdErrorMessage(10));
       }
 
       currentReducer = nextReducer; // This action has a similiar effect to ActionTypes.INIT.
@@ -1171,7 +1330,7 @@
          */
         subscribe: function subscribe(observer) {
           if (typeof observer !== 'object' || observer === null) {
-            throw new TypeError('Expected the observer to be an object.');
+            throw new Error(formatProdErrorMessage(11));
           }
 
           function observeState() {
@@ -1186,7 +1345,7 @@
             unsubscribe: unsubscribe
           };
         }
-      }, _ref[result] = function () {
+      }, _ref[$$observable] = function () {
         return this;
       }, _ref;
     } // When a store is created, an "INIT" action is dispatched so that every
@@ -1202,7 +1361,7 @@
       subscribe: subscribe,
       getState: getState,
       replaceReducer: replaceReducer
-    }, _ref2[result] = observable, _ref2;
+    }, _ref2[$$observable] = observable, _ref2;
   }
 
   function bindActionCreator(actionCreator, dispatch) {
@@ -1239,7 +1398,7 @@
     }
 
     if (typeof actionCreators !== 'object' || actionCreators === null) {
-      throw new Error("bindActionCreators expected an object or a function, instead received " + (actionCreators === null ? 'null' : typeof actionCreators) + ". " + "Did you write \"import ActionCreators from\" instead of \"import * as ActionCreators from\"?");
+      throw new Error(formatProdErrorMessage(16));
     }
 
     var boundActionCreators = {};
@@ -1563,7 +1722,7 @@
   * This source code is licensed under the MIT license found in the
   * LICENSE file in the root directory of this source tree.
   */
-  const storeKey = 'msaStore';
+  var storeKey = 'msaStore';
 
   /**
   * Copyright 2018, Plotly, Inc.
@@ -1583,7 +1742,8 @@
    * See also: https://react-redux.js.org/docs/api
    */
 
-  function msaConnect(mapStateToProps, mapDispatchToProps, mergeProps, options = {}) {
+  function msaConnect(mapStateToProps, mapDispatchToProps, mergeProps) {
+    var options = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
     options.storeKey = storeKey;
     return connect(mapStateToProps, mapDispatchToProps, mergeProps, options);
   }
@@ -1595,10 +1755,10 @@
   var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
 
   /** Used as a reference to the global object. */
-  var root$1 = freeGlobal || freeSelf || Function('return this')();
+  var root = freeGlobal || freeSelf || Function('return this')();
 
   /** Built-in value references. */
-  var Symbol$1 = root$1.Symbol;
+  var Symbol$1 = root.Symbol;
 
   /** Used for built-in method references. */
   var objectProto = Object.prototype;
@@ -1889,6 +2049,40 @@
     return augend + addend;
   }, 0);
 
+  /** Used to match a single whitespace character. */
+  var reWhitespace = /\s/;
+
+  /**
+   * Used by `_.trim` and `_.trimEnd` to get the index of the last non-whitespace
+   * character of `string`.
+   *
+   * @private
+   * @param {string} string The string to inspect.
+   * @returns {number} Returns the index of the last non-whitespace character.
+   */
+  function trimmedEndIndex(string) {
+    var index = string.length;
+
+    while (index-- && reWhitespace.test(string.charAt(index))) {}
+    return index;
+  }
+
+  /** Used to match leading whitespace. */
+  var reTrimStart = /^\s+/;
+
+  /**
+   * The base implementation of `_.trim`.
+   *
+   * @private
+   * @param {string} string The string to trim.
+   * @returns {string} Returns the trimmed string.
+   */
+  function baseTrim(string) {
+    return string
+      ? string.slice(0, trimmedEndIndex(string) + 1).replace(reTrimStart, '')
+      : string;
+  }
+
   /**
    * Checks if `value` is the
    * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
@@ -1921,9 +2115,6 @@
 
   /** Used as references for various `Number` constants. */
   var NAN$1 = 0 / 0;
-
-  /** Used to match leading and trailing whitespace. */
-  var reTrim = /^\s+|\s+$/g;
 
   /** Used to detect bad signed hexadecimal string values. */
   var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
@@ -1974,7 +2165,7 @@
     if (typeof value != 'string') {
       return value === 0 ? value : +value;
     }
-    value = value.replace(reTrim, '');
+    value = baseTrim(value);
     var isBinary = reIsBinary.test(value);
     return (isBinary || reIsOctal.test(value))
       ? freeParseInt(value.slice(2), isBinary ? 2 : 8)
@@ -2146,7 +2337,7 @@
   }
 
   /** Used to detect overreaching core-js shims. */
-  var coreJsData = root$1['__core-js_shared__'];
+  var coreJsData = root['__core-js_shared__'];
 
   /** Used to detect methods masquerading as native. */
   var maskSrcKey = (function() {
@@ -2257,7 +2448,7 @@
   }
 
   /* Built-in method references that are verified to be native. */
-  var WeakMap$1 = getNative(root$1, 'WeakMap');
+  var WeakMap$1 = getNative(root, 'WeakMap');
 
   /** Used to store function metadata. */
   var metaMap = WeakMap$1 && new WeakMap$1;
@@ -2353,7 +2544,7 @@
         Ctor = createCtor(func);
 
     function wrapper() {
-      var fn = (this && this !== root$1 && this instanceof wrapper) ? Ctor : func;
+      var fn = (this && this !== root && this instanceof wrapper) ? Ctor : func;
       return fn.apply(isBind ? thisArg : this, arguments);
     }
     return wrapper;
@@ -3310,7 +3501,7 @@
       if (isAry && ary < length) {
         args.length = ary;
       }
-      if (this && this !== root$1 && this instanceof wrapper) {
+      if (this && this !== root && this instanceof wrapper) {
         fn = Ctor || createCtor(fn);
       }
       return fn.apply(thisBinding, args);
@@ -3349,7 +3540,7 @@
           func, bitmask, createHybrid, wrapper.placeholder, undefined,
           args, holders, undefined, undefined, arity - length);
       }
-      var fn = (this && this !== root$1 && this instanceof wrapper) ? Ctor : func;
+      var fn = (this && this !== root && this instanceof wrapper) ? Ctor : func;
       return apply(fn, this, args);
     }
     return wrapper;
@@ -3380,7 +3571,7 @@
           leftIndex = -1,
           leftLength = partials.length,
           args = Array(leftLength + argsLength),
-          fn = (this && this !== root$1 && this instanceof wrapper) ? Ctor : func;
+          fn = (this && this !== root && this instanceof wrapper) ? Ctor : func;
 
       while (++leftIndex < leftLength) {
         args[leftIndex] = partials[leftIndex];
@@ -3990,7 +4181,7 @@
   var moduleExports = freeModule && freeModule.exports === freeExports;
 
   /** Built-in value references. */
-  var Buffer = moduleExports ? root$1.Buffer : undefined;
+  var Buffer = moduleExports ? root.Buffer : undefined;
 
   /* Built-in method references for those with the same name as other `lodash` methods. */
   var nativeIsBuffer = Buffer ? Buffer.isBuffer : undefined;
@@ -4759,7 +4950,7 @@
   ListCache.prototype.set = listCacheSet;
 
   /* Built-in method references that are verified to be native. */
-  var Map$1 = getNative(root$1, 'Map');
+  var Map$1 = getNative(root, 'Map');
 
   /**
    * Removes all key-value entries from the map.
@@ -6114,7 +6305,7 @@
   }
 
   /* Built-in method references for those with the same name as other `lodash` methods. */
-  var nativeIsFinite = root$1.isFinite,
+  var nativeIsFinite = root.isFinite,
       nativeMin$2 = Math.min;
 
   /**
@@ -6440,7 +6631,7 @@
   var moduleExports$2 = freeModule$2 && freeModule$2.exports === freeExports$2;
 
   /** Built-in value references. */
-  var Buffer$1 = moduleExports$2 ? root$1.Buffer : undefined,
+  var Buffer$1 = moduleExports$2 ? root.Buffer : undefined,
       allocUnsafe = Buffer$1 ? Buffer$1.allocUnsafe : undefined;
 
   /**
@@ -6617,13 +6808,13 @@
   }
 
   /* Built-in method references that are verified to be native. */
-  var DataView = getNative(root$1, 'DataView');
+  var DataView = getNative(root, 'DataView');
 
   /* Built-in method references that are verified to be native. */
-  var Promise$1 = getNative(root$1, 'Promise');
+  var Promise$1 = getNative(root, 'Promise');
 
   /* Built-in method references that are verified to be native. */
-  var Set = getNative(root$1, 'Set');
+  var Set = getNative(root, 'Set');
 
   /** `Object#toString` result references. */
   var mapTag$1 = '[object Map]',
@@ -6702,7 +6893,7 @@
   }
 
   /** Built-in value references. */
-  var Uint8Array = root$1.Uint8Array;
+  var Uint8Array = root.Uint8Array;
 
   /**
    * Creates a clone of `arrayBuffer`.
@@ -8584,7 +8775,7 @@
    * // => Logs the number of milliseconds it took for the deferred invocation.
    */
   var now = function() {
-    return root$1.Date.now();
+    return root.Date.now();
   };
 
   /** Error message constants. */
@@ -12134,7 +12325,7 @@
   }
 
   /* Built-in method references for those with the same name as other `lodash` methods. */
-  var nativeIsFinite$1 = root$1.isFinite;
+  var nativeIsFinite$1 = root.isFinite;
 
   /**
    * Checks if `value` is a finite primitive number.
@@ -14411,11 +14602,11 @@
       : string;
   }
 
-  /** Used to match leading and trailing whitespace. */
-  var reTrimStart = /^\s+/;
+  /** Used to match leading whitespace. */
+  var reTrimStart$1 = /^\s+/;
 
   /* Built-in method references for those with the same name as other `lodash` methods. */
-  var nativeParseInt = root$1.parseInt;
+  var nativeParseInt = root.parseInt;
 
   /**
    * Converts `string` to an integer of the specified radix. If `radix` is
@@ -14447,7 +14638,7 @@
     } else if (radix) {
       radix = +radix;
     }
-    return nativeParseInt(toString(string).replace(reTrimStart, ''), radix || 0);
+    return nativeParseInt(toString(string).replace(reTrimStart$1, ''), radix || 0);
   }
 
   /** Used to compose bitmasks for function metadata. */
@@ -15511,7 +15702,7 @@
    * _.result(object, 'a[0].b.c3', _.constant('default'));
    * // => 'default'
    */
-  function result$1(object, path, defaultValue) {
+  function result(object, path, defaultValue) {
     path = castPath(path, object);
 
     var index = -1,
@@ -16936,10 +17127,25 @@
     }
   };
 
+  /** Error message constants. */
+  var INVALID_TEMPL_VAR_ERROR_TEXT = 'Invalid `variable` option passed into `_.template`';
+
   /** Used to match empty string literals in compiled template source. */
   var reEmptyStringLeading = /\b__p \+= '';/g,
       reEmptyStringMiddle = /\b(__p \+=) '' \+/g,
       reEmptyStringTrailing = /(__e\(.*?\)|\b__t\)) \+\n'';/g;
+
+  /**
+   * Used to validate the `validate` option in `_.template` variable.
+   *
+   * Forbids characters which could potentially change the meaning of the function argument definition:
+   * - "()," (modification of function parameters)
+   * - "=" (default value)
+   * - "[]{}" (destructuring of function parameters)
+   * - "/" (beginning of a comment)
+   * - whitespace
+   */
+  var reForbiddenIdentifierChars = /[()=,{}\[\]\/\s]/;
 
   /**
    * Used to match
@@ -17136,6 +17342,12 @@
     if (!variable) {
       source = 'with (obj) {\n' + source + '\n}\n';
     }
+    // Throw an error if a forbidden character was found in `variable`, to prevent
+    // potential command injection attacks.
+    else if (reForbiddenIdentifierChars.test(variable)) {
+      throw new Error(INVALID_TEMPL_VAR_ERROR_TEXT);
+    }
+
     // Cleanup code by stripping empty strings.
     source = (isEvaluating ? source.replace(reEmptyStringLeading, '') : source)
       .replace(reEmptyStringMiddle, '$1')
@@ -17565,9 +17777,6 @@
     return index;
   }
 
-  /** Used to match leading and trailing whitespace. */
-  var reTrim$1 = /^\s+|\s+$/g;
-
   /**
    * Removes leading and trailing whitespace or specified characters from `string`.
    *
@@ -17593,7 +17802,7 @@
   function trim(string, chars, guard) {
     string = toString(string);
     if (string && (guard || chars === undefined)) {
-      return string.replace(reTrim$1, '');
+      return baseTrim(string);
     }
     if (!string || !(chars = baseToString(chars))) {
       return string;
@@ -17605,9 +17814,6 @@
 
     return castSlice(strSymbols, start, end).join('');
   }
-
-  /** Used to match leading and trailing whitespace. */
-  var reTrimEnd = /\s+$/;
 
   /**
    * Removes trailing whitespace or specified characters from `string`.
@@ -17631,7 +17837,7 @@
   function trimEnd(string, chars, guard) {
     string = toString(string);
     if (string && (guard || chars === undefined)) {
-      return string.replace(reTrimEnd, '');
+      return string.slice(0, trimmedEndIndex(string) + 1);
     }
     if (!string || !(chars = baseToString(chars))) {
       return string;
@@ -17642,8 +17848,8 @@
     return castSlice(strSymbols, 0, end).join('');
   }
 
-  /** Used to match leading and trailing whitespace. */
-  var reTrimStart$1 = /^\s+/;
+  /** Used to match leading whitespace. */
+  var reTrimStart$2 = /^\s+/;
 
   /**
    * Removes leading whitespace or specified characters from `string`.
@@ -17667,7 +17873,7 @@
   function trimStart(string, chars, guard) {
     string = toString(string);
     if (string && (guard || chars === undefined)) {
-      return string.replace(reTrimStart$1, '');
+      return string.replace(reTrimStart$2, '');
     }
     if (!string || !(chars = baseToString(chars))) {
       return string;
@@ -18778,7 +18984,7 @@
     get, has, hasIn, invert, invertBy,
     invoke, keys, keysIn, mapKeys, mapValues,
     merge, mergeWith, omit, omitBy, pick,
-    pickBy, result: result$1, set: set$1, setWith, toPairs,
+    pickBy, result, set: set$1, setWith, toPairs,
     toPairsIn, transform, unset, update, updateWith,
     values, valuesIn
   };
@@ -18955,7 +19161,7 @@
    */
 
   /** Used as the semantic version number. */
-  var VERSION = '4.17.20';
+  var VERSION = '4.17.21';
 
   /** Used to compose bitmasks for function metadata. */
   var WRAP_BIND_KEY_FLAG$6 = 2;
@@ -19343,19 +19549,19 @@
     LazyWrapper.prototype[methodName] = function(n) {
       n = n === undefined ? 1 : nativeMax$g(toInteger(n), 0);
 
-      var result = (this.__filtered__ && !index)
+      var result$$1 = (this.__filtered__ && !index)
         ? new LazyWrapper(this)
         : this.clone();
 
-      if (result.__filtered__) {
-        result.__takeCount__ = nativeMin$e(n, result.__takeCount__);
+      if (result$$1.__filtered__) {
+        result$$1.__takeCount__ = nativeMin$e(n, result$$1.__takeCount__);
       } else {
-        result.__views__.push({
+        result$$1.__views__.push({
           'size': nativeMin$e(n, MAX_ARRAY_LENGTH$6),
-          'type': methodName + (result.__dir__ < 0 ? 'Right' : '')
+          'type': methodName + (result$$1.__dir__ < 0 ? 'Right' : '')
         });
       }
-      return result;
+      return result$$1;
     };
 
     LazyWrapper.prototype[methodName + 'Right'] = function(n) {
@@ -19369,13 +19575,13 @@
         isFilter = type == LAZY_FILTER_FLAG$1 || type == LAZY_WHILE_FLAG;
 
     LazyWrapper.prototype[methodName] = function(iteratee$$1) {
-      var result = this.clone();
-      result.__iteratees__.push({
+      var result$$1 = this.clone();
+      result$$1.__iteratees__.push({
         'iteratee': baseIteratee(iteratee$$1, 3),
         'type': type
       });
-      result.__filtered__ = result.__filtered__ || isFilter;
-      return result;
+      result$$1.__filtered__ = result$$1.__filtered__ || isFilter;
+      return result$$1;
     };
   });
 
@@ -19425,20 +19631,20 @@
   LazyWrapper.prototype.slice = function(start, end) {
     start = toInteger(start);
 
-    var result = this;
-    if (result.__filtered__ && (start > 0 || end < 0)) {
-      return new LazyWrapper(result);
+    var result$$1 = this;
+    if (result$$1.__filtered__ && (start > 0 || end < 0)) {
+      return new LazyWrapper(result$$1);
     }
     if (start < 0) {
-      result = result.takeRight(-start);
+      result$$1 = result$$1.takeRight(-start);
     } else if (start) {
-      result = result.drop(start);
+      result$$1 = result$$1.drop(start);
     }
     if (end !== undefined) {
       end = toInteger(end);
-      result = end < 0 ? result.dropRight(-end) : result.take(end - start);
+      result$$1 = end < 0 ? result$$1.dropRight(-end) : result$$1.take(end - start);
     }
-    return result;
+    return result$$1;
   };
 
   LazyWrapper.prototype.takeRightWhile = function(predicate) {
@@ -19467,8 +19673,8 @@
           useLazy = isLazy || isArray(value);
 
       var interceptor = function(value) {
-        var result = lodashFunc.apply(lodash, arrayPush([value], args));
-        return (isTaker && chainAll) ? result[0] : result;
+        var result$$1 = lodashFunc.apply(lodash, arrayPush([value], args));
+        return (isTaker && chainAll) ? result$$1[0] : result$$1;
       };
 
       if (useLazy && checkIteratee && typeof iteratee$$1 == 'function' && iteratee$$1.length != 1) {
@@ -19482,15 +19688,15 @@
 
       if (!retUnwrapped && useLazy) {
         value = onlyLazy ? value : new LazyWrapper(this);
-        var result = func$$1.apply(value, args);
-        result.__actions__.push({ 'func': thru, 'args': [interceptor], 'thisArg': undefined });
-        return new LodashWrapper(result, chainAll);
+        var result$$1 = func$$1.apply(value, args);
+        result$$1.__actions__.push({ 'func': thru, 'args': [interceptor], 'thisArg': undefined });
+        return new LodashWrapper(result$$1, chainAll);
       }
       if (isUnwrapped && onlyLazy) {
         return func$$1.apply(this, args);
       }
-      result = this.thru(interceptor);
-      return isUnwrapped ? (isTaker ? result.value()[0] : result.value()) : result;
+      result$$1 = this.thru(interceptor);
+      return isUnwrapped ? (isTaker ? result$$1.value()[0] : result$$1.value()) : result$$1;
     };
   });
 
@@ -19560,7 +19766,7 @@
    * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
    */
 
-  const StaticSchemeClass = function StaticSchemeClass(map) {
+  var StaticSchemeClass = function StaticSchemeClass(map) {
     this.defaultColor = "#ffffff";
     this.type = "static";
     this.map = map;
@@ -19573,7 +19779,7 @@
       }
     };
   };
-  const DynSchemeClass = function DynSchemeClass(fun, opt) {
+  var DynSchemeClass = function DynSchemeClass(fun, opt) {
     this.type = "dyn";
     this.opt = opt; // init
 
@@ -19935,7 +20141,7 @@
     Z: "#fff"
   };
 
-  const pid = {}; // calculating the conservation is expensive 
+  var pid = {}; // calculating the conservation is expensive 
   // we only want to do it once
 
   pid.init = function () {
@@ -19956,7 +20162,7 @@
     }
   };
 
-  const staticSchemes = {
+  var staticSchemes = {
     buried: Buried,
     buried_index: Buried,
     cinema: Cinema,
@@ -19977,11 +20183,11 @@
     turn_propensity: Turn,
     zappo: Zappo
   };
-  const dynSchemes = {
+  var dynSchemes = {
     pid: pid
   };
 
-  const Colors = function Colors(opt) {
+  var Colors = function Colors(opt) {
     this.maps = clone$1(staticSchemes);
     this.dyn = clone$1(dynSchemes);
     this.opt = opt;
@@ -20015,7 +20221,7 @@
 
 
   function clone$1(obj) {
-    if (null == obj || "object" !== typeof obj) return obj;
+    if (null == obj || "object" !== _typeof(obj)) return obj;
     var copy = obj.constructor();
 
     for (var attr in obj) {
@@ -20025,28 +20231,27 @@
     return copy;
   }
 
-  /**
-  * Copyright 2018, Plotly, Inc.
-  * All rights reserved.
-  *
-  * This source code is licensed under the MIT license found in the
-  * LICENSE file in the root directory of this source tree.
-  */
-  const schemesMgr = new Colors();
+  var schemesMgr = new Colors();
   /**
    * Simple color scheme abstraction over msa-colorschemes. To be extended.
    */
 
-  class ColorScheme {
-    constructor(colorScheme) {
+  var ColorScheme = /*#__PURE__*/function () {
+    function ColorScheme(colorScheme) {
+      _classCallCheck(this, ColorScheme);
+
       this.scheme = schemesMgr.getScheme(colorScheme);
     }
 
-    getColor(element) {
-      return this.scheme.getColor(element);
-    }
+    _createClass(ColorScheme, [{
+      key: "getColor",
+      value: function getColor(element) {
+        return this.scheme.getColor(element);
+      }
+    }]);
 
-  }
+    return ColorScheme;
+  }();
   /**
    * Checks whether the `obj` is a color scheme.
    * Everything that looks like a color scheme is very likely one.
@@ -20069,21 +20274,21 @@
    *   sequence: raw sequence data (e.g. AGAAAA)
    */
 
-  const SequencePropType = PropTypes.shape({
+  var SequencePropType = PropTypes.shape({
     name: PropTypes.string,
     sequence: PropTypes.string
   });
-  const AllowedColorschemes = ["buried_index", "clustal", "clustal2", "cinema", "helix_propensity", "hydro", "lesk", "mae", "nucleotide", "purine_pyrimidine", "strand_propensity", "taylor", "turn_propensity", "zappo"];
-  const ColorSchemePropType = PropTypes.oneOfType([PropTypes.oneOf(AllowedColorschemes), PropTypes.instanceOf(ColorScheme), function isColorSchemeObject(props, propName, componentName) {
+  var AllowedColorschemes = ["buried_index", "clustal", "clustal2", "cinema", "helix_propensity", "hydro", "lesk", "mae", "nucleotide", "purine_pyrimidine", "strand_propensity", "taylor", "turn_propensity", "zappo"];
+  var ColorSchemePropType = PropTypes.oneOfType([PropTypes.oneOf(AllowedColorschemes), PropTypes.instanceOf(ColorScheme), function isColorSchemeObject(props, propName, componentName) {
     if (isColorScheme(props[propName])) ; else {
       return new Error('Invalid prop `' + propName + '` supplied to' + ' `' + componentName + '`. Validation failed.');
     }
   }]);
-  const PositionPropType = PropTypes.shape({
+  var PositionPropType = PropTypes.shape({
     xPos: PropTypes.number,
     yPos: PropTypes.number
   });
-  const MSAPropTypes = {
+  var MSAPropTypes = {
     /**
      * Sequence data.
      * `sequences` expects an array of individual sequences.
@@ -20186,7 +20391,7 @@
     highlight: PropTypes.object
   }; // TODO: separate individual properties into their components
 
-  const msaDefaultProps = {
+  var msaDefaultProps = {
     width: 500,
     height: 100,
     tileWidth: 20,
@@ -20216,38 +20421,48 @@
    *
    * Similar to createAction from redux-actions
    */
-  function createAction(type, ...argNames) {
-    const actionCreator = function actionCreator(...args) {
-      let payload;
+  function createAction(type) {
+    for (var _len = arguments.length, argNames = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      argNames[_key - 1] = arguments[_key];
+    }
+
+    var actionCreator = function actionCreator() {
+      for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        args[_key2] = arguments[_key2];
+      }
+
+      var payload;
 
       if (argNames.length === 0) {
         payload = args[0];
       } else {
         payload = {};
-        argNames.forEach((arg, index) => {
+        argNames.forEach(function (arg, index) {
           payload[argNames[index]] = args[index];
         });
       }
 
       return {
-        type,
-        payload
+        type: type,
+        payload: payload
       };
     };
 
-    actionCreator.toString = () => type.toString();
+    actionCreator.toString = function () {
+      return type.toString();
+    };
 
     actionCreator.key = actionCreator.toString();
     return actionCreator;
   } // TODO: maybe use createActions from redux-actions here
 
-  const updateProps = createAction('PROPS_UPDATE');
-  const updateProp = createAction('PROP_UPDATE', 'key', 'value');
-  const updateSequences = createAction('SEQUENCES_UPDATE');
-  const actions = {
-    updateProp,
-    updateProps,
-    updateSequences
+  var updateProps = createAction('PROPS_UPDATE');
+  var updateProp = createAction('PROP_UPDATE', 'key', 'value');
+  var updateSequences = createAction('SEQUENCES_UPDATE');
+  var actions = {
+    updateProp: updateProp,
+    updateProps: updateProps,
+    updateSequences: updateSequences
   };
 
   /**
@@ -20270,10 +20485,13 @@
    * Similar to handleActions from redux-actions or createReduce from redux-act
    */
   function handleActions(handlers, initialState) {
-    return function reducer(state = initialState, {
-      type,
-      payload
-    }) {
+    return function reducer() {
+      var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
+
+      var _ref = arguments.length > 1 ? arguments[1] : undefined,
+          type = _ref.type,
+          payload = _ref.payload;
+
       if (handlers.hasOwnProperty(type)) {
         return handlers[type](state, payload);
       } else {
@@ -20313,14 +20531,16 @@
    * passed object, and builds a state object with the same shape.
    */
   function combineReducers$1(reducers) {
-    const keys = Object.keys(reducers);
-    return function (state = {}, action) {
-      const nextState = {};
-      let hasChanged = false;
+    var keys = Object.keys(reducers);
+    return function () {
+      var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      var action = arguments.length > 1 ? arguments[1] : undefined;
+      var nextState = {};
+      var hasChanged = false;
 
-      for (let i = 0; i < keys.length; i++) {
-        const key = keys[i];
-        const nextStateForKey = reducers[key](state[key], action);
+      for (var i = 0; i < keys.length; i++) {
+        var key = keys[i];
+        var nextStateForKey = reducers[key](state[key], action);
 
         if (typeof nextStateForKey === 'undefined') {
           throw new Error("A reducer can't return 'undefined'");
@@ -20342,12 +20562,14 @@
   * LICENSE file in the root directory of this source tree.
   */
 
-  const calculateSequencesState = (prevState, sequences) => {
-    const state = {
+  var calculateSequencesState = function calculateSequencesState(prevState, sequences) {
+    var state = {
       raw: sequences,
       length: sequences.length
     };
-    state.maxLength = reduce(sequences, (m, e) => Math.max(m, e.sequence.length), 0);
+    state.maxLength = reduce(sequences, function (m, e) {
+      return Math.max(m, e.sequence.length);
+    }, 0);
     return state;
   };
 
@@ -20361,10 +20583,13 @@
    */
 
 
-  const props = (state = {}, {
-    type,
-    payload
-  }) => {
+  var props = function props() {
+    var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+    var _ref = arguments.length > 1 ? arguments[1] : undefined,
+        type = _ref.type,
+        payload = _ref.payload;
+
     switch (type) {
       case actions.updateProps.key:
         state = _objectSpread2(_objectSpread2({}, state), payload); // has the colorScheme been updated?
@@ -20376,11 +20601,9 @@
         return state;
 
       case actions.updateProp.key:
-        const key = payload.key,
-              value = payload.value;
-        state = _objectSpread2(_objectSpread2({}, state), {}, {
-          [key]: value
-        }); // has the colorScheme been updated?
+        var key = payload.key,
+            value = payload.value;
+        state = _objectSpread2(_objectSpread2({}, state), {}, _defineProperty({}, key, value)); // has the colorScheme been updated?
 
         if (key === "colorScheme") {
           checkColorScheme(state);
@@ -20397,24 +20620,26 @@
     }
   };
 
-  const sequences = handleActions({
-    [actions.updateSequences]: calculateSequencesState
-  }, []);
+  var sequences = handleActions(_defineProperty({}, actions.updateSequences, calculateSequencesState), []);
   /**
    * Aggregates the state with stats if the state changed.
    */
   // TODO: maybe use reselect for this?
 
-  const sequenceStats = (prevState = {
-    currentViewSequence: 0,
-    currentViewSequencePosition: 0
-  }, action, state) => {
+  var sequenceStats = function sequenceStats() {
+    var prevState = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
+      currentViewSequence: 0,
+      currentViewSequencePosition: 0
+    };
+    var action = arguments.length > 1 ? arguments[1] : undefined;
+    var state = arguments.length > 2 ? arguments[2] : undefined;
+
     switch (action.type) {
       case actions.updateProp.key:
       case actions.updateProps.key:
       case actions.updateSequences.key:
         if (state.props && state.props.tileHeight && state.props.tileWidth && state.sequences) {
-          const stats = {};
+          var stats = {};
           stats.nrXTiles = Math.ceil(state.props.width / state.props.tileWidth) + 1;
           stats.nrYTiles = Math.ceil(state.props.height / state.props.tileHeight) + 1;
           stats.fullWidth = state.props.tileWidth * state.sequences.maxLength;
@@ -20439,16 +20664,18 @@
    */
 
 
-  const statCombineReduce = (reducer, statReducers) => {
-    const keys = Object.keys(statReducers);
-    return function (prevState = {}, action) {
-      const state = reducer(prevState, action);
+  var statCombineReduce = function statCombineReduce(reducer, statReducers) {
+    var keys = Object.keys(statReducers);
+    return function () {
+      var prevState = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      var action = arguments.length > 1 ? arguments[1] : undefined;
+      var state = reducer(prevState, action);
 
       if (prevState !== state) {
         // state object already changed, no need to copy it again
-        for (let i = 0; i < keys.length; i++) {
-          const key = keys[i];
-          const nextStateForKey = statReducers[key](state[key], action, state);
+        for (var i = 0; i < keys.length; i++) {
+          var key = keys[i];
+          var nextStateForKey = statReducers[key](state[key], action, state);
 
           if (typeof nextStateForKey === 'undefined') {
             throw new Error("A reducer can't return 'undefined'");
@@ -20463,14 +20690,15 @@
   };
 
   var positionReducers = statCombineReduce(combineReducers$1({
-    props,
-    sequences
+    props: props,
+    sequences: sequences
   }), {
-    sequenceStats
+    sequenceStats: sequenceStats
   });
 
-  const env = "production" === 'development';
+  var env = "production" === 'development';
 
+  var _excluded = ["sequences", "position"];
   /**
   Initializes a new MSAViewer store-like structure.
   For performance reasons, the frequently changing position information
@@ -20478,15 +20706,15 @@
   The default properties from MSAViewer.defaultProps are used.
   */
 
-  const createMSAStore = props => {
+  var createMSAStore = function createMSAStore(props) {
     PropTypes.checkPropTypes(MSAPropTypes, props, 'prop', 'MSAViewer');
-    const propsWithDefaultValues = merge({}, msaDefaultProps, props);
+    var propsWithDefaultValues = merge({}, msaDefaultProps, props);
 
-    const sequences = propsWithDefaultValues.sequences,
-          position = propsWithDefaultValues.position,
-          otherProps = _objectWithoutProperties(propsWithDefaultValues, ["sequences", "position"]);
+    var sequences = propsWithDefaultValues.sequences,
+        position = propsWithDefaultValues.position,
+        otherProps = _objectWithoutProperties(propsWithDefaultValues, _excluded);
 
-    const store = createStore(positionReducers, // https://github.com/zalmoxisus/redux-devtools-extension
+    var store = createStore(positionReducers, // https://github.com/zalmoxisus/redux-devtools-extension
     env && window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
     store.dispatch(updateProps(otherProps));
     store.dispatch(updateSequences(sequences));
@@ -20765,19 +20993,32 @@
    * every store update. Otherwise a default implementation will be used.
    */
 
-  function withPositionConsumer(Component, {
-    withX = false,
-    withY = false
-  } = {}) {
-    class MSAPositionConsumer extends React.PureComponent {
-      constructor(props) {
-        super(props);
+  function withPositionConsumer(Component) {
+    var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+        _ref$withX = _ref.withX,
+        withX = _ref$withX === void 0 ? false : _ref$withX,
+        _ref$withY = _ref.withY,
+        withY = _ref$withY === void 0 ? false : _ref$withY;
 
-        _defineProperty(this, "updateFromPositionStore", () => {
-          const state = this.context.positionMSAStore.getState();
-          this.position = this.position || {}; // create new position object to compare it with the previous
+    var MSAPositionConsumer = /*#__PURE__*/function (_PureComponent) {
+      _inherits(MSAPositionConsumer, _PureComponent);
 
-          const newPosition = pick(state, ["currentViewSequence", "currentViewSequencePosition", "xPosOffset", "yPosOffset"]);
+      var _super = _createSuper(MSAPositionConsumer);
+
+      function MSAPositionConsumer(props) {
+        var _this;
+
+        _classCallCheck(this, MSAPositionConsumer);
+
+        _this = _super.call(this, props);
+
+        _defineProperty(_assertThisInitialized(_this), "updateFromPositionStore", function () {
+
+          var state = _this.context.positionMSAStore.getState();
+
+          _this.position = _this.position || {}; // create new position object to compare it with the previous
+
+          var newPosition = pick(state, ["currentViewSequence", "currentViewSequencePosition", "xPosOffset", "yPosOffset"]);
 
           if (state.position) {
             newPosition.xPos = state.position.xPos;
@@ -20785,43 +21026,43 @@
           } // not called on the first render
 
 
-          if (this.el.current && this.shouldRerender(newPosition)) {
+          if (_this.el.current && _this.shouldRerender(newPosition)) {
             // this will always force a rerender as position is a new object
-            this.position = newPosition; // it doesn't matter what state we set here, this is just to force
+            _this.position = newPosition; // it doesn't matter what state we set here, this is just to force
             // React to rerender
 
-            this.setState({
-              position: this.position
+            _this.setState({
+              position: _this.position
             });
           } else {
             // copy over new position
-            forOwn(newPosition, (v, k) => {
-              this.position[k] = v;
+            forOwn(newPosition, function (v, k) {
+              _this.position[k] = v;
             });
 
-            if (this.el.current) {
-              this.updateScrollPosition();
+            if (_this.el.current) {
+              _this.updateScrollPosition();
             }
           }
         });
 
-        _defineProperty(this, "shouldRerender", newPosition => {
-          const it = this.el.current;
+        _defineProperty(_assertThisInitialized(_this), "shouldRerender", function (newPosition) {
+          var it = _this.el.current;
 
           if (it.shouldRerender !== undefined) {
             return it.shouldRerender(newPosition);
           }
 
-          const cacheElements = it.props.cacheElements;
+          var cacheElements = it.props.cacheElements;
 
           if (withY) {
-            if (Math.abs(newPosition.currentViewSequence - this.position.lastCurrentViewSequence) >= cacheElements) {
+            if (Math.abs(newPosition.currentViewSequence - _this.position.lastCurrentViewSequence) >= cacheElements) {
               return true;
             }
           }
 
           if (withX) {
-            if (Math.abs(newPosition.currentViewSequencePosition - this.position.lastCurrentViewSequencePosition) >= cacheElements) {
+            if (Math.abs(newPosition.currentViewSequencePosition - _this.position.lastCurrentViewSequencePosition) >= cacheElements) {
               return true;
             }
           }
@@ -20829,8 +21070,8 @@
           return false;
         });
 
-        _defineProperty(this, "updateScrollPosition", () => {
-          const it = this.el.current; // be careful - might be a shallow render
+        _defineProperty(_assertThisInitialized(_this), "updateScrollPosition", function () {
+          var it = _this.el.current; // be careful - might be a shallow render
 
           if (it && it.updateScrollPosition !== undefined) {
             it.updateScrollPosition();
@@ -20839,24 +21080,24 @@
 
           if (it && it.el && it.el.current) {
             if (withX) {
-              const tileWidth = it.props.tileWidth;
-              let offsetX = -this.position.xPosOffset;
-              offsetX += (this.position.lastCurrentViewSequencePosition - this.position.lastStartXTile) * tileWidth;
+              var tileWidth = it.props.tileWidth;
+              var offsetX = -_this.position.xPosOffset;
+              offsetX += (_this.position.lastCurrentViewSequencePosition - _this.position.lastStartXTile) * tileWidth;
 
-              if (this.position.currentViewSequencePosition !== this.position.lastCurrentViewSequencePosition) {
-                offsetX += (this.position.currentViewSequencePosition - this.position.lastCurrentViewSequencePosition) * tileWidth;
+              if (_this.position.currentViewSequencePosition !== _this.position.lastCurrentViewSequencePosition) {
+                offsetX += (_this.position.currentViewSequencePosition - _this.position.lastCurrentViewSequencePosition) * tileWidth;
               }
 
               it.el.current.scrollLeft = offsetX;
             }
 
             if (withY) {
-              const tileHeight = it.props.tileHeight;
-              let offsetY = -this.position.yPosOffset;
-              offsetY += (this.position.lastCurrentViewSequence - this.position.lastStartYTile) * tileHeight;
+              var tileHeight = it.props.tileHeight;
+              var offsetY = -_this.position.yPosOffset;
+              offsetY += (_this.position.lastCurrentViewSequence - _this.position.lastStartYTile) * tileHeight;
 
-              if (this.position.currentViewSequence !== this.position.lastCurrentViewSequence) {
-                offsetY += (this.position.currentViewSequence - this.position.lastCurrentViewSequence) * tileHeight;
+              if (_this.position.currentViewSequence !== _this.position.lastCurrentViewSequence) {
+                offsetY += (_this.position.currentViewSequence - _this.position.lastCurrentViewSequence) * tileHeight;
               }
 
               it.el.current.scrollTop = offsetY;
@@ -20864,53 +21105,61 @@
           }
         });
 
-        _defineProperty(this, "dispatch", payload => {
-          this.context.positionMSAStore.dispatch(payload);
+        _defineProperty(_assertThisInitialized(_this), "dispatch", function (payload) {
+          _this.context.positionMSAStore.dispatch(payload);
         });
 
-        this.el = createRef$1();
-        this.state = {
+        _this.el = createRef$1();
+        _this.state = {
           highlight: null,
           hasBeenInitialized: false
         };
+        return _this;
       }
 
-      componentDidMount() {
-        // update to all updates from the position store
-        this.unsubscribe = this.context.positionMSAStore.subscribe(this.updateFromPositionStore);
-        this.updateScrollPosition(true);
-        this.updateFromPositionStore();
-      }
-
-      componentDidUpdate() {
-        this.updateScrollPosition();
-      }
-
-      componentWillUnmount() {
-        this.unsubscribe();
-      }
-      /**
-       * a method which updates this.position from the PositionStore
-       * when `shouldRerender` returns true, calls `setState({position: positionState})` is called
-       * always calls `updateScrollPosition`
-       */
-
-
-      render() {
-        if (!this.hasBeenInitialized) {
+      _createClass(MSAPositionConsumer, [{
+        key: "componentDidMount",
+        value: function componentDidMount() {
+          // update to all updates from the position store
+          this.unsubscribe = this.context.positionMSAStore.subscribe(this.updateFromPositionStore);
+          this.updateScrollPosition(true);
           this.updateFromPositionStore();
-          this.hasBeenInitialized = true;
         }
+      }, {
+        key: "componentDidUpdate",
+        value: function componentDidUpdate() {
+          this.updateScrollPosition();
+        }
+      }, {
+        key: "componentWillUnmount",
+        value: function componentWillUnmount() {
+          this.unsubscribe();
+        }
+        /**
+         * a method which updates this.position from the PositionStore
+         * when `shouldRerender` returns true, calls `setState({position: positionState})` is called
+         * always calls `updateScrollPosition`
+         */
 
-        return /*#__PURE__*/React__default.createElement(Component, _objectSpread2({
-          ref: this.el,
-          position: this.position,
-          positionDispatch: this.dispatch,
-          highlight: this.state.highlight
-        }, this.props));
-      }
+      }, {
+        key: "render",
+        value: function render() {
+          if (!this.hasBeenInitialized) {
+            this.updateFromPositionStore();
+            this.hasBeenInitialized = true;
+          }
 
-    }
+          return /*#__PURE__*/React__default.createElement(Component, _objectSpread2({
+            ref: this.el,
+            position: this.position,
+            positionDispatch: this.dispatch,
+            highlight: this.state.highlight
+          }, this.props));
+        }
+      }]);
+
+      return MSAPositionConsumer;
+    }(React.PureComponent);
 
     MSAPositionConsumer.displayName = "withPosition(".concat(Component.displayName || Component.name, ")");
     MSAPositionConsumer.contextTypes = {
@@ -21032,7 +21281,7 @@
       return true;
     }
 
-    if (typeof objA !== "object" || !objA || typeof objB !== "object" || !objB) {
+    if (_typeof(objA) !== "object" || !objA || _typeof(objB) !== "object" || !objB) {
       return false;
     }
 
@@ -21078,7 +21327,7 @@
    * See also: https://github.com/reduxjs/reselect#createselectorinputselectors--inputselectors-resultfunc
    */
 
-  const shallowSelect = createSelectorCreator(defaultMemoize, shallowEqual$1);
+  var shallowSelect = createSelectorCreator(defaultMemoize, shallowEqual$1);
 
   /**
   * Copyright 2018, Plotly, Inc.
@@ -21100,55 +21349,63 @@
 
   function autoBind(instance) {
 
-    for (let i = 1; i < arguments.length; i++) {
-      const k = arguments[i];
+    for (var i = 1; i < arguments.length; i++) {
+      var k = arguments[i];
       instance[k] = instance[k].bind(instance);
     }
   }
 
   /**
-  * Copyright 2018, Plotly, Inc.
-  * All rights reserved.
-  *
-  * This source code is licensed under the MIT license found in the
-  * LICENSE file in the root directory of this source tree.
-  */
-  /**
    * Renders a list of tiles, but caches already seen components.
    */
 
-  class ListComponent extends React.PureComponent {
-    renderTile(i) {
-      const TileComponent = this.props.tileComponent;
+  var ListComponent = /*#__PURE__*/function (_PureComponent) {
+    _inherits(ListComponent, _PureComponent);
 
-      if (i in this.props.componentCache) {
-        return this.props.componentCache[i];
-      } else {
-        const el = /*#__PURE__*/React__default.createElement(TileComponent, {
-          key: i,
-          index: i
-        });
-        this.props.componentCache[i] = el;
-        return el;
-      }
+    var _super = _createSuper(ListComponent);
+
+    function ListComponent() {
+      _classCallCheck(this, ListComponent);
+
+      return _super.apply(this, arguments);
     }
 
-    render() {
-      const elements = [];
+    _createClass(ListComponent, [{
+      key: "renderTile",
+      value: function renderTile(i) {
+        var TileComponent = this.props.tileComponent;
 
-      for (let i = this.props.startTile; i < this.props.endTile; i++) {
-        elements.push(this.renderTile(i));
+        if (i in this.props.componentCache) {
+          return this.props.componentCache[i];
+        } else {
+          var el = /*#__PURE__*/React__default.createElement(TileComponent, {
+            key: i,
+            index: i
+          });
+          this.props.componentCache[i] = el;
+          return el;
+        }
       }
+    }, {
+      key: "render",
+      value: function render() {
+        var elements = [];
 
-      if (elements.length === 0) {
-        console.warn("The TileComponent rendered returned 0 elements from ".concat(this.props.startTile, " to ").concat(this.props.endTile));
-      } // React 15 doesn't allow to return arrays directly. Only React 16 does.
+        for (var i = this.props.startTile; i < this.props.endTile; i++) {
+          elements.push(this.renderTile(i));
+        }
+
+        if (elements.length === 0) {
+          console.warn("The TileComponent rendered returned 0 elements from ".concat(this.props.startTile, " to ").concat(this.props.endTile));
+        } // React 15 doesn't allow to return arrays directly. Only React 16 does.
 
 
-      return /*#__PURE__*/React__default.createElement("div", null, elements);
-    }
+        return /*#__PURE__*/React__default.createElement("div", null, elements);
+      }
+    }]);
 
-  }
+    return ListComponent;
+  }(React.PureComponent);
 
   ListComponent.propTypes = {
     startTile: PropTypes.number.isRequired,
@@ -21156,18 +21413,30 @@
     componentCache: PropTypes.func.isRequired
   };
 
+  var _excluded$1 = ["yPosOffset", "tileHeight", "currentViewSequence", "sequences", "height", "cacheElements", "tileComponent", "nrYTiles", "position", "positionDispatch", "componentCache"];
   /**
   * Displays the sequence names with an arbitrary Marker component
   */
 
-  class YBarComponent extends React.PureComponent {
-    constructor(props) {
-      super(props);
-      this.el = createRef$1();
+  var YBarComponent = /*#__PURE__*/function (_PureComponent) {
+    _inherits(YBarComponent, _PureComponent);
+
+    var _super = _createSuper(YBarComponent);
+
+    function YBarComponent(props) {
+      var _this;
+
+      _classCallCheck(this, YBarComponent);
+
+      _this = _super.call(this, props);
+      _this.el = createRef$1();
+      return _this;
     }
 
-    render() {
-      const _this$props = this.props,
+    _createClass(YBarComponent, [{
+      key: "render",
+      value: function render() {
+        var _this$props = this.props,
             yPosOffset = _this$props.yPosOffset,
             tileHeight = _this$props.tileHeight,
             currentViewSequence = _this$props.currentViewSequence,
@@ -21179,30 +21448,32 @@
             position = _this$props.position,
             positionDispatch = _this$props.positionDispatch,
             componentCache = _this$props.componentCache,
-            otherProps = _objectWithoutProperties(_this$props, ["yPosOffset", "tileHeight", "currentViewSequence", "sequences", "height", "cacheElements", "tileComponent", "nrYTiles", "position", "positionDispatch", "componentCache"]);
+            otherProps = _objectWithoutProperties(_this$props, _excluded$1);
 
-      const style = {
-        height,
-        overflow: "hidden",
-        position: "relative",
-        whiteSpace: "nowrap"
-      };
-      const startTile = Math.max(0, this.props.position.currentViewSequence - this.props.cacheElements);
-      const endTile = Math.min(this.props.sequences.length, startTile + Math.ceil(height / this.props.tileHeight) + this.props.cacheElements * 2);
-      this.props.position.lastCurrentViewSequence = this.props.position.currentViewSequence;
-      this.props.position.lastStartYTile = startTile;
-      return /*#__PURE__*/React__default.createElement("div", otherProps, /*#__PURE__*/React__default.createElement("div", {
-        style: style,
-        ref: this.el
-      }, /*#__PURE__*/React__default.createElement(ListComponent, {
-        componentCache: this.props.componentCache,
-        startTile: startTile,
-        endTile: endTile,
-        tileComponent: this.props.tileComponent
-      })));
-    }
+        var style = {
+          height: height,
+          overflow: "hidden",
+          position: "relative",
+          whiteSpace: "nowrap"
+        };
+        var startTile = Math.max(0, this.props.position.currentViewSequence - this.props.cacheElements);
+        var endTile = Math.min(this.props.sequences.length, startTile + Math.ceil(height / this.props.tileHeight) + this.props.cacheElements * 2);
+        this.props.position.lastCurrentViewSequence = this.props.position.currentViewSequence;
+        this.props.position.lastStartYTile = startTile;
+        return /*#__PURE__*/React__default.createElement("div", otherProps, /*#__PURE__*/React__default.createElement("div", {
+          style: style,
+          ref: this.el
+        }, /*#__PURE__*/React__default.createElement(ListComponent, {
+          componentCache: this.props.componentCache,
+          startTile: startTile,
+          endTile: endTile,
+          tileComponent: this.props.tileComponent
+        })));
+      }
+    }]);
 
-  }
+    return YBarComponent;
+  }(React.PureComponent);
 
   YBarComponent.propTypes = {
     /**
@@ -21218,40 +21489,57 @@
     withY: true
   });
 
-  function createLabel({
-    sequences,
-    tileHeight,
-    labelComponent,
-    labelStyle,
-    labelAttributes
-  }) {
+  var _excluded$2 = ["index"],
+      _excluded2 = ["cacheElements", "dispatch", "labelComponent", "labelStyle", "labelAttributes"];
+
+  function _createLabel(_ref) {
+    var sequences = _ref.sequences,
+        tileHeight = _ref.tileHeight,
+        labelComponent = _ref.labelComponent,
+        labelStyle = _ref.labelStyle,
+        labelAttributes = _ref.labelAttributes;
+
     /**
      * Displays an individual sequence name.
      */
-    class Label extends React.PureComponent {
-      render() {
-        const _this$props = this.props,
-              index = _this$props.index,
-              otherProps = _objectWithoutProperties(_this$props, ["index"]);
+    var Label = /*#__PURE__*/function (_PureComponent) {
+      _inherits(Label, _PureComponent);
 
-        if (labelComponent) {
-          const LabelComponent = labelComponent;
-          return /*#__PURE__*/React__default.createElement(LabelComponent, {
-            sequence: sequences[index],
-            index: index
-          });
-        } else {
-          otherProps.style = _objectSpread2(_objectSpread2({}, this.props.style), {}, {
-            height: tileHeight
-          }, labelStyle);
+      var _super = _createSuper(Label);
 
-          const attributes = _objectSpread2(_objectSpread2({}, otherProps), labelAttributes);
+      function Label() {
+        _classCallCheck(this, Label);
 
-          return /*#__PURE__*/React__default.createElement("div", attributes, sequences[index].name);
-        }
+        return _super.apply(this, arguments);
       }
 
-    }
+      _createClass(Label, [{
+        key: "render",
+        value: function render() {
+          var _this$props = this.props,
+              index = _this$props.index,
+              otherProps = _objectWithoutProperties(_this$props, _excluded$2);
+
+          if (labelComponent) {
+            var LabelComponent = labelComponent;
+            return /*#__PURE__*/React__default.createElement(LabelComponent, {
+              sequence: sequences[index],
+              index: index
+            });
+          } else {
+            otherProps.style = _objectSpread2(_objectSpread2({}, this.props.style), {}, {
+              height: tileHeight
+            }, labelStyle);
+
+            var attributes = _objectSpread2(_objectSpread2({}, otherProps), labelAttributes);
+
+            return /*#__PURE__*/React__default.createElement("div", attributes, sequences[index].name);
+          }
+        }
+      }]);
+
+      return Label;
+    }(React.PureComponent);
 
     return Label;
   }
@@ -21260,36 +21548,50 @@
    */
 
 
-  class HTMLLabelsComponent extends React.PureComponent {
-    constructor(props) {
-      super(props);
-      autoBind(this, 'createLabel');
-      this.label = shallowSelect(partialRight(pick, this.constructor.labelProps), this.createLabel);
+  var HTMLLabelsComponent = /*#__PURE__*/function (_PureComponent2) {
+    _inherits(HTMLLabelsComponent, _PureComponent2);
+
+    var _super2 = _createSuper(HTMLLabelsComponent);
+
+    function HTMLLabelsComponent(props) {
+      var _this;
+
+      _classCallCheck(this, HTMLLabelsComponent);
+
+      _this = _super2.call(this, props);
+      autoBind(_assertThisInitialized(_this), 'createLabel');
+      _this.label = shallowSelect(partialRight(pick, _this.constructor.labelProps), _this.createLabel);
+      return _this;
     }
 
-    createLabel(props) {
-      this.cache = function () {};
+    _createClass(HTMLLabelsComponent, [{
+      key: "createLabel",
+      value: function createLabel(props) {
+        this.cache = function () {};
 
-      return createLabel(props);
-    }
-
-    render() {
-      const _this$props2 = this.props,
+        return _createLabel(props);
+      }
+    }, {
+      key: "render",
+      value: function render() {
+        var _this$props2 = this.props,
             cacheElements = _this$props2.cacheElements,
             dispatch = _this$props2.dispatch,
             labelComponent = _this$props2.labelComponent,
             labelStyle = _this$props2.labelStyle,
             labelAttributes = _this$props2.labelAttributes,
-            otherProps = _objectWithoutProperties(_this$props2, ["cacheElements", "dispatch", "labelComponent", "labelStyle", "labelAttributes"]);
+            otherProps = _objectWithoutProperties(_this$props2, _excluded2);
 
-      return /*#__PURE__*/React__default.createElement(YBar, _extends({
-        tileComponent: this.label(this.props),
-        cacheElements: cacheElements,
-        componentCache: this.cache
-      }, otherProps));
-    }
+        return /*#__PURE__*/React__default.createElement(YBar, _extends({
+          tileComponent: this.label(this.props),
+          cacheElements: cacheElements,
+          componentCache: this.cache
+        }, otherProps));
+      }
+    }]);
 
-  }
+    return HTMLLabelsComponent;
+  }(React.PureComponent);
 
   _defineProperty(HTMLLabelsComponent, "labelProps", ["sequences", "tileHeight", "labelComponent", "labelStyle", "labelAttributes"]);
 
@@ -21324,7 +21626,7 @@
     labelAttributes: PropTypes.object
   };
 
-  const mapStateToProps = state => {
+  var mapStateToProps = function mapStateToProps(state) {
     return {
       height: state.props.height,
       tileHeight: state.props.tileHeight,
@@ -21335,18 +21637,30 @@
 
   var Labels = msaConnect(mapStateToProps)(HTMLLabelsComponent); // for testing
 
+  var _excluded$3 = ["tileWidth", "sequences", "width", "cacheElements", "tileComponent", "nrXTiles", "maxLength", "position", "positionDispatch", "componentCache"];
   /**
   * Displays the sequence names with an arbitrary Marker component
   */
 
-  class XBarComponent extends React.PureComponent {
-    constructor(props) {
-      super(props);
-      this.el = createRef$1();
+  var XBarComponent = /*#__PURE__*/function (_PureComponent) {
+    _inherits(XBarComponent, _PureComponent);
+
+    var _super = _createSuper(XBarComponent);
+
+    function XBarComponent(props) {
+      var _this;
+
+      _classCallCheck(this, XBarComponent);
+
+      _this = _super.call(this, props);
+      _this.el = createRef$1();
+      return _this;
     }
 
-    render() {
-      const _this$props = this.props,
+    _createClass(XBarComponent, [{
+      key: "render",
+      value: function render() {
+        var _this$props = this.props,
             tileWidth = _this$props.tileWidth,
             sequences = _this$props.sequences,
             width = _this$props.width,
@@ -21357,43 +21671,45 @@
             position = _this$props.position,
             positionDispatch = _this$props.positionDispatch,
             componentCache = _this$props.componentCache,
-            otherProps = _objectWithoutProperties(_this$props, ["tileWidth", "sequences", "width", "cacheElements", "tileComponent", "nrXTiles", "maxLength", "position", "positionDispatch", "componentCache"]);
+            otherProps = _objectWithoutProperties(_this$props, _excluded$3);
 
-      const style = {
-        width,
-        overflow: "hidden",
-        position: "relative",
-        whiteSpace: "nowrap"
-      };
+        var style = {
+          width: width,
+          overflow: "hidden",
+          position: "relative",
+          whiteSpace: "nowrap"
+        };
 
-      const containerStyle = _objectSpread2(_objectSpread2({}, this.props.style), {}, {
-        height: this.props.height
-      });
+        var containerStyle = _objectSpread2(_objectSpread2({}, this.props.style), {}, {
+          height: this.props.height
+        });
 
-      const forwardedProps = {
-        tileWidth,
-        sequences,
-        tileComponent
-      };
-      const startTile = Math.max(0, this.props.position.currentViewSequencePosition - this.props.cacheElements);
-      const endTile = Math.min(this.props.maxLength, startTile + this.props.nrXTiles + this.props.cacheElements * 2);
-      const maxWidth = this.props.width + this.props.cacheElements * 2 * this.props.tileWidth;
-      this.props.position.lastStartXTile = startTile;
-      this.props.position.lastCurrentViewSequencePosition = this.props.position.currentViewSequencePosition;
-      return /*#__PURE__*/React__default.createElement("div", _extends({
-        style: containerStyle
-      }, otherProps), /*#__PURE__*/React__default.createElement("div", {
-        style: style,
-        ref: this.el
-      }, /*#__PURE__*/React__default.createElement(ListComponent, _extends({}, forwardedProps, {
-        componentCache: this.props.componentCache,
-        startTile: startTile,
-        endTile: endTile,
-        maxWidth: maxWidth
-      }))));
-    }
+        var forwardedProps = {
+          tileWidth: tileWidth,
+          sequences: sequences,
+          tileComponent: tileComponent
+        };
+        var startTile = Math.max(0, this.props.position.currentViewSequencePosition - this.props.cacheElements);
+        var endTile = Math.min(this.props.maxLength, startTile + this.props.nrXTiles + this.props.cacheElements * 2);
+        var maxWidth = this.props.width + this.props.cacheElements * 2 * this.props.tileWidth;
+        this.props.position.lastStartXTile = startTile;
+        this.props.position.lastCurrentViewSequencePosition = this.props.position.currentViewSequencePosition;
+        return /*#__PURE__*/React__default.createElement("div", _extends({
+          style: containerStyle
+        }, otherProps), /*#__PURE__*/React__default.createElement("div", {
+          style: style,
+          ref: this.el
+        }, /*#__PURE__*/React__default.createElement(ListComponent, _extends({}, forwardedProps, {
+          componentCache: this.props.componentCache,
+          startTile: startTile,
+          endTile: endTile,
+          maxWidth: maxWidth
+        }))));
+      }
+    }]);
 
-  }
+    return XBarComponent;
+  }(React.PureComponent);
 
   XBarComponent.propTypes = {
     /**
@@ -21410,50 +21726,67 @@
     withX: true
   });
 
-  function createMarker({
-    markerSteps,
-    startIndex,
-    tileWidth,
-    font,
-    markerComponent,
-    markerStyle,
-    markerAttributes
-  }) {
+  var _excluded$4 = ["index"],
+      _excluded2$1 = ["cacheElements", "markerSteps", "startIndex", "dispatch", "markerComponent", "markerStyle"];
+
+  function _createMarker(_ref) {
+    var markerSteps = _ref.markerSteps,
+        startIndex = _ref.startIndex,
+        tileWidth = _ref.tileWidth,
+        font = _ref.font,
+        markerComponent = _ref.markerComponent,
+        markerStyle = _ref.markerStyle,
+        markerAttributes = _ref.markerAttributes;
+
     /**
      * Displays an individual sequence name.
      */
-    class Marker extends React.PureComponent {
-      render() {
-        const _this$props = this.props,
-              index = _this$props.index,
-              otherProps = _objectWithoutProperties(_this$props, ["index"]);
+    var Marker = /*#__PURE__*/function (_PureComponent) {
+      _inherits(Marker, _PureComponent);
 
-        if (markerComponent) {
-          const MarkerComponent = markerComponent;
-          return /*#__PURE__*/React__default.createElement(MarkerComponent, {
-            index: index
-          });
-        } else {
-          otherProps.style = _objectSpread2({
-            width: tileWidth,
-            display: "inline-block",
-            textAlign: "center"
-          }, markerStyle);
-          let name;
+      var _super = _createSuper(Marker);
 
-          if (index % markerSteps === markerSteps - 1) {
-            name = index + 0 + startIndex;
-          } else {
-            name = '.';
-          }
+      function Marker() {
+        _classCallCheck(this, Marker);
 
-          const attributes = _objectSpread2(_objectSpread2({}, otherProps), markerAttributes);
-
-          return /*#__PURE__*/React__default.createElement("div", attributes, name);
-        }
+        return _super.apply(this, arguments);
       }
 
-    }
+      _createClass(Marker, [{
+        key: "render",
+        value: function render() {
+          var _this$props = this.props,
+              index = _this$props.index,
+              otherProps = _objectWithoutProperties(_this$props, _excluded$4);
+
+          if (markerComponent) {
+            var MarkerComponent = markerComponent;
+            return /*#__PURE__*/React__default.createElement(MarkerComponent, {
+              index: index
+            });
+          } else {
+            otherProps.style = _objectSpread2({
+              width: tileWidth,
+              display: "inline-block",
+              textAlign: "center"
+            }, markerStyle);
+            var name;
+
+            if (index % markerSteps === markerSteps - 1) {
+              name = index + 0 + startIndex;
+            } else {
+              name = '.';
+            }
+
+            var attributes = _objectSpread2(_objectSpread2({}, otherProps), markerAttributes);
+
+            return /*#__PURE__*/React__default.createElement("div", attributes, name);
+          }
+        }
+      }]);
+
+      return Marker;
+    }(React.PureComponent);
 
     return Marker;
   }
@@ -21462,40 +21795,54 @@
   */
 
 
-  class HTMLPositionBarComponent extends React.PureComponent {
-    constructor(props) {
-      super(props);
+  var HTMLPositionBarComponent = /*#__PURE__*/function (_PureComponent2) {
+    _inherits(HTMLPositionBarComponent, _PureComponent2);
 
-      this.cache = function () {};
+    var _super2 = _createSuper(HTMLPositionBarComponent);
 
-      autoBind(this, 'createMarker');
-      this.marker = shallowSelect(partialRight(pick, this.constructor.markerAttributes), this.createMarker);
+    function HTMLPositionBarComponent(props) {
+      var _this;
+
+      _classCallCheck(this, HTMLPositionBarComponent);
+
+      _this = _super2.call(this, props);
+
+      _this.cache = function () {};
+
+      autoBind(_assertThisInitialized(_this), 'createMarker');
+      _this.marker = shallowSelect(partialRight(pick, _this.constructor.markerAttributes), _this.createMarker);
+      return _this;
     }
 
-    createMarker(props) {
-      this.cache = function () {};
+    _createClass(HTMLPositionBarComponent, [{
+      key: "createMarker",
+      value: function createMarker(props) {
+        this.cache = function () {};
 
-      return createMarker(props);
-    }
-
-    render() {
-      const _this$props2 = this.props,
+        return _createMarker(props);
+      }
+    }, {
+      key: "render",
+      value: function render() {
+        var _this$props2 = this.props,
             cacheElements = _this$props2.cacheElements,
             markerSteps = _this$props2.markerSteps,
             startIndex = _this$props2.startIndex,
             dispatch = _this$props2.dispatch,
             markerComponent = _this$props2.markerComponent,
             markerStyle = _this$props2.markerStyle,
-            otherProps = _objectWithoutProperties(_this$props2, ["cacheElements", "markerSteps", "startIndex", "dispatch", "markerComponent", "markerStyle"]);
+            otherProps = _objectWithoutProperties(_this$props2, _excluded2$1);
 
-      return /*#__PURE__*/React__default.createElement(XBar, _extends({
-        tileComponent: this.marker(this.props),
-        cacheElements: cacheElements,
-        componentCache: this.cache
-      }, otherProps));
-    }
+        return /*#__PURE__*/React__default.createElement(XBar, _extends({
+          tileComponent: this.marker(this.props),
+          cacheElements: cacheElements,
+          componentCache: this.cache
+        }, otherProps));
+      }
+    }]);
 
-  }
+    return HTMLPositionBarComponent;
+  }(React.PureComponent);
 
   _defineProperty(HTMLPositionBarComponent, "markerAttributes", ["markerSteps", "startIndex", "tileWidth", "markerComponent", "markerStyle", "markerAttributes"]);
 
@@ -21552,7 +21899,7 @@
     markerAttributes: PropTypes.object
   };
 
-  const mapStateToProps$1 = state => {
+  var mapStateToProps$1 = function mapStateToProps(state) {
     return {
       sequences: state.sequences.raw,
       maxLength: state.sequences.maxLength,
@@ -21564,7 +21911,7 @@
 
   var PositionBar = msaConnect(mapStateToProps$1)(HTMLPositionBarComponent);
 
-  const stat = function stat(seqs, opts) {
+  var stat = function stat(seqs, opts) {
     // if someone forgets new
     if (!this || this.constructor !== stat) {
       return new stat(seqs);
@@ -21616,7 +21963,7 @@
   stat.prototype.resetSeqs = function reset(seqs) {
     this.seqs = []; // support sequence models
 
-    if (!seqs instanceof Array || "at" in seqs) {
+    if (!seqs instanceof Array) {
       this.mseqs = seqs;
 
       var mSeqsPluck = function mSeqsPluck() {
@@ -21979,39 +22326,56 @@
     return this._gaps;
   };
 
-  function createBar({
-    columnHeights,
-    columnColors,
-    tileWidth,
-    height,
-    fillColor,
-    barStyle,
-    barAttributes
-  }) {
-    class Bar extends React.PureComponent {
-      render() {
-        const _this$props = this.props,
-              index = _this$props.index,
-              otherProps = _objectWithoutProperties(_this$props, ["index"]);
+  var _excluded$5 = ["index"],
+      _excluded2$2 = ["cacheElements", "height", "method", "fillColor", "dispatch", "barStyle", "barAttributes"];
 
-        if (!columnColors || columnColors.length == 0) {
-          var bgColor = fillColor;
-        } else {
-          var bgColor = columnColors[index];
-        }
+  function _createBar(_ref) {
+    var columnHeights = _ref.columnHeights,
+        columnColors = _ref.columnColors,
+        tileWidth = _ref.tileWidth,
+        height = _ref.height,
+        fillColor = _ref.fillColor,
+        barStyle = _ref.barStyle,
+        barAttributes = _ref.barAttributes;
 
-        otherProps.style = {
-          height: Math.round(columnHeights[index] * height),
-          width: tileWidth,
-          display: "inline-block",
-          textAlign: "center",
-          backgroundColor: bgColor,
-          verticalAlign: "top"
-        };
-        return /*#__PURE__*/React__default.createElement("div", otherProps);
+    var Bar = /*#__PURE__*/function (_PureComponent) {
+      _inherits(Bar, _PureComponent);
+
+      var _super = _createSuper(Bar);
+
+      function Bar() {
+        _classCallCheck(this, Bar);
+
+        return _super.apply(this, arguments);
       }
 
-    }
+      _createClass(Bar, [{
+        key: "render",
+        value: function render() {
+          var _this$props = this.props,
+              index = _this$props.index,
+              otherProps = _objectWithoutProperties(_this$props, _excluded$5);
+
+          if (!columnColors || columnColors.length == 0) {
+            var bgColor = fillColor;
+          } else {
+            var bgColor = columnColors[index];
+          }
+
+          otherProps.style = {
+            height: Math.round(columnHeights[index] * height),
+            width: tileWidth,
+            display: "inline-block",
+            textAlign: "center",
+            backgroundColor: bgColor,
+            verticalAlign: "top"
+          };
+          return /*#__PURE__*/React__default.createElement("div", otherProps);
+        }
+      }]);
+
+      return Bar;
+    }(React.PureComponent);
 
     return Bar;
   }
@@ -22020,73 +22384,99 @@
    */
 
 
-  class HTMLOverviewBarComponent extends React.PureComponent {
-    constructor(props) {
-      super(props);
+  var HTMLOverviewBarComponent = /*#__PURE__*/function (_PureComponent2) {
+    _inherits(HTMLOverviewBarComponent, _PureComponent2);
 
-      this.cache = function () {};
+    var _super2 = _createSuper(HTMLOverviewBarComponent);
 
-      this.initializeColumnHeights();
-      this.initializeColumnColors();
-      autoBind(this, 'createBar');
-      this.bar = shallowSelect(s => pick(s, this.constructor.barAttributes), this.columnHeights, this.columnColors, this.createBar);
+    function HTMLOverviewBarComponent(props) {
+      var _this;
+
+      _classCallCheck(this, HTMLOverviewBarComponent);
+
+      _this = _super2.call(this, props);
+
+      _this.cache = function () {};
+
+      _this.initializeColumnHeights();
+
+      _this.initializeColumnColors();
+
+      autoBind(_assertThisInitialized(_this), 'createBar');
+      _this.bar = shallowSelect(function (s) {
+        return pick(s, _this.constructor.barAttributes);
+      }, _this.columnHeights, _this.columnColors, _this.createBar);
+      return _this;
     }
 
-    createBar(props, columnHeights, columnColors) {
-      this.cache = function () {};
+    _createClass(HTMLOverviewBarComponent, [{
+      key: "createBar",
+      value: function createBar(props, columnHeights, columnColors) {
+        this.cache = function () {};
 
-      return createBar(_objectSpread2(_objectSpread2({}, props), {}, {
-        columnHeights,
-        columnColors
-      }));
-    }
-    /**
-     * Reduces the `props` object to column height by a `props.method`
-     */
+        return _createBar(_objectSpread2(_objectSpread2({}, props), {}, {
+          columnHeights: columnHeights,
+          columnColors: columnColors
+        }));
+      }
+      /**
+       * Reduces the `props` object to column height by a `props.method`
+       */
 
+    }, {
+      key: "initializeColumnHeights",
+      value: function initializeColumnHeights() {
+        this.columnHeights = createSelector(function (p) {
+          return p.sequences;
+        }, function (p) {
+          return p.method;
+        }, function (sequences, method$$1) {
+          var stats = stat(sequences.map(function (e) {
+            return e.sequence;
+          }));
+          var result$$1;
 
-    initializeColumnHeights() {
-      this.columnHeights = createSelector(p => p.sequences, p => p.method, (sequences, method$$1) => {
-        const stats = stat(sequences.map(e => e.sequence));
-        let result;
+          switch (method$$1) {
+            case "conservation":
+              result$$1 = stats.scale(stats.conservation());
+              break;
 
-        switch (method$$1) {
-          case "conservation":
-            result = stats.scale(stats.conservation());
-            break;
+            case "information-content":
+              result$$1 = stats.scale(stats.ic());
+              break;
 
-          case "information-content":
-            result = stats.scale(stats.ic());
-            break;
+            case "proteovision":
+              var tempArr = [];
+              var maxEntr = window.aaPropertyConstants.get("Shannon entropy")[1];
+              var pvEntropy = vm.aa_properties.get("Shannon entropy");
+              pvEntropy.forEach(function (column) {
+                tempArr.push((maxEntr - column.reduce(function (a, b) {
+                  return a + b;
+                }, 0)) / maxEntr);
+              });
+              result$$1 = tempArr;
+              break;
 
-          case "proteovision":
-            var tempArr = [];
-            let maxEntr = window.aaPropertyConstants.get("Shannon entropy")[1];
-            let pvEntropy = vm.aa_properties.get("Shannon entropy");
-            pvEntropy.forEach(function (column) {
-              tempArr.push((maxEntr - column.reduce((a, b) => a + b, 0)) / maxEntr);
-            });
-            result = tempArr;
-            break;
+            default:
+              console.error(method$$1 + "is an invalid aggregation method for <OverviewBar />");
+          }
 
-          default:
-            console.error(method$$1 + "is an invalid aggregation method for <OverviewBar />");
-        }
+          return result$$1;
+        }).bind(this);
+      } //Change here like initializeColumnHeights when you pass the colors internally through the 
+      //MSA viewer properties. Has to also be registered in mapStateToProps.
 
-        return result;
-      }).bind(this);
-    } //Change here like initializeColumnHeights when you pass the colors internally through the 
-    //MSA viewer properties. Has to also be registered in mapStateToProps.
-
-
-    initializeColumnColors() {
-      this.columnColors = function () {
-        return window.barColors;
-      }.bind(this);
-    }
-
-    render() {
-      const _this$props2 = this.props,
+    }, {
+      key: "initializeColumnColors",
+      value: function initializeColumnColors() {
+        this.columnColors = function () {
+          return window.barColors;
+        }.bind(this);
+      }
+    }, {
+      key: "render",
+      value: function render() {
+        var _this$props2 = this.props,
             cacheElements = _this$props2.cacheElements,
             height = _this$props2.height,
             method$$1 = _this$props2.method,
@@ -22094,17 +22484,19 @@
             dispatch = _this$props2.dispatch,
             barStyle = _this$props2.barStyle,
             barAttributes = _this$props2.barAttributes,
-            otherProps = _objectWithoutProperties(_this$props2, ["cacheElements", "height", "method", "fillColor", "dispatch", "barStyle", "barAttributes"]);
+            otherProps = _objectWithoutProperties(_this$props2, _excluded2$2);
 
-      return /*#__PURE__*/React__default.createElement(XBar, _extends({
-        tileComponent: this.bar(this.props),
-        cacheElements: cacheElements,
-        componentCache: this.cache,
-        height: this.props.height
-      }, otherProps));
-    }
+        return /*#__PURE__*/React__default.createElement(XBar, _extends({
+          tileComponent: this.bar(this.props),
+          cacheElements: cacheElements,
+          componentCache: this.cache,
+          height: this.props.height
+        }, otherProps));
+      }
+    }]);
 
-  }
+    return HTMLOverviewBarComponent;
+  }(React.PureComponent);
 
   _defineProperty(HTMLOverviewBarComponent, "barAttributes", ["tileWidth", "height", "fillColor", "barStyle", "barAttributes"]);
 
@@ -22149,7 +22541,7 @@
     barAttributes: PropTypes.object
   };
 
-  const mapStateToProps$2 = state => {
+  var mapStateToProps$2 = function mapStateToProps(state) {
     return {
       sequences: state.sequences.raw,
       maxLength: state.sequences.maxLength,
@@ -22161,17 +22553,19 @@
 
   var OverviewBar = msaConnect(mapStateToProps$2)(HTMLOverviewBarComponent); // for testing
 
-  class Mouse {}
+  var Mouse = function Mouse() {
+    _classCallCheck(this, Mouse);
+  };
 
   _defineProperty(Mouse, "rel", function (e) {
     if (e.changedTouches !== undefined) //return Mouse.rel(e.changedTouches[e.targetTouches.length - 1]);
       return Mouse.rel(e.changedTouches[0]);
-    let mouseX = e.offsetX;
-    let mouseY = e.offsetY;
+    var mouseX = e.offsetX;
+    var mouseY = e.offsetY;
 
     if (mouseX === undefined) {
-      const target = e.target || e.srcElement;
-      const rect = target.getBoundingClientRect();
+      var target = e.target || e.srcElement;
+      var rect = target.getBoundingClientRect();
       mouseX = e.clientX - rect.left;
       mouseY = e.clientY - rect.top;
 
@@ -22191,8 +22585,8 @@
   _defineProperty(Mouse, "abs", function (e) {
     if (e.changedTouches !== undefined) //return Mouse.abs(e.changedTouches[e.targetTouches.length - 1]);
       return Mouse.abs(e.changedTouches[0]);
-    let mouseX = e.pageX;
-    let mouseY = e.pageY;
+    var mouseX = e.pageX;
+    var mouseY = e.pageY;
 
     if (mouseX === undefined) {
       mouseX = e.layerX;
@@ -22213,7 +22607,7 @@
   });
 
   _defineProperty(Mouse, "wheelDelta", function (e) {
-    let delta = [e.deltaX, e.deltaY];
+    var delta = [e.deltaX, e.deltaY];
 
     if (delta[0] === undefined) {
       // in case there is a more detailed scroll sensor - use it
@@ -22393,73 +22787,87 @@
   // TODO: tooltips
 
 
-  class ModBar extends React.PureComponent {
-    render() {
-      const iconWidth = 20;
-      const iconHeight = 20;
+  var ModBar = /*#__PURE__*/function (_PureComponent) {
+    _inherits(ModBar, _PureComponent);
 
-      const style = _objectSpread2({
-        opacity: 0.9,
-        backgroundColor: "white"
-      }, this.props.style);
+    var _super = _createSuper(ModBar);
 
-      const linkStyle = {
-        position: "relative",
-        fontSize: "16px",
-        padding: "3px 4px",
-        cursor: "pointer",
-        lineHeight: "normal",
-        textDecoration: "none",
-        color: "black"
-      }; // fill with rgba(0, 31, 95, 0.3);
-      //
-      //<a href="" style={linkStyle}>
-      //<SaveIcon width={iconWidth} height={iconHeight} />
-      //</a>
+    function ModBar() {
+      _classCallCheck(this, ModBar);
 
-      return /*#__PURE__*/React__default.createElement("div", {
-        style: style
-      }, /*#__PURE__*/React__default.createElement("div", {
-        style: linkStyle
-      }, /*#__PURE__*/React__default.createElement(ZoomPlusIcon, {
-        width: iconWidth,
-        height: iconHeight
-      })), /*#__PURE__*/React__default.createElement("div", {
-        style: linkStyle
-      }, /*#__PURE__*/React__default.createElement(ZoomMinusIcon, {
-        width: iconWidth,
-        height: iconHeight
-      })), /*#__PURE__*/React__default.createElement("div", {
-        style: linkStyle
-      }, /*#__PURE__*/React__default.createElement(AutoscaleIcon, {
-        width: iconWidth,
-        height: iconHeight
-      })), /*#__PURE__*/React__default.createElement("a", {
-        href: "https://plot.ly/",
-        target: "_blank",
-        rel: "noreferrer noopener",
-        "data-title": "Produced with Plotly",
-        style: linkStyle
-      }, /*#__PURE__*/React__default.createElement(PlotlyIcon, {
-        width: iconWidth,
-        height: iconHeight
-      })));
+      return _super.apply(this, arguments);
     }
 
-  }
+    _createClass(ModBar, [{
+      key: "render",
+      value: function render() {
+        var iconWidth = 20;
+        var iconHeight = 20;
 
-  const updateMainStore = createAction("MAINSTORE_UPDATE"); // move the position relatively by {xMovement, yMovement}
+        var style = _objectSpread2({
+          opacity: 0.9,
+          backgroundColor: "white"
+        }, this.props.style);
 
-  const movePosition = createAction("POSITION_MOVE"); // set an absolute position with {yPos, xPos}
+        var linkStyle = {
+          position: "relative",
+          fontSize: "16px",
+          padding: "3px 4px",
+          cursor: "pointer",
+          lineHeight: "normal",
+          textDecoration: "none",
+          color: "black"
+        }; // fill with rgba(0, 31, 95, 0.3);
+        //
+        //<a href="" style={linkStyle}>
+        //<SaveIcon width={iconWidth} height={iconHeight} />
+        //</a>
 
-  const updatePosition = createAction("POSITION_UPDATE"); //Handling highlights
+        return /*#__PURE__*/React__default.createElement("div", {
+          style: style
+        }, /*#__PURE__*/React__default.createElement("div", {
+          style: linkStyle
+        }, /*#__PURE__*/React__default.createElement(ZoomPlusIcon, {
+          width: iconWidth,
+          height: iconHeight
+        })), /*#__PURE__*/React__default.createElement("div", {
+          style: linkStyle
+        }, /*#__PURE__*/React__default.createElement(ZoomMinusIcon, {
+          width: iconWidth,
+          height: iconHeight
+        })), /*#__PURE__*/React__default.createElement("div", {
+          style: linkStyle
+        }, /*#__PURE__*/React__default.createElement(AutoscaleIcon, {
+          width: iconWidth,
+          height: iconHeight
+        })), /*#__PURE__*/React__default.createElement("a", {
+          href: "https://plot.ly/",
+          target: "_blank",
+          rel: "noreferrer noopener",
+          "data-title": "Produced with Plotly",
+          style: linkStyle
+        }, /*#__PURE__*/React__default.createElement(PlotlyIcon, {
+          width: iconWidth,
+          height: iconHeight
+        })));
+      }
+    }]);
 
-  const highlightRegion = createAction("HIGHLIGHT_REGION");
-  const removeHighlightRegion = createAction("REMOVE_HIGHLIGHT_REGION");
-  const actions$1 = {
-    updateMainStore,
-    updatePosition,
-    movePosition,
+    return ModBar;
+  }(React.PureComponent);
+
+  var updateMainStore = createAction("MAINSTORE_UPDATE"); // move the position relatively by {xMovement, yMovement}
+
+  var movePosition = createAction("POSITION_MOVE"); // set an absolute position with {yPos, xPos}
+
+  var updatePosition = createAction("POSITION_UPDATE"); //Handling highlights
+
+  var highlightRegion = createAction("HIGHLIGHT_REGION");
+  var removeHighlightRegion = createAction("REMOVE_HIGHLIGHT_REGION");
+  var actions$1 = {
+    updateMainStore: updateMainStore,
+    updatePosition: updatePosition,
+    movePosition: movePosition,
     highlightRegion: highlightRegion,
     removeHighlightRegion: removeHighlightRegion
   };
@@ -22468,10 +22876,10 @@
    */
 
   function commonPositionReducer(prevState, pos) {
-    const maximum = prevState.sequences.maxLength;
-    const maxWidth = maximum * prevState.props.tileWidth - prevState.props.width;
+    var maximum = prevState.sequences.maxLength;
+    var maxWidth = maximum * prevState.props.tileWidth - prevState.props.width;
     pos.xPos = clamp(pos.xPos, 0, maxWidth);
-    const maxHeight = prevState.sequences.raw.length * prevState.props.tileHeight - prevState.props.height;
+    var maxHeight = prevState.sequences.raw.length * prevState.props.tileHeight - prevState.props.height;
     pos.yPos = clamp(pos.yPos, 0, maxHeight);
     return _objectSpread2(_objectSpread2({}, prevState), {}, {
       position: pos
@@ -22482,25 +22890,27 @@
    */
 
 
-  const relativePositionReducer = (prevState = {
-    position: {
-      xPos: 0,
-      yPos: 0
-    }
-  }, action) => {
-    const pos = prevState.position;
+  var relativePositionReducer = function relativePositionReducer() {
+    var prevState = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
+      position: {
+        xPos: 0,
+        yPos: 0
+      }
+    };
+    var action = arguments.length > 1 ? arguments[1] : undefined;
+    var pos = prevState.position;
 
     switch (action.type) {
       case movePosition.key:
 
-        const movePayload = _objectSpread2({}, pos);
+        var movePayload = _objectSpread2({}, pos);
 
         movePayload.xPos += action.payload.xMovement || 0;
         movePayload.yPos += action.payload.yMovement || 0;
         return commonPositionReducer(prevState, movePayload);
 
       case updatePosition.key:
-        const updatePayload = {
+        var updatePayload = {
           xPos: action.payload.xPos || pos.xPos,
           yPos: action.payload.yPos || pos.yPos
         };
@@ -22516,15 +22926,17 @@
    */
 
 
-  function positionReducer(oldState = {
-    position: {
-      xPos: 0,
-      yPos: 0
-    }
-  }, action) {
-    let state = oldState;
-    let position = oldState.position;
-    let highlight = oldState.highlight;
+  function positionReducer() {
+    var oldState = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
+      position: {
+        xPos: 0,
+        yPos: 0
+      }
+    };
+    var action = arguments.length > 1 ? arguments[1] : undefined;
+    var state = oldState;
+    var position = oldState.position;
+    var highlight = oldState.highlight;
 
     switch (action.type) {
       case updateMainStore.key:
@@ -22549,12 +22961,12 @@
         return state;
     }
 
-    const addedState = {
+    var addedState = {
       xPosOffset: -(position.xPos % state.props.tileWidth),
       yPosOffset: -(position.yPos % state.props.tileWidth),
       currentViewSequence: clamp(floor(position.yPos / state.props.tileHeight), 0, state.sequences.length - 1),
       currentViewSequencePosition: clamp(floor(position.xPos / state.props.tileWidth), 0, state.sequences.maxLength),
-      position
+      position: position
     };
     return _objectSpread2(_objectSpread2(_objectSpread2({}, state), addedState), highlight);
   } // for future flexibility
@@ -22591,134 +23003,151 @@
    * However, no actual content is displayed by this element.
    */
 
-  class FakeScroll extends React.PureComponent {
-    constructor(props) {
-      super(props);
+  var FakeScroll = /*#__PURE__*/function (_PureComponent) {
+    _inherits(FakeScroll, _PureComponent);
 
-      _defineProperty(this, "onScroll", e => {
-        requestAnimation(this, () => {
-          const movement = {
-            xMovement: this.el.current.scrollLeft - this.props.position.xPos,
-            yMovement: this.el.current.scrollTop - this.props.position.yPos
+    var _super = _createSuper(FakeScroll);
+
+    function FakeScroll(props) {
+      var _this;
+
+      _classCallCheck(this, FakeScroll);
+
+      _this = _super.call(this, props);
+
+      _defineProperty(_assertThisInitialized(_this), "onScroll", function (e) {
+        requestAnimation(_assertThisInitialized(_this), function () {
+          var movement = {
+            xMovement: _this.el.current.scrollLeft - _this.props.position.xPos,
+            yMovement: _this.el.current.scrollTop - _this.props.position.yPos
           };
-          this.props.positionDispatch(movePosition(movement));
+
+          _this.props.positionDispatch(movePosition(movement));
         });
       });
 
-      _defineProperty(this, "updateScrollPosition", () => {
-        if (!this.el || !this.el.current) return;
-        this.el.current.scrollTop = this.props.position.yPos;
-        this.el.current.scrollLeft = this.props.position.xPos;
+      _defineProperty(_assertThisInitialized(_this), "updateScrollPosition", function () {
+        if (!_this.el || !_this.el.current) return;
+        _this.el.current.scrollTop = _this.props.position.yPos;
+        _this.el.current.scrollLeft = _this.props.position.xPos;
       });
 
-      this.el = createRef$1();
+      _this.el = createRef$1();
+      return _this;
     }
 
-    checkOverflow(overflow, {
-      withX = false,
-      withY = false
-    }) {
-      let show = false;
+    _createClass(FakeScroll, [{
+      key: "checkOverflow",
+      value: function checkOverflow(overflow, _ref) {
+        var _ref$withX = _ref.withX,
+            withX = _ref$withX === void 0 ? false : _ref$withX,
+            _ref$withY = _ref.withY,
+            withY = _ref$withY === void 0 ? false : _ref$withY;
+        var show = false;
 
-      switch (this.props.overflow) {
-        case "auto":
-          if (withX) {
-            show |= this.props.fullWidth > this.props.width;
-          }
+        switch (this.props.overflow) {
+          case "auto":
+            if (withX) {
+              show |= this.props.fullWidth > this.props.width;
+            }
 
-          if (withY) {
-            show |= this.props.fullHeight > this.props.height;
-          }
+            if (withY) {
+              show |= this.props.fullHeight > this.props.height;
+            }
 
-          break;
+            break;
 
-        case "hidden":
-          show = false;
-          break;
+          case "hidden":
+            show = false;
+            break;
 
-        case "scroll":
-          show = true;
-          break;
+          case "scroll":
+            show = true;
+            break;
 
-        default:
+          default:
+        }
+
+        return show;
       }
-
-      return show;
-    }
-
-    shouldShow() {
-      const withX = {
-        withX: true
-      };
-      const withY = {
-        withY: true
-      };
-      const overflowX = this.props.overflowX === "initial" ? this.props.overflow : this.props.overflowX;
-      const overflowY = this.props.overflowY === "initial" ? this.props.overflow : this.props.overflowY;
-      const showX = this.checkOverflow(overflowX, withX) && this.checkOverflow(this.props.overflow, withX);
-      const showY = this.checkOverflow(overflowY, withY) && this.checkOverflow(this.props.overflow, withY);
-      return {
-        showX,
-        showY
-      };
-    }
-
-    render() {
-      const _this$props = this.props,
+    }, {
+      key: "shouldShow",
+      value: function shouldShow() {
+        var withX = {
+          withX: true
+        };
+        var withY = {
+          withY: true
+        };
+        var overflowX = this.props.overflowX === "initial" ? this.props.overflow : this.props.overflowX;
+        var overflowY = this.props.overflowY === "initial" ? this.props.overflow : this.props.overflowY;
+        var showX = this.checkOverflow(overflowX, withX) && this.checkOverflow(this.props.overflow, withX);
+        var showY = this.checkOverflow(overflowY, withY) && this.checkOverflow(this.props.overflow, withY);
+        return {
+          showX: showX,
+          showY: showY
+        };
+      }
+    }, {
+      key: "render",
+      value: function render() {
+        var _this$props = this.props,
             width = _this$props.width,
             height = _this$props.height,
             fullWidth = _this$props.fullWidth,
             fullHeight = _this$props.fullHeight;
-      const style = {
-        position: "absolute",
-        overflowX: "auto",
-        overflowY: "auto",
-        width,
-        height,
-        transform: ""
-      };
+        var style = {
+          position: "absolute",
+          overflowX: "auto",
+          overflowY: "auto",
+          width: width,
+          height: height,
+          transform: ""
+        };
 
-      const _this$shouldShow = this.shouldShow(),
+        var _this$shouldShow = this.shouldShow(),
             showX = _this$shouldShow.showX,
             showY = _this$shouldShow.showY;
 
-      const childStyle = {
-        height: 1,
-        width: 1
-      };
+        var childStyle = {
+          height: 1,
+          width: 1
+        };
 
-      if (!showY && !showX) {
-        return /*#__PURE__*/React__default.createElement("div", null);
-      }
-
-      if (showX) {
-        childStyle.width = fullWidth;
-        style.overflowX = "scroll";
-
-        if (this.props.positionX === "top") {
-          style.transform += "rotateX(180deg)";
+        if (!showY && !showX) {
+          return /*#__PURE__*/React__default.createElement("div", null);
         }
-      }
 
-      if (showY) {
-        childStyle.height = fullHeight;
-        style.overflowY = "scroll";
+        if (showX) {
+          childStyle.width = fullWidth;
+          style.overflowX = "scroll";
 
-        if (this.props.positionY === "left") {
-          style.transform += "rotateY(180deg)";
+          if (this.props.positionX === "top") {
+            style.transform += "rotateX(180deg)";
+          }
         }
+
+        if (showY) {
+          childStyle.height = fullHeight;
+          style.overflowY = "scroll";
+
+          if (this.props.positionY === "left") {
+            style.transform += "rotateY(180deg)";
+          }
+        }
+
+        return /*#__PURE__*/React__default.createElement("div", {
+          style: style,
+          onScroll: this.onScroll,
+          ref: this.el
+        }, /*#__PURE__*/React__default.createElement("div", {
+          style: childStyle
+        }));
       }
+    }]);
 
-      return /*#__PURE__*/React__default.createElement("div", {
-        style: style,
-        onScroll: this.onScroll,
-        ref: this.el
-      }, /*#__PURE__*/React__default.createElement("div", {
-        style: childStyle
-      }));
-    }
-
-  }
+    return FakeScroll;
+  }(React.PureComponent);
 
   FakeScroll.defaultProps = {
     overflow: "auto",
@@ -22756,7 +23185,11 @@
   */
   // TODO: handle wheel events
 
-  class DraggingComponent extends React.PureComponent {
+  var DraggingComponent = /*#__PURE__*/function (_PureComponent) {
+    _inherits(DraggingComponent, _PureComponent);
+
+    var _super = _createSuper(DraggingComponent);
+
     /**
      * The internal state is kept in:
      *
@@ -22765,317 +23198,361 @@
      *
      * If no movement is happening, inInDragPhase is undefined
      */
-    constructor(props) {
-      super(props);
+    function DraggingComponent(props) {
+      var _this;
 
-      _defineProperty(this, "state", {
+      _classCallCheck(this, DraggingComponent);
+
+      _this = _super.call(this, props);
+
+      _defineProperty(_assertThisInitialized(_this), "state", {
         mouse: {
           isMouseWithin: false,
           cursorState: "grab"
         }
       });
 
-      _defineProperty(this, "currentContext", 1);
+      _defineProperty(_assertThisInitialized(_this), "currentContext", 1);
 
-      this.canvasBuffers = [createRef$1(), createRef$1()];
-      this.container = createRef$1(); // bind events (can't use static properties due to inheritance)
+      _this.canvasBuffers = [createRef$1(), createRef$1()];
+      _this.container = createRef$1(); // bind events (can't use static properties due to inheritance)
 
-      autoBind(this, "onMouseEnter", "onMouseLeave", "onMouseDown", "onMouseUp", "onMouseMove", "onTouchStart", "onTouchMove", "onTouchEnd", "onTouchCancel", "onClick", "onDoubleClick", "draw");
-      this.onViewpointChange(); // Define internal variables for explicitness
+      autoBind(_assertThisInitialized(_this), "onMouseEnter", "onMouseLeave", "onMouseDown", "onMouseUp", "onMouseMove", "onTouchStart", "onTouchMove", "onTouchEnd", "onTouchCancel", "onClick", "onDoubleClick", "draw");
 
-      this.mouseMovePosition = undefined;
-      this.touchMovePosition = undefined;
-      this.isInDragPhase = undefined;
+      _this.onViewpointChange(); // Define internal variables for explicitness
+
+
+      _this.mouseMovePosition = undefined;
+      _this.touchMovePosition = undefined;
+      _this.isInDragPhase = undefined;
       /**
        * Set by mouseMouse, reset after the drag phase
        * Used to check whether an `onClick` event comes from a drag phase.
        */
 
-      this.mouseHasMoved = undefined;
+      _this.mouseHasMoved = undefined;
+      return _this;
     }
     /**
      * Called on every movement to rerender the canvas.
      */
 
 
-    drawScene() {
-      console.warn("drawScene is unimplemented.");
-    }
-    /**
-     * Called on every position update.
-     */
+    _createClass(DraggingComponent, [{
+      key: "drawScene",
+      value: function drawScene() {
+        console.warn("drawScene is unimplemented.");
+      }
+      /**
+       * Called on every position update.
+       */
 
+    }, {
+      key: "onPositionUpdate",
+      value: function onPositionUpdate() {
+        console.warn("onPositionUpdate is unimplemented.");
+      }
+      /**
+        * Called every time when the component's dimensions change.
+        */
 
-    onPositionUpdate() {
-      console.warn("onPositionUpdate is unimplemented.");
-    }
-    /**
-      * Called every time when the component's dimensions change.
+    }, {
+      key: "onViewpointChange",
+      value: function onViewpointChange() {// no work is necessary anymore
+      }
+    }, {
+      key: "componentDidMount",
+      value: function componentDidMount() {
+        // choose the best engine
+        this.ctxBuffers = [this.canvasBuffers[0].current.getContext('2d', {
+          alpha: 'false'
+        }), this.canvasBuffers[1].current.getContext('2d', {
+          alpha: 'false'
+        })]; // init
+
+        this.swapContexts();
+        this.container.current.addEventListener('mouseenter', this.onMouseEnter);
+        this.container.current.addEventListener('mouseleave', this.onMouseLeave);
+        this.container.current.addEventListener('mousedown', this.onMouseDown);
+        this.container.current.addEventListener('mouseup', this.onMouseUp);
+        this.container.current.addEventListener('mousemove', this.onMouseMove);
+        this.container.current.addEventListener('touchstart', this.onTouchStart);
+        this.container.current.addEventListener('touchmove', this.onTouchMove);
+        this.container.current.addEventListener('touchend', this.onTouchEnd);
+        this.container.current.addEventListener('touchcancel', this.onTouchCancel);
+        this.container.current.addEventListener('click', this.onClick);
+        this.container.current.addEventListener('dblclick', this.onDoubleClick); // TODO: should we react do window resizes dynamically?
+        //window.addEventListener('resize', this.onResize)
+      }
+      /**
+       * We buffer the canvas to display and allow to be redrawn while not being visible.
+       * Only after it has been drawn, the canvas element will be flipped to a visible state.
+       * In other words, we have two canvas elements (1 visible, 1 hidden) and
+       * a new `draw` happens on the hidden one. After a `draw` operation these canvas
+       * elements are "swapped" by this method.
+       *
+       * This method swaps the visibility of the DOM nodes and sets `this.ctx`
+       * to the hidden canvas.
+       */
+
+    }, {
+      key: "swapContexts",
+      value: function swapContexts() {
+        var current = this.currentContext; // show the pre-rendered buffer
+
+        this.canvasBuffers[current].current.style.visibility = "visible"; // and prepare the next one
+
+        var next = (this.currentContext + 1) % 2;
+        this.canvasBuffers[next].current.style.visibility = "hidden";
+        this.currentContext = next;
+        this.ctx = this.ctxBuffers[next];
+      }
+      /**
+       * Starts a draw operation by essentially:
+       * - clearing the current context (the hidden canvas)
+       * - calling `drawScene` to render the current canvas
+       * - swapping canvas contexts with `swapContexts`
+       */
+
+    }, {
+      key: "draw",
+      value: function draw() {
+        if (!this.ctx) return;
+        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        this.onViewpointChange();
+        this.drawScene();
+        this.swapContexts();
+      }
+      /**
+      // TODO: should we react do window resizes dynamically?
+      onResize = (e) => {
+      }
       */
 
+      /**
+       * To be implemented by its childs.
+       */
 
-    onViewpointChange() {// no work is necessary anymore
-    }
+    }, {
+      key: "onClick",
+      value: function onClick(e) {}
+      /**
+       * To be implemented by its childs.
+       */
 
-    componentDidMount() {
-      // choose the best engine
-      this.ctxBuffers = [this.canvasBuffers[0].current.getContext('2d', {
-        alpha: 'false'
-      }), this.canvasBuffers[1].current.getContext('2d', {
-        alpha: 'false'
-      })]; // init
-
-      this.swapContexts();
-      this.container.current.addEventListener('mouseenter', this.onMouseEnter);
-      this.container.current.addEventListener('mouseleave', this.onMouseLeave);
-      this.container.current.addEventListener('mousedown', this.onMouseDown);
-      this.container.current.addEventListener('mouseup', this.onMouseUp);
-      this.container.current.addEventListener('mousemove', this.onMouseMove);
-      this.container.current.addEventListener('touchstart', this.onTouchStart);
-      this.container.current.addEventListener('touchmove', this.onTouchMove);
-      this.container.current.addEventListener('touchend', this.onTouchEnd);
-      this.container.current.addEventListener('touchcancel', this.onTouchCancel);
-      this.container.current.addEventListener('click', this.onClick);
-      this.container.current.addEventListener('dblclick', this.onDoubleClick); // TODO: should we react do window resizes dynamically?
-      //window.addEventListener('resize', this.onResize)
-    }
-    /**
-     * We buffer the canvas to display and allow to be redrawn while not being visible.
-     * Only after it has been drawn, the canvas element will be flipped to a visible state.
-     * In other words, we have two canvas elements (1 visible, 1 hidden) and
-     * a new `draw` happens on the hidden one. After a `draw` operation these canvas
-     * elements are "swapped" by this method.
-     *
-     * This method swaps the visibility of the DOM nodes and sets `this.ctx`
-     * to the hidden canvas.
-     */
-
-
-    swapContexts() {
-      const current = this.currentContext; // show the pre-rendered buffer
-
-      this.canvasBuffers[current].current.style.visibility = "visible"; // and prepare the next one
-
-      const next = (this.currentContext + 1) % 2;
-      this.canvasBuffers[next].current.style.visibility = "hidden";
-      this.currentContext = next;
-      this.ctx = this.ctxBuffers[next];
-    }
-    /**
-     * Starts a draw operation by essentially:
-     * - clearing the current context (the hidden canvas)
-     * - calling `drawScene` to render the current canvas
-     * - swapping canvas contexts with `swapContexts`
-     */
-
-
-    draw() {
-      if (!this.ctx) return;
-      this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-      this.onViewpointChange();
-      this.drawScene();
-      this.swapContexts();
-    }
-    /**
-    // TODO: should we react do window resizes dynamically?
-    onResize = (e) => {
-    }
-    */
-
-    /**
-     * To be implemented by its childs.
-     */
-
-
-    onClick(e) {}
-    /**
-     * To be implemented by its childs.
-     */
-
-
-    onDoubleClick(e) {}
-
-    onMouseDown(e) {
-      //console.log("mousedown", e);
-      this.startDragPhase(e);
-    }
-
-    onMouseMove(e) {
-      if (this.isInDragPhase === undefined) {
-        return;
+    }, {
+      key: "onDoubleClick",
+      value: function onDoubleClick(e) {}
+    }, {
+      key: "onMouseDown",
+      value: function onMouseDown(e) {
+        //console.log("mousedown", e);
+        this.startDragPhase(e);
       }
+    }, {
+      key: "onMouseMove",
+      value: function onMouseMove(e) {
+        var _this2 = this;
 
-      this.mouseHasMoved = true;
-      const pos = Mouse.abs(e); // TODO: use global window out and not this container's out for better dragging
-      //if (!this.isEventWithinComponent(e)) {
-      //this.stopDragPhase();
-      //return;
-      //}
+        if (this.isInDragPhase === undefined) {
+          return;
+        }
 
-      const oldPos = this.mouseMovePosition;
-      requestAnimation(this, () => {
-        // already use the potentially updated mouse move position here
-        this.mouseMovePosition = pos;
-        this.onPositionUpdate(oldPos, this.mouseMovePosition);
-      });
-    }
+        this.mouseHasMoved = true;
+        var pos = Mouse.abs(e); // TODO: use global window out and not this container's out for better dragging
+        //if (!this.isEventWithinComponent(e)) {
+        //this.stopDragPhase();
+        //return;
+        //}
 
-    onMouseUp() {
-      this.stopDragPhase();
-    }
+        var oldPos = this.mouseMovePosition;
+        requestAnimation(this, function () {
+          // already use the potentially updated mouse move position here
+          _this2.mouseMovePosition = pos;
 
-    onMouseEnter() {
-      this.setState(prevState => ({
-        mouse: _objectSpread2(_objectSpread2({}, prevState.mouse), {}, {
-          isMouseWithin: true
-        })
-      }));
-    }
+          _this2.onPositionUpdate(oldPos, _this2.mouseMovePosition);
+        });
+      }
+    }, {
+      key: "onMouseUp",
+      value: function onMouseUp() {
+        this.stopDragPhase();
+      }
+    }, {
+      key: "onMouseEnter",
+      value: function onMouseEnter() {
+        this.setState(function (prevState) {
+          return {
+            mouse: _objectSpread2(_objectSpread2({}, prevState.mouse), {}, {
+              isMouseWithin: true
+            })
+          };
+        });
+      }
+    }, {
+      key: "onMouseLeave",
+      value: function onMouseLeave() {
+        // TODO: use global window out and not this container's out for better dragging
+        this.stopHoverPhase();
+        this.stopDragPhase();
+      }
+    }, {
+      key: "onTouchStart",
+      value: function onTouchStart(e) {
+        this.startDragPhase(e);
+      }
+    }, {
+      key: "onTouchMove",
+      value: function onTouchMove(e) {
+        if (this.isInDragPhase === undefined) {
+          return;
+        } // TODO: can call mouse move with changedTouches[$-1], but it's reversed moving
 
-    onMouseLeave() {
-      // TODO: use global window out and not this container's out for better dragging
-      this.stopHoverPhase();
-      this.stopDragPhase();
-    }
+        this.onMouseMove(e);
+      }
+    }, {
+      key: "onTouchEnd",
+      value: function onTouchEnd() {
+        this.stopDragPhase();
+      }
+    }, {
+      key: "onTouchCancel",
+      value: function onTouchCancel() {
+        this.stopDragPhase();
+      }
+      /**
+       * Called at the start of a drag action.
+       */
 
-    onTouchStart(e) {
-      this.startDragPhase(e);
-    }
+    }, {
+      key: "startDragPhase",
+      value: function startDragPhase(e) {
+        this.mouseMovePosition = Mouse.abs(e);
+        this.mouseHasMoved = undefined;
+        this.isInDragPhase = true;
+        this.setState(function (prevState) {
+          return {
+            mouse: _objectSpread2(_objectSpread2({}, prevState.mouse), {}, {
+              cursorState: "grabbing"
+            })
+          };
+        });
+      }
+      /**
+       * Called whenever the mouse leaves the canvas area.
+       */
 
-    onTouchMove(e) {
-      if (this.isInDragPhase === undefined) {
-        return;
-      } // TODO: can call mouse move with changedTouches[$-1], but it's reversed moving
+    }, {
+      key: "stopHoverPhase",
+      value: function stopHoverPhase() {
+        this.setState(function (prevState) {
+          return {
+            mouse: _objectSpread2(_objectSpread2({}, prevState.mouse), {}, {
+              isMouseWithin: false
+            })
+          };
+        });
+      }
+      /**
+       * Called at the end of a drag action.
+       */
 
-      this.onMouseMove(e);
-    }
+    }, {
+      key: "stopDragPhase",
+      value: function stopDragPhase() {
+        this.isInDragPhase = undefined;
+        this.setState(function (prevState) {
+          return {
+            mouse: _objectSpread2(_objectSpread2({}, prevState.mouse), {}, {
+              cursorState: "grab"
+            })
+          };
+        });
+      }
+    }, {
+      key: "isEventWithinComponent",
+      value: function isEventWithinComponent(e) {
+        // TODO: cache width + height for the rel call
+        var relPos = Mouse.rel(e);
+        return 0 <= relPos[0] && relPos[0] <= this.props.width && 0 <= relPos[1] && relPos[1] <= this.props.height;
+      }
+      /**
+       * Unregisters all event listeners and stops the animations.
+       */
 
-    onTouchEnd() {
-      this.stopDragPhase();
-    }
+    }, {
+      key: "componentWillUnmount",
+      value: function componentWillUnmount() {
+        // TODO: should we react to resize events dynamically?
+        //window.removeEventListener('resize', this.onResize);
+        this.container.current.removeEventListener('mouseenter', this.onMouseEnter);
+        this.container.current.removeEventListener('mouseleave', this.onMouseLeave);
+        this.container.current.removeEventListener('mouseup', this.onMouseUp);
+        this.container.current.removeEventListener('mousedown', this.onMouseDown);
+        this.container.current.removeEventListener('mousemove', this.onMouseMove);
+        this.container.current.removeEventListener('click', this.onClick);
+        this.container.current.removeEventListener('dblclick', this.onDoubleClick);
+        this.container.current.removeEventListener('touchstart', this.onTouchStart);
+        this.container.current.removeEventListener('touchend', this.onTouchEnd);
+        this.container.current.removeEventListener('touchcancel', this.onTouchCancel);
+        this.container.current.removeEventListener('touchmove', this.onTouchMove);
+        this.stopDragPhase();
+      }
+    }, {
+      key: "render",
+      value: function render() {
+        // TODO: adapt to parent height/width
+        var style = _objectSpread2(_objectSpread2({
+          width: this.props.width,
+          height: this.props.height
+        }, this.props.style), {}, {
+          cursor: this.state.mouse.cursorState,
+          position: "relative"
+        });
 
-    onTouchCancel() {
-      this.stopDragPhase();
-    }
-    /**
-     * Called at the start of a drag action.
-     */
+        var modBar = {
+          position: "absolute",
+          right: 0,
+          opacity: 0.8
+        };
+        var showModBar = this.props.showModBar && this.state.mouse.isMouseWithin;
+        var canvasStyle = {
+          position: "absolute",
+          left: 0,
+          top: 0
+        };
+        var otherProps = omit(this.props, [].concat(_toConsumableArray(this.constructor.propKeys), ["tileWidth", "tileHeight", "colorScheme", "nrXTiles", "nrYTiles", "dispatch", "sequences", "fullWidth", "fullHeight", "position", "positionDispatch"]));
+        return /*#__PURE__*/React__default.createElement("div", _extends({
+          style: style,
+          ref: this.container
+        }, otherProps), showModBar && /*#__PURE__*/React__default.createElement(ModBar, {
+          style: modBar
+        }, " Plotly Modbar"), /*#__PURE__*/React__default.createElement("canvas", {
+          style: canvasStyle,
+          ref: this.canvasBuffers[0],
+          width: this.props.width,
+          height: this.props.height
+        }, "Your browser does not seem to support HTML5 canvas."), /*#__PURE__*/React__default.createElement("canvas", {
+          style: canvasStyle,
+          ref: this.canvasBuffers[1],
+          width: this.props.width,
+          height: this.props.height
+        }, "Your browser does not seem to support HTML5 canvas."), /*#__PURE__*/React__default.createElement(FakeScroll$1, {
+          overflow: this.props.overflow,
+          overflowX: this.props.overflowX,
+          overflowY: this.props.overflowY,
+          positionX: this.props.scrollBarPositionX,
+          positionY: this.props.scrollBarPositionY,
+          width: this.props.width,
+          height: this.props.height,
+          fullWidth: this.props.fullWidth,
+          fullHeight: this.props.fullHeight
+        }));
+      }
+    }]);
 
-
-    startDragPhase(e) {
-      this.mouseMovePosition = Mouse.abs(e);
-      this.mouseHasMoved = undefined;
-      this.isInDragPhase = true;
-      this.setState(prevState => ({
-        mouse: _objectSpread2(_objectSpread2({}, prevState.mouse), {}, {
-          cursorState: "grabbing"
-        })
-      }));
-    }
-    /**
-     * Called whenever the mouse leaves the canvas area.
-     */
-
-
-    stopHoverPhase() {
-      this.setState(prevState => ({
-        mouse: _objectSpread2(_objectSpread2({}, prevState.mouse), {}, {
-          isMouseWithin: false
-        })
-      }));
-    }
-    /**
-     * Called at the end of a drag action.
-     */
-
-
-    stopDragPhase() {
-      this.isInDragPhase = undefined;
-      this.setState(prevState => ({
-        mouse: _objectSpread2(_objectSpread2({}, prevState.mouse), {}, {
-          cursorState: "grab"
-        })
-      }));
-    }
-
-    isEventWithinComponent(e) {
-      // TODO: cache width + height for the rel call
-      const relPos = Mouse.rel(e);
-      return 0 <= relPos[0] && relPos[0] <= this.props.width && 0 <= relPos[1] && relPos[1] <= this.props.height;
-    }
-    /**
-     * Unregisters all event listeners and stops the animations.
-     */
-
-
-    componentWillUnmount() {
-      // TODO: should we react to resize events dynamically?
-      //window.removeEventListener('resize', this.onResize);
-      this.container.current.removeEventListener('mouseenter', this.onMouseEnter);
-      this.container.current.removeEventListener('mouseleave', this.onMouseLeave);
-      this.container.current.removeEventListener('mouseup', this.onMouseUp);
-      this.container.current.removeEventListener('mousedown', this.onMouseDown);
-      this.container.current.removeEventListener('mousemove', this.onMouseMove);
-      this.container.current.removeEventListener('click', this.onClick);
-      this.container.current.removeEventListener('dblclick', this.onDoubleClick);
-      this.container.current.removeEventListener('touchstart', this.onTouchStart);
-      this.container.current.removeEventListener('touchend', this.onTouchEnd);
-      this.container.current.removeEventListener('touchcancel', this.onTouchCancel);
-      this.container.current.removeEventListener('touchmove', this.onTouchMove);
-      this.stopDragPhase();
-    }
-
-    render() {
-      // TODO: adapt to parent height/width
-      const style = _objectSpread2(_objectSpread2({
-        width: this.props.width,
-        height: this.props.height
-      }, this.props.style), {}, {
-        cursor: this.state.mouse.cursorState,
-        position: "relative"
-      });
-
-      const modBar = {
-        position: "absolute",
-        right: 0,
-        opacity: 0.8
-      };
-      const showModBar = this.props.showModBar && this.state.mouse.isMouseWithin;
-      const canvasStyle = {
-        position: "absolute",
-        left: 0,
-        top: 0
-      };
-      const otherProps = omit(this.props, [...this.constructor.propKeys, "tileWidth", "tileHeight", "colorScheme", "nrXTiles", "nrYTiles", "dispatch", "sequences", "fullWidth", "fullHeight", "position", "positionDispatch"]);
-      return /*#__PURE__*/React__default.createElement("div", _extends({
-        style: style,
-        ref: this.container
-      }, otherProps), showModBar && /*#__PURE__*/React__default.createElement(ModBar, {
-        style: modBar
-      }, " Plotly Modbar"), /*#__PURE__*/React__default.createElement("canvas", {
-        style: canvasStyle,
-        ref: this.canvasBuffers[0],
-        width: this.props.width,
-        height: this.props.height
-      }, "Your browser does not seem to support HTML5 canvas."), /*#__PURE__*/React__default.createElement("canvas", {
-        style: canvasStyle,
-        ref: this.canvasBuffers[1],
-        width: this.props.width,
-        height: this.props.height
-      }, "Your browser does not seem to support HTML5 canvas."), /*#__PURE__*/React__default.createElement(FakeScroll$1, {
-        overflow: this.props.overflow,
-        overflowX: this.props.overflowX,
-        overflowY: this.props.overflowY,
-        positionX: this.props.scrollBarPositionX,
-        positionY: this.props.scrollBarPositionY,
-        width: this.props.width,
-        height: this.props.height,
-        fullWidth: this.props.fullWidth,
-        fullHeight: this.props.fullHeight
-      }));
-    }
-
-  }
+    return DraggingComponent;
+  }(React.PureComponent);
 
   _defineProperty(DraggingComponent, "defaultProps", {
     engine: "canvas",
@@ -23090,36 +23567,48 @@
   * LICENSE file in the root directory of this source tree.
   */
   // TODO: use more abstract, non-canvas-like API
-  class DrawingBase {
-    constructor(el) {
+  var DrawingBase = /*#__PURE__*/function () {
+    function DrawingBase(el) {
+      _classCallCheck(this, DrawingBase);
+
       this.el = el;
       this.state = {};
     }
 
-    updateEl(el) {
-      this.el = el;
-    } // props
+    _createClass(DrawingBase, [{
+      key: "updateEl",
+      value: function updateEl(el) {
+        this.el = el;
+      } // props
 
+    }, {
+      key: "font",
+      value: function font(fontName) {
+        this.state.font = fontName;
+      }
+    }, {
+      key: "globalAlpha",
+      value: function globalAlpha(_globalAlpha) {
+        this.state.globalAlpha = _globalAlpha;
+      }
+    }, {
+      key: "startDrawingFrame",
+      value: function startDrawingFrame() {
+        this.clear();
+      }
+    }, {
+      key: "endDrawingFrame",
+      value: function endDrawingFrame() {}
+    }, {
+      key: "save",
+      value: function save() {}
+    }, {
+      key: "restore",
+      value: function restore() {}
+    }]);
 
-    font(fontName) {
-      this.state.font = fontName;
-    }
-
-    globalAlpha(globalAlpha) {
-      this.state.globalAlpha = globalAlpha;
-    }
-
-    startDrawingFrame() {
-      this.clear();
-    }
-
-    endDrawingFrame() {}
-
-    save() {}
-
-    restore() {}
-
-  }
+    return DrawingBase;
+  }();
 
   /**
   * Copyright 2018, Plotly, Inc.
@@ -23128,107 +23617,128 @@
   * This source code is licensed under the MIT license found in the
   * LICENSE file in the root directory of this source tree.
   */
-  class CanvasCharCache {
-    constructor(g) {
+  var CanvasCharCache = /*#__PURE__*/function () {
+    function CanvasCharCache(g) {
+      _classCallCheck(this, CanvasCharCache);
+
       this.cache = {};
       this.cacheHeight = 0;
       this.cacheWidth = 0;
     } // returns a cached canvas
 
 
-    getFontTile(letter, width, height, font) {
-      // validate cache
-      if (width !== this.cacheWidth || height !== this.cacheHeight || font !== this.font) {
-        this.updateDimensions(width, height);
-        this.font = font;
+    _createClass(CanvasCharCache, [{
+      key: "getFontTile",
+      value: function getFontTile(letter, width, height, font) {
+        // validate cache
+        if (width !== this.cacheWidth || height !== this.cacheHeight || font !== this.font) {
+          this.updateDimensions(width, height);
+          this.font = font;
+        }
+
+        if (this.cache[letter] === undefined) {
+          this.createTile(letter, width, height);
+        }
+
+        return this.cache[letter];
+      } // creates a canvas with a single letter
+      // (for the fast font cache)
+
+    }, {
+      key: "createTile",
+      value: function createTile(letter, width, height, font) {
+        var canvas = this.cache[letter] = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        this.ctx = canvas.getContext('2d');
+        this.ctx.font = this.font + "px mono";
+        this.ctx.textBaseline = 'middle';
+        this.ctx.textAlign = "center";
+        return this.ctx.fillText(letter, width / 2, height / 2, width, font);
       }
-
-      if (this.cache[letter] === undefined) {
-        this.createTile(letter, width, height);
+    }, {
+      key: "updateDimensions",
+      value: function updateDimensions(width, height) {
+        this.invalidate();
+        this.cacheWidth = width;
+        this.cacheHeight = height;
       }
+    }, {
+      key: "invalidate",
+      value: function invalidate() {
+        // TODO: destroy the old canvas elements
+        this.cache = {};
+      }
+    }]);
 
-      return this.cache[letter];
-    } // creates a canvas with a single letter
-    // (for the fast font cache)
+    return CanvasCharCache;
+  }();
 
+  var Canvas = /*#__PURE__*/function (_DrawingBase) {
+    _inherits(Canvas, _DrawingBase);
 
-    createTile(letter, width, height, font) {
-      const canvas = this.cache[letter] = document.createElement("canvas");
-      canvas.width = width;
-      canvas.height = height;
-      this.ctx = canvas.getContext('2d');
-      this.ctx.font = this.font + "px mono";
-      this.ctx.textBaseline = 'middle';
-      this.ctx.textAlign = "center";
-      return this.ctx.fillText(letter, width / 2, height / 2, width, font);
+    var _super = _createSuper(Canvas);
+
+    function Canvas(el) {
+      var _this;
+
+      _classCallCheck(this, Canvas);
+
+      _this = _super.call(this, el);
+      _this.ctx = el.getContext('2d');
+      _this.cache = new CanvasCharCache();
+      return _this;
     }
 
-    updateDimensions(width, height) {
-      this.invalidate();
-      this.cacheWidth = width;
-      this.cacheHeight = height;
-    }
+    _createClass(Canvas, [{
+      key: "clear",
+      value: function clear() {
+        // fastest way to clear the canvas
+        // http://jsperf.com/canvas-clear-speed
+        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+      }
+    }, {
+      key: "fillRect",
+      value: function fillRect(x, y, width, height) {
+        this.ctx.fillRect(x, y, width, height);
+      } // TODO: rename as its effectively only one letter
 
-    invalidate() {
-      // TODO: destroy the old canvas elements
-      this.cache = {};
-    }
+    }, {
+      key: "fillText",
+      value: function fillText(text, x, y, width, height) {
+        //this.ctx.fillText(text, x, y);
+        return this.ctx.drawImage(this.cache.getFontTile(text, width, height, this.ctx.font), x, y, width, height);
+      } // props
 
-  }
+    }, {
+      key: "font",
+      value: function font(fontName) {
+        this.ctx.font = fontName;
+      }
+    }, {
+      key: "fillStyle",
+      value: function fillStyle(_fillStyle) {
+        this.ctx.fillStyle = _fillStyle;
+      }
+    }, {
+      key: "globalAlpha",
+      value: function globalAlpha(_globalAlpha) {
+        this.ctx.globalAlpha = _globalAlpha;
+      }
+    }, {
+      key: "save",
+      value: function save() {
+        this.ctx.save();
+      }
+    }, {
+      key: "restore",
+      value: function restore() {
+        this.ctx.restore();
+      }
+    }]);
 
-  /**
-  * Copyright 2018, Plotly, Inc.
-  * All rights reserved.
-  *
-  * This source code is licensed under the MIT license found in the
-  * LICENSE file in the root directory of this source tree.
-  */
-
-  class Canvas extends DrawingBase {
-    constructor(el) {
-      super(el);
-      this.ctx = el.getContext('2d');
-      this.cache = new CanvasCharCache();
-    }
-
-    clear() {
-      // fastest way to clear the canvas
-      // http://jsperf.com/canvas-clear-speed
-      this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-    }
-
-    fillRect(x, y, width, height) {
-      this.ctx.fillRect(x, y, width, height);
-    } // TODO: rename as its effectively only one letter
-
-
-    fillText(text, x, y, width, height) {
-      //this.ctx.fillText(text, x, y);
-      return this.ctx.drawImage(this.cache.getFontTile(text, width, height, this.ctx.font), x, y, width, height);
-    } // props
-
-
-    font(fontName) {
-      this.ctx.font = fontName;
-    }
-
-    fillStyle(fillStyle) {
-      this.ctx.fillStyle = fillStyle;
-    }
-
-    globalAlpha(globalAlpha) {
-      this.ctx.globalAlpha = globalAlpha;
-    }
-
-    save() {
-      this.ctx.save();
-    }
-
-    restore() {
-      this.ctx.restore();
-    }
-
-  }
+    return Canvas;
+  }(DrawingBase);
 
   /**
    * Constructs a drawable canvas (e.g. HTML Canvas or WebGL) and provides it as
@@ -23237,45 +23747,62 @@
    * On every redraw, this.draw() gets called.
    */
 
-  class CanvasComponent extends React.PureComponent {
-    constructor(props) {
-      super(props);
-      this.canvas = createRef$1();
+  var CanvasComponent = /*#__PURE__*/function (_PureComponent) {
+    _inherits(CanvasComponent, _PureComponent);
+
+    var _super = _createSuper(CanvasComponent);
+
+    function CanvasComponent(props) {
+      var _this;
+
+      _classCallCheck(this, CanvasComponent);
+
+      _this = _super.call(this, props);
+      _this.canvas = createRef$1();
+      return _this;
     }
 
-    componentDidMount() {
-      this.ctx = new Canvas(this.canvas.current);
-      this.draw();
-    }
+    _createClass(CanvasComponent, [{
+      key: "componentDidMount",
+      value: function componentDidMount() {
+        this.ctx = new Canvas(this.canvas.current);
+        this.draw();
+      }
+    }, {
+      key: "componentDidUpdate",
+      value: function componentDidUpdate() {
+        this._draw();
+      }
+    }, {
+      key: "_draw",
+      value: function _draw() {
+        if (!this.ctx) return;
+        this.ctx.startDrawingFrame();
+        this.ctx.save();
+        this.draw();
+        this.ctx.restore();
+        this.ctx.endDrawingFrame();
+      }
+    }, {
+      key: "draw",
+      value: function draw() {
+        console.error("Implement me.");
+      }
+    }, {
+      key: "render",
+      value: function render() {
+        return /*#__PURE__*/React__default.createElement("div", {
+          style: this.props.style
+        }, /*#__PURE__*/React__default.createElement("canvas", {
+          ref: this.canvas,
+          width: this.props.width,
+          height: this.props.height
+        }));
+      }
+    }]);
 
-    componentDidUpdate() {
-      this._draw();
-    }
-
-    _draw() {
-      if (!this.ctx) return;
-      this.ctx.startDrawingFrame();
-      this.ctx.save();
-      this.draw();
-      this.ctx.restore();
-      this.ctx.endDrawingFrame();
-    }
-
-    draw() {
-      console.error("Implement me.");
-    }
-
-    render() {
-      return /*#__PURE__*/React__default.createElement("div", {
-        style: this.props.style
-      }, /*#__PURE__*/React__default.createElement("canvas", {
-        ref: this.canvas,
-        width: this.props.width,
-        height: this.props.height
-      }));
-    }
-
-  }
+    return CanvasComponent;
+  }(React.PureComponent);
 
   _defineProperty(CanvasComponent, "defaultProps", {
     engine: "canvas"
@@ -23304,13 +23831,6 @@
   };
 
   /**
-  * Copyright 2018, Plotly, Inc.
-  * All rights reserved.
-  *
-  * This source code is licensed under the MIT license found in the
-  * LICENSE file in the root directory of this source tree.
-  */
-  /**
    * Allows rendering in tiles of grids.
    *
    * |---|---|---|
@@ -23327,91 +23847,99 @@
    * Tree calculations slim.
    */
 
-  class CanvasTilingGridComponent extends CanvasComponent {
-    drawTile({
-      row,
-      column
-    }) {
-      const tileWidth = this.props.tileWidth;
-      const tileHeight = this.props.tileHeight;
-      const yPos = tileHeight * (row - this.props.startYTile);
-      const xPos = tileWidth * (column - this.props.startXTile);
-      if (row >= this.props.sequences.raw.length) return undefined;
-      const sequence = this.props.sequences.raw[row].sequence;
-      if (column >= sequence.length) return undefined;
-      const text = sequence[column];
+  var CanvasTilingGridComponent = /*#__PURE__*/function (_CanvasComponent) {
+    _inherits(CanvasTilingGridComponent, _CanvasComponent);
 
-      if (text !== undefined) {
-        const colorScheme = this.props.colorScheme.getColor(text);
-        const key = "".concat(text, "-").concat(colorScheme);
-        const canvasTile = this.props.residueTileCache.createTile({
-          key,
-          tileWidth,
-          tileHeight,
-          create: ({
-            canvas
-          }) => {
-            return this.drawResidue({
-              text,
-              canvas,
-              row,
-              column,
-              colorScheme
-            });
-          }
-        });
-        this.props.ctx.drawImage(canvasTile, 0, 0, tileWidth, tileHeight, xPos, yPos, tileWidth, tileHeight);
-      }
+    var _super = _createSuper(CanvasTilingGridComponent);
+
+    function CanvasTilingGridComponent() {
+      _classCallCheck(this, CanvasTilingGridComponent);
+
+      return _super.apply(this, arguments);
     }
 
-    drawResidue({
-      row,
-      column,
-      canvas,
-      colorScheme,
-      text
-    }) {
-      canvas.globalAlpha = 0.7;
-      canvas.fillStyle = colorScheme;
-      canvas.fillRect(0, 0, this.props.tileWidth, this.props.tileHeight);
+    _createClass(CanvasTilingGridComponent, [{
+      key: "drawTile",
+      value: function drawTile(_ref) {
+        var _this = this;
 
-      if (this.props.border) {
-        canvas.globalAlpha = 1;
-        canvas.lineWidth = this.props.borderWidth;
-        canvas.strokeStyle = this.props.borderStyle;
-        canvas.strokeRect(0, 0, this.props.tileWidth, this.props.tileHeight);
-      }
+        var row = _ref.row,
+            column = _ref.column;
+        var tileWidth = this.props.tileWidth;
+        var tileHeight = this.props.tileHeight;
+        var yPos = tileHeight * (row - this.props.startYTile);
+        var xPos = tileWidth * (column - this.props.startXTile);
+        if (row >= this.props.sequences.raw.length) return undefined;
+        var sequence = this.props.sequences.raw[row].sequence;
+        if (column >= sequence.length) return undefined;
+        var text = sequence[column];
 
-      canvas.globalAlpha = 1.0;
-      canvas.fillStyle = this.props.textColor;
-      canvas.font = this.props.textFont + "px mono";
-      canvas.textBaseline = 'middle';
-      canvas.textAlign = 'center';
-      canvas.fillText(text, this.props.tileWidth / 2, this.props.tileHeight / 2 + 1, this.props.tileWidth);
-    }
-
-    draw(props) {
-      this.props = props;
-
-      for (let i = this.props.startYTile; i < this.props.endYTile; i++) {
-        for (let j = this.props.startXTile; j < this.props.endXTile; j++) {
-          this.drawTile({
-            row: i,
-            column: j
+        if (text !== undefined) {
+          var colorScheme = this.props.colorScheme.getColor(text);
+          var key = "".concat(text, "-").concat(colorScheme);
+          var canvasTile = this.props.residueTileCache.createTile({
+            key: key,
+            tileWidth: tileWidth,
+            tileHeight: tileHeight,
+            create: function create(_ref2) {
+              var canvas = _ref2.canvas;
+              return _this.drawResidue({
+                text: text,
+                canvas: canvas,
+                row: row,
+                column: column,
+                colorScheme: colorScheme
+              });
+            }
           });
+          this.props.ctx.drawImage(canvasTile, 0, 0, tileWidth, tileHeight, xPos, yPos, tileWidth, tileHeight);
         }
       }
-    }
+    }, {
+      key: "drawResidue",
+      value: function drawResidue(_ref3) {
+        var row = _ref3.row,
+            column = _ref3.column,
+            canvas = _ref3.canvas,
+            colorScheme = _ref3.colorScheme,
+            text = _ref3.text;
+        canvas.globalAlpha = 0.7;
+        canvas.fillStyle = colorScheme;
+        canvas.fillRect(0, 0, this.props.tileWidth, this.props.tileHeight);
 
-  }
+        if (this.props.border) {
+          canvas.globalAlpha = 1;
+          canvas.lineWidth = this.props.borderWidth;
+          canvas.strokeStyle = this.props.borderStyle;
+          canvas.strokeRect(0, 0, this.props.tileWidth, this.props.tileHeight);
+        }
 
-  /**
-  * Copyright 2018, Plotly, Inc.
-  * All rights reserved.
-  *
-  * This source code is licensed under the MIT license found in the
-  * LICENSE file in the root directory of this source tree.
-  */
+        canvas.globalAlpha = 1.0;
+        canvas.fillStyle = this.props.textColor;
+        canvas.font = this.props.textFont + "px mono";
+        canvas.textBaseline = 'middle';
+        canvas.textAlign = 'center';
+        canvas.fillText(text, this.props.tileWidth / 2, this.props.tileHeight / 2 + 1, this.props.tileWidth);
+      }
+    }, {
+      key: "draw",
+      value: function draw(props) {
+        this.props = props;
+
+        for (var i = this.props.startYTile; i < this.props.endYTile; i++) {
+          for (var j = this.props.startXTile; j < this.props.endXTile; j++) {
+            this.drawTile({
+              row: i,
+              column: j
+            });
+          }
+        }
+      }
+    }]);
+
+    return CanvasTilingGridComponent;
+  }(CanvasComponent);
+
   /**
    * A simple, in-memory cache for Canvas tiles outside of the DOM.
    * Gets automatically invalidated when called with different widths.
@@ -23421,10 +23949,13 @@
    * @param {Number} maxElements Maximal elements to keep in the cache (default: 200)
    */
 
-  class CanvasCache {
-    constructor({
-      maxElements
-    } = {}) {
+  var CanvasCache = /*#__PURE__*/function () {
+    function CanvasCache() {
+      var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          maxElements = _ref.maxElements;
+
+      _classCallCheck(this, CanvasCache);
+
       this.maxElements = maxElements || 200;
       this.invalidate();
     }
@@ -23437,70 +23968,80 @@
      */
 
 
-    createTile({
-      key,
-      tileWidth,
-      tileHeight,
-      create: create$$1
-    }) {
-      // check if cache needs to be regenerated
-      if (key in this.cache) {
-        return this.cache[key].value;
+    _createClass(CanvasCache, [{
+      key: "createTile",
+      value: function createTile(_ref2) {
+        var _this = this;
+
+        var key = _ref2.key,
+            tileWidth = _ref2.tileWidth,
+            tileHeight = _ref2.tileHeight,
+            create$$1 = _ref2.create;
+
+        // check if cache needs to be regenerated
+        if (key in this.cache) {
+          return this.cache[key].value;
+        }
+
+        if (this.cachedElements >= this.maxElements) {
+          // purge oldest key from cache if maxSize is reached
+          var oldestKey = minBy(Object.keys(this.cache), function (k) {
+            return _this.cache[k].insertionTime;
+          });
+          delete this.cache[oldestKey];
+        }
+
+        var canvas = document.createElement("canvas");
+        this.cache[key] = {
+          value: canvas,
+          insertionTime: Date.now()
+        };
+        canvas.width = tileWidth;
+        canvas.height = tileHeight;
+        var ctx = canvas.getContext('2d');
+        this.cachedElements++;
+        create$$1({
+          canvas: ctx
+        });
+        return canvas;
       }
+      /**
+       * Checks whether the tile specification has changed and the cache needs
+       * to be refreshed.
+       * Pass in an object of all the properties that would result in the cache to be refreshed
+       * Like React.PureComponents the passed-in properties are compared by their
+       * shallow equality.
+       *
+       * @param {object} spec Object of all parameters that depend on this cache
+       * Returns: `true` when the cache has been invalidated
+       */
 
-      if (this.cachedElements >= this.maxElements) {
-        // purge oldest key from cache if maxSize is reached
-        const oldestKey = minBy(Object.keys(this.cache), k => this.cache[k].insertionTime);
-        delete this.cache[oldestKey];
+    }, {
+      key: "updateTileSpecs",
+      value: function updateTileSpecs(spec) {
+        if (!shallowEqual$1(spec, this.spec)) {
+          this.invalidate();
+          this.spec = spec;
+          return true;
+        }
+
+        return false;
       }
+      /**
+       * Invalidates the entire cache and removed all elements.
+       */
 
-      const canvas = document.createElement("canvas");
-      this.cache[key] = {
-        value: canvas,
-        insertionTime: Date.now()
-      };
-      canvas.width = tileWidth;
-      canvas.height = tileHeight;
-      const ctx = canvas.getContext('2d');
-      this.cachedElements++;
-      create$$1({
-        canvas: ctx
-      });
-      return canvas;
-    }
-    /**
-     * Checks whether the tile specification has changed and the cache needs
-     * to be refreshed.
-     * Pass in an object of all the properties that would result in the cache to be refreshed
-     * Like React.PureComponents the passed-in properties are compared by their
-     * shallow equality.
-     *
-     * @param {object} spec Object of all parameters that depend on this cache
-     * Returns: `true` when the cache has been invalidated
-     */
-
-
-    updateTileSpecs(spec) {
-      if (!shallowEqual$1(spec, this.spec)) {
-        this.invalidate();
-        this.spec = spec;
-        return true;
+    }, {
+      key: "invalidate",
+      value: function invalidate() {
+        this.cache = {};
+        this.spec = {};
+        this.cachedElements = 0;
       }
+    }]);
 
-      return false;
-    }
-    /**
-     * Invalidates the entire cache and removed all elements.
-     */
-
-
-    invalidate() {
-      this.cache = {};
-      this.spec = {};
-      this.cachedElements = 0;
-    }
-
-  }
+    return CanvasCache;
+  }();
 
   /**
   * Copyright 2018, Plotly, Inc.
@@ -23529,284 +24070,317 @@
    * Component to draw the main sequence alignment.
    */
 
-  class SequenceViewerComponent extends DraggingComponent {
-    constructor(props) {
-      super(props); // cache fully drawn tiles
+  var SequenceViewerComponent = /*#__PURE__*/function (_DraggingComponent) {
+    _inherits(SequenceViewerComponent, _DraggingComponent);
 
-      _defineProperty(this, "renderTile", ({
-        row,
-        column
-      }) => {
-        const key = row + "-" + column;
-        return this.tileCache.createTile({
+    var _super = _createSuper(SequenceViewerComponent);
+
+    function SequenceViewerComponent(props) {
+      var _thisSuper, _thisSuper2, _thisSuper3, _thisSuper4, _this;
+
+      _classCallCheck(this, SequenceViewerComponent);
+
+      _this = _super.call(this, props); // cache fully drawn tiles
+
+      _defineProperty(_assertThisInitialized(_this), "renderTile", function (_ref) {
+        var row = _ref.row,
+            column = _ref.column;
+        var key = row + "-" + column;
+        return _this.tileCache.createTile({
           key: key,
-          tileWidth: this.props.tileWidth * this.props.xGridSize,
-          tileHeight: this.props.tileHeight * this.props.yGridSize,
-          create: ({
-            canvas
-          }) => {
+          tileWidth: _this.props.tileWidth * _this.props.xGridSize,
+          tileHeight: _this.props.tileHeight * _this.props.yGridSize,
+          create: function create$$1(_ref2) {
+            var canvas = _ref2.canvas;
 
-            this.tilingGridManager.draw(_objectSpread2({
+            _this.tilingGridManager.draw(_objectSpread2({
               ctx: canvas,
               startYTile: row,
               startXTile: column,
-              residueTileCache: this.residueTileCache,
-              endYTile: row + this.props.yGridSize,
-              endXTile: column + this.props.xGridSize
-            }, pick(this.props, ["sequences", "colorScheme", "textFont", "textColor", "tileHeight", "tileWidth", "border", "borderWidth", "borderColor"])));
+              residueTileCache: _this.residueTileCache,
+              endYTile: row + _this.props.yGridSize,
+              endXTile: column + _this.props.xGridSize
+            }, pick(_this.props, ["sequences", "colorScheme", "textFont", "textColor", "tileHeight", "tileWidth", "border", "borderWidth", "borderColor"])));
           }
         });
       });
 
-      _defineProperty(this, "onPositionUpdate", (oldPos, newPos) => {
-        const relativeMovement = {
+      _defineProperty(_assertThisInitialized(_this), "onPositionUpdate", function (oldPos, newPos) {
+        var relativeMovement = {
           xMovement: oldPos[0] - newPos[0],
           yMovement: oldPos[1] - newPos[1]
         };
-        this.props.positionDispatch(movePosition(relativeMovement));
+
+        _this.props.positionDispatch(movePosition(relativeMovement));
       });
 
-      _defineProperty(this, "updateScrollPosition", () => {
-        this.draw();
+      _defineProperty(_assertThisInitialized(_this), "updateScrollPosition", function () {
+        _this.draw();
       });
 
-      _defineProperty(this, "onMouseMove", e => {
-        if (typeof this.isInDragPhase === "undefined") {
-          if (this.props.onResidueMouseEnter !== undefined || this.props.onResidueMouseLeave !== undefined) {
-            const eventData = this.currentPointerPosition(e);
-            const lastValue = this.currentMouseSequencePosition;
+      _defineProperty(_assertThisInitialized(_this), "onMouseMove", function (e) {
+        if (typeof _this.isInDragPhase === "undefined") {
+          if (_this.props.onResidueMouseEnter !== undefined || _this.props.onResidueMouseLeave !== undefined) {
+            var eventData = _this.currentPointerPosition(e);
+
+            var lastValue = _this.currentMouseSequencePosition;
 
             if (!isEqual(lastValue, eventData)) {
               if (lastValue !== undefined) {
-                this.sendEvent('onResidueMouseLeave', lastValue);
+                _this.sendEvent('onResidueMouseLeave', lastValue);
               }
 
-              this.currentMouseSequencePosition = eventData;
-              this.sendEvent('onResidueMouseEnter', eventData);
+              _this.currentMouseSequencePosition = eventData;
+
+              _this.sendEvent('onResidueMouseEnter', eventData);
             }
           }
         }
 
-        super.onMouseMove(e);
+        _get((_thisSuper = _assertThisInitialized(_this), _getPrototypeOf(SequenceViewerComponent.prototype)), "onMouseMove", _thisSuper).call(_thisSuper, e);
       });
 
-      _defineProperty(this, "onMouseLeave", e => {
-        this.sendEvent('onResidueMouseLeave', this.currentMouseSequencePosition);
-        this.currentMouseSequencePosition = undefined;
-        super.onMouseLeave(e);
+      _defineProperty(_assertThisInitialized(_this), "onMouseLeave", function (e) {
+        _this.sendEvent('onResidueMouseLeave', _this.currentMouseSequencePosition);
+
+        _this.currentMouseSequencePosition = undefined;
+
+        _get((_thisSuper2 = _assertThisInitialized(_this), _getPrototypeOf(SequenceViewerComponent.prototype)), "onMouseLeave", _thisSuper2).call(_thisSuper2, e);
       });
 
-      _defineProperty(this, "onClick", e => {
-        if (!this.mouseHasMoved) {
-          const eventData = this.currentPointerPosition(e);
-          this.sendEvent('onResidueClick', eventData);
+      _defineProperty(_assertThisInitialized(_this), "onClick", function (e) {
+        if (!_this.mouseHasMoved) {
+          var eventData = _this.currentPointerPosition(e);
+
+          _this.sendEvent('onResidueClick', eventData);
         }
 
-        super.onClick(e);
+        _get((_thisSuper3 = _assertThisInitialized(_this), _getPrototypeOf(SequenceViewerComponent.prototype)), "onClick", _thisSuper3).call(_thisSuper3, e);
       });
 
-      _defineProperty(this, "onDoubleClick", e => {
-        const eventData = this.currentPointerPosition(e);
-        this.sendEvent('onResidueDoubleClick', eventData);
-        super.onDoubleClick(e);
+      _defineProperty(_assertThisInitialized(_this), "onDoubleClick", function (e) {
+        var eventData = _this.currentPointerPosition(e);
+
+        _this.sendEvent('onResidueDoubleClick', eventData);
+
+        _get((_thisSuper4 = _assertThisInitialized(_this), _getPrototypeOf(SequenceViewerComponent.prototype)), "onDoubleClick", _thisSuper4).call(_thisSuper4, e);
       });
 
-      this.tileCache = new CanvasCache(); // cache individual residue cells
+      _this.tileCache = new CanvasCache(); // cache individual residue cells
 
-      this.residueTileCache = new CanvasCache(); // the manager which is in charge of drawing residues
+      _this.residueTileCache = new CanvasCache(); // the manager which is in charge of drawing residues
 
-      this.tilingGridManager = new CanvasTilingGridComponent();
+      _this.tilingGridManager = new CanvasTilingGridComponent();
+      return _this;
     } // starts the drawing process
 
 
-    drawScene() {
-      const positions = this.getTilePositions();
-      this.updateTileSpecs();
+    _createClass(SequenceViewerComponent, [{
+      key: "drawScene",
+      value: function drawScene() {
+        var positions = this.getTilePositions();
+        this.updateTileSpecs();
 
-      this.drawTiles(positions);
-      this.drawHighlightedRegions();
-    } // figures out from where to start drawing
+        this.drawTiles(positions);
+        this.drawHighlightedRegions();
+      } // figures out from where to start drawing
 
+    }, {
+      key: "getTilePositions",
+      value: function getTilePositions() {
+        var startXTile = Math.max(0, this.props.position.currentViewSequencePosition - this.props.cacheElements);
+        var startYTile = Math.max(0, this.props.position.currentViewSequence - this.props.cacheElements);
+        var endYTile = Math.min(this.props.sequences.length, startYTile + this.props.nrYTiles + 2 * this.props.cacheElements);
+        var endXTile = Math.min(this.props.sequences.maxLength, startXTile + this.props.nrXTiles + 2 * this.props.cacheElements);
+        return {
+          startXTile: startXTile,
+          startYTile: startYTile,
+          endXTile: endXTile,
+          endYTile: endYTile
+        };
+      }
+    }, {
+      key: "drawTiles",
+      value: function drawTiles(_ref3) {
+        var startXTile = _ref3.startXTile,
+            startYTile = _ref3.startYTile,
+            endXTile = _ref3.endXTile,
+            endYTile = _ref3.endYTile;
+        var xGridSize = this.props.xGridSize;
+        var yGridSize = this.props.yGridSize;
+        var startY = roundMod(startYTile, yGridSize);
+        var startX = roundMod(startXTile, xGridSize);
 
-    getTilePositions() {
-      const startXTile = Math.max(0, this.props.position.currentViewSequencePosition - this.props.cacheElements);
-      const startYTile = Math.max(0, this.props.position.currentViewSequence - this.props.cacheElements);
-      const endYTile = Math.min(this.props.sequences.length, startYTile + this.props.nrYTiles + 2 * this.props.cacheElements);
-      const endXTile = Math.min(this.props.sequences.maxLength, startXTile + this.props.nrXTiles + 2 * this.props.cacheElements);
-      return {
-        startXTile,
-        startYTile,
-        endXTile,
-        endYTile
-      };
-    }
-
-    drawTiles({
-      startXTile,
-      startYTile,
-      endXTile,
-      endYTile
-    }) {
-      const xGridSize = this.props.xGridSize;
-      const yGridSize = this.props.yGridSize;
-      const startY = roundMod(startYTile, yGridSize);
-      const startX = roundMod(startXTile, xGridSize);
-
-      for (let i = startY; i < endYTile; i = i + yGridSize) {
-        for (let j = startX; j < endXTile; j = j + xGridSize) {
-          const canvas = this.renderTile({
-            row: i,
-            column: j,
-            canvas: this.ctx
-          });
-          const width = xGridSize * this.props.tileWidth;
-          const height = yGridSize * this.props.tileHeight;
-          const yPos = (i - this.props.position.currentViewSequence) * this.props.tileHeight + this.props.position.yPosOffset;
-          const xPos = (j - this.props.position.currentViewSequencePosition) * this.props.tileWidth + this.props.position.xPosOffset;
-          this.ctx.drawImage(canvas, 0, 0, width, height, xPos, yPos, width, height);
+        for (var i = startY; i < endYTile; i = i + yGridSize) {
+          for (var j = startX; j < endXTile; j = j + xGridSize) {
+            var canvas = this.renderTile({
+              row: i,
+              column: j,
+              canvas: this.ctx
+            });
+            var width = xGridSize * this.props.tileWidth;
+            var height = yGridSize * this.props.tileHeight;
+            var yPos = (i - this.props.position.currentViewSequence) * this.props.tileHeight + this.props.position.yPosOffset;
+            var xPos = (j - this.props.position.currentViewSequencePosition) * this.props.tileWidth + this.props.position.xPosOffset;
+            this.ctx.drawImage(canvas, 0, 0, width, height, xPos, yPos, width, height);
+          }
         }
       }
-    }
-
-    positionToSequence(pos) {
-      const sequences = this.props.sequences.raw;
-      const seqNr = clamp(floor((this.props.position.yPos + pos.yPos) / this.props.tileHeight), 0, sequences.length - 1);
-      const sequence = sequences[seqNr];
-      const position = clamp(floor((this.props.position.xPos + pos.xPos) / this.props.tileWidth), 0, sequence.sequence.length - 1);
-      return {
-        i: seqNr,
-        sequence,
-        position,
-        residue: sequence.sequence[position]
-      };
-    }
-
-    /**
-     * Returns the position of the mouse position relative to the sequences
-     */
-    currentPointerPosition(e) {
-      const _Mouse$rel = Mouse.rel(e),
+    }, {
+      key: "positionToSequence",
+      value: function positionToSequence(pos) {
+        var sequences = this.props.sequences.raw;
+        var seqNr = clamp(floor((this.props.position.yPos + pos.yPos) / this.props.tileHeight), 0, sequences.length - 1);
+        var sequence = sequences[seqNr];
+        var position = clamp(floor((this.props.position.xPos + pos.xPos) / this.props.tileWidth), 0, sequence.sequence.length - 1);
+        return {
+          i: seqNr,
+          sequence: sequence,
+          position: position,
+          residue: sequence.sequence[position]
+        };
+      }
+    }, {
+      key: "currentPointerPosition",
+      value:
+      /**
+       * Returns the position of the mouse position relative to the sequences
+       */
+      function currentPointerPosition(e) {
+        var _Mouse$rel = Mouse.rel(e),
             _Mouse$rel2 = _slicedToArray(_Mouse$rel, 2),
             x = _Mouse$rel2[0],
             y = _Mouse$rel2[1];
 
-      return this.positionToSequence({
-        xPos: x,
-        yPos: y
-      });
-    }
-    /**
-     * Only sends an event if the actual function is set.
-     */
-
-
-    sendEvent(name, data) {
-      if (this.props[name] !== undefined) {
-        this.props[name](data);
+        return this.positionToSequence({
+          xPos: x,
+          yPos: y
+        });
       }
-    }
+      /**
+       * Only sends an event if the actual function is set.
+       */
 
-    componentWillUnmount() {
-      this.tileCache.invalidate();
-      this.residueTileCache.invalidate();
-    }
-
-    updateTileSpecs() {
-      const tileAttributes = ['tileWidth', 'tileHeight', 'colorScheme', 'textFont', 'borderColor'];
-      this.tileCache.updateTileSpecs(pick(this.props, [...tileAttributes, 'xGridSize', 'yGridSize', 'sequences']));
-      this.residueTileCache.updateTileSpecs(pick(this.props, tileAttributes));
-    }
-
-    drawHighlightedRegions() {
-      if (this.props.highlight) if (Array.isArray(this.props.highlight)) {
-        var _step,
-            _iterator = function _createForOfIteratorHelper$$1(o) {
-          if ("undefined" == typeof Symbol || null == o[Symbol.iterator]) {
-            if (Array.isArray(o) || (o = _unsupportedIterableToArray(o))) {
-              var i = 0,
-                  F = function F() {};
-
-              return {
-                s: F,
-                n: function n() {
-                  return i >= o.length ? {
-                    done: !0
-                  } : {
-                    done: !1,
-                    value: o[i++]
-                  };
-                },
-                e: function e(_e2) {
-                  throw _e2;
-                },
-                f: F
-              };
-            }
-
-            throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-          }
-
-          var it,
-              err,
-              normalCompletion = !0,
-              didErr = !1;
-          return {
-            s: function s() {
-              it = o[Symbol.iterator]();
-            },
-            n: function n() {
-              var step = it.next();
-              return normalCompletion = step.done, step;
-            },
-            e: function e(_e3) {
-              didErr = !0, err = _e3;
-            },
-            f: function f() {
-              try {
-                normalCompletion || null == it.return || it.return();
-              } finally {
-                if (didErr) throw err;
-              }
-            }
-          };
-        }(this.props.highlight);
-
-        try {
-          for (_iterator.s(); !(_step = _iterator.n()).done;) {
-            const h = _step.value;
-            this.drawHighligtedRegion(h);
-          }
-        } catch (err) {
-          _iterator.e(err);
-        } finally {
-          _iterator.f();
+    }, {
+      key: "sendEvent",
+      value: function sendEvent(name, data) {
+        if (this.props[name] !== undefined) {
+          this.props[name](data);
         }
-      } else this.drawHighligtedRegion(this.props.highlight);
-      this.props.features && this.props.features.forEach(feature => {
-        this.drawHighligtedRegion(feature);
-      });
-    }
+      }
+    }, {
+      key: "componentWillUnmount",
+      value: function componentWillUnmount() {
+        this.tileCache.invalidate();
+        this.residueTileCache.invalidate();
+      }
+    }, {
+      key: "updateTileSpecs",
+      value: function updateTileSpecs() {
+        var tileAttributes = ['tileWidth', 'tileHeight', 'colorScheme', 'textFont', 'borderColor'];
+        this.tileCache.updateTileSpecs(pick(this.props, [].concat(tileAttributes, ['xGridSize', 'yGridSize', 'sequences'])));
+        this.residueTileCache.updateTileSpecs(pick(this.props, tileAttributes));
+      }
+    }, {
+      key: "drawHighlightedRegions",
+      value: function drawHighlightedRegions() {
+        var _this2 = this;
 
-    drawHighligtedRegion(region) {
-      var _this$mouseOverFeatur;
+        if (this.props.highlight) if (Array.isArray(this.props.highlight)) {
+          var _step,
+              _iterator = function _createForOfIteratorHelper$$1(o) {
+            if ("undefined" == typeof Symbol || null == o[Symbol.iterator]) {
+              if (Array.isArray(o) || (o = _unsupportedIterableToArray(o))) {
+                var i = 0,
+                    F = function F() {};
 
-      if (!this.ctx || !region) return;
-      const regionWidth = this.props.tileWidth * (1 + region.residues.to - region.residues.from),
+                return {
+                  s: F,
+                  n: function n() {
+                    return i >= o.length ? {
+                      done: !0
+                    } : {
+                      done: !1,
+                      value: o[i++]
+                    };
+                  },
+                  e: function e(_e2) {
+                    throw _e2;
+                  },
+                  f: F
+                };
+              }
+
+              throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+            }
+
+            var it,
+                err,
+                normalCompletion = !0,
+                didErr = !1;
+            return {
+              s: function s() {
+                it = o[Symbol.iterator]();
+              },
+              n: function n() {
+                var step = it.next();
+                return normalCompletion = step.done, step;
+              },
+              e: function e(_e3) {
+                didErr = !0, err = _e3;
+              },
+              f: function f() {
+                try {
+                  normalCompletion || null == it.return || it.return();
+                } finally {
+                  if (didErr) throw err;
+                }
+              }
+            };
+          }(this.props.highlight);
+
+          try {
+            for (_iterator.s(); !(_step = _iterator.n()).done;) {
+              var h = _step.value;
+              this.drawHighligtedRegion(h);
+            }
+          } catch (err) {
+            _iterator.e(err);
+          } finally {
+            _iterator.f();
+          }
+        } else this.drawHighligtedRegion(this.props.highlight);
+        this.props.features && this.props.features.forEach(function (feature) {
+          _this2.drawHighligtedRegion(feature);
+        });
+      }
+    }, {
+      key: "drawHighligtedRegion",
+      value: function drawHighligtedRegion(region) {
+        var _this$mouseOverFeatur;
+
+        if (!this.ctx || !region) return;
+        var regionWidth = this.props.tileWidth * (1 + region.residues.to - region.residues.from),
             regionHeight = this.props.tileHeight * (1 + region.sequences.to - region.sequences.from),
             yPosFrom = (region.sequences.from - this.props.position.currentViewSequence) * this.props.tileHeight + this.props.position.yPosOffset,
             xPosFrom = (region.residues.from - 1 - this.props.position.currentViewSequencePosition) * this.props.tileWidth + this.props.position.xPosOffset,
             canvas = document.createElement("canvas");
-      canvas.width = regionWidth, canvas.height = regionHeight;
-      const ctx = canvas.getContext("2d"),
-            mouseOver = null === (_this$mouseOverFeatur = this.mouseOverFeatureIds) || void 0 === _this$mouseOverFeatur ? void 0 : _this$mouseOverFeatur.some(id => id === region.id);
-      ctx.globalAlpha = .3, ctx.fillStyle = mouseOver ? region.mouseOverFillColor || "green" : region.fillColor || "#9999FF", ctx.fillRect(0, 0, regionWidth, regionHeight), ctx.globalAlpha = 1, ctx.strokeStyle = mouseOver ? region.mouseOverBorderColor || "black " : region.borderColor || "777700", ctx.lineWidth = "4", ctx.rect(0, 0, regionWidth, regionHeight), ctx.stroke(), this.ctx.drawImage(canvas, 0, 0, regionWidth, regionHeight, xPosFrom, yPosFrom, regionWidth, regionHeight);
-    }
+        canvas.width = regionWidth, canvas.height = regionHeight;
+        var ctx = canvas.getContext("2d"),
+            mouseOver = null === (_this$mouseOverFeatur = this.mouseOverFeatureIds) || void 0 === _this$mouseOverFeatur ? void 0 : _this$mouseOverFeatur.some(function (id) {
+          return id === region.id;
+        });
+        ctx.globalAlpha = .3, ctx.fillStyle = mouseOver ? region.mouseOverFillColor || "green" : region.fillColor || "#9999FF", ctx.fillRect(0, 0, regionWidth, regionHeight), ctx.globalAlpha = 1, ctx.strokeStyle = mouseOver ? region.mouseOverBorderColor || "black " : region.borderColor || "777700", ctx.lineWidth = "4", ctx.rect(0, 0, regionWidth, regionHeight), ctx.stroke(), this.ctx.drawImage(canvas, 0, 0, regionWidth, regionHeight, xPosFrom, yPosFrom, regionWidth, regionHeight);
+      }
+    }, {
+      key: "render",
+      value: function render() {
+        return _get(_getPrototypeOf(SequenceViewerComponent.prototype), "render", this).call(this);
+      }
+    }]);
 
-    render() {
-      return super.render();
-    }
-
-  }
+    return SequenceViewerComponent;
+  }(DraggingComponent);
 
   SequenceViewerComponent.defaultProps = {
     showModBar: false,
@@ -23921,14 +24495,14 @@
 
   SequenceViewerComponent.propKeys = Object.keys(SequenceViewerComponent.propTypes);
 
-  const mapStateToProps$3 = state => {
+  var mapStateToProps$3 = function mapStateToProps(state) {
     // Fallback to a smaller size if the given area is too large
-    const width = Math.min(state.props.width, state.sequences.maxLength * state.props.tileWidth);
-    const height = Math.min(state.props.height, state.sequences.length * state.props.tileHeight);
+    var width = Math.min(state.props.width, state.sequences.maxLength * state.props.tileWidth);
+    var height = Math.min(state.props.height, state.sequences.length * state.props.tileHeight);
     return {
       sequences: state.sequences,
-      width,
-      height,
+      width: width,
+      height: height,
       highlight: state.props.highlight,
       tileWidth: state.props.tileWidth,
       tileHeight: state.props.tileHeight,
@@ -23940,86 +24514,108 @@
     };
   };
 
-  const SV = withPositionConsumer(SequenceViewerComponent, {
+  var SV = withPositionConsumer(SequenceViewerComponent, {
     withX: true,
     withY: true
   });
   var SequenceViewer = msaConnect(mapStateToProps$3)(SV);
 
-  class SequenceOverviewComponent extends CanvasComponent {
-    constructor(...args) {
-      super(...args);
+  var SequenceOverviewComponent = /*#__PURE__*/function (_CanvasComponent) {
+    _inherits(SequenceOverviewComponent, _CanvasComponent);
 
-      _defineProperty(this, "draw", () => {
+    var _super = _createSuper(SequenceOverviewComponent);
+
+    function SequenceOverviewComponent() {
+      var _this;
+
+      _classCallCheck(this, SequenceOverviewComponent);
+
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      _this = _super.call.apply(_super, [this].concat(args));
+
+      _defineProperty(_assertThisInitialized(_this), "draw", function () {
         // TODO: only update this if required
-        this.drawScene();
+        _this.drawScene();
       });
+
+      return _this;
     }
 
-    updateScrollPosition() {
-      this._draw();
-    }
-
-    drawScene() {
-      this.scene = {};
-      var _this$position = this.position;
-      this.scene.xViewPos = _this$position.xPos;
-      this.scene.yViewPos = _this$position.yPos;
-      this.scene.xScalingFactor = 1 / this.props.globalTileWidth * this.props.tileWidth;
-      this.scene.yScalingFactor = 1 / this.props.globalTileHeight * this.props.tileHeight;
-      this.drawCurrentViewpoint();
-      this.drawSequences();
-    }
-
-    drawSequences() {
-      const _this$scene = this.scene,
+    _createClass(SequenceOverviewComponent, [{
+      key: "updateScrollPosition",
+      value: function updateScrollPosition() {
+        this._draw();
+      }
+    }, {
+      key: "drawScene",
+      value: function drawScene() {
+        this.scene = {};
+        var _this$position = this.position;
+        this.scene.xViewPos = _this$position.xPos;
+        this.scene.yViewPos = _this$position.yPos;
+        this.scene.xScalingFactor = 1 / this.props.globalTileWidth * this.props.tileWidth;
+        this.scene.yScalingFactor = 1 / this.props.globalTileHeight * this.props.tileHeight;
+        this.drawCurrentViewpoint();
+        this.drawSequences();
+      }
+    }, {
+      key: "drawSequences",
+      value: function drawSequences() {
+        var _this$scene = this.scene,
             xViewPos = _this$scene.xViewPos,
             xScalingFactor = _this$scene.xScalingFactor;
-      const sequences = this.props.sequences.raw;
-      const xInitPos = 0; //let yPos = -(yViewPos % tileHeight);
-      // TODO: move into the reducer
-      //let i = clamp(floor(yViewPos / tileHeight), 0, sequences.length - 1);
+        var sequences = this.props.sequences.raw;
+        var xInitPos = 0; //let yPos = -(yViewPos % tileHeight);
+        // TODO: move into the reducer
+        //let i = clamp(floor(yViewPos / tileHeight), 0, sequences.length - 1);
 
-      let yPos = 0;
-      let i = 0; // sequences themselves
+        var yPos = 0;
+        var i = 0; // sequences themselves
 
-      for (; i < sequences.length; i++) {
-        const sequence = sequences[i].sequence;
-        let xPos = xInitPos;
-        let j = clamp(floor(xViewPos * xScalingFactor), 0, sequence.length - 1);
-        j = 0;
+        for (; i < sequences.length; i++) {
+          var sequence = sequences[i].sequence;
+          var xPos = xInitPos;
+          var j = clamp(floor(xViewPos * xScalingFactor), 0, sequence.length - 1);
+          j = 0;
 
-        for (; j < sequence.length; j++) {
-          const el = sequence[j];
-          this.ctx.fillStyle(this.props.colorScheme.getColor(el));
-          this.ctx.globalAlpha(0.5);
-          this.ctx.fillRect(xPos, yPos, this.props.tileWidth, this.props.tileHeight);
-          xPos += this.props.tileWidth;
-          if (xPos > this.props.globalWidth) break;
+          for (; j < sequence.length; j++) {
+            var el = sequence[j];
+            this.ctx.fillStyle(this.props.colorScheme.getColor(el));
+            this.ctx.globalAlpha(0.5);
+            this.ctx.fillRect(xPos, yPos, this.props.tileWidth, this.props.tileHeight);
+            xPos += this.props.tileWidth;
+            if (xPos > this.props.globalWidth) break;
+          }
+
+          yPos += this.props.tileHeight;
+          if (yPos > this.props.height) break;
         }
-
-        yPos += this.props.tileHeight;
-        if (yPos > this.props.height) break;
       }
-    }
-
-    drawCurrentViewpoint() {
-      // currently selected area
-      const _this$scene2 = this.scene,
+    }, {
+      key: "drawCurrentViewpoint",
+      value: function drawCurrentViewpoint() {
+        // currently selected area
+        var _this$scene2 = this.scene,
             xViewPos = _this$scene2.xViewPos,
             xScalingFactor = _this$scene2.xScalingFactor,
             yViewPos = _this$scene2.yViewPos,
             yScalingFactor = _this$scene2.yScalingFactor;
-      this.ctx.globalAlpha(0.8);
-      this.ctx.fillRect(xViewPos * xScalingFactor, yViewPos * yScalingFactor, this.props.globalWidth * xScalingFactor, this.props.globalHeight * yScalingFactor);
-    } // to make react-docgen happy
+        this.ctx.globalAlpha(0.8);
+        this.ctx.fillRect(xViewPos * xScalingFactor, yViewPos * yScalingFactor, this.props.globalWidth * xScalingFactor, this.props.globalHeight * yScalingFactor);
+      } // to make react-docgen happy
 
+    }, {
+      key: "render",
+      value: function render() {
+        return _get(_getPrototypeOf(SequenceOverviewComponent.prototype), "render", this).call(this);
+      }
+    }]);
 
-    render() {
-      return super.render();
-    }
-
-  }
+    return SequenceOverviewComponent;
+  }(CanvasComponent);
 
   SequenceOverviewComponent.defaultProps = _objectSpread2(_objectSpread2({}, CanvasComponent.defaultProps), {}, {
     height: 50,
@@ -24042,9 +24638,9 @@
      */
     tileHeight: PropTypes.number
   });
-  const SOC = withPositionConsumer(SequenceOverviewComponent);
+  var SOC = withPositionConsumer(SequenceOverviewComponent);
 
-  const mapStateToProps$4 = state => {
+  var mapStateToProps$4 = function mapStateToProps(state) {
     return {
       sequences: state.sequences,
       width: state.props.width,
@@ -24066,127 +24662,151 @@
   * LICENSE file in the root directory of this source tree.
   */
 
-  const reduxActions = {
+  var _excluded$6 = ["msaStore"];
+
+  var reduxActions = {
     "sequences": "updateSequences"
   };
-  Object.keys(MSAPropTypes).forEach(key => {
+  Object.keys(MSAPropTypes).forEach(function (key) {
     if (!(key in reduxActions) && MSAPropTypes[key] !== PropTypes.func) {
       reduxActions[key] = 'updateProp';
     }
   });
-  const attributesToStore = Object.keys(reduxActions); // precompute [action.key]: action for performance
+  var attributesToStore = Object.keys(reduxActions); // precompute [action.key]: action for performance
 
-  const mapToActionKeys = obj => reduce(obj, (acc, v, k) => {
-    acc[v.key] = v;
-    return acc;
-  }, {});
+  var mapToActionKeys = function mapToActionKeys(obj) {
+    return reduce(obj, function (acc, v, k) {
+      acc[v.key] = v;
+      return acc;
+    }, {});
+  };
 
-  const mainStoreActionKeys = mapToActionKeys(actions);
-  const positionStoreActionKeys = mapToActionKeys(actions$1);
-  const PropsToRedux = WrappedComponent => {
-    class PropsToReduxComponent extends React.Component {
-      constructor(props) {
-        super(props);
-        const storeProps = pick(props, attributesToStore) || {};
-        this.el = createRef$1();
-        this.msaStore = props.msaStore;
+  var mainStoreActionKeys = mapToActionKeys(actions);
+  var positionStoreActionKeys = mapToActionKeys(actions$1);
+  var PropsToRedux = function PropsToRedux(WrappedComponent) {
+    var PropsToReduxComponent = /*#__PURE__*/function (_Component) {
+      _inherits(PropsToReduxComponent, _Component);
+
+      var _super = _createSuper(PropsToReduxComponent);
+
+      function PropsToReduxComponent(props) {
+        var _this;
+
+        _classCallCheck(this, PropsToReduxComponent);
+
+        _this = _super.call(this, props);
+        var storeProps = pick(props, attributesToStore) || {};
+        _this.el = createRef$1();
+        _this.msaStore = props.msaStore;
 
         if (storeProps.sequences !== undefined) {
-          this.msaStore = createMSAStore(storeProps);
+          _this.msaStore = createMSAStore(storeProps);
         } else {
           console.warn("Check your MSA properties", storeProps);
         }
+
+        return _this;
       }
 
-      componentDidMount() {
-        if (this.props.position !== undefined) {
-          this.updatePosition(this.props.position);
-        }
-      } // Notify the internal Redux store about property updates
+      _createClass(PropsToReduxComponent, [{
+        key: "componentDidMount",
+        value: function componentDidMount() {
+          if (this.props.position !== undefined) {
+            this.updatePosition(this.props.position);
+          }
+        } // Notify the internal Redux store about property updates
+
+      }, {
+        key: "componentDidUpdate",
+        value: function componentDidUpdate(oldProps) {
+          var newProps = this.props; // TODO: support batch updates
+
+          for (var prop in pick(newProps, attributesToStore)) {
+            if (!isEqual(oldProps[prop], newProps[prop])) {
+              if (prop === "position") {
+                this.updatePosition(newProps[prop]);
+              } else if (prop in reduxActions) {
+                var action = void 0;
+
+                switch (reduxActions[prop]) {
+                  case 'updateProp':
+                    action = actions[reduxActions[prop]](prop, newProps[prop]);
+                    break;
+
+                  default:
+                    action = actions[reduxActions[prop]](newProps[prop]);
+                } //console.log("Prop -> Redux: ", action, newProps[prop]);
 
 
-      componentDidUpdate(oldProps) {
-        const newProps = this.props; // TODO: support batch updates
-
-        for (const prop in pick(newProps, attributesToStore)) {
-          if (!isEqual(oldProps[prop], newProps[prop])) {
-            if (prop === "position") {
-              this.updatePosition(newProps[prop]);
-            } else if (prop in reduxActions) {
-              let action;
-
-              switch (reduxActions[prop]) {
-                case 'updateProp':
-                  action = actions[reduxActions[prop]](prop, newProps[prop]);
-                  break;
-
-                default:
-                  action = actions[reduxActions[prop]](newProps[prop]);
-              } //console.log("Prop -> Redux: ", action, newProps[prop]);
-
-
-              this.msaStore.dispatch(action);
-            } else {
-              console.error(prop, " is unknown.");
+                this.msaStore.dispatch(action);
+              } else {
+                console.error(prop, " is unknown.");
+              }
             }
           }
         }
-      }
-      /**
-       * Dispatch actions into the MSAViewer component.
-       *
-       * @param {Object} Action to be be dispatched. Must contain "type" and "payload"
-       */
+        /**
+         * Dispatch actions into the MSAViewer component.
+         *
+         * @param {Object} Action to be be dispatched. Must contain "type" and "payload"
+         */
 
-
-      dispatch(action) {
-        if (action.type in mainStoreActionKeys) {
-          this.msaStore.dispatch(action);
-        } else if (action.type in positionStoreActionKeys) {
-          this.el.current.positionStore.dispatch(action);
-        } else {
-          throw new Error("Invalid action", action);
+      }, {
+        key: "dispatch",
+        value: function dispatch(action) {
+          if (action.type in mainStoreActionKeys) {
+            this.msaStore.dispatch(action);
+          } else if (action.type in positionStoreActionKeys) {
+            this.el.current.positionStore.dispatch(action);
+          } else {
+            throw new Error("Invalid action", action);
+          }
         }
-      }
-
-      render() {
-        const _omit = omit(this.props, attributesToStore),
+      }, {
+        key: "render",
+        value: function render() {
+          var _omit = omit(this.props, attributesToStore),
               msaStore = _omit.msaStore,
-              props = _objectWithoutProperties(_omit, ["msaStore"]);
+              props = _objectWithoutProperties(_omit, _excluded$6);
 
-        if (this.msaStore === undefined) {
-          return /*#__PURE__*/React__default.createElement("div", null, " Error initializing the MSAViewer. ");
-        } else {
-          return /*#__PURE__*/React__default.createElement(WrappedComponent, _extends({
-            ref: this.el,
-            msaStore: msaStore || this.msaStore
-          }, props));
+          if (this.msaStore === undefined) {
+            return /*#__PURE__*/React__default.createElement("div", null, " Error initializing the MSAViewer. ");
+          } else {
+            return /*#__PURE__*/React__default.createElement(WrappedComponent, _extends({
+              ref: this.el,
+              msaStore: msaStore || this.msaStore
+            }, props));
+          }
         }
-      }
+      }]);
 
-    } // add action from the main store directly to the main MSA instance
+      return PropsToReduxComponent;
+    }(React.Component); // add action from the main store directly to the main MSA instance
 
 
-    forOwn(actions, (v, k) => {
+    forOwn(actions, function (v, k) {
       PropsToReduxComponent.prototype[k] = function (payload) {
         this.msaStore.dispatch(v(payload));
       };
     }); // add action from the position store directly to the main MSA instance
 
-    forOwn(actions$1, (v, k) => {
+    forOwn(actions$1, function (v, k) {
       PropsToReduxComponent.prototype[k] = function (payload) {
-        requestAnimation(this, () => {
-          this.el.current.positionStore.dispatch(v(payload));
+        var _this2 = this;
+
+        requestAnimation(this, function () {
+          _this2.el.current.positionStore.dispatch(v(payload));
         });
       };
     });
     return PropsToReduxComponent;
   };
 
-  const same = "FORWARD_SAME_PROP_NAME"; // list of events with a default implementation
+  var _excluded$7 = ["children", "msaStore"];
+  var same = "FORWARD_SAME_PROP_NAME"; // list of events with a default implementation
   // mapping: eventName -> DOM event name
 
-  const defaultEvents = {
+  var defaultEvents = {
     "onResidueClick": "residueClick"
   };
   /**
@@ -24197,101 +24817,124 @@
    * components.
    */
 
-  class MSAViewerComponent extends React.Component {
-    constructor(props) {
-      super(props);
-      this.el = createRef$1(); // add default event callback
+  var MSAViewerComponent = /*#__PURE__*/function (_Component) {
+    _inherits(MSAViewerComponent, _Component);
 
-      forOwn(defaultEvents, (domEventName, eventName) => {
-        this["_" + eventName] = e => {
-          const event = new CustomEvent(domEventName, {
+    var _super = _createSuper(MSAViewerComponent);
+
+    function MSAViewerComponent(props) {
+      var _this;
+
+      _classCallCheck(this, MSAViewerComponent);
+
+      _this = _super.call(this, props);
+      _this.el = createRef$1(); // add default event callback
+
+      forOwn(defaultEvents, function (domEventName, eventName) {
+        _this["_" + eventName] = function (e) {
+          var event = new CustomEvent(domEventName, {
             detail: e,
             bubbles: true
           });
-          this.el.current.dispatchEvent(event);
+
+          _this.el.current.dispatchEvent(event);
         };
       });
 
-      this._setupStores();
+      _this._setupStores();
+
+      return _this;
     } // List of props forwarded to the SequenceViewer component
 
 
-    forwardProps(propsToBeForwarded) {
-      const options = {};
-      forOwn(propsToBeForwarded, (forwardedName, currentName) => {
-        if (this.props[currentName] !== undefined) {
-          const name = forwardedName === same ? currentName : forwardedName;
-          options[name] = this.props[currentName];
-        } else if (currentName in defaultEvents) {
-          // inject default event handler
-          options[currentName] = this["_" + currentName];
-        }
-      });
-      return options;
-    }
+    _createClass(MSAViewerComponent, [{
+      key: "forwardProps",
+      value: function forwardProps(propsToBeForwarded) {
+        var _this2 = this;
 
-    _setupStores() {
-      this.positionStore = createStore(positionReducer);
-      this.positionStore.dispatch(actions$1.updateMainStore(this.props.msaStore.getState()));
-      this.msaStoreUnsubscribe = this.props.msaStore.subscribe(() => {
-        // forward the msaStore to the positionStore for convenience
+        var options = {};
+        forOwn(propsToBeForwarded, function (forwardedName, currentName) {
+          if (_this2.props[currentName] !== undefined) {
+            var name = forwardedName === same ? currentName : forwardedName;
+            options[name] = _this2.props[currentName];
+          } else if (currentName in defaultEvents) {
+            // inject default event handler
+            options[currentName] = _this2["_" + currentName];
+          }
+        });
+        return options;
+      }
+    }, {
+      key: "_setupStores",
+      value: function _setupStores() {
+        var _this3 = this;
+
+        this.positionStore = createStore(positionReducer);
         this.positionStore.dispatch(actions$1.updateMainStore(this.props.msaStore.getState()));
-      });
-    }
+        this.msaStoreUnsubscribe = this.props.msaStore.subscribe(function () {
+          // forward the msaStore to the positionStore for convenience
+          _this3.positionStore.dispatch(actions$1.updateMainStore(_this3.props.msaStore.getState()));
+        });
+      }
+    }, {
+      key: "componentWillUnmount",
+      value: function componentWillUnmount() {
+        this.msaStoreUnsubscribe();
+      } // TODO: we could inject this in the main redux store for better compatibility
 
-    componentWillUnmount() {
-      this.msaStoreUnsubscribe();
-    } // TODO: we could inject this in the main redux store for better compatibility
-
-
-    getChildContext() {
-      return {
-        positionMSAStore: this.positionStore
-      };
-    }
-
-    render() {
-      const _this$props = this.props,
+    }, {
+      key: "getChildContext",
+      value: function getChildContext() {
+        return {
+          positionMSAStore: this.positionStore
+        };
+      }
+    }, {
+      key: "render",
+      value: function render() {
+        var _this$props = this.props,
             children = _this$props.children,
             msaStore = _this$props.msaStore,
-            otherProps = _objectWithoutProperties(_this$props, ["children", "msaStore"]);
+            otherProps = _objectWithoutProperties(_this$props, _excluded$7);
 
-      if (children) {
-        return /*#__PURE__*/React__default.createElement(MSAProvider, {
-          store: msaStore
-        }, /*#__PURE__*/React__default.createElement("div", _extends({}, otherProps, {
-          ref: this.el
-        }), children));
-      } else {
-        // TODO: add more advanced layouts
-        const currentState = msaStore.getState();
-        const labelsPadding = currentState.props.tileHeight;
-        const overviewBarHeight = 50;
-        const labelsAndSequenceDiv = {
-          display: "flex"
-        };
-        const labelsStyle = {
-          paddingTop: labelsPadding + overviewBarHeight
-        };
-        const separatorPadding = {
-          height: 10
-        };
-        return /*#__PURE__*/React__default.createElement(MSAProvider, {
-          store: msaStore
-        }, /*#__PURE__*/React__default.createElement("div", {
-          style: labelsAndSequenceDiv,
-          ref: this.el
-        }, /*#__PURE__*/React__default.createElement(Labels, _extends({
-          style: labelsStyle
-        }, this.forwardProps(MSAViewerComponent.labelsProps))), /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(OverviewBar, _extends({
-          height: overviewBarHeight
-        }, this.forwardProps(MSAViewerComponent.overviewBarProps))), /*#__PURE__*/React__default.createElement(PositionBar, this.forwardProps(MSAViewerComponent.positionBarProps)), /*#__PURE__*/React__default.createElement(SequenceViewer, this.forwardProps(MSAViewerComponent.sequenceViewerProps)), /*#__PURE__*/React__default.createElement("div", {
-          style: separatorPadding
-        })))); //<SequenceOverview />
+        if (children) {
+          return /*#__PURE__*/React__default.createElement(MSAProvider, {
+            store: msaStore
+          }, /*#__PURE__*/React__default.createElement("div", _extends({}, otherProps, {
+            ref: this.el
+          }), children));
+        } else {
+          // TODO: add more advanced layouts
+          var currentState = msaStore.getState();
+          var labelsPadding = currentState.props.tileHeight;
+          var overviewBarHeight = 50;
+          var labelsAndSequenceDiv = {
+            display: "flex"
+          };
+          var labelsStyle = {
+            paddingTop: labelsPadding + overviewBarHeight
+          };
+          var separatorPadding = {
+            height: 10
+          };
+          return /*#__PURE__*/React__default.createElement(MSAProvider, {
+            store: msaStore
+          }, /*#__PURE__*/React__default.createElement("div", {
+            style: labelsAndSequenceDiv,
+            ref: this.el
+          }, /*#__PURE__*/React__default.createElement(Labels, _extends({
+            style: labelsStyle
+          }, this.forwardProps(MSAViewerComponent.labelsProps))), /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(OverviewBar, _extends({
+            height: overviewBarHeight
+          }, this.forwardProps(MSAViewerComponent.overviewBarProps))), /*#__PURE__*/React__default.createElement(PositionBar, this.forwardProps(MSAViewerComponent.positionBarProps)), /*#__PURE__*/React__default.createElement(SequenceViewer, this.forwardProps(MSAViewerComponent.sequenceViewerProps)), /*#__PURE__*/React__default.createElement("div", {
+            style: separatorPadding
+          })))); //<SequenceOverview />
+        }
       }
-    }
+    }]);
 
-  }
+    return MSAViewerComponent;
+  }(React.Component);
 
   _defineProperty(MSAViewerComponent, "sequenceViewerProps", {
     "showModBar": same,
@@ -24335,7 +24978,7 @@
   MSAViewerComponent.childContextTypes = {
     positionMSAStore: PropTypes.object
   };
-  const MSAViewer = PropsToRedux(MSAViewerComponent);
+  var MSAViewer = PropsToRedux(MSAViewerComponent);
   MSAViewer.defaultProps = msaDefaultProps;
   MSAViewer.propTypes = _objectSpread2({
     /**
@@ -24345,9 +24988,9 @@
     msaStore: PropTypes.object
   }, MSAPropTypes);
 
-  const VERSION$1 = "0.0.12";
+  var VERSION$1 = "0.0.12";
 
-  const actions$2 = _objectSpread2(_objectSpread2({}, actions), actions$1);
+  var actions$2 = _objectSpread2(_objectSpread2({}, actions), actions$1);
 
   exports.actions = actions$2;
   exports.ColorScheme = ColorScheme;
