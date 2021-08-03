@@ -385,7 +385,10 @@ def getTruncatedAlignmentDirect(request, moleculeType, alignmentName, strainId0,
         for row in cursor.fetchall():
             genusList.append(row[0])
             speciesNames.append(row[1])
-    speciesName0, speciesName1 = speciesNames
+    if len(speciesNames) == 1:
+        speciesName0 = speciesName1 = speciesNames[0]
+    else:
+        speciesName0, speciesName1 = speciesNames
     alignment = string_fasta(request, moleculeType, alignmentName, strainId0 + ',' + strainId1, internal=True)
     alignment = alignment.replace('\\n', '\n')
     truncatedAlignment = ''

@@ -30,7 +30,8 @@
 				selectedAlignments = [];
 			Array.from(getElementById('1.moleculeGroupSelect').selectedOptions).forEach(selectedOption => selectedMoleculeGroups.push(selectedOption.value));
 			Array.from(getElementById('1.alignmentSelect').selectedOptions).forEach(selectedOption => selectedAlignments.push(selectedOption.value));
-			strains = results('/getStrainsFilterByMoleculeGroupAndAlignment/' + selectedMoleculeGroups.join(',') + '/' + selectedAlignments.join(','));
+			url = '/getStrainsFilterByMoleculeGroupAndAlignment/' + selectedMoleculeGroups.join(',') + '/' + selectedAlignments.join(',');
+			strains = results(url);
 			populateSelect('1.taxSelect.0', strains, tuple => tuple[0], tuple => tuple[1]);
 			populateSelect('1.taxSelect.1', strains, tuple => tuple[0], tuple => tuple[1]);"
 		></select>
