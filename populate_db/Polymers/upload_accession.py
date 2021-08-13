@@ -88,14 +88,14 @@ def main():
         nom_id = check_nomo_id(superK[0], entry[3])
         strain_id = str(entry[0])
         gi = entry[1]
-        query = "INSERT INTO `Polymer_Data`(`GI`,`strain_ID`,`nomgd_id`, `GeneDescription`, `GI_type`, `encoding_location`, `is_complete`, is_duplicate) \
-                        VALUES('"+gi+"','"+strain_id+"','"+str(nom_id)+"','"+entry[4].rstrip()+"','"+entry[2]+"','"+entry[5]+"','"+str(entry[6])+"','"+str(entry[7])+"')"
+        query = "INSERT INTO `Polymer_Data`(`GI`,`strain_ID`,`nomgd_id`, `GeneDescription`, `GI_type`) \
+                        VALUES('"+gi+"','"+strain_id+"','"+str(nom_id)+"','"+entry[4].rstrip()+"','"+entry[2]+"')"
         print(query)
         cursor.execute(query)
 
         lastrow_id = str(cursor.lastrowid)
-        query = "INSERT INTO `Polymer_metadata`(`polymer_id`,`accession_type`,`polymer_type`, `Fullseq`) \
-                                            VALUES('"+str(lastrow_id)+"','LDW-prot','protein','"+entry[8]+"')"
+        query = "INSERT INTO `Polymer_metadata`(`polymer_id`,`accession_type`,`polymer_type`,`encoding_location`,`classification`,`Fullseq`) \
+                                            VALUES('"+str(lastrow_id)+"','LDW-prot','protein','"+entry[5]+"','"+entry[6]+"','"+entry[7]+"')"
         cursor.execute(query)
 
         # pdata_id = cursor.lastrow_id

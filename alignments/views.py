@@ -290,6 +290,18 @@ def allProteinTypes(request):
     }
     return JsonResponse(context)
 
+def allSpecies(request):
+    allSpecies = []
+    with connection.cursor() as cursor:
+        sql = "select strain, strain_id from Species order by strain asc;"
+        cursor.execute(sql)
+        for row in cursor.fetchall():
+            allSpecies.append([row[0], row[1]])
+    context = {
+        "allSpecies" : allSpecies
+    }
+    return JsonResponse(context)
+
 def proteinTypesDirect(request, concatenatedTaxIds):
     results = []
     with connection.cursor() as cursor:
@@ -306,7 +318,9 @@ def proteinTypesDirect(request, concatenatedTaxIds):
             for row in cursor.fetchall():
                 proteinTypesList.append(row[0])
             results.append(proteinTypesList)
-    context = {'results' : results}
+    context = {
+        'results' : results
+    }
     return JsonResponse(context)
 
 def getAlignmentsFilterByProteinTypeAndTaxIds(request):
@@ -372,7 +386,26 @@ def getAlignmentsFilterByProteinTypeDirect(request, concatenatedProteinTypes):
     }
     return JsonResponse(context)
 
-def getTruncatedAlignmentDirect(request, moleculeType, alignmentName, strainId0, strainId1):
+def getPolymerInformationFilterByStrainIDAndGIDirect(request, strain_id, gi, internal = False):
+    sql = "select Polymer_Data.GI, Polymer_metadata.encoding_location, Polymer_metadata.classification from Polymer_Data join Polymer_metadata on Polymer_Data.PData_id = Polymer_metadata.polymer_id join Species_Polymer on Species_Polymer.nomgd_id = Polymer_Data.nomgd_id and Species_Polymer.GI = Polymer_Data.GI join Species on Species_Polymer.strain_id = Species.strain_id where Species.strain_id = " + str(strain_id) + " and Polymer_Data.GI = '" + gi + "'"
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        results = []
+        for row in cursor.fetchall():
+            rowDictionary = {
+                'GI' : row[0],
+                'encoding location' : row[1],
+                'classification' : row[2]
+            }
+            results.append(rowDictionary)
+    if internal:
+        return results
+    context = {
+        'results' : results
+    }
+    return JsonResponse(context)
+
+def getPairwiseAlignmentDirect(request, moleculeType, alignmentName, strainId0, strainId1, internal = False):
     strainIds = [strainId0, strainId1]
     concatenatedStrainIds = '\'' + strainIds[0] + '\''
     for i in range(1, len(strainIds)):
@@ -402,11 +435,98 @@ def getTruncatedAlignmentDirect(request, moleculeType, alignmentName, strainId0,
             alignmentLine = alignmentLines[i]
             if modifiedStrainName0 in titleLine or modifiedStrainName1 in titleLine:
                 truncatedAlignment += alignmentLine + '\n'
+    if internal:
+        return truncatedAlignment
     context = {
         'truncatedAlignment' : truncatedAlignment
     }
     return JsonResponse(context)
-        
+
+def showPairwiseAlignmentDirect(request, moleculeType, alignmentName, strainId0, strainId1):
+    pairwiseAlignment = getPairwiseAlignmentDirect(request, moleculeType, alignmentName, strainId0, strainId1, internal = True)
+    context = {
+        'multipleLinesData' : pairwiseAlignment
+    }
+    return render(request, 'alignments/multipleLinesVisualizer.html', context)
+
+def showPolymerInformationDirect(request, strain_id, gi):
+    polymerInformation = getPolymerInformationFilterByStrainIDAndGIDirect(request, strain_id, gi, True)
+    multipleLinesData = None
+    if len(polymerInformation) == 0:
+        multipleLinesData = "No results!"
+    else:
+        polymerInformation = polymerInformation[0]
+        multipleLinesData = '\n'.join(['GI: ' + str(polymerInformation['GI']), 'encoding location: ' + str(polymerInformation['encoding location']), 'classification: ' + str(polymerInformation['classification'])])
+    context = {
+        'multipleLinesData' : multipleLinesData
+    }
+    return render(request, 'alignments/multipleLinesVisualizer.html', context)
+
+def showStrainsPerProteinGIDirect(request, proteinGI):
+    strainIDs = getStrainIdsFilterByProteinGIDirect(request, proteinGI, internal = True)
+    context = {
+        'multipleLinesData' : '\n'.join(str(strainID) for strainID in strainIDs)
+    }
+    return render(request, 'alignments/multipleLinesVisualizer.html', context)
+
+def showProteinGIsPerStrainIDAndProteinTypeDirect(request, strain_id, proteinType):
+    proteinGIs = getProteinGIsFilterByStrainIDAndProteinTypeDirect(request, strain_id, proteinType, internal = True)
+    multipleLinesData = None
+    if len(proteinGIs) == 0:
+        multipleLinesData = "No results!"
+    else:
+        multipleLinesData = '\n'.join(proteinGIs)
+    context = {
+        'multipleLinesData' : multipleLinesData
+    }
+    return render(request, 'alignments/multipleLinesVisualizer.html', context)
+
+def showAlignmentDirect(request, protein_type, aln_name, tax_group):
+    alignment = string_fasta(request, protein_type, aln_name, tax_group, True)
+    context = {
+        'multipleLinesData' : alignment
+    }
+    return render(request, 'alignments/multipleLinesVisualizer.html', context)
+
+def getProteinGIsFilterByStrainIDAndProteinTypeDirect(request, strain_id, proteinType, internal = False):
+    sql = "select Polymer_Data.GI from Polymer_Data join Nomenclature on Nomenclature.nom_id = Polymer_Data.nomgd_id join Species_Polymer on Species_Polymer.GI = Polymer_Data.GI and Species_Polymer.nomgd_id = Polymer_Data.nomgd_id join Species on Species.strain_id = Species_Polymer.strain_id where Species.strain_id = " + str(strain_id) + " and Nomenclature.MoleculeGroup = '" + proteinType + "' order by Polymer_Data.GI asc;"
+    results = []
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        for row in cursor.fetchall():
+            results.append(row[0])
+    if internal:
+        return results
+    context = {
+        'results' : results
+    }
+    return JsonResponse(context)
+
+def getProteinGIsFilterByProteinTypeDirect(request, proteinType):
+    sql = "select Polymer_Data.GI from Polymer_Data join Nomenclature on Polymer_Data.nomgd_id = Nomenclature.nom_id where Nomenclature.MoleculeGroup = '" + proteinType + "' order by Polymer_Data.GI asc;"
+    results = []
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        for row in cursor.fetchall():
+            results.append(row[0])
+    context = {
+        'results' : results
+    }
+    return JsonResponse(context)
+
+def getStrainIdsFilterByProteinGIDirect(request, proteinGI, internal = False):
+    sql = "select distinct(Species.strain_id) from Polymer_Data join Species_Polymer on Species_Polymer.GI = Polymer_Data.GI and Species_Polymer.nomgd_id = Polymer_Data.nomgd_id join Species on Species_Polymer.strain_id = Species.strain_id where Polymer_Data.GI = '" + proteinGI + "';"
+    results = []
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        for row in cursor.fetchall():
+            results.append(row[0])
+    if internal:
+        return results
+    context = {
+        'results' : results
+    }
+    return JsonResponse(context)
 
 def getStrainsFilterByMoleculeGroupAndAlignmentDirect(request, concatenatedMoleculeGroups, concatenatedAlignmentNames):
     moleculeGroups = concatenatedMoleculeGroups.split(',')

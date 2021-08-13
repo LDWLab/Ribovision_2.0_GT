@@ -10,6 +10,31 @@
 		<script type="text/javascript" src={% static 'alignments/API_helper.js' %}></script>
 	</head>
 	<body>
+		<input type="checkbox" id="0.b_checkbox" onclick="getCombinedProteinTypes();">Bacteria
+		<input type="checkbox" id="0.a_checkbox" onclick="getCombinedProteinTypes()">Archaea
+		<input type="checkbox" id="0.e_checkbox" onclick="getCombinedProteinTypes()">Eukarya
+		<br>
+		Protein Type:
+		<br>
+		<select id="0.protein_type" onfocus="this.selectedIndex=-1;" onchange="selectedProteinType=this.value; getAlignmentNames();" multiple></select>
+		<br>
+		Alignment Name:
+		<br>
+		<select id="0.alignment_name" onfocus="this.selectedIndex=-1;" onchange="
+			let
+				urlSuffix = [document.getElementById('0.protein_type').value, this[this.selectedIndex].text, getSelectedStrainIds().join(',')].join('/'),
+				url = urlPrefix + 'ortholog-aln-api/' + urlSuffix;
+			console.log(url);
+			let
+				alignment = results(url, 'Alignment');
+			document.getElementById('0.url_display').innerHTML = urlPrefix + 'showAlignment/' + urlSuffix;
+			document.getElementById('0.projectInfo').textContent = alignment;
+		"></select>
+		<br>
+		<p id="0.url_display"></p>
+		<pre id="0.projectInfo"></pre>
+		<br>
+		<br>
 		Select a molecule type:
 		<br>
 		<select id="1.moleculeGroupSelect" onfocus="this.selectedIndex=-1;" onchange="
@@ -42,31 +67,136 @@
 			let
 				otherTaxSelect = document.getElementById('1.taxSelect.1');
 			if (otherTaxSelect.selectedIndex != -1) {
-				showTruncatedAlignment(this[this.selectedIndex], otherTaxSelect[otherTaxSelect.selectedIndex]);
+				showPairwiseAlignment(this[this.selectedIndex], otherTaxSelect[otherTaxSelect.selectedIndex]);
 			}"
 		></select>
 		<select id="1.taxSelect.1" onfocus = "this.selectedIndex=-1" onchange="
 			let
 				otherTaxSelect = document.getElementById('1.taxSelect.0');
 			if (otherTaxSelect.selectedIndex != -1) {
-				showTruncatedAlignment(otherTaxSelect[otherTaxSelect.selectedIndex], this[this.selectedIndex]);
+				showPairwiseAlignment(otherTaxSelect[otherTaxSelect.selectedIndex], this[this.selectedIndex]);
 			}"
 		></select>
-		<p id="url_display"></p>
-		<pre id="projectInfo"></pre>
+		<br>
+		<p id="1.url_display"></p>
+		<pre id="1.projectInfo"></pre>
+		<br>
+		<br>
+		Select a species:
+		<br>
+		<select id="2.strainSelect" onfocus = "this.selectedIndex = -1;" onchange = "
+			let
+				giSelect = document.getElementById('2.proteinNameSelect');
+			if (giSelect.selectedIndex != -1) {
+				showStrainGIQuery(this[this.selectedIndex], giSelect[giSelect.selectedIndex]);
+			}
+		"></select>
+		<br>
+		Select a molecule type:
+		<br>
+		<select id="2.moleculeGroupSelect" onfocus="this.selectedIndex = -1;" onchange="let selectedMoleculeGroups = []; Array.from(this.selectedOptions).forEach(selectedOption => selectedMoleculeGroups.push(selectedOption.value)); populateSelect('2.proteinNameSelect', results('getProteinGIsFilterByProteinType/' + selectedMoleculeGroups.join(',')))"></select>
+		<br>
+		Select a protein:
+		<br>
+		<select id="2.proteinNameSelect" onfocus="this.selectedIndex = -1;" onchange = "
+			let
+				speciesSelect = document.getElementById('2.strainSelect');
+			if (speciesSelect.selectedIndex != -1) {
+				showStrainGIQuery(speciesSelect[speciesSelect.selectedIndex], this[this.selectedIndex]);
+			}
+		"></select>
+		<br>
+		<p id="2.url_display"></p>
+		<pre id="2.projectInfo"></pre>
+		<br>
+		<br>
+		Select a species:
+		<br>
+		<select id="3.strainSelect" onfocus="this.selectedIndex = -1;" onchange="
+			let
+				moleculeGroupSelect = document.getElementById('3.moleculeGroupSelect');
+			if (moleculeGroupSelect.selectedIndex != -1) {
+				showStrainMoleculeTypeQuery(this[this.selectedIndex], moleculeGroupSelect[moleculeGroupSelect.selectedIndex]);
+			}
+		"></select>
+		<br>
+		Select a molecule type:
+		<br>
+		<select id="3.moleculeGroupSelect" onfocus="this.selectedIndex = -1;" onchange = "
+			let
+				strainSelect = document.getElementById('3.strainSelect');
+			if (strainSelect.selectedIndex != -1) {
+				showStrainMoleculeTypeQuery(strainSelect[strainSelect.selectedIndex], this[this.selectedIndex]);
+			}
+		"></select>
+		<br>
+		<p id="3.url_display"></p>
+		<pre id="3.projectInfo"></pre>
+		<br>
+		<br>
+		Select a protein type:
+		<br>
+		<select id="4.moleculeGroupSelect" onfocus="this.selectedIndex = -1;" onchange = "populateSelect('4.proteinNameSelect', results('/getProteinGIsFilterByProteinType/' + this[this.selectedIndex].value));"></select>
+		<br>
+		Select a protein name:
+		<br>
+		<select id="4.proteinNameSelect" onfocus="this.selectedIndex = -1;" onchange = "
+			let
+				urlSuffix = this[this.selectedIndex].value,
+				queryResults = results('/getStrainIdsFilterByProteinGI/' + urlSuffix);
+			document.getElementById('4.projectInfo').textContent = queryResults.join('\n');
+			document.getElementById('4.url_display').innerHTML = urlPrefix + 'showStrainsPerProteinGI/' + urlSuffix;
+		"></select>
+		<br>
+		<p id="4.url_display"></p>
+		<pre id="4.projectInfo"></pre>
 	</body>
 </html>
 <script>
-	function results(url) {
+	function getSelectedStrainIds() {
 		let
-			return_value = 'default';
+			selectedStrainIds = [];
+		if (document.getElementById('0.b_checkbox').checked) {
+			selectedStrainIds.push(2);
+		}
+		if (document.getElementById('0.a_checkbox').checked) {
+			selectedStrainIds.push(2157);
+		}
+		if (document.getElementById('0.e_checkbox').checked) {
+			selectedStrainIds.push(2759);
+		}
+		return selectedStrainIds;
+	}
+	function getCombinedProteinTypes() {
+		let
+			selectedStrainIds = getSelectedStrainIds();
+		if (selectedStrainIds.length > 0) {
+			let
+				url = '/proteinTypes/' + selectedStrainIds.join(',');
+			populateSelect('0.protein_type', combine(results(url), true))
+		} else {
+			clearSelect('0.protein_type');
+		}
+		clearSelect('0.alignment_name');
+	}
+	function getAlignmentNames() {
+		let
+			selectedProteinTypes = [];
+		Array.from(document.getElementById('0.protein_type').selectedOptions).forEach(selectedOption => selectedProteinTypes.push(selectedOption.value));
+		let
+			url = '/getAlignmentsFilterByProteinTypeAndTaxIds/' + selectedProteinTypes.join(',') + '/' + getSelectedStrainIds().join(',');
+		populateSelect("0.alignment_name", combine(results(url), false, (arr0, arr1) => arr0[1] == arr1[1]), tuple => tuple[0], tuple => tuple[1]);
+	}
+	function results(url, keyword = 'results') {
+		let
+			return_value;
 		$.ajax({
 			url: url,
 			type: 'GET',
 			dataType: "json",
 			async: false,
 			success: function(data) {
-				return_value = data['results'];
+				return_value = data[keyword];
 			},
 			error: function(error) {
 				console.log(`Error ${error}`);
@@ -74,7 +204,21 @@
 		});
 		return return_value;
 	}
-	function combine(url, additive=true) {
+	function combine(_results, additive=true, comparator = (val0, val1) => val0 == val1) {
+		let
+			cumulativeResults;
+		if (additive) {
+			cumulativeResults = new Set();
+			_results.forEach(resultsSubArray => resultsSubArray.forEach(individualResult => cumulativeResults.add(individualResult)));
+		} else {
+			cumulativeResults = _results[0];
+			for (let i = 1; i < _results.length; i++) {
+				let
+					resultsSubArrayI = _results[i];
+				cumulativeResults = cumulativeResults.filter(cumulativeResultCandidate => resultsSubArrayI.some(resultsSubArrayIEntry => comparator(cumulativeResultCandidate, resultsSubArrayIEntry)));
+			}
+		}
+		return cumulativeResults;
 	}
 	function clearSelect(selectId) {
 		let
@@ -91,7 +235,7 @@
 			index = 0;
 		entries.forEach(entry => selectElement[index++] = new Option(text=getTextHelper(entry), value=getValueHelper(entry)));
 	}
-	function showTruncatedAlignment(strainOption0, strainOption1) {
+	function showPairwiseAlignment(strainOption0, strainOption1) {
 		// let
 		// 	selectedMoleculeGroups = [];
 		// Array.from(document.getElementById('1.moleculeGroupSelect').selectedOptions).forEach(selectedOption => selectedMoleculeGroups.push(selectedOption.value));
@@ -146,10 +290,10 @@
 			selectedMoleculeGroups = [],
 			alignmentSelect = document.getElementById('1.alignmentSelect');
 		Array.from(document.getElementById('1.moleculeGroupSelect').selectedOptions).forEach(selectedOption => selectedMoleculeGroups.push(selectedOption.value));
-		let 
-			_url = 'getTruncatedAlignment/' + selectedMoleculeGroups.join(',') + '/' + alignmentSelect[alignmentSelect.selectedIndex].text + '/' + strainOption0.value + '/' + strainOption1.value;
+		let
+			urlSuffix = selectedMoleculeGroups.join(',') + '/' + alignmentSelect[alignmentSelect.selectedIndex].text + '/' + strainOption0.value + '/' + strainOption1.value;
 		$.ajax({
-			url: _url,
+			url: 'getPairwiseAlignment/' + urlSuffix,
 			type: 'GET',
 			dataType: 'json',
 			async: false,
@@ -160,8 +304,8 @@
 				console.log(`Error ${error}`);
 			}
 		});
-		document.getElementById('url_display').innerHTML = 'http://127.0.0.1:8000/' + _url
-		document.getElementById('projectInfo').textContent = truncatedAlignment;
+		document.getElementById('1.url_display').innerHTML = urlPrefix + 'showPairwiseAlignment/' + urlSuffix;
+		document.getElementById('1.projectInfo').textContent = truncatedAlignment;
 		// let
 		// 	lines = null,
 		// 	selectedMoleculeGroups = [],
@@ -182,9 +326,51 @@
 		// });
 		// document.getElementById('projectInfo').textContent = lines;
 	}
+	function showStrainGIQuery(selectedStrainOption, selectedGIOption) {
+		let
+			urlSuffix = selectedStrainOption.value + "/" + selectedGIOption.value,
+			queryResults = results('/getPolymerInformationFilterByStrainIDAndGI/' + urlSuffix);
+		switch (queryResults.length) {
+			case 0:
+				document.getElementById('2.projectInfo').textContent = "No results exist!";
+				break;
+			default:
+				queryResults = queryResults[0];
+				document.getElementById('2.projectInfo').textContent = "GI: " + queryResults['GI'] + "\nencoding location: " + queryResults['encoding location'] + "\nclassification: " + queryResults['classification'];
+				break;
+		}
+		document.getElementById('2.url_display').innerHTML = urlPrefix + 'showPolymerInformation/' + urlSuffix;
+	}
+	function showStrainMoleculeTypeQuery(selectedStrainOption, selectedProteinTypeOption) {
+		let
+			urlSuffix = selectedStrainOption.value + "/" + selectedProteinTypeOption.value,
+			url = '/getProteinGIsFilterByStrainIDAndProteinType/' + urlSuffix,
+			queryResults = results(url);
+		let
+			textContent;
+		if (queryResults.length == 0) {
+			textContent = "No results!";
+		} else {
+			textContent = queryResults.join('\n');
+		}
+		document.getElementById('3.url_display').innerHTML = urlPrefix + 'showProteinGIsPerStrainIDAndProteinType/' + urlSuffix;
+		document.getElementById("3.projectInfo").textContent = textContent;
+	}
 	ajax('/allProteinTypes').then(val => {
 		let
 			allProteinTypes = val['allProteinTypes'];
 		populateSelect('1.moleculeGroupSelect', allProteinTypes);
+		populateSelect('2.moleculeGroupSelect', allProteinTypes);
+		populateSelect('3.moleculeGroupSelect', allProteinTypes);
+		populateSelect('4.moleculeGroupSelect', allProteinTypes);
 	});
+	ajax('/allSpecies').then(val => {
+		let
+			allSpecies = val['allSpecies'];
+		populateSelect('2.strainSelect', allSpecies, result => result[0], result => result[1]);
+		populateSelect('3.strainSelect', allSpecies, result => result[0], result => result[1]);
+	});
+	let
+		urlPrefix = 'http://127.0.0.1:8000/';
+		// urlPrefix = 'https://ribovision3.chemistry.gatech.edu/';
 </script>

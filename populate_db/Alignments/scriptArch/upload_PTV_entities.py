@@ -28,7 +28,7 @@ for opt, arg in opts:
 
 #uname = input("User name: ")
 pw = getpass.getpass("Password: ")
-cnx = mysql.connector.connect(user='ppenev', password=pw, host='130.207.36.76', database='SEREB2')
+cnx = mysql.connector.connect(user='ppenev', password=pw, host='130.207.36.76', database='DESIRE')
 cursor = cnx.cursor()
 
 def read_tsv(tsv_path):
@@ -55,10 +55,10 @@ def superkingdom_info(ID):
 	Gets the superkingdom for a strain ID
 	'''
 	#print(ID)
-	cursor.execute("SELECT SEREB2.TaxGroups.groupName FROM SEREB2.Species_TaxGroup\
-		INNER JOIN SEREB2.TaxGroups ON SEREB2.Species_TaxGroup.taxgroup_id=SEREB2.TaxGroups.taxgroup_id\
-		INNER JOIN SEREB2.Species ON SEREB2.Species_TaxGroup.strain_id=SEREB2.Species.strain_id\
-		WHERE SEREB2.TaxGroups.groupLevel = 'superkingdom' AND SEREB2.Species.strain_id = '"+ID+"'")
+	cursor.execute("SELECT DESIRE.TaxGroups.groupName FROM DESIRE.Species_TaxGroup\
+		INNER JOIN DESIRE.TaxGroups ON DESIRE.Species_TaxGroup.taxgroup_id=DESIRE.TaxGroups.taxgroup_id\
+		INNER JOIN DESIRE.Species ON DESIRE.Species_TaxGroup.strain_id=DESIRE.Species.strain_id\
+		WHERE DESIRE.TaxGroups.groupLevel = 'superkingdom' AND DESIRE.Species.strain_id = '"+ID+"'")
 	results = cursor.fetchall()
 	#print(ID,results)
 	try:
@@ -71,11 +71,11 @@ def check_nomo_id(occur, name):
 	'''
 	Gets nom_id for new name and superkingdom
 	'''
-	#cursor.execute("SELECT SEREB2.Nomenclature.nom_id FROM SEREB2.Nomenclature\
-	#	INNER JOIN SEREB2.Old_name ON SEREB2.Nomenclature.nom_id=SEREB2.Old_name.nomo_id\
-	#	WHERE SEREB2.Old_name.old_name = '"+name+"' AND SEREB2.Old_name.N_B_Y_H_A = 'BAN' AND SEREB2.Nomenclature.occurrence = '"+occur+"'")
-	cursor.execute("SELECT SEREB2.Nomenclature.nom_id FROM SEREB2.Nomenclature\
-		WHERE SEREB2.Nomenclature.new_name = '"+name+"' AND SEREB2.Nomenclature.occurrence = '"+occur+"'")
+	#cursor.execute("SELECT DESIRE.Nomenclature.nom_id FROM DESIRE.Nomenclature\
+	#	INNER JOIN DESIRE.Old_name ON DESIRE.Nomenclature.nom_id=DESIRE.Old_name.nomo_id\
+	#	WHERE DESIRE.Old_name.old_name = '"+name+"' AND DESIRE.Old_name.N_B_Y_H_A = 'BAN' AND DESIRE.Nomenclature.occurrence = '"+occur+"'")
+	cursor.execute("SELECT DESIRE.Nomenclature.nom_id FROM DESIRE.Nomenclature\
+		WHERE DESIRE.Nomenclature.new_name = '"+name+"' AND DESIRE.Nomenclature.occurrence = '"+occur+"'")
 	result = cursor.fetchall()
 	#nom_id=result[0][0]
 	try:
@@ -88,9 +88,9 @@ def check_polymer(taxid, nomid):
 	'''
 	Gets polymer id for a given taxid and nomid (LDW-prot requirement)
 	'''
-	cursor.execute("SELECT SEREB2.Polymer_Data.PData_id FROM SEREB2.Polymer_Data\
-		INNER JOIN SEREB2.Polymer_metadata ON SEREB2.Polymer_Data.PData_id = SEREB2.Polymer_metadata.polymer_id\
-		WHERE SEREB2.Polymer_metadata.accession_type = 'LDW-prot' AND SEREB2.Polymer_Data.nomgd_id = "+nomid+" AND SEREB2.Polymer_Data.strain_id = "+taxid)
+	cursor.execute("SELECT DESIRE.Polymer_Data.PData_id FROM DESIRE.Polymer_Data\
+		INNER JOIN DESIRE.Polymer_metadata ON DESIRE.Polymer_Data.PData_id = DESIRE.Polymer_metadata.polymer_id\
+		WHERE DESIRE.Polymer_metadata.accession_type = 'LDW-prot' AND DESIRE.Polymer_Data.nomgd_id = "+nomid+" AND DESIRE.Polymer_Data.strain_id = "+taxid)
 	result = cursor.fetchall()
 	try:
 		pol_id=result[0][0]
@@ -122,7 +122,7 @@ def check_resi_id(seqnum, polid, resname):
 	Gets residue id for a given polymer and a sequence number.
 	Also checks if the data (resname) is correct.
 	'''
-	query = "SELECT SEREB2.Residues.resi_id, SEREB2.Residues.unModResName FROM SEREB2.Residues WHERE SEREB2.Residues.PolData_id = "+polid+" AND SEREB2.Residues.resNum = "+seqnum
+	query = "SELECT DESIRE.Residues.resi_id, DESIRE.Residues.unModResName FROM DESIRE.Residues WHERE DESIRE.Residues.PolData_id = "+polid+" AND DESIRE.Residues.resNum = "+seqnum
 	cursor.execute(query)
 	result = cursor.fetchall()
 	try:
@@ -151,7 +151,7 @@ def main():
 			print (entry.seq[seq_aln_pos[1]-1],end='')
 			resi_id = check_resi_id(str(seq_aln_pos[0]), str(polymer_id), str(entry.seq[seq_aln_pos[1]-1]))
 			#print(resi_id)
-			query = "INSERT INTO `SEREB2`.`Aln_Data`(`aln_id`,`res_id`,`aln_pos`) VALUES('"+str(aln_id)+"','"+str(resi_id)+"','"+str(seq_aln_pos[1])+"')"
+			query = "INSERT INTO `DESIRE`.`Aln_Data`(`aln_id`,`res_id`,`aln_pos`) VALUES('"+str(aln_id)+"','"+str(resi_id)+"','"+str(seq_aln_pos[1])+"')"
 			#print(query)
 			cursor.execute(query)
 		print()

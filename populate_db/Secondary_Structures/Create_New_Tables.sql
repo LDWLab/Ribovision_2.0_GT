@@ -1,4 +1,4 @@
-USE `SEREB2` ;
+USE `DESIRE` ;
 
 Create table 3DStructures (
     3D_structure_id INT NOT NULL,

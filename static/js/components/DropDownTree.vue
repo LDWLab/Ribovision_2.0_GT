@@ -7,10 +7,10 @@
                     <input type="radio" id="orthologs" value="orth" v-model="type_tree" v-on:input="cleanTreeOpts()" checked>
                     DESIRE
                 </label>
-                <label class="btn btn-outline-dark" for="paralogs">
+                <!--<label class="btn btn-outline-dark" for="paralogs">
                     <input type="radio" id="paralogs" value="para" v-model="type_tree" v-on:input="cleanTreeOpts()">
                     Paralogs
-                </label>
+                </label>-->
                 <label class="btn btn-outline-dark" style="margin: 0 0 0 1%;width:50%;" for="upload">
                     <input type="radio" id="upload" value="upload" v-model="type_tree" v-on:input="cleanTreeOpts()">
                     User upload
@@ -20,7 +20,7 @@
             <treeselect ref="treeselect"
               :load-options="loadOptions"
               v-model="tax_id" 
-              v-on:input="loadProteinTypes(tax_id, type_tree)"
+              v-on:input="loadData(tax_id, type_tree)"
               placeholder="Select a phylogenetic group"
               no-children-text="Loading... or no children"
               :multiple="true" 
@@ -38,13 +38,7 @@
                 <p><button id="downloadExampleFasta" class="btn btn-outline-dark" v-on:click="getExampleFile(`static/alignments/EFTU_example.fas`, `PVExampleAlignment.fas`)" v-if="!file&&type_tree=='upload'">Download example alignment</button></p>
             </div>
             <p>
-                <select class="btn btn-outline-dark dropdown-toggle" id="select_protein_type" v-if="tax_id" v-model="protein_type_obj" v-on:change="loadData(tax_id, type_tree)">
-                    <option v-if="tax_id" :value="null" selected disabled hidden>Select a protein type</option>
-                    <option v-if="tax_id" v-for="proteinType in proteinTypes" >{{ proteinType }}</option>
-                </select>
-            </p>
-            <p>
-                <select class="btn btn-outline-dark dropdown-toggle" id="selectaln" v-if="protein_type_obj" v-model="alnobj">
+                <select class="btn btn-outline-dark dropdown-toggle" id="selectaln" v-if="tax_id" v-model="alnobj">
                     <option v-if="tax_id" :value="null" selected disabled hidden>Select an alignment</option>
                     <option v-if="tax_id" v-for="aln in alignments" v-bind:value="{ id: aln.value, text: aln.text }">{{ aln.text }}</option>
                 </select>
@@ -246,7 +240,6 @@
         </footer>
     </div>
 </template>
-
 
 <script>
   import schemes from './msaColorSchemes/index.js'
@@ -629,33 +622,6 @@
             if (this.type_tree == "para"){
                 loadParaOptions(action, callback, this);
             }
-        }, loadProteinTypes (tax_id, type_tree) {
-            if (type_tree == "orth") {
-                this.alignments = null;
-                this.proteinTypes = null;
-                var url = '/proteinTypes';
-                // let taxIDs = tax_id;
-                let taxIDs = '';
-                vm.tax_id.forEach(element => {
-                    taxIDs += element + ",";
-                });
-                ajax(url, {taxIDs}).then(data => {
-                    let results = data["results"];
-                    let intersectionSet = new Set();
-                    results.forEach(sublist => {
-                        sublist.forEach(proteinType => {
-                            intersectionSet.add(proteinType);
-                        });
-                    });
-                    vm.proteinTypes = Array.from(intersectionSet);
-                    // let numSublists = results.length;
-                    // let intersection = results[0];
-                    // for (let i = 1; i < numSublists; i++) {
-                    //     intersection = intersection.filter(value => results[i].includes(value));
-                    // }
-                    // vm.proteinTypes = intersection;
-                });
-            }
         }, loadData (value, type_tree) {
             if (this.uploadSession){return;}
             if (type_tree == "upload"){this.tax_id = null; return;}
@@ -665,53 +631,10 @@
             if (this.alnobj != null) {this.alnobj = null;}
             if (type_tree == "orth"){
                 this.alignments = null;
-                var url = '/getAlignmentsFilterByProteinTypeAndTaxIds';
-                let selectedProteinType = vm.protein_type_obj;
-                let taxIDs = '';
-                vm.tax_id.forEach(element => {
-                    taxIDs += element + ",";
+                var url = '/desire-api/taxonomic-groups/?format=json&taxgroup_id__in=' + value
+                ajax(url).then(data => {
+                    loadOrthAlns(data, this);
                 });
-                ajax(url, {selectedProteinType, taxIDs}).then(data => {
-                // ajax(url).then(data => {
-                    let results = data["results"];
-                    let intersection = results[0];
-                    let numSublists = results.length;
-                    for (let sublistIndex = 1; sublistIndex < numSublists; sublistIndex++) {
-                        intersection = intersection.filter(intersectionSublistEntry => {
-                            let
-                                sublist = results[sublistIndex],
-                                sublistLength = sublist.length,
-                                inclusionFlag = false;
-                            for (let sublistEntryIndex = 0; sublistEntryIndex < sublistLength; sublistEntryIndex++) {
-                                if (sublist[sublistEntryIndex][0] == intersectionSublistEntry[0]) {
-                                    inclusionFlag = true;
-                                    break;
-                                }
-                            }
-                            return inclusionFlag;
-                        });
-                    }
-                    vm.alignments = []
-                    intersection.forEach(intersectionEntry => {
-                        let alignment = new Object();
-                        alignment.text = intersectionEntry[0];
-                        alignment.value = intersectionEntry[1];
-                        vm.alignments.push(alignment);
-                    });
-                    // let alignmentNamesAndPrimaryKeys = data["alignmentNamesAndPrimaryKeys"];
-                    // alignmentNamesAndPrimaryKeys.forEach(alignmentNamesAndPrimaryKey => {
-                    //     let alignment = new Object();
-                    //     alignment.text = alignmentNamesAndPrimaryKey[0];
-                    //     alignment.value = alignmentNamesAndPrimaryKey[1];
-                    //     vm.alignments.push(alignment);
-                    // });
-                    
-                    // loadOrthAlns(data, this);
-                });
-                // var url = '/desire-api/taxonomic-groups/?format=json&taxgroup_id__in=' + value;
-                // ajax(url).then(data => {
-                //     loadOrthAlns(data, this);
-                // });
             }
             if (type_tree == "para"){
                 loadParaAlns (value, this)
