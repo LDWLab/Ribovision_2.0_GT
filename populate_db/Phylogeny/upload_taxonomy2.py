@@ -8,7 +8,7 @@ def create_and_parse_argument_options(argument_list):
 	parser.add_argument('input_taxids', help='PDB identifier to query', type=str)
 	parser.add_argument('user_name', help='Username for connecting to DESIRE', type=str)
 	parser.add_argument('-host','--db_host', help='Defines database host (default: 130.207.36.76)', type=str, default='130.207.36.76')
-	parser.add_argument('-schema','--db_schema', help='Defines schema to use (default: SEREB)', type=str, default='SEREB')
+	parser.add_argument('-schema','--db_schema', help='Defines schema to use (default: DESIRE)', type=str, default='DESIRE')
 	parser.add_argument('-dl','--download_most_recent_phylogeny', help='Update latest phylogeny.', default=False, action="store_true")
 	parser.add_argument('-pf','--phylogeny_file', help='Use this file to store and read phylogeny.', type=str, default='./data/downloaded_phylogeny.json')
 	parser.add_argument('-commit','--commit_changes', help='Commit the changes to the DB', action="store_true")

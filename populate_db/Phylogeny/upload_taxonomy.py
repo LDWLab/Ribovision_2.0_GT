@@ -28,7 +28,7 @@ with open(filename) as f:
 '''-----------------------------------------------------------------------'''
 uname = input('User name: ')
 pw = getpass.getpass('Password: ')
-cnx = mysql.connector.connect(user=uname,password=pw,host='130.207.36.76', database='SEREB2')
+cnx = mysql.connector.connect(user=uname,password=pw,host='130.207.36.76', database='DESIRE')
 cursor = cnx.cursor()
 '''-----------------------------------------------------------------------'''
 '''-----------------------------------------------------------------------'''
@@ -74,7 +74,7 @@ verynew_taxon = list(verynew_taxon)
 '''---Species Table---'''################################################################################
 for strain_Id in onlyStrainIDs:
 	strain = TAXON[strain_Id][strain_Id][1]
-	query = ("INSERT INTO `SEREB2`.`Species`(`strain_id`,`strain`) VALUES('"+strain_Id+"','"+strain+"')")
+	query = ("INSERT INTO `DESIRE`.`Species`(`strain_id`,`strain`) VALUES('"+strain_Id+"','"+strain+"')")
 	#print(query)
 	cursor.execute(query)
 
@@ -104,9 +104,9 @@ for strain_Id in onlyStrainIDs:
 			if parent:
 				if re.search (r'^no_*', parent):
 					parent = 0
-				query = ("INSERT INTO `SEREB2`.`TaxGroups`(`taxgroup_id`,`groupLevel`,`groupName`,`parent`) VALUES('"+ids+"','"+group_lvl+"','"+group_name+"','"+str(parent)+"')")
+				query = ("INSERT INTO `DESIRE`.`TaxGroups`(`taxgroup_id`,`groupLevel`,`groupName`,`parent`) VALUES('"+ids+"','"+group_lvl+"','"+group_name+"','"+str(parent)+"')")
 			else:
-				query = ("INSERT INTO `SEREB2`.`TaxGroups`(`taxgroup_id`,`groupLevel`,`groupName`,`parent`) VALUES('"+ids+"','"+group_lvl+"','"+group_name+"','0')")
+				query = ("INSERT INTO `DESIRE`.`TaxGroups`(`taxgroup_id`,`groupLevel`,`groupName`,`parent`) VALUES('"+ids+"','"+group_lvl+"','"+group_name+"','0')")
 			print(query, type(parent))
 			cursor.execute(query)
 
@@ -114,7 +114,7 @@ for strainID in onlyStrainIDs:
 	for ids in TAXON[strainID].keys():
 		if ids != strainID:
 			taxgroupID = ids
-			query = ("INSERT INTO `SEREB2`.`Species_TaxGroup`(`strain_id`,`taxgroup_id`) VALUES('"+strainID+"','"+taxgroupID+"')")
+			query = ("INSERT INTO `DESIRE`.`Species_TaxGroup`(`strain_id`,`taxgroup_id`) VALUES('"+strainID+"','"+taxgroupID+"')")
 			#print(query)
 			cursor.execute(query)
 

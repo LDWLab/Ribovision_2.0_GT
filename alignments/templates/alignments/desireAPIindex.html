@@ -30,7 +30,8 @@
 				selectedAlignments = [];
 			Array.from(getElementById('1.moleculeGroupSelect').selectedOptions).forEach(selectedOption => selectedMoleculeGroups.push(selectedOption.value));
 			Array.from(getElementById('1.alignmentSelect').selectedOptions).forEach(selectedOption => selectedAlignments.push(selectedOption.value));
-			strains = results('/getStrainsFilterByMoleculeGroupAndAlignment/' + selectedMoleculeGroups.join(',') + '/' + selectedAlignments.join(','));
+			url = '/getStrainsFilterByMoleculeGroupAndAlignment/' + selectedMoleculeGroups.join(',') + '/' + selectedAlignments.join(',');
+			strains = results(url);
 			populateSelect('1.taxSelect.0', strains, tuple => tuple[0], tuple => tuple[1]);
 			populateSelect('1.taxSelect.1', strains, tuple => tuple[0], tuple => tuple[1]);"
 		></select>
@@ -146,20 +147,20 @@
 			alignmentSelect = document.getElementById('1.alignmentSelect');
 		Array.from(document.getElementById('1.moleculeGroupSelect').selectedOptions).forEach(selectedOption => selectedMoleculeGroups.push(selectedOption.value));
 		let 
-			_url = 'getTruncatedAlignment/' + selectedMoleculeGroups.join(',') + '/' + alignmentSelect[alignmentSelect.selectedIndex].text + '/' + strainOption0.value + '/' + strainOption1.value;
+			_urlSuffix = selectedMoleculeGroups.join(',') + '/' + alignmentSelect[alignmentSelect.selectedIndex].text + '/' + strainOption0.value + '/' + strainOption1.value;
 		$.ajax({
-			url: _url,
+			url: 'getPairwiseAlignment/' + _urlSuffix,
 			type: 'GET',
 			dataType: 'json',
 			async: false,
 			success: function(data) {
-				truncatedAlignment = data['truncatedAlignment'];
+				truncatedAlignment = data;
 			},
 			error: function(error) {
 				console.log(`Error ${error}`);
 			}
 		});
-		document.getElementById('url_display').innerHTML = 'http://127.0.0.1:8000/' + _url
+		document.getElementById('url_display').innerHTML = 'https://ribovision3.chemistry.gatech.edu/showPairwiseAlignment/' + _urlSuffix
 		document.getElementById('projectInfo').textContent = truncatedAlignment;
 		// let
 		// 	lines = null,

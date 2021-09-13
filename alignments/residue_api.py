@@ -15,9 +15,9 @@ def get_alignments_from_resid(resid):
 	return alns
 
 def get_superkingdom_id(taxid):
-	sql_query = 'SELECT taxgroup_id FROM SEREB.TaxGroups\
+	sql_query = 'SELECT taxgroup_id FROM DESIRE.TaxGroups\
 				WHERE groupLevel = \'superkingdom\' AND\
-				taxgroup_id IN (SELECT taxgroup_id FROM SEREB.Species_TaxGroup \
+				taxgroup_id IN (SELECT taxgroup_id FROM DESIRE.Species_TaxGroup \
 								WHERE strain_id = '+str(taxid)+')'
 	try:
 		superkingdom_id = Taxgroups.objects.raw(sql_query)[0]

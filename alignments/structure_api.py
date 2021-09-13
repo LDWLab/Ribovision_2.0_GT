@@ -11,11 +11,11 @@ def pdbid_to_strainid(pdbid):
 
 def get_chains_polymers(struc_id):
 	chain_pol_list = list()
-	query = "SELECT new_name, GI, PData_id, ChainName, ChainList_id FROM SEREB.Polymer_Data\
-			INNER JOIN (SELECT * FROM SEREB.ChainList WHERE 3D_structure_id = "+str(struc_id)+") \
+	query = "SELECT new_name, GI, PData_id, ChainName, ChainList_id FROM DESIRE.Polymer_Data\
+			INNER JOIN (SELECT * FROM DESIRE.ChainList WHERE 3D_structure_id = "+str(struc_id)+") \
 				as filtered_chains \
-				ON SEREB.Polymer_Data.Pdata_id = filtered_chains.polymer_id\
-			INNER JOIN Nomenclature ON SEREB.Polymer_Data.nomgd_id = Nomenclature.nom_id"
+				ON DESIRE.Polymer_Data.Pdata_id = filtered_chains.polymer_id\
+			INNER JOIN Nomenclature ON DESIRE.Polymer_Data.nomgd_id = Nomenclature.nom_id"
 	polymer_chains = PolymerData.objects.raw(query)
 	if len(polymer_chains) == 0:
 		return chain_pol_list

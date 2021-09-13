@@ -8,12 +8,12 @@ SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 
 
-USE `SEREB` ;
+USE `DESIRE` ;
 
 -- -----------------------------------------------------
--- Table `SEREB`.`Associated_Data`
+-- Table `DESIRE`.`Associated_Data`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`Associated_Data` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`Associated_Data` (
   `Data_id` INT NOT NULL AUTO_INCREMENT,
   `Type` VARCHAR(45) CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NOT NULL,
   `Value` VARCHAR(45) CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NOT NULL,
@@ -25,9 +25,9 @@ COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`Nomenclature`
+-- Table `DESIRE`.`Nomenclature`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`Nomenclature` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`Nomenclature` (
   `nom_id` INT NOT NULL AUTO_INCREMENT,
   `new_name` VARCHAR(10) CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NOT NULL,
   `occurrence` VARCHAR(1) CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NOT NULL,
@@ -40,9 +40,9 @@ COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`Species`
+-- Table `DESIRE`.`Species`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`Species` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`Species` (
   `strain_id` INT NOT NULL,
   `name` VARCHAR(60) CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NULL DEFAULT NULL,
   `strain` VARCHAR(100) CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NULL DEFAULT NULL,
@@ -55,9 +55,9 @@ COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`Polymer_Data`
+-- Table `DESIRE`.`Polymer_Data`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`Polymer_Data` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`Polymer_Data` (
   `PData_id` INT NOT NULL AUTO_INCREMENT,
   `GI` VARCHAR(45) CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NOT NULL,
   `strain_id` INT NOT NULL,
@@ -70,10 +70,10 @@ CREATE TABLE IF NOT EXISTS `SEREB`.`Polymer_Data` (
   INDEX `strainID_foreign_idx` (`strain_id` ASC),
   CONSTRAINT `nom_fork`
     FOREIGN KEY (`nomgd_id`)
-    REFERENCES `SEREB`.`Nomenclature` (`nom_id`),
+    REFERENCES `DESIRE`.`Nomenclature` (`nom_id`),
   CONSTRAINT `taxid_fork`
     FOREIGN KEY (`strain_id`)
-    REFERENCES `SEREB`.`Species` (`strain_id`))
+    REFERENCES `DESIRE`.`Species` (`strain_id`))
 ENGINE = InnoDB
 AUTO_INCREMENT = 7409
 DEFAULT CHARACTER SET = utf8
@@ -81,9 +81,9 @@ COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`Residues`
+-- Table `DESIRE`.`Residues`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`Residues` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`Residues` (
   `resi_id` INT NOT NULL AUTO_INCREMENT,
   `PolData_id` INT NOT NULL,
   `resNum` INT NOT NULL,
@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS `SEREB`.`Residues` (
   INDEX `gene_seq_foreign_idx` (`PolData_id` ASC),
   CONSTRAINT `pdata_fork`
     FOREIGN KEY (`PolData_id`)
-    REFERENCES `SEREB`.`Polymer_Data` (`PData_id`))
+    REFERENCES `DESIRE`.`Polymer_Data` (`PData_id`))
 ENGINE = InnoDB
 AUTO_INCREMENT = 1607053
 DEFAULT CHARACTER SET = utf8
@@ -102,9 +102,9 @@ COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`AD_Residues`
+-- Table `DESIRE`.`AD_Residues`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`AD_Residues` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`AD_Residues` (
   `AD_id` INT NOT NULL,
   `residueP_id` INT NOT NULL,
   PRIMARY KEY (`AD_id`, `residueP_id`),
@@ -112,19 +112,19 @@ CREATE TABLE IF NOT EXISTS `SEREB`.`AD_Residues` (
   INDEX `residue_id_idx` (`residueP_id` ASC),
   CONSTRAINT `Ad_id_fk`
     FOREIGN KEY (`AD_id`)
-    REFERENCES `SEREB`.`Associated_Data` (`Data_id`),
+    REFERENCES `DESIRE`.`Associated_Data` (`Data_id`),
   CONSTRAINT `Resi_fk`
     FOREIGN KEY (`residueP_id`)
-    REFERENCES `SEREB`.`Residues` (`resi_id`))
+    REFERENCES `DESIRE`.`Residues` (`resi_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`Alignment`
+-- Table `DESIRE`.`Alignment`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`Alignment` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`Alignment` (
   `Aln_id` INT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(45) CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NOT NULL,
   `Method` VARCHAR(45) CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NOT NULL,
@@ -137,9 +137,9 @@ COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`Aln_Data`
+-- Table `DESIRE`.`Aln_Data`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`Aln_Data` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`Aln_Data` (
   `aln_id` INT NOT NULL,
   `res_id` INT NOT NULL,
   `aln_pos` INT NOT NULL,
@@ -149,10 +149,10 @@ CREATE TABLE IF NOT EXISTS `SEREB`.`Aln_Data` (
   INDEX `residue_num_idx` (`res_id` ASC),
   CONSTRAINT `AlnD_fork`
     FOREIGN KEY (`aln_id`)
-    REFERENCES `SEREB`.`Alignment` (`Aln_id`),
+    REFERENCES `DESIRE`.`Alignment` (`Aln_id`),
   CONSTRAINT `res_fork`
     FOREIGN KEY (`res_id`)
-    REFERENCES `SEREB`.`Residues` (`resi_id`))
+    REFERENCES `DESIRE`.`Residues` (`resi_id`))
 ENGINE = InnoDB
 AUTO_INCREMENT = 1102707
 DEFAULT CHARACTER SET = utf8
@@ -160,9 +160,9 @@ COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`TaxGroups`
+-- Table `DESIRE`.`TaxGroups`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`TaxGroups` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`TaxGroups` (
   `taxgroup_id` INT NOT NULL,
   `groupLevel` VARCHAR(45) CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NULL DEFAULT NULL,
   `groupName` VARCHAR(60) CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NULL DEFAULT NULL,
@@ -171,16 +171,16 @@ CREATE TABLE IF NOT EXISTS `SEREB`.`TaxGroups` (
   INDEX `taxgroup-parent_idx` (`parent` ASC),
   CONSTRAINT `taxgroup-parent`
     FOREIGN KEY (`parent`)
-    REFERENCES `SEREB`.`TaxGroups` (`taxgroup_id`))
+    REFERENCES `DESIRE`.`TaxGroups` (`taxgroup_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`Aln_Domains`
+-- Table `DESIRE`.`Aln_Domains`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`Aln_Domains` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`Aln_Domains` (
   `dom_taxid` INT NOT NULL,
   `aln_id` INT NOT NULL,
   `compartment` VARCHAR(1) CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NOT NULL,
@@ -188,19 +188,19 @@ CREATE TABLE IF NOT EXISTS `SEREB`.`Aln_Domains` (
   INDEX `aln_fork_idx` (`aln_id` ASC),
   CONSTRAINT `aln_fork`
     FOREIGN KEY (`aln_id`)
-    REFERENCES `SEREB`.`Alignment` (`Aln_id`),
+    REFERENCES `DESIRE`.`Alignment` (`Aln_id`),
   CONSTRAINT `dom_fork`
     FOREIGN KEY (`dom_taxid`)
-    REFERENCES `SEREB`.`TaxGroups` (`taxgroup_id`))
+    REFERENCES `DESIRE`.`TaxGroups` (`taxgroup_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`ThreeDStructures`
+-- Table `DESIRE`.`ThreeDStructures`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`ThreeDStructures` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`ThreeDStructures` (
   `3D_structure_id` INT NOT NULL AUTO_INCREMENT,
   `StructureName` VARCHAR(50) CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NULL DEFAULT NULL,
   PRIMARY KEY (`3D_structure_id`))
@@ -211,9 +211,9 @@ COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`ChainList`
+-- Table `DESIRE`.`ChainList`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`ChainList` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`ChainList` (
   `ChainList_id` INT NOT NULL,
   `3D_structure_id` INT NOT NULL,
   `polymer_id` INT NOT NULL,
@@ -223,19 +223,19 @@ CREATE TABLE IF NOT EXISTS `SEREB`.`ChainList` (
   INDEX `polymer_id` (`polymer_id` ASC),
   CONSTRAINT `ChainList_ibfk_1`
     FOREIGN KEY (`3D_structure_id`)
-    REFERENCES `SEREB`.`ThreeDStructures` (`3D_structure_id`),
+    REFERENCES `DESIRE`.`ThreeDStructures` (`3D_structure_id`),
   CONSTRAINT `ChainList_ibfk_2`
     FOREIGN KEY (`polymer_id`)
-    REFERENCES `SEREB`.`Polymer_Data` (`PData_id`))
+    REFERENCES `DESIRE`.`Polymer_Data` (`PData_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`SecondaryStructures`
+-- Table `DESIRE`.`SecondaryStructures`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`SecondaryStructures` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`SecondaryStructures` (
   `SecStr_id` INT NOT NULL AUTO_INCREMENT,
   `MoleculeGroup` VARCHAR(45) CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NOT NULL,
   `Variation` VARCHAR(45) CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NOT NULL,
@@ -248,7 +248,7 @@ CREATE TABLE IF NOT EXISTS `SEREB`.`SecondaryStructures` (
   INDEX `strain_foreignK_idx` (`strain_fk` ASC),
   CONSTRAINT `strain_foreignK`
     FOREIGN KEY (`strain_fk`)
-    REFERENCES `SEREB`.`Species` (`strain_id`))
+    REFERENCES `DESIRE`.`Species` (`strain_id`))
 ENGINE = InnoDB
 AUTO_INCREMENT = 17
 DEFAULT CHARACTER SET = utf8
@@ -256,28 +256,28 @@ COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`Default3DStructure`
+-- Table `DESIRE`.`Default3DStructure`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`Default3DStructure` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`Default3DStructure` (
   `secondary_structure_id` INT NOT NULL,
   `3D_structure_id` INT NOT NULL,
   INDEX `secondary_structure_id` (`secondary_structure_id` ASC),
   INDEX `3D_structure_id` (`3D_structure_id` ASC),
   CONSTRAINT `Default3DStructure_ibfk_1`
     FOREIGN KEY (`secondary_structure_id`)
-    REFERENCES `SEREB`.`SecondaryStructures` (`SecStr_id`),
+    REFERENCES `DESIRE`.`SecondaryStructures` (`SecStr_id`),
   CONSTRAINT `Default3DStructure_ibfk_2`
     FOREIGN KEY (`3D_structure_id`)
-    REFERENCES `SEREB`.`ThreeDStructures` (`3D_structure_id`))
+    REFERENCES `DESIRE`.`ThreeDStructures` (`3D_structure_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`Interactions`
+-- Table `DESIRE`.`Interactions`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`Interactions` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`Interactions` (
   `interactions_id` INT NOT NULL DEFAULT '0',
   `residue_i` INT NULL DEFAULT NULL,
   `residue_j` INT NULL DEFAULT NULL,
@@ -290,22 +290,22 @@ CREATE TABLE IF NOT EXISTS `SEREB`.`Interactions` (
   INDEX `3D_structure_id` (`3D_structure_id` ASC),
   CONSTRAINT `Interactions_ibfk_1`
     FOREIGN KEY (`residue_i`)
-    REFERENCES `SEREB`.`Residues` (`resi_id`),
+    REFERENCES `DESIRE`.`Residues` (`resi_id`),
   CONSTRAINT `Interactions_ibfk_2`
     FOREIGN KEY (`residue_j`)
-    REFERENCES `SEREB`.`Residues` (`resi_id`),
+    REFERENCES `DESIRE`.`Residues` (`resi_id`),
   CONSTRAINT `Interactions_ibfk_3`
     FOREIGN KEY (`3D_structure_id`)
-    REFERENCES `SEREB`.`ThreeDStructures` (`3D_structure_id`))
+    REFERENCES `DESIRE`.`ThreeDStructures` (`3D_structure_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`LineLabels`
+-- Table `DESIRE`.`LineLabels`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`LineLabels` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`LineLabels` (
   `LineLabel_id` INT NOT NULL,
   `X1` DOUBLE(8,3) NULL DEFAULT NULL,
   `Y1` DOUBLE(8,3) NULL DEFAULT NULL,
@@ -321,16 +321,16 @@ CREATE TABLE IF NOT EXISTS `SEREB`.`LineLabels` (
   INDEX `secondary_structure_id` (`secondary_structure_id` ASC),
   CONSTRAINT `LineLabels_ibfk_1`
     FOREIGN KEY (`secondary_structure_id`)
-    REFERENCES `SEREB`.`SecondaryStructures` (`SecStr_id`))
+    REFERENCES `DESIRE`.`SecondaryStructures` (`SecStr_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`MasterTable`
+-- Table `DESIRE`.`MasterTable`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`MasterTable` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`MasterTable` (
   `master_id` INT NOT NULL DEFAULT '0',
   `Active` INT NULL DEFAULT NULL,
   `SpeciesName` VARCHAR(24) CHARACTER SET 'utf8' NULL DEFAULT NULL,
@@ -344,9 +344,9 @@ COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`MoleculeNames`
+-- Table `DESIRE`.`MoleculeNames`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`MoleculeNames` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`MoleculeNames` (
   `MoleculeName` VARCHAR(6) NOT NULL DEFAULT '',
   `MoleculeType` VARCHAR(70) NULL DEFAULT NULL,
   `MoleculeGroup` VARCHAR(5) NULL DEFAULT NULL,
@@ -356,9 +356,9 @@ DEFAULT CHARACTER SET = utf8;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`Old_name`
+-- Table `DESIRE`.`Old_name`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`Old_name` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`Old_name` (
   `old_id` INT NOT NULL AUTO_INCREMENT,
   `nomo_id` INT NOT NULL,
   `old_name` VARCHAR(45) CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NOT NULL,
@@ -367,7 +367,7 @@ CREATE TABLE IF NOT EXISTS `SEREB`.`Old_name` (
   INDEX `nomo_id_idx` (`nomo_id` ASC),
   CONSTRAINT `nomo_id`
     FOREIGN KEY (`nomo_id`)
-    REFERENCES `SEREB`.`Nomenclature` (`nom_id`))
+    REFERENCES `DESIRE`.`Nomenclature` (`nom_id`))
 ENGINE = InnoDB
 AUTO_INCREMENT = 871
 DEFAULT CHARACTER SET = utf8
@@ -375,28 +375,28 @@ COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`Polymer_Alignments`
+-- Table `DESIRE`.`Polymer_Alignments`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`Polymer_Alignments` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`Polymer_Alignments` (
   `PData_id` INT NOT NULL,
   `Aln_id` INT NOT NULL,
   PRIMARY KEY (`PData_id`, `Aln_id`),
   INDEX `alignment_fk_idx` (`Aln_id` ASC),
   CONSTRAINT `alignment_fk`
     FOREIGN KEY (`Aln_id`)
-    REFERENCES `SEREB`.`Alignment` (`Aln_id`),
+    REFERENCES `DESIRE`.`Alignment` (`Aln_id`),
   CONSTRAINT `polymer_fk`
     FOREIGN KEY (`PData_id`)
-    REFERENCES `SEREB`.`Polymer_Data` (`PData_id`))
+    REFERENCES `DESIRE`.`Polymer_Data` (`PData_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`Polymer_metadata`
+-- Table `DESIRE`.`Polymer_metadata`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`Polymer_metadata` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`Polymer_metadata` (
   `polymer_id` INT NOT NULL,
   `accession_type` VARCHAR(45) CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NOT NULL,
   `polymer_type` VARCHAR(45) CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NOT NULL,
@@ -405,16 +405,16 @@ CREATE TABLE IF NOT EXISTS `SEREB`.`Polymer_metadata` (
   PRIMARY KEY (`polymer_id`),
   CONSTRAINT `pd_fork`
     FOREIGN KEY (`polymer_id`)
-    REFERENCES `SEREB`.`Polymer_Data` (`PData_id`))
+    REFERENCES `DESIRE`.`Polymer_Data` (`PData_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`SS_Data`
+-- Table `DESIRE`.`SS_Data`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`SS_Data` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`SS_Data` (
   `SSD_id` INT NOT NULL AUTO_INCREMENT,
   `ss_id` INT NOT NULL,
   `res_id` INT NOT NULL,
@@ -427,10 +427,10 @@ CREATE TABLE IF NOT EXISTS `SEREB`.`SS_Data` (
   INDEX `ss_fork_idx` (`ss_id` ASC),
   CONSTRAINT `resi_fork`
     FOREIGN KEY (`res_id`)
-    REFERENCES `SEREB`.`Residues` (`resi_id`),
+    REFERENCES `DESIRE`.`Residues` (`resi_id`),
   CONSTRAINT `ss_fork`
     FOREIGN KEY (`ss_id`)
-    REFERENCES `SEREB`.`SecondaryStructures` (`SecStr_id`))
+    REFERENCES `DESIRE`.`SecondaryStructures` (`SecStr_id`))
 ENGINE = InnoDB
 AUTO_INCREMENT = 2906
 DEFAULT CHARACTER SET = utf8
@@ -438,9 +438,9 @@ COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`Secondary_Tertiary`
+-- Table `DESIRE`.`Secondary_Tertiary`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`Secondary_Tertiary` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`Secondary_Tertiary` (
   `secondary_tertiary_id` INT NOT NULL,
   `secondary_structure_id` INT NOT NULL,
   `3D_structure_id` INT NOT NULL,
@@ -449,19 +449,19 @@ CREATE TABLE IF NOT EXISTS `SEREB`.`Secondary_Tertiary` (
   INDEX `3D_structure_id` (`3D_structure_id` ASC),
   CONSTRAINT `Secondary_Tertiary_ibfk_1`
     FOREIGN KEY (`secondary_structure_id`)
-    REFERENCES `SEREB`.`SecondaryStructures` (`SecStr_id`),
+    REFERENCES `DESIRE`.`SecondaryStructures` (`SecStr_id`),
   CONSTRAINT `Secondary_Tertiary_ibfk_2`
     FOREIGN KEY (`3D_structure_id`)
-    REFERENCES `SEREB`.`ThreeDStructures` (`3D_structure_id`))
+    REFERENCES `DESIRE`.`ThreeDStructures` (`3D_structure_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`Species_TaxGroup`
+-- Table `DESIRE`.`Species_TaxGroup`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`Species_TaxGroup` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`Species_TaxGroup` (
   `strain_id` INT NOT NULL,
   `taxgroup_id` INT NOT NULL,
   PRIMARY KEY (`strain_id`, `taxgroup_id`),
@@ -469,19 +469,19 @@ CREATE TABLE IF NOT EXISTS `SEREB`.`Species_TaxGroup` (
   INDEX `id_idx1` (`taxgroup_id` ASC),
   CONSTRAINT `strain_id`
     FOREIGN KEY (`strain_id`)
-    REFERENCES `SEREB`.`Species` (`strain_id`),
+    REFERENCES `DESIRE`.`Species` (`strain_id`),
   CONSTRAINT `taxgroup_id`
     FOREIGN KEY (`taxgroup_id`)
-    REFERENCES `SEREB`.`TaxGroups` (`taxgroup_id`))
+    REFERENCES `DESIRE`.`TaxGroups` (`taxgroup_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`StructDataMenuDetails`
+-- Table `DESIRE`.`StructDataMenuDetails`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`StructDataMenuDetails` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`StructDataMenuDetails` (
   `struct_data_id` INT NOT NULL DEFAULT '0',
   `StructDataName` VARCHAR(100) CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NULL DEFAULT NULL,
   `VariableName` VARCHAR(15) CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NULL DEFAULT NULL,
@@ -497,9 +497,9 @@ COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`StructDataMenu`
+-- Table `DESIRE`.`StructDataMenu`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`StructDataMenu` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`StructDataMenu` (
   `StructDataMenu_id` INT NOT NULL DEFAULT '0',
   `3D_structure_id` INT NOT NULL,
   `struct_data_id` INT NOT NULL,
@@ -508,19 +508,19 @@ CREATE TABLE IF NOT EXISTS `SEREB`.`StructDataMenu` (
   INDEX `struct_data_id` (`struct_data_id` ASC),
   CONSTRAINT `StructDataMenu_ibfk_1`
     FOREIGN KEY (`3D_structure_id`)
-    REFERENCES `SEREB`.`ThreeDStructures` (`3D_structure_id`),
+    REFERENCES `DESIRE`.`ThreeDStructures` (`3D_structure_id`),
   CONSTRAINT `StructDataMenu_ibfk_2`
     FOREIGN KEY (`struct_data_id`)
-    REFERENCES `SEREB`.`StructDataMenuDetails` (`struct_data_id`))
+    REFERENCES `DESIRE`.`StructDataMenuDetails` (`struct_data_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`StructuralData2`
+-- Table `DESIRE`.`StructuralData2`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`StructuralData2` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`StructuralData2` (
   `map_index` INT NULL DEFAULT NULL,
   `Domain_RN` VARCHAR(4) CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NULL DEFAULT NULL,
   `Domain_AN` INT NULL DEFAULT NULL,
@@ -531,16 +531,16 @@ CREATE TABLE IF NOT EXISTS `SEREB`.`StructuralData2` (
   INDEX `secondary_structure_id` (`secondary_structure_id` ASC),
   CONSTRAINT `StructuralData2_ibfk_1`
     FOREIGN KEY (`secondary_structure_id`)
-    REFERENCES `SEREB`.`SecondaryStructures` (`SecStr_id`))
+    REFERENCES `DESIRE`.`SecondaryStructures` (`SecStr_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`StructuralData3`
+-- Table `DESIRE`.`StructuralData3`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`StructuralData3` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`StructuralData3` (
   `map_index` INT NULL DEFAULT NULL,
   `Value` FLOAT NULL DEFAULT NULL,
   `struct_data_id` INT NOT NULL,
@@ -549,19 +549,19 @@ CREATE TABLE IF NOT EXISTS `SEREB`.`StructuralData3` (
   INDEX `3D_structure_id` (`3D_structure_id` ASC),
   CONSTRAINT `StructuralData3_ibfk_1`
     FOREIGN KEY (`struct_data_id`)
-    REFERENCES `SEREB`.`StructDataMenuDetails` (`struct_data_id`),
+    REFERENCES `DESIRE`.`StructDataMenuDetails` (`struct_data_id`),
   CONSTRAINT `StructuralData3_ibfk_2`
     FOREIGN KEY (`3D_structure_id`)
-    REFERENCES `SEREB`.`ThreeDStructures` (`3D_structure_id`))
+    REFERENCES `DESIRE`.`ThreeDStructures` (`3D_structure_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`TextLabels`
+-- Table `DESIRE`.`TextLabels`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`TextLabels` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`TextLabels` (
   `TextLabel_id` INT NOT NULL,
   `LabelText` VARCHAR(500) CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci' NULL DEFAULT NULL,
   `X` DOUBLE(8,3) NULL DEFAULT NULL,
@@ -574,15 +574,15 @@ CREATE TABLE IF NOT EXISTS `SEREB`.`TextLabels` (
   INDEX `secondary_structure_id` (`secondary_structure_id` ASC),
   CONSTRAINT `TextLabels_ibfk_1`
     FOREIGN KEY (`secondary_structure_id`)
-    REFERENCES `SEREB`.`SecondaryStructures` (`SecStr_id`))
+    REFERENCES `DESIRE`.`SecondaryStructures` (`SecStr_id`))
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_unicode_ci;
 
 -- -----------------------------------------------------
--- Table `SEREB`.`Structural_Folds`
+-- Table `DESIRE`.`Structural_Folds`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`Structural_Folds` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`Structural_Folds` (
   `struc_fold_id` INT NOT NULL AUTO_INCREMENT,
   `Level` VARCHAR(45) NOT NULL,
   `Name` VARCHAR(45) NOT NULL,
@@ -593,7 +593,7 @@ CREATE TABLE IF NOT EXISTS `SEREB`.`Structural_Folds` (
   INDEX `parent_self_fk_idx` (`parent` ASC),
   CONSTRAINT `parent_self_fk`
     FOREIGN KEY (`parent`)
-    REFERENCES `SEREB`.`Structural_Folds` (`struc_fold_id`)
+    REFERENCES `DESIRE`.`Structural_Folds` (`struc_fold_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -602,9 +602,9 @@ COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`StrucFold_Residues`
+-- Table `DESIRE`.`StrucFold_Residues`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`StrucFold_Residues` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`StrucFold_Residues` (
   `residue_id` INT(11) NOT NULL,
   `strucfold_id` INT NOT NULL,
   PRIMARY KEY (`residue_id`, `strucfold_id`),
@@ -612,12 +612,12 @@ CREATE TABLE IF NOT EXISTS `SEREB`.`StrucFold_Residues` (
   INDEX `sf_fk_idx` (`strucfold_id` ASC),
   CONSTRAINT `Resi_fk0`
     FOREIGN KEY (`residue_id`)
-    REFERENCES `SEREB`.`Residues` (`resi_id`)
+    REFERENCES `DESIRE`.`Residues` (`resi_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `sf_fk`
     FOREIGN KEY (`strucfold_id`)
-    REFERENCES `SEREB`.`Structural_Folds` (`struc_fold_id`)
+    REFERENCES `DESIRE`.`Structural_Folds` (`struc_fold_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -626,9 +626,9 @@ COLLATE = utf8_unicode_ci;
 
 
 -- -----------------------------------------------------
--- Table `SEREB`.`StrucFold_Chains`
+-- Table `DESIRE`.`StrucFold_Chains`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `SEREB`.`StrucFold_Chains` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`StrucFold_Chains` (
   `strucfold_id` INT NOT NULL,
   `chain_id` INT NOT NULL,
   PRIMARY KEY (`strucfold_id`, `chain_id`),
@@ -636,12 +636,12 @@ CREATE TABLE IF NOT EXISTS `SEREB`.`StrucFold_Chains` (
   INDEX `chain_fk_idx` (`chain_id` ASC),
   CONSTRAINT `sf_fk1`
     FOREIGN KEY (`strucfold_id`)
-    REFERENCES `SEREB`.`Structural_Folds` (`struc_fold_id`)
+    REFERENCES `DESIRE`.`Structural_Folds` (`struc_fold_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `chain_fk`
     FOREIGN KEY (`chain_id`)
-    REFERENCES `SEREB`.`ChainList` (`ChainList_id`)
+    REFERENCES `DESIRE`.`ChainList` (`ChainList_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB

@@ -6,11 +6,11 @@ with open("../Data_tables/TextLabels.csv",'r', encoding="utf8") as csv_file:
 
 uname = input("User name: ")
 pw = getpass.getpass("Password: ")
-cnx = mysql.connector.connect(user=uname, password=pw, host='130.207.36.75', database='SEREB')
+cnx = mysql.connector.connect(user=uname, password=pw, host='130.207.36.75', database='DESIRE')
 cursor = cnx.cursor()
 
 def get_SecStr_pk(SecStr_name):
-    cursor.execute("SELECT SecStr_id FROM SEREB.SecondaryStructures\
+    cursor.execute("SELECT SecStr_id FROM DESIRE.SecondaryStructures\
                 WHERE Name = '"+str(SecStr_name)+"'")
     results = cursor.fetchall()
     try:
@@ -28,7 +28,7 @@ for entry in csv_list[1:]:
     Fill = (entry[6])
     secondary_structure_id = get_SecStr_pk(entry[7])
     if secondary_structure_id != 0:
-        query = "INSERT INTO `SEREB`.`TextLabels`(`TextLabel_id`,`LabelText`,`X`,`Y`,`Font`,`Font_Size`,`Fill`,`secondary_structure_id`) VALUES('"+entry[0]+"','"+entry[1]+"','"+entry[2]+"','"+entry[3]+"','"+entry[4]+"','"+entry[5]+"','"+entry[6]+"','"+str(secondary_structure_id)+"')"
+        query = "INSERT INTO `DESIRE`.`TextLabels`(`TextLabel_id`,`LabelText`,`X`,`Y`,`Font`,`Font_Size`,`Fill`,`secondary_structure_id`) VALUES('"+entry[0]+"','"+entry[1]+"','"+entry[2]+"','"+entry[3]+"','"+entry[4]+"','"+entry[5]+"','"+entry[6]+"','"+str(secondary_structure_id)+"')"
         print(query)
         cursor.execute(query)
 

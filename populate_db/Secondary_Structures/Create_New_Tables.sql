@@ -1,4 +1,4 @@
-USE `SEREB2` ;
+USE `DESIRE` ;
 
 Create table 3DStructures (
     3D_structure_id INT NOT NULL,
@@ -118,32 +118,32 @@ Create table StructuralData3 (
 
 
 /*Additional table to make queries easier*/
-CREATE TABLE IF NOT EXISTS `SEREB`.`Polymer_Alignments` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`Polymer_Alignments` (
   `PData_id` INT NOT NULL,
   `Aln_id` INT NOT NULL,
   PRIMARY KEY (`PData_id`, `Aln_id`),
   INDEX `alignment_fk_idx` (`Aln_id` ASC),
   CONSTRAINT `polymer_fk`
     FOREIGN KEY (`PData_id`)
-    REFERENCES `SEREB`.`Polymer_Data` (`PData_id`)
+    REFERENCES `DESIRE`.`Polymer_Data` (`PData_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `alignment_fk`
     FOREIGN KEY (`Aln_id`)
-    REFERENCES `SEREB`.`Alignment` (`Aln_id`)
+    REFERENCES `DESIRE`.`Alignment` (`Aln_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 /*Table for PDB topology viewer ids*/
-CREATE TABLE IF NOT EXISTS `SEREB`.`TopologyViewerEntities` (
+CREATE TABLE IF NOT EXISTS `DESIRE`.`TopologyViewerEntities` (
   `chain_id` INT NOT NULL,
   `entity_id` INT NOT NULL,
   INDEX `chainlist_fk_idx` (`chain_id` ASC),
   PRIMARY KEY (`chain_id`),
   CONSTRAINT `chainlist_fk`
     FOREIGN KEY (`chain_id`)
-    REFERENCES `SEREB`.`ChainList` (`ChainList_id`)
+    REFERENCES `DESIRE`.`ChainList` (`ChainList_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -151,8 +151,8 @@ ENGINE = InnoDB
 
 /*And fill it up with data*/
 INSERT INTO Polymer_Alignments (PData_id, Aln_id)
-SELECT SEREB.Polymer_Data.PData_id, SEREB.Alignment.Aln_id FROM SEREB.Aln_Data
-INNER JOIN SEREB.Alignment ON SEREB.Aln_Data.aln_id = SEREB.Alignment.Aln_id
-INNER JOIN SEREB.Residues ON SEREB.Aln_Data.res_id = SEREB.Residues.resi_id
-INNER JOIN SEREB.Polymer_Data ON SEREB.Residues.PolData_id = SEREB.Polymer_Data.PData_id
-GROUP BY SEREB.Polymer_Data.PData_id, SEREB.Alignment.Aln_id;
+SELECT DESIRE.Polymer_Data.PData_id, DESIRE.Alignment.Aln_id FROM DESIRE.Aln_Data
+INNER JOIN DESIRE.Alignment ON DESIRE.Aln_Data.aln_id = DESIRE.Alignment.Aln_id
+INNER JOIN DESIRE.Residues ON DESIRE.Aln_Data.res_id = DESIRE.Residues.resi_id
+INNER JOIN DESIRE.Polymer_Data ON DESIRE.Residues.PolData_id = DESIRE.Polymer_Data.PData_id
+GROUP BY DESIRE.Polymer_Data.PData_id, DESIRE.Alignment.Aln_id;

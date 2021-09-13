@@ -6,7 +6,7 @@ with open(sys.argv[1],'r') as csv_file:
 
 uname = input("User name: ")
 pw = getpass.getpass("Password: ")
-cnx = mysql.connector.connect(user=uname, password=pw, host='130.207.36.76', database='SEREB')
+cnx = mysql.connector.connect(user=uname, password=pw, host='130.207.36.76', database='DESIRE')
 cursor = cnx.cursor()
 
 def get_polymer_fk(strain_id,new_name):
@@ -27,7 +27,7 @@ def get_3D_structure_id(structure_name):
     return results[0][0]
 
 def check_chainListID(pk):
-    cursor.execute(f"SELECT ChainList_id FROM SEREB.ChainList WHERE ChainList_id = {pk}")
+    cursor.execute(f"SELECT ChainList_id FROM DESIRE.ChainList WHERE ChainList_id = {pk}")
     results = cursor.fetchall()
     if len(results) == 0:
         return True
@@ -56,7 +56,7 @@ for entry in csv_list[1:]:
         if _3D_structure_id != 0:
             ChainName = entry[3]
             if check_chainListID(entry[0]):
-                query = "INSERT INTO `SEREB`.`ChainList`(`ChainList_id`,`3D_structure_id`,`polymer_id`,`ChainName`) VALUES('"+entry[0]+"','"+str(_3D_structure_id)+"','"+str(polymer_id)+"','"+(entry[3])+"')"
+                query = "INSERT INTO `DESIRE`.`ChainList`(`ChainList_id`,`3D_structure_id`,`polymer_id`,`ChainName`) VALUES('"+entry[0]+"','"+str(_3D_structure_id)+"','"+str(polymer_id)+"','"+(entry[3])+"')"
                 print(query)
                 cursor.execute(query)
 

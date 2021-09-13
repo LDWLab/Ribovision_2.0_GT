@@ -11,7 +11,8 @@
             "program": "${workspaceFolder}/manage.py",
             "args": [
                 "runserver",
-                "--noreload"
+                "--noreload",
+                "-schema", "DESIRE"
             ],
             "django": true
         },
@@ -30,7 +31,8 @@
             "console": "integratedTerminal",
             "args": [
                 "4v6u",
-                "ppenev"
+                "ppenev",
+                "-schema", "DESIRE"
             ]
         },
         {
@@ -43,7 +45,8 @@
                 "${workspaceFolder}/populate_db/Alignments/missed_seqs/YERPE_bS21.fas",
                 "b",
                 "-aln_id", "122",
-                "-commit"
+                "-commit",
+                "-schema", "DESIRE"
             ]
         },
         {
@@ -54,7 +57,8 @@
             "console": "integratedTerminal",
             "args": [
                 "-c",
-                "${workspaceFolder}/populate_db/Polymers/CSV/acc_seqs_missed.csv"
+                "${workspaceFolder}/populate_db/Polymers/CSV/acc_seqs_missed.csv",
+                "-schema", "DESIRE"
             ]
         },
         {
@@ -67,7 +71,7 @@
                 "~/Dropbox-Gatech/ProteinProject/Phylogeny/txid_e_new.txt",
                 "ppenev",
                 "-pf", "${workspaceFolder}/populate_db/Phylogeny/data/newEuk.json",
-                "-schema", "SEREB",
+                "-schema", "DESIRE",
                 "-host", "130.207.36.76",
                 "-commit"
             ]
@@ -81,7 +85,7 @@
             "args": [
                 "${workspaceFolder}/populate_db/Alignments/sequences/uL02e_new.fa",
                 "e",
-                "-schema", "SEREB_test",
+                "-schema", "DESIRE"
             ]
         },
     ]

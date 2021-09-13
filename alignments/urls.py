@@ -61,5 +61,6 @@ urlpatterns = [
     path('getStrainsFilterByMoleculeGroupAndAlignment/<str:concatenatedMoleculeGroups>/<str:concatenatedAlignmentNames>', views.getStrainsFilterByMoleculeGroupAndAlignmentDirect, name = 'getStrainsFilyerByAlignment'),
     path('getAlignmentFilterByNameAndMoleculeGroupTrimByStrainId/<str:concatenatedMoleculeGroups>/<str:concatenatedAlignmentNames>/<str:concatenatedStrainIds>', views.getAlignmentFilterByNameAndMoleculeGroupTrimByStrainIdDirect, name = 'getAlignmentFilterByNameAndMoleculeGroupTrimByStrainIdDirect'),
     path('getGenusFromStrainIds/<str:concatenatedStrainIds>', views.getGenusFromStrainIdsDirect, name = 'getGenusFromStrain'),
-    path('getTruncatedAlignment/<str:moleculeType>/<str:alignmentName>/<str:strainId0>/<str:strainId1>', views.getTruncatedAlignmentDirect, name = 'getTruncatedAlignment'),
+    path('getPairwiseAlignment/<str:moleculeType>/<str:alignmentName>/<str:strainId0>/<str:strainId1>', views.getPairwiseAlignmentDirect, name = 'getPairwiseAlignment'),
+    path('showPairwiseAlignment/<str:moleculeType>/<str:alignmentName>/<str:strainId0>/<str:strainId1>', views.showPairwiseAlignmentDirect, name = 'showPairwiseAlignment')
 ]
