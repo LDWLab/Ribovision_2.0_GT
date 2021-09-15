@@ -3,7 +3,7 @@ Match_columns 80
 No_of_seqs    52 out of 56
 Neff          2.38065
 Searched_HMMs 1
-Date          Mon Sep 13 15:36:54 2021
+Date          Tue Sep 14 14:02:19 2021
 Command       /usr/local/bin/hh-suite/src/hhalign -i /home/Desire-DEV/PVDev/static/OB_aIF1.fa -t /home/Desire-DEV/PVDev/static/OB_aIF2a.fa 
 
  No Hit                             Prob E-value P-value  Score    SS Cols Query HMM  Template HMM

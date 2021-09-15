@@ -394,14 +394,14 @@ var populatePDBs = function (alndata){
             ajax(url).then(oldnomData => {
                 if (oldnomData.count == 0){return;}
                 let oldName = oldnomData.results[0].old_name.replace(/^(.{2})(0)/,"$1")
-                let riboXYZurl = `https://ribosome.xyz:8000/neo4j/gmo_nom_class/?banName=${oldName}&format=json`
+                let riboXYZurl = `https://api.ribosome.xyz/neo4j/gmo_nom_class/?banName=${oldName}&format=json`
                 ajax(riboXYZurl).then(data => {
                     var pdb_entries = []
                     data.forEach(function(entry){
-                        let pdb_text = `${entry.parent} ${entry.orgname[0].slice(0,39)}`
-                        let pdbxDescription = entry.protein.rcsb_pdbx_description.trim().replace(/-[\w]{1}$/,'').replace(/ubiquitin/ig,'')
+                        let pdb_text = `${entry.parent_rcsb_id} ${entry.rcsb_source_organism_description[0]}`
+                        let pdbxDescription = entry.rcsb_pdbx_description.trim().replace(/-[\w]{1}$/,'').replace(/ubiquitin/ig,'')
                         if (polNames.includes(pdbxDescription)){
-                            pdb_entries.push({id: entry.parent.toLowerCase(), name:pdb_text})
+                            pdb_entries.push({id: entry.parent_rcsb_id.toLowerCase(), name:pdb_text})
                         }
                     });
                     if (pdb_entries.length == 0){return;}
@@ -538,69 +538,6 @@ function handlePropensities(checked_propensities) {
                 build_propensity_graph(data['amino acid'], full, title, 'total');
             });
         }
-    }
-}
-
-function handlePermutation(checked_permutation) {
-    if (checked_permutation) {
-        let
-            permutation_indices = document.getElementById("permutation_indices").value;
-        invertedMap = _.invert(vm.structure_mapping);
-        let
-            indices = [];
-        vm.all_residues.forEach(index => indices.push(invertedMap[index]));
-        indices = indices.join(',');
-        // if (vm.selected_domain.length > 0) {
-        //     throw "Unfinished";
-        // }
-        // if (vm.filter_range) {
-        //     throw "Unfinished";
-        // }
-
-        let
-        //     coil_residues = vm.coil_residues,
-        //     customFasta = vm.fasta_data,
-        //     permutation_index,
-            url_name = "/permutation-data-custom/";
-        // coil_residues.sort((a, b) => a - b);
-        // let
-        //     length = coil_residues.length;
-        // if (length > 0) {
-        //     let
-        //         previous_coil_index = coil_residues[0],
-        //         current_list = [previous_coil_index],
-        //         coil_residue_list_of_lists = [current_list];
-        //     coil_residues.slice(1).forEach(coil_index => {
-        //         if (coil_index == previous_coil_index + 1) {
-        //             current_list.push(coil_index);
-        //         } else {
-        //             current_list = [coil_index];
-        //             coil_residue_list_of_lists.push(current_list);
-        //         }
-        //         previous_coil_index = coil_index;
-        //     });
-        //     let
-        //         middle_coil_residue_list = coil_residue_list_of_lists[Math.floor(coil_residue_list_of_lists.length / 2)];
-        //     permutation_index = invertedMap[middle_coil_residue_list[Math.floor(middle_coil_residue_list.length / 2)]];
-        // } else {
-        //     permutation_index = 0;
-        // }
-        let
-            customFasta = vm.fasta_data;
-        // indices = '1-3, 5-8, 20-25';
-        indices = permutation_indices;
-        ajax(url_name, {indices, customFasta/*, permutation_index*/}).then(data => {
-            
-        });
-        // if (indices) {
-        //     ajax(url_name, {indices, customFasta}).then(data => {
-
-        //     });
-        // } else {
-        //     ajax(url_name, {customFasta}).then(data => {
-
-        //     });
-        // }
     }
 }
 
