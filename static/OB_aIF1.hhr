@@ -1,0 +1,23 @@
+Query         OB-1_4MNO_1|Chain A|Translation initiation factor 1A|Pyrococcus abyssi (29292)_25-90
+Match_columns 80
+No_of_seqs    52 out of 56
+Neff          2.38065
+Searched_HMMs 1
+Date          Mon Sep 13 15:36:54 2021
+Command       /usr/local/bin/hh-suite/src/hhalign -i /home/Desire-DEV/PVDev/static/OB_aIF1.fa -t /home/Desire-DEV/PVDev/static/OB_aIF2a.fa 
+
+ No Hit                             Prob E-value P-value  Score    SS Cols Query HMM  Template HMM
+  1 OB-1_1YZ6_1|Chain A|Probable t   1.0   0.052   0.052   14.2   0.0   38   18-62     32-69  (81)
+
+No 1
+>OB-1_1YZ6_1|Chain A|Probable translation initiation factor 2 alpha subunit|Pyrococcus abyssi (29292)_9-83
+Probab=1.03  E-value=0.052  Score=14.19  Aligned_cols=38  Identities=13%  Similarity=0.284  Sum_probs=22.7  Template_Neff=2.950
+
+Q OB-1_4MNO_1|Ch   18 RCEDGK--IRRCRIP-----GKLR-RRVWIRVGDLVIVQPW-PVQ   53 (66)
+Q Consensus        18 ~C~Dg~~~~R~~RIp~~~~~Gk~k~kR~WireGDiVlv~PW~d~q   62 (80)
+                      .|+.|-  .-+.-|-  .+|  .|.=|=.+|+|+.|...-- ..+
+T Consensus        32 ~~~eg~--ihiSEva--sgW--iknIRd~vkeGqkvV~KVl-rVd   69 (81)
+T OB-1_1YZ6_1|Ch   29 ---EAF--MHISEVA--STW--VRNIRDYLKEGQKVVAKVI-RVD   63 (75)
+Confidence            466665  4444443  233  3334667899999887766 554
+
+

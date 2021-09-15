@@ -1,3 +1,4 @@
+import contextlib
 import re, os, warnings, io, base64, json
 import datetime
 import urllib.request
@@ -15,10 +16,9 @@ from alignments.taxonomy_views import *
 from alignments.residue_api import *
 from alignments.structure_api import *
 from alignments.fold_api import *
-from alignments.runal2co import executeAl2co
 import alignments.alignment_query_and_build as aqab
 from TwinCons.bin.TwinCons import slice_by_name
-
+from django.db import connection
 
 def trim_alignment(concat_fasta, filter_strain):
     '''Reads a fasta string into alignment and trims it down by filter sequence'''
@@ -268,18 +268,313 @@ def index_test(request):
     }
     return render(request, 'alignments/index_test.html', context)
 
+def desireAPI (request):
+    return render(request, 'alignments/desireAPIindex.html')
+
+def proteinTypes(request):
+    if request.method == 'POST' and 'taxIDs' in request.POST:
+        taxIDs = request.POST['taxIDs']
+        return proteinTypesDirect(request, taxIDs)
+    else:
+        return []
+
+def allProteinTypes(request):
+    allProteinTypes = []
+    with connection.cursor() as cursor:
+        sql = "select distinct(MoleculeGroup) from Nomenclature order by MoleculeGroup ASC;"
+        cursor.execute(sql)
+        for row in cursor.fetchall():
+            allProteinTypes.append(row[0])
+    context = {
+        "allProteinTypes" : allProteinTypes
+    }
+    return JsonResponse(context)
+
+def allSpecies(request):
+    allSpecies = []
+    with connection.cursor() as cursor:
+        sql = "select strain, strain_id from Species order by strain asc;"
+        cursor.execute(sql)
+        for row in cursor.fetchall():
+            allSpecies.append([row[0], row[1]])
+    context = {
+        "allSpecies" : allSpecies
+    }
+    return JsonResponse(context)
+
+def proteinTypesDirect(request, concatenatedTaxIds):
+    results = []
+    with connection.cursor() as cursor:
+        if concatenatedTaxIds.endswith(','):
+            concatenatedTaxIds = concatenatedTaxIds[:-1]
+        for taxID in concatenatedTaxIds.split(','):
+            taxID = int(taxID)
+            proteinTypesList = []
+            # sql = 'SET sql_mode=(SELECT REPLACE(@@sql_mode,\'ONLY_FULL_GROUP_BY\',\'\'));'
+            sql = 'select Nomenclature.MoleculeGroup from TaxGroups join Species_TaxGroup on Species_TaxGroup.taxgroup_id = TaxGroups.taxgroup_id join Species on Species.strain_id = Species_TaxGroup.strain_id join Species_Polymer on Species.strain_id = Species_Polymer.strain_id join Polymer_Data on Polymer_Data.strain_id = Species_Polymer.strain_id and Polymer_Data.GI = Species_Polymer.GI and Polymer_Data.nomgd_id = Species_Polymer.nomgd_id join Nomenclature on Nomenclature.nom_id = Polymer_Data.nomgd_id where TaxGroups.taxgroup_id = ' + str(taxID) + ' group by Nomenclature.MoleculeGroup;'
+
+            cursor.execute(sql)
+            # results = Taxgroups.objects.raw(sql)
+            for row in cursor.fetchall():
+                proteinTypesList.append(row[0])
+            results.append(proteinTypesList)
+    context = {
+        'results' : results
+    }
+    return JsonResponse(context)
+
+def getAlignmentsFilterByProteinTypeAndTaxIds(request):
+    if request.method == 'POST' and 'selectedProteinType' in request.POST and 'taxIDs' in request.POST:
+        return getAlignmentsFilterByProteinTypeAndTaxIdsDirect(request, request.POST['selectedProteinType'], request.POST['taxIDs'])
+    else:
+        return []
+
+def getAlignmentsFilterByProteinTypeAndTaxIdsDirect(request, concatenatedProteinTypes, concatenatedTaxIds):
+    results = []
+    with connection.cursor() as cursor:
+        if concatenatedProteinTypes.endswith(','):
+            concatenatedProteinTypes = concatenatedProteinTypes[:-1]
+        if concatenatedTaxIds.endswith(','):
+            concatenatedTaxIds = concatenatedTaxIds[:-1]
+        proteinTypes = concatenatedProteinTypes.split(',')
+        concatenatedProteinTypes = '\'' + proteinTypes[0] + '\''
+        for i in range(1, len(proteinTypes)):
+            concatenatedProteinTypes += ', \'' + proteinTypes[i] + '\''
+        for taxID in concatenatedTaxIds.split(','):
+            alignmentNamesAndPrimaryKeys = []
+            sql = "select Alignment.Name, Alignment.Aln_id from Nomenclature join Polymer_Data on Polymer_Data.nomgd_id = Nomenclature.nom_id join Polymer_Alignments on Polymer_Alignments.PData_id = Polymer_Data.PData_id join Alignment on Alignment.Aln_id = Polymer_Alignments.Aln_id join Species_Polymer on Species_Polymer.strain_id = Polymer_Data.strain_id and Species_Polymer.GI = Polymer_Data.GI and Species_Polymer.nomgd_id = Polymer_Data.nomgd_id join Species on Species.strain_id = Species_Polymer.strain_id join Species_TaxGroup on Species.strain_id = Species_TaxGroup.strain_id join TaxGroups on TaxGroups.taxgroup_id = Species_TaxGroup.taxgroup_id where Nomenclature.MoleculeGroup in (" + concatenatedProteinTypes + ") and TaxGroups.taxgroup_id = " + taxID + " group by Alignment.Aln_id;"
+
+            cursor.execute(sql)
+            for row in cursor.fetchall():
+                alignmentNamesAndPrimaryKeys.append([row[0], row[1]])
+            results.append(alignmentNamesAndPrimaryKeys)
+    context = {'results' : results}
+    return JsonResponse(context)
+    # alignmentNamesAndPrimaryKeys = []
+    # condition = request.method == 'POST' and 'selectedProteinType' in request.POST and 'taxIDs' in request.POST
+    # if condition:
+    #     selectedProteinType = request.POST['selectedProteinType']
+    #     taxIDs = request.POST['taxIDs']
+    #     taxIDsList = []
+    #     for taxID in taxIDs:
+    #         taxIDsList.append(taxID)
+    #     sql = "select Alignment.Name, Alignment.Aln_id from Nomenclature join Polymer_Data on Polymer_Data.nomgd_id = Nomenclature.nom_id join Polymer_Alignments on Polymer_Alignments.PData_id = Polymer_Data.PData_id join Alignment on Alignment.Aln_id = Polymer_Alignments.Aln_id join Species on Species.strain_id = Polymer_Data.strain_id join Species_TaxGroup on Species.strain_id = Species_TaxGroup.strain_id join TaxGroups on TaxGroups.taxgroup_id = Species_TaxGroup.taxgroup_id where Nomenclature.MoleculeGroup = '" + selectedProteinType + "' and TaxGroups.taxgroup_id in (" + str(taxIDsList)[1:-1] + ") group by Alignment.Aln_id;"
+    #     print('\n')
+    #     print(sql)
+    #     print('\n')
+    #     # sql = "select Alignment.Name, Alignment.Aln_id from Nomenclature join Polymer_Data on Polymer_Data.nomgd_id = Nomenclature.nom_id join Polymer_Alignments on Polymer_Alignments.PData_id = Polymer_Data.PData_id join Alignment on Alignment.Aln_id = Polymer_Alignments.Aln_id join Species on Species.strain_id = PolymerData.strain_id join Species_TaxGroup on Species_TaxGroup.strain_id = TaxGroups.taxgroup_id where Nomenclature.MoleculeGroup = '" + selectedProteinType + "' group by Alignment.Aln_id and TaxGroups.taxgroup_id in (" + str(taxIDsList)[1:-1] + ");"
+    #     with connection.cursor() as cursor:
+    #         cursor.execute(sql)
+    #         for row in cursor.fetchall():
+    #             alignmentNamesAndPrimaryKeys.append([row[0], row[1]])
+    # context = {'alignmentNamesAndPrimaryKeys' : alignmentNamesAndPrimaryKeys}
+    # return JsonResponse(context)
+
+def getAlignmentsFilterByProteinTypeDirect(request, concatenatedProteinTypes):
+    proteinTypes = concatenatedProteinTypes.split(',')
+    concatenatedProteinTypes = '\'' + proteinTypes[0] + '\''
+    for i in range(1, len(proteinTypes)):
+        concatenatedProteinTypes += ', \'' + proteinTypes[i] + '\''
+    sql = "select distinct(Name) from Alignment join Polymer_Alignments on Polymer_Alignments.Aln_id = Alignment.Aln_id join Polymer_Data on Polymer_Data.PData_id = Polymer_Alignments.PData_id join Nomenclature on Nomenclature.nom_id = Polymer_Data.nomgd_id where Nomenclature.MoleculeGroup in (" + concatenatedProteinTypes + ");"
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        results = []
+        for row in cursor.fetchall():
+            results.append(row[0])
+    context = {
+        'results' : results
+    }
+    return JsonResponse(context)
+
+def getProteinInformationFilterByStrainIDAndProteinNameDirect(request, strain_id, protein_name, internal = False):
+    sql = "select Polymer_Data.GI, Polymer_metadata.encoding_location, Polymer_metadata.classification from Alignment join Polymer_Alignments on Alignment.Aln_id = Polymer_Alignments.Aln_id join Polymer_Data on Polymer_Data.PData_id = Polymer_Alignments.PData_id join Species_Polymer on Species_Polymer.nomgd_id = Polymer_Data.nomgd_id and Species_Polymer.GI = Polymer_Data.GI join Species on Species_Polymer.strain_id = Species.strain_id join Polymer_metadata on Polymer_metadata.polymer_id = Polymer_Data.PData_id join Nomenclature on Nomenclature.nom_id = Polymer_Data.nomgd_id where Nomenclature.new_name = '" + protein_name + "' and Species.strain_id = " + str(strain_id)
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        results = []
+        for row in cursor.fetchall():
+            rowDictionary = {
+                'GI' : row[0],
+                'encoding location' : row[1],
+                'classification' : row[2]
+            }
+            results.append(rowDictionary)
+    if internal:
+        return results
+    context = {
+        'results' : results
+    }
+    return JsonResponse(context)
+
+def getPairwiseAlignmentDirect(request, moleculeType, alignmentName, strainId0, strainId1, internal = False):
+    strainIds = [strainId0, strainId1]
+    concatenatedStrainIds = '\'' + strainIds[0] + '\''
+    for i in range(1, len(strainIds)):
+        concatenatedStrainIds += ', \'' + strainIds[i] + '\''
+    sql = "select TaxGroups.taxgroup_id, Species.strain from Species join Species_TaxGroup on Species.strain_id = Species_TaxGroup.strain_id join TaxGroups on TaxGroups.taxgroup_id = Species_TaxGroup.taxgroup_id where Species.strain_id in (" + concatenatedStrainIds + ") and TaxGroups.groupLevel = 'genus';"
+    genusList = []
+    speciesNames = []
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        for row in cursor.fetchall():
+            genusList.append(row[0])
+            speciesNames.append(row[1])
+    if len(speciesNames) == 1:
+        speciesName0 = speciesName1 = speciesNames[0]
+    else:
+        speciesName0, speciesName1 = speciesNames
+    alignment = string_fasta(request, moleculeType, alignmentName, strainId0 + ',' + strainId1, internal=True)
+    alignment = alignment.replace('\\n', '\n')
+    truncatedAlignment = ''
+    if (alignment.endswith('\n')) :
+        alignment = alignment[0:-1]
+        alignmentLines = alignment.splitlines()
+        modifiedStrainName0 = speciesName0.replace(' ', '_')
+        modifiedStrainName1 = speciesName1.replace(' ', '_')
+        for i in range(1, len(alignmentLines), 2):
+            titleLine = alignmentLines[i - 1]
+            alignmentLine = alignmentLines[i]
+            if modifiedStrainName0 in titleLine or modifiedStrainName1 in titleLine:
+                truncatedAlignment += alignmentLine + '\n'
+    if internal:
+        return truncatedAlignment
+    context = {
+        'truncatedAlignment' : truncatedAlignment
+    }
+    return JsonResponse(context)
+
+def showPairwiseAlignmentDirect(request, moleculeType, alignmentName, strainId0, strainId1):
+    pairwiseAlignment = getPairwiseAlignmentDirect(request, moleculeType, alignmentName, strainId0, strainId1, internal = True)
+    context = {
+        'multipleLinesData' : pairwiseAlignment
+    }
+    return render(request, 'alignments/multipleLinesVisualizer.html', context)
+
+def showProteinResultsDirect(request, strain_id, gi):
+    polymerInformation = getProteinInformationFilterByStrainIDAndProteinNameDirect(request, strain_id, gi, True)
+    multipleLinesData = None
+    if len(polymerInformation) == 0:
+        multipleLinesData = "No results!"
+    else:
+        polymerInformation = polymerInformation[0]
+        multipleLinesData = '\n'.join(['GI: ' + str(polymerInformation['GI']), 'encoding location: ' + str(polymerInformation['encoding location']), 'classification: ' + str(polymerInformation['classification'])])
+    context = {
+        'multipleLinesData' : multipleLinesData
+    }
+    return render(request, 'alignments/multipleLinesVisualizer.html', context)
+
+def showStrainInformationFilterByProteinNameDirect(request, protein_name):
+    strainInformation = getStrainInformationFilterByProteinNameDirect(request, protein_name, internal = True)
+    context = {
+        'multipleLinesData' : '\n'.join(str(strainDatum[0]) + ', ' + strainDatum[1] for strainDatum in strainInformation)
+    }
+    return render(request, 'alignments/multipleLinesVisualizer.html', context)
+
+def showProteinNamesPerStrainIDAndProteinTypeDirect(request, strain_id, proteinType):
+    alignmentInformation = getProteinNamesFilterByStrainIDAndProteinTypeDirect(request, strain_id, proteinType, internal = True)
+    multipleLinesData = None
+    if len(alignmentInformation) == 0:
+        multipleLinesData = "No results!"
+    else:
+        multipleLinesData = '\n'.join(list(foo[0] + ', ' + foo[1] for foo in alignmentInformation))
+    context = {
+        'multipleLinesData' : multipleLinesData
+    }
+    return render(request, 'alignments/multipleLinesVisualizer.html', context)
+
+def showAlignmentDirect(request, protein_type, aln_name, tax_group):
+    alignment = string_fasta(request, protein_type, aln_name, tax_group, True)
+    context = {
+        'multipleLinesData' : alignment.replace('\\n', '\n')
+    }
+    return render(request, 'alignments/multipleLinesVisualizer.html', context)
+
+def getProteinNamesFilterByStrainIDAndProteinTypeDirect(request, strain_id, proteinType, internal = False):
+    sql = "select Nomenclature.new_name, Polymer_metadata.Fullseq from Polymer_Data join Nomenclature on Nomenclature.nom_id = Polymer_Data.nomgd_id join Species_Polymer on Species_Polymer.GI = Polymer_Data.GI and Species_Polymer.nomgd_id = Polymer_Data.nomgd_id join Species on Species.strain_id = Species_Polymer.strain_id join Polymer_Alignments on Polymer_Alignments.PData_id = Polymer_Data.PData_id join Alignment on Alignment.Aln_id = Polymer_Alignments.Aln_id join Polymer_metadata on Polymer_metadata.polymer_id = Polymer_Data.PData_id where Species.strain_id = " + str(strain_id) + " and Nomenclature.MoleculeGroup = '" + proteinType + "' group by Nomenclature.new_name, Polymer_metadata.Fullseq order by Nomenclature.new_name asc"
+    results = []
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        for row in cursor.fetchall():
+            results.append([row[0], row[1]])
+    if internal:
+        return results
+    context = {
+        'results' : results
+    }
+    return JsonResponse(context)
+
+def getProteinNamesFilterByProteinTypeDirect(request, proteinType):
+    sql = "select Nomenclature.new_name from Nomenclature where Nomenclature.MoleculeGroup in ('" + proteinType + "') order by Nomenclature.new_name"
+    # sql = "select Polymer_Data.GI from Polymer_Data join Nomenclature on Polymer_Data.nomgd_id = Nomenclature.nom_id where Nomenclature.MoleculeGroup = '" + proteinType + "' order by Polymer_Data.GI asc;"
+    results = []
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        for row in cursor.fetchall():
+            results.append(row[0])
+    context = {
+        'results' : results
+    }
+    return JsonResponse(context)
+
+def getStrainInformationFilterByProteinNameDirect(request, aln_name, internal = False):
+    sql = "select distinct(Species.strain_id), strain from Species join Species_Polymer on Species_Polymer.strain_id = Species.strain_id join Polymer_Data on Species_Polymer.GI = Polymer_Data.GI and Species_Polymer.nomgd_id = Polymer_Data.nomgd_id join Polymer_Alignments on Polymer_Alignments.PData_id = Polymer_Data.PData_id join Alignment on Alignment.Aln_id = Polymer_Alignments.Aln_id where Alignment.Name = '" + aln_name + "'"
+    results = []
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        for row in cursor.fetchall():
+            results.append([row[0], row[1]])
+    if internal:
+        return results
+    context = {
+        'results' : results
+    }
+    return JsonResponse(context)
+
+def getStrainsFilterByMoleculeGroupAndAlignmentDirect(request, concatenatedMoleculeGroups, concatenatedAlignmentNames):
+    moleculeGroups = concatenatedMoleculeGroups.split(',')
+    concatenatedMoleculeGroups = '\'' + moleculeGroups[0] + '\''
+    for i in range(1, len(moleculeGroups)):
+        concatenatedMoleculeGroups += ', \'' + moleculeGroups[i] + '\''
+    alignmentNames = concatenatedAlignmentNames.split(',')
+    concatenatedAlignmentNames = '\'' + alignmentNames[0] + '\''
+    for i in range(1, len(alignmentNames)):
+        concatenatedAlignmentNames += ', \'' + alignmentNames[i] + '\''
+    sql = 'select Species.strain, Species.strain_id from Species join Species_Polymer on Species_Polymer.strain_id = Species.strain_id join Polymer_Data on Polymer_Data.GI = Species_Polymer.GI and Polymer_Data.nomgd_id = Species_Polymer.nomgd_id join Nomenclature on Nomenclature.nom_id = Polymer_Data.nomgd_id join Polymer_Alignments on Polymer_Alignments.PData_id = Polymer_Data.PData_id join Alignment on Alignment.Aln_id = Polymer_Alignments.Aln_id where Nomenclature.MoleculeGroup in (' + concatenatedMoleculeGroups + ') and Alignment.name in (' + concatenatedAlignmentNames + ');'
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        results = []
+        for row in cursor.fetchall():
+            results.append([row[0], row[1]])
+    context = {
+        'results' : results
+    }
+    return JsonResponse(context)
+
+def getAlignmentFilterByNameAndMoleculeGroupTrimByStrainIdDirect(request, concatenatedMoleculeGroups, concatenatedAlignmentNames, concatenatedStrainIds):
+    moleculeGroups = concatenatedMoleculeGroups.split(',')
+    concatenatedMoleculeGroups = '\'' + moleculeGroups[0] + '\''
+    for i in range(1, len(moleculeGroups)):
+        concatenatedMoleculeGroups += ', \'' + moleculeGroups[i] + '\''
+    alignmentNames = concatenatedAlignmentNames.split(',')
+    concatenatedAlignmentNames = '\'' + alignmentNames[0] + '\''
+    for i in range(1, len(alignmentNames)):
+        concatenatedAlignmentNames += ', \'' + alignmentNames[i] + '\''
+    sql = 'select Polymer_metadata.Fullseq, Species.strain from Polymer_metadata join Polymer_Data on Polymer_metadata.polymer_id = Polymer_Data.PData_id join Nomenclature on Nomenclature.nom_id = Polymer_Data.nomgd_id join Species_Polymer on Polymer_Data.GI = Species_Polymer.GI and Polymer_Data.nomgd_id = Species_Polymer.nomgd_id join Species on Species.strain_id = Species_Polymer.strain_id join Polymer_Alignments on Polymer_Alignments.PData_id = Polymer_Data.PData_id join Alignment on Polymer_Alignments.Aln_id = Alignment.Aln_id where Nomenclature.MoleculeGroup in (' + concatenatedMoleculeGroups + ') and Alignment.Name in (' + concatenatedAlignmentNames + ') and Species.strain_id in (' + concatenatedStrainIds + ');'
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        results = []
+        for row in cursor.fetchall():
+            results.append(row[0])
+    context = {
+        'results' : results
+    }
+    return JsonResponse(context)
+
 def index_orthologs(request):
-    print ("request.method == 'POST': " + str(request.method == 'POST'))
-    print ("'custom_propensity_data' in request.FILES: " + str('custom_propensity_data' in request.FILES))
-    print ("request.method: " + str(request.method))
-    for x in request.FILES:
-        print ("x: " + str(x))
     if request.method == 'GET' and 'custom_propensity_data' in request.FILES:
         propensity_indices_file = request.FILES['custom_propensity_data']
         propensity_indices_string = ''
         for propensity_part in propensity_indices_file.chunks():
             propensity_indices_string += propensity_part.decode()
-        print ("propensity_indices_string: " + propensity_indices_string)
     # if request.method == 'POST' and 'custom_propensity_data' in request.FILES:
     #     propensity_indices_file = request.FILES['custom_propensity_data']
     #     propensity_indices_string = ''
@@ -371,6 +666,75 @@ def simple_fasta(request, aln_id, tax_group, internal=False):
     response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc])
 
     return JsonResponse(response_dict, safe = False)
+
+def string_fasta(request, protein_type, aln_name, tax_group, internal=False):
+    if type(tax_group) == int:
+        tax_group = str(tax_group)
+    elif type(tax_group) == list:
+        tax_group = ','.join(tax_group)
+    protein_type = protein_type.split(',')
+    for i in range(len(protein_type)):
+        protein_type[i] = '\'' + protein_type[i] + '\''
+    protein_type=','.join(protein_type)
+    with connection.cursor() as cursor:
+        sql = 'SET sql_mode=(SELECT REPLACE(@@sql_mode,\'ONLY_FULL_GROUP_BY\',\'\'));'
+        cursor.execute(sql)
+        sql = "select Alignment.*, Polymer_Data.*, Nomenclature.* from Alignment join Polymer_Alignments on Polymer_Alignments.Aln_id = Alignment.Aln_id join Polymer_Data on Polymer_Data.PData_id = Polymer_Alignments.PData_id join Nomenclature on Nomenclature.nom_id = Polymer_Data.nomgd_id join Species on Polymer_Data.strain_id = Species.strain_id join Species_TaxGroup on Species_TaxGroup.strain_id = Species.strain_id join TaxGroups on Species_TaxGroup.taxgroup_id = Species_TaxGroup.taxgroup_id where Alignment.Name = '" + aln_name + "' and MoleculeGroup in (" + protein_type + ") and TaxGroups.taxgroup_id in (" + tax_group + ") group by Alignment.Name;"
+        cursor.execute(sql)
+        raw_result = aqab.dictfetchall(cursor)
+    return simple_fasta(request, raw_result[0]['Aln_id'], tax_group, internal)
+    # return JsonResponse("Test", safe=False)
+    # from django.db import connection
+    # raw_sql = "select * from Nomenclature where MoleculeGroup = '" + protein_type + "' and new_name = '" + aln_name + "';"
+    # with connection.cursor() as cursor:
+    #     cursor.execute(raw_sql)
+    #     raw_result = aqab.dictfetchall(cursor)
+    # if len(raw_result) == 0:
+    #     raise Http404("We do not have this combination of arguments in our database.")
+    
+    # rawsqls = []
+    
+    # nogap_tupaln = dict()
+    # max_alnposition = 0
+
+    # for rawsql, parent in rawsqls:
+    #     nogap_tupaln, max_alnposition= aqab.query_to_dict_structure(rawsql, parent, nogap_tupaln, max_alnposition)
+    
+    # fastastring, frequency_list = aqab.build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_alnposition)
+    
+    # concat_fasta, twc, gap_only_cols, filtered_spec_list, alignment_obj = calculateFastaProps(fastastring)
+    # response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc])
+
+    # return JsonResponse(response_dict, safe = False)
+
+def getGenusFromStrainIdsDirect(request, concatenatedStrainIds):
+    strainIds = concatenatedStrainIds.split(',')
+    concatenatedStrainIds = '\'' + strainIds[0] + '\''
+    for i in range(1, len(strainIds)):
+        concatenatedStrainIds += ', \'' + strainIds[i] + '\''
+    sql = "select TaxGroups.taxgroup_id from Species join Species_TaxGroup on Species.strain_id = Species_TaxGroup.strain_id join TaxGroups on TaxGroups.taxgroup_id = Species_TaxGroup.taxgroup_id where Species.strain_id in (" + concatenatedStrainIds + ") and TaxGroups.groupLevel = 'genus';"
+    genusList = []
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        for row in cursor.fetchall():
+            genusList.append(row[0])
+    context = {
+        'genusList' : genusList
+    }
+    return JsonResponse(context)
+
+def string_fasta_two_strains(request, protein_type, aln_id, strain_id_0, strain_id_1):
+    if type(strain_id_0) == int:
+        strain_id_0 = str(strain_id_0)
+    if type(strain_id_1) == int:
+        strain_id_1 = str(strain_id_1)
+    protein_type = protein_type.split(',')
+    for i in range(len(protein_type)):
+        protein_type[i] = '\'' + protein_type[i] + '\''
+    protein_type=','.join(protein_type)
+    sql = ""
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
 
 def calculateFastaProps(fastastring):
     concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
@@ -469,6 +833,184 @@ def propensity_data(request, aln_id, tax_group):
         'amino acid' : aa
     }
     return JsonResponse(data)
+
+def permutation_data_custom(request):
+    return permutation_data(request, None, None)
+
+def permutation_data(request, aln_id, tax_group):
+    from io import StringIO
+    from Bio import AlignIO
+    # if request.method == 'POST' and 'customFasta' in request.POST and aln_id is None:
+    #     fastastring = request.POST['customFasta']
+    # else:
+    #     fastastring = simple_fasta(request, aln_id, tax_group, internal=True).replace('\\n', '\n')
+    # fasta = StringIO(fastastring)
+    # if request.method == 'POST' and 'indices' in request.POST:
+    #     indices = request.POST['indices']
+    #     trimmed_fasta = trim_fasta_by_index(fasta, indices)
+    #     fasta = StringIO(format(trimmed_fasta, 'fasta'))
+    fasta_variable_name = 'customFasta'
+    if request.method == 'POST' and fasta_variable_name in request.POST:
+        fastastring = request.POST[fasta_variable_name]
+        fasta = StringIO(fastastring)
+        align = AlignIO.read(fasta, "fasta")
+        # column_dimension = align.get_alignment_length()
+        # midIndex = column_dimension // 2
+        # permutation_index_variable_name = 'permutation_index'
+        # if permutation_index_variable_name in request.POST:
+        #     midIndex = int(request.POST[permutation_index_variable_name])
+        # else:
+        #     midIndex = 0
+        indices_variable_name = 'indices'
+        if indices_variable_name in request.POST:
+            indices = request.POST[indices_variable_name]
+            indexPairs = indices.replace(" ", "").split(',')
+            label_modifiers = []
+            per_row_gap_counts = []
+            # align = align[0:1, :]
+            row_range = range(len(align))
+            column_range = range(align.get_alignment_length())
+            for row_index in row_range:
+                label_modifiers.append("")
+                gap_counts_at_row_index = [(0, 0)]
+                per_row_gap_counts.append(gap_counts_at_row_index)
+                running_concurrent_gap_count = 0
+                running_gap_count = 0
+                for column_index in column_range:
+                    if align[row_index, column_index] == '-':
+                        running_concurrent_gap_count += 1
+                    elif running_concurrent_gap_count > 0:
+                        running_gap_count += running_concurrent_gap_count
+                        running_concurrent_gap_count = 0
+                        gap_counts_at_row_index.append((column_index, running_gap_count))
+            newAlign = align[:, 0:0]
+
+            # recordList = []
+            # newAlign = MultipleSeqAlignment(recordList)
+
+            valid_index_pair_flag = False
+            for indexPair in indexPairs:
+                indexPair = indexPair.split('-')
+                column_index_0 = int(indexPair[0]) - 1
+                column_index_1 = int(indexPair[1])
+                if 0 <= column_index_0 < column_index_1:
+                    valid_index_pair_flag = True
+                    for row_index in row_range:
+                        base_column_index = column_index_0
+                        while align[row_index, base_column_index] == '-':
+                            base_column_index += 1
+                        previous_column_index_gap_flag = False
+                        _range = range(base_column_index + 1, column_index_1)
+                        for column_index in _range:
+                            column_index_gap_flag = align[row_index, column_index] == '-'
+                            if column_index_gap_flag != previous_column_index_gap_flag:
+                                if column_index_gap_flag:
+                                    if column_index == base_column_index + 1:
+                                        label_modifiers[row_index] += str(base_column_index + 1) + ", "
+                                    else:
+                                        label_modifiers[row_index] += str(base_column_index + 1) + "-" + str(column_index + 1) + ", "
+                                else:
+                                    base_column_index = column_index
+                            previous_column_index_gap_flag = column_index_gap_flag
+                        if align[row_index, column_index_1 - 1] != '-':
+                            if base_column_index == column_index_1 - 1:
+                                label_modifiers[row_index] += str(base_column_index + 1) + ", "
+                            else:
+                                label_modifiers[row_index] += str(base_column_index + 1) + "-" + str(column_index_1) + ", "
+                    newAlign += align[:, column_index_0:column_index_1]
+                #     for row_index in row_range:
+                #         gap_counts_at_row_index = per_row_gap_counts[row_index]
+                #         gap_counts_at_row_index_range = range(len(gap_counts_at_row_index))
+                #         lower_gap_count_index = 0
+                #         for gap_count_index in gap_counts_at_row_index_range:
+                #             gap_count = gap_counts_at_row_index[gap_count_index]
+                #             gap_count_column_index = gap_count[0]
+                #             if gap_count_column_index > column_index_0:
+                #                 break
+                #             lower_gap_count_index = gap_count_index
+                #         upper_gap_count_index = lower_gap_count_index
+                #         for gap_count_index in gap_counts_at_row_index_range[lower_gap_count_index + 1:]:
+                #             gap_count = gap_counts_at_row_index[gap_count_index]
+                #             gap_count_column_index = gap_count[0]
+                #             if gap_count_column_index > column_index_1:
+                #                 break
+                #             upper_gap_count_index = gap_count_index
+                        
+                #         label_modifiers[row_index] += str(column_index_0 - gap_counts_at_row_index[lower_gap_count_index][1] + 1) + "-" + str(column_index_1 - gap_counts_at_row_index[upper_gap_count_index][1]) + ", "
+            if valid_index_pair_flag:
+                for row_index in row_range:
+                    if len(label_modifiers[row_index]) > 0:
+                        newAlign[row_index].id = re.sub('([^_]*)_?$', r'\1_', newAlign[row_index].id) + label_modifiers[row_index][:-2]
+                        newAlign[row_index].description = ""
+            align = newAlign
+        #     minimumIndex = column_dimension
+        #     maximumIndex = 0
+        #     for index in indices.split(','):
+        #         index = int(index)
+        #         if (index < minimumIndex):
+        #             minimumIndex = index
+        #         if (index > maximumIndex):
+        #             maximumIndex = index
+        #     midIndex = (minimumIndex + maximumIndex) // 2
+
+        # This is the top row of the alignment. It makes for easy checking of the permutation; it serves no other purpose.
+        # align = align[0:1, midIndex:] + align[0:1, :midIndex]
+        # align = align[:, midIndex:] + align[:, :midIndex]
+    else:
+        raise NotImplementedError()
+    fasta = StringIO(format(align, 'fasta'))
+    # lines = fasta.split("\n")
+    # linePairs = []
+    # labelLine = lines[0]
+    # alignmentLine = ""
+    # for line in lines[1:]:
+    #     if line.startswith('>'):
+    #         linePairs.append((labelLine, alignmentLine))
+    #         labelLine = line
+    #         alignmentLine = ""
+    #     else:
+    #         alignmentLine += line
+    permutation_string = fasta.getvalue()
+    # request.FILES['permuted_fasta'] = permutation_string
+
+    now = datetime.datetime.now()
+    fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
+    alignmentFilePath = "./static/permuted_alignment" + fileNameSuffix + ".fasta"
+
+    # hhblits
+    # command: /usr/local/bin/hh-suite/bin/hhsearch -i /home/blastdb/alignments/beta_barrels/OB_aIF1.fa -d /home/blastdb/ecod_F_fasta/ecod215/ecod215_numk3 -maxres 550000 -o OB_aIF1.txt -M 50 -add_cons
+    # /usr/local/bin/hh-suite/bin/hhsearch -i /home/blastdb/ecod_F_fasta/test.fa -d /home/blastdb/ecod_F_fasta/ecodFam -maxres 550000 -o test.hhr
+    # Convert to standard JSON:
+    # NOTE: add any installed prerequisites to the README.md (/DESIRE/README.md)
+
+    fh = open(alignmentFilePath, "w")
+    fh.write(permutation_string)
+    fh.close()
+
+    hhsearchOutputFilePath = './static/test.hhr' + fileNameSuffix
+    hhsearch(alignmentFilePath, '/home/blastdb/ecod_F_fasta/ecodFam', hhsearchOutputFilePath, 550000, 50, False)
+
+    os.remove(alignmentFilePath)
+    os.remove(hhsearchOutputFilePath)
+
+    # response = HttpResponse(permutation_string, content_type="text/plain")
+    response = JsonResponse(permutation_string, safe = False)
+    return response
+
+def hhsearch(input_file_path, input_database_path, output_file_path, max_residues=550000, threshold_percentage=None, add_cons_flag=True):
+    if (max_residues <= 0):
+        raise ValueError('The input max_residues value must be greater than zero')
+    hhsearch_command = 'hhsearch -i ' + input_file_path + ' -d ' + input_database_path + ' -o ' + output_file_path  + ' -maxres ' + str(max_residues)
+    if (not threshold_percentage is None):
+        if (threshold_percentage < 0 or threshold_percentage > 100):
+            raise ValueError('The input threshold_percentage value must be between 0 and 100 inclusively.')
+        hhsearch_command += ' -M ' + str(threshold_percentage)
+    if add_cons_flag:
+        hhsearch_command += ' -add_cons'
+    os.system(hhsearch_command)
+
+def hhalign():
+    pass
 
 def propensities(request, align_name, tax_group):
     aln_id = Alignment.objects.filter(name = align_name)[0].aln_id
