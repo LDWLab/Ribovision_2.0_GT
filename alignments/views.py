@@ -386,8 +386,8 @@ def getAlignmentsFilterByProteinTypeDirect(request, concatenatedProteinTypes):
     }
     return JsonResponse(context)
 
-def getPolymerInformationFilterByStrainIDAndGIDirect(request, strain_id, gi, internal = False):
-    sql = "select Polymer_Data.GI, Polymer_metadata.encoding_location, Polymer_metadata.classification from Polymer_Data join Polymer_metadata on Polymer_Data.PData_id = Polymer_metadata.polymer_id join Species_Polymer on Species_Polymer.nomgd_id = Polymer_Data.nomgd_id and Species_Polymer.GI = Polymer_Data.GI join Species on Species_Polymer.strain_id = Species.strain_id where Species.strain_id = " + str(strain_id) + " and Polymer_Data.GI = '" + gi + "'"
+def getProteinInformationFilterByStrainIDAndProteinNameDirect(request, strain_id, protein_name, internal = False):
+    sql = "select Polymer_Data.GI, Polymer_metadata.encoding_location, Polymer_metadata.classification from Alignment join Polymer_Alignments on Alignment.Aln_id = Polymer_Alignments.Aln_id join Polymer_Data on Polymer_Data.PData_id = Polymer_Alignments.PData_id join Species_Polymer on Species_Polymer.nomgd_id = Polymer_Data.nomgd_id and Species_Polymer.GI = Polymer_Data.GI join Species on Species_Polymer.strain_id = Species.strain_id join Polymer_metadata on Polymer_metadata.polymer_id = Polymer_Data.PData_id join Nomenclature on Nomenclature.nom_id = Polymer_Data.nomgd_id where Nomenclature.new_name = '" + protein_name + "' and Species.strain_id = " + str(strain_id)
     with connection.cursor() as cursor:
         cursor.execute(sql)
         results = []
@@ -449,8 +449,8 @@ def showPairwiseAlignmentDirect(request, moleculeType, alignmentName, strainId0,
     }
     return render(request, 'alignments/multipleLinesVisualizer.html', context)
 
-def showPolymerInformationDirect(request, strain_id, gi):
-    polymerInformation = getPolymerInformationFilterByStrainIDAndGIDirect(request, strain_id, gi, True)
+def showProteinResultsDirect(request, strain_id, gi):
+    polymerInformation = getProteinInformationFilterByStrainIDAndProteinNameDirect(request, strain_id, gi, True)
     multipleLinesData = None
     if len(polymerInformation) == 0:
         multipleLinesData = "No results!"
@@ -462,20 +462,20 @@ def showPolymerInformationDirect(request, strain_id, gi):
     }
     return render(request, 'alignments/multipleLinesVisualizer.html', context)
 
-def showStrainsPerProteinGIDirect(request, proteinGI):
-    strainIDs = getStrainIdsFilterByProteinGIDirect(request, proteinGI, internal = True)
+def showStrainInformationFilterByProteinNameDirect(request, protein_name):
+    strainInformation = getStrainInformationFilterByProteinNameDirect(request, protein_name, internal = True)
     context = {
-        'multipleLinesData' : '\n'.join(str(strainID) for strainID in strainIDs)
+        'multipleLinesData' : '\n'.join(str(strainDatum[0]) + ', ' + strainDatum[1] for strainDatum in strainInformation)
     }
     return render(request, 'alignments/multipleLinesVisualizer.html', context)
 
-def showProteinGIsPerStrainIDAndProteinTypeDirect(request, strain_id, proteinType):
-    proteinGIs = getProteinGIsFilterByStrainIDAndProteinTypeDirect(request, strain_id, proteinType, internal = True)
+def showProteinNamesPerStrainIDAndProteinTypeDirect(request, strain_id, proteinType):
+    alignmentInformation = getProteinNamesFilterByStrainIDAndProteinTypeDirect(request, strain_id, proteinType, internal = True)
     multipleLinesData = None
-    if len(proteinGIs) == 0:
+    if len(alignmentInformation) == 0:
         multipleLinesData = "No results!"
     else:
-        multipleLinesData = '\n'.join(proteinGIs)
+        multipleLinesData = '\n'.join(list(foo[0] + ', ' + foo[1] for foo in alignmentInformation))
     context = {
         'multipleLinesData' : multipleLinesData
     }
@@ -484,17 +484,17 @@ def showProteinGIsPerStrainIDAndProteinTypeDirect(request, strain_id, proteinTyp
 def showAlignmentDirect(request, protein_type, aln_name, tax_group):
     alignment = string_fasta(request, protein_type, aln_name, tax_group, True)
     context = {
-        'multipleLinesData' : alignment
+        'multipleLinesData' : alignment.replace('\\n', '\n')
     }
     return render(request, 'alignments/multipleLinesVisualizer.html', context)
 
-def getProteinGIsFilterByStrainIDAndProteinTypeDirect(request, strain_id, proteinType, internal = False):
-    sql = "select Polymer_Data.GI from Polymer_Data join Nomenclature on Nomenclature.nom_id = Polymer_Data.nomgd_id join Species_Polymer on Species_Polymer.GI = Polymer_Data.GI and Species_Polymer.nomgd_id = Polymer_Data.nomgd_id join Species on Species.strain_id = Species_Polymer.strain_id where Species.strain_id = " + str(strain_id) + " and Nomenclature.MoleculeGroup = '" + proteinType + "' order by Polymer_Data.GI asc;"
+def getProteinNamesFilterByStrainIDAndProteinTypeDirect(request, strain_id, proteinType, internal = False):
+    sql = "select Nomenclature.new_name, Polymer_metadata.Fullseq from Polymer_Data join Nomenclature on Nomenclature.nom_id = Polymer_Data.nomgd_id join Species_Polymer on Species_Polymer.GI = Polymer_Data.GI and Species_Polymer.nomgd_id = Polymer_Data.nomgd_id join Species on Species.strain_id = Species_Polymer.strain_id join Polymer_Alignments on Polymer_Alignments.PData_id = Polymer_Data.PData_id join Alignment on Alignment.Aln_id = Polymer_Alignments.Aln_id join Polymer_metadata on Polymer_metadata.polymer_id = Polymer_Data.PData_id where Species.strain_id = " + str(strain_id) + " and Nomenclature.MoleculeGroup = '" + proteinType + "' group by Nomenclature.new_name, Polymer_metadata.Fullseq order by Nomenclature.new_name asc"
     results = []
     with connection.cursor() as cursor:
         cursor.execute(sql)
         for row in cursor.fetchall():
-            results.append(row[0])
+            results.append([row[0], row[1]])
     if internal:
         return results
     context = {
@@ -502,8 +502,9 @@ def getProteinGIsFilterByStrainIDAndProteinTypeDirect(request, strain_id, protei
     }
     return JsonResponse(context)
 
-def getProteinGIsFilterByProteinTypeDirect(request, proteinType):
-    sql = "select Polymer_Data.GI from Polymer_Data join Nomenclature on Polymer_Data.nomgd_id = Nomenclature.nom_id where Nomenclature.MoleculeGroup = '" + proteinType + "' order by Polymer_Data.GI asc;"
+def getProteinNamesFilterByProteinTypeDirect(request, proteinType):
+    sql = "select Nomenclature.new_name from Nomenclature where Nomenclature.MoleculeGroup in ('" + proteinType + "') order by Nomenclature.new_name"
+    # sql = "select Polymer_Data.GI from Polymer_Data join Nomenclature on Polymer_Data.nomgd_id = Nomenclature.nom_id where Nomenclature.MoleculeGroup = '" + proteinType + "' order by Polymer_Data.GI asc;"
     results = []
     with connection.cursor() as cursor:
         cursor.execute(sql)
@@ -514,13 +515,13 @@ def getProteinGIsFilterByProteinTypeDirect(request, proteinType):
     }
     return JsonResponse(context)
 
-def getStrainIdsFilterByProteinGIDirect(request, proteinGI, internal = False):
-    sql = "select distinct(Species.strain_id) from Polymer_Data join Species_Polymer on Species_Polymer.GI = Polymer_Data.GI and Species_Polymer.nomgd_id = Polymer_Data.nomgd_id join Species on Species_Polymer.strain_id = Species.strain_id where Polymer_Data.GI = '" + proteinGI + "';"
+def getStrainInformationFilterByProteinNameDirect(request, aln_name, internal = False):
+    sql = "select distinct(Species.strain_id), strain from Species join Species_Polymer on Species_Polymer.strain_id = Species.strain_id join Polymer_Data on Species_Polymer.GI = Polymer_Data.GI and Species_Polymer.nomgd_id = Polymer_Data.nomgd_id join Polymer_Alignments on Polymer_Alignments.PData_id = Polymer_Data.PData_id join Alignment on Alignment.Aln_id = Polymer_Alignments.Aln_id where Alignment.Name = '" + aln_name + "'"
     results = []
     with connection.cursor() as cursor:
         cursor.execute(sql)
         for row in cursor.fetchall():
-            results.append(row[0])
+            results.append([row[0], row[1]])
     if internal:
         return results
     context = {
@@ -974,31 +975,107 @@ def permutation_data(request, aln_id, tax_group):
 
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
-    alignmentFileName = "./static/permuted_alignment" + fileNameSuffix + ".fasta"
+    alignmentFilePath = "./static/permuted_alignment" + fileNameSuffix + ".fasta"
 
     # hhblits
     # command: /usr/local/bin/hh-suite/bin/hhsearch -i /home/blastdb/alignments/beta_barrels/OB_aIF1.fa -d /home/blastdb/ecod_F_fasta/ecod215/ecod215_numk3 -maxres 550000 -o OB_aIF1.txt -M 50 -add_cons
+    # /usr/local/bin/hh-suite/bin/hhsearch -i /home/blastdb/ecod_F_fasta/test.fa -d /home/blastdb/ecod_F_fasta/ecodFam -maxres 550000 -o test.hhr
     # Convert to standard JSON:
     # NOTE: add any installed prerequisites to the README.md (/DESIRE/README.md)
 
-    fh = open(alignmentFileName, "w")
+    fh = open(alignmentFilePath, "w")
     fh.write(permutation_string)
     fh.close()
 
-    os.remove(alignmentFileName)
+    hhsearchOutputFilePath = './static/test.hhr' + fileNameSuffix
+    hhsearch(alignmentFilePath, '/home/blastdb/ecod_F_fasta/ecodFam', hhsearchOutputFilePath, 550000, 50, False, True)
 
-    response = HttpResponse(permutation_string, content_type="text/plain")
+    os.remove(alignmentFilePath)
+    os.remove(hhsearchOutputFilePath)
+
+    # response = HttpResponse(permutation_string, content_type="text/plain")
+    response = JsonResponse(permutation_string, safe = False)
     return response
-# >Bacteria_Synechococcus_sp._PCC_7335_\n
-# NALPLHRIPLGTTVHNVELVPGRGGQVVRAAGAGAQLVAKEGG--YVTLKLPSSEVRMIR\nRECYATIGQVGNVEHRNLSLGKAGRKRWA-------GRRPEVRGSVMNPVDHPHGGGE--\n-GRAPIG-----RSGPVTP-WGKPALGYKTRKKKK----GSDAMIVRRRRRSSKRGRGGR\nNAMGIRSYRPLTPGTRERTV-SDFSTVTADK-PEKSLTYSV-----------HRPKG-RN\nN-RGVITCRHRGGGH-----KRLYR--------EIDFRRN--------KFNVPAKVATIE\nYDPNRNARISLLHYE-DGE-----KRYILHPIGLEVGATIVSG---EDAPFEVG\n
 
+def hhsearch(input_file_path, input_database_path, output_file_path, max_residues=550000, threshold_percentage=None, add_cons_flag=True, parse_output_flag=False):
+    if (max_residues <= 0):
+        raise ValueError('The input max_residues value must be greater than zero')
+    hhsearch_command = '/usr/local/bin/hh-suite/bin/hhsearch -i ' + input_file_path + ' -d ' + input_database_path + ' -o ' + output_file_path  + ' -maxres ' + str(max_residues)
+    if (not threshold_percentage is None):
+        if (threshold_percentage < 0 or threshold_percentage > 100):
+            raise ValueError('The input threshold_percentage value must be between 0 and 100 inclusively.')
+        hhsearch_command += ' -M ' + str(threshold_percentage)
+    if add_cons_flag:
+        hhsearch_command += ' -add_cons'
+    os.system(hhsearch_command)
+    if (parse_output_flag):
+        return parse_hh_output(output_file_path)
 
-# HRIPLGTTVHNVELVPGRGGQVVRAAGAGAQLVAKEGG--YVTLKLPSSEVRMIRRECYA
-# TIGQVGNVEHRNLSLGKAGRKRWA-------GRRPEVRGSVMNPVDHPHGGGE---GRAP
-# IG-----RSGPVTP-WGKPALGYKTRKKKK----GSDAMIVRRRRRSSKRGRGGRNAMGI
-# RSYRPLTPGTRERTV-SDFSTVTADK-PEKSLTYSV-----------HRPKG-RNN-RGV
-# ITCRHRGGGH-----KRLYR--------EIDFRRN--------KFNVPAKVATIEYDPNR
-# NARISLLHYE-DGE-----KRYILHPIGLEVGATIVSG---EDAPFEVGNALPL
+def hhalign(input_query_file_path, input_template_file_path, output_file_path, parse_output_flag = False):
+    hhalign_command = '/usr/local/bin/hh-suite/bin/hhsearch -i' + input_query_file_path + ' -t ' + input_template_file_path + ' -o ' + output_file_path
+    os.system(hhalign_command)
+    if (parse_output_flag):
+        return parse_hh_output(output_file_path)
+
+def parse_hh_output(hh_output_file_path):
+    file_handler = open(hh_output_file_path, 'r')
+    lines = file_handler.readlines()
+    file_handler.close()
+    pattern = re.compile('^\\s*No\\s+Hit\\s+Prob\\s+E-value\\s+P-value\\s+Score\\s+SS\\s+Cols\\s+Query HMM\\s+Template HMM\\s*$')
+    line_index = 0
+    while (not pattern.match(lines[line_index])):
+        line_index += 1
+    title_line = lines[line_index]
+    index_of_start_of_no = title_line.index('No')
+    index_of_start_of_hit = title_line.index('Hit', index_of_start_of_no + len('No'))
+    index_of_start_of_prob = title_line.index('Prob', index_of_start_of_hit + len('Hit'))
+    index_of_start_of_e_value = title_line.index('E-value', index_of_start_of_prob + len('Prob'))
+    index_of_start_of_p_value = title_line.index('P-value', index_of_start_of_e_value + len('E-value'))
+    index_of_start_of_score = title_line.index('Score', index_of_start_of_p_value + len('P-value'))
+    index_of_start_of_ss = title_line.index('SS', index_of_start_of_score + len('Score'))
+    index_of_start_of_cols = title_line.index('Cols', index_of_start_of_ss + len('SS'))
+    index_of_start_of_query_hmm = title_line.index('Query HMM', index_of_start_of_cols + len('Cols'))
+    index_of_start_of_template_hmm = title_line.index('Template HMM', index_of_start_of_query_hmm + len('Query HMM'))
+    # Skip over the matching title line.
+    line_index += 1
+    start_data_lines_index = line_index
+    pattern = re.compile('^\\s*$')
+    while line_index < len(lines) and (not pattern.match(lines[line_index])):
+        line_index += 1
+    data_lines = lines[start_data_lines_index:line_index]
+    mapped_data = []
+    for data_line_index in range(len(data_lines)):
+        data_line = data_lines[data_line_index]
+        no_substring = data_line[index_of_start_of_no - 1 : index_of_start_of_hit - 1].strip()
+        hit_substring = data_line[index_of_start_of_hit - 1 : index_of_start_of_prob - 1].strip()
+        prob_substring = data_line[index_of_start_of_prob - 1 : index_of_start_of_e_value - 1].strip()
+        e_value_substring = data_line[index_of_start_of_e_value - 1 : index_of_start_of_p_value - 1].strip()
+        p_value_substring = data_line[index_of_start_of_p_value - 1 : index_of_start_of_score - 1].strip()
+        score_substring = data_line[index_of_start_of_score - 1 : index_of_start_of_ss - 1].strip()
+        ss_substring = data_line[index_of_start_of_ss - 1 : index_of_start_of_cols - 1].strip()
+        cols_substring = data_line[index_of_start_of_cols - 1 : index_of_start_of_query_hmm - 1].strip()
+        query_hmm_substring = data_line[index_of_start_of_query_hmm - 1 : index_of_start_of_template_hmm - 1].strip()
+        template_hmm_substring = data_line[index_of_start_of_template_hmm - 1 :].strip()
+        mapped_data += [{
+            'No' : int(no_substring),
+            'Hit' : hit_substring,
+            'Prob' : float(prob_substring),
+            'E-value' : float(e_value_substring),
+            'P-value' : float(p_value_substring),
+            'Score' : float(score_substring),
+            'SS' : float(ss_substring),
+            'Cols' : int(cols_substring),
+            'Query HMM' : query_hmm_substring,
+            'Template HMM' : template_hmm_substring,
+        }]
+    return mapped_data
+
+def testHMMCode(request):
+    hhalign_output_file_path = './static/a.hhr'
+    parsed = parse_hh_output(hhalign_output_file_path)
+    hhsearch_output_file_path = './static/b.hhr'
+    parsed = parse_hh_output(hhsearch_output_file_path)
+    x = 0
 
 def propensities(request, align_name, tax_group):
     aln_id = Alignment.objects.filter(name = align_name)[0].aln_id

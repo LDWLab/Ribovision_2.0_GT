@@ -86,15 +86,15 @@
 		<br>
 		<select id="2.strainSelect" onfocus = "this.selectedIndex = -1;" onchange = "
 			let
-				giSelect = document.getElementById('2.proteinNameSelect');
-			if (giSelect.selectedIndex != -1) {
-				showStrainGIQuery(this[this.selectedIndex], giSelect[giSelect.selectedIndex]);
+				alnSelect = document.getElementById('2.proteinNameSelect');
+			if (alnSelect.selectedIndex != -1) {
+				showStrainGIQuery(this[this.selectedIndex], alnSelect[alnSelect.selectedIndex]);
 			}
 		"></select>
 		<br>
 		Select a molecule type:
 		<br>
-		<select id="2.moleculeGroupSelect" onfocus="this.selectedIndex = -1;" onchange="let selectedMoleculeGroups = []; Array.from(this.selectedOptions).forEach(selectedOption => selectedMoleculeGroups.push(selectedOption.value)); populateSelect('2.proteinNameSelect', results('getProteinGIsFilterByProteinType/' + selectedMoleculeGroups.join(',')))"></select>
+		<select id="2.moleculeGroupSelect" onfocus="this.selectedIndex = -1;" onchange="let selectedMoleculeGroups = []; Array.from(this.selectedOptions).forEach(selectedOption => selectedMoleculeGroups.push(selectedOption.value)); populateSelect('2.proteinNameSelect', results('getProteinNamesFilterByProteinType/' + selectedMoleculeGroups.join(',')))"></select>
 		<br>
 		Select a protein:
 		<br>
@@ -136,16 +136,16 @@
 		<br>
 		Select a protein type:
 		<br>
-		<select id="4.moleculeGroupSelect" onfocus="this.selectedIndex = -1;" onchange = "populateSelect('4.proteinNameSelect', results('/getProteinGIsFilterByProteinType/' + this[this.selectedIndex].value));"></select>
+		<select id="4.moleculeGroupSelect" onfocus="this.selectedIndex = -1;" onchange = "populateSelect('4.proteinNameSelect', results('/getProteinNamesFilterByProteinType/' + this[this.selectedIndex].value));"></select>
 		<br>
 		Select a protein name:
 		<br>
 		<select id="4.proteinNameSelect" onfocus="this.selectedIndex = -1;" onchange = "
 			let
 				urlSuffix = this[this.selectedIndex].value,
-				queryResults = results('/getStrainIdsFilterByProteinGI/' + urlSuffix);
+				queryResults = results('/getStrainInformationFilterByProteinName/' + urlSuffix);
 			document.getElementById('4.projectInfo').textContent = queryResults.join('\n');
-			document.getElementById('4.url_display').innerHTML = urlPrefix + 'showStrainsPerProteinGI/' + urlSuffix;
+			document.getElementById('4.url_display').innerHTML = urlPrefix + 'showStrainInformationFilterByProteinName/' + urlSuffix;
 		"></select>
 		<br>
 		<p id="4.url_display"></p>
@@ -326,10 +326,10 @@
 		// });
 		// document.getElementById('projectInfo').textContent = lines;
 	}
-	function showStrainGIQuery(selectedStrainOption, selectedGIOption) {
+	function showStrainGIQuery(selectedStrainOption, selectedProteinOption) {
 		let
-			urlSuffix = selectedStrainOption.value + "/" + selectedGIOption.value,
-			queryResults = results('/getPolymerInformationFilterByStrainIDAndGI/' + urlSuffix);
+			urlSuffix = selectedStrainOption.value + "/" + selectedProteinOption.value,
+			queryResults = results('/getProteinInformationFilterByStrainIDAndProteinName/' + urlSuffix);
 		switch (queryResults.length) {
 			case 0:
 				document.getElementById('2.projectInfo').textContent = "No results exist!";
@@ -339,12 +339,12 @@
 				document.getElementById('2.projectInfo').textContent = "GI: " + queryResults['GI'] + "\nencoding location: " + queryResults['encoding location'] + "\nclassification: " + queryResults['classification'];
 				break;
 		}
-		document.getElementById('2.url_display').innerHTML = urlPrefix + 'showPolymerInformation/' + urlSuffix;
+		document.getElementById('2.url_display').innerHTML = urlPrefix + 'showProteinResults/' + urlSuffix;
 	}
 	function showStrainMoleculeTypeQuery(selectedStrainOption, selectedProteinTypeOption) {
 		let
 			urlSuffix = selectedStrainOption.value + "/" + selectedProteinTypeOption.value,
-			url = '/getProteinGIsFilterByStrainIDAndProteinType/' + urlSuffix,
+			url = '/getProteinNamesFilterByStrainIDAndProteinType/' + urlSuffix,
 			queryResults = results(url);
 		let
 			textContent;
@@ -353,7 +353,7 @@
 		} else {
 			textContent = queryResults.join('\n');
 		}
-		document.getElementById('3.url_display').innerHTML = urlPrefix + 'showProteinGIsPerStrainIDAndProteinType/' + urlSuffix;
+		document.getElementById('3.url_display').innerHTML = urlPrefix + 'showProteinNamesPerStrainIDAndProteinType/' + urlSuffix;
 		document.getElementById("3.projectInfo").textContent = textContent;
 	}
 	ajax('/allProteinTypes').then(val => {
