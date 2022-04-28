@@ -6,7 +6,7 @@ def create_and_parse_argument_options(argument_list):
 	parser.add_argument('pdb_id', help='PDB identifier to query', type=str)
 	parser.add_argument('user_name', help='Username for connecting to DESIRE', type=str)
 	parser.add_argument('-host','--db_host', help='Defines database host (default: 130.207.36.76)', type=str, default='130.207.36.76')
-	parser.add_argument('-schema','--db_schema', help='Defines schema to use (default: SEREB)', type=str, default='SEREB')
+	parser.add_argument('-schema','--db_schema', help='Defines schema to use (default: DESIRE)', type=str, default='DESIRE')
 	parser.add_argument('-dl','--download_most_recent_fold_definitions', help='Update latest fold definitions.', default=False, action="store_true")
 	parser.add_argument('-commit','--commit_changes', help='Commit the changes to the DB', action="store_true")
 	commandline_args = parser.parse_args(argument_list)
@@ -41,32 +41,32 @@ def parse_ecod_definitions(pdbid, file_loc):
 
 def upload_struc_fold(level, name, class_sys, parent, external_id, cursor, cnx):
 	if level != 'Architecture':
-		query = "INSERT INTO `SEREB`.`Structural_Folds`(`Level`,`Name`,`classification_system`,`parent`,`external_id`) VALUES('"+level+"','"+name+"','"+class_sys+"','"+parent+"','"+external_id+"')"
+		query = "INSERT INTO `DESIRE`.`Structural_Folds`(`Level`,`Name`,`classification_system`,`parent`,`external_id`) VALUES('"+level+"','"+name+"','"+class_sys+"','"+parent+"','"+external_id+"')"
 	else:
-		query = "INSERT INTO `SEREB`.`Structural_Folds`(`Level`,`Name`,`classification_system`,`external_id`) VALUES('"+level+"','"+name+"','"+class_sys+"','"+external_id+"')"
+		query = "INSERT INTO `DESIRE`.`Structural_Folds`(`Level`,`Name`,`classification_system`,`external_id`) VALUES('"+level+"','"+name+"','"+class_sys+"','"+external_id+"')"
 	cursor.execute(query)
 	lastrow_id = str(cursor.lastrowid)
 	cnx.commit()
 	return lastrow_id
 
 def upload_strucfold_chains(cursor, strucfoldid, chainid):
-	cursor.execute("SELECT * FROM SEREB.StrucFold_Chains WHERE\
+	cursor.execute("SELECT * FROM DESIRE.StrucFold_Chains WHERE\
 					strucfold_id = '"+strucfoldid+"' AND\
 					chain_id = '"+chainid+"'")
 	result = cursor.fetchall()
 	if len(result) == 0:
-		query = "INSERT INTO `SEREB`.`StrucFold_Chains`(`strucfold_id`, `chain_id`) VALUES ('"+strucfoldid+"','"+chainid+"')"
+		query = "INSERT INTO `DESIRE`.`StrucFold_Chains`(`strucfold_id`, `chain_id`) VALUES ('"+strucfoldid+"','"+chainid+"')"
 		cursor.execute(query)
 	return True
 
 def upload_strucfold_resis(cursor, strucfoldid, resi_ids):
 	for resid, strucid  in map(lambda e: (e, strucfoldid), resi_ids):
-		cursor.execute("SELECT * FROM SEREB.StrucFold_Residues WHERE\
+		cursor.execute("SELECT * FROM DESIRE.StrucFold_Residues WHERE\
 						strucfold_id = '"+str(strucid)+"' AND\
 						residue_id = '"+str(resid)+"'")
 		result = cursor.fetchall()
 		if len(result) == 0:
-			query = "INSERT INTO `SEREB`.`StrucFold_Residues`(`residue_id`, `strucfold_id`) VALUES ('"+str(resid)+"','"+str(strucid)+"')"
+			query = "INSERT INTO `DESIRE`.`StrucFold_Residues`(`residue_id`, `strucfold_id`) VALUES ('"+str(resid)+"','"+str(strucid)+"')"
 			cursor.execute(query)
 	return True
 
@@ -75,25 +75,25 @@ def get_resis(cursor, pol_id, resi_ranges):
 	if len(resi_ranges.split(",")) == 1:
 		resirange1 = resi_ranges.split(":")[1].split("-")[0]
 		resirange2 = resi_ranges.split(":")[1].split("-")[1]
-		between_statement = "SEREB.Residues.resNum BETWEEN "+resirange1+" AND "+resirange2
+		between_statement = "DESIRE.Residues.resNum BETWEEN "+resirange1+" AND "+resirange2
 	if len(resi_ranges.split(",")) > 1:
 		list_betweens = list()
 		for one_range in resi_ranges.split(","):
 			resirange1 = one_range.split(":")[1].split("-")[0]
 			resirange2 = one_range.split(":")[1].split("-")[1]
-			list_betweens.append("SEREB.Residues.resNum BETWEEN "+resirange1+" AND "+resirange2)
+			list_betweens.append("DESIRE.Residues.resNum BETWEEN "+resirange1+" AND "+resirange2)
 		between_statement = " OR ".join(list_betweens)
 	
-	cursor.execute("SELECT resi_id FROM SEREB.Residues WHERE\
-					SEREB.Residues.PolData_id = "+pol_id+" AND ("+between_statement+")")
+	cursor.execute("SELECT resi_id FROM DESIRE.Residues WHERE\
+					DESIRE.Residues.PolData_id = "+pol_id+" AND ("+between_statement+")")
 	result = cursor.fetchall()
 	return [item for sublist in result for item in sublist]
 
 def check_polymerid_from_chainid(cursor, pdbid, chainid):
-	cursor.execute("SELECT polymer_id, ChainList_id FROM SEREB.ChainList\
-					INNER JOIN SEREB.ThreeDStructures ON SEREB.ChainList.3D_structure_id = SEREB.ThreeDStructures.3D_structure_id\
-					WHERE SEREB.ThreeDStructures.StructureName = '"+pdbid.upper()+"' AND\
-					 SEREB.ChainList.ChainName = BINARY '"+chainid+"'")
+	cursor.execute("SELECT polymer_id, ChainList_id FROM DESIRE.ChainList\
+					INNER JOIN DESIRE.ThreeDStructures ON DESIRE.ChainList.3D_structure_id = DESIRE.ThreeDStructures.3D_structure_id\
+					WHERE DESIRE.ThreeDStructures.StructureName = '"+pdbid.upper()+"' AND\
+					 DESIRE.ChainList.ChainName = BINARY '"+chainid+"'")
 	result = cursor.fetchall()
 	if len(result) == 0:
 		return None, None
@@ -110,11 +110,11 @@ def upload_parent_fold_ifnone(cursor, entry_for_upload, levels, cnx):
 		fold_name = fold_name.replace("\"","")
 		if fold_level != 'Architecture':
 			last_statement = "= '"+parent+"'"
-		cursor.execute("SELECT SEREB.Structural_Folds.struc_fold_id FROM SEREB.Structural_Folds WHERE\
-						SEREB.Structural_Folds.Level = '"+fold_level+"' AND\
-						SEREB.Structural_Folds.Name = '"+fold_name+"' AND\
-						SEREB.Structural_Folds.external_id = '"+fold_id+"' AND\
-						SEREB.Structural_Folds.parent "+last_statement)
+		cursor.execute("SELECT DESIRE.Structural_Folds.struc_fold_id FROM DESIRE.Structural_Folds WHERE\
+						DESIRE.Structural_Folds.Level = '"+fold_level+"' AND\
+						DESIRE.Structural_Folds.Name = '"+fold_name+"' AND\
+						DESIRE.Structural_Folds.external_id = '"+fold_id+"' AND\
+						DESIRE.Structural_Folds.parent "+last_statement)
 		result = cursor.fetchall()
 		if len(result) == 0:
 			parent = upload_struc_fold(fold_level, fold_name, 'ECOD', parent, fold_id, cursor, cnx)

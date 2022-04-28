@@ -11,6 +11,7 @@ import { MSAViewer,
 import React, { Component } from "react";
 
 var AlnViewer = class RV3AlnViewer extends Component {
+    unSelectNucleotide = window.unSelectNucleotide;
     state = { 
         tileWidth: 17,
         tileHeight: 17,
@@ -49,10 +50,10 @@ var AlnViewer = class RV3AlnViewer extends Component {
             }
         }
         window.addEventListener("resize", this.handleResize);
-        document.addEventListener('PDB.topologyViewer.mouseover', (e) => {
-            handleMolStarTopViewHovers(this, e.eventData.residueNumber, e.eventData.entityId);
+        document.addEventListener('PDB.RNA.viewer.mouseover', (e) => {
+            handleMolStarTopViewHovers(this, e.eventData.label_seq_id, e.eventData.entityId);
         });
-        document.addEventListener('PDB.topologyViewer.mouseout', () => {
+        document.addEventListener('PDB.RNA.viewer.mouseout', () => {
             this.removeHighlightRegion();
         });
         document.addEventListener('PDB.molstar.mouseover', (e) => {
@@ -83,7 +84,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
         if (vm.topology_loaded){
             let resiPos = vm.structure_mapping[e.position+1];
             if (resiPos !== undefined){
-                viewerInstanceTop.pluginInstance.highlight(resiPos, resiPos);
+                viewerInstanceTop.viewInstance.selectResidue(resiPos);
                 viewerInstance.visual.highlight({
                     data:[{
                             entity_id:`${vm.entityID}`,
@@ -111,7 +112,11 @@ var AlnViewer = class RV3AlnViewer extends Component {
     };
     onResidueMouseLeave = e => {
         if (vm.topology_loaded){
-            viewerInstanceTop.pluginInstance.clearHighlight();
+            //window.clearHighlight());
+            let resiPos = vm.structure_mapping[e.position+1];
+            if (resiPos !== undefined){
+                viewerInstanceTop.viewInstance.clearSelection(resiPos);
+            }
             viewerInstance.visual.clearHighlight();
         }
         this.setState({ fold: undefined, phase: undefined });

@@ -42,6 +42,7 @@ var assignColorsAndStrucMappings = function (vueObj, struct_mapping){
     vueObj.fasta_data = struct_mapping["amendedAln"];
     vueObj.structure_mapping = struct_mapping["structureMapping"];
     loadAlignmentViewer (vueObj.fasta_data);
+
     var mapped_aa_properties = mapAAProps(vueObj.aa_properties, vueObj.structure_mapping);
     if (((vueObj.tax_id != null && vueObj.tax_id.length == 2) || (vueObj.custom_aln_twc_flag != null && vueObj.custom_aln_twc_flag == true) || (vueObj.type_tree == 'para'))) {
         if (vueObj.unmappedTWCdata) {
@@ -49,12 +50,12 @@ var assignColorsAndStrucMappings = function (vueObj, struct_mapping){
         }
     }
     window.mapped_aa_properties = mapped_aa_properties;
+    delayedMapping();
     retry(delayedMapping, 10, 1000);
 }
 
 var delayedMapping = function (){
-    viewerInstanceTop.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);
-    viewerInstanceTop.pluginInstance.createDomainDropdown();
+    viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties);
 }
 
 function retry (fn, maxAttempts = 1, delay = 0, attempts = 0) {

@@ -103,6 +103,8 @@ class PolymerMetadata(models.Model):
     polymer_type = models.CharField(max_length=45)
     accession = models.CharField(max_length=45, blank=True, null=True)
     fullseq = models.TextField(db_column='Fullseq', blank=True, null=True)  # Field name made lowercase.
+    protein_kegg_type = models.CharField(db_column='Protein_KEGG_type', max_length=40, blank=True, null=True)  # Field name made lowercase.
+    kegg_path_id = models.IntegerField(db_column='KEGG_path_id', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = False

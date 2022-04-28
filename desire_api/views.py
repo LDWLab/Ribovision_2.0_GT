@@ -48,7 +48,7 @@ class SSDataViewSet(viewsets.ModelViewSet):
     serializer_class = SSDataSerializer
 
 class AdResiduesViewSet(viewsets.ModelViewSet):
-    queryset = AdResidues.objects.raw('SELECT CONCAT(AD_Residues.AD_id,"_",AD_Residues.residueP_id) AS id,AD_id,residueP_id FROM SEREB.AD_Residues')
+    queryset = AdResidues.objects.raw('SELECT CONCAT(AD_Residues.AD_id,"_",AD_Residues.residueP_id) AS id,AD_id,residueP_id FROM DESIRE.AD_Residues')
     serializer_class = AdResiduesSerializer
 
 class AlignmentViewSet(viewsets.ModelViewSet):
@@ -110,7 +110,7 @@ def filterresi(request, resnum, strain, new_name, aln_id, parent_tx):
         raise Http404(f'The combination of residue id {resis[0]}, and alignment id {aln_id} is not present in the database!\n\
     Likely the polymer name {new_name} does not correspond to alignment id {aln_id}.')
 
-    SQLStatement = construct_query(aln_id, parent_tx)+' AND SEREB.Aln_Data.aln_pos=%s'%(str(alnpositions[0]))
+    SQLStatement = construct_query(aln_id, parent_tx)+' AND DESIRE.Aln_Data.aln_pos=%s'%(str(alnpositions[0]))
     with connection.cursor() as cursor:
         cursor.execute(SQLStatement)
         raw_result = dictfetchall(cursor)

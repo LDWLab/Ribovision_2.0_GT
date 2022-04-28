@@ -18,7 +18,7 @@ def create_and_parse_argument_options(argument_list):
     parser.add_argument('source', help='Defines superkingdom source (e.g. abe)', type=str)
     parser.add_argument('-aln_method','--alignment_method', help='Alignment method used (default: PROMALS3D)', type=str, default='PROMALS3D')
     parser.add_argument('-host','--db_host', help='Defines database host (default: 130.207.36.76)', type=str, default='130.207.36.76')
-    parser.add_argument('-schema','--db_schema', help='Defines schema to use (default: SEREB)', type=str, default='SEREB')
+    parser.add_argument('-schema','--db_schema', help='Defines schema to use (default: DESIRE)', type=str, default='DESIRE')
     parser.add_argument('-user_name','--uname', help='Defines user name to use (default: ppenev)', type=str, default='ppenev')
     parser.add_argument('-pw','--password', help='Defines user password to use', type=str)
     parser.add_argument('-aln_id','--alignment_id', help='Defines alignment id to add entries to. If not specified uses the name of the file.', type=int)
@@ -126,7 +126,7 @@ def main(commandline_arguments):
     fh.close()
 
     newAlnPath = f'{dirPath}out_{path.split(seq_path)[-1]}'
-    pipe = Popen(f"mafft --quiet --auto --add {cleanSeqPath} {tempAlnPath} > {newAlnPath}", stdout=PIPE, shell=True)
+    pipe = Popen(f"mafft --preservecase --quiet --auto --add {cleanSeqPath} {tempAlnPath} > {newAlnPath}", stdout=PIPE, shell=True)
     output = pipe.communicate()[0]
 
     newAln = AlignIO.read(newAlnPath, "fasta")

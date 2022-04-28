@@ -8,12 +8,12 @@ export function parseRNAchains(chainList){
                 entityID: entry["entity_id"], 
                 chainID: entry["in_chains"][0]
             });
-            vm.rnaChains.push({
+            /*vm.rnaChains.push({
                 text: entry["molecule_name"][0],
                 value: entry["in_chains"][0],
                 sequence: entry["sequence"],
                 entityID: entry["entity_id"],
-            });
+            });*/
         }
     });
     postRNACIFdata (vm.pdbid, entities);

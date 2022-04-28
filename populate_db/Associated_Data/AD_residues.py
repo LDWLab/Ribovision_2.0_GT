@@ -11,7 +11,7 @@
 # fileRead = './phase-definitions.txt'
 # #uname = input("User name: ")
 # #pw = getpass.getpass("Password: ")
-# #cnx = mysql.connector.connect(user=uname, password=pw, host='130.207.36.75', database='SEREB')
+# #cnx = mysql.connector.connect(user=uname, password=pw, host='130.207.36.75', database='DESIRE')
 # #cursor = cnx.cursor()
 
 # def get_id(file):
@@ -51,10 +51,10 @@
 
 # 		if len(line_parts_list)==3:
 # 			for x in range(int(nums[1])-int(nums[0])+1):	
-# 				query = ("SELECT resi_id FROM SEREB.Residues\
-# 				INNER JOIN SEREB.Polymer_Data ON SEREB.Residues.PolData_id = SEREB.Polymer_Data.PData_id\
-# 				INNER JOIN SEREB.Nomenclature ON SEREB.Polymer_Data.nomgd_id = SEREB.Nomenclature.nom_id\
-# 				WHERE SEREB.Polymer_Data.strain_id = '+str(prot_info[1])+' AND SEREB.Nomenclature.new_name = '+str(prot_info[0][:4])+' AND SEREB.Residues.resNum = '"+str((int(nums[0])+x))+"';")
+# 				query = ("SELECT resi_id FROM DESIRE.Residues\
+# 				INNER JOIN DESIRE.Polymer_Data ON DESIRE.Residues.PolData_id = DESIRE.Polymer_Data.PData_id\
+# 				INNER JOIN DESIRE.Nomenclature ON DESIRE.Polymer_Data.nomgd_id = DESIRE.Nomenclature.nom_id\
+# 				WHERE DESIRE.Polymer_Data.strain_id = '+str(prot_info[1])+' AND DESIRE.Nomenclature.new_name = '+str(prot_info[0][:4])+' AND DESIRE.Residues.resNum = '"+str((int(nums[0])+x))+"';")
 # 				#print('norm')
 # 				#print(str((int(nums[0])+x)))
 # 				#cursor.execute(query)
@@ -70,10 +70,10 @@
 # 			for x in jlo:
 # 				#print('excepton')
 # 				#print(str((int(nums[0])+int(x))))
-# 				query = ("SELECT resi_id FROM SEREB.Residues\
-# 				INNER JOIN SEREB.Polymer_Data ON SEREB.Residues.PolData_id = SEREB.Polymer_Data.PData_id\
-# 				INNER JOIN SEREB.Nomenclature ON SEREB.Polymer_Data.nomgd_id = SEREB.Nomenclature.nom_id\
-# 				WHERE SEREB.Polymer_Data.strain_id = '' AND SEREB.Nomenclature.new_name = '' AND SEREB.Residues.resNum = '"+str((int(nums[0])+int(x)))+"';")
+# 				query = ("SELECT resi_id FROM DESIRE.Residues\
+# 				INNER JOIN DESIRE.Polymer_Data ON DESIRE.Residues.PolData_id = DESIRE.Polymer_Data.PData_id\
+# 				INNER JOIN DESIRE.Nomenclature ON DESIRE.Polymer_Data.nomgd_id = DESIRE.Nomenclature.nom_id\
+# 				WHERE DESIRE.Polymer_Data.strain_id = '' AND DESIRE.Nomenclature.new_name = '' AND DESIRE.Residues.resNum = '"+str((int(nums[0])+int(x)))+"';")
 # 				#print(query)
 # 		elif len(line_parts_list) ==5:
 # 			newn = []
@@ -81,10 +81,10 @@
 # 		#nums2 = line_parts_list[3].split('-')
 # 		#if len(line_parts_list)==3:
 # 		#	for x in range(int(nums[1])-int(nums[0])):	
-# 		#		cursor.execute("SELECT resi_id FROM SEREB.Residues\
-# 		#		INNER JOIN SEREB.Polymer_Data ON SEREB.Residues.PolData_id = SEREB.Polymer_Data.PData_id\
-# 		#		INNER JOIN SEREB.Nomenclature ON SEREB.Polymer_Data.nomgd_id = SEREB.Nomenclature.nom_id\
-# 		#		WHERE SEREB.Polymer_Data.strain_id = '"+(prot_info[1])+"' AND SEREB.Nomenclature.new_name = '"+(prot_info[0][:4])+"' AND SEREB.Residues.resNum = '"+str((int(nums[0])+x))+"';")
+# 		#		cursor.execute("SELECT resi_id FROM DESIRE.Residues\
+# 		#		INNER JOIN DESIRE.Polymer_Data ON DESIRE.Residues.PolData_id = DESIRE.Polymer_Data.PData_id\
+# 		#		INNER JOIN DESIRE.Nomenclature ON DESIRE.Polymer_Data.nomgd_id = DESIRE.Nomenclature.nom_id\
+# 		#		WHERE DESIRE.Polymer_Data.strain_id = '"+(prot_info[1])+"' AND DESIRE.Nomenclature.new_name = '"+(prot_info[0][:4])+"' AND DESIRE.Residues.resNum = '"+str((int(nums[0])+x))+"';")
 # 		#elif len(line_parts_list)==4:
 # 		#	for x in range((int(nums[1])-int(nums[0]))+(int(nums2[1])-int(nums2[0]))):
 				
@@ -98,13 +98,13 @@
 	
 	
 	
-# 	# cursor.execute("SELECT SEREB.Associated_Data.Data_Id FROM SEREB.Associated_Data")
+# 	# cursor.execute("SELECT DESIRE.Associated_Data.Data_Id FROM DESIRE.Associated_Data")
 # 	# result_AD = cursor.fetchall()
-# 	# cursor.execute("SELECT SEREB.Residues.resi_id FROM SEREB.Residues")
+# 	# cursor.execute("SELECT DESIRE.Residues.resi_id FROM DESIRE.Residues")
 # 	# result_res = cursor.fetchall()
 # 	# for AD_id in result_AD:
 # 		# for residueP_id in result_res:
-# 			# query = ("INSERT INTO `SEREB`.`AD_Residues`(`AD_id`,`residueP_id`) VALUES('"+str(AD_id)+"','"+str(residueP_id)+"')")
+# 			# query = ("INSERT INTO `DESIRE`.`AD_Residues`(`AD_id`,`residueP_id`) VALUES('"+str(AD_id)+"','"+str(residueP_id)+"')")
 # 			# print(query)
 # 				# # cursor.execute(query)
 
@@ -130,7 +130,7 @@ import getpass
 fileRead = './phase-definitions_notdomainspecific.txt'
 uname = input("User name: ")
 pw = getpass.getpass("Password: ")
-cnx = mysql.connector.connect(user=uname, password=pw, host='130.207.36.75', database='SEREB')
+cnx = mysql.connector.connect(user=uname, password=pw, host='130.207.36.75', database='DESIRE')
 cursor = cnx.cursor()
 
 def get_id(file):
@@ -171,25 +171,25 @@ def get_id(file):
 		length = len(line_parts_list)
 		if length > 2:
 			for num in range(nums_range):
-				query = ("SELECT resi_id FROM SEREB.Residues\
-				INNER JOIN SEREB.Polymer_Data ON SEREB.Residues.PolData_id = SEREB.Polymer_Data.PData_id\
-				INNER JOIN SEREB.Nomenclature ON SEREB.Polymer_Data.nomgd_id = SEREB.Nomenclature.nom_id\
-				WHERE SEREB.Polymer_Data.strain_id = '"+str(prot_info[1])+"' AND SEREB.Nomenclature.new_name = '"+str(prot_info[0][:4])+"' AND SEREB.Residues.resNum = '"+str(int(nums[0])+num)+"';'")
+				query = ("SELECT resi_id FROM DESIRE.Residues\
+				INNER JOIN DESIRE.Polymer_Data ON DESIRE.Residues.PolData_id = DESIRE.Polymer_Data.PData_id\
+				INNER JOIN DESIRE.Nomenclature ON DESIRE.Polymer_Data.nomgd_id = DESIRE.Nomenclature.nom_id\
+				WHERE DESIRE.Polymer_Data.strain_id = '"+str(prot_info[1])+"' AND DESIRE.Nomenclature.new_name = '"+str(prot_info[0][:4])+"' AND DESIRE.Residues.resNum = '"+str(int(nums[0])+num)+"';'")
 				cursor.execute(query)
 			if length > 3:
 				for num in range(nums2_range):
-					query = ("SELECT resi_id FROM SEREB.Residues\
-					INNER JOIN SEREB.Polymer_Data ON SEREB.Residues.PolData_id = SEREB.Polymer_Data.PData_id\
-					INNER JOIN SEREB.Nomenclature ON SEREB.Polymer_Data.nomgd_id = SEREB.Nomenclature.nom_id\
-					WHERE SEREB.Polymer_Data.strain_id = '"+str(prot_info[1])+"' AND SEREB.Nomenclature.new_name = '"+str(prot_info[0][:4])+"' AND SEREB.Residues.resNum = '"+str(int(nums2[0])+str(num)+"';"))
+					query = ("SELECT resi_id FROM DESIRE.Residues\
+					INNER JOIN DESIRE.Polymer_Data ON DESIRE.Residues.PolData_id = DESIRE.Polymer_Data.PData_id\
+					INNER JOIN DESIRE.Nomenclature ON DESIRE.Polymer_Data.nomgd_id = DESIRE.Nomenclature.nom_id\
+					WHERE DESIRE.Polymer_Data.strain_id = '"+str(prot_info[1])+"' AND DESIRE.Nomenclature.new_name = '"+str(prot_info[0][:4])+"' AND DESIRE.Residues.resNum = '"+str(int(nums2[0])+str(num)+"';"))
 					cursor.execute(query)
 					#print(query)
 				if length > 4:
 					for num in range(nums3_range):
-						query = ("SELECT resi_id FROM SEREB.Residues\
-						INNER JOIN SEREB.Polymer_Data ON SEREB.Residues.PolData_id = SEREB.Polymer_Data.PData_id\
-						INNER JOIN SEREB.Nomenclature ON SEREB.Polymer_Data.nomgd_id = SEREB.Nomenclature.nom_id\
-						WHERE SEREB.Polymer_Data.strain_id = '"+str(prot_info[1])+"' AND SEREB.Nomenclature.new_name = '"+str(prot_info[0][:4])+"' AND SEREB.Residues.resNum = '"+str(int(nums3[0])+num)"';")
+						query = ("SELECT resi_id FROM DESIRE.Residues\
+						INNER JOIN DESIRE.Polymer_Data ON DESIRE.Residues.PolData_id = DESIRE.Polymer_Data.PData_id\
+						INNER JOIN DESIRE.Nomenclature ON DESIRE.Polymer_Data.nomgd_id = DESIRE.Nomenclature.nom_id\
+						WHERE DESIRE.Polymer_Data.strain_id = '"+str(prot_info[1])+"' AND DESIRE.Nomenclature.new_name = '"+str(prot_info[0][:4])+"' AND DESIRE.Residues.resNum = '"+str(int(nums3[0])+num)"';")
 						cursor.execute(query)
 			# #print(info[0])
 			# value = info[2].split(';')
@@ -201,18 +201,18 @@ def get_id(file):
 			# y=int(res[1])
 			# for resNum in range(x,y+1):
 			# 	# print(resNum)
-			# 	cursor.execute("SELECT resi_id FROM SEREB.Residues\
-			# 		INNER JOIN SEREB.Polymer_Data ON SEREB.Residues.PolData_id = SEREB.Polymer_Data.PData_id\
-			# 	INNER JOIN SEREB.Nomenclature ON SEREB.Polymer_Data.nomgd_id = SEREB.Nomenclature.nom_id\
-			# 	WHERE SEREB.Polymer_Data.strain_id = '"+str(prot_info[1])+"' AND SEREB.Nomenclature.new_name = '"+str(prot_info[0][:4])+"' AND SEREB.Residues.resNum = '"+str(resNum)+"';")
+			# 	cursor.execute("SELECT resi_id FROM DESIRE.Residues\
+			# 		INNER JOIN DESIRE.Polymer_Data ON DESIRE.Residues.PolData_id = DESIRE.Polymer_Data.PData_id\
+			# 	INNER JOIN DESIRE.Nomenclature ON DESIRE.Polymer_Data.nomgd_id = DESIRE.Nomenclature.nom_id\
+			# 	WHERE DESIRE.Polymer_Data.strain_id = '"+str(prot_info[1])+"' AND DESIRE.Nomenclature.new_name = '"+str(prot_info[0][:4])+"' AND DESIRE.Residues.resNum = '"+str(resNum)+"';")
 			results = cursor.fetchall()
 			try:
 				residue_id = (results[0][0])
 			except:
 				raise ValueError("No result for residue "+str(prot_info[1]), str(prot_info[0][:4]), str(resNum)+"in the MYSQL query!")
-			query = ("SELECT SEREB.Associated_Data.Data_id FROM SEREB.Associated_Data WHERE SEREB.Associated_Data.Type = 'Phase' AND SEREB.Associated_Data.Value = '"+str(info[0])+"';")
+			query = ("SELECT DESIRE.Associated_Data.Data_id FROM DESIRE.Associated_Data WHERE DESIRE.Associated_Data.Type = 'Phase' AND DESIRE.Associated_Data.Value = '"+str(info[0])+"';")
 		#print(query)
-			query1 = ("INSERT INTO `SEREB`.`AD_Residues`(`AD_id`,`residueP_id`) VALUES('"+str(info[0])+"','"+str(results[0][0])+"')")
+			query1 = ("INSERT INTO `DESIRE`.`AD_Residues`(`AD_id`,`residueP_id`) VALUES('"+str(info[0])+"','"+str(results[0][0])+"')")
 			print(query1)
 	#cursor.execute(query)
 

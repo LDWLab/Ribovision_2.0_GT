@@ -65,8 +65,8 @@ class AlignmentGroup:
         pdb_seq_fh = open(pdb_seq_path, "w")
         SeqIO.write(self.struc_seq, pdb_seq_fh, "fasta")
         pdb_seq_fh.close()
-
-        pipe = Popen(f"mafft --quiet --addfull {pdb_seq_path} --mapout {aln_group_path}; cat {mappingFileName}", stdout=PIPE, shell=True)
+        print('Preserve case')
+        pipe = Popen(f"mafft --preservecase --quiet --addfull {pdb_seq_path} --mapout {aln_group_path}; cat {mappingFileName}", stdout=PIPE, shell=True)
         output = pipe.communicate()[0]
         mapping_file = output.decode("ascii").split('\n#')[1]
         firstLine = True

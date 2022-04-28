@@ -13,6 +13,7 @@ export function readLoadRV3State (fileInput) {
 			vm.chains = uploadedState.chains;
 			vm.$nextTick(function(){
 				vm.fasta_data = uploadedState.fasta_data;
+				vm.protein_type_obj = uploadedState.protein_type_obj;
 				vm.alnobj = uploadedState.alnobj;
 				vm.chainid = uploadedState.chainid;
 				vm.$nextTick(function(){

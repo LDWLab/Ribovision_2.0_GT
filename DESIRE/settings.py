@@ -87,7 +87,7 @@ WSGI_APPLICATION = 'DESIRE.wsgi.application'
 
 DATABASES = {
     'default': {
-        'NAME': 'SEREB',
+        'NAME': 'DESIRE',
         'ENGINE': 'mysql.connector.django',
         'USER': os.environ['DJANGO_USERNAME'],             #Write username here
         'PASSWORD': os.environ['DJANGO_PASSWORD'],         #And password here
@@ -179,7 +179,8 @@ COMPRESS_PRECOMPILERS = (
 COMPRESS_ENABLED = True
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'pdb-topology-viewer/build')
+    os.path.join(BASE_DIR, 'pdb-topology-viewer/build'),
+    os.path.join(BASE_DIR, 'pdbe-rna-viewer/build')
 ]
 STATIC_URL = '/static/'
 COMPRESS_ROOT = 'static/'

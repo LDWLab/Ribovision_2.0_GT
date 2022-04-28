@@ -17,6 +17,7 @@ class PdbTopologyViewer extends HTMLElement {
     let paramValidatity = this.validateParams();
     if(!paramValidatity) return
 
+    
     // create an instance of the plugin
     if(typeof this.pluginInstance == 'undefined') this.pluginInstance = new PdbTopologyViewerPlugin();
     

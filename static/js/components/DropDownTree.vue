@@ -20,7 +20,7 @@
             <treeselect ref="treeselect"
               :load-options="loadOptions"
               v-model="tax_id" 
-              v-on:input="loadData(tax_id, type_tree)"
+              v-on:input="loadProteinTypes(tax_id, type_tree)"
               placeholder="Select a phylogenetic group"
               no-children-text="Loading... or no children"
               :multiple="true" 
@@ -38,7 +38,13 @@
                 <p><button id="downloadExampleFasta" class="btn btn-outline-dark" v-on:click="getExampleFile(`static/alignments/EFTU_example.fas`, `PVExampleAlignment.fas`)" v-if="!file&&type_tree=='upload'">Download example alignment</button></p>
             </div>
             <p>
-                <select class="btn btn-outline-dark dropdown-toggle" id="selectaln" v-if="tax_id" v-model="alnobj">
+                <select class="btn btn-outline-dark dropdown-toggle" id="select_protein_type" v-if="tax_id" v-model="protein_type_obj" v-on:change="loadData(tax_id, type_tree)">
+                    <option v-if="tax_id" :value="null" selected disabled hidden>Select a protein type</option>
+                    <option v-if="tax_id" v-for="proteinType in proteinTypes" >{{ proteinType }}</option>
+                </select>
+            </p>
+            <p>
+                <select class="btn btn-outline-dark dropdown-toggle" id="selectaln" v-if="protein_type_obj" v-model="alnobj">
                     <option v-if="tax_id" :value="null" selected disabled hidden>Select an alignment</option>
                     <option v-if="tax_id" v-for="aln in alignments" v-bind:value="{ id: aln.value, text: aln.text }">{{ aln.text }}</option>
                 </select>
@@ -72,8 +78,9 @@
             </p>
             <p><select multiple class="form-control btn-outline-dark" id="polymerSelect" v-bind:style="{ resize: 'both'}"  v-if="chains&&fasta_data&&pdbid||uploadSession" v-model="chainid" >
                 <option :value ="null" selected disabled>Select a polymer</option>
-                <option v-for="chain in chains" v-bind:value="chain.value" @click="postStructureData(pdbid, chainid); populateECODranges(pdbid, chainid); showPDBViewer(pdbid, chainid, chain.entityID); ">{{ chain.text }}</option>
+                <option v-for="chain in chains" v-bind:value="chain.value" @click="postStructureData(pdbid, chainid); calculateProteinContacts(pdbid, chainid); populateECODranges(pdbid, chainid); showPDBViewer(pdbid, chainid, chain.entityID);">{{ chain.text }}</option>
             </select></p>
+            <!--
             <div v-if="structure_mapping">
                 <select id="downloadDataBtn" class="btn btn-outline-dark dropdown-toggle" v-model="downloadMapDataOpt" v-if="topology_loaded">
                     <option :value="null" selected disabled>Download mapped data</option>
@@ -85,7 +92,9 @@
                 <label><input type="checkbox" v-model="checkedRNA" v-on:change="updateMolStarWithRibosome(checkedRNA)">
                     Show ribosomal context in 3D</label>
             </p></div>
-            <div v-if="topology_loaded&&!checkedRNA&&!customPDBid">
+            -->
+            <div v-if="topology_loaded&&!checkedRNA&&!customPDBid&&protein_contacts">
+            <!--
                 <div id="domainSelectionSection" style="margin: 3% 0;">
                     <div>
                         <label><input type="radio" v-model="domain_or_selection" value="domain">
@@ -135,7 +144,13 @@
                         </button></p>
                     </div>
                 </p></div>
+            -->
+                <p><select multiple class="form-control btn-outline-dark" id="polymerSelect2" v-bind:style="{ resize: 'both'}" v-model="pchainid" >
+                <option :value ="null" selected disabled>Select a polymer</option>
+                <option v-for="chain in protein_chains" v-bind:value="chain.value" @click="showContacts();">{{ chain.text }}</option>
+                </select></p>
             </div>
+            <!--
             <p><div v-if="alnobj" class="checkbox" id="showFrequencies">
                 <label><input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">
                 Show amino acid frequencies</label>
@@ -148,6 +163,7 @@
                     Download AA frequencies
                 </button></p>
             </div></p>
+            -->
         </div>
         <div class="alignment_section">
             <div id="alnif" v-if="alnobj">
@@ -190,7 +206,7 @@
         <div class="topology_section">
             <span id="topif" v-if="chainid.length>0||customPDBsuccess">
                 <div v-if="!topology_loaded">
-                    Loading alignment-structure mapping <img src="static/img/loading.gif" alt="Loading topology viewer" style="height:25px;">
+                    Wait for alignment-structure mapping <img src="static/img/loading.gif" alt="Loading topology viewer" style="height:25px;">
                 </div>
                 <div id="topview"></div>
             </span>
@@ -220,11 +236,13 @@
                 </div>
             </span>
         </div>
+        <!--
         <div class = "propensity_section">
             <span id="propif" v-if="checked_propensities">
                 <div id = "total"></div>
             </span>
         </div>
+        -->
         <footer>
             <div id="footerDiv" style="display: flex;"></div>
         </footer>
@@ -238,6 +256,7 @@
   import {addFooterImages} from './Footer.js'
   import {initialState} from './DropDownTreeVars.js'
   import {filterAvailablePolymers} from './filterRiboChains.js'
+  import {parseRNAchains} from './handleRNAchains.js'
   import {generateChainsFromLiteMol} from './handleChainData.js'
   import {colorByMSAColorScheme} from './handleMSAbasedColoring.js'
   import {getStructMappingAndTWC} from './getStructMappingAndTWC.js'
@@ -613,7 +632,35 @@
             if (this.type_tree == "para"){
                 loadParaOptions(action, callback, this);
             }
-        }, loadData (value, type_tree) {
+        }, 
+        loadProteinTypes (tax_id, type_tree) {
+            if (type_tree == "orth") {
+                this.alignments = null;
+                this.proteinTypes = null;
+                var url = '/proteinTypes';
+                // let taxIDs = tax_id;
+                let taxIDs = '';
+                vm.tax_id.forEach(element => {
+                    taxIDs += element + ",";
+                });
+                ajax(url, {taxIDs}).then(data => {
+                    let results = data["results"];
+                    let numSublists = results.length;
+                    let intersection = results[0];
+                    for (let i = 1; i < numSublists; i++) {
+                        intersection = intersection.filter(value => results[i].includes(value));
+                    }
+                    vm.proteinTypes = intersection;
+                    // let proteinTypes = data["proteinTypesList"];
+                    // vm.proteinTypes = proteinTypes;
+                });
+            }
+        },
+        showContacts() {
+            
+            viewerInstanceTop.viewInstance.uiTemplateService.colorMapContacts();  
+        },
+        loadData (value, type_tree) {
             if (this.uploadSession){return;}
             if (type_tree == "upload"){this.tax_id = null; return;}
             if (value.length == 0){this.tax_id = null; return;}
@@ -622,10 +669,60 @@
             if (this.alnobj != null) {this.alnobj = null;}
             if (type_tree == "orth"){
                 this.alignments = null;
+                /*
                 var url = '/desire-api/taxonomic-groups/?format=json&taxgroup_id__in=' + value
                 ajax(url).then(data => {
                     loadOrthAlns(data, this);
                 });
+                */
+                var url = '/getAlignmentsFilterByProteinTypeAndTaxIds';
+                let selectedProteinType = vm.protein_type_obj;
+                let taxIDs = '';
+                vm.tax_id.forEach(element => {
+                    taxIDs += element + ",";
+                });
+                ajax(url, {selectedProteinType, taxIDs}).then(data => {
+                // ajax(url).then(data => {
+                    let results = data["results"];
+                    let intersection = results[0];
+                    let numSublists = results.length;
+                    for (let sublistIndex = 1; sublistIndex < numSublists; sublistIndex++) {
+                        intersection = intersection.filter(intersectionSublistEntry => {
+                            let
+                                sublist = results[sublistIndex],
+                                sublistLength = sublist.length,
+                                inclusionFlag = false;
+                            for (let sublistEntryIndex = 0; sublistEntryIndex < sublistLength; sublistEntryIndex++) {
+                                if (sublist[sublistEntryIndex][0] == intersectionSublistEntry[0]) {
+                                    inclusionFlag = true;
+                                    break;
+                                }
+                            }
+                            return inclusionFlag;
+                        });
+                    }
+                    vm.alignments = []
+                    intersection.forEach(intersectionEntry => {
+                        let alignment = new Object();
+                        alignment.text = intersectionEntry[0];
+                        alignment.value = intersectionEntry[1];
+                        vm.alignments.push(alignment);
+                    });
+                    // let alignmentNamesAndPrimaryKeys = data["alignmentNamesAndPrimaryKeys"];
+                    // alignmentNamesAndPrimaryKeys.forEach(alignmentNamesAndPrimaryKey => {
+                    //     let alignment = new Object();
+                    //     alignment.text = alignmentNamesAndPrimaryKey[0];
+                    //     alignment.value = alignmentNamesAndPrimaryKey[1];
+                    //     vm.alignments.push(alignment);
+                    // });
+                    
+                    // loadOrthAlns(data, this);
+                });
+                // var url = '/desire-api/taxonomic-groups/?format=json&taxgroup_id__in=' + value;
+                // ajax(url).then(data => {
+                //     loadOrthAlns(data, this);
+                // });
+
             }
             if (type_tree == "para"){
                 loadParaAlns (value, this)
@@ -715,7 +812,16 @@
                 getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, ebi_sequence, this);
             }
             loadAlignmentViewer (vm.fasta_data);
-            var topology_url = `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdblower}/chain/${chainid}`
+            var rna_url = `https://www.ebi.ac.uk/pdbe/api/pdb/entry/polymer_coverage/${pdbid}/chain/${chainid}`
+            ajax(rna_url).then(data => {
+                if(vm.topology_loaded){return;}
+                var entityid = data[pdblower]["molecules"][0].entity_id;
+                var topology_viewer = `<pdb-rna-viewer id="PdbeTopViewer" pdb-id="${pdbid}" entity-id="${entityid}" chain-id="${chainid}"></pdb-rna-viewer>`
+                document.getElementById('topview').innerHTML = topology_viewer;
+                window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
+            });
+            /*var topology_url = `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdblower}/chain/${chainid}`
+            
             ajax(topology_url).then(data => {
                 if(vm.topology_loaded){return;}
                 var entityid = Object.keys(data[pdblower])[0];
@@ -768,7 +874,7 @@
                 console.log(error);
                 this.topology_loaded = 'error';
                 topview.innerHTML = "Failed to fetch the secondary structure!<br>Try another structure."
-            });
+            });*/
         }, showPDBViewer(pdbid, chainid, entityid){
             const molstar_item = document.getElementById("pdbeMolstarView");
             if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Loading Molstar Component ", true)}
@@ -843,7 +949,57 @@
             });
         }, populateECODranges(pdbid, chainid) {
             populateECODranges(pdbid, chainid);
-        },postStructureData(pdbid, chainid) {
+        }, calculateProteinContacts(pdbid, chainid) {
+            var url = `protein-contacts/${pdbid}/${chainid}`
+            ajax(url).then(data => {
+                vm.protein_contacts = data;
+                var newContactMap;
+                var filtered_chains = vm.protein_chains.filter(e => e.value in data);
+
+                vm.protein_chains = filtered_chains;
+                var i = 1.0;
+                var colorMap = new Map();
+                var selectSections_proteins = new Map();
+                for (var val in vm.protein_contacts) {
+                    selectSections_proteins.set(val, [])
+                    var color = interpolateLinearly(i/filtered_chains.length, aaColorData.get("Protein contacts")[0])[0]
+                    var rgbColor = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ")";
+                    colorMap.set(val, rgbColor);
+                    //newContactMap.set(vm.protein_contacts, aaColorData.get("Shannon entropy")[0][1]
+                    i = i+1;
+                    for (var j in vm.protein_contacts[val]) {
+                        selectSections_proteins.get(val).push({
+                            entity_id: this.entityID,
+                            start_residue_number: vm.protein_contacts[val][j], 
+                            end_residue_number: vm.protein_contacts[val][j],
+                            color: rgbColor,
+                            sideChain: false,
+                        });
+                    }
+                }
+                /*
+                console.log(selectSections_proteins);
+                window.viewerInstance.visual.select({
+                    data: selectSections_proteins.get("CX"), 
+                    nonSelectedColor: {r:255,g:255,b:255}
+                    }).catch(err => {
+                        console.log(err);
+                        vm.$nextTick(function(){
+                            window.viewerInstance.visual.select({
+                                data: selectSections_proteins.get("CX"), 
+                                nonSelectedColor: {r:255,g:255,b:255}
+                            })
+                        })
+                    })
+                */
+                vm.proteinColorMap = colorMap;
+                }).catch(error => {
+                    console.log(error)
+                })
+
+                
+        },
+        postStructureData(pdbid, chainid) {
             const topview_item = document.getElementById("topview");
             if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Loading Structure Data ", true)}
             let tempEntities = this.chains.filter(obj => {

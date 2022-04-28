@@ -7,10 +7,10 @@ def create_and_parse_argument_options(argument_list):
                                         \nMake sure upload_accession has updated the tables with Residue data.')
     parser.add_argument('alignment_file', help='Path to alignment file', type=str)
     parser.add_argument('source', help='Defines superkingdom source (e.g. abe)', type=str)
-    parser.add_argument('-aln_method','--alignment_method', help='Alignment method used (default: PROMALS3D)', type=str, default='PROMALS3D')
+    parser.add_argument('-aln_method','--alignment_method', help='Alignment method used (default: GSD_LSD_rRNA)', type=str, default='GSD_LSD_rRNA')
     parser.add_argument('-host','--db_host', help='Defines database host (default: 130.207.36.76)', type=str, default='130.207.36.76')
-    parser.add_argument('-schema','--db_schema', help='Defines schema to use (default: SEREB)', type=str, default='SEREB')
-    parser.add_argument('-user_name','--uname', help='Defines user name to use (default: ppenev)', type=str, default='ppenev')
+    parser.add_argument('-schema','--db_schema', help='Defines schema to use (default: DESIRE)', type=str, default='DESIRE')
+    parser.add_argument('-user_name','--uname', help='Defines user name to use (default: anton)', type=str, default='anton')
     parser.add_argument('-pw','--password', help='Defines user password to use', type=str)
     parser.add_argument('-aln_id','--alignment_id', help='Defines alignment id to add entries to. If not specified makes a new alignment entry.', type=int)
     parser.add_argument('-commit','--commit_changes', help='Commit the changes to the DB', action="store_true")
@@ -47,7 +47,7 @@ def check_nomo_id(cursor, occur, name):
     '''
     occur = occur.capitalize() 
     cursor.execute("SELECT Nomenclature.nom_id FROM Nomenclature\
-        WHERE Nomenclature.new_name = '"+name+"' AND Nomenclature.occurrence = '"+occur+"'")
+        WHERE Nomenclature.new_name = '"+name+"' AND Nomenclature.PhylogeneticOccurrence = '"+occur+"'")
     result = cursor.fetchall()
     try:
         nom_id=result[0][0]
@@ -56,15 +56,15 @@ def check_nomo_id(cursor, occur, name):
         cursor.execute("SELECT Nomenclature.nom_id FROM Nomenclature\
             INNER JOIN Old_name ON Nomenclature.nom_id=Old_name.nn_fk_id\
             WHERE Old_name.old_name = '"+name+"' AND Old_name.N_B_Y_H_A = 'BAN'\
-            AND Nomenclature.occurrence = '"+occur+"'")
+            AND Nomenclature.PhylogeneticOccurrence = '"+occur+"'")
         result = cursor.fetchall()
         try:
             nom_id=result[0][0]
         except:
-            raise ValueError ("No result for nom_id "+name+" and occurrence "+occur+" in the MYSQL query!")
+            raise ValueError ("No result for nom_id "+name+" and phylogenetic occurrence "+occur+" in the MYSQL query!")
     return nom_id
 
-def check_polymer(cursor, taxid, nomid):
+def check_polymer(cursor, taxid, nomid, gi):
     '''
     Gets polymer id for a given taxid and nomid (LDW-prot requirement)
     '''
@@ -72,13 +72,15 @@ def check_polymer(cursor, taxid, nomid):
                     INNER JOIN Polymer_metadata ON Polymer_Data.PData_id = Polymer_metadata.polymer_id WHERE \
                     Polymer_metadata.accession_type = 'LDW-prot' AND \
                     Polymer_Data.nomgd_id = "+nomid+" AND \
-                    Polymer_Data.strain_id = "+taxid)
+                    Polymer_Data.strain_id = "+taxid+" AND \
+                    Polymer_Data.GI = '"+gi+"'"
+                    )
     result = cursor.fetchall()
     try:
         pol_id=result[0][0]
     except:
         pol_id = 'NOVAL'
-        print("No result for nomgd_id "+nomid+" and taxid "+taxid+" in the MYSQL query!")
+        print("No result for nomgd_id "+nomid+" and taxid "+taxid+" and gi "+gi+" in the MYSQL query!")
         #raise ValueError ("No result for nom_id "+nomid+" and taxid "+taxid+" in the MYSQL query!")
     return pol_id
 
@@ -223,10 +225,14 @@ def main(commandline_arguments):
     else:
         aln_id = upaln_getid(cursor, aln_name, source_string, comm_args.alignment_method)
     for entry in alns:
-        taxid = fix_old_taxid(entry.id.split('_')[1])
+        entry_id_split = entry.id.split('_')
+        taxid = fix_old_taxid(entry_id_split[1])
         superK = superkingdom_info(cursor, taxid)
-        nom_id = check_nomo_id(cursor, superK[0], entry.id.split('_')[0][:4])
-        polymer_id = check_polymer(cursor, str(taxid),str(nom_id))
+        entry_id_split_2 = entry_id_split[2]
+        gi = entry_id_split_2[entry_id_split_2.index('|') + 1:]
+        superK = superkingdom_info(cursor, taxid)
+        nom_id = check_nomo_id(cursor, superK[0], entry.id.split('_')[0])
+        polymer_id = check_polymer(cursor, str(taxid),str(nom_id), gi)
         if polymer_id == 'NOVAL':
             continue
         upload_pol_aln(cursor, str(polymer_id), str(aln_id))

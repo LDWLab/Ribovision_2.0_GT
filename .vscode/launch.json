@@ -67,11 +67,12 @@
                 "~/Dropbox-Gatech/ProteinProject/Phylogeny/txid_e_new.txt",
                 "ppenev",
                 "-pf", "${workspaceFolder}/populate_db/Phylogeny/data/newEuk.json",
-                "-schema", "SEREB",
+                "-schema", "DESIRE",
                 "-host", "130.207.36.76",
                 "-commit"
             ]
         },
+        /*
         {
             "name": "Append seq to aln",
             "type": "python",
@@ -81,8 +82,9 @@
             "args": [
                 "${workspaceFolder}/populate_db/Alignments/sequences/uL02e_new.fa",
                 "e",
-                "-schema", "SEREB_test",
+                "-schema", "DESIRE_test",
             ]
         },
+        */
     ]
 }

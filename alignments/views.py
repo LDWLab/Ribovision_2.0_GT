@@ -1,8 +1,9 @@
+import contextlib
 import re, os, warnings, io, base64, json
 import datetime
 import urllib.request
 from subprocess import Popen, PIPE
-from Bio import AlignIO, BiopythonDeprecationWarning
+from Bio import AlignIO, BiopythonDeprecationWarning, PDB
 from io import StringIO
 
 from django.shortcuts import render
@@ -18,7 +19,11 @@ from alignments.fold_api import *
 from alignments.runal2co import executeAl2co
 import alignments.alignment_query_and_build as aqab
 from TwinCons.bin.TwinCons import slice_by_name
+from django.db import connection
+import time
 
+class c:
+    structureObj = None
 
 def trim_alignment(concat_fasta, filter_strain):
     '''Reads a fasta string into alignment and trims it down by filter sequence'''
@@ -96,7 +101,7 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
     if startIndex > 1:
         shiftIndexBy = startIndex - 1
 
-    pipe = Popen("mafft --quiet --addfull " + ebiFileName + " --mapout " + alignmentFileName + "; cat " + mappingFileName, stdout=PIPE, shell=True)
+    pipe = Popen("mafft --preservecase --quiet --addfull " + ebiFileName + " --mapout " + alignmentFileName + "; cat " + mappingFileName, stdout=PIPE, shell=True)
     output = pipe.communicate()[0]
     decoded_text = output.decode("ascii")
     
@@ -268,6 +273,77 @@ def index_test(request):
     }
     return render(request, 'alignments/index_test.html', context)
 
+def proteinTypes(request):
+    if request.method == 'POST' and 'taxIDs' in request.POST:
+        taxIDs = request.POST['taxIDs']
+        return proteinTypesDirect(request, taxIDs)
+    else:
+        return []
+
+def allProteinTypes(request):
+    allProteinTypes = []
+    with connection.cursor() as cursor:
+        sql = "select distinct(MoleculeGroup) from Nomenclature order by MoleculeGroup ASC;"
+        cursor.execute(sql)
+        for row in cursor.fetchall():
+            allProteinTypes.append(row[0])
+    context = {
+        "allProteinTypes" : allProteinTypes
+    }
+    return JsonResponse(context)
+
+def proteinTypesDirect(request, concatenatedTaxIds):
+    results = []
+    print(concatenatedTaxIds)
+    with connection.cursor() as cursor:
+        if concatenatedTaxIds.endswith(','):
+            concatenatedTaxIds = concatenatedTaxIds[:-1]
+        for taxID in concatenatedTaxIds.split(','):
+            taxID = int(taxID)
+            proteinTypesList = []
+            sql = "use DESIRE;"
+            cursor.execute(sql)
+            # sql = 'SET sql_mode=(SELECT REPLACE(@@sql_mode,\'ONLY_FULL_GROUP_BY\',\'\'));'
+            sql = 'select Nomenclature.MoleculeGroup from TaxGroups join Species_TaxGroup on Species_TaxGroup.taxgroup_id = TaxGroups.taxgroup_id join Species on Species.strain_id = Species_TaxGroup.strain_id join Species_Polymer on Species.strain_id = Species_Polymer.strain_id join Polymer_Data on Polymer_Data.strain_id = Species_Polymer.strain_id and Polymer_Data.GI = Species_Polymer.GI and Polymer_Data.nomgd_id = Species_Polymer.nomgd_id join Nomenclature on Nomenclature.nom_id = Polymer_Data.nomgd_id where TaxGroups.taxgroup_id = ' + str(taxID) + ' group by Nomenclature.MoleculeGroup;'
+
+            cursor.execute(sql)
+            # results = Taxgroups.objects.raw(sql)
+            for row in cursor.fetchall():
+                proteinTypesList.append(row[0])
+            results.append(proteinTypesList)
+    context = {'results' : results}
+    return JsonResponse(context)
+
+def getAlignmentsFilterByProteinTypeAndTaxIds(request):
+
+    if request.method == 'POST' and 'selectedProteinType' in request.POST and 'taxIDs' in request.POST:
+        return getAlignmentsFilterByProteinTypeAndTaxIdsDirect(request, request.POST['selectedProteinType'], request.POST['taxIDs'])
+    else:
+        return []
+
+def getAlignmentsFilterByProteinTypeAndTaxIdsDirect(request, concatenatedProteinTypes, concatenatedTaxIds):
+    results = []
+    with connection.cursor() as cursor:
+        if concatenatedProteinTypes.endswith(','):
+            concatenatedProteinTypes = concatenatedProteinTypes[:-1]
+        if concatenatedTaxIds.endswith(','):
+            concatenatedTaxIds = concatenatedTaxIds[:-1]
+        proteinTypes = concatenatedProteinTypes.split(',')
+        concatenatedProteinTypes = '\'' + proteinTypes[0] + '\''
+        for i in range(1, len(proteinTypes)):
+            concatenatedProteinTypes += ', \'' + proteinTypes[i] + '\''
+        for taxID in concatenatedTaxIds.split(','):
+            alignmentNamesAndPrimaryKeys = []
+            sql = "select Alignment.Name, Alignment.Aln_id from Nomenclature join Polymer_Data on Polymer_Data.nomgd_id = Nomenclature.nom_id join Polymer_Alignments on Polymer_Alignments.PData_id = Polymer_Data.PData_id join Alignment on Alignment.Aln_id = Polymer_Alignments.Aln_id join Species_Polymer on Species_Polymer.strain_id = Polymer_Data.strain_id and Species_Polymer.GI = Polymer_Data.GI and Species_Polymer.nomgd_id = Polymer_Data.nomgd_id join Species on Species.strain_id = Species_Polymer.strain_id join Species_TaxGroup on Species.strain_id = Species_TaxGroup.strain_id join TaxGroups on TaxGroups.taxgroup_id = Species_TaxGroup.taxgroup_id where Nomenclature.MoleculeGroup in (" + concatenatedProteinTypes + ") and Alignment.Method = 'GSD_LSD_rRNA' and TaxGroups.taxgroup_id = " + taxID + " group by Alignment.Aln_id;"
+
+            cursor.execute(sql)
+            for row in cursor.fetchall():
+                alignmentNamesAndPrimaryKeys.append([row[0], row[1]])
+            results.append(alignmentNamesAndPrimaryKeys)
+
+    context = {'results' : results}
+    return JsonResponse(context)
+
 def index_orthologs(request):
     print ("request.method == 'POST': " + str(request.method == 'POST'))
     print ("'custom_propensity_data' in request.FILES: " + str('custom_propensity_data' in request.FILES))
@@ -427,6 +503,36 @@ def validate_fasta_string(fastaString):
         if re.search(regex, fastaString):
             return False
     return True
+def getGenusFromStrainIdsDirect(request, concatenatedStrainIds):
+    strainIds = concatenatedStrainIds.split(',')
+    concatenatedStrainIds = '\'' + strainIds[0] + '\''
+    for i in range(1, len(strainIds)):
+        concatenatedStrainIds += ', \'' + strainIds[i] + '\''
+    sql = "use DESIRE;"
+    cursor.execute(sql)
+    sql = "select TaxGroups.taxgroup_id from Species join Species_TaxGroup on Species.strain_id = Species_TaxGroup.strain_id join TaxGroups on TaxGroups.taxgroup_id = Species_TaxGroup.taxgroup_id where Species.strain_id in (" + concatenatedStrainIds + ") and TaxGroups.groupLevel = 'genus';"
+    genusList = []
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        for row in cursor.fetchall():
+            genusList.append(row[0])
+    context = {
+        'genusList' : genusList
+    }
+    return JsonResponse(context)
+
+def string_fasta_two_strains(request, protein_type, aln_id, strain_id_0, strain_id_1):
+    if type(strain_id_0) == int:
+        strain_id_0 = str(strain_id_0)
+    if type(strain_id_1) == int:
+        strain_id_1 = str(strain_id_1)
+    protein_type = protein_type.split(',')
+    for i in range(len(protein_type)):
+        protein_type[i] = '\'' + protein_type[i] + '\''
+    protein_type=','.join(protein_type)
+    sql = ""
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
 
 # trims fasta by a list of indices
 def trim_fasta_by_index(input_file, indices):
@@ -516,9 +622,195 @@ def ecodPassThroughQuery(request):
     return JsonResponse(json.loads(data.decode(encoding)), safe=False)
 
 
-def parse_string_structure(stringData, strucID):
+def parse_string_structure(request, stringData, strucID):
+    #if(c.structureObj):
+    #    return c.structureObj
     from Bio.PDB import MMCIFParser
     parser = MMCIFParser()
     strucFile = io.StringIO(stringData)
-    structureObj = parser.get_structure(strucID,strucFile)
-    return structureObj
+    #c.structureObj = parser.get_structure(strucID,strucFile)
+    #return c.structureObj
+    return parser.get_structure(strucID,strucFile)
+
+def getAlignmentsFilterByProteinTypeDirect(request, concatenatedProteinTypes):
+    proteinTypes = concatenatedProteinTypes.split(',')
+    concatenatedProteinTypes = '\'' + proteinTypes[0] + '\''
+    
+    for i in range(1, len(proteinTypes)):
+        concatenatedProteinTypes += ', \'' + proteinTypes[i] + '\''
+    sql = "select distinct(Name) from Alignment join Polymer_Alignments on Polymer_Alignments.Aln_id = Alignment.Aln_id join Polymer_Data on Polymer_Data.PData_id = Polymer_Alignments.PData_id join Nomenclature on Nomenclature.nom_id = Polymer_Data.nomgd_id where Nomenclature.MoleculeGroup in (" + concatenatedProteinTypes + ");"
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        results = []
+        for row in cursor.fetchall():
+            results.append(row[0])
+    context = {
+        'results' : results
+    }
+    return JsonResponse(context)
+
+def getPairwiseAlignmentDirect(request, moleculeType, alignmentName, strainId0, strainId1):
+    strainIds = [strainId0, strainId1]
+    concatenatedStrainIds = '\'' + strainIds[0] + '\''
+    for i in range(1, len(strainIds)):
+        concatenatedStrainIds += ', \'' + strainIds[i] + '\''
+    sql = "select TaxGroups.taxgroup_id, Species.strain from Species join Species_TaxGroup on Species.strain_id = Species_TaxGroup.strain_id join TaxGroups on TaxGroups.taxgroup_id = Species_TaxGroup.taxgroup_id where Species.strain_id in (" + concatenatedStrainIds + ") and TaxGroups.groupLevel = 'genus';"
+    genusList = []
+    speciesNames = []
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        for row in cursor.fetchall():
+            genusList.append(row[0])
+            speciesNames.append(row[1])
+    if len(speciesNames) == 1:
+        speciesName0 = speciesName1 = speciesNames[0]
+    else:
+        speciesName0, speciesName1 = speciesNames
+
+    alignment = string_fasta(request, moleculeType, alignmentName, strainId0 + ',' + strainId1, internal=True)
+    alignment = alignment.replace('\\n', '\n')
+    PairwiseAlignment = ''
+    if (alignment.endswith('\n')) :
+        alignment = alignment[0:-1]
+        alignmentLines = alignment.splitlines()
+        modifiedStrainName0 = speciesName0.replace(' ', '_')
+        modifiedStrainName1 = speciesName1.replace(' ', '_')
+        for i in range(1, len(alignmentLines), 2):
+            titleLine = alignmentLines[i - 1]
+            alignmentLine = alignmentLines[i]
+            if modifiedStrainName0 in titleLine or modifiedStrainName1 in titleLine:
+                PairwiseAlignment += alignmentLine + '\n'
+    context = {
+        'PairwiseAlignment' : PairwiseAlignment
+    }
+    return JsonResponse(context)
+
+def getStrainsFilterByMoleculeGroupAndAlignmentDirect(request, concatenatedMoleculeGroups, concatenatedAlignmentNames):
+    moleculeGroups = concatenatedMoleculeGroups.split(',')
+    concatenatedMoleculeGroups = '\'' + moleculeGroups[0] + '\''
+    for i in range(1, len(moleculeGroups)):
+        concatenatedMoleculeGroups += ', \'' + moleculeGroups[i] + '\''
+    alignmentNames = concatenatedAlignmentNames.split(',')
+    concatenatedAlignmentNames = '\'' + alignmentNames[0] + '\''
+    for i in range(1, len(alignmentNames)):
+        concatenatedAlignmentNames += ', \'' + alignmentNames[i] + '\''
+    sql = 'select Species.strain, Species.strain_id from Species join Species_Polymer on Species_Polymer.strain_id = Species.strain_id join Polymer_Data on Polymer_Data.GI = Species_Polymer.GI and Polymer_Data.nomgd_id = Species_Polymer.nomgd_id join Nomenclature on Nomenclature.nom_id = Polymer_Data.nomgd_id join Polymer_Alignments on Polymer_Alignments.PData_id = Polymer_Data.PData_id join Alignment on Alignment.Aln_id = Polymer_Alignments.Aln_id where Nomenclature.MoleculeGroup in (' + concatenatedMoleculeGroups + ') and Alignment.name in (' + concatenatedAlignmentNames + ');'
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        results = []
+        for row in cursor.fetchall():
+            results.append([row[0], row[1]])
+    context = {
+        'results' : results
+    }
+    return JsonResponse(context)
+
+def getAlignmentFilterByNameAndMoleculeGroupTrimByStrainIdDirect(request, concatenatedMoleculeGroups, concatenatedAlignmentNames, concatenatedStrainIds):
+    moleculeGroups = concatenatedMoleculeGroups.split(',')
+    concatenatedMoleculeGroups = '\'' + moleculeGroups[0] + '\''
+    for i in range(1, len(moleculeGroups)):
+        concatenatedMoleculeGroups += ', \'' + moleculeGroups[i] + '\''
+    alignmentNames = concatenatedAlignmentNames.split(',')
+    concatenatedAlignmentNames = '\'' + alignmentNames[0] + '\''
+    for i in range(1, len(alignmentNames)):
+        concatenatedAlignmentNames += ', \'' + alignmentNames[i] + '\''
+    sql = 'select Polymer_metadata.Fullseq, Species.strain from Polymer_metadata join Polymer_Data on Polymer_metadata.polymer_id = Polymer_Data.PData_id join Nomenclature on Nomenclature.nom_id = Polymer_Data.nomgd_id join Species_Polymer on Polymer_Data.GI = Species_Polymer.GI and Polymer_Data.nomgd_id = Species_Polymer.nomgd_id join Species on Species.strain_id = Species_Polymer.strain_id join Polymer_Alignments on Polymer_Alignments.PData_id = Polymer_Data.PData_id join Alignment on Polymer_Alignments.Aln_id = Alignment.Aln_id where Nomenclature.MoleculeGroup in (' + concatenatedMoleculeGroups + ') and Alignment.Name in (' + concatenatedAlignmentNames + ') and Species.strain_id in (' + concatenatedStrainIds + ');'
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        results = []
+        for row in cursor.fetchall():
+            results.append(row[0])
+    context = {
+        'results' : results
+    }
+    return JsonResponse(context)
+
+def string_fasta(request, protein_type, aln_name, tax_group, internal=False):
+    if type(tax_group) == int:
+        tax_group = str(tax_group)
+    elif type(tax_group) == list:
+        tax_group = ','.join(tax_group)
+    protein_type = protein_type.split(',')
+    for i in range(len(protein_type)):
+        protein_type[i] = '\'' + protein_type[i] + '\''
+    protein_type=','.join(protein_type)
+
+    with connection.cursor() as cursor:
+        sql = 'SET sql_mode=(SELECT REPLACE(@@sql_mode,\'ONLY_FULL_GROUP_BY\',\'\'));'
+        cursor.execute(sql)
+        sql = "select Alignment.*, Polymer_Data.*, Nomenclature.* from Alignment join Polymer_Alignments on Polymer_Alignments.Aln_id = Alignment.Aln_id join Polymer_Data on Polymer_Data.PData_id = Polymer_Alignments.PData_id join Nomenclature on Nomenclature.nom_id = Polymer_Data.nomgd_id join Species on Polymer_Data.strain_id = Species.strain_id join Species_TaxGroup on Species_TaxGroup.strain_id = Species.strain_id join TaxGroups on Species_TaxGroup.taxgroup_id = Species_TaxGroup.taxgroup_id where Alignment.Name = '" + aln_name + "' and MoleculeGroup in (" + protein_type + ") and TaxGroups.taxgroup_id in (" + tax_group + ") group by Alignment.Name;"
+        cursor.execute(sql)
+        raw_result = aqab.dictfetchall(cursor)
+    return simple_fasta(request, raw_result[0]['Aln_id'], tax_group, internal)
+
+"""
+def protein_contacts(request, pdbid, chain_id):
+    #while not c.structureObj:
+    #    time.sleep(5)
+    #structure = c.structureObj
+    
+    pdbl = PDB.PDBList()
+    pdbl.retrieve_pdb_file(pdbid, pdir='./')
+    parser = PDB.MMCIFParser()
+    structure = parser.get_structure(pdbid, "./" + str(pdbid) + ".cif")
+    #c.structureObj = structure
+
+    atom_list = PDB.Selection.unfold_entities(structure[0], 'A')
+    neighbor = PDB.NeighborSearch(atom_list)
+    target_atoms = {}
+
+    for struct in list(structure[0][chain_id]):
+        resi = str(struct).split('resseq=')[1].split()[0]
+        target_atoms[resi] = struct.get_atoms()
+    #target_atoms=list(structure[0][chain_id][781].get_atoms())
+    neighbors = dict()
+    for residue, atoms in target_atoms.items():
+        for atom in atoms:
+            point = atom.get_coord()
+            n = neighbor.search(point, 3.5, level='C')
+            i = 0
+            for chain in n:
+                val = str(chain).split('=')[1].split('>')[0]
+                #neighbors.add(val)
+                if val in neighbors:
+                    neighbors[val].add(residue)
+                else: 
+                    neighbors[val] = {residue}
+                i = i + 1
+    for val in neighbors:
+        neighbors[val] = list(neighbors[val])
+    #context = {
+    #    'Neighbors' : list(neighbors)
+    #}
+    return JsonResponse(neighbors)
+"""
+
+def protein_contacts(request, pdbid, chain_id):
+    pdbl = PDB.PDBList()
+    pdbl.retrieve_pdb_file(pdbid, pdir='./')
+    parser = PDB.MMCIFParser()
+    structure = parser.get_structure(pdbid, "./" + str(pdbid) + ".cif")
+    atom_list_23S = PDB.Selection.unfold_entities(structure[0][chain_id], 'A')
+    neighbor_23S = PDB.NeighborSearch(atom_list_23S)
+    neighbors = {}
+    for chain in structure[0]:
+        isProtein = False
+        for child in chain.child_list:
+            if child.resname != 'A' and child.resname != 'U' and child.resname != 'C' and child.resname != 'G':
+                isProtein = True
+                break
+            elif child.resname == 'U':
+                break
+        if isProtein:
+            target_atoms_L2=list(at for at in structure[0][chain.id].get_atoms() if at.parent.id[0] == ' ')
+            neighbors_L2_all=set()
+            for atom in target_atoms_L2:
+                point = atom.get_coord()
+                neighbors_L2 = neighbor_23S.search(point, 3.5, level='R')
+                for neighbor in neighbors_L2:
+                    neighbors_L2_all.add(neighbor.id[1])
+
+            if len(neighbors_L2_all) > 0:
+                neighbors[chain.id] = list(neighbors_L2_all)
+    return JsonResponse(neighbors)
+    

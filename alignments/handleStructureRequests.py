@@ -59,7 +59,7 @@ def handleCustomUploadStructure (request, strucID):
                 stringData = request.session[singleID]
             except:
                 return HttpResponseServerError(f"Requested structure {singleID} was not present in the session! Wait for POST to finish.")
-            strucObj = parse_string_structure(stringData, pdbAndEntityAndChain[0])
+            strucObj = parse_string_structure(request, stringData, pdbAndEntityAndChain[0])
             chainToEntity[pdbAndEntityAndChain[2]] = pdbAndEntityAndChain[1]
             structureList.append(strucObj)
         try:

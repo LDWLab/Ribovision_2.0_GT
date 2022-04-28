@@ -15,8 +15,9 @@ def request_post_data(post_data):
 def make_map_from_alnix_to_sequenceix_new(request):
     fasta, struc_id = request_post_data(request.POST)
     serializeData = request.session[struc_id]
-    strucObj = parse_string_structure(serializeData, struc_id)
+    strucObj = parse_string_structure(request, serializeData, struc_id)
     seq_ix_mapping, struc_seq, gapsInStruc = constructStrucSeqMap(strucObj)
+ 
     mapping = create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping)
     mapping["gapsInStruc"] = gapsInStruc
     if type(mapping) != dict:
@@ -80,8 +81,8 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
     fh.write(">Structure sequence\n")
     fh.write(str(struc_seq.seq))
     fh.close()
-    
-    pipe = Popen(f"mafft --quiet --addfull {pdb_seq_path} --mapout {aln_group_path}; cat {mappingFileName}", stdout=PIPE, shell=True)
+
+    pipe = Popen(f"mafft --anysymbol --preservecase --quiet --addfull {pdb_seq_path} --mapout {aln_group_path}; cat {mappingFileName}", stdout=PIPE, shell=True)
     output = pipe.communicate()[0]
 
     if len(output.decode("ascii")) <= 0:

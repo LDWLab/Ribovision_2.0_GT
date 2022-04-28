@@ -26,13 +26,14 @@ for opt, arg in opts:
 
 #uname = input("User name: ")
 pw = getpass.getpass("Password: ")
-cnx = mysql.connector.connect(user='ppenev', password=pw, host='130.207.36.76', database='SEREB')
+cnx = mysql.connector.connect(user='anton', password=pw, host='130.207.36.76', database='DESIRE')
 cursor = cnx.cursor()
 
 def read_csv(csv_path):
     with open(csv_path, 'r') as csv_file:
         reader = csv.reader(csv_file)
         csv_list = list(reader)
+        print(csv_list)
     return csv_list
 
 def superkingdom_info(ID):
@@ -60,13 +61,13 @@ def check_nomo_id(occur, name):
     #    INNER JOIN Old_name ON Nomenclature.nom_id=Old_name.nomo_id\
     #    WHERE Old_name.old_name = '"+name+"' AND Old_name.N_B_Y_H_A = 'BAN' AND Nomenclature.occurrence = '"+occur+"'")
     cursor.execute("SELECT Nomenclature.nom_id FROM Nomenclature\
-        WHERE Nomenclature.new_name = '"+name+"' AND Nomenclature.occurrence = '"+occur+"'")
+        WHERE Nomenclature.new_name = '"+name+"' AND Nomenclature.PhylogeneticOccurrence = '"+occur+"'")
     result = cursor.fetchall()
     #nom_id=result[0][0]
     try:
         nom_id=result[0][0]
     except:
-        raise ValueError ("No result for nom_id "+name+" and occurrence "+occur+" in the MYSQL query")
+        raise ValueError ("No result for new_name "+name+" and occurrence "+occur+" in the MYSQL query")
     return nom_id
 
 def upload_resi(poldata_id, fullseq):
@@ -85,14 +86,22 @@ def main():
             continue
         superK = superkingdom_info(entry[0])
         nom_id = check_nomo_id(superK[0], entry[3])
-        query = "INSERT INTO `Polymer_Data`(`GI`,`strain_ID`,`nomgd_id`, `GeneDescription`) \
-                        VALUES('"+entry[1]+"','"+str(entry[0])+"','"+str(nom_id)+"','"+entry[4].rstrip()+"')"
+        strain_id = str(entry[0])
+        gi = entry[1]
+        query = "INSERT INTO `Polymer_Data`(`GI`,`strain_ID`,`nomgd_id`, `GeneDescription`, `GI_type`) \
+                        VALUES('"+gi+"','"+strain_id+"','"+str(nom_id)+"','"+entry[4].rstrip()+"','"+entry[2]+"')"
+
+
+
         print(query)
         cursor.execute(query)
         lastrow_id = str(cursor.lastrowid)
-        query = "INSERT INTO `Polymer_metadata`(`polymer_id`,`accession_type`,`polymer_type`, `Fullseq`) \
-                                            VALUES('"+str(lastrow_id)+"','LDW-prot','protein','"+entry[5]+"')"
+        query = "INSERT INTO `Polymer_metadata`(`polymer_id`,`accession_type`,`polymer_type`,`encoding_location`,`classification`,`Fullseq`) \
+                                            VALUES('"+str(lastrow_id)+"','LDW-prot','protein','"+entry[5]+"','"+entry[6]+"','"+entry[7]+"')"
         cursor.execute(query)
+        query = "INSERT INTO `Species_Polymer`(`strain_id`, `nomgd_id`, `GI`) VALUES("+strain_id+","+str(nom_id)+",'" + gi + "')"
+        cursor.execute(query)
+
         #print(query)
         upload_resi(str(lastrow_id), entry[5])
     
