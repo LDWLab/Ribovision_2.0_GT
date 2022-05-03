@@ -84,8 +84,8 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     ### BE CAREFUL WHEN MERGING THE FOLLOWING LINES TO PUBLIC; PATHS ARE HARDCODED FOR THE APACHE SERVER ###
-    alignmentFileName = "./static/alignment" + fileNameSuffix + ".txt"
-    ebiFileName = "./static/ebi_sequence" + fileNameSuffix + ".txt"
+    alignmentFileName = "/home/RiboVision3/static/alignment" + fileNameSuffix + ".txt"
+    ebiFileName = "/home/RiboVision3/static/ebi_sequence" + fileNameSuffix + ".txt"
     mappingFileName = ebiFileName + ".map"
     fasta = re.sub('>Structure sequence[\s\S]*?>','>',fasta)
     fh = open(alignmentFileName, "w")
@@ -786,10 +786,10 @@ def protein_contacts(request, pdbid, chain_id):
 """
 
 def protein_contacts(request, pdbid, chain_id):
-    pdbl = PDB.PDBList()
-    pdbl.retrieve_pdb_file(pdbid, pdir='./')
+    pdbl = PDB.PDBList(pdb='/tmp/PDB')
+    pdbl.retrieve_pdb_file(pdbid, pdir='/tmp/PDB')
     parser = PDB.MMCIFParser()
-    structure = parser.get_structure(pdbid, "./" + str(pdbid) + ".cif")
+    structure = parser.get_structure(pdbid, "/tmp/PDB/" + str(pdbid) + ".cif")
     atom_list_23S = PDB.Selection.unfold_entities(structure[0][chain_id], 'A')
     neighbor_23S = PDB.NeighborSearch(atom_list_23S)
     neighbors = {}
