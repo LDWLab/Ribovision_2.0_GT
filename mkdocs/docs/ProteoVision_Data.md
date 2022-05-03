@@ -1,10 +1,10 @@
 # ProteoVision Data
-## Phylogeny (SEREB)
-The subset of 179 species from the [SEREB](https://doi.org/10.1093/molbev/msy101) (Sparse and Efficient Representation of Extant Biology), 
+## Phylogeny (DESIRE)
+The subset of 179 species from the [DESIRE](https://doi.org/10.1093/molbev/msy101) (Sparse and Efficient Representation of Extant Biology), 
 database was organized into a phylogenetic browser using a tree topology from [NCBI](https://www.ncbi.nlm.nih.gov/taxonomy).
 
 ## Alignments 
-Each ribosomal protein has an associated MSA. First, an MSA reference was generated with [MATRAS](https://doi.org/10.1093/nar/gkg581) from multiple structure superimpositions. Then, amino acid sequences of species from the SEREB database were added to the reference alignment using [MAFFT](https://doi.org/10.1093/bioinformatics/bts578).
+Each ribosomal protein has an associated MSA. First, an MSA reference was generated with [MATRAS](https://doi.org/10.1093/nar/gkg581) from multiple structure superimpositions. Then, amino acid sequences of species from the DESIRE database were added to the reference alignment using [MAFFT](https://doi.org/10.1093/bioinformatics/bts578).
 
 ## 2D maps 
 Topologies of the protein secondary structures (Laskowski; [10.1093/nar/gkn860](https://dx.doi.org/10.1093%2Fnar%2Fgkn860)) were exported into PDB topology viewer using the [EMBL-EBI PDBe API](https://www.ebi.ac.uk/pdbe/api/doc/).

@@ -39,7 +39,7 @@
             </div>
             <p>
                 <select class="btn btn-outline-dark dropdown-toggle" id="select_protein_type" v-if="tax_id" v-model="protein_type_obj" v-on:change="loadData(tax_id, type_tree)">
-                    <option v-if="tax_id" :value="null" selected disabled hidden>Select a protein type</option>
+                    <option v-if="tax_id" :value="null" selected disabled hidden>Select RNA type</option>
                     <option v-if="tax_id" v-for="proteinType in proteinTypes" >{{ proteinType }}</option>
                 </select>
             </p>
