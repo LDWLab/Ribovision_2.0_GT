@@ -12,7 +12,7 @@ export function initialState (){
             {id: "4v6x", name: "4V6X H. sapiens"},
             ],
         availColorschemes: [
-            "buried","cinema","clustal","clustal2","helix","lesk","mae","strand","taylor","turn","zappo",
+            "nucleotide","purine_pyrimidine",
             ],
         available_properties: [
             {Name:"Shannon entropy", url:"static/alignments/svg/ShannonNA.svg"},
@@ -30,6 +30,7 @@ export function initialState (){
         entityID: null,
         fasta_data: null,
         fastaSeqNames: null,
+        sequence: null,
         colorScheme: 'clustal2',
         colorSchemeData: null,
         msavWillMount: null,
@@ -53,6 +54,7 @@ export function initialState (){
         checked_selection: false,
         checked_customMap: false,
         selected_property: null,
+        selectSections_proteins: null,
         csv_data: null,
         custom_headers: [],
         raiseCustomCSVWarn: null,

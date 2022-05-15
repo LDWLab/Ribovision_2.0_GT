@@ -17,7 +17,6 @@ def make_map_from_alnix_to_sequenceix_new(request):
     serializeData = request.session[struc_id]
     strucObj = parse_string_structure(request, serializeData, struc_id)
     seq_ix_mapping, struc_seq, gapsInStruc = constructStrucSeqMap(strucObj)
- 
     mapping = create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping)
     mapping["gapsInStruc"] = gapsInStruc
     if type(mapping) != dict:

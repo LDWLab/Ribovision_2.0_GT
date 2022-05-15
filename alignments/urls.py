@@ -8,7 +8,7 @@ app_name = 'alignments'
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path('favicon.ico', RedirectView.as_view(url=staticfiles_storage.url('img/favicon128.png'))),
+    path('favicon.ico', RedirectView.as_view(url=staticfiles_storage.url('img/faviconR.png'))),
     path('showTaxonomy', views.buildTaxonomy, name='showTaxonomy'),
     path('flush-session', views.flushSession, name='flushSession'),
     path('showStrucTaxonomy', views.buildFoldTaxonomy, name='showStrucTaxonomy'),
@@ -46,6 +46,7 @@ urlpatterns = [
     path('propensities/<str:align_name>/<int:tax_group>', views.propensities, name = 'propensities'),
     path('propensities/<str:align_name>/<str:tax_group>', views.propensities, name = 'propensities'),
     path('protein-contacts/<str:pdbid>/<str:chain_id>', views.protein_contacts, name = 'protein_contacts'),
+    path('r2dt/<str:sequence>/', views.r2dt, name = 'r2dt'),
     path('custom-struc-data/<str:strucID>', handleStructureRequests.handleCustomUploadStructure, name = 'custom_structure'),
     path('authEcodQuery', views.ecodPassThroughQuery, name = 'ecodQuery'),
     path('proOrigamiTopology/<str:topID>', handleStructureRequests.getTopology, name = 'proOrigamiTopology'),

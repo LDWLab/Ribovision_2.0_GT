@@ -3,7 +3,7 @@
         <div class="left-sidebar">
             <div id="tree_type" class="btn-group btn-group-toggle" data-toggle="buttons">
                 
-                <label class="btn btn-outline-dark" style="margin: 0 1% 0 0;width:50%;" for="orthologs" >
+                <label class="btn btn-outline-dark" style="margin: 0 1% 0 0;width:100%;" for="orthologs" >
                     <input type="radio" id="orthologs" value="orth" v-model="type_tree" v-on:input="cleanTreeOpts()" checked>
                     DESIRE
                 </label>
@@ -11,10 +11,11 @@
                     <input type="radio" id="paralogs" value="para" v-model="type_tree" v-on:input="cleanTreeOpts()">
                     Paralogs
                 </label>-->
-                <label class="btn btn-outline-dark" style="margin: 0 0 0 1%;width:50%;" for="upload">
+                <!--<label class="btn btn-outline-dark" style="margin: 0 0 0 1%;width:50%;" for="upload">
                     <input type="radio" id="upload" value="upload" v-model="type_tree" v-on:input="cleanTreeOpts()">
                     User upload
                 </label>
+                </label>-->
             </div>
             <div id="treeselect" v-if="type_tree=='para'|type_tree=='orth'">
             <treeselect ref="treeselect"
@@ -182,6 +183,7 @@
                     </select>
                     <select id="selectColorMappingProps" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="selected_property" v-if="msavWillMount">
                         <option :value="null" selected disabled>Select data</option>
+                        <option value="Select data">Clear data</option>
                         <option v-for="prop in available_properties" >{{ prop.Name }}</option>
                     </select>
                     <select id="selectAlnColorScheme" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="colorScheme" v-if="msavWillMount">
@@ -385,6 +387,7 @@
             }
             if (this.selected_property){
                 this.$nextTick(function(){
+                    console.log("topology")
                     recolorTopStar(this.selected_property);
                 });
             }
@@ -438,6 +441,7 @@
                 cleanSelection(false, true);
             }
             if (vm.selected_property){
+                console.log("vm.prop")
                 recolorTopStar(vm.selected_property);
             }
         },selected_domain: function (domainObj){
@@ -446,42 +450,48 @@
         },selected_property: function(name){
             if (this.uploadSession){return;}
             if (!name){return;}
-            if(!aaPropertyConstants.has(name)){return;}
             if(this.colorSchemeData){this.colorSchemeData = null;}
-            let min = Math.min(...aaPropertyConstants.get(name));
-            let max = Math.max(...aaPropertyConstants.get(name));
-            let colormapArray = aaColorData.get(name);
-            let propData = this.aa_properties.get(name);
-            var separatedData = [];
             var updatedBarColors = [];
-            if (this.aa_properties.has(name)){
-                propData.forEach(function(data, index){
-                    separatedData.push([index+1, Number(math.sum(data).toFixed(2))]);
-                })
-            } else if (name == 'TwinCons'){
-                separatedData = this.unmappedTWCdata;
-            } else {
-                //assume custom data
-                if (this.structure_mapping && window.custom_prop){
-                    var customProp = window.custom_prop.get(name);
-                    window.aaFreqs.forEach(function(aaFr, alnIx){
-                        var strucIx = vm.structure_mapping[alnIx+1];
-                        if (strucIx && customProp[strucIx-1]){
-                            customProp.forEach(function(customData){
-                                if (customData[0] == strucIx){
-                                    separatedData.push([alnIx+1, Number(customData[1])]);
-                                }
-                            });
-                        } else {
-                            separatedData.push([alnIx+1, NaN]);
-                        }
+            if(name == "Select data") {
+                window.aaFreqs.forEach(function(){
+                        updatedBarColors.push("#808080")
                     });
+            } else {
+                let min = Math.min(...aaPropertyConstants.get(name));
+                let max = Math.max(...aaPropertyConstants.get(name));
+                let colormapArray = aaColorData.get(name);
+                let propData = this.aa_properties.get(name);
+                var separatedData = [];
+                if (this.aa_properties.has(name)){
+                    propData.forEach(function(data, index){
+                        separatedData.push([index+1, Number(math.sum(data).toFixed(2))]);
+                    })
+                } else if (name == 'TwinCons'){
+                    separatedData = this.unmappedTWCdata;
+                } else {
+                    //assume custom data
+                    if (this.structure_mapping && window.custom_prop){
+                        var customProp = window.custom_prop.get(name);
+                        window.aaFreqs.forEach(function(aaFr, alnIx){
+                            var strucIx = vm.structure_mapping[alnIx+1];
+                            if (strucIx && customProp[strucIx-1]){
+                                customProp.forEach(function(customData){
+                                    if (customData[0] == strucIx){
+                                        separatedData.push([alnIx+1, Number(customData[1])]);
+                                    }
+                                });
+                            } else {
+                                separatedData.push([alnIx+1, NaN]);
+                            }
+                        });
+                    }
                 }
+                console.log(separatedData)
+                const [rgbMap, MappingData] = parsePVData(separatedData, min, max, colormapArray);
+                rgbMap.forEach(function (data){
+                    updatedBarColors.push(rgbToHex(...data[0]))
+                })
             }
-            const [rgbMap, MappingData] = parsePVData(separatedData, min, max, colormapArray);
-            rgbMap.forEach(function (data){
-                updatedBarColors.push(rgbToHex(...data[0]))
-            })
             window.barColors = updatedBarColors;
             var alnDiv = document.querySelector('#alnDiv');
             window.msaOptions.colorScheme = this.colorScheme;
@@ -657,8 +667,13 @@
             }
         },
         showContacts() {
-            
             viewerInstanceTop.viewInstance.uiTemplateService.colorMapContacts();  
+            showContactsHelper("" + this.entityID);
+        },
+        getR2DT(sequence) {
+            console.log("getR2DT")
+            var url = `r2dt/${sequence}`
+            ajax(url);
         },
         loadData (value, type_tree) {
             if (this.uploadSession){return;}
@@ -952,52 +967,37 @@
         }, calculateProteinContacts(pdbid, chainid) {
             var url = `protein-contacts/${pdbid}/${chainid}`
             ajax(url).then(data => {
-                vm.protein_contacts = data;
-                var newContactMap;
-                var filtered_chains = vm.protein_chains.filter(e => e.value in data);
+                if(data) {
+                    vm.protein_contacts = data;
+                    var newContactMap;
+                    var filtered_chains = vm.protein_chains.filter(e => e.value in data);
 
-                vm.protein_chains = filtered_chains;
-                var i = 1.0;
-                var colorMap = new Map();
-                var selectSections_proteins = new Map();
-                for (var val in vm.protein_contacts) {
-                    selectSections_proteins.set(val, [])
-                    var color = interpolateLinearly(i/filtered_chains.length, aaColorData.get("Protein contacts")[0])[0]
-                    var rgbColor = "rgb(" + color[0] + "," + color[1] + "," + color[2] + ")";
-                    colorMap.set(val, rgbColor);
-                    //newContactMap.set(vm.protein_contacts, aaColorData.get("Shannon entropy")[0][1]
-                    i = i+1;
-                    for (var j in vm.protein_contacts[val]) {
-                        selectSections_proteins.get(val).push({
-                            entity_id: this.entityID,
-                            start_residue_number: vm.protein_contacts[val][j], 
-                            end_residue_number: vm.protein_contacts[val][j],
-                            color: rgbColor,
-                            sideChain: false,
-                        });
-                    }
+                    vm.protein_chains = filtered_chains;
+                    var i = 1.0;
+                    var colorMap = new Map();
+                    vm.selectSections_proteins = new Map();
+                    for (var val in vm.protein_contacts) {
+                        vm.selectSections_proteins.set(val, [])
+                        var color = interpolateLinearly(i/filtered_chains.length, aaColorData.get("Protein contacts")[0])
+                        var rgbColor = "rgb(" + color[0][0] + "," + color[0][1] + "," + color[0][2] + ")";
+                        colorMap.set(val, rgbColor);
+                        //newContactMap.set(vm.protein_contacts, aaColorData.get("Shannon entropy")[0][1]
+                        i = i+1;
+                        for (var j in vm.protein_contacts[val]) {
+                            vm.selectSections_proteins.get(val).push({
+                                entity_id: "" + this.entityID,
+                                start_residue_number: vm.protein_contacts[val][j], 
+                                end_residue_number: vm.protein_contacts[val][j],
+                                color: color[1],
+                                sideChain: false,
+                            });
+                        }
+                    }                    
+                    vm.proteinColorMap = colorMap;
                 }
-                /*
-                console.log(selectSections_proteins);
-                window.viewerInstance.visual.select({
-                    data: selectSections_proteins.get("CX"), 
-                    nonSelectedColor: {r:255,g:255,b:255}
-                    }).catch(err => {
-                        console.log(err);
-                        vm.$nextTick(function(){
-                            window.viewerInstance.visual.select({
-                                data: selectSections_proteins.get("CX"), 
-                                nonSelectedColor: {r:255,g:255,b:255}
-                            })
-                        })
-                    })
-                */
-                vm.proteinColorMap = colorMap;
                 }).catch(error => {
                     console.log(error)
-                })
-
-                
+                })  
         },
         postStructureData(pdbid, chainid) {
             const topview_item = document.getElementById("topview");
