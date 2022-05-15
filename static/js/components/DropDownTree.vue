@@ -183,6 +183,7 @@
                     </select>
                     <select id="selectColorMappingProps" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="selected_property" v-if="msavWillMount">
                         <option :value="null" selected disabled>Select data</option>
+                        <option value="Select data">Clear data</option>
                         <option v-for="prop in available_properties" >{{ prop.Name }}</option>
                     </select>
                     <select id="selectAlnColorScheme" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="colorScheme" v-if="msavWillMount">
@@ -386,6 +387,7 @@
             }
             if (this.selected_property){
                 this.$nextTick(function(){
+                    console.log("topology")
                     recolorTopStar(this.selected_property);
                 });
             }
@@ -439,6 +441,7 @@
                 cleanSelection(false, true);
             }
             if (vm.selected_property){
+                console.log("vm.prop")
                 recolorTopStar(vm.selected_property);
             }
         },selected_domain: function (domainObj){
@@ -447,42 +450,48 @@
         },selected_property: function(name){
             if (this.uploadSession){return;}
             if (!name){return;}
-            if(!aaPropertyConstants.has(name)){return;}
             if(this.colorSchemeData){this.colorSchemeData = null;}
-            let min = Math.min(...aaPropertyConstants.get(name));
-            let max = Math.max(...aaPropertyConstants.get(name));
-            let colormapArray = aaColorData.get(name);
-            let propData = this.aa_properties.get(name);
-            var separatedData = [];
             var updatedBarColors = [];
-            if (this.aa_properties.has(name)){
-                propData.forEach(function(data, index){
-                    separatedData.push([index+1, Number(math.sum(data).toFixed(2))]);
-                })
-            } else if (name == 'TwinCons'){
-                separatedData = this.unmappedTWCdata;
-            } else {
-                //assume custom data
-                if (this.structure_mapping && window.custom_prop){
-                    var customProp = window.custom_prop.get(name);
-                    window.aaFreqs.forEach(function(aaFr, alnIx){
-                        var strucIx = vm.structure_mapping[alnIx+1];
-                        if (strucIx && customProp[strucIx-1]){
-                            customProp.forEach(function(customData){
-                                if (customData[0] == strucIx){
-                                    separatedData.push([alnIx+1, Number(customData[1])]);
-                                }
-                            });
-                        } else {
-                            separatedData.push([alnIx+1, NaN]);
-                        }
+            if(name == "Select data") {
+                window.aaFreqs.forEach(function(){
+                        updatedBarColors.push("#808080")
                     });
+            } else {
+                let min = Math.min(...aaPropertyConstants.get(name));
+                let max = Math.max(...aaPropertyConstants.get(name));
+                let colormapArray = aaColorData.get(name);
+                let propData = this.aa_properties.get(name);
+                var separatedData = [];
+                if (this.aa_properties.has(name)){
+                    propData.forEach(function(data, index){
+                        separatedData.push([index+1, Number(math.sum(data).toFixed(2))]);
+                    })
+                } else if (name == 'TwinCons'){
+                    separatedData = this.unmappedTWCdata;
+                } else {
+                    //assume custom data
+                    if (this.structure_mapping && window.custom_prop){
+                        var customProp = window.custom_prop.get(name);
+                        window.aaFreqs.forEach(function(aaFr, alnIx){
+                            var strucIx = vm.structure_mapping[alnIx+1];
+                            if (strucIx && customProp[strucIx-1]){
+                                customProp.forEach(function(customData){
+                                    if (customData[0] == strucIx){
+                                        separatedData.push([alnIx+1, Number(customData[1])]);
+                                    }
+                                });
+                            } else {
+                                separatedData.push([alnIx+1, NaN]);
+                            }
+                        });
+                    }
                 }
+                console.log(separatedData)
+                const [rgbMap, MappingData] = parsePVData(separatedData, min, max, colormapArray);
+                rgbMap.forEach(function (data){
+                    updatedBarColors.push(rgbToHex(...data[0]))
+                })
             }
-            const [rgbMap, MappingData] = parsePVData(separatedData, min, max, colormapArray);
-            rgbMap.forEach(function (data){
-                updatedBarColors.push(rgbToHex(...data[0]))
-            })
             window.barColors = updatedBarColors;
             var alnDiv = document.querySelector('#alnDiv');
             window.msaOptions.colorScheme = this.colorScheme;
