@@ -311,8 +311,10 @@ def proteinTypesDirect(request, concatenatedTaxIds):
             # results = Taxgroups.objects.raw(sql)
             for row in cursor.fetchall():
                 proteinTypesList.append(row[0])
-            results.append(proteinTypesList)
+            filteredList = [s for s in proteinTypesList if s[-3:] == 'RNA']
+            results.append(filteredList)
     context = {'results' : results}
+    print(results)
     return JsonResponse(context)
 
 def getAlignmentsFilterByProteinTypeAndTaxIds(request):
