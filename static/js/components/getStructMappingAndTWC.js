@@ -2,6 +2,7 @@ import {loadAlignmentViewer} from './loadAlignmentViewer.js'
 import {ajaxProper} from './ajaxProper.js'
 
 export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, ebi_sequence, vueObj){
+    vm.sequence = ebi_sequence;
     if (vm.fasta_data){
         let cleanFasta = vm.fasta_data.replace(/^>Structure sequence\n(.+\n)+?>/i, ">");
         vm.fasta_data = cleanFasta;

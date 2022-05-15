@@ -39,7 +39,7 @@ class PdbRnaViewerPlugin {
             }
 
         } else {
-            this.uiTemplateService.renderError('apiError');
+            (window as any).vm.getR2DT((window as any).vm.sequence)
         }
         
         document.addEventListener("PDB.molstar.mouseover", ((e: any) => {

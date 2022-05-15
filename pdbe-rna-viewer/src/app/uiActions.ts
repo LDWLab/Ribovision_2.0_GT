@@ -91,7 +91,7 @@ export class UiActionsService {
 
     static unSelectNucleotide(pdbId: string, entityId: string, label_seq_id: number, isUnobserved: boolean, event?: any, color?: string): void {
         event?.stopImmediatePropagation();
-        this.clearHighlight(pdbId);
+        UiActionsService.clearHighlight(pdbId);
         const ttEle = document.getElementById(`${pdbId}-rnaTopologyTooltip`);
         ttEle!.style.display = 'none';
 
@@ -102,7 +102,7 @@ export class UiActionsService {
             if(label_seq_id > -1) {
                 const evData = { pdbId, label_seq_id, entityId }
                 const textElement: any = document.querySelector(`.rnaview_${pdbId}_${label_seq_id}`);
-                CustomEvents.dispatchCustomEvent(this.pdbevents['PDB.RNA.viewer.mouseout'], evData, textElement);
+                CustomEvents.dispatchCustomEvent(UiActionsService.pdbevents['PDB.RNA.viewer.mouseout'], evData, textElement);
             }
         }
     }
@@ -200,17 +200,23 @@ export class UiActionsService {
         tooltip!.style.display = "block";
         tooltip!.style.left = evt.layerX + 'px';
         tooltip!.style.top = evt.layerY + 'px'; 
-        this.selectedBPColor = color;
-        this.fillBPColor = fill;
-        (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(path)[0].setAttribute("stroke","orange");
-        (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(path)[0].setAttribute("fill","orange");
+        UiActionsService.selectedBPColor = color;
+        UiActionsService.fillBPColor = fill;
+        let node = (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(path)[0]
+        if(node.nodeName != 'text') {
+            node.setAttribute("stroke", "orange");
+        } 
+        node.setAttribute("fill", "orange");
       }
       
     static hideTooltip(path: string) {
         var tooltip = document.getElementById("tooltip");
         tooltip!.style.display = "none";
-        (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(path)[0].setAttribute("stroke", `${this.selectedBPColor}`);
-        (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(path)[0].setAttribute("fill", `${this.fillBPColor}`);
+        let node = (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(path)[0]
+        if(node.nodeName != 'text') {
+            node.setAttribute("stroke", `${UiActionsService.selectedBPColor}`);
+        } 
+        node.setAttribute("fill", `${UiActionsService.fillBPColor}`);
     }
 
     static drawCircle(index: number, color: string, pdbId: string) {

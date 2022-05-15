@@ -13,7 +13,7 @@ export class UiTemplateService {
     private uiActionsService: UiActionsService;
     private apiData: ApiData | undefined;
     private locations: Map<any, number[]> = new Map();
-    menuStyle = 'position:relative;z-index:10;height:38px;width:500px;line-height:38px;background-color:#696969;padding: 0 10px;font-size:16px; color: #efefef;display:inline-block;';
+    menuStyle = 'position:relative;z-index:10;height:7%;width:500px;line-height:7%;background-color:#696969;padding: 0 10px;font-size:16px; color: #efefef;display:inline-block;';
     domainTypes: any[];
     selectedDomain: string;
     pathStrs: string[] = [];  
@@ -21,8 +21,12 @@ export class UiTemplateService {
     circleStrs: string[] = [];
     baseStrs: Map <string, [boolean, string[]]> = new Map();
     displayBaseStrs: string;
+    basePairIDs: any[] = [];
     mappingValue: string = '';
     showAllNucleotides: boolean = false;
+    mouseOverMap = new Map<string, any>()
+    eventMap = new Map<string, any>()
+    toolTips: Map<number, string> = new Map();
     defaultColours = {
         domainSelection: 'rgb(255,0,0)',
         mouseOver: 'rgb(105,105,105)',
@@ -51,12 +55,12 @@ export class UiTemplateService {
             ${this.actionButtons()}
         </div>
         <div style="${this.menuStyle}">
-                <div class="menuOptions" style="float:right;margin-right: 20px;display:inline-block;">
+                <div class="menuOptions" style="width:95%;float:center;display:inline-block;">
                     <form>
-                    <select class="menuSelectbox" style="margin-right: 10px; display: inline-block;"><option value="">Nucleotides</option></select>
-                    <select class="mappingSelectbox" style="margin-right: 10px; display: inline-block;"><option value="">Mapping</option></select>
+                    <select class="menuSelectbox" style="width:30%; display: inline-block; float: left;"><option value="">Nucleotides</option></select>
+                    <select class="mappingSelectbox" style="width:30%; display: inline-block; float: center;"><option value="">Mapping</option></select>
                     <div class="multiselect">
-                        <div class="selectBox" onclick="UiActionsService.showCheckboxes()" style="display:inline-block;">
+                        <div class="selectBox" onclick="UiActionsService.showCheckboxes()" style="display:inline-block;float:right;width:30%">
                             <select>
                                 <option>Base Pairings</option>
                             </select>
@@ -74,6 +78,8 @@ export class UiTemplateService {
         this.createModeDropdown()
         this.createBPDropdown()
         this.uiActionsService.applyButtonActions();
+        this.addEvents(apiData);
+        <any>document.querySelector(".saveSVG")!.addEventListener("click", this.saveSVG.bind(this));
         //this.getAnnotationFromRibovision(this.mapped_aa_properties)
         //this.rv3VUEcomponent.topology_loaded=true;
     }
@@ -140,12 +146,32 @@ export class UiTemplateService {
             }
         }
     }
+    colorMapHelper=() => {
+        var mappingDropdown = (<HTMLSelectElement>this.containerElement.querySelector<HTMLElement>('.mappingSelectbox'));
+        var num: number = +mappingDropdown.value;
+        (<HTMLInputElement>document.getElementById('selectColorMappingProps')).value=mappingDropdown!.options[num].text;
+        this.rv3VUEcomponent.selected_property = mappingDropdown!.options[num].text;
+    }
     colorMapContacts=() => {
         this.mapped_chains.forEach((val) => {  
             if(!this.rv3VUEcomponent.pchainid.includes(val)) {
                 for(var i in this.rv3VUEcomponent.protein_contacts[val]) {
                     UiActionsService.colorNucleotide(this.pluginOptions.pdbId, this.rv3VUEcomponent.protein_contacts[val][i], '#323232', undefined, this.mappingValue);
-                    var circle = (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(`circle_${this.pluginOptions.pdbId}_${this.rv3VUEcomponent.protein_contacts[val][i]}`)[0];
+                    var nPath = `rnaviewEle rnaviewEle_${this.pluginOptions.pdbId} rnaview_${this.pluginOptions.pdbId}_${this.rv3VUEcomponent.protein_contacts[val][i]}`
+                    var cPath = `circle_${this.pluginOptions.pdbId}_${this.rv3VUEcomponent.protein_contacts[val][i]}`
+                    if(document.getElementsByClassName(nPath).length > 0) {
+                        (<HTMLElement>document.getElementsByClassName(nPath)[0]).setAttribute('onmouseover', document.getElementsByClassName(nPath)[0].getAttribute('onmouseover')!.split(';')[0]);
+                        (<HTMLElement>document.getElementsByClassName(nPath)[0]).setAttribute('onmouseout', document.getElementsByClassName(nPath)[0].getAttribute('onmouseout')!.split(';')[0]);
+                        //document.getElementsByClassName(nPath)[0].removeEventListener('mouseover', this.mouseOverMap.get(nPath))
+                        //document.getElementsByClassName(nPath)[0].removeEventListener('mouseout',this.eventMap.get(nPath))
+                    }
+                    if(document.getElementsByClassName(cPath).length > 0) {
+                        (<HTMLElement>document.getElementsByClassName(cPath)[0]).setAttribute('onmouseover', document.getElementsByClassName(cPath)[0].getAttribute('onmouseover')!.split(';')[0]);
+                        (<HTMLElement>document.getElementsByClassName(cPath)[0]).setAttribute('onmouseout', document.getElementsByClassName(cPath)[0].getAttribute('onmouseout')!.split(';')[0]);
+                        //document.getElementsByClassName(cPath)[0].removeEventListener('mouseover', this.mouseOverMap.get(cPath))
+                        //document.getElementsByClassName(cPath)[0].removeEventListener('mouseout',this.eventMap.get(cPath))
+                    }
+                    var circle = (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(cPath)[0];
                     if(circle) {
                         circle.style.display="none";
                     } 
@@ -153,7 +179,6 @@ export class UiTemplateService {
                 this.mapped_chains.delete(val)
             }           
         });  
-
         for (let val in this.rv3VUEcomponent.pchainid) {
             var chain = this.rv3VUEcomponent.pchainid[val];
             for(var i in this.rv3VUEcomponent.protein_contacts[chain]) {
@@ -161,6 +186,7 @@ export class UiTemplateService {
             }
             this.mapped_chains.add(chain)
         }
+        this.addEvents(this.apiData!)
     }
     changeBP(val: string) {
         this.displayBaseStrs = '';
@@ -194,14 +220,23 @@ export class UiTemplateService {
     }
     createBPDropdown() {
         if(this.baseStrs.size > 0) {
-            let optionList = '<label for = "Checkbox_All"><input type="checkbox" id="Checkbox_All" />All</label>';
+            let optionList = '<table><tr><td><label for = "Checkbox_All"><input type="checkbox" id="Checkbox_All" /> All</label></td>';
+            var i = 1;
             this.baseStrs.forEach((value: [boolean, string[]], key: string) => {
-                if(key == 'cWW') {
-                    optionList = `${optionList}<label for = "Checkbox_${key}"><input type="checkbox" id="Checkbox_${key}" checked = true/>${key}</label>`;
-                } else {
-                    optionList = `${optionList}<label for = "Checkbox_${key}"><input type="checkbox" id="Checkbox_${key}"/>${key}</label>`;
+                if(i%2 == 0) {
+                    optionList = `${optionList}<tr>`
                 }
+                if(key == 'cWW') {
+                    optionList = `${optionList}<td><label for = "Checkbox_${key}"><input type="checkbox" id="Checkbox_${key}" checked = true/> ${key}</label></td>`;
+                } else {
+                    optionList = `${optionList}<td><label for = "Checkbox_${key}"><input type="checkbox" id="Checkbox_${key}"/> ${key}</label></td>`;
+                }
+                if(i%2 == 1) {
+                    optionList = `${optionList}</tr>`
+                }
+                i+=1
             });
+            optionList = `${optionList}</table>`
             const selectBoxEle = document.getElementById('checkboxes');
             selectBoxEle!.innerHTML = optionList;
             document.getElementById(`Checkbox_All`)?.addEventListener("change", this.changeBP.bind(this, "All"));
@@ -228,7 +263,7 @@ export class UiTemplateService {
 
             const selectBoxEle = this.containerElement.querySelector<HTMLElement>('.mappingSelectbox');
             selectBoxEle!.innerHTML = optionList;
-            selectBoxEle!.addEventListener("change", this.colorMap.bind(this));
+            selectBoxEle!.addEventListener("change", this.colorMapHelper.bind(this));
 
             //const resetIconEle = this.containerElement.querySelector('.resetIcon');
             //resetIconEle.addEventListener("click", this.resetDisplay.bind(this));
@@ -426,11 +461,117 @@ export class UiTemplateService {
         }
         this.colorMapContacts()
     }
+    private addEvents(apiData: ApiData) {
+        /*
+        const lastPathIndex = apiData.svg_paths.length - 1;
+        let strokeColor = this.pluginOptions.theme?.color || '#323232';
+        
+        apiData.svg_paths.forEach((pathStr: string, recordIndex: number) => {
+            let isUnobserved = false;
+            if(apiData.unobserved_label_seq_ids && apiData.unobserved_label_seq_ids.indexOf(apiData.label_seq_ids[recordIndex - 1]) > -1) {
+                strokeColor = this.pluginOptions.theme?.unobservedColor || '#ccc';
+                isUnobserved = true;
+            }
+            if(recordIndex === 0 || recordIndex === 1 || recordIndex === lastPathIndex + 1) return;
+            let classPath = `rnaviewEle rnaviewEle_${this.pluginOptions.pdbId} rnaview_${this.pluginOptions.pdbId}_${apiData.label_seq_ids[recordIndex - 1]}`
+            let circlePath = `circle_${this.pluginOptions.pdbId}_${apiData.label_seq_ids[recordIndex - 1]}`
+            document.getElementsByClassName(circlePath)[0].addEventListener('click', UiActionsService.selectNucleotide.bind(this, this.pluginOptions.pdbId, this.pluginOptions.entityId, apiData.label_seq_ids[recordIndex - 1]))
+            document.getElementsByClassName(circlePath)[0].addEventListener('mouseover', UiActionsService.selectNucleotide.bind(this, this.pluginOptions.pdbId, this.pluginOptions.entityId, apiData.label_seq_ids[recordIndex - 1], 'mouseover', isUnobserved, apiData.sequence[recordIndex - 2], undefined, this.pluginOptions.theme?.highlightColor ? "'"+this.pluginOptions.theme.highlightColor+"'" : undefined)) 
+            document.getElementsByClassName(circlePath)[0].addEventListener('mouseout', UiActionsService.unSelectNucleotide.bind(this, this.pluginOptions.pdbId, this.pluginOptions.entityId, apiData.label_seq_ids[recordIndex - 1], isUnobserved, undefined, strokeColor))
+
+            document.getElementsByClassName(classPath)[0].addEventListener('click', UiActionsService.selectNucleotide.bind(this, this.pluginOptions.pdbId, this.pluginOptions.entityId, apiData.label_seq_ids[recordIndex - 1]))
+            document.getElementsByClassName(classPath)[0].addEventListener('mouseover', UiActionsService.selectNucleotide.bind(this, this.pluginOptions.pdbId, this.pluginOptions.entityId, apiData.label_seq_ids[recordIndex - 1], 'mouseover', isUnobserved, apiData.sequence[recordIndex - 2], undefined, this.pluginOptions.theme?.highlightColor ? "'"+this.pluginOptions.theme.highlightColor+"'" : undefined)) 
+            document.getElementsByClassName(classPath)[0].addEventListener('mouseout', UiActionsService.unSelectNucleotide.bind(this, this.pluginOptions.pdbId, this.pluginOptions.entityId, apiData.label_seq_ids[recordIndex - 1], isUnobserved, undefined, strokeColor))
+        });
+        */
+        /*if(!whichEvents) {
+            for (let i in this.basePairIDs) {
+                let pathInfo = this.basePairIDs[i]
+                if(this.baseStrs.get(pathInfo[7])![0]) {
+                    document.getElementsByClassName(pathInfo[0])[0].addEventListener('mouseover', (e) =>  {UiActionsService.showTooltip(e, `${pathInfo[3]}${pathInfo[1]} - ${pathInfo[4]}${pathInfo[2]}; ${pathInfo[7]}`, pathInfo[0], pathInfo[6], pathInfo[5])})
+                    document.getElementsByClassName(pathInfo[0])[0].addEventListener('mouseout', UiActionsService.hideTooltip.bind(this, pathInfo[0]))
+                }
+            }
+        }*/ 
+            let contacts = new Map<number, string[]>()
+            this.mapped_chains.forEach((val) => {
+                //let tooltip = "Contacts: " + val;
+                for(var i in this.rv3VUEcomponent.protein_contacts[val]) {
+                    let path = `circle_${this.pluginOptions.pdbId}_${this.rv3VUEcomponent.protein_contacts[val][i]}`
+                    if(document.getElementsByClassName(path)[0]) {
+                        if(contacts.get(this.rv3VUEcomponent.protein_contacts[val][i])) {
+                            let newList:string[] = contacts.get(this.rv3VUEcomponent.protein_contacts[val][i])!
+                            newList.push(val)
+                            contacts.set(this.rv3VUEcomponent.protein_contacts[val][i], newList)
+                        } else {
+                            contacts.set(this.rv3VUEcomponent.protein_contacts[val][i], [val])
+                        }
+                        //document.getElementsByClassName(path)[0].addEventListener('mouseover', (e) =>  {UiActionsService.showTooltip(e, tooltip, path, this.rv3VUEcomponent.proteinColorMap.get(val), this.rv3VUEcomponent.proteinColorMap.get(val))})
+                        //document.getElementsByClassName(path)[0].addEventListener('mouseout', UiActionsService.hideTooltip.bind(this, path))
+                    }
+                }
+            });
+            contacts.forEach((value: string[], key: number) => {
+                let tooltip = "Contacts:"
+                let circlePath = `circle_${this.pluginOptions.pdbId}_${key}`
+                let path = `rnaviewEle rnaviewEle_${this.pluginOptions.pdbId} rnaview_${this.pluginOptions.pdbId}_${key}`
+                var chain = ''
+                for (let val in value) {
+                    tooltip += " " + value[val];
+                    chain = value[val];
+                }
+                this.toolTips.set(key, tooltip);
+                //this.mouseOverMap.set(circlePath, (e: Event) =>  {UiActionsService.showTooltip(e, tooltip, circlePath, this.rv3VUEcomponent.proteinColorMap.get(chain), this.rv3VUEcomponent.proteinColorMap.get(chain))})
+                //document.getElementsByClassName(circlePath)[0].addEventListener('mouseover', this.mouseOverMap.get(circlePath))
+                (<HTMLElement>document.getElementsByClassName(circlePath)[0]).setAttribute('onmouseover', document.getElementsByClassName(circlePath)[0].getAttribute('onmouseover')!.split(';')[0] + `;UiActionsService.showTooltip(evt, '${tooltip}', '${circlePath}', '${this.rv3VUEcomponent.proteinColorMap.get(chain)}', '${this.rv3VUEcomponent.proteinColorMap.get(chain)}')`);
+                //this.eventMap.set(path, UiActionsService.hideTooltip.bind(this, circlePath))
+                (<HTMLElement>document.getElementsByClassName(circlePath)[0]).setAttribute('onmouseout', document.getElementsByClassName(circlePath)[0].getAttribute('onmouseout')!.split(';')[0] + `;UiActionsService.hideTooltip('${circlePath}')`);
+                //document.getElementsByClassName(circlePath)[0].addEventListener('mouseout', this.eventMap.get(circlePath))
+                //this.mouseOverMap.set(path, (e: Event) =>  {UiActionsService.showTooltip(e, tooltip, path, this.rv3VUEcomponent.proteinColorMap.get(chain), this.rv3VUEcomponent.proteinColorMap.get(chain))})
+                //document.getElementsByClassName(path)[0].addEventListener('mouseover', this.mouseOverMap.get(path))
+                (<HTMLElement>document.getElementsByClassName(path)[0]).setAttribute('onmouseover', document.getElementsByClassName(path)[0].getAttribute('onmouseover')!.split(';')[0] + `;UiActionsService.showTooltip(evt, '${tooltip}', '${path}', '${this.rv3VUEcomponent.proteinColorMap.get(chain)}', '${this.rv3VUEcomponent.proteinColorMap.get(chain)}')`);
+                //this.eventMap.set(path, UiActionsService.hideTooltip.bind(this, path))
+                //document.getElementsByClassName(path)[0].addEventListener('mouseout', this.eventMap.get(path))
+                (<HTMLElement>document.getElementsByClassName(path)[0]).setAttribute('onmouseout', document.getElementsByClassName(path)[0].getAttribute('onmouseout')!.split(';')[0] + `;UiActionsService.hideTooltip('${path}')`);
+
+            });
+    }
+
+    private removeEventHandlers(svgData: any) {
+        var nodeList = svgData.childNodes[1].childNodes
+        for (let i in nodeList) {
+            var el = nodeList[i];
+            if(el.attributes) {
+                var attributes = [].slice.call(el!.attributes);  
+
+                for (let i = 0; i < attributes.length; i++){
+                    var att= attributes[i].name; 
+                    if(att.indexOf("on")===0){
+                        el!.attributes.removeNamedItem(att);             
+                    }     
+                } 
+            }
+        }
+        return svgData
+    }
+
     private svgTemplate(apiData: ApiData, FR3DData: any): string { 
         const font_size:number = this.calculateFontSize(apiData)
         const lastPathIndex = apiData.svg_paths.length - 1;
+        var locations2: Map<any, number[]> = new Map();
         apiData.svg_paths.forEach((pathStr: string, recordIndex: number) => {
-
+            if(recordIndex === 0 || recordIndex === 1 || recordIndex === lastPathIndex + 1) return;
+            let pathStrParsed:string[] = pathStr.split('M').join(',').split(',')
+            let x1Val: number = Number(pathStrParsed[1]) 
+            let y1Val: number = Number(pathStrParsed[2]) 
+            let xVal:number = Number(pathStrParsed[3]) 
+            let yVal:number = Number(pathStrParsed[4])
+            let midX = (xVal + x1Val)/2;
+            let midY = (yVal + y1Val)/2;
+            locations2.set(apiData.label_seq_ids[recordIndex - 1], [midX, midY])
+            this.locations.set(apiData.label_seq_ids[recordIndex - 1], [xVal, yVal])
+        });
+        apiData.svg_paths.forEach((pathStr: string, recordIndex: number) => {
             if(recordIndex === 0 || recordIndex === 1 || recordIndex === (lastPathIndex + 1)) return;
             const pathEleClass = `rnaviewEle rnaviewEle_${this.pluginOptions.pdbId} rnaview_${this.pluginOptions.pdbId}_${apiData.label_seq_ids[recordIndex - 1]}`;
             let strokeColor = this.pluginOptions.theme?.color || '#323232';
@@ -441,37 +582,55 @@ export class UiTemplateService {
                 isUnobserved = true;
             }
             let pathStrParsed:string[] = pathStr.split('M').join(',').split(',')
-            let x1Val: number = Number(pathStrParsed[1]) 
-            let y1Val: number = Number(pathStrParsed[2]) 
-            //let xVal:number = (Number(pathStrParsed[1])+Number(pathStrParsed[3]))/2 
             let xVal:number = Number(pathStrParsed[3]) 
-            //let yVal:number = (Number(pathStrParsed[2])+Number(pathStrParsed[4]))/2 
             let yVal:number = Number(pathStrParsed[4])
             let deltaX: number = font_size/2
             let deltaY: number = font_size/2
-            let newPathStr = `M${x1Val + deltaX},${y1Val - deltaY},${xVal + deltaX},${yVal - deltaY}` 
+            let newPathStr
+            if (recordIndex < (lastPathIndex)) {
+                let newX: number = locations2.get(apiData.label_seq_ids[recordIndex - 1])![0]
+                let newX2: number = locations2.get(apiData.label_seq_ids[recordIndex])![0]
+                let newY: number = locations2.get(apiData.label_seq_ids[recordIndex - 1])![1] 
+                let newY2: number = locations2.get(apiData.label_seq_ids[recordIndex])![1]
+                newPathStr = `M${newX + deltaX},${newY - deltaY},${newX2 + deltaX},${newY2 - deltaY}`
+            } else {
+                let newX: number = locations2.get(apiData.label_seq_ids[recordIndex - 1])![0]
+                let newY: number = locations2.get(apiData.label_seq_ids[recordIndex - 1])![1] 
+                let newX2: number = 2 * xVal - newX 
+                let newY2: number = 2 * yVal - newY
+                newPathStr = `M${newX + deltaX},${newY - deltaY},${newX2 + deltaX},${newY2 - deltaY}`
+            }
             pathStr = newPathStr;
-            this.locations.set(apiData.label_seq_ids[recordIndex - 1], [xVal, yVal])
-            /*pathStrs.push(`<text href="#${pathEleClass}" class="${pathEleClass}" x="${xVal}" y="${yVal}" font-size = "${font_size}px" onclick="UiActionsService.selectPath(event, '${this.pluginOptions.pdbId}', ${apiData.label_seq_ids[recordIndex - 1]}, '${apiData.sequence[recordIndex - 2]}', 'click', ${isUnobserved}, ${this.pluginOptions.theme?.highlightColor ? "'"+this.pluginOptions.theme.highlightColor+"'" : undefined})" 
-            onmouseover="UiActionsService.selectPath(event, '${this.pluginOptions.pdbId}', ${apiData.label_seq_ids[recordIndex - 1]}, '${apiData.sequence[recordIndex - 2]}', 'mouseover', ${isUnobserved}, ${this.pluginOptions.theme?.highlightColor ? "'"+this.pluginOptions.theme.highlightColor+"'" : undefined})" 
-            onmouseout="UiActionsService.unSelectPath(event, '${this.pluginOptions.pdbId}', ${apiData.label_seq_ids[recordIndex - 1]}, ${isUnobserved}, '${strokeColor}')">${apiData.sequence[recordIndex - 2]}</text>`)
-        });*/
+
         this.pathStrs.push(
             `<path 
-                class="${pathEleClass}" stroke-width="${strokeWide}" stroke="${strokeColor}" d="${pathStr}" 
+                class="${pathEleClass}" stroke-width="${strokeWide}" stroke="${strokeColor}" d="${newPathStr}" 
                 data-stroke-color="${strokeColor}" 
-                onclick="UiActionsService.selectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}', 'click', ${isUnobserved}, '${apiData.sequence[recordIndex - 2]}, event, ${this.pluginOptions.theme?.highlightColor ? "'"+this.pluginOptions.theme.highlightColor+"'" : undefined})" 
+                onclick="UiActionsService.selectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}', 'click', ${isUnobserved}, '${apiData.sequence[recordIndex - 2]}', event, ${this.pluginOptions.theme?.highlightColor ? "'"+this.pluginOptions.theme.highlightColor+"'" : undefined})" 
                 onmouseover="UiActionsService.selectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, 'mouseover', ${isUnobserved}, '${apiData.sequence[recordIndex - 2]}', event, ${this.pluginOptions.theme?.highlightColor ? "'"+this.pluginOptions.theme.highlightColor+"'" : undefined})" 
                 onmouseout="UiActionsService.unSelectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, ${isUnobserved}, event, '${strokeColor}')">
             </path>`)
+        
+        /*this.pathStrs.push(
+            `<path 
+                class="${pathEleClass}" stroke-width="${strokeWide}" stroke="${strokeColor}" d="${newPathStr}" 
+                data-stroke-color="${strokeColor}">
+            </path>`)
+        */
         this.circleStrs.push(
-            `<circle class="circle_${this.pluginOptions.pdbId}_${apiData.label_seq_ids[recordIndex - 1]}" cx="${xVal}" cy="${yVal}" r="${font_size}" display="none" alignment-baseline="middle" stroke-width="${font_size/6}" onclick="UiActionsService.selectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, 'click', ${isUnobserved}, '${apiData.sequence[recordIndex - 2]}', event, ${this.pluginOptions.theme?.highlightColor ? "'"+this.pluginOptions.theme.highlightColor+"'" : undefined})" 
+            `<circle class="circle_${this.pluginOptions.pdbId}_${apiData.label_seq_ids[recordIndex - 1]}" cx="${xVal + deltaX}" cy="${yVal - deltaY}" r="${2 * font_size/3}" display="none" alignment-baseline="middle" stroke-width="${font_size/6}" onclick="UiActionsService.selectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, 'click', ${isUnobserved}, '${apiData.sequence[recordIndex - 2]}', event, ${this.pluginOptions.theme?.highlightColor ? "'"+this.pluginOptions.theme.highlightColor+"'" : undefined})" 
             onmouseover="UiActionsService.selectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, 'mouseover', ${isUnobserved}, '${apiData.sequence[recordIndex - 2]}', event, ${this.pluginOptions.theme?.highlightColor ? "'"+this.pluginOptions.theme.highlightColor+"'" : undefined})" 
             onmouseout="UiActionsService.unSelectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, ${isUnobserved}, event, '${strokeColor}')"/>`)
+        /*this.circleStrs.push(
+            `<circle class="circle_${this.pluginOptions.pdbId}_${apiData.label_seq_ids[recordIndex - 1]}" cx="${xVal + deltaX}" cy="${yVal - deltaY}" r="${2 * font_size/3}" display="none" alignment-baseline="middle" stroke-width="${font_size/6}"/>`)
+        this.nucleotideStrs.push(
+            `<text href="#${pathEleClass}" class="${pathEleClass}" x="${xVal}" y="${yVal}" font-size = "${font_size}px" >${apiData.sequence[recordIndex - 2]}</text>`)*/
+            
         this.nucleotideStrs.push(
             `<text href="#${pathEleClass}" class="${pathEleClass}" x="${xVal}" y="${yVal}" font-size = "${font_size}px" onclick="UiActionsService.selectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, 'click', ${isUnobserved}, '${apiData.sequence[recordIndex - 2]}', event, ${this.pluginOptions.theme?.highlightColor ? "'"+this.pluginOptions.theme.highlightColor+"'" : undefined})" 
             onmouseover="UiActionsService.selectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, 'mouseover', ${isUnobserved}, '${apiData.sequence[recordIndex - 2]}', event, ${this.pluginOptions.theme?.highlightColor ? "'"+this.pluginOptions.theme.highlightColor+"'" : undefined})" 
             onmouseout="UiActionsService.unSelectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, ${isUnobserved}, event, '${strokeColor}')">${apiData.sequence[recordIndex - 2]}</text>`)
+        
         });
 
         let baseArray = FR3DData.annotations;
@@ -495,7 +654,7 @@ export class UiTemplateService {
             let end:number = +baseStr.seq_id2
             if(baseStr && start && end) {
                 let type:string = baseStr.bp
-                let pathID:string = `rnaviewBP rnaviewBP_${this.pluginOptions.pdbId}_${this.pluginOptions.chainId} ${type}_${start}_${end}`
+                let pathID:string = `rnaviewBP_rnaviewBP_${this.pluginOptions.pdbId}_${this.pluginOptions.chainId}_${type}_${start}_${end}`
                 let n1: string = baseStr.nt1
                 let n2: string = baseStr.nt2
                 let x1 = this.locations.get(start)![0] + font_size/2.5
@@ -523,24 +682,27 @@ export class UiTemplateService {
                     var phi = 0
                 }
                 if(type == 'cWW'){
+                    stroke = '#000'
+                    fill = '#000'
                     if(n1 == 'G' && n2 == 'U' || n1 == 'U' && n2 == 'G') {
-                        this.baseStrs.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${type} Base Pair ${n1}${start} - ${n2}${end}', '${pathID}', '#000', '#000');" onmouseout="UiActionsService.hideTooltip('${pathID}');"
+                        this.baseStrs.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${n1}${start} - ${n2}${end}; ${type}', '${pathID}', '${stroke}', '${fill}');" onmouseout="UiActionsService.hideTooltip('${pathID}');"
                         d="
                         M ${(x1_prime + x2_prime)/2 - font_size/4}, ${(y1_prime+y2_prime)/2}
                         a ${font_size/4},${font_size/4} 0 1,0 ${font_size/2},0
                         a ${font_size/4},${font_size/4} 0 1,0 ${-1 * font_size/2},0
                         "
-                        stroke="#000" stroke-width="${font_size/6} fill="${fill}"
+                        stroke="#000" stroke-width="${font_size/6}" fill="${fill}"
                     />`)
                     } else{
-                    this.baseStrs.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt,  '${type} Base Pair ${n1}${start} - ${n2}${end}', '${pathID}', '#000', '#000');" onmouseout="UiActionsService.hideTooltip('${pathID}');" stroke-width="${font_size/6}" data-stroke-color="#000" stroke="#000" d="M${x1_prime} ${y1_prime} ${x2_prime} ${y2_prime}"></path>`)
+                    this.baseStrs.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${n1}${start} - ${n2}${end}; ${type}', '${pathID}', '${stroke}', '${fill}');" onmouseout="UiActionsService.hideTooltip('${pathID}');"
+                    stroke-width="${font_size/6}" data-stroke-color="#000" stroke="#000" d="M${x1_prime} ${y1_prime} ${x2_prime} ${y2_prime}"></path>`)
                     } 
                 } else if (type == 'tWW') {
                     let xm1 = UiTemplateService.linearlyInterpolate(x1_prime, (x1_prime + x2_prime)/2, 1-(font_size/3)/(distance/2))
                     let ym1 = UiTemplateService.linearlyInterpolate(y1_prime, (y1_prime + y2_prime)/2, 1-(font_size/3)/(distance/2))
                     let xm2 = UiTemplateService.linearlyInterpolate((x1_prime + x2_prime)/2, x2_prime, (font_size/3)/(distance/2))
                     let ym2 = UiTemplateService.linearlyInterpolate((y1_prime + y2_prime)/2, y2_prime, (font_size/3)/(distance/2))
-                    this.baseStrs.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${type} Base Pair ${n1}${start} - ${n2}${end}', '${pathID}', '${stroke}', '${fill}');" onmouseout="UiActionsService.hideTooltip('${pathID}');"
+                    this.baseStrs.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${n1}${start} - ${n2}${end}; ${type}', '${pathID}', '${stroke}', '${fill}');" onmouseout="UiActionsService.hideTooltip('${pathID}');"
                         d="
                         M ${x1_prime} ${y1_prime} ${xm1} ${ym1}
                         M ${(x1_prime + x2_prime)/2 - font_size/3} ${(y1_prime + y2_prime)/2}
@@ -548,10 +710,10 @@ export class UiTemplateService {
                         a ${font_size/3},${font_size/3} 0 1,0 ${-1 * font_size/1.5},0
                         M ${xm2} ${ym2} ${x2_prime} ${y2_prime}
                         "
-                        stroke="${stroke}" stroke-width="${font_size/6}" fill = "${fill}"/>`
+                        stroke="${stroke}" stroke-width="${font_size/6}" fill="${fill}"/>`
                     )
                 } else if (type == 'cSS'||type == 'tSS') {
-                    this.baseStrs.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${type} Base Pair ${n1}${start} - ${n2}${end}', '${pathID}', '${stroke}', '${fill}');" onmouseout="UiActionsService.hideTooltip('${pathID}');"
+                    this.baseStrs.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${n1}${start} - ${n2}${end}; ${type}', '${pathID}', '${stroke}', '${fill}');" onmouseout="UiActionsService.hideTooltip('${pathID}');"
                     d="
                     M ${xm} ${ym+distance2/2} ${xm} ${ym+height/2} 
                     l ${height/2} 0
@@ -559,9 +721,9 @@ export class UiTemplateService {
                     l -${height/2} ${height}
                     l ${height/2} 0
                     M ${xm} ${ym - height/2} ${xm} ${ym - distance2/2}
-                    "stroke="${stroke}" stroke-width="${font_size/6}" fill = "${fill}" transform = "rotate(${phi} ${xm} ${ym})"/>`)
+                    "stroke="${stroke}" stroke-width="${font_size/6}" fill=${fill} transform="rotate(${phi} ${xm} ${ym})"/>`)
                 } else if (type == 'tHS'|| type == 'cHS') {
-                    this.baseStrs.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${type} Base Pair ${n1}${start} - ${n2}${end}', '${pathID}', '${stroke}', '${fill}');" onmouseout="UiActionsService.hideTooltip('${pathID}');"
+                    this.baseStrs.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${n1}${start} - ${n2}${end}; ${type}', '${pathID}', '${stroke}', '${fill}');" onmouseout="UiActionsService.hideTooltip('${pathID}');"
                     d="
                     M ${xm} ${ym+distance2/2} ${xm} ${ym + height + height/4} 
                     h -${height/2}
@@ -575,9 +737,9 @@ export class UiTemplateService {
                     l -${height/2} ${height}
                     l ${height/2} 0
                     M ${xm} ${ym - height - height/4} ${xm} ${ym - distance2/2}
-                    "stroke="${stroke}" stroke-width="${font_size/6}" fill = "${fill}" transform = "rotate(${phi} ${xm} ${ym})"/>`)
+                    "stroke="${stroke}" stroke-width="${font_size/6}" fill=${fill} transform="rotate(${phi} ${xm} ${ym})"/>`)
                 } else if (type == 'tWS' || type == 'cWS') {
-                    this.baseStrs.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${type} Base Pair ${n1}${start} - ${n2}${end}', '${pathID}', '${stroke}', '${fill}');" onmouseout="UiActionsService.hideTooltip('${pathID}');"
+                    this.baseStrs.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${n1}${start} - ${n2}${end}; ${type}', '${pathID}', '${stroke}', '${fill}');" onmouseout="UiActionsService.hideTooltip('${pathID}');"
                     d="
                     M ${xm} ${ym+distance2/2} ${xm} ${ym + height + height/4} 
                     M ${xm - height/2} ${ym + 3*height/4} 
@@ -589,9 +751,9 @@ export class UiTemplateService {
                     l -${height/2} ${height}
                     l ${height/2} 0
                     M ${xm} ${ym - height - height/4} ${xm} ${ym - distance2/2}
-                    "stroke="${stroke}" stroke-width="${font_size/6}" fill = "${fill}" transform = "rotate(${phi} ${xm} ${ym})"/>`)
+                    "stroke="${stroke}" stroke-width="${font_size/6}" fill=${fill} transform="rotate(${phi} ${xm} ${ym})"/>`)
                 } else if (type == 'tWH' || type == 'cWH') {
-                    this.baseStrs.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${type} Base Pair ${n1}${start} - ${n2}${end}', '${pathID}', '${stroke}', '${fill}');" onmouseout="UiActionsService.hideTooltip('${pathID}');"
+                    this.baseStrs.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${n1}${start} - ${n2}${end}; ${type}', '${pathID}', '${stroke}', '${fill}');" onmouseout="UiActionsService.hideTooltip('${pathID}');"
                     d="
                     M ${xm} ${ym+distance2/2} ${xm} ${ym + height + height/4} 
                     M ${xm - height/2} ${ym + 3*height/4} 
@@ -604,10 +766,11 @@ export class UiTemplateService {
                     v ${height}
                     h -${height/2}
                     M ${xm} ${ym - height - height/4} ${xm} ${ym - distance2/2}
-                    "stroke="${stroke}" stroke-width="${font_size/6}" fill = "${fill}" transform = "rotate(${phi} ${xm} ${ym})"/>`)
+                    "stroke="${stroke}" stroke-width="${font_size/6}" fill=${fill} transform="rotate(${phi} ${xm} ${ym})"/>`)
+                    //this.basePairIDs.push([pathID,start,end,n1,n2,fill,stroke,type])
                 }
                 else if (type == 'tHH' || type == 'cHH' ) {
-                    this.baseStrs.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${type} Base Pair ${n1}${start} - ${n2}${end}', '${pathID}', '${stroke}', '${fill}');" onmouseout="UiActionsService.hideTooltip('${pathID}');"
+                    this.baseStrs.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${n1}${start} - ${n2}${end}; ${type}', '${pathID}', '${stroke}', '${fill}');" onmouseout="UiActionsService.hideTooltip('${pathID}');"
                     d="
                     M ${xm} ${ym+distance2/2} ${xm} ${ym+height/2} 
                     h -${height/2}
@@ -616,7 +779,7 @@ export class UiTemplateService {
                     v ${height}
                     h -${height/2}
                     M ${xm} ${ym - height/2} ${xm} ${ym - distance2/2}
-                    "stroke="${stroke}" stroke-width="${font_size/6}" fill = "${fill}" transform = "rotate(${phi} ${xm} ${ym})"/>`)
+                    "stroke="${stroke}" stroke-width="${font_size/6}" fill=${fill} transform="rotate(${phi} ${xm} ${ym})"/>`)
                 }
             }
         });
@@ -662,6 +825,9 @@ export class UiTemplateService {
 
     private actionButtons(): string {
         return  `<div class="pdb-rna-view-btn-group">
+            <span class="pdb-rna-view-btn" title="Zoom-in" id="rnaTopologySaveSVG-${this.pluginOptions.pdbId}">
+                <img class="saveSVG" src="static/alignments/png/Save.png" style="height:24px; width: 24px; border:0;position: relative;cursor:pointer;" title="saveSVG"/>
+            </span>
             <span class="pdb-rna-view-btn" title="Zoom-in" id="rnaTopologyZoomIn-${this.pluginOptions.pdbId}">
                 <svg style="width:24px;height:24px" viewBox="0 0 24 24">
                     <path fill="currentColor" d="M15.5,14L20.5,19L19,20.5L14,15.5V14.71L13.73,14.43C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.43,13.73L14.71,14H15.5M9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14M12,10H10V12H9V10H7V9H9V7H10V9H12V10Z" />
@@ -692,4 +858,33 @@ export class UiTemplateService {
 
         this.containerElement.innerHTML = `<div class="pdb-rna-view-container">${errorContent}</div>`;
     }
+    saveSVG(){
+        function getNode(n: any, v?: any) {
+		  n = document.createElementNS("http://www.w3.org/2000/svg", n);
+		   for (var p in v) 
+		   n.setAttributeNS(null, p.replace(/[0-9]/g,'o').replace(/\$/g,'d').replace(/\[/g,'b').replace(/[A-Z]/g, function(m, p, o, s) { return "-" + m.toLowerCase(); }), v[p]);
+		  return n
+		}
+
+      var svgData1=<SVGSVGElement>document.querySelector(`svg.rnaTopoSvg`)
+      let svgData_forsave = svgData1!.cloneNode(true);
+      svgData_forsave = this.removeEventHandlers(svgData_forsave)
+      var svg = getNode("svg");
+      svg.appendChild(svgData_forsave);
+     function saveSvg1(svgEl: any, name: any) {
+          svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+          var svgData = svgEl.outerHTML;
+          var preface = '<?xml version="1.0" standalone="no"?>\r\n';
+          var svgBlob = new Blob([preface, svgData], {type:"image/svg+xml;charset=utf-8"});
+          var svgUrl = URL.createObjectURL(svgBlob);
+          var downloadLink = document.createElement("a");
+          downloadLink.href = svgUrl;
+          downloadLink.download = name;
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+          document.body.removeChild(downloadLink);
+      }
+        saveSvg1(svg, 'rv3Topology.svg')
+  }
+
 }

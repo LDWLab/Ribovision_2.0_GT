@@ -21,6 +21,7 @@ import alignments.alignment_query_and_build as aqab
 from TwinCons.bin.TwinCons import slice_by_name
 from django.db import connection
 import time
+from xml.dom import minidom
 
 class c:
     structureObj = None
@@ -813,4 +814,44 @@ def protein_contacts(request, pdbid, chain_id):
             if len(neighbors_L2_all) > 0:
                 neighbors[chain.id] = list(neighbors_L2_all)
     return JsonResponse(neighbors)
+def r2dt(request, sequence):
+    import os
+    cwd = os.getcwd()
     
+    RIBODIR=os.environ['RIBODIR']
+    #RIBOINFERNALDIR="$RNA/infernal-1.1.2/bin" RIBOEASELDIR="$RNA/infernal-1.1.2/bin" &&
+#export EPNOPTDIR="$RNA/epn-options" EPNOFILEDIR="$RNA/epn-ofile" EPNTESTDIR="$RNA/epn-test" &&
+#export RIBOTIMEDIR="/usr/bin" &&
+#export BIOEASELDIR="$RNA/Bio-Easel/blib/lib:$RNA/Bio-Easel/blib/arch:$RNA/Bio-Easel:$RNA/Bio-Easel/lib" &&
+#export PERL5LIB="$BIOEASELDIR:$RIBODIR:$EPNOPTDIR:$EPNOFILEDIR:$EPNTESTDIR:$PERL5LIB" &&
+#export LC_ALL="C.UTF-8" LANG="C.UTF-8" &&
+#export PATH="$RNA/traveler/bin:$RIBODIR:$RIBOINFERNALDIR:$PATH" &&
+#export PATH="/rna/rscape/bin:$PATH" &&
+#export PATH="/rna/jiffy-infernal-hmmer-scripts:$PATH" &&
+#export PATH="/rna/RNAstructure/exe:$PATH" DATAPATH="/rna/RNAstructure/data_tables/" &&
+#export PATH="/rna/r2dt:$PATH"
+    print(RIBODIR)
+    os.chdir('/rna/r2dt')
+    newcwd = os.getcwd()
+    with open('sequence.fasta', 'w') as f:
+        f.write('>Sequence\n')
+        f.write(sequence)
+    output = '/home/hmccann3/Ribovision_3/R2DT-test3'
+    cmd = f'python3 r2dt.py draw {newcwd}/sequence.fasta {output}'
+    print(cmd)
+    os.system(cmd)
+    os.chdir(cwd)
+    print("Success R2DT")
+    filename = ''
+    for topdir, dirs, files in os.walk(f'{output}/results/svg'):
+        firstfile = sorted(files)[0]
+        filename = os.path.join(topdir, firstfile)
+    cmd = f'python3 svg2json.py test_model_chain {filename} {output}/jsonexample'
+    os.cmd()
+    with open(f'{output}/jsonexample', 'r') as f:
+        print(f.read())
+        data = json.loads(f.read())
+    #doc = minidom.parse(filename)
+    #path_strings = [path.getAttribute('d') for path
+    #            in doc.getElementsByTagName('text')]
+    return data

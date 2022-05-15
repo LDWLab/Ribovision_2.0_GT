@@ -264,7 +264,7 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
             {id: "4v6u", name: "4V6U P. furiosus"},
             {id: "4v6x", name: "4V6X H. sapiens"},
         ];
-        vueObj.colorScheme = 'clustal2';
+        vueObj.colorScheme = 'nucleotide';
         vueObj.fetchUNtruncatedAln = false;
         vueObj.cdHITReport = false;
         vueObj.aaPos = 0;
@@ -643,16 +643,43 @@ var drawCircle = function (pdbId, i, color){
     circle.setAttribute("fill", `${color}`);
     circle.style.display = "block";
 }
+var showContactsHelper = function(entityid) {
+    var protein_data = new Map();
+    protein_data.set("contacts", [])
+    protein_data.get("contacts").push({entity_id: entityid, focus: true})
+    for (let val in vm.pchainid) {
+        var chain = vm.pchainid[val];
+        for (let entry in vm.selectSections_proteins.get(chain)) {
+            protein_data.get("contacts").push(vm.selectSections_proteins.get(chain)[entry])
+        }
+    }
+    /*window.viewerInstance.visual.select({
+        data: [],
+        nonSelectedColor: {r:255,g:255,b:255}
+    })*/
+    const mapSort1 = protein_data.get("contacts").sort((a, b) => a.start_residue_number - b.start_residue_number);
+    viewerInstance.visual.select({
+        data: mapSort1, 
+        nonSelectedColor: {r:255,g:255,b:255}
+        }).catch(err => {
+            console.log(err);
+            vm.$nextTick(function(){
+                viewerInstance.visual.select({
+                    data: mapSort1,
+                    nonSelectedColor: {r:255,g:255,b:255}
+                })
+            })
+        })
+}
 var recolorTopStar = function (name){
     var selectBox = viewerInstanceTop.viewInstance.targetEle.querySelector('.mappingSelectbox');
-    if (selectBox[selectBox.selectedIndex].text == name) {return;}
     var newIndex = indexMatchingText(selectBox.options, name);
-    var selectedDomain = viewerInstanceTop.viewInstance.uiTemplateService.domainTypes[newIndex];
+    //var selectedDomain = viewerInstanceTop.viewInstance.uiTemplateService.domainTypes[newIndex];
     selectBox.selectedIndex = newIndex; 
     viewerInstanceTop.viewInstance.uiTemplateService.colorMap(); 
     viewerInstance.visual.select({
-       data: selectSections_RV1.get(name), 
-       nonSelectedColor: {r:255,g:255,b:255}
+        data: selectSections_RV1.get(name), 
+        nonSelectedColor: {r:255,g:255,b:255}
     }).catch(err => {
         console.log(err);
         vm.$nextTick(function(){

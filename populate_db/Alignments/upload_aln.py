@@ -133,6 +133,7 @@ def increment_by_range(sequence, increment_range):
     seq_pos = 0
     seq_order = list()
     resi_mapping=[]
+    print(increment_range)
     for one_range in increment_range:
         for ix in range(one_range[0], one_range[1]+1):
             seq_order.append(ix)
@@ -151,9 +152,14 @@ def create_aln_mapping(entry):
     '''
     sequence = entry.seq
     increment_ranges = list()
-    if len(entry.id.split("_")) == 3:
+    #if len(entry.id.split("_")) == 4:
+    if len(entry.id.split("_")) == 3 or (len(entry.id.split("_")) == 4 and entry.id.split("|")[1].split('_')[0] == "NR"):
         increment_ranges.append((1,len(str(sequence).replace("-",""))))
-    if len(entry.id.split("_")) > 3:
+    if len(entry.id.split("_")) > 4 and entry.id.split("|")[1].split('_')[0] == "NR":
+        string_ranges = re.sub(r'\/.*','', entry.id.split("_")[4])
+        for one_range in string_ranges.split(","):
+            increment_ranges.append((int(one_range.split('-')[0]), int(one_range.split('-')[1])))
+    elif len(entry.id.split("_")) > 3 and entry.id.split("|")[1].split('_')[0] != "NR":
         string_ranges = re.sub(r'\/.*','', entry.id.split("_")[3])
         for one_range in string_ranges.split(","):
             increment_ranges.append((int(one_range.split('-')[0]), int(one_range.split('-')[1])))
@@ -229,7 +235,8 @@ def main(commandline_arguments):
         taxid = fix_old_taxid(entry_id_split[1])
         superK = superkingdom_info(cursor, taxid)
         entry_id_split_2 = entry_id_split[2]
-        gi = entry_id_split_2[entry_id_split_2.index('|') + 1:]
+        gi = entry.id.split('|')[1]
+        #gi = entry_id_split_2[entry_id_split_2.index('|') + 1:] 
         superK = superkingdom_info(cursor, taxid)
         nom_id = check_nomo_id(cursor, superK[0], entry.id.split('_')[0])
         polymer_id = check_polymer(cursor, str(taxid),str(nom_id), gi)

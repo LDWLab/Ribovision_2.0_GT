@@ -4,6 +4,7 @@
             <div style="padding-top:10px">
                 <span class="title" >RiboVision 2.0: Advanced Visualization of RNA molecules </span>
             </div>
+            <!--
             <div class="headerOptions" style="margin-left: auto;padding-top:10px;">
                 <span title="Start an interactive guide">
                     <button class="btn btn-outline-dark" v-on:click="startTour();" style="float: right;">Help</button>
@@ -30,6 +31,7 @@
                     <input id="inputRV3State" type="file" accept=".json" ref="rv3_state_file" v-on:change="loadRV3State()"/>
                 </span>
             </div>
+            -->
         </header>
         <v-tour 
           name="myTour"
@@ -128,6 +130,9 @@
             },
         },
         mounted: function () {
+            //localStorage.setItem("hasCodeRunBefore", true)
+            //vm.guideOff = false
+            /*
             if (localStorage.getItem("hasCodeRunBefore") === null) {
                 tourSteps[0].content += '<br><b>First time users are advised to complete this guide by only clicking the Next button ▼</b>';
                 tourSteps.unshift(cookieNotice);
@@ -141,6 +146,7 @@
                 }
                 this.$tours['myTour'].start();
             }
+            */
         },
     }
 
