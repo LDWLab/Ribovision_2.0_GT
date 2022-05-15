@@ -143,6 +143,15 @@ export class UiTemplateService {
                         }
                     }
                 });
+            } 
+        } else {
+            const tempDomain = this.domainTypes[1];
+            if (tempDomain.data) {
+                tempDomain.data.forEach((val:any, i:number) => {
+                    if(val != undefined) {
+                        UiActionsService.colorNucleotide(this.pluginOptions.pdbId, val.start, 'rgb(0,0,0)', undefined, this.mappingValue);
+                    }
+                });
             }
         }
     }
@@ -323,6 +332,13 @@ export class UiTemplateService {
             }];
         }
         this.selectSections_RV1 = (window as any).selectSections_RV1
+        this.selectSections_RV1.set("Select data", [{entity_id: _this.pluginOptions.entityId,
+            focus: true}, {entity_id: _this.pluginOptions.entityId,
+                                start_residue_number: 0, 
+                                end_residue_number: 1000,
+                                color: {r: 255, g: 255, b: 255},
+                                sideChain: false,
+                            }])
         this.aaPropertyConstants = (window as any).aaPropertyConstants
         this.aaColorData = (window as any).aaColorData
         if (mapped_aa_properties) {

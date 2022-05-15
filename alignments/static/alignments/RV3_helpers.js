@@ -300,9 +300,9 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     vueObj.domain_or_selection = null;
     vueObj.checked_domain = null;
     vueObj.selected_domain = [];
+    vueObj.selected_property = null;
     vueObj.structure_mapping = null;
     vueObj.poor_structure_map = null;
-    vueObj.selected_property = null;
     vueObj.freqCSV = null;
     window.ajaxRun = false;
     window.custom_prop = null;
@@ -677,18 +677,20 @@ var recolorTopStar = function (name){
     //var selectedDomain = viewerInstanceTop.viewInstance.uiTemplateService.domainTypes[newIndex];
     selectBox.selectedIndex = newIndex; 
     viewerInstanceTop.viewInstance.uiTemplateService.colorMap(); 
-    viewerInstance.visual.select({
-        data: selectSections_RV1.get(name), 
-        nonSelectedColor: {r:255,g:255,b:255}
-    }).catch(err => {
-        console.log(err);
-        vm.$nextTick(function(){
-            viewerInstance.visual.select({
-                data: selectSections_RV1.get(name), 
-                nonSelectedColor: {r:255,g:255,b:255}
-             })
-        })
-    }) 
+    if(selectSections_RV1.get(name).length < 1000) {
+        viewerInstance.visual.select({
+            data: selectSections_RV1.get(name), 
+            nonSelectedColor: {r:255,g:255,b:255}
+        }).catch(err => {
+            console.log(err);
+            vm.$nextTick(function(){
+                viewerInstance.visual.select({
+                    data: selectSections_RV1.get(name), 
+                    nonSelectedColor: {r:255,g:255,b:255}
+                })
+            })
+        }) 
+    }
 }
 
 var masked_array = [];
