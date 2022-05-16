@@ -148,7 +148,7 @@ export class UiTemplateService {
             const tempDomain = this.domainTypes[1];
             if (tempDomain.data) {
                 tempDomain.data.forEach((val:any, i:number) => {
-                    if(val != undefined) {
+                    if(val != undefined && val.start != undefined) {
                         UiActionsService.colorNucleotide(this.pluginOptions.pdbId, val.start, 'rgb(0,0,0)', undefined, this.mappingValue);
                     }
                 });
@@ -472,9 +472,11 @@ export class UiTemplateService {
         } else if(selectedValue == 1) {
             (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(`rnaTopoSvg_${this.pluginOptions.pdbId}`)[0].innerHTML = this.pathStrs.join('') + this.circleStrs.join('') + this.displayBaseStrs;
         } else if(selectedValue == 2) {
+            (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(`rnaTopoSvg_${this.pluginOptions.pdbId}`)[0].innerHTML = this.circleStrs.join('') + this.displayBaseStrs;
             this.mappingValue = 'circle';
+            this.colorMap()
         } 
-        if(e) {
+        if(e && selectedValue != 2) {
             //this.containerElement.querySelector<HTMLInputElement>('.mappingSelectbox')!.value="0";
             this.colorMap()
         }
