@@ -472,7 +472,7 @@ export class UiTemplateService {
         } else if(selectedValue == 1) {
             (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(`rnaTopoSvg_${this.pluginOptions.pdbId}`)[0].innerHTML = this.pathStrs.join('') + this.circleStrs.join('') + this.displayBaseStrs;
         } else if(selectedValue == 2) {
-            (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(`rnaTopoSvg_${this.pluginOptions.pdbId}`)[0].innerHTML = this.circleStrs.join('') + this.displayBaseStrs;
+            (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(`rnaTopoSvg_${this.pluginOptions.pdbId}`)[0].innerHTML = this.nucleotideStrs.join('') + this.circleStrs.join('') + this.displayBaseStrs;
             this.mappingValue = 'circle';
             this.colorMap()
         } 
@@ -550,10 +550,12 @@ export class UiTemplateService {
                 //document.getElementsByClassName(circlePath)[0].addEventListener('mouseout', this.eventMap.get(circlePath))
                 //this.mouseOverMap.set(path, (e: Event) =>  {UiActionsService.showTooltip(e, tooltip, path, this.rv3VUEcomponent.proteinColorMap.get(chain), this.rv3VUEcomponent.proteinColorMap.get(chain))})
                 //document.getElementsByClassName(path)[0].addEventListener('mouseover', this.mouseOverMap.get(path))
-                (<HTMLElement>document.getElementsByClassName(path)[0]).setAttribute('onmouseover', document.getElementsByClassName(path)[0].getAttribute('onmouseover')!.split(';')[0] + `;UiActionsService.showTooltip(evt, '${tooltip}', '${path}', '${this.rv3VUEcomponent.proteinColorMap.get(chain)}', '${this.rv3VUEcomponent.proteinColorMap.get(chain)}')`);
+                if((<HTMLElement>document.getElementsByClassName(path)[0])) {
+                    (<HTMLElement>document.getElementsByClassName(path)[0]).setAttribute('onmouseover', document.getElementsByClassName(path)[0].getAttribute('onmouseover')!.split(';')[0] + `;UiActionsService.showTooltip(evt, '${tooltip}', '${path}', '${this.rv3VUEcomponent.proteinColorMap.get(chain)}', '${this.rv3VUEcomponent.proteinColorMap.get(chain)}')`);
                 //this.eventMap.set(path, UiActionsService.hideTooltip.bind(this, path))
                 //document.getElementsByClassName(path)[0].addEventListener('mouseout', this.eventMap.get(path))
-                (<HTMLElement>document.getElementsByClassName(path)[0]).setAttribute('onmouseout', document.getElementsByClassName(path)[0].getAttribute('onmouseout')!.split(';')[0] + `;UiActionsService.hideTooltip('${path}')`);
+                    (<HTMLElement>document.getElementsByClassName(path)[0]).setAttribute('onmouseout', document.getElementsByClassName(path)[0].getAttribute('onmouseout')!.split(';')[0] + `;UiActionsService.hideTooltip('${path}')`);
+                }
 
             });
     }
