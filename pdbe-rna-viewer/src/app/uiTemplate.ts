@@ -162,6 +162,9 @@ export class UiTemplateService {
         this.rv3VUEcomponent.selected_property = mappingDropdown!.options[num].text;
     }
     colorMapContacts=() => {
+        if(this.rv3VUEcomponent.pchainid.length > 0 && this.rv3VUEcomponent.selected_property != "Select data") {
+            this.rv3VUEcomponent.selected_property = "Select data"
+        }
         this.mapped_chains.forEach((val) => {  
             if(!this.rv3VUEcomponent.pchainid.includes(val)) {
                 for(var i in this.rv3VUEcomponent.protein_contacts[val]) {

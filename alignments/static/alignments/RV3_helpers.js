@@ -691,6 +691,9 @@ var recolorTopStar = function (name){
             })
         }) 
     }
+    if(name == "Select data") {
+        viewerInstanceTop.viewInstance.uiTemplateService.colorMapContacts(); 
+    }
 }
 
 var masked_array = [];
