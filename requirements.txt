@@ -27,3 +27,4 @@ typed-ast==1.4.0
 wrapt==1.11.2
 django-webpack-loader
 django-cors-headers
+TwinCons

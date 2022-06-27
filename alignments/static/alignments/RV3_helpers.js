@@ -677,7 +677,7 @@ var recolorTopStar = function (name){
     //var selectedDomain = viewerInstanceTop.viewInstance.uiTemplateService.domainTypes[newIndex];
     selectBox.selectedIndex = newIndex; 
     viewerInstanceTop.viewInstance.uiTemplateService.colorMap(); 
-    if(selectSections_RV1.get(name).length < 1000) {
+    if(selectSections_RV1.get(name).length < 1600) {
         viewerInstance.visual.select({
             data: selectSections_RV1.get(name), 
             nonSelectedColor: {r:255,g:255,b:255}

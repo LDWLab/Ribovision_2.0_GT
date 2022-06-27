@@ -169,7 +169,8 @@ def build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_alnpositio
 	alignment_rows = list()
 	for strain in nogap_tupaln:
 		row_residue_list = list()
-		alignment_sequence_name = str(strain[1])+"_"+str(re.sub(' ','_',strain[0]))
+		#alignment_sequence_name = str(strain[1])+"_"+str(re.sub(' ','_',strain[0]))
+		alignment_sequence_name = str(strain[2]) +"_"+ str(strain[0])+ "|" +str(re.sub(' ','_',strain[1]))
 		fasta_string+='\n>'+alignment_sequence_name+'\n'
 		mem = 1
 		for index, resi_pos in enumerate(nogap_tupaln[strain], start=1):

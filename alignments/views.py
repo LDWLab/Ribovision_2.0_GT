@@ -18,7 +18,7 @@ from alignments.structure_api import *
 from alignments.fold_api import *
 from alignments.runal2co import executeAl2co
 import alignments.alignment_query_and_build as aqab
-from TwinCons.bin.TwinCons import slice_by_name
+from twincons.TwinCons import slice_by_name
 from django.db import connection
 import time
 from xml.dom import minidom
@@ -41,8 +41,8 @@ def calculate_twincons(alignment):
     Returns data in a list format for the topology viewer'''
     with warnings.catch_warnings():
         warnings.simplefilter('ignore', BiopythonDeprecationWarning)
-    from TwinCons.bin import TwinCons
-    list_for_phymeas = ['-as',alignment, '-r', '-mx', 'blosum62']
+    from twincons import TwinCons
+    list_for_phymeas = ['-as',alignment, '-nc', '-r', '-mx', 'blastn']
     alnindex_score, sliced_alns, number_of_aligned_positions, gp_mapping = TwinCons.main(list_for_phymeas)
     list_for_topology_viewer = []
     for alnindex in alnindex_score:
