@@ -1,3 +1,12 @@
 
 (process:3): GLib-GIO-WARNING **: 18:44:19.620: Cannot connect to session bus when initializing document portal: Cannot autolaunch D-Bus without X11 $DISPLAY
 ERROR:root:Could not open path at /home/anton/Dropbox (GaTech): OpenURI portal is not available
+
+(process:3): GLib-GIO-WARNING **: 20:51:37.868: Cannot connect to session bus when initializing document portal: Cannot autolaunch D-Bus without X11 $DISPLAY
+ERROR:root:Could not open path at /home/anton/Dropbox (GaTech): OpenURI portal is not available
+
+(process:3): GLib-GIO-WARNING **: 23:47:53.201: Cannot connect to session bus when initializing document portal: Cannot autolaunch D-Bus without X11 $DISPLAY
+ERROR:root:Could not open path at /home/anton/Dropbox (GaTech): OpenURI portal is not available
+
+(process:3): GLib-GIO-WARNING **: 23:47:55.691: Cannot connect to session bus when initializing document portal: Cannot autolaunch D-Bus without X11 $DISPLAY
+ERROR:root:Could not open path at /home/anton/Dropbox (GaTech): OpenURI portal is not available

@@ -30,7 +30,8 @@ var buildPyMOLscriptASstring = function () {
         val.shift();
         val.forEach(function(resiProps){
             let hexColor = rgbToHex(resiProps.color.r,resiProps.color.g,resiProps.color.b);
-            coloringString += `color ${hexColor}, ${objName} and resi ${resiProps.start_residue_number}\n`
+            //coloringString += `color ${hexColor}, ${objName} and resi ${resiProps.start_residue_number}\n`
+            coloringString += `color ${hexColor}, ${objName} and resi ${resiProps.residue_number}\n`
         })
     })
     pmlString += coloringString;

@@ -46,6 +46,7 @@ urlpatterns = [
     path('propensities/<str:align_name>/<int:tax_group>', views.propensities, name = 'propensities'),
     path('propensities/<str:align_name>/<str:tax_group>', views.propensities, name = 'propensities'),
     path('protein-contacts/<str:pdbid>/<str:chain_id>', views.protein_contacts, name = 'protein_contacts'),
+    path('modified-residues/<str:pdbid>/<str:chain_id>', views.modified_residues, name = 'modified_residues'),
     path('r2dt/<str:sequence>/', views.r2dt, name = 'r2dt'),
     path('custom-struc-data/<str:strucID>', handleStructureRequests.handleCustomUploadStructure, name = 'custom_structure'),
     path('authEcodQuery', views.ecodPassThroughQuery, name = 'ecodQuery'),

@@ -39,6 +39,7 @@ export class UiTemplateService {
         qualityBlank: 'rgb(255,255,255)'
     }
     mapped_chains = new Set<string>()
+    mapped_modifications = new Set<string>()
     constructor(containerElement: HTMLElement, pluginOptions: PluginOptions, apiData: ApiData|undefined) {
         this.containerElement = containerElement;
         this.pluginOptions = pluginOptions;
@@ -183,10 +184,11 @@ export class UiTemplateService {
                         //document.getElementsByClassName(cPath)[0].removeEventListener('mouseover', this.mouseOverMap.get(cPath))
                         //document.getElementsByClassName(cPath)[0].removeEventListener('mouseout',this.eventMap.get(cPath))
                     }
+                    /*
                     var circle = (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(cPath)[0];
                     if(circle) {
                         circle.style.display="none";
-                    } 
+                    }*/
                 }
                 this.mapped_chains.delete(val)
             }           
@@ -197,6 +199,44 @@ export class UiTemplateService {
                 UiActionsService.colorNucleotide(this.pluginOptions.pdbId, this.rv3VUEcomponent.protein_contacts[chain][i], this.rv3VUEcomponent.proteinColorMap.get(chain), undefined, this.mappingValue);
             }
             this.mapped_chains.add(chain)
+        }
+        this.addEvents(this.apiData!)
+    }
+    colorMapModifications=() => {
+        console.log("color map")
+        this.mapped_modifications.forEach((val) => {   
+            if(!this.rv3VUEcomponent.modifications.includes(val)) {
+                for(var i in this.rv3VUEcomponent.modified_residues.get(val)) {
+                    UiActionsService.colorNucleotide(this.pluginOptions.pdbId, this.rv3VUEcomponent.modified_residues.get(val)[i], '#323232', undefined, this.mappingValue);
+                    var nPath = `rnaviewEle rnaviewEle_${this.pluginOptions.pdbId} rnaview_${this.pluginOptions.pdbId}_${this.rv3VUEcomponent.modified_residues.get(val)[i]}`
+                    var cPath = `circle_${this.pluginOptions.pdbId}_${this.rv3VUEcomponent.modified_residues.get(val)[i]}`
+                    if(document.getElementsByClassName(nPath).length > 0) {
+                        (<HTMLElement>document.getElementsByClassName(nPath)[0]).setAttribute('onmouseover', document.getElementsByClassName(nPath)[0].getAttribute('onmouseover')!.split(';')[0]);
+                        (<HTMLElement>document.getElementsByClassName(nPath)[0]).setAttribute('onmouseout', document.getElementsByClassName(nPath)[0].getAttribute('onmouseout')!.split(';')[0]);
+                        //document.getElementsByClassName(nPath)[0].removeEventListener('mouseover', this.mouseOverMap.get(nPath))
+                        //document.getElementsByClassName(nPath)[0].removeEventListener('mouseout',this.eventMap.get(nPath))
+                    }
+                    if(document.getElementsByClassName(cPath).length > 0) {
+                        (<HTMLElement>document.getElementsByClassName(cPath)[0]).setAttribute('onmouseover', document.getElementsByClassName(cPath)[0].getAttribute('onmouseover')!.split(';')[0]);
+                        (<HTMLElement>document.getElementsByClassName(cPath)[0]).setAttribute('onmouseout', document.getElementsByClassName(cPath)[0].getAttribute('onmouseout')!.split(';')[0]);
+                        //document.getElementsByClassName(cPath)[0].removeEventListener('mouseover', this.mouseOverMap.get(cPath))
+                        //document.getElementsByClassName(cPath)[0].removeEventListener('mouseout',this.eventMap.get(cPath))
+                    }
+                    /*
+                    var circle = (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(cPath)[0];
+                    if(circle) {
+                        circle.style.display="none";
+                    } */
+                }
+                this.mapped_modifications.delete(val)
+            }           
+        });  
+        for (let val in this.rv3VUEcomponent.modifications) {
+            var mod = this.rv3VUEcomponent.modifications[val];
+            for(var i in this.rv3VUEcomponent.modified_residues.get(mod)) {
+                UiActionsService.colorNucleotide(this.pluginOptions.pdbId, this.rv3VUEcomponent.modified_residues.get(mod)[i], this.rv3VUEcomponent.modifiedColorMap.get(mod), undefined, this.mappingValue);
+            }
+            this.mapped_modifications.add(mod)
         }
         this.addEvents(this.apiData!)
     }
@@ -291,10 +331,12 @@ export class UiTemplateService {
         TWCData.forEach(function(value, index) {
             if (chain_start <= index && index <= chain_end){
                 let rgb_color = TWCrgbMap.get(index);
+                
                 (window as any).selectSections_RV1.get(name).push({ //3d
                     entity_id: _this.pluginOptions.entityId,
-                    start_residue_number: index, 
-                    end_residue_number: index,
+                    //start_residue_number: index, 
+                    //end_residue_number: index,
+                    residue_number: index,
                     color: rgb_color[1],
                     sideChain: false,
                 });
@@ -312,11 +354,12 @@ export class UiTemplateService {
             }
         })
         if (TWCData.size < mapped_aa_properties.get("Shannon entropy")!.length) {
-            for(var i = TWCData.size - 1; i < this.mapped_aa_properties.get("Charge").length; i++) {
+            for(var i = TWCData.size - 1; i < this.mapped_aa_properties.get("Shannon entropy").length; i++) {
                 (window as any).selectSections_RV1.get(name).push({ //3d
                     entity_id: _this.pluginOptions.entityId,
-                    start_residue_number: i, 
-                    end_residue_number: i,
+                    //start_residue_number: i, 
+                    //end_residue_number: i,
+                    residue_number: i,
                     color: {r:255, g:255, b:255},
                     sideChain: false,
                 });
@@ -336,12 +379,12 @@ export class UiTemplateService {
         }
         this.selectSections_RV1 = (window as any).selectSections_RV1
         this.selectSections_RV1.set("Select data", [{entity_id: _this.pluginOptions.entityId,
-            focus: true}, {entity_id: _this.pluginOptions.entityId,
+            focus: true} /*{entity_id: _this.pluginOptions.entityId,
                                 start_residue_number: 0, 
                                 end_residue_number: 1000,
                                 color: {r: 255, g: 255, b: 255},
                                 sideChain: false,
-                            }])
+                            }*/])
         this.aaPropertyConstants = (window as any).aaPropertyConstants
         this.aaColorData = (window as any).aaColorData
         if (mapped_aa_properties) {
@@ -481,6 +524,7 @@ export class UiTemplateService {
             this.colorMap()
         }
         this.colorMapContacts()
+        this.colorMapModifications()
     }
     private addEvents(apiData: ApiData) {
         /*

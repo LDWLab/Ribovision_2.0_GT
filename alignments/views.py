@@ -18,7 +18,7 @@ from alignments.structure_api import *
 from alignments.fold_api import *
 from alignments.runal2co import executeAl2co
 import alignments.alignment_query_and_build as aqab
-from TwinCons.bin.TwinCons import slice_by_name
+from twincons.TwinCons import slice_by_name
 from django.db import connection
 import time
 from xml.dom import minidom
@@ -41,8 +41,8 @@ def calculate_twincons(alignment):
     Returns data in a list format for the topology viewer'''
     with warnings.catch_warnings():
         warnings.simplefilter('ignore', BiopythonDeprecationWarning)
-    from TwinCons.bin import TwinCons
-    list_for_phymeas = ['-as',alignment, '-r', '-mx', 'blosum62']
+    from twincons import TwinCons
+    list_for_phymeas = ['-as',alignment, '-nc', '-r', '-mx', 'blastn']
     alnindex_score, sliced_alns, number_of_aligned_positions, gp_mapping = TwinCons.main(list_for_phymeas)
     list_for_topology_viewer = []
     for alnindex in alnindex_score:
@@ -295,7 +295,6 @@ def allProteinTypes(request):
 
 def proteinTypesDirect(request, concatenatedTaxIds):
     results = []
-    print(concatenatedTaxIds)
     with connection.cursor() as cursor:
         if concatenatedTaxIds.endswith(','):
             concatenatedTaxIds = concatenatedTaxIds[:-1]
@@ -314,7 +313,6 @@ def proteinTypesDirect(request, concatenatedTaxIds):
             filteredList = [s for s in proteinTypesList if s[-3:] == 'RNA']
             results.append(filteredList)
     context = {'results' : results}
-    print(results)
     return JsonResponse(context)
 
 def getAlignmentsFilterByProteinTypeAndTaxIds(request):
@@ -787,12 +785,46 @@ def protein_contacts(request, pdbid, chain_id):
     #}
     return JsonResponse(neighbors)
 """
+def modified_residues(request, pdbid, chain_id):
+    import Bio.PDB.MMCIF2Dict
+    mmcdata = Bio.PDB.MMCIF2Dict.MMCIF2Dict("./" + str(pdbid) + ".cif")
+    index = 0
+    try:
+        index = mmcdata['_entity_poly.pdbx_strand_id'].index(chain_id)
+    except:
+        i = 0
+        for item in mmcdata['_entity_poly.pdbx_strand_id']:
+            if chain_id in item.split(','):
+                index = i
+            i += 1
+    pattern = '\([a-zA-Z0-9]*\)'
+    sequence = mmcdata['_entity_poly.pdbx_seq_one_letter_code'][index]
+    #modiifed_residues = re.findall('\([a-zA-Z0-9]*\)', mmcdata['_entity_poly.pdbx_seq_one_letter_code'][0])
+    #iter = re.finditer('\([a-zA-Z0-9]*\)', mmcdata['_entity_poly.pdbx_seq_one_letter_code'][0])
+    modified_residues = []
+    for match in re.finditer(pattern, sequence):
+        s = match.start()
+        e = match.end()
+        modified_residues.append([sequence[s:e], s, e])
+    #indices = [m.start(0) for m in iter]
+    context = {
+        'Modified' : modified_residues
+    }
+    return JsonResponse(context)
 
 def protein_contacts(request, pdbid, chain_id):
     pdbl = PDB.PDBList(pdb='/tmp/PDB')
     pdbl.retrieve_pdb_file(pdbid, pdir='/tmp/PDB')
     parser = PDB.MMCIFParser()
+<<<<<<< HEAD
     structure = parser.get_structure(pdbid, "/tmp/PDB/" + str(pdbid) + ".cif")
+=======
+    structure = parser.get_structure(pdbid, "./" + str(pdbid) + ".cif")
+
+    import Bio.PDB.MMCIF2Dict
+    mmcdata = Bio.PDB.MMCIF2Dict.MMCIF2Dict("./" + str(pdbid) + ".cif")
+
+>>>>>>> origin/develop
     atom_list_23S = PDB.Selection.unfold_entities(structure[0][chain_id], 'A')
     neighbor_23S = PDB.NeighborSearch(atom_list_23S)
     neighbors = {}
@@ -815,6 +847,7 @@ def protein_contacts(request, pdbid, chain_id):
 
             if len(neighbors_L2_all) > 0:
                 neighbors[chain.id] = list(neighbors_L2_all)
+    #modified_residues(pdbid)
     return JsonResponse(neighbors)
 def r2dt(request, sequence):
     import os
@@ -832,7 +865,6 @@ def r2dt(request, sequence):
 #export PATH="/rna/jiffy-infernal-hmmer-scripts:$PATH" &&
 #export PATH="/rna/RNAstructure/exe:$PATH" DATAPATH="/rna/RNAstructure/data_tables/" &&
 #export PATH="/rna/r2dt:$PATH"
-    print(RIBODIR)
     os.chdir('/rna/r2dt')
     newcwd = os.getcwd()
     with open('sequence.fasta', 'w') as f:
@@ -840,10 +872,8 @@ def r2dt(request, sequence):
         f.write(sequence)
     output = '/home/hmccann3/Ribovision_3/R2DT-test3'
     cmd = f'python3 r2dt.py draw {newcwd}/sequence.fasta {output}'
-    print(cmd)
     os.system(cmd)
     os.chdir(cwd)
-    print("Success R2DT")
     filename = ''
     for topdir, dirs, files in os.walk(f'{output}/results/svg'):
         firstfile = sorted(files)[0]
@@ -851,7 +881,6 @@ def r2dt(request, sequence):
     cmd = f'python3 svg2json.py test_model_chain {filename} {output}/jsonexample'
     os.cmd()
     with open(f'{output}/jsonexample', 'r') as f:
-        print(f.read())
         data = json.loads(f.read())
     #doc = minidom.parse(filename)
     #path_strings = [path.getAttribute('d') for path

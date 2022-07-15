@@ -150,6 +150,10 @@
                 <option :value ="null" selected disabled>Select a polymer</option>
                 <option v-for="chain in protein_chains" v-bind:value="chain.value" @click="showContacts();">{{ chain.text }}</option>
                 </select></p>
+                <p><select multiple class="form-control btn-outline-dark" id="polymerSelect3" v-bind:style="{ resize: 'both'}" v-model="modifications" >
+                <option :value ="null" selected disabled>Select Modified Residues</option>
+                <option v-for="[text, k] of modified_residues.entries()" v-bind:value="text" @click="showModifications();">{{ text }}</option>
+                </select></p>
             </div>
             <!--
             <p><div v-if="alnobj" class="checkbox" id="showFrequencies">
@@ -387,7 +391,6 @@
             }
             if (this.selected_property){
                 this.$nextTick(function(){
-                    console.log("topology")
                     recolorTopStar(this.selected_property);
                 });
             }
@@ -441,7 +444,6 @@
                 cleanSelection(false, true);
             }
             if (vm.selected_property){
-                console.log("vm.prop")
                 recolorTopStar(vm.selected_property);
             }
         },selected_domain: function (domainObj){
@@ -486,7 +488,6 @@
                         });
                     }
                 }
-                console.log(separatedData)
                 const [rgbMap, MappingData] = parsePVData(separatedData, min, max, colormapArray);
                 rgbMap.forEach(function (data){
                     updatedBarColors.push(rgbToHex(...data[0]))
@@ -666,9 +667,13 @@
                 });
             }
         },
+        showModifications() {
+            viewerInstanceTop.viewInstance.uiTemplateService.colorMapModifications();  
+            showModificationsAndContactsHelper("" + this.entityID);
+        },
         showContacts() {
             viewerInstanceTop.viewInstance.uiTemplateService.colorMapContacts();  
-            showContactsHelper("" + this.entityID);
+            showModificationsAndContactsHelper("" + this.entityID);
         },
         getR2DT(sequence) {
             console.log("getR2DT")
@@ -930,8 +935,7 @@
                     data:[
                         {
                             entity_id:entityId,
-                            start_residue_number:residueNumber,
-                            end_residue_number:residueNumber,
+                            residue_number:residueNumber,
                             color:{r:20, y:100, b:200},
                             focus:false
                         },
@@ -949,8 +953,7 @@
                     data:[
                         {
                             entity_id:entityId,
-                            start_residue_number:residueNumber,
-                            end_residue_number:residueNumber,
+                            residue_number:residueNumber,
                         },
                     ],
                 })
@@ -967,6 +970,7 @@
         }, calculateProteinContacts(pdbid, chainid) {
             var url = `protein-contacts/${pdbid}/${chainid}`
             ajax(url).then(data => {
+                calculateModifiedResidues(pdbid, chainid, this.entityID)
                 if(data) {
                     vm.protein_contacts = data;
                     var newContactMap;
@@ -986,8 +990,7 @@
                         for (var j in vm.protein_contacts[val]) {
                             vm.selectSections_proteins.get(val).push({
                                 entity_id: "" + this.entityID,
-                                start_residue_number: vm.protein_contacts[val][j], 
-                                end_residue_number: vm.protein_contacts[val][j],
+                                residue_number: vm.protein_contacts[val][j],
                                 color: color[1],
                                 sideChain: false,
                             });
