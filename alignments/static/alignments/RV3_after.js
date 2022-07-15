@@ -167,7 +167,10 @@ function handleFilterRange(filter_range) {
                 let selectedData = topviewer.pluginInstance.domainTypes[selectedIndex];
                 if(selectSections_RV1.get(selectedData.label)) {
                     var select_sections = selectSections_RV1.get(selectedData.label).filter(resi3D  => {
-                        if (resi3D.start_residue_number >= Number(rangeArr[0]) && resi3D.start_residue_number <= Number(rangeArr[1])){
+                        /*if (resi3D.start_residue_number >= Number(rangeArr[0]) && resi3D.start_residue_number <= Number(rangeArr[1])){
+                            return resi3D;
+                        }*/
+                        if (resi3D.residue_number >= Number(rangeArr[0]) && resi3D.residue_number <= Number(rangeArr[1])){
                             return resi3D;
                         }
                     })
@@ -211,7 +214,10 @@ function colorResidue(index, masked_array) {
         }
     })
     selectSections_RV1.get(viewerInstanceTop.pluginInstance.domainTypes[index].label).forEach(function(resiEntry){
-        if (!masked_array[resiEntry.start_residue_number]){
+        /*if (!masked_array[resiEntry.start_residue_number]){
+            resiEntry.color = {r: 255, g: 255, b: 255};
+        }*/
+        if (!masked_array[resiEntry.residue_number]){
             resiEntry.color = {r: 255, g: 255, b: 255};
         }
     })

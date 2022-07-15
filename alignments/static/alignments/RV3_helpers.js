@@ -247,7 +247,7 @@ var create_deleted_element = function (parent_id, child_id, child_text, optional
         child_elt.appendChild(imgElt);
     }
     parent.appendChild(child_elt);
-};
+}
 
 var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     if (vm.uploadSession){return;}
@@ -643,6 +643,46 @@ var drawCircle = function (pdbId, i, color){
     circle.setAttribute("fill", `${color}`);
     circle.style.display = "block";
 }
+var calculateModifiedResidues = function(pdbid, chainid, entityid) {
+    var url = `modified-residues/${pdbid}/${chainid}`
+    ajax(url).then(data => {
+        let offset = 0
+        let modifiedData = new Map()
+        let modifications = []
+        for (let val in data.Modified) {
+            if(modifications.indexOf(data.Modified[val][0]) < 0) {
+                modifications.push(data.Modified[val][0])
+                modifiedData.set(data.Modified[val][0], [])
+            }
+            index = data.Modified[val][1] - offset
+            modifiedData.get(data.Modified[val][0]).push(index)
+            offset += 4
+        }
+        vm.modified_residues = modifiedData
+        var i = 1.0;
+        var colorMap = new Map();
+        vm.selectSections_modified = new Map();
+        for (var val of modifications) {
+            vm.selectSections_modified.set(val, [])
+            //Need to add modifications color scheme, using PC for now
+            var color = interpolateLinearly(i/modifications.length, aaColorData.get("Protein contacts")[0])
+            var rgbColor = "rgb(" + color[0][0] + "," + color[0][1] + "," + color[0][2] + ")";
+            colorMap.set(val, rgbColor);
+            //newContactMap.set(vm.protein_contacts, aaColorData.get("Shannon entropy")[0][1]
+            i = i+1;
+            for (var j of vm.modified_residues.get(val)) {
+                vm.selectSections_modified.get(val).push({
+                    entity_id: "" + entityid,
+                    residue_number: j, 
+                    color: color[1],
+                    sideChain: false,
+                });
+            }
+        }                 
+        vm.modifiedColorMap = colorMap;
+        //viewerInstanceTop.viewInstance.uiTemplateService.colorMap(); 
+    });
+}
 var showContactsHelper = function(entityid) {
     var protein_data = new Map();
     protein_data.set("contacts", [])
@@ -657,7 +697,40 @@ var showContactsHelper = function(entityid) {
         data: [],
         nonSelectedColor: {r:255,g:255,b:255}
     })*/
-    const mapSort1 = protein_data.get("contacts").sort((a, b) => a.start_residue_number - b.start_residue_number);
+    const mapSort1 = protein_data.get("contacts").sort((a, b) => a.residue_number - b.residue_number);
+    viewerInstance.visual.select({
+        data: mapSort1, 
+        nonSelectedColor: {r:255,g:255,b:255}
+        }).catch(err => {
+            console.log(err);
+            vm.$nextTick(function(){
+                viewerInstance.visual.select({
+                    data: mapSort1,
+                    nonSelectedColor: {r:255,g:255,b:255}
+                })
+            })
+        })
+}
+var showModificationsAndContactsHelper = function(entityid) {
+    var modified_data = new Map();
+    modified_data.set("mods", [])
+    modified_data.get("mods").push({entity_id: entityid, focus: true})
+    for (let val in vm.pchainid) {
+        var chain = vm.pchainid[val];
+        for (let entry in vm.selectSections_proteins.get(chain)) {
+            modified_data.get("mods").push(vm.selectSections_proteins.get(chain)[entry])
+        }
+    }
+    for (let val of vm.modifications) {
+        for (let entry of vm.selectSections_modified.get(val)) {
+            modified_data.get("mods").push(entry)
+        }
+    }
+    /*window.viewerInstance.visual.select({
+        data: [],
+        nonSelectedColor: {r:255,g:255,b:255}
+    })*/
+    const mapSort1 = modified_data.get("mods").sort((a, b) => a.residue_number - b.residue_number);
     viewerInstance.visual.select({
         data: mapSort1, 
         nonSelectedColor: {r:255,g:255,b:255}
@@ -677,7 +750,7 @@ var recolorTopStar = function (name){
     //var selectedDomain = viewerInstanceTop.viewInstance.uiTemplateService.domainTypes[newIndex];
     selectBox.selectedIndex = newIndex; 
     viewerInstanceTop.viewInstance.uiTemplateService.colorMap(); 
-    if(selectSections_RV1.get(name).length < 1600) {
+    //if(selectSections_RV1.get(name).length < 1600) {
         viewerInstance.visual.select({
             data: selectSections_RV1.get(name), 
             nonSelectedColor: {r:255,g:255,b:255}
@@ -690,7 +763,7 @@ var recolorTopStar = function (name){
                 })
             })
         }) 
-    }
+    //}
 }
 
 var masked_array = [];

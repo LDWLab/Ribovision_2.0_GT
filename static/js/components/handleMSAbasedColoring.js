@@ -22,7 +22,8 @@ export function colorByMSAColorScheme(scheme, vm) {
 				start: i, end: i, color: `rgb(${rgbColors.r},${rgbColors.g},${rgbColors.b})`,
 			});
 			colorData3D.push({
-				entity_id: `${vm.entityID}`, start_residue_number: i, end_residue_number: i,
+				entity_id: `${vm.entityID}`, //start_residue_number: i, end_residue_number: i,
+				auth_residue_number: i,
 				color: {r: rgbColors.r, g: rgbColors.g, b: rgbColors.b}
 			})
 		}

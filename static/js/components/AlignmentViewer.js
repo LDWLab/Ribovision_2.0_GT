@@ -88,8 +88,9 @@ var AlnViewer = class RV3AlnViewer extends Component {
                 viewerInstance.visual.highlight({
                     data:[{
                             entity_id:`${vm.entityID}`,
-                            start_residue_number:resiPos,
-                            end_residue_number:resiPos,
+                            //start_residue_number:resiPos,
+                            //end_residue_number:resiPos,
+                            residue_number:resiPos,
                         },],
                 });
             }
