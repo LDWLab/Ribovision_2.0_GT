@@ -1,3 +1,4 @@
+wheel
 astroid==2.2.5
 biopython==1.78
 cached-property==1.5.1
