@@ -200,7 +200,6 @@ export class UiTemplateService {
         this.addEvents(this.apiData!)
     }
     colorMapModifications=() => {
-        console.log("color map")
         this.mapped_modifications.forEach((val) => {   
             if(!this.rv3VUEcomponent.modifications.includes(val)) {
                 for(var i in this.rv3VUEcomponent.modified_residues.get(val)) {
@@ -700,13 +699,18 @@ export class UiTemplateService {
         this.baseStrs.set('cHH', [false, []]);
         this.baseStrs.set('tSS', [false, []]);
         this.baseStrs.set('cSS', [false, []]);
+        //this.baseStrs.set('cHW', [false, []]);
+        //this.baseStrs.set('tHW', [false, []]);
+        //this.baseStrs.set('tSW', [false, []]);
+        //this.baseStrs.set('cSW', [false, []]);
+        //this.baseStrs.set('tSH', [false, []]);
+        //this.baseStrs.set('cSH', [false, []]);
         this.baseStrs.set('cWH', [false, []]);
         this.baseStrs.set('tWH', [false, []]);
         this.baseStrs.set('tWS', [false, []]);
         this.baseStrs.set('cWS', [false, []]);
         this.baseStrs.set('tHS', [false, []]);
         this.baseStrs.set('cHS', [false, []]);
-        
         baseArray.forEach((baseStr: any) => {
             let start:number = +baseStr.seq_id1
             //let start:number = +baseStr[`3d_id1`];
@@ -717,6 +721,16 @@ export class UiTemplateService {
                 let pathID:string = `rnaviewBP_rnaviewBP_${this.pluginOptions.pdbId}_${this.pluginOptions.chainId}_${type}_${start}_${end}`
                 let n1: string = baseStr.nt1
                 let n2: string = baseStr.nt2
+                //if(type == 'cHS' || type == 'tHS' || type == 'cWS' || type == 'tWS' || type == 'cWH' || type == 'tWH') {
+                if(type == 'cSH' || type == 'tSH' || type == 'cSW' || type == 'tSW' || type == 'cHW' || type == 'tHW') {
+                    let temp = end 
+                    end = start 
+                    start = temp
+                    let temp2 = n1
+                    n1 = n2
+                    n2 = temp2
+                    type = type.charAt(0) + type.slice(-2).split('').reverse().join('')
+                }
                 let x1 = this.locations.get(start)![0] + font_size/2.5
                 let x2 = this.locations.get(end)![0] + font_size/2.5
                 let y1 = this.locations.get(start)![1] - font_size/2.5
@@ -737,9 +751,9 @@ export class UiTemplateService {
                 let distance2 = distance - 2 * font_size
                 let height = font_size/1.5
                 if(x1 - x2 != 0) {
-                    var phi = 90 + Math.atan2((y1 - y2),(x1-x2)) * 180/Math.PI
+                    var phi = 270 + Math.atan2((y1 - y2),(x1-x2)) * 180/Math.PI
                 } else {
-                    var phi = 0
+                    var phi = 180
                 }
                 if(type == 'cWW'){
                     stroke = '#000'
@@ -782,7 +796,8 @@ export class UiTemplateService {
                     l ${height/2} 0
                     M ${xm} ${ym - height/2} ${xm} ${ym - distance2/2}
                     "stroke="${stroke}" stroke-width="${font_size/6}" fill=${fill} transform="rotate(${phi} ${xm} ${ym})"/>`)
-                } else if (type == 'tHS'|| type == 'cHS') {
+                } //else if (type == 'tSH'|| type == 'cSH') {
+                else if (type == 'tHS'|| type == 'cHS') {
                     this.baseStrs.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${n1}${start} - ${n2}${end}; ${type}', '${pathID}', '${stroke}', '${fill}');" onmouseout="UiActionsService.hideTooltip('${pathID}');"
                     d="
                     M ${xm} ${ym+distance2/2} ${xm} ${ym + height + height/4} 
@@ -798,7 +813,32 @@ export class UiTemplateService {
                     l ${height/2} 0
                     M ${xm} ${ym - height - height/4} ${xm} ${ym - distance2/2}
                     "stroke="${stroke}" stroke-width="${font_size/6}" fill=${fill} transform="rotate(${phi} ${xm} ${ym})"/>`)
-                } else if (type == 'tWS' || type == 'cWS') {
+                } /*else if (type == 'tSH'|| type == 'cSH') {
+                    var adjusted_type = ''
+                    if(type == 'tSH') {
+                        adjusted_type = 'tHS'
+                    } else if(type == 'cSH'){
+                        adjusted_type = 'cHS'
+                    }
+                    this.baseStrs.get(adjusted_type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${n2}${end} - ${n1}${start}; ${adjusted_type}', '${pathID}', '${stroke}', '${fill}');" onmouseout="UiActionsService.hideTooltip('${pathID}');"
+                    d="
+                    M ${xm} ${ym+distance2/2} ${xm} ${ym + height + height/4} 
+                    h -${height/2}
+                    v -${height}
+                    h ${height}
+                    v ${height}
+                    h -${height/2}
+                    M ${xm} ${ym + height/4} ${xm} ${ym - height/4}
+                    l ${height/2} 0
+                    l -${height/2} -${height} 
+                    l -${height/2} ${height}
+                    l ${height/2} 0
+                    M ${xm} ${ym - height - height/4} ${xm} ${ym - distance2/2}
+                    "stroke="${stroke}" stroke-width="${font_size/6}" fill=${fill} transform="rotate(${phi} ${xm} ${ym})"/>`)
+                } */
+                
+                //else if (type == 'tSW' || type == 'cSW') {
+                else if (type == 'tWS' || type == 'cWS') {
                     this.baseStrs.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${n1}${start} - ${n2}${end}; ${type}', '${pathID}', '${stroke}', '${fill}');" onmouseout="UiActionsService.hideTooltip('${pathID}');"
                     d="
                     M ${xm} ${ym+distance2/2} ${xm} ${ym + height + height/4} 
@@ -812,7 +852,8 @@ export class UiTemplateService {
                     l ${height/2} 0
                     M ${xm} ${ym - height - height/4} ${xm} ${ym - distance2/2}
                     "stroke="${stroke}" stroke-width="${font_size/6}" fill=${fill} transform="rotate(${phi} ${xm} ${ym})"/>`)
-                } else if (type == 'tWH' || type == 'cWH') {
+                } //else if (type == 'tHW' || type == 'cHW') {
+                else if (type == 'tWH' || type == 'cWH') {
                     this.baseStrs.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${n1}${start} - ${n2}${end}; ${type}', '${pathID}', '${stroke}', '${fill}');" onmouseout="UiActionsService.hideTooltip('${pathID}');"
                     d="
                     M ${xm} ${ym+distance2/2} ${xm} ${ym + height + height/4} 

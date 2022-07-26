@@ -650,10 +650,6 @@ var calculateModifiedResidues = function(pdbid, chainid, entityid) {
         let modifiedData = new Map()
         let modifications = []
         for (let val in data.Modified) {
-            console.log(val)
-            console.log(data.Modified[val][0])
-            console.log(data.Modified[val][1])
-            console.log(data.Modified[val][2])
             if(modifications.indexOf(data.Modified[val][0]) < 0) {
                 modifications.push(data.Modified[val][0])
                 modifiedData.set(data.Modified[val][0], [])
