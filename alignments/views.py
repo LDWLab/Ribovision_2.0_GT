@@ -798,9 +798,10 @@ def modified_residues(request, pdbid, chain_id):
                 index = i
             i += 1
     pattern = '\([a-zA-Z0-9]*\)'
-    sequence = mmcdata['_entity_poly.pdbx_seq_one_letter_code'][index]
+    sequence = mmcdata['_entity_poly.pdbx_seq_one_letter_code'][index].replace(" ", "")
     #modiifed_residues = re.findall('\([a-zA-Z0-9]*\)', mmcdata['_entity_poly.pdbx_seq_one_letter_code'][0])
     #iter = re.finditer('\([a-zA-Z0-9]*\)', mmcdata['_entity_poly.pdbx_seq_one_letter_code'][0])
+    print(sequence)
     modified_residues = []
     for match in re.finditer(pattern, sequence):
         s = match.start()
