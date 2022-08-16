@@ -20,7 +20,9 @@ export class UiTemplateService {
     nucleotideStrs: string[] = [];
     circleStrs: string[] = [];
     baseStrs: Map <string, [boolean, string[]]> = new Map();
+    nestedBaseStrs: Map <string, [boolean, string[]]> = new Map();
     displayBaseStrs: string;
+    displayNestedBaseStrs: string;
     basePairIDs: any[] = [];
     mappingValue: string = '';
     showAllNucleotides: boolean = false;
@@ -47,10 +49,10 @@ export class UiTemplateService {
         this.uiActionsService = new UiActionsService(this.pluginOptions.pdbId);
     }
 
-    render(apiData: ApiData, FR3DData: any) {
+    render(apiData: ApiData, FR3DData: any, FR3DNestedData: any) {
         this.containerElement.innerHTML = 
         `<div class="pdb-rna-view-container pdb-rna-view-container-${this.pluginOptions.pdbId}">
-            ${this.svgTemplate(apiData, FR3DData)}
+            ${this.svgTemplate(apiData, FR3DData, FR3DNestedData)}
             ${this.title()}
             ${this.tooltip()}
             ${this.actionButtons()}
@@ -58,10 +60,12 @@ export class UiTemplateService {
         <div style="${this.menuStyle}">
                 <div class="menuOptions" style="width:95%;float:center;display:inline-block;">
                     <form>
-                    <select class="menuSelectbox" style="width:30%; display: inline-block; float: left;"><option value="">Nucleotides</option></select>
-                    <select class="mappingSelectbox" style="width:30%; display: inline-block; float: center;"><option value="">Mapping</option></select>
+                    <input type="checkbox" id="nestedBP" name="nestedBP" style="width:5%; display: inline-block; float: left;>
+                    <label for="nestedBP" style="width:20%; display: inline-block; float: left;"> Only nested BPs</label>
+                    <select class="menuSelectbox" style="width:20%; display: inline-block;"><option value="">Nucleotides</option></select>
+                    <select class="mappingSelectbox" style="width:20%; display: inline-block;"><option value="">Mapping</option></select>
                     <div class="multiselect">
-                        <div class="selectBox" onclick="UiActionsService.showCheckboxes()" style="display:inline-block;float:right;width:30%">
+                        <div class="selectBox" onclick="UiActionsService.showCheckboxes()" style="display:inline-block;float:right;width:25%">
                             <select>
                                 <option>Base Pairings</option>
                             </select>
@@ -203,7 +207,6 @@ export class UiTemplateService {
         this.addEvents(this.apiData!)
     }
     colorMapModifications=() => {
-        console.log("color map")
         this.mapped_modifications.forEach((val) => {   
             if(!this.rv3VUEcomponent.modifications.includes(val)) {
                 for(var i in this.rv3VUEcomponent.modified_residues.get(val)) {
@@ -242,29 +245,30 @@ export class UiTemplateService {
     }
     changeBP(val: string) {
         this.displayBaseStrs = '';
-        if((val == 'All' && !this.showAllNucleotides)) {
-            this.showAllNucleotides = true;
+        this.displayNestedBaseStrs = '';
+        const allBP = this.containerElement.querySelector<HTMLInputElement>('#Checkbox_All')!.checked
+        if((val == 'All')) {
             this.baseStrs.forEach((value: [boolean, string[]], key: string) => {
-                this.baseStrs.set(key, [true,  value[1]]);
-                this.displayBaseStrs += value[1].join('');
-                (<HTMLInputElement>document.getElementById(`Checkbox_${key}`))!.checked = true
+                this.baseStrs.set(key, [allBP,  value[1]]);
+                this.nestedBaseStrs.set(key, [allBP,  this.nestedBaseStrs.get(key)![1]]);
+                (<HTMLInputElement>document.getElementById(`Checkbox_${key}`))!.checked = allBP
+                if(allBP) {
+                    this.displayBaseStrs += value[1].join('');
+                    this.displayNestedBaseStrs += this.nestedBaseStrs.get(key)![1].join('');
+                }
             });
-        } else if (val == 'All') {
-            this.showAllNucleotides = false;
-            this.baseStrs.forEach((value: [boolean, string[]], key: string) => {
-                this.baseStrs.set(key, [false,  value[1]]);
-                (<HTMLInputElement>document.getElementById(`Checkbox_${key}`))!.checked = false
-            });
-        }
-        else {
+        } else {
             if(this.baseStrs.get(val)![0]) {
                 this.baseStrs.set(val, [false,  this.baseStrs.get(val)![1]]);
+                this.nestedBaseStrs.set(val, [false,  this.nestedBaseStrs.get(val)![1]]);
             } else {
                 this.baseStrs.set(val, [true,  this.baseStrs.get(val)![1]]);
+                this.nestedBaseStrs.set(val, [true,  this.nestedBaseStrs.get(val)![1]]);
             }
             this.baseStrs.forEach((value: [boolean, string[]], key: string) => {
                 if(value[0]) {
                     this.displayBaseStrs += value[1].join('');
+                    this.displayNestedBaseStrs += this.nestedBaseStrs.get(key)![1].join('')
                 }
             });
         }
@@ -303,6 +307,8 @@ export class UiTemplateService {
         const selectBoxEle = this.containerElement.querySelector<HTMLElement>('.menuSelectbox');
         selectBoxEle!.innerHTML = optionList;
         selectBoxEle!.addEventListener("change", this.PathOrNucleotide.bind(this));
+        const nestedBP = this.containerElement.querySelector<HTMLElement>('#nestedBP');
+        nestedBP!.addEventListener("change", this.PathOrNucleotide.bind(this));
     }
     createDomainDropdown () {
         this.selectedDomain = this.domainTypes[0];
@@ -481,6 +487,143 @@ export class UiTemplateService {
             window.URL.revokeObjectURL(url);  
         }, 0); 
     }
+    private calcBaseStrs(baseStr: any, baseMap: any, font_size: number) {
+        let start:number = +baseStr.seq_id1
+        let end:number = +baseStr.seq_id2
+        if(baseStr && start && end) {
+            let type:string = baseStr.bp
+            let pathID:string = `rnaviewBP rnaviewBP_${this.pluginOptions.pdbId}_${this.pluginOptions.chainId} ${type}_${start}_${end}`
+            let n1: string = baseStr.nt1
+            let n2: string = baseStr.nt2
+            if(type == 'cSH' || type == 'tSH' || type == 'cSW' || type == 'tSW' || type == 'cHW' || type == 'tHW') {
+                let temp = end 
+                end = start 
+                start = temp
+                let temp2 = n1
+                n1 = n2
+                n2 = temp2
+                type = type.charAt(0) + type.slice(-2).split('').reverse().join('')
+            }
+            let x1 = this.locations.get(start)![0] + font_size/2.5
+            let x2 = this.locations.get(end)![0] + font_size/2.5
+            let y1 = this.locations.get(start)![1] - font_size/2.5
+            let y2 = this.locations.get(end)![1] - font_size/2.5
+            let distance = Math.pow(Math.pow((x1-x2),2)+ Math.pow((y1-y2),2),0.5)
+            let x1_prime = UiTemplateService.linearlyInterpolate(x1, x2, font_size/distance)
+            let y1_prime = UiTemplateService.linearlyInterpolate(y1, y2, font_size/distance)
+            let x2_prime = UiTemplateService.linearlyInterpolate(x1, x2, 1-font_size/distance)
+            let y2_prime = UiTemplateService.linearlyInterpolate(y1, y2, 1-font_size/distance)
+            let stroke = "#ccc"
+            if (type.charAt(0) == 't') {
+                var fill = "none"
+            } else {
+                var fill = "#ccc"
+            }
+            let xm = (x1_prime + x2_prime)/2
+            let ym = (y1_prime + y2_prime)/2
+            let distance2 = distance - 2 * font_size
+            let height = font_size/1.5
+            const defaultAction = `<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${n1}${start} - ${n2}${end}; ${type}', '${pathID}', '${stroke}', '${fill}');" onmouseout="UiActionsService.hideTooltip('${pathID}');"`
+            var phi = 270 + Math.atan2((y1 - y2),(x1-x2)) * 180/Math.PI
+            if(type == 'cWW'){
+                if(n1 == 'G' && n2 == 'U' || n1 == 'U' && n2 == 'G') {
+                    baseMap.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${n1}${start} - ${n2}${end}; ${type}', '${pathID}', '#000', '#000');"
+                    onmouseout="UiActionsService.hideTooltip('${pathID}');"
+                    d="
+                    M ${(x1_prime + x2_prime)/2 - font_size/4}, ${(y1_prime+y2_prime)/2}
+                    a ${font_size/4},${font_size/4} 0 1,0 ${font_size/2},0
+                    a ${font_size/4},${font_size/4} 0 1,0 ${-1 * font_size/2},0
+                    "
+                    stroke="#000" stroke-width="${font_size/6} fill="${fill}"
+                />`)
+                } else{
+                baseMap.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt,  '${n1}${start} - ${n2}${end}; ${type}', '${pathID}', '#000', '#000');" onmouseout="UiActionsService.hideTooltip('${pathID}');" stroke-width="${font_size/6}" data-stroke-color="#000" stroke="#000" d="M${x1_prime} ${y1_prime} ${x2_prime} ${y2_prime}"></path>`)
+                } 
+            } 
+            else if (type == 'tWW') {
+                let xm1 = UiTemplateService.linearlyInterpolate(x1_prime, xm, 1-(font_size/3)/(distance/2))
+                let ym1 = UiTemplateService.linearlyInterpolate(y1_prime, ym, 1-(font_size/3)/(distance/2))
+                let xm2 = UiTemplateService.linearlyInterpolate(xm, x2_prime, (font_size/3)/(distance/2))
+                let ym2 = UiTemplateService.linearlyInterpolate(ym, y2_prime, (font_size/3)/(distance/2))
+                baseMap.get(type)![1].push(defaultAction + 
+                    `d="
+                    M ${x1_prime} ${y1_prime} ${xm1} ${ym1}
+                    M ${xm - font_size/3} ${ym}
+                    a ${font_size/3},${font_size/3} 0 1,0 ${font_size/1.5},0
+                    a ${font_size/3},${font_size/3} 0 1,0 ${-1 * font_size/1.5},0
+                    M ${xm2} ${ym2} ${x2_prime} ${y2_prime}"
+                    stroke="${stroke}" stroke-width="${font_size/6}" fill = "${fill}"/>`
+                )
+            } else if (type == 'cSS'||type == 'tSS') {
+                baseMap.get(type)![1].push(defaultAction + `
+                d="
+                M ${xm} ${ym+distance2/2} ${xm} ${ym+height/2} 
+                l ${height/2} 0
+                l -${height/2} -${height} 
+                l -${height/2} ${height}
+                l ${height/2} 0
+                M ${xm} ${ym - height/2} ${xm} ${ym - distance2/2}
+                "stroke="${stroke}" stroke-width="${font_size/6}" fill = "${fill}" transform = "rotate(${phi} ${xm} ${ym})"/>`)
+            } else if (type == 'tHS'|| type == 'cHS') {
+                baseMap.get(type)![1].push(defaultAction + `
+                d="
+                M ${xm} ${ym+distance2/2} ${xm} ${ym + height + height/4} 
+                h -${height/2}
+                v -${height}
+                h ${height}
+                v ${height}
+                h -${height/2}
+                M ${xm} ${ym + height/4} ${xm} ${ym - height/4}
+                l ${height/2} 0
+                l -${height/2} -${height} 
+                l -${height/2} ${height}
+                l ${height/2} 0
+                M ${xm} ${ym - height - height/4} ${xm} ${ym - distance2/2}
+                "stroke="${stroke}" stroke-width="${font_size/6}" fill = "${fill}" transform = "rotate(${phi} ${xm} ${ym})"/>`)
+            } else if (type == 'tWS' || type == 'cWS') {
+                baseMap.get(type)![1].push(defaultAction + `
+                d="
+                M ${xm} ${ym+distance2/2} ${xm} ${ym + height + height/4} 
+                M ${xm - height/2} ${ym + 3*height/4} 
+                a ${height/2},${height/2} 0 1,0 ${height},0
+                a ${height/2},${height/2} 0 1,0 ${-1 * height},0
+                M ${xm} ${ym + height/4} ${xm} ${ym - height/4}
+                l ${height/2} 0
+                l -${height/2} -${height} 
+                l -${height/2} ${height}
+                l ${height/2} 0
+                M ${xm} ${ym - height - height/4} ${xm} ${ym - distance2/2}
+                "stroke="${stroke}" stroke-width="${font_size/6}" fill = "${fill}" transform = "rotate(${phi} ${xm} ${ym})"/>`)
+            } else if (type == 'tWH' || type == 'cWH') {
+                baseMap.get(type)![1].push(defaultAction + `
+                d="
+                M ${xm} ${ym+distance2/2} ${xm} ${ym + height + height/4} 
+                M ${xm - height/2} ${ym + 3*height/4} 
+                a ${height/2},${height/2} 0 1,0 ${height},0
+                a ${height/2},${height/2} 0 1,0 ${-1 * height},0
+                M ${xm} ${ym + height/4} ${xm} ${ym - height/4}
+                h -${height/2}
+                v -${height}
+                h ${height}
+                v ${height}
+                h -${height/2}
+                M ${xm} ${ym - height - height/4} ${xm} ${ym - distance2/2}
+                "stroke="${stroke}" stroke-width="${font_size/6}" fill = "${fill}" transform = "rotate(${phi} ${xm} ${ym})"/>`)
+            }
+            else if (type == 'tHH' || type == 'cHH' ) {
+                baseMap.get(type)![1].push(defaultAction + `
+                d="
+                M ${xm} ${ym+distance2/2} ${xm} ${ym+height/2} 
+                h -${height/2}
+                v -${height}
+                h ${height}
+                v ${height}
+                h -${height/2}
+                M ${xm} ${ym - height/2} ${xm} ${ym - distance2/2}
+                "stroke="${stroke}" stroke-width="${font_size/6}" fill = "${fill}" transform = "rotate(${phi} ${xm} ${ym})"/>`)
+            }
+        }
+    }
     /*
     private getJSON(apiData: ApiData){
         let JSON = 
@@ -510,10 +653,16 @@ export class UiTemplateService {
         const selectBoxEle:any = this.containerElement.querySelector<HTMLElement>('.menuSelectbox');
         const selectedValue = parseInt(selectBoxEle.value);
         this.mappingValue = ''
+        const nestedBP = this.containerElement.querySelector<HTMLInputElement>('#nestedBP')
+        if(nestedBP!.checked) {
+            var displayBP = this.displayNestedBaseStrs
+        } else {
+            var displayBP = this.displayBaseStrs
+        }
         if(selectedValue == 0) {
-            (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(`rnaTopoSvg_${this.pluginOptions.pdbId}`)[0].innerHTML = this.nucleotideStrs.join('') + this.circleStrs.join('') + this.displayBaseStrs;
+            (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(`rnaTopoSvg_${this.pluginOptions.pdbId}`)[0].innerHTML = this.nucleotideStrs.join('') + this.circleStrs.join('') + displayBP;
         } else if(selectedValue == 1) {
-            (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(`rnaTopoSvg_${this.pluginOptions.pdbId}`)[0].innerHTML = this.pathStrs.join('') + this.circleStrs.join('') + this.displayBaseStrs;
+            (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(`rnaTopoSvg_${this.pluginOptions.pdbId}`)[0].innerHTML = this.pathStrs.join('') + this.circleStrs.join('') + displayBP;
         } else if(selectedValue == 2) {
             (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(`rnaTopoSvg_${this.pluginOptions.pdbId}`)[0].innerHTML = this.nucleotideStrs.join('') + this.circleStrs.join('') + this.displayBaseStrs;
             this.mappingValue = 'circle';
@@ -622,7 +771,7 @@ export class UiTemplateService {
         return svgData
     }
 
-    private svgTemplate(apiData: ApiData, FR3DData: any): string { 
+    private svgTemplate(apiData: ApiData, FR3DData: any, FR3DNestedData: any): string { 
         const font_size:number = this.calculateFontSize(apiData)
         const lastPathIndex = apiData.svg_paths.length - 1;
         var locations2: Map<any, number[]> = new Map();
@@ -644,6 +793,7 @@ export class UiTemplateService {
             let strokeColor = this.pluginOptions.theme?.color || '#323232';
             const strokeWide = this.pluginOptions.theme?.strokeWidth || '2';
             let isUnobserved = false;
+            
             if(apiData.unobserved_label_seq_ids && apiData.unobserved_label_seq_ids.indexOf(apiData.label_seq_ids[recordIndex - 1]) > -1) {
                 strokeColor = this.pluginOptions.theme?.unobservedColor || '#ccc';
                 isUnobserved = true;
@@ -668,191 +818,61 @@ export class UiTemplateService {
                 newPathStr = `M${newX + deltaX},${newY - deltaY},${newX2 + deltaX},${newY2 - deltaY}`
             }
             pathStr = newPathStr;
-
-        this.pathStrs.push(
-            `<path 
-                class="${pathEleClass}" stroke-width="${strokeWide}" stroke="${strokeColor}" d="${newPathStr}" 
-                data-stroke-color="${strokeColor}" 
-                onclick="UiActionsService.selectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}', 'click', ${isUnobserved}, '${apiData.sequence[recordIndex - 2]}', event, ${this.pluginOptions.theme?.highlightColor ? "'"+this.pluginOptions.theme.highlightColor+"'" : undefined})" 
-                onmouseover="UiActionsService.selectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, 'mouseover', ${isUnobserved}, '${apiData.sequence[recordIndex - 2]}', event, ${this.pluginOptions.theme?.highlightColor ? "'"+this.pluginOptions.theme.highlightColor+"'" : undefined})" 
-                onmouseout="UiActionsService.unSelectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, ${isUnobserved}, event, '${strokeColor}')">
-            </path>`)
+            this.pathStrs.push(
+                `<path 
+                    class="${pathEleClass}" stroke-width="${strokeWide}" stroke="${strokeColor}" d="${pathStr}" 
+                    data-stroke-color="${strokeColor}" 
+                    onclick="UiActionsService.selectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}', 'click', ${isUnobserved}, '${apiData.sequence[recordIndex - 2]}, event, ${this.pluginOptions.theme?.highlightColor ? "'"+this.pluginOptions.theme.highlightColor+"'" : undefined})" 
+                    onmouseover="UiActionsService.selectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, 'mouseover', ${isUnobserved}, '${apiData.sequence[recordIndex - 2]}', event, ${this.pluginOptions.theme?.highlightColor ? "'"+this.pluginOptions.theme.highlightColor+"'" : undefined})" 
+                    onmouseout="UiActionsService.unSelectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, ${isUnobserved}, event, '${strokeColor}')">
+                </path>`)
+            this.nucleotideStrs.push(
+                `<text href="#${pathEleClass}" class="${pathEleClass}" x="${xVal}" y="${yVal}" font-size = "${font_size}px" onclick="UiActionsService.selectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, 'click', ${isUnobserved}, '${apiData.sequence[recordIndex - 2]}',
+                event, ${this.pluginOptions.theme?.highlightColor ? "'"+this.pluginOptions.theme.highlightColor+"'" : undefined})" onmouseover="UiActionsService.selectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, 'mouseover', ${isUnobserved}, '${apiData.sequence[recordIndex - 2]}',
+                event, ${this.pluginOptions.theme?.highlightColor ? "'"+this.pluginOptions.theme.highlightColor+"'" : undefined})" onmouseout="UiActionsService.unSelectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, ${isUnobserved}, event, '${strokeColor}')">${apiData.sequence[recordIndex - 2]}</text>`)
+            });
         
-        /*this.pathStrs.push(
-            `<path 
-                class="${pathEleClass}" stroke-width="${strokeWide}" stroke="${strokeColor}" d="${newPathStr}" 
-                data-stroke-color="${strokeColor}">
-            </path>`)
-        */
-        this.circleStrs.push(
-            `<circle class="circle_${this.pluginOptions.pdbId}_${apiData.label_seq_ids[recordIndex - 1]}" cx="${xVal + deltaX}" cy="${yVal - deltaY}" r="${2 * font_size/3}" display="none" alignment-baseline="middle" stroke-width="${font_size/6}" onclick="UiActionsService.selectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, 'click', ${isUnobserved}, '${apiData.sequence[recordIndex - 2]}', event, ${this.pluginOptions.theme?.highlightColor ? "'"+this.pluginOptions.theme.highlightColor+"'" : undefined})" 
-            onmouseover="UiActionsService.selectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, 'mouseover', ${isUnobserved}, '${apiData.sequence[recordIndex - 2]}', event, ${this.pluginOptions.theme?.highlightColor ? "'"+this.pluginOptions.theme.highlightColor+"'" : undefined})" 
-            onmouseout="UiActionsService.unSelectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, ${isUnobserved}, event, '${strokeColor}')"/>`)
-        /*this.circleStrs.push(
-            `<circle class="circle_${this.pluginOptions.pdbId}_${apiData.label_seq_ids[recordIndex - 1]}" cx="${xVal + deltaX}" cy="${yVal - deltaY}" r="${2 * font_size/3}" display="none" alignment-baseline="middle" stroke-width="${font_size/6}"/>`)
-        this.nucleotideStrs.push(
-            `<text href="#${pathEleClass}" class="${pathEleClass}" x="${xVal}" y="${yVal}" font-size = "${font_size}px" >${apiData.sequence[recordIndex - 2]}</text>`)*/
-            
-        this.nucleotideStrs.push(
-            `<text href="#${pathEleClass}" class="${pathEleClass}" x="${xVal}" y="${yVal}" font-size = "${font_size}px" onclick="UiActionsService.selectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, 'click', ${isUnobserved}, '${apiData.sequence[recordIndex - 2]}', event, ${this.pluginOptions.theme?.highlightColor ? "'"+this.pluginOptions.theme.highlightColor+"'" : undefined})" 
-            onmouseover="UiActionsService.selectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, 'mouseover', ${isUnobserved}, '${apiData.sequence[recordIndex - 2]}', event, ${this.pluginOptions.theme?.highlightColor ? "'"+this.pluginOptions.theme.highlightColor+"'" : undefined})" 
-            onmouseout="UiActionsService.unSelectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, ${isUnobserved}, event, '${strokeColor}')">${apiData.sequence[recordIndex - 2]}</text>`)
-        
-        });
-
         let baseArray = FR3DData.annotations;
+        let nestedBaseArray = FR3DNestedData.annotations;
+
         this.baseStrs.set('cWW', [true, []]);
         this.baseStrs.set('tWW', [false, []]);
-        this.baseStrs.set('tHH', [false, []]);
-        this.baseStrs.set('cHH', [false, []]);
-        this.baseStrs.set('tSS', [false, []]);
-        this.baseStrs.set('cSS', [false, []]);
         this.baseStrs.set('cWH', [false, []]);
         this.baseStrs.set('tWH', [false, []]);
-        this.baseStrs.set('tWS', [false, []]);
         this.baseStrs.set('cWS', [false, []]);
-        this.baseStrs.set('tHS', [false, []]);
+        this.baseStrs.set('tWS', [false, []]);
+        this.baseStrs.set('cHH', [false, []]);
+        this.baseStrs.set('tHH', [false, []]);
         this.baseStrs.set('cHS', [false, []]);
-        
+        this.baseStrs.set('tHS', [false, []]);
+        this.baseStrs.set('cSS', [false, []]);
+        this.baseStrs.set('tSS', [false, []]);
+
+        this.nestedBaseStrs.set('cWW', [true, []]);
+        this.nestedBaseStrs.set('tWW', [false, []]);
+        this.nestedBaseStrs.set('cWH', [false, []]);
+        this.nestedBaseStrs.set('tWH', [false, []]);
+        this.nestedBaseStrs.set('cWS', [false, []]);
+        this.nestedBaseStrs.set('tWS', [false, []]);
+        this.nestedBaseStrs.set('cHH', [false, []]);
+        this.nestedBaseStrs.set('tHH', [false, []]);
+        this.nestedBaseStrs.set('cHS', [false, []]);
+        this.nestedBaseStrs.set('tHS', [false, []]);
+        this.nestedBaseStrs.set('cSS', [false, []]);
+        this.nestedBaseStrs.set('tSS', [false, []]);
+
+        nestedBaseArray.forEach((baseStr: any) => {
+            this.calcBaseStrs(baseStr, this.nestedBaseStrs, font_size)
+        })
         baseArray.forEach((baseStr: any) => {
-            let start:number = +baseStr.seq_id1
-            //let start:number = +baseStr[`3d_id1`];
-            //let end:number = +baseStr[`3d_id2`];
-            let end:number = +baseStr.seq_id2
-            if(baseStr && start && end) {
-                let type:string = baseStr.bp
-                let pathID:string = `rnaviewBP_rnaviewBP_${this.pluginOptions.pdbId}_${this.pluginOptions.chainId}_${type}_${start}_${end}`
-                let n1: string = baseStr.nt1
-                let n2: string = baseStr.nt2
-                let x1 = this.locations.get(start)![0] + font_size/2.5
-                let x2 = this.locations.get(end)![0] + font_size/2.5
-                let y1 = this.locations.get(start)![1] - font_size/2.5
-                let y2 = this.locations.get(end)![1] - font_size/2.5
-                let distance = Math.pow(Math.pow((x1-x2),2)+ Math.pow((y1-y2),2),0.5)
-                let x1_prime = UiTemplateService.linearlyInterpolate(x1, x2, font_size/distance)
-                let y1_prime = UiTemplateService.linearlyInterpolate(y1, y2, font_size/distance)
-                let x2_prime = UiTemplateService.linearlyInterpolate(x1, x2, 1-font_size/distance)
-                let y2_prime = UiTemplateService.linearlyInterpolate(y1, y2, 1-font_size/distance)
-                let stroke = "#ccc"
-                if (type.charAt(0) == 't') {
-                    var fill = "none"
-                } else {
-                    var fill = "#ccc"
-                }
-                let xm = (x1_prime + x2_prime)/2
-                let ym = (y1_prime + y2_prime)/2
-                let distance2 = distance - 2 * font_size
-                let height = font_size/1.5
-                if(x1 - x2 != 0) {
-                    var phi = 90 + Math.atan2((y1 - y2),(x1-x2)) * 180/Math.PI
-                } else {
-                    var phi = 0
-                }
-                if(type == 'cWW'){
-                    stroke = '#000'
-                    fill = '#000'
-                    if(n1 == 'G' && n2 == 'U' || n1 == 'U' && n2 == 'G') {
-                        this.baseStrs.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${n1}${start} - ${n2}${end}; ${type}', '${pathID}', '${stroke}', '${fill}');" onmouseout="UiActionsService.hideTooltip('${pathID}');"
-                        d="
-                        M ${(x1_prime + x2_prime)/2 - font_size/4}, ${(y1_prime+y2_prime)/2}
-                        a ${font_size/4},${font_size/4} 0 1,0 ${font_size/2},0
-                        a ${font_size/4},${font_size/4} 0 1,0 ${-1 * font_size/2},0
-                        "
-                        stroke="#000" stroke-width="${font_size/6}" fill="${fill}"
-                    />`)
-                    } else{
-                    this.baseStrs.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${n1}${start} - ${n2}${end}; ${type}', '${pathID}', '${stroke}', '${fill}');" onmouseout="UiActionsService.hideTooltip('${pathID}');"
-                    stroke-width="${font_size/6}" data-stroke-color="#000" stroke="#000" d="M${x1_prime} ${y1_prime} ${x2_prime} ${y2_prime}"></path>`)
-                    } 
-                } else if (type == 'tWW') {
-                    let xm1 = UiTemplateService.linearlyInterpolate(x1_prime, (x1_prime + x2_prime)/2, 1-(font_size/3)/(distance/2))
-                    let ym1 = UiTemplateService.linearlyInterpolate(y1_prime, (y1_prime + y2_prime)/2, 1-(font_size/3)/(distance/2))
-                    let xm2 = UiTemplateService.linearlyInterpolate((x1_prime + x2_prime)/2, x2_prime, (font_size/3)/(distance/2))
-                    let ym2 = UiTemplateService.linearlyInterpolate((y1_prime + y2_prime)/2, y2_prime, (font_size/3)/(distance/2))
-                    this.baseStrs.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${n1}${start} - ${n2}${end}; ${type}', '${pathID}', '${stroke}', '${fill}');" onmouseout="UiActionsService.hideTooltip('${pathID}');"
-                        d="
-                        M ${x1_prime} ${y1_prime} ${xm1} ${ym1}
-                        M ${(x1_prime + x2_prime)/2 - font_size/3} ${(y1_prime + y2_prime)/2}
-                        a ${font_size/3},${font_size/3} 0 1,0 ${font_size/1.5},0
-                        a ${font_size/3},${font_size/3} 0 1,0 ${-1 * font_size/1.5},0
-                        M ${xm2} ${ym2} ${x2_prime} ${y2_prime}
-                        "
-                        stroke="${stroke}" stroke-width="${font_size/6}" fill="${fill}"/>`
-                    )
-                } else if (type == 'cSS'||type == 'tSS') {
-                    this.baseStrs.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${n1}${start} - ${n2}${end}; ${type}', '${pathID}', '${stroke}', '${fill}');" onmouseout="UiActionsService.hideTooltip('${pathID}');"
-                    d="
-                    M ${xm} ${ym+distance2/2} ${xm} ${ym+height/2} 
-                    l ${height/2} 0
-                    l -${height/2} -${height} 
-                    l -${height/2} ${height}
-                    l ${height/2} 0
-                    M ${xm} ${ym - height/2} ${xm} ${ym - distance2/2}
-                    "stroke="${stroke}" stroke-width="${font_size/6}" fill=${fill} transform="rotate(${phi} ${xm} ${ym})"/>`)
-                } else if (type == 'tHS'|| type == 'cHS') {
-                    this.baseStrs.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${n1}${start} - ${n2}${end}; ${type}', '${pathID}', '${stroke}', '${fill}');" onmouseout="UiActionsService.hideTooltip('${pathID}');"
-                    d="
-                    M ${xm} ${ym+distance2/2} ${xm} ${ym + height + height/4} 
-                    h -${height/2}
-                    v -${height}
-                    h ${height}
-                    v ${height}
-                    h -${height/2}
-                    M ${xm} ${ym + height/4} ${xm} ${ym - height/4}
-                    l ${height/2} 0
-                    l -${height/2} -${height} 
-                    l -${height/2} ${height}
-                    l ${height/2} 0
-                    M ${xm} ${ym - height - height/4} ${xm} ${ym - distance2/2}
-                    "stroke="${stroke}" stroke-width="${font_size/6}" fill=${fill} transform="rotate(${phi} ${xm} ${ym})"/>`)
-                } else if (type == 'tWS' || type == 'cWS') {
-                    this.baseStrs.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${n1}${start} - ${n2}${end}; ${type}', '${pathID}', '${stroke}', '${fill}');" onmouseout="UiActionsService.hideTooltip('${pathID}');"
-                    d="
-                    M ${xm} ${ym+distance2/2} ${xm} ${ym + height + height/4} 
-                    M ${xm - height/2} ${ym + 3*height/4} 
-                    a ${height/2},${height/2} 0 1,0 ${height},0
-                    a ${height/2},${height/2} 0 1,0 ${-1 * height},0
-                    M ${xm} ${ym + height/4} ${xm} ${ym - height/4}
-                    l ${height/2} 0
-                    l -${height/2} -${height} 
-                    l -${height/2} ${height}
-                    l ${height/2} 0
-                    M ${xm} ${ym - height - height/4} ${xm} ${ym - distance2/2}
-                    "stroke="${stroke}" stroke-width="${font_size/6}" fill=${fill} transform="rotate(${phi} ${xm} ${ym})"/>`)
-                } else if (type == 'tWH' || type == 'cWH') {
-                    this.baseStrs.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${n1}${start} - ${n2}${end}; ${type}', '${pathID}', '${stroke}', '${fill}');" onmouseout="UiActionsService.hideTooltip('${pathID}');"
-                    d="
-                    M ${xm} ${ym+distance2/2} ${xm} ${ym + height + height/4} 
-                    M ${xm - height/2} ${ym + 3*height/4} 
-                    a ${height/2},${height/2} 0 1,0 ${height},0
-                    a ${height/2},${height/2} 0 1,0 ${-1 * height},0
-                    M ${xm} ${ym + height/4} ${xm} ${ym - height/4}
-                    h -${height/2}
-                    v -${height}
-                    h ${height}
-                    v ${height}
-                    h -${height/2}
-                    M ${xm} ${ym - height - height/4} ${xm} ${ym - distance2/2}
-                    "stroke="${stroke}" stroke-width="${font_size/6}" fill=${fill} transform="rotate(${phi} ${xm} ${ym})"/>`)
-                    //this.basePairIDs.push([pathID,start,end,n1,n2,fill,stroke,type])
-                }
-                else if (type == 'tHH' || type == 'cHH' ) {
-                    this.baseStrs.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt, '${n1}${start} - ${n2}${end}; ${type}', '${pathID}', '${stroke}', '${fill}');" onmouseout="UiActionsService.hideTooltip('${pathID}');"
-                    d="
-                    M ${xm} ${ym+distance2/2} ${xm} ${ym+height/2} 
-                    h -${height/2}
-                    v -${height}
-                    h ${height}
-                    v ${height}
-                    h -${height/2}
-                    M ${xm} ${ym - height/2} ${xm} ${ym - distance2/2}
-                    "stroke="${stroke}" stroke-width="${font_size/6}" fill=${fill} transform="rotate(${phi} ${xm} ${ym})"/>`)
-                }
-            }
-        });
+            this.calcBaseStrs(baseStr, this.baseStrs, font_size)
+        })
         this.baseStrs.forEach((value: [boolean, string[]], key: string) => {
             if(value[0]) {
                 this.displayBaseStrs += value[1].join('');
+            }
+            if(this.nestedBaseStrs.get(key)![0]) {
+                this.displayNestedBaseStrs += this.nestedBaseStrs.get(key)![1].join('');
             }
         });
 
