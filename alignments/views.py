@@ -818,10 +818,6 @@ def protein_contacts(request, pdbid, chain_id):
     pdbl.retrieve_pdb_file(pdbid, pdir='/tmp/PDB')
     parser = PDB.MMCIFParser()
     structure = parser.get_structure(pdbid, "/tmp/PDB/" + str(pdbid) + ".cif")
-    import Bio.PDB.MMCIF2Dict
-    mmcdata = Bio.PDB.MMCIF2Dict.MMCIF2Dict("./" + str(pdbid) + ".cif")
-
-
     atom_list_23S = PDB.Selection.unfold_entities(structure[0][chain_id], 'A')
     neighbor_23S = PDB.NeighborSearch(atom_list_23S)
     neighbors = {}
