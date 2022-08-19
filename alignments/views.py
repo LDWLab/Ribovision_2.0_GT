@@ -806,7 +806,7 @@ def modified_residues(request, pdbid, chain_id):
     for match in re.finditer(pattern, sequence_without_spaces):
         s = match.start() + 1
         e = match.end() + 1
-        modified_residues.append([sequence_without_spaces[s:e], s, e])
+        modified_residues.append([sequence_without_spaces[s:e - 2], s, e])
     #indices = [m.start(0) for m in iter]
     context = {
         'Modified' : modified_residues
