@@ -763,14 +763,6 @@ var recolorTopStar = function (name){
                 })
             })
         }) 
-<<<<<<< HEAD
-    }
-    if(name == "Select data") {
-        viewerInstanceTop.viewInstance.uiTemplateService.colorMapContacts(); 
-    }
-=======
-    //}
->>>>>>> origin/develop
 }
 
 var masked_array = [];
