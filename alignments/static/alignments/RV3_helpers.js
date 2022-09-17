@@ -1,3 +1,4 @@
+var annotationArray = []
 var absolutePosition = function (el) {
   var
       found,
@@ -540,7 +541,28 @@ var clearHighlight = function(pdbId) {
         document.querySelector(`svg.rnaTopoSvg`).getElementsByClassName(`rnaviewEle rnaviewEle_${pdbId} rnaview_${pdbId}_${selected}`)[0].setAttribute("fill","323232");
     //document.querySelector(`.rnaTopoSvgHighlight_${pdbId}`)!.innerHTML = "";
 }
+var getEntropyAnnotations = function (separatedData, lowVal, highVal) {
+    for (var i = 1; i < 101; i++) {
+        annotationArray.push({"annotation":i,"ids":[]})
+    }
+    separatedData.forEach(function (item, index) {
+        let parsedItem = item[0];
+        let itemValue = item[1];
+        let newValue = itemValue - lowVal;
+        let normalizedVal = Math.round(newValue/(highVal - lowVal) * 99)
+        annotationArray[normalizedVal].ids.push("A " + parsedItem)
+    })
+    return annotationArray;
+}
+var getAnnotationArray = function() {
+    return annotationArray;
+}
 var parsePVData = function (separatedData, lowVal, highVal, colormapArray, masking=null) {
+    /*var s = ""
+    for(var i = 0; i < 100; i++) {
+        s = s + '['+(interpolateLinearly(i/100, colormapArray[0])[0])+']' + ', ';
+    }
+    console.log(s)*/
         let TWCData = new Map();
         let TWCrgbMap = new Map();    
         separatedData.forEach(function (item, index) {
@@ -750,7 +772,7 @@ var recolorTopStar = function (name){
     //var selectedDomain = viewerInstanceTop.viewInstance.uiTemplateService.domainTypes[newIndex];
     selectBox.selectedIndex = newIndex; 
     viewerInstanceTop.viewInstance.uiTemplateService.colorMap(); 
-    //if(selectSections_RV1.get(name).length < 1600) {
+    /*if(selectSections_RV1.get(name).length < 1600) {
         viewerInstance.visual.select({
             data: selectSections_RV1.get(name), 
             nonSelectedColor: {r:255,g:255,b:255}
@@ -763,6 +785,13 @@ var recolorTopStar = function (name){
                 })
             })
         }) 
+        */
+    //}
+    if(name == "Shannon entropy") {
+        viewerInstance.coloring.evolutionaryConservation({ sequence: true, het: false, keepStyle: true });
+    } else if(name == "Select data") {
+        viewerInstance.visual.reset({ theme: true })
+    }
 }
 
 var masked_array = [];

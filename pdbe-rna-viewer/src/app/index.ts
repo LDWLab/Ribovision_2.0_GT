@@ -47,7 +47,7 @@ class PdbRnaViewerPlugin {
         document.addEventListener("PDB.molstar.mouseover", ((e: any) => {
             if(e.eventData && e.eventData.auth_seq_id && e.eventData.auth_asym_id === this.options.chainId) {
                 this.selectResidue(e.eventData.auth_seq_id)
-                this.clearHighlight()
+                //this.clearHighlight()
             }
         })),
         document.addEventListener("PDB.molstar.mouseout", ((e: any) => {

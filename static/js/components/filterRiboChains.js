@@ -54,14 +54,14 @@ export function filterAvailablePolymers(chain_list, aln_id, vueObj) {
         vueObj.chains = filteredChains;
     });
 ajax(url).then( aln_data => {
-    nomIDs = [];
-    geneDescs = [];
-    cleanedChains = [];
+    var nomIDs2 = [];
+    var geneDescs2 = [];
+    var cleanedChains2 = [];
     for (let ix =0; ix < aln_data["polymers"].length; ix++){
         let desirePolymerName = aln_data["polymers"][ix]["genedescription"].trim().replace(/-[\w]{1}$/,'').replace(/ubiquitin/ig,'');
         let desireNomList = aln_data["polymers"][ix]["nomgd"].split('/');
-        nomIDs.push(desireNomList[desireNomList.length - 2]);
-        geneDescs.push(desirePolymerName);
+        nomIDs2.push(desireNomList[desireNomList.length - 2]);
+        geneDescs2.push(desirePolymerName);
     }
     for (let i = 0; i < chain_list.length; i++) {
         let chain_listI = chain_list[i]
@@ -72,10 +72,10 @@ ajax(url).then( aln_data => {
         let pdbePolymerNames = chain_listI["molecule_name"];
         for (let nameIx =0; nameIx < pdbePolymerNames.length; nameIx++){
             let polName = pdbePolymerNames[nameIx].replace(/-[\w]{1}$/,'').replace(/ubiquitin/ig,'');
-            const nameIndex = cleanedChains.findIndex(chain => chain.text === polName);
+            const nameIndex = cleanedChains2.findIndex(chain => chain.text === polName);
             if (nameIndex === -1){
                 try{
-                    cleanedChains.push({
+                    cleanedChains2.push({
                         text: polName,
                         value: chain_listI["in_chains"][0],
                         entityID: chain_listI["entity_id"],
@@ -91,12 +91,12 @@ ajax(url).then( aln_data => {
         }
     }
     
-    var uniqGeneDescs = geneDescs.filter((v, i, a) => a.indexOf(v) === i);
-    var uniqNomIDs = nomIDs.filter((v, i, a) => a.indexOf(v) === i);
+    var uniqGeneDescs = geneDescs2.filter((v, i, a) => a.indexOf(v) === i);
+    var uniqNomIDs = nomIDs2.filter((v, i, a) => a.indexOf(v) === i);
     //var filteredChains = cleanedChains.filter(e => e.text == '23S ribosomal RNA');
-    var filteredChains = cleanedChains
+    var filteredChains = cleanedChains2
     if (filteredChains.length === 0) {
-        searchNewNames(uniqNomIDs, cleanedChains, vueObj);
+        searchNewNames(uniqNomIDs, cleanedChains2, vueObj);
         return;
     } else if (filteredChains.length === 2){
         //Cleanup here
