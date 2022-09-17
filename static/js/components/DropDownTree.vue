@@ -11,11 +11,10 @@
                     <input type="radio" id="paralogs" value="para" v-model="type_tree" v-on:input="cleanTreeOpts()">
                     Paralogs
                 </label>-->
-                <!--<label class="btn btn-outline-dark" style="margin: 0 0 0 1%;width:50%;" for="upload">
+                <label class="btn btn-outline-dark" style="margin: 0 0 0 1%;width:50%;" for="upload">
                     <input type="radio" id="upload" value="upload" v-model="type_tree" v-on:input="cleanTreeOpts()">
                     User upload
                 </label>
-                </label>-->
             </div>
             <div id="treeselect" v-if="type_tree=='para'|type_tree=='orth'">
             <treeselect ref="treeselect"

@@ -7,6 +7,8 @@ export class UiTemplateService {
     mapped_aa_properties = (window as any).mapped_aa_properties;
     aaColorData = (window as any).aaColorData;
     parsePVData = (window as any).parsePVData;
+    getEntropyAnnotations = (window as any).getEntropyAnnotations;
+    getAnnotationArray = (window as any).getAnnotationArray;
     rv3VUEcomponent = (window as any).vm;
     private containerElement: HTMLElement;
     private pluginOptions: PluginOptions;
@@ -29,6 +31,7 @@ export class UiTemplateService {
     mouseOverMap = new Map<string, any>()
     eventMap = new Map<string, any>()
     toolTips: Map<number, string> = new Map();
+    selectSectionsTest = [];
     defaultColours = {
         domainSelection: 'rgb(255,0,0)',
         mouseOver: 'rgb(105,105,105)',
@@ -334,7 +337,6 @@ export class UiTemplateService {
         TWCData.forEach(function(value, index) {
             if (chain_start <= index && index <= chain_end){
                 let rgb_color = TWCrgbMap.get(index);
-                
                 (window as any).selectSections_RV1.get(name).push({ //3d
                     entity_id: _this.pluginOptions.entityId,
                     //start_residue_number: index, 
@@ -406,8 +408,8 @@ export class UiTemplateService {
                 let min = Math.min(...this.aaPropertyConstants.get(name));
                 let max = Math.max(...this.aaPropertyConstants.get(name));
                 let colormapArray = this.aaColorData.get(name); 
+                this.getEntropyAnnotations(separatedData, min, max)
                 const [TWCrgbMap, TWCData] = this.parsePVData(separatedData, min, max, colormapArray);
-
                 this.selectSections_RV1.get(name).push({entity_id: _this.pluginOptions.entityId, focus: true});
                 
                 if (void 0 !== TWCData){
@@ -531,7 +533,7 @@ export class UiTemplateService {
                     a ${font_size/4},${font_size/4} 0 1,0 ${font_size/2},0
                     a ${font_size/4},${font_size/4} 0 1,0 ${-1 * font_size/2},0
                     "
-                    stroke="#000" stroke-width="${font_size/6} fill="${fill}"
+                    stroke="#000" stroke-width="${font_size/6}" fill="${fill}"
                 />`)
                 } else{
                 baseMap.get(type)![1].push(`<path class="${pathID}" onmouseover="UiActionsService.showTooltip(evt,  '${n1}${start} - ${n2}${end}; ${type}', '${pathID}', '#000', '#000');" onmouseout="UiActionsService.hideTooltip('${pathID}');" stroke-width="${font_size/6}" data-stroke-color="#000" stroke="#000" d="M${x1_prime} ${y1_prime} ${x2_prime} ${y2_prime}"></path>`)
