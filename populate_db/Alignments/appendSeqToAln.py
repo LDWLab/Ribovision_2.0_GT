@@ -126,6 +126,7 @@ def main(commandline_arguments):
     fh.close()
 
     newAlnPath = f'{dirPath}out_{path.split(seq_path)[-1]}'
+    print("Mafft")
     pipe = Popen(f"mafft --preservecase --quiet --auto --add {cleanSeqPath} {tempAlnPath} > {newAlnPath}", stdout=PIPE, shell=True)
     output = pipe.communicate()[0]
 

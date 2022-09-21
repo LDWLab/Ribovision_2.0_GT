@@ -541,7 +541,7 @@ var clearHighlight = function(pdbId) {
         document.querySelector(`svg.rnaTopoSvg`).getElementsByClassName(`rnaviewEle rnaviewEle_${pdbId} rnaview_${pdbId}_${selected}`)[0].setAttribute("fill","323232");
     //document.querySelector(`.rnaTopoSvgHighlight_${pdbId}`)!.innerHTML = "";
 }
-var getEntropyAnnotations = function (separatedData, lowVal, highVal) {
+var getEntropyAnnotations = function (separatedData, lowVal, highVal, chainid) {
     for (var i = 1; i < 101; i++) {
         annotationArray.push({"annotation":i,"ids":[]})
     }
@@ -550,7 +550,7 @@ var getEntropyAnnotations = function (separatedData, lowVal, highVal) {
         let itemValue = item[1];
         let newValue = itemValue - lowVal;
         let normalizedVal = Math.round(newValue/(highVal - lowVal) * 99)
-        annotationArray[normalizedVal].ids.push("A " + parsedItem)
+        annotationArray[normalizedVal].ids.push(chainid + " " + parsedItem)
     })
     return annotationArray;
 }
@@ -702,6 +702,9 @@ var calculateModifiedResidues = function(pdbid, chainid, entityid) {
             }
         }                 
         vm.modifiedColorMap = colorMap;
+        if(data.Modified.length > 0) {
+            vm.modified = true
+        }
         //viewerInstanceTop.viewInstance.uiTemplateService.colorMap(); 
     });
 }
@@ -789,7 +792,7 @@ var recolorTopStar = function (name){
         */
     //}
     if(name == "Shannon entropy") {
-        viewerInstance.coloring.evolutionaryConservation({ sequence: true, het: false, keepStyle: true });
+        viewerInstance.coloring.shannonEntropy({ sequence: true, het: false, keepStyle: true });
     } else if(name == "Select data") {
         viewerInstance.visual.reset({ theme: true })
     }

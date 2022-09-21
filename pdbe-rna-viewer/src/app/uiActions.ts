@@ -85,7 +85,9 @@ export class UiActionsService {
                 const eventName: any = (eventType === 'click') ? 'PDB.RNA.viewer.click' : 'PDB.RNA.viewer.mouseover';
                 const evData = { pdbId, label_seq_id, entityId }
                 const textElement: any = document.querySelector(`.rnaview_${pdbId}_${label_seq_id}`);
-                CustomEvents.dispatchCustomEvent(UiActionsService.pdbevents[eventName], evData, textElement);
+                if(textElement) {
+                    CustomEvents.dispatchCustomEvent(UiActionsService.pdbevents[eventName], evData, textElement);
+                }
             }
         }
     }
@@ -94,7 +96,9 @@ export class UiActionsService {
         event?.stopImmediatePropagation();
         UiActionsService.clearHighlight(pdbId);
         const ttEle = document.getElementById(`${pdbId}-rnaTopologyTooltip`);
-        ttEle!.style.display = 'none';
+        if (ttEle) {
+            ttEle.style.display = 'none';
+        }
 
         if(!isUnobserved) {
             if(label_seq_id == undefined) {
@@ -103,7 +107,9 @@ export class UiActionsService {
             if(label_seq_id > -1) {
                 const evData = { pdbId, label_seq_id, entityId }
                 const textElement: any = document.querySelector(`.rnaview_${pdbId}_${label_seq_id}`);
-                CustomEvents.dispatchCustomEvent(UiActionsService.pdbevents['PDB.RNA.viewer.mouseout'], evData, textElement);
+                if(textElement) {
+                    CustomEvents.dispatchCustomEvent(UiActionsService.pdbevents['PDB.RNA.viewer.mouseout'], evData, textElement);
+                }
             }
         }
     }
@@ -172,13 +178,13 @@ export class UiActionsService {
     static clearHighlight(pdbId: string) {
         if (this.selected > -1) {
             var nucleotide = (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(`rnaviewEle rnaviewEle_${pdbId} rnaview_${pdbId}_${this.selected}`)[0]
-            if(this.selectedColor) {
+            if(this.selectedColor && nucleotide) {
                 if(nucleotide.nodeName == 'text') {
                     nucleotide.setAttribute("fill",UiActionsService.selectedColor);
                 } else {
                    nucleotide.setAttribute("stroke",UiActionsService.selectedColor);
                 }
-            } else {
+            } else if(nucleotide){
                 if(nucleotide.nodeName == 'text') {
                     nucleotide.setAttribute("fill","#323232");
                 } else {

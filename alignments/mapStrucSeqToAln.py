@@ -51,6 +51,7 @@ def constructStrucSeqMap(structure):
     return seq_ix_mapping, SeqRecord(Seq(sequence)), gapsInStruc
 
 def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
+
     from subprocess import Popen, PIPE
     from os import remove, path
     from warnings import warn
@@ -80,7 +81,7 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
     fh.write(">Structure sequence\n")
     fh.write(str(struc_seq.seq))
     fh.close()
-
+    print("Mafft")
     pipe = Popen(f"mafft --anysymbol --preservecase --quiet --addfull {pdb_seq_path} --mapout {aln_group_path}; cat {mappingFileName}", stdout=PIPE, shell=True)
     output = pipe.communicate()[0]
 
