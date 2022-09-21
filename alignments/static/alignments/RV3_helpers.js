@@ -774,7 +774,6 @@ var recolorTopStar = function (name){
     var newIndex = indexMatchingText(selectBox.options, name);
     //var selectedDomain = viewerInstanceTop.viewInstance.uiTemplateService.domainTypes[newIndex];
     selectBox.selectedIndex = newIndex; 
-    viewerInstanceTop.viewInstance.uiTemplateService.colorMap(); 
     //if(selectSections_RV1.get(name).length < 1600) {
     /*
         viewerInstance.visual.select({
@@ -792,10 +791,12 @@ var recolorTopStar = function (name){
         */
     //}
     if(name == "Shannon entropy") {
+        viewerInstance.visual.clearSelection();
         viewerInstance.coloring.shannonEntropy({ sequence: true, het: false, keepStyle: true });
     } else if(name == "Select data") {
         viewerInstance.visual.reset({ theme: true })
     }
+    viewerInstanceTop.viewInstance.uiTemplateService.colorMap(); 
 }
 
 var masked_array = [];
