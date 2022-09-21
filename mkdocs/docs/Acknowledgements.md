@@ -16,7 +16,7 @@ Our webserver would not be possible without these free resources:
 
 - Sequences and taxonomies were retrieved from the [National Center for Biotechnology Information](https://www.ncbi.nlm.nih.gov/) and [UniProt](https://www.uniprot.org/)
 
-- PDB identifiers are filtered through the API provided by Dr. Khanh Dao Duc and Mr. Artem Kushner through their project for ribosomal structure analysis [riboXYZ](https://ribosome.xyz/).
+- PDB identifiers are filtered through the API provided by Dr. Khanh Dao Duc and Mr. Artem Kushner through their project for ribosomal structure analysis [riboXYZ](https://api.ribosome.xyz/).
 
 - rProtein structural annotation was retrieved from [ECOD](http://prodata.swmed.edu/ecod/) (10.1371/journal.pcbi.1003926; 10.1002/prot.24818)
 

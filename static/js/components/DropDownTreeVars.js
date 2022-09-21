@@ -27,6 +27,7 @@ export function initialState (){
         chainid: [],
         pchainid: [],
         modified_residues: null,
+        modified: false,
         modifications: [],
         modifiedColorMap: null,
         unfilteredChains: null,

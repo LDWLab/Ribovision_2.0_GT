@@ -145,11 +145,11 @@
                     </div>
                 </p></div>
             -->
-                <p><select multiple class="form-control btn-outline-dark" id="polymerSelect2" v-bind:style="{ resize: 'both'}" v-model="pchainid" >
+                <p><select multiple class="form-control btn-outline-dark" id="polymerSelect2" v-bind:style="{ resize: 'both'}" v-model="pchainid">
                 <option :value ="null" selected disabled>Select a polymer</option>
                 <option v-for="chain in protein_chains" v-bind:value="chain.value" @click="showContacts();">{{ chain.text }}</option>
                 </select></p>
-                <p><select multiple class="form-control btn-outline-dark" id="polymerSelect3" v-bind:style="{ resize: 'both'}" v-model="modifications" >
+                <p><select multiple class="form-control btn-outline-dark" id="polymerSelect3" v-bind:style="{ resize: 'both'}" v-model="modifications" v-if="modified">
                 <option :value ="null" selected disabled>Select Modified Residues</option>
                 <option v-for="[text, k] of modified_residues.entries()" v-bind:value="text" @click="showModifications();">{{ text }}</option>
                 </select></p>

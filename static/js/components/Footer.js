@@ -11,7 +11,7 @@ export function addFooterImages (divID){
     </div>
     <p style="padding:5px;"></p>
     <div class="white-box" style="float: left;">
-        <a href="https://ribosome.xyz/home/" target="_blank">
+        <a href="https://api.ribosome.xyz/home/" target="_blank">
             <img 
                 style="height:75px; padding:5px;"
                 src="static/alignments/png/riboXYZ.png" 

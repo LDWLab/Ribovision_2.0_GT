@@ -102,6 +102,7 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
     if startIndex > 1:
         shiftIndexBy = startIndex - 1
 
+    print("Mafft")
     pipe = Popen("mafft --preservecase --quiet --addfull " + ebiFileName + " --mapout " + alignmentFileName + "; cat " + mappingFileName, stdout=PIPE, shell=True)
     output = pipe.communicate()[0]
     decoded_text = output.decode("ascii")
