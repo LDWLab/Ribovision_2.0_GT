@@ -1,4 +1,4 @@
-import { DataService, PluginOptions, ApiData } from './data';
+import { DataService, PluginOptions, ApiData, BanNameHelper} from './data';
 import { UiTemplateService } from './uiTemplate';
 import { UiActionsService } from './uiActions'
 import { CustomEvents } from './customEvents';
@@ -9,6 +9,7 @@ class PdbRnaViewerPlugin {
     options: PluginOptions;
     apiData: ApiData | undefined;
     FR3DData: any;
+    BanName: any;
     FR3DNestedData: any;
     targetEle: HTMLElement;
     pdbevents: any
@@ -28,12 +29,14 @@ class PdbRnaViewerPlugin {
         this.apiData = await this.dataService.getApiData(this.options.entityId, this.options.chainId, this.options.pdbId);
         this.FR3DData = await this.dataService.getFR3DData(this.options.pdbId, this.options.chainId);
         this.FR3DNestedData = await this.dataService.getFR3DNestedData(this.options.pdbId, this.options.chainId);
+        console.log('chain123', this.options.chainId);
+        this.BanName = await BanNameHelper.getBanName(this.options.pdbId, 'H');
         this.targetEle = <HTMLElement> target;
 
         this.uiTemplateService = new UiTemplateService(this.targetEle, this.options, this.apiData);
         if(this.apiData) {
             // draw topology
-            this.uiTemplateService.render(this.apiData, this.FR3DData, this.FR3DNestedData);
+            this.uiTemplateService.render(this.apiData, this.FR3DData, this.FR3DNestedData, this.BanName);
 
             // Bind to other PDB Component events
             if(this.options.subscribeEvents){

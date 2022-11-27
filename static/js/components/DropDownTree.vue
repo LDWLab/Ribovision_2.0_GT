@@ -904,9 +904,10 @@
                 var structFormat = "cif";
             }else{
                 //var coordURL = `https://www.ebi.ac.uk/pdbe/coordinates/${pdblower}/chains?entityId=${entityid}&encoding=bcif`
-                var coordURL = `https://coords.litemol.org/${pdblower}/chains?entityId=${entityid}&authAsymId=${chainid}&encoding=bcif`;
+                //var coordURL = `https://coords.litemol.org/${pdblower}/chains?entityId=${entityid}&authAsymId=${chainid}&encoding=bcif`;
+                var coordURL = `https://models.rcsb.org/v1/${pdblower}/atoms?label_entity_id=${entityid}&encoding=bcif`
                 var binaryCif = true;
-                var structFormat = "cif";
+                var structFormat = "bcif";
             }
             window.pdblower = pdblower;
             var viewerInstance = new PDBeMolstarPlugin();

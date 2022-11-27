@@ -393,6 +393,53 @@ function cleanSelection(checked_selection, filter_range){
 var populatePDBs = function (alndata){
     if (alndata != null){
         let alnPolurl = `/desire-api/polymers/?alns_of_polymer=${alndata.id}`
+       
+        ajax(alnPolurl).then(polymersForAln => {
+            let trueNom = polymersForAln.results[0].nomgd.split('/')[5];
+            var polNames = polymersForAln.results.map(entry => entry.genedescription.trim().replace(/-[\w]{1}$/,'').replace(/ubiquitin/ig,''));
+            let url = `/desire-api/old-nomenclatures/?n_b_y_h_a=BAN&nn_fk=${trueNom}`;
+        
+            ajax(url).then(oldnomData => {
+                oldnomData.count=1;
+                if (oldnomData.count == 0){return;}
+                //let oldName = oldnomData.results[0].old_name.replace(/^(.{2})(0)/,"$1")
+                //let riboXYZurl = `https://api.ribosome.xyz/neo4j/gmo_nom_class/?banName=${oldName}&format=json`
+                let riboXYZurl = `https://api.ribosome.xyz/neo4j/get_rna_class/?rna_class=23SrRNA&format=json`
+               
+                ajax(riboXYZurl).then(data => {
+                    var pdb_entries = []
+               
+                    data.forEach(function(entry){
+                        let pdb_text = `${entry.parent_rcsb_id} ${entry.src_organism_names[0].slice(0,39)}`
+                        
+                        //let pdbxDescription = entry.protein.rcsb_pdbx_description.trim().replace(/-[\w]{1}$/,'').replace(/ubiquitin/ig,'')
+                        //if (polNames.includes(pdbxDescription)){
+                        //pdb_entries.push({id: entry.parent_rcsb_id, name: `${entry.parent_rcsb_id} ${entry.src_organism_names[0].slice(0,39)}`});
+                        pdb_entries.push({id: entry.parent_rcsb_id.toLowerCase(), name: pdb_text});
+                            //pdb_entries.push({id: entry.parent_rcsb_id})
+                            
+
+                        //}
+                    });
+                    
+                    if (pdb_entries.length == 0){return;}
+                    vm.pdbs.push(...pdb_entries.sort((a, b) => (a.id > b.id) ? 1 : -1));
+                }).catch(error => {
+                    console.log(error);
+                })
+            }).catch(error => {
+                console.log(error);
+            })
+        }).catch(error => {
+                console.log(error);
+        })
+    }
+}
+
+
+/*var populatePDBs = function (alndata){
+    if (alndata != null){
+        let alnPolurl = `/desire-api/polymers/?alns_of_polymer=${alndata.id}`
         ajax(alnPolurl).then(polymersForAln => {
             let trueNom = polymersForAln.results[0].nomgd.split('/')[5];
             var polNames = polymersForAln.results.map(entry => entry.genedescription.trim().replace(/-[\w]{1}$/,'').replace(/ubiquitin/ig,''));
@@ -423,7 +470,7 @@ var populatePDBs = function (alndata){
         })
     }
 }
-
+*/
 var customFilter = function (object, result, key, value){
     if(object.hasOwnProperty(key) && object[key] == value)
         result.push(object);

@@ -1,5 +1,5 @@
 import { UiActionsService } from './uiActions';
-import { PluginOptions, ApiData} from './data';
+import { PluginOptions, ApiData, BanNameHelper} from './data';
 
 export class UiTemplateService {
     selectSections_RV1 = (window as any).selectSections_RV1;
@@ -14,6 +14,8 @@ export class UiTemplateService {
     private pluginOptions: PluginOptions;
     private uiActionsService: UiActionsService;
     private apiData: ApiData | undefined;
+
+   
     private locations: Map<any, number[]> = new Map();
     menuStyle = 'position:relative;z-index:10;height:7%;width:500px;line-height:7%;background-color:#696969;padding: 0 10px;font-size:16px; color: #efefef;display:inline-block;';
     domainTypes: any[];
@@ -52,7 +54,7 @@ export class UiTemplateService {
         this.uiActionsService = new UiActionsService(this.pluginOptions.pdbId);
     }
 
-    render(apiData: ApiData, FR3DData: any, FR3DNestedData: any) {
+    render(apiData: ApiData, FR3DData: any, FR3DNestedData: any, BanName:any) {
         this.containerElement.innerHTML = 
         `<div class="pdb-rna-view-container pdb-rna-view-container-${this.pluginOptions.pdbId}">
             ${this.svgTemplate(apiData, FR3DData, FR3DNestedData)}
@@ -86,7 +88,8 @@ export class UiTemplateService {
         this.createModeDropdown()
         this.createBPDropdown()
         this.uiActionsService.applyButtonActions();
-        this.addEvents(apiData);
+        this.addEvents(apiData, BanName);
+        console.log('124' , BanName[0]);
         <any>document.querySelector(".saveSVG")!.addEventListener("click", this.saveSVG.bind(this));
         //this.getAnnotationFromRibovision(this.mapped_aa_properties)
         //this.rv3VUEcomponent.topology_loaded=true;
@@ -207,7 +210,7 @@ export class UiTemplateService {
             }
             this.mapped_chains.add(chain)
         }
-        this.addEvents(this.apiData!)
+        this.addEvents(this.apiData!, BanNameHelper.getBanName(this.pluginOptions.pdbId, ''))
     }
     colorMapModifications=() => {
         this.mapped_modifications.forEach((val) => {   
@@ -239,6 +242,7 @@ export class UiTemplateService {
         });  
         for (let val in this.rv3VUEcomponent.modifications) {
             var mod = this.rv3VUEcomponent.modifications[val];
+            console.log('in33',  mod);
             for(var i in this.rv3VUEcomponent.modified_residues.get(mod)) {
                 UiActionsService.colorNucleotide(this.pluginOptions.pdbId, this.rv3VUEcomponent.modified_residues.get(mod)[i], this.rv3VUEcomponent.modifiedColorMap.get(mod), undefined, this.mappingValue);
             }
@@ -675,7 +679,8 @@ export class UiTemplateService {
         this.colorMapContacts()
         this.colorMapModifications()
     }
-    private addEvents(apiData: ApiData) {
+    
+    private addEvents(apiData: ApiData,  BanName:any= undefined) {
         /*
         const lastPathIndex = apiData.svg_paths.length - 1;
         let strokeColor = this.pluginOptions.theme?.color || '#323232';
@@ -725,26 +730,93 @@ export class UiTemplateService {
                     }
                 }
             });
+            
+            let chem_mods = new Map<number, string[]>()
+            this.mapped_modifications.forEach((val) => {
+                //let tooltip = "Contacts: " + val;
+                for(var i in this.rv3VUEcomponent.modified_residues.get(val)) {
+                    //let path = `circle_${this.pluginOptions.pdbId}_${this.rv3VUEcomponent.modified_residues[val][i]}`
+                    let path = `circle_${this.pluginOptions.pdbId}_${this.rv3VUEcomponent.modified_residues.get(val)[i]}`;
+                    if(document.getElementsByClassName(path)[0]) {
+                        if(chem_mods.get(this.rv3VUEcomponent.modified_residues.get(val)[i])) {
+                            let newList:string[] = chem_mods.get(this.rv3VUEcomponent.modified_residues.get(val)[i])!
+                            newList.push(val)
+                            chem_mods.set(this.rv3VUEcomponent.modified_residues.get(val)[i], newList)
+            
+                        } else {
+                            chem_mods.set(this.rv3VUEcomponent.modified_residues.get(val)[i], [val])
+                            
+                        }
+                        //document.getElementsByClassName(path)[0].addEventListener('mouseover', (e) =>  {UiActionsService.showTooltip(e, tooltip, path, this.rv3VUEcomponent.proteinColorMap.get(val), this.rv3VUEcomponent.proteinColorMap.get(val))})
+                        //document.getElementsByClassName(path)[0].addEventListener('mouseout', UiActionsService.hideTooltip.bind(this, path))
+                    }
+                    
+                }
+            });
+           
             contacts.forEach((value: string[], key: number) => {
-                let tooltip = "Contacts:"
+                let tooltip = "Contact:"
                 let circlePath = `circle_${this.pluginOptions.pdbId}_${key}`
                 let path = `rnaviewEle rnaviewEle_${this.pluginOptions.pdbId} rnaview_${this.pluginOptions.pdbId}_${key}`
                 var chain = ''
+                let promises = []
+                
+                //let BanProtName = ''
+                for (let val in value) {
+
+
+                    promises.push(BanNameHelper.getBanName(this.pluginOptions.pdbId, value[val]));
+
+                    
+                    chain = value[val];
+
+                }
+
+                Promise.all(promises).then ((banNames : Array<any>) => {
+                        
+                    banNames.forEach(BanName => {
+                        tooltip += " " +BanName[0]+"; chain: " + chain;
+                  
+                        });
+                        
+                this.toolTips.set(key, tooltip);
+                (<HTMLElement>document.getElementsByClassName(circlePath)[0]).setAttribute('onmouseover', document.getElementsByClassName(circlePath)[0].getAttribute('onmouseover')!.split(';')[0] + `;UiActionsService.showTooltip(evt, '${tooltip}', '${circlePath}', '${this.rv3VUEcomponent.proteinColorMap.get(chain)}', '${this.rv3VUEcomponent.proteinColorMap.get(chain)}')`);
+                (<HTMLElement>document.getElementsByClassName(circlePath)[0]).setAttribute('onmouseout', document.getElementsByClassName(circlePath)[0].getAttribute('onmouseout')!.split(';')[0] + `;UiActionsService.hideTooltip('${circlePath}')`);
+                if((<HTMLElement>document.getElementsByClassName(path)[0])) {
+                    (<HTMLElement>document.getElementsByClassName(path)[0]).setAttribute('onmouseover', document.getElementsByClassName(path)[0].getAttribute('onmouseover')!.split(';')[0] + `;UiActionsService.showTooltip(evt, '${tooltip}', '${path}', '${this.rv3VUEcomponent.proteinColorMap.get(chain)}', '${this.rv3VUEcomponent.proteinColorMap.get(chain)}')`);
+                //this.eventMap.set(path, UiActionsService.hideTooltip.bind(this, path))
+                //document.getElementsByClassName(path)[0].addEventListener('mouseout', this.eventMap.get(path))
+                    (<HTMLElement>document.getElementsByClassName(path)[0]).setAttribute('onmouseout', document.getElementsByClassName(path)[0].getAttribute('onmouseout')!.split(';')[0] + `;UiActionsService.hideTooltip('${path}')`);
+                }
+                  });
+               
+
+
+            });
+            chem_mods.forEach((value: string[], key: number) => {
+                let tooltip = "Modified_nucleotide:"
+                let circlePath = `circle_${this.pluginOptions.pdbId}_${key}`
+                let path = `rnaviewEle rnaviewEle_${this.pluginOptions.pdbId} rnaview_${this.pluginOptions.pdbId}_${key}`
+                var mod = ''
                 for (let val in value) {
                     tooltip += " " + value[val];
-                    chain = value[val];
+                    mod = value[val];
                 }
                 this.toolTips.set(key, tooltip);
+               
+                
+                console.log('in63',  mod, this.rv3VUEcomponent.modifiedColorMap, this.rv3VUEcomponent.modifiedColorMap.get(mod));
                 //this.mouseOverMap.set(circlePath, (e: Event) =>  {UiActionsService.showTooltip(e, tooltip, circlePath, this.rv3VUEcomponent.proteinColorMap.get(chain), this.rv3VUEcomponent.proteinColorMap.get(chain))})
                 //document.getElementsByClassName(circlePath)[0].addEventListener('mouseover', this.mouseOverMap.get(circlePath))
-                (<HTMLElement>document.getElementsByClassName(circlePath)[0]).setAttribute('onmouseover', document.getElementsByClassName(circlePath)[0].getAttribute('onmouseover')!.split(';')[0] + `;UiActionsService.showTooltip(evt, '${tooltip}', '${circlePath}', '${this.rv3VUEcomponent.proteinColorMap.get(chain)}', '${this.rv3VUEcomponent.proteinColorMap.get(chain)}')`);
+                //(<HTMLElement>document.getElementsByClassName(circlePath)[0]).setAttribute('onmouseover', document.getElementsByClassName(circlePath)[0].getAttribute('onmouseover')!.split(';')[0] + `;UiActionsService.showTooltip(evt, '${tooltip}', '${circlePath}', '${this.rv3VUEcomponent.proteinColorMap.get(chain)}', '${this.rv3VUEcomponent.proteinColorMap.get(chain)}')`);
+                (<HTMLElement>document.getElementsByClassName(circlePath)[0]).setAttribute('onmouseover', document.getElementsByClassName(circlePath)[0].getAttribute('onmouseover')!.split(';')[0] + `;UiActionsService.showTooltip(evt, '${tooltip}', '${circlePath}', '${this.rv3VUEcomponent.modifiedColorMap.get(mod)}', '${this.rv3VUEcomponent.modifiedColorMap.get(mod)}')`);
                 //this.eventMap.set(path, UiActionsService.hideTooltip.bind(this, circlePath))
                 (<HTMLElement>document.getElementsByClassName(circlePath)[0]).setAttribute('onmouseout', document.getElementsByClassName(circlePath)[0].getAttribute('onmouseout')!.split(';')[0] + `;UiActionsService.hideTooltip('${circlePath}')`);
                 //document.getElementsByClassName(circlePath)[0].addEventListener('mouseout', this.eventMap.get(circlePath))
                 //this.mouseOverMap.set(path, (e: Event) =>  {UiActionsService.showTooltip(e, tooltip, path, this.rv3VUEcomponent.proteinColorMap.get(chain), this.rv3VUEcomponent.proteinColorMap.get(chain))})
                 //document.getElementsByClassName(path)[0].addEventListener('mouseover', this.mouseOverMap.get(path))
                 if((<HTMLElement>document.getElementsByClassName(path)[0])) {
-                    (<HTMLElement>document.getElementsByClassName(path)[0]).setAttribute('onmouseover', document.getElementsByClassName(path)[0].getAttribute('onmouseover')!.split(';')[0] + `;UiActionsService.showTooltip(evt, '${tooltip}', '${path}', '${this.rv3VUEcomponent.proteinColorMap.get(chain)}', '${this.rv3VUEcomponent.proteinColorMap.get(chain)}')`);
+                    (<HTMLElement>document.getElementsByClassName(path)[0]).setAttribute('onmouseover', document.getElementsByClassName(path)[0].getAttribute('onmouseover')!.split(';')[0] + `;UiActionsService.showTooltip(evt, '${tooltip}', '${path}', '${this.rv3VUEcomponent.modifiedColorMap.get(mod)}', '${this.rv3VUEcomponent.modifiedColorMap.get(mod)}')`);
                 //this.eventMap.set(path, UiActionsService.hideTooltip.bind(this, path))
                 //document.getElementsByClassName(path)[0].addEventListener('mouseout', this.eventMap.get(path))
                     (<HTMLElement>document.getElementsByClassName(path)[0]).setAttribute('onmouseout', document.getElementsByClassName(path)[0].getAttribute('onmouseout')!.split(';')[0] + `;UiActionsService.hideTooltip('${path}')`);
