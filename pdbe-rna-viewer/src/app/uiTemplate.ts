@@ -8,6 +8,7 @@ export class UiTemplateService {
     aaColorData = (window as any).aaColorData;
     parsePVData = (window as any).parsePVData;
     getEntropyAnnotations = (window as any).getEntropyAnnotations;
+    getTWCAnnotations = (window as any).getTWCAnnotations;
     getAnnotationArray = (window as any).getAnnotationArray;
     rv3VUEcomponent = (window as any).vm;
     private containerElement: HTMLElement;
@@ -89,7 +90,6 @@ export class UiTemplateService {
         this.createBPDropdown()
         this.uiActionsService.applyButtonActions();
         this.addEvents(apiData, BanName);
-        console.log('124' , BanName[0]);
         <any>document.querySelector(".saveSVG")!.addEventListener("click", this.saveSVG.bind(this));
         //this.getAnnotationFromRibovision(this.mapped_aa_properties)
         //this.rv3VUEcomponent.topology_loaded=true;
@@ -377,6 +377,18 @@ export class UiTemplateService {
                 });
             }
         }
+        if (TWCData.size < mapped_aa_properties.get("TwinCons")!.length) {
+            for(var i = TWCData.size - 1; i < this.mapped_aa_properties.get("TwinCons").length; i++) {
+                (window as any).selectSections_RV1.get(name).push({ //3d
+                    entity_id: _this.pluginOptions.entityId,
+                    //start_residue_number: i, 
+                    //end_residue_number: i,
+                    residue_number: i,
+                    color: {r:255, g:255, b:255},
+                    sideChain: false,
+                });
+            }
+        }
         return residueDetails;
     }
     getAnnotationFromRibovision(mapped_aa_properties: Map<string, Array<Array<number>>>) {
@@ -415,7 +427,16 @@ export class UiTemplateService {
                 let min = Math.min(...this.aaPropertyConstants.get(name));
                 let max = Math.max(...this.aaPropertyConstants.get(name));
                 let colormapArray = this.aaColorData.get(name); 
-                this.getEntropyAnnotations(separatedData, min, max, this.pluginOptions.chainId)
+                if  (name == "Shannon entropy"){
+                    
+                    this.getEntropyAnnotations(separatedData, min, max, this.pluginOptions.chainId);
+                    //console.log('name_SE', name,  this.getEntropyAnnotations(separatedData, min, max, this.pluginOptions.chainId));
+                };    
+                if  (name == "TwinCons"){
+                    this.getTWCAnnotations(separatedData, min, max, this.pluginOptions.chainId);
+                    //console.log('name_TWC', name, this.getTWCAnnotations(separatedData, min, max, this.pluginOptions.chainId));
+                };
+                
                 const [TWCrgbMap, TWCData] = this.parsePVData(separatedData, min, max, colormapArray);
                 this.selectSections_RV1.get(name).push({entity_id: _this.pluginOptions.entityId, focus: true});
                 
@@ -805,7 +826,7 @@ export class UiTemplateService {
                 this.toolTips.set(key, tooltip);
                
                 
-                console.log('in63',  mod, this.rv3VUEcomponent.modifiedColorMap, this.rv3VUEcomponent.modifiedColorMap.get(mod));
+                
                 //this.mouseOverMap.set(circlePath, (e: Event) =>  {UiActionsService.showTooltip(e, tooltip, circlePath, this.rv3VUEcomponent.proteinColorMap.get(chain), this.rv3VUEcomponent.proteinColorMap.get(chain))})
                 //document.getElementsByClassName(circlePath)[0].addEventListener('mouseover', this.mouseOverMap.get(circlePath))
                 //(<HTMLElement>document.getElementsByClassName(circlePath)[0]).setAttribute('onmouseover', document.getElementsByClassName(circlePath)[0].getAttribute('onmouseover')!.split(';')[0] + `;UiActionsService.showTooltip(evt, '${tooltip}', '${circlePath}', '${this.rv3VUEcomponent.proteinColorMap.get(chain)}', '${this.rv3VUEcomponent.proteinColorMap.get(chain)}')`);

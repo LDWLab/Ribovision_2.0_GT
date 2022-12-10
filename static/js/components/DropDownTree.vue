@@ -80,7 +80,10 @@
                 <option :value ="null" selected disabled>Select a polymer</option>
                 <option v-for="chain in chains" v-bind:value="chain.value" @click="postStructureData(pdbid, chainid); calculateProteinContacts(pdbid, chainid); populateECODranges(pdbid, chainid); showPDBViewer(pdbid, chainid, chain.entityID);">{{ chain.text }}</option>
             </select></p>
-            <!--
+            <!-- 
+            -->
+            <!-- 
+            -->
             <div v-if="structure_mapping">
                 <select id="downloadDataBtn" class="btn btn-outline-dark dropdown-toggle" v-model="downloadMapDataOpt" v-if="topology_loaded">
                     <option :value="null" selected disabled>Download mapped data</option>
@@ -92,6 +95,7 @@
                 <label><input type="checkbox" v-model="checkedRNA" v-on:change="updateMolStarWithRibosome(checkedRNA)">
                     Show ribosomal context in 3D</label>
             </p></div>
+            <!--
             -->
             <div v-if="topology_loaded&&!checkedRNA&&!customPDBid&&protein_contacts">
             <!--

@@ -1,4 +1,5 @@
-var annotationArray = []
+var annotationArraySE = [];
+var annotationArrayTWC = [];
 var absolutePosition = function (el) {
   var
       found,
@@ -261,7 +262,7 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     if (aln_text != ''){
         vueObj.custom_aln_twc_flag = null;
         vueObj.pdbs = [
-            {id: "4v9d", name: "4V9D E. coli"},
+            {id: "7k00", name: "7K00 E. coli"},
             {id: "4v6u", name: "4V6U P. furiosus"},
             {id: "4v6x", name: "4V6X H. sapiens"},
         ];
@@ -430,7 +431,7 @@ var loadParaAlns = function (value, vm) {
 var setGlobalProperties = function(){
     let aaPropertiesData = new Map([
         ["Shannon entropy",[0.000000000000001,2.0]],
-        ["TwinCons",[-2.935,12.065]]
+        ["TwinCons",[-2.25,6.75]]
     ]);
     let aaColorData = new Map([
         ["Shannon entropy",[plasma]],
@@ -535,28 +536,54 @@ var unSelectNucleotide = function(event, pdbId, label_seq_id, isUnobserved) {
         const textElement = document.querySelector(`.rnaview_${pdbId}_${label_seq_id}`);
         CustomEvents.dispatchCustomEvent(this.pdbevents['PDB.RNA.viewer.mouseout'], evData, textElement);
     }
-}
+};
 var clearHighlight = function(pdbId) {
-        var selected = 5;
-        document.querySelector(`svg.rnaTopoSvg`).getElementsByClassName(`rnaviewEle rnaviewEle_${pdbId} rnaview_${pdbId}_${selected}`)[0].setAttribute("fill","323232");
-    //document.querySelector(`.rnaTopoSvgHighlight_${pdbId}`)!.innerHTML = "";
-}
+    var selected = 5;
+    document.querySelector(`svg.rnaTopoSvg`).getElementsByClassName(`rnaviewEle rnaviewEle_${pdbId} rnaview_${pdbId}_${selected}`)[0].setAttribute("fill","323232");
+//document.querySelector(`.rnaTopoSvgHighlight_${pdbId}`)!.innerHTML = "";
+};
 var getEntropyAnnotations = function (separatedData, lowVal, highVal, chainid) {
+    annotationArraySE.length=0;
     for (var i = 1; i < 101; i++) {
-        annotationArray.push({"annotation":i,"ids":[]})
+        annotationArraySE.push({"annotation":i,"ids":[]})
     }
     separatedData.forEach(function (item, index) {
         let parsedItem = item[0];
         let itemValue = item[1];
         let newValue = itemValue - lowVal;
         let normalizedVal = Math.round(newValue/(highVal - lowVal) * 99)
-        annotationArray[normalizedVal].ids.push(chainid + " " + parsedItem)
+        annotationArraySE[normalizedVal].ids.push(chainid + " " + parsedItem)
     })
-    return annotationArray;
+    return annotationArraySE;
+};
+
+var getTWCAnnotations = function (separatedData, lowVal, highVal, chainid) {
+    annotationArrayTWC.length=0;
+    for (var i = 1; i < 101; i++) {
+        annotationArrayTWC.push({"annotation":i,"ids":[]})
+    }
+    separatedData.forEach(function (item, index) {
+        let parsedItem = item[0];
+        let itemValue = item[1];
+        
+        let newValue = itemValue - lowVal;
+        console.log(parsedItem, itemValue, newValue);
+        let normalizedVal = Math.round(newValue/(highVal - lowVal) * 99)
+
+        /*if (itemValue < 0){
+            console.log('IV_neg', itemValue);
+            let normalizedVal = Math.round(itemValue/(lowVal) * 99);
+        } 
+        else if (itemValue > 0){
+            let normalizedVal = Math.round(itemValue/(highVal) * 99);
+        }*/
+        annotationArrayTWC[normalizedVal].ids.push(chainid + " " + parsedItem)
+    })
+    return annotationArrayTWC;
 }
 var getAnnotationArray = function() {
-    return annotationArray;
-}
+    return {'SE':annotationArraySE,'TWC':annotationArrayTWC };
+}   
 var parsePVData = function (separatedData, lowVal, highVal, colormapArray, masking=null) {
     /*var s = ""
     for(var i = 0; i < 100; i++) {
@@ -564,7 +591,24 @@ var parsePVData = function (separatedData, lowVal, highVal, colormapArray, maski
     }
     console.log(s)*/
         let TWCData = new Map();
-        let TWCrgbMap = new Map();    
+        let TWCrgbMap = new Map(); 
+        let TWCrgbMapPalette = new Map(); 
+        let TWCrgbPalette=[];
+        let IL=[];
+        let ILN=[];
+        for (var i = 0; i < 75; i++) {
+            //console.log('Map_0', i, interpolateLinearly(i/100, colormapArray[0]));
+            TWCrgbMapPalette.set(i, interpolateLinearly((75-i)/75, colormapArray[1]));
+            IL=interpolateLinearly((75-i)/75, colormapArray[1]);
+            TWCrgbPalette.push(IL[0]);
+        };
+        for (var i = 0; i < 25; i++) {
+            //console.log('Map_0', i, interpolateLinearly(i/100, colormapArray[0]));
+            TWCrgbMapPalette.set(i, interpolateLinearly(i/25, colormapArray[0]));
+            ILN=interpolateLinearly(i/25, colormapArray[0]);
+            TWCrgbPalette.push(ILN[0]);
+        };
+        //console.log('Palette_01', TWCrgbPalette);
         separatedData.forEach(function (item, index) {
             let parsedItem = item[0];
             //if(!masking || masking[index]) {
@@ -714,6 +758,7 @@ var showContactsHelper = function(entityid) {
     protein_data.get("contacts").push({entity_id: entityid, focus: true})
     for (let val in vm.pchainid) {
         var chain = vm.pchainid[val];
+        console.log("contacts", chain, entityid);
         for (let entry in vm.selectSections_proteins.get(chain)) {
             protein_data.get("contacts").push(vm.selectSections_proteins.get(chain)[entry])
         }
@@ -742,6 +787,8 @@ var showModificationsAndContactsHelper = function(entityid) {
     modified_data.get("mods").push({entity_id: entityid, focus: true})
     for (let val in vm.pchainid) {
         var chain = vm.pchainid[val];
+        console.log("contacts", chain, entityid);
+
         for (let entry in vm.selectSections_proteins.get(chain)) {
             modified_data.get("mods").push(vm.selectSections_proteins.get(chain)[entry])
         }
@@ -793,9 +840,13 @@ var recolorTopStar = function (name){
     if(name == "Shannon entropy") {
         viewerInstance.visual.clearSelection();
         viewerInstance.coloring.shannonEntropy({ sequence: true, het: false, keepStyle: true });
+    }   else if(name == "TwinCons") {
+        viewerInstance.visual.clearSelection();
+        viewerInstance.coloring.twinCons({ sequence: true, het: false, keepStyle: true });
     } else if(name == "Select data") {
         viewerInstance.visual.reset({ theme: true })
     }
+    
     viewerInstanceTop.viewInstance.uiTemplateService.colorMap(); 
 }
 
