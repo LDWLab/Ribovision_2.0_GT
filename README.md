@@ -1,12 +1,13 @@
-# DESIRE
+# RiboVision 3.0
 
-If you have found ProteoVision useful please cite us here http://dx.doi.org/10.1093/nar/gkab351
+
 ## About
 
-ProteoVision is a webserver designed to visualize phylogenetic and structural information about ribosomal proteins in multiple dimensions. ProteoVision complements the previously established ribosomal RNA visualizer, RiboVision. ProteoVision was developed in the Center for Origins of Life (Georgia Tech, Atlanta GA) by Petar Penev, Loren Dean Williams and Anton S. Petrov. Please address your questions regarding ProteoVision to RiboZones@gmail.com.
+RiboVision 3.0  is a webserver designed to visualize phylogenetic and structural information about ribosomal RNA  in multiple dimensions. RiboVision 3.0 is adaptation of previous versions of the web servers RiboVision and RiboVision2, which puts it on par with the previously established visualizer of ribosomal proteins, ProteoVision. RiboVision 3.0 was developed in the Center for Origins of Life (Georgia Tech, Atlanta GA) by Holly McCann and Anton S. Petrov with aid from Ribosome.xyz (
+developed at the University of British Columbia by the group of Prof. Khanh Dao-Duc). Please address your questions regarding ProteoVision to RiboZones@gmail.com.
 
 ## Contributors
-Caeden Meade, Holly M. McCann, Aparna Maddala, Chad R. Bernier, Vasanta L. Chivukula, Maria Ahmad, Aakash Sharma, Claudia Alvarez-Carreño.
+Petar I Penev, Caeden M. Meade, Artem Kushner.
 
 ## Licensing 
 Webserver is licensed under the MIT license.
