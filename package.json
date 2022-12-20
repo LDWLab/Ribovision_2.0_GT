@@ -1,23 +1,23 @@
 {
-  "name": "desire",
+  "name": "ribovision",
   "version": "1.0.0",
-  "description": "DatabasE for Study and Imaging of Ribosomal Evolution",
+  "description": "RiboVision 2.0",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --config webpack.config.js --progress --colors --mode development",
-    "watch": "webpack --config webpack.config.js --watch --mode development"
+    "build": "webpack --config webpack.config.js --progress --colors --mode production",
+    "watch": "webpack --config webpack.config.js --watch --mode production"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/LDWLab/DESIRE.git"
+    "url": "git+https://github.com/LDWLab/Ribovision_2.0_GT.git"
   },
   "author": "Petar Penev",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/LDWLab/DESIRE/issues"
+    "url": "https://github.com/LDWLab/Ribovision_2.0_GT/issues"
   },
-  "homepage": "https://github.com/LDWLab/DESIRE#readme",
+  "homepage": "https://github.com/LDWLab/Ribovision_2.0_GT#readme",
   "devDependencies": {
     "@babel/core": "^7.10.5",
     "@babel/preset-env": "^7.10.4",

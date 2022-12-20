@@ -29,6 +29,8 @@ export function initialState (){
         modified_residues: null,
         modified: false,
         modifications: [],
+        viewer_options: null,
+        mapped_aa_contacts_mods: null,
         modifiedColorMap: null,
         unfilteredChains: null,
         entityID: null,

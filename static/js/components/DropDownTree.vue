@@ -5,16 +5,17 @@
                 
                 <label class="btn btn-outline-dark" style="margin: 0 1% 0 0;width:100%;" for="orthologs" >
                     <input type="radio" id="orthologs" value="orth" v-model="type_tree" v-on:input="cleanTreeOpts()" checked>
-                    DESIRE
+                    RiboVision
                 </label>
                 <!--<label class="btn btn-outline-dark" for="paralogs">
                     <input type="radio" id="paralogs" value="para" v-model="type_tree" v-on:input="cleanTreeOpts()">
                     Paralogs
                 </label>-->
-                <label class="btn btn-outline-dark" style="margin: 0 0 0 1%;width:50%;" for="upload">
+
+                <!--<label class="btn btn-outline-dark" style="margin: 0 0 0 1%;width:50%;" for="upload">
                     <input type="radio" id="upload" value="upload" v-model="type_tree" v-on:input="cleanTreeOpts()">
                     User upload
-                </label>
+                </label>-->
             </div>
             <div id="treeselect" v-if="type_tree=='para'|type_tree=='orth'">
             <treeselect ref="treeselect"
@@ -39,14 +40,14 @@
             </div>
             <p>
                 <select class="btn btn-outline-dark dropdown-toggle" id="select_protein_type" v-if="tax_id" v-model="protein_type_obj" v-on:change="loadData(tax_id, type_tree)">
-                    <option v-if="tax_id" :value="null" selected disabled hidden>Select RNA type</option>
-                    <option v-if="tax_id" v-for="proteinType in proteinTypes" >{{ proteinType }}</option>
+                    <option :value="null" selected disabled hidden>Select RNA type</option>
+                    <option v-for="proteinType in proteinTypes" v-bind:key="proteinType">{{ proteinType }}</option>
                 </select>
             </p>
             <p>
-                <select class="btn btn-outline-dark dropdown-toggle" id="selectaln" v-if="protein_type_obj" v-model="alnobj">
-                    <option v-if="tax_id" :value="null" selected disabled hidden>Select an alignment</option>
-                    <option v-if="tax_id" v-for="aln in alignments" v-bind:value="{ id: aln.value, text: aln.text }">{{ aln.text }}</option>
+                <select class="btn btn-outline-dark dropdown-toggle" id="selectaln" v-if="protein_type_obj && tax_id" v-model="alnobj">
+                    <option :value="null" selected disabled hidden>Select an alignment</option>
+                    <option v-for="aln in alignments" v-bind:key = aln.txt v-bind:value="{ id: aln.value, text: aln.text }">{{ aln.text }}</option>
                 </select>
             </p>
                 <!--<span v-if="alnobj&&alnobj!='custom'">Select structure for mapping:</span>-->
@@ -56,11 +57,11 @@
                     OR<br>
                 </div>
                 <span v-if="alnobj">Select/type PDB entry:</span>
-            <p>
                 <!--<select class="btn btn-outline-dark dropdown-toggle" id="pdb_input" v-if="alnobj&&alnobj!='custom'" v-model="pdbid">
                     <option :value="null" selected disabled hidden>Select PDB entry</option>
                     <option v-for="pdb in pdbs" v-bind:value="pdb.id">{{pdb.name}}</option>
                 </select>-->
+                <p>
                 <autocomplete id="pdb_input" isAsync:true :items="pdbs" v-if="alnobj&&alnobj!='custom'" v-model="pdbid"></autocomplete>
                 <autocomplete isAsync:true :items="blastPDBresult" v-if="alnobj&&alnobj=='custom'" v-model="pdbid"></autocomplete>
                 <div id="blastingPDBsMSG" v-if="alnobj&&alnobj=='custom'&&fetchingPDBwithCustomAln&&fetchingPDBwithCustomAln==true">
@@ -75,10 +76,10 @@
                 </div>
                 <span id="completeBLASTsMSG" v-if="alnobj&&alnobj=='custom'&&fetchingPDBwithCustomAln=='complete'"><b>Completed BLAST for similar PDBs.</b></span>
                 <div v-if="hide_chains" id="onFailedChains">Looking for available polymers <img src='static/img/loading.gif' alt='Searching available polymers' style='height:25px;'></div>
-            </p>
+                </p>
             <p><select multiple class="form-control btn-outline-dark" id="polymerSelect" v-bind:style="{ resize: 'both'}"  v-if="chains&&fasta_data&&pdbid||uploadSession" v-model="chainid" >
-                <option :value ="null" selected disabled>Select a polymer</option>
-                <option v-for="chain in chains" v-bind:value="chain.value" @click="postStructureData(pdbid, chainid); calculateProteinContacts(pdbid, chainid); populateECODranges(pdbid, chainid); showPDBViewer(pdbid, chainid, chain.entityID);">{{ chain.text }}</option>
+                <option :value ="null" selected disabled>Select an RNA chain to visualize</option>
+                <option v-for="chain in chains" v-bind:key="chain.value" v-bind:value="chain.value" @click="postStructureData(pdbid, chainid); calculateProteinContacts(pdbid, chainid); populateECODranges(pdbid, chainid); showPDBViewer(pdbid, chainid, chain.entityID);">{{ chain.text }}</option>
             </select></p>
             <!-- 
             -->
@@ -150,12 +151,14 @@
                 </p></div>
             -->
                 <p><select multiple class="form-control btn-outline-dark" id="polymerSelect2" v-bind:style="{ resize: 'both'}" v-model="pchainid">
-                <option :value ="null" selected disabled>Select a polymer</option>
-                <option v-for="chain in protein_chains" v-bind:value="chain.value" @click="showContacts();">{{ chain.text }}</option>
+                <label>Select RNA-protein contacts to view in 3D</label>
+                <option :value ="null" selected disabled></option>
+                <option v-for="chain in protein_chains" v-bind:value="chain.value" v-bind:key="chain.key" @click="showContacts();">{{ chain.text }}</option>
                 </select></p>
                 <p><select multiple class="form-control btn-outline-dark" id="polymerSelect3" v-bind:style="{ resize: 'both'}" v-model="modifications" v-if="modified">
-                <option :value ="null" selected disabled>Select Modified Residues</option>
-                <option v-for="[text, k] of modified_residues.entries()" v-bind:value="text" @click="showModifications();">{{ text }}</option>
+                <label>Select modified residues to highlight</label>
+                <option :value ="null" selected disabled></option>
+                <option v-for="[text, k] of modified_residues.entries()" v-bind:value="text" v-bind:key="k" @click="showModifications();">{{ text }}</option>
                 </select></p>
             </div>
             <!--
@@ -181,7 +184,7 @@
                     </button>
                     <select id="cdHITResults" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="cdhitSelectedOpt" v-if="cdHITReport">
                         <option :value="null" selected disabled>See cdhit options</option>
-                        <option v-for="prop in cdhitOpts" :value="prop.value" >{{ prop.Name }}</option>
+                        <option v-for="prop in cdhitOpts" :value="prop.value" :key="prop.Name">{{ prop.Name }}</option>
                     </select>
                     <select id="downloadAlnImageBtn" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="downloadAlignmentOpt" v-if="msavWillMount">
                         <option :value="null" selected disabled>Download alignment image</option>
@@ -191,11 +194,11 @@
                     <select id="selectColorMappingProps" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="selected_property" v-if="msavWillMount">
                         <option :value="null" selected disabled>Select data</option>
                         <option value="Select data">Clear data</option>
-                        <option v-for="prop in available_properties" >{{ prop.Name }}</option>
+                        <option v-for="prop in available_properties" :key="prop.Name">{{ prop.Name }}</option>
                     </select>
                     <select id="selectAlnColorScheme" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="colorScheme" v-if="msavWillMount">
                         <option :value="null" selected disabled>Select a colorscheme</option>
-                        <option v-for="colorscheme in availColorschemes" >{{ colorscheme }}</option>
+                        <option v-for="colorscheme in availColorschemes" :key="colorscheme">{{ colorscheme }}</option>
                     </select>
                 </div>
                 <div id="alnDiv">Loading alignment <img src="static/img/loading.gif" alt="Loading alignment" style="height:25px;"></div>
@@ -223,6 +226,7 @@
         <div class = "gradient_section" v-if = "topology_loaded">
             <img id = 'gradientSVG' 
                 v-for="prop in available_properties" 
+                :key="prop.Name"
                 v-if = "selected_property == prop.Name"
                 :src="prop.url"
             ><!--
@@ -504,6 +508,8 @@
             ReactDOM.unmountComponentAtNode(alnDiv);
             this.msavWillMount = null;
             this.$nextTick(function(){
+                //const root = ReactDOM.createRoot(alnDiv)
+                //root.render(<AlnViewer ref={(PVAlnViewer) => {window.PVAlnViewer = PVAlnViewer}}/>)
                 ReactDOM.render(
                     <AlnViewer ref={(PVAlnViewer) => {window.PVAlnViewer = PVAlnViewer}}/>, alnDiv
                 );
@@ -899,79 +905,11 @@
                 topview.innerHTML = "Failed to fetch the secondary structure!<br>Try another structure."
             });*/
         }, showPDBViewer(pdbid, chainid, entityid){
-            const molstar_item = document.getElementById("pdbeMolstarView");
-            if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Loading Molstar Component ", true)}
-            var pdblower = pdbid.toLocaleLowerCase();
-            if (pdbid == "cust"){
-                var coordURL = `/custom-struc-data/${pdblower}-${entityid}-${chainid}`;
-                var binaryCif = false;
-                var structFormat = "cif";
-            }else{
-                //var coordURL = `https://www.ebi.ac.uk/pdbe/coordinates/${pdblower}/chains?entityId=${entityid}&encoding=bcif`
-                //var coordURL = `https://coords.litemol.org/${pdblower}/chains?entityId=${entityid}&authAsymId=${chainid}&encoding=bcif`;
-                var coordURL = `https://models.rcsb.org/v1/${pdblower}/atoms?label_entity_id=${entityid}&encoding=bcif`
-                var binaryCif = true;
-                var structFormat = "bcif";
-            }
-            window.pdblower = pdblower;
-            var viewerInstance = new PDBeMolstarPlugin();
-            var options = {
-                customData: { url: coordURL,
-                                format: structFormat, 
-                                binary: binaryCif },
-                hideCanvasControls: ["expand", "selection", " animation"],
-                assemblyId: '1',
-                hideControls: true,
-                subscribeEvents: true,
-                bgColor: {r:255,g:255,b:255},
-            }
-            var viewerContainer = document.getElementById('pdbeMolstarView');
-            viewerInstance.render(viewerContainer, options);
-            window.viewerInstance = viewerInstance;
-            
-            document.addEventListener('PDB.topologyViewer.click', (e) => {
-                var molstar= viewerInstance;
-                var chainId=e.eventData.chainId;
-                var entityId=e.eventData.entityId;
-                var residueNumber=e.eventData.residueNumber;
-                var types=e.eventData.type;
-                molstar.visual.select({
-                    data:[
-                        {
-                            entity_id:entityId,
-                            residue_number:residueNumber,
-                            color:{r:20, y:100, b:200},
-                            focus:false
-                        },
-                    ],
-                })
-            })
-            document.addEventListener('PDB.topologyViewer.mouseover', (e) => {
-                var molstar= viewerInstance;
-                var chainId=e.eventData.chainId;
-                var entityId=e.eventData.entityId;
-                var residueNumber=e.eventData.residueNumber;
-                var types=e.eventData.type;
-                
-                molstar.visual.highlight({
-                    data:[
-                        {
-                            entity_id:entityId,
-                            residue_number:residueNumber,
-                        },
-                    ],
-                })
-            })
-            document.addEventListener('PDB.molstar.mouseover', (e) => {
-                var eventData = e.eventData;
-                let resi_id = eventData.auth_seq_id;
-                if(masked_array && masked_array[resi_id] == false) {
-                    viewerInstance.plugin.behaviors.interaction.hover._value.current.loci.kind = "empty-loci"
-                }
-            });
+            showPDBHelper(pdbid, chainid, entityid)
         }, populateECODranges(pdbid, chainid) {
             populateECODranges(pdbid, chainid);
         }, calculateProteinContacts(pdbid, chainid) {
+            vm.mapped_aa_contacts_mods = new Map();
             var url = `protein-contacts/${pdbid}/${chainid}`
             ajax(url).then(data => {
                 calculateModifiedResidues(pdbid, chainid, this.entityID)
@@ -984,6 +922,7 @@
                     var i = 1.0;
                     var colorMap = new Map();
                     vm.selectSections_proteins = new Map();
+                    vm.mapped_aa_contacts_mods.set("Protein Contacts", [])
                     for (var val in vm.protein_contacts) {
                         vm.selectSections_proteins.set(val, [])
                         var color = interpolateLinearly(i/filtered_chains.length, aaColorData.get("Protein contacts")[0])
@@ -998,6 +937,8 @@
                                 color: color[1],
                                 sideChain: false,
                             });
+                            var protein_name = vm.protein_chains.filter(e => e.value == val)[0].text
+                            vm.mapped_aa_contacts_mods.get("Protein Contacts").push([vm.protein_contacts[val][j], protein_name])
                         }
                     }                    
                     vm.proteinColorMap = colorMap;

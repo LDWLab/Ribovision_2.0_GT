@@ -377,6 +377,7 @@ export class UiTemplateService {
                 });
             }
         }
+        /*
         if (TWCData.size < mapped_aa_properties.get("TwinCons")!.length) {
             for(var i = TWCData.size - 1; i < this.mapped_aa_properties.get("TwinCons").length; i++) {
                 (window as any).selectSections_RV1.get(name).push({ //3d
@@ -388,7 +389,7 @@ export class UiTemplateService {
                     sideChain: false,
                 });
             }
-        }
+        }*/
         return residueDetails;
     }
     getAnnotationFromRibovision(mapped_aa_properties: Map<string, Array<Array<number>>>) {
@@ -785,18 +786,21 @@ export class UiTemplateService {
                 //let BanProtName = ''
                 for (let val in value) {
 
-
-                    promises.push(BanNameHelper.getBanName(this.pluginOptions.pdbId, value[val]));
-
-                    
-                    chain = value[val];
+                    let banName = BanNameHelper.getBanName(this.pluginOptions.pdbId, value[val])
+                    if (banName != undefined) {
+                        chain = value[val];
+                        promises.push([banName, chain]);
+                        //chain = value[val];
+                    } else {
+                        promises.push(["", chain]);
+                    }
 
                 }
 
                 Promise.all(promises).then ((banNames : Array<any>) => {
                         
                     banNames.forEach(BanName => {
-                        tooltip += " " +BanName[0]+"; chain: " + chain;
+                        tooltip += " " +BanName[0]+"; chain: " + BanName[1];
                   
                         });
                         

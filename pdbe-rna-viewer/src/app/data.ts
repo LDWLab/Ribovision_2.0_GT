@@ -74,7 +74,7 @@ export class BanNameHelper {
                const apiUrl = `https://api.ribosome.xyz/neo4j/get_banclass_for_chain/?pdbid=${pdbId}&auth_asym_id=${PchainId}&format=json`  
                return await (await fetch(apiUrl)).json() as JSON;  
            } catch (e) {
-               console.log(`Ban naming is not available!`, e);
+               //console.log(`Ban naming is not available!`, e);
                return void 0;
            };
        }

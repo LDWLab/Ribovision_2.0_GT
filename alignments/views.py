@@ -87,6 +87,8 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
     ### BE CAREFUL WHEN MERGING THE FOLLOWING LINES TO PUBLIC; PATHS ARE HARDCODED FOR THE APACHE SERVER ###
     alignmentFileName = "/home/RiboVision3/static/alignment" + fileNameSuffix + ".txt"
     ebiFileName = "/home/RiboVision3/static/ebi_sequence" + fileNameSuffix + ".txt"
+    #alignmentFileName = "./static/alignment" + fileNameSuffix + ".txt"
+    #ebiFileName = "./static/ebi_sequence" + fileNameSuffix + ".txt"
     mappingFileName = ebiFileName + ".map"
     fasta = re.sub('>Structure sequence[\s\S]*?>','>',fasta)
     fh = open(alignmentFileName, "w")
@@ -837,7 +839,8 @@ def protein_contacts(request, pdbid, chain_id):
                 point = atom.get_coord()
                 neighbors_L2 = neighbor_23S.search(point, 3.5, level='R')
                 for neighbor in neighbors_L2:
-                    neighbors_L2_all.add(neighbor.id[1])
+                    if not neighbor.id[0] == 'W':
+                        neighbors_L2_all.add(neighbor.id[1])
 
             if len(neighbors_L2_all) > 0:
                 neighbors[chain.id] = list(neighbors_L2_all)
