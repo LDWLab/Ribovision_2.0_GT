@@ -5,7 +5,7 @@ We would like to thank the following collaborators, whose input has been invalua
 - Dr. Blake Sweeney, RNAcentral (https://rnacentral.org/) 
 - Dr. Anton I. Petrov (R2DT, https://rnacentral.org/r2dt)
 - Dr. Chad R. Bernier (RiboVision, http://apollo.chemistry.gatech.edu/RiboVision/ ) 
-- Dr. Alexander Rose, Mol* 
+- Dr. Alexander Rose, (Mol*, https://github.com/molstar) 
 
 
 Our webserver would not be possible without these free resources:
