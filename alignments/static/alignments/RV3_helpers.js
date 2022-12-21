@@ -33,6 +33,7 @@ var absolutePosition = function (el) {
   };
 };
 
+
 var parseFastaString = function(fastaString){
     let arrayFasta = [];
     let tempFasta = String(fastaString).split('\n>');
@@ -145,7 +146,8 @@ var parseFastaSeqForMSAViewer = function (fasta){
 
 function downloadCSVData() {
   let [month, date, year] = new Date().toLocaleDateString("en-US").split("/");
-  let csv = generateCSVstring(mapped_aa_properties);
+  combined_map = new Map([...mapped_aa_properties, ...vm.mapped_aa_contacts_mods]);
+  let csv = generateCSVstring(combined_map);
   let anchor = document.createElement('a');
   anchor.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
   anchor.target = '_blank';
@@ -504,25 +506,44 @@ var generateCSVstring = function (mapped_data){
   csv += properties.join(',');
   csv += '\n';
   let csv_ix = [];
-  
+  let csv_map = new Map()
   mapped_data.get(properties[0]).forEach((datapoint) =>{
       let alnIx = _.invert(vm.structure_mapping)[datapoint[0]];
-      csv_ix.push([datapoint[0], alnIx]);
+      //csv_ix.push([datapoint[0], alnIx]);
+      csv_map.set(datapoint[0], [alnIx])
   })
-
+  i = 1
   properties.forEach((prop) => {
-      let ix = 0;
+      //let ix = 0;
       mapped_data.get(prop).forEach((datapoint) =>{
-          csv_ix[ix].push(datapoint[1]);
-          ix += 1;
-      })
+          if (csv_map.has(datapoint[0])) {
+            if (prop != "Protein Contacts" && prop != "Modified Residues") {
+                csv_map.get(datapoint[0]).push(datapoint[1])
+            } else if (prop == "Protein Contacts" || prop == "Modified Residues") {
+                if (csv_map.get(datapoint[0]).length == i + 1){
+                    csv_map.get(datapoint[0])[i] = csv_map.get(datapoint[0])[i] + " " + datapoint[1]
+                }                
+                else {
+                    while (csv_map.get(datapoint[0]).length < i) {
+                        csv_map.get(datapoint[0]).push(" ")
+                    }
+                    csv_map.get(datapoint[0]).push(datapoint[1])
+                }
+            }
+        }
+          //ix += 1;
+    })
+      i += 1
   })
 
-  csv_ix.forEach((row) => {
+  /*csv_ix.forEach((row) => {
       csv += row.join(',');
       csv += '\n';
-  })
-
+  })*/
+  csv_map.forEach((value, row) => {
+    csv += row + ',' + value.join(',');
+    csv += '\n';
+})
   return csv;
 };
 var unSelectNucleotide = function(event, pdbId, label_seq_id, isUnobserved) {
@@ -567,7 +588,6 @@ var getTWCAnnotations = function (separatedData, lowVal, highVal, chainid) {
         let itemValue = item[1];
         
         let newValue = itemValue - lowVal;
-        console.log(parsedItem, itemValue, newValue);
         let normalizedVal = Math.round(newValue/(highVal - lowVal) * 99)
 
         /*if (itemValue < 0){
@@ -687,7 +707,78 @@ var mapTWCdata = function (structMap, twcDataUnmapped, mapped_aa_properties){
         //selectBoxEle.appendChild(twc_option);
     }
 }
-
+var showPDBHelper = function(pdbid, chainid, entityid) {
+    const molstar_item = document.getElementById("pdbeMolstarView");
+    if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Loading Molstar Component ", true)}
+    var pdblower = pdbid.toLocaleLowerCase();
+    if (pdbid == "cust"){
+        var coordURL = `/custom-struc-data/${pdblower}-${entityid}-${chainid}`;
+        var binaryCif = false;
+        var structFormat = "cif";
+    }else{
+        //var coordURL = `https://www.ebi.ac.uk/pdbe/coordinates/${pdblower}/chains?entityId=${entityid}&encoding=bcif`
+        //var coordURL = `https://coords.litemol.org/${pdblower}/chains?entityId=${entityid}&authAsymId=${chainid}&encoding=bcif`;
+        var coordURL = `https://models.rcsb.org/v1/${pdblower}/atoms?label_entity_id=${entityid}&encoding=bcif`
+        var binaryCif = true;
+        var structFormat = "bcif";
+    }
+    window.pdblower = pdblower;
+    var viewerInstance = new PDBeMolstarPlugin();
+    vm.viewer_options = {
+        customData: { url: coordURL,
+                        format: structFormat, 
+                        binary: binaryCif },
+        hideCanvasControls: ["expand", "selection", " animation"],
+        assemblyId: '1',
+        hideControls: true,
+        subscribeEvents: true,
+        bgColor: {r:255,g:255,b:255},
+    }
+    var viewerContainer = document.getElementById('pdbeMolstarView');
+    viewerInstance.render(viewerContainer, vm.viewer_options);
+    window.viewerInstance = viewerInstance;
+    
+    document.addEventListener('PDB.topologyViewer.click', (e) => {
+        var molstar= viewerInstance;
+        var chainId=e.eventData.chainId;
+        var entityId=e.eventData.entityId;
+        var residueNumber=e.eventData.residueNumber;
+        var types=e.eventData.type;
+        molstar.visual.select({
+            data:[
+                {
+                    entity_id:entityId,
+                    residue_number:residueNumber,
+                    color:{r:20, y:100, b:200},
+                    focus:false
+                },
+            ],
+        })
+    })
+    document.addEventListener('PDB.topologyViewer.mouseover', (e) => {
+        var molstar= viewerInstance;
+        var chainId=e.eventData.chainId;
+        var entityId=e.eventData.entityId;
+        var residueNumber=e.eventData.residueNumber;
+        var types=e.eventData.type;
+        
+        molstar.visual.highlight({
+            data:[
+                {
+                    entity_id:entityId,
+                    residue_number:residueNumber,
+                },
+            ],
+        })
+    })
+    document.addEventListener('PDB.molstar.mouseover', (e) => {
+        var eventData = e.eventData;
+        let resi_id = eventData.auth_seq_id;
+        if(masked_array && masked_array[resi_id] == false) {
+            viewerInstance.plugin.behaviors.interaction.hover._value.current.loci.kind = "empty-loci"
+        }
+    });
+}
 var fetchTWCdata = function (fasta){
     ajax('/twc-api/', {fasta}).then(twcDataUnmapped => {
         vm.unmappedTWCdata = twcDataUnmapped;
@@ -728,6 +819,7 @@ var calculateModifiedResidues = function(pdbid, chainid, entityid) {
         var i = 1.0;
         var colorMap = new Map();
         vm.selectSections_modified = new Map();
+        vm.mapped_aa_contacts_mods.set("Modified Residues", [])
         for (var val of modifications) {
             vm.selectSections_modified.set(val, [])
             //Need to add modifications color scheme, using PC for now
@@ -743,6 +835,7 @@ var calculateModifiedResidues = function(pdbid, chainid, entityid) {
                     color: color[1],
                     sideChain: false,
                 });
+                vm.mapped_aa_contacts_mods.get("Modified Residues").push([j, val])
             }
         }                 
         vm.modifiedColorMap = colorMap;
@@ -758,7 +851,6 @@ var showContactsHelper = function(entityid) {
     protein_data.get("contacts").push({entity_id: entityid, focus: true})
     for (let val in vm.pchainid) {
         var chain = vm.pchainid[val];
-        console.log("contacts", chain, entityid);
         for (let entry in vm.selectSections_proteins.get(chain)) {
             protein_data.get("contacts").push(vm.selectSections_proteins.get(chain)[entry])
         }
@@ -781,14 +873,44 @@ var showContactsHelper = function(entityid) {
             })
         })
 }
+const sleep = (delay) => new Promise (( resolve) => setTimeout (resolve, delay))
+var showProteins3D = function() {
+    
+    /*var viewerContainer = document.getElementById('pdbeMolstarView');
+    viewerInstance.render(viewerContainer, vm.viewer_options);
+    window.viewerInstance = viewerInstance;*/
+    
+    //viewerInstance.visual.update({customData: vm.viewer_options.customData}, true)
+    showPDBHelper(vm.pdbid, vm.chainid, vm.entityID)
+    
+    const showProteins = async () => {
+        await sleep (5000)
+        colorData = []
+        for (let val in vm.pchainid) {
+            auth_id = vm.pchainid[val]
+            chain = vm.protein_chains.filter(e => e.value == auth_id)[0]
+            eID = chain.entityID
+            data = {url: `https://www.ebi.ac.uk/pdbe/model-server/v1/${vm.pdbid}/atoms?label_entity_id=${eID}&auth_asym_id=${auth_id}&encoding=bcif`, format: 'cif', binary:true, bgColor: {r: 255, g: 255, b: 255}}
+            viewerInstance.visual.update({customData: data, bgColor: {r: 255, g: 255, b: 255}}, false)
+            color = vm.proteinColorMap.get(auth_id)
+            split_color = color.split('(')[1].split(')')[0].split(',')
+            formatted_color = {r: split_color[0], g: split_color[1], b: split_color[2]}
+            colorData.push(formatted_color)
+        }
+        await sleep (10000)
+        viewerInstance.visual.colorByChain(colorData)
+    }
+    showProteins()
+}
 var showModificationsAndContactsHelper = function(entityid) {
+    if (vm.pchainid.length > 0){
+        showProteins3D()
+    }
     var modified_data = new Map();
     modified_data.set("mods", [])
     modified_data.get("mods").push({entity_id: entityid, focus: true})
     for (let val in vm.pchainid) {
         var chain = vm.pchainid[val];
-        console.log("contacts", chain, entityid);
-
         for (let entry in vm.selectSections_proteins.get(chain)) {
             modified_data.get("mods").push(vm.selectSections_proteins.get(chain)[entry])
         }
@@ -803,18 +925,25 @@ var showModificationsAndContactsHelper = function(entityid) {
         nonSelectedColor: {r:255,g:255,b:255}
     })*/
     const mapSort1 = modified_data.get("mods").sort((a, b) => a.residue_number - b.residue_number);
-    viewerInstance.visual.select({
-        data: mapSort1, 
-        nonSelectedColor: {r:255,g:255,b:255}
-        }).catch(err => {
-            console.log(err);
-            vm.$nextTick(function(){
-                viewerInstance.visual.select({
-                    data: mapSort1,
-                    nonSelectedColor: {r:255,g:255,b:255}
+    const selectColors = async() => {
+        if(vm.pchainid.length > 0) {
+            await sleep(5000)
+        }
+        viewerInstance.visual.select({
+            data: mapSort1, 
+            nonSelectedColor: {r:255,g:255,b:255}
+            }).catch(err => {
+                console.log(err);
+                vm.$nextTick(function(){
+                    viewerInstance.visual.select({
+                        data: mapSort1,
+                        nonSelectedColor: {r:255,g:255,b:255}
+                    })
                 })
             })
-        })
+    }
+    selectColors()
+        
 }
 var recolorTopStar = function (name){
     var selectBox = viewerInstanceTop.viewInstance.targetEle.querySelector('.mappingSelectbox');

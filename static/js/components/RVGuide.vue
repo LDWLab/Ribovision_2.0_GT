@@ -4,34 +4,40 @@
             <div style="padding-top:10px">
                 <span class="title" >RiboVision 2.0: Advanced Visualization of RNA molecules </span>
             </div>
-            <!--
+            
             <div class="headerOptions" style="margin-left: auto;padding-top:10px;">
+                <!--
                 <span title="Start an interactive guide">
                     <button class="btn btn-outline-dark" v-on:click="startTour();" style="float: right;">Help</button>
                 </span>
+                -->
                 <p style="padding:2px;float: right;"></p>
-                <span title="Go to ProteoVision documentation">
+                <span title="Go to RiboVision2 documentation">
                     <button class="btn btn-outline-dark" id="aboutButton" v-on:click="goToAboutPage();" style="float: right;">About</button>
                 </span>
+                <!--
                 <p style="padding:2px;float: right;"></p>
                 <span title="Go to DESIRE api">
                     <a href="/desire-api/" target="_blank" id="desireAPIButton" class="btn btn-outline-dark" style="float: right;">API</a>
                 </span>
+               
+                
                 <p style="padding:2px;float: right;"></p>
                 <span title="Reset the current session">
                     <button class="btn btn-outline-dark" id="resetButton" v-on:click="resetRV3State();" style="float: right;">Reset</button>
                 </span>
+                -->
                 <p style="padding:2px;float: right;"></p>
-                <span title="Save a ProteoVision session file">
+                <span title="Save a RiboVision2 session file">
                     <button class="btn btn-outline-dark" id="saveButton" v-on:click="saveRV3State();" style="float: right;">Save session</button>
                 </span>
                 <p style="padding:2px;float: right;"></p>
-                <span title="Load a ProteoVision session file">
+                <span title="Load a RiboVision2 session file">
                     <label for="inputRV3State" id="rv3-state-upload" class="btn btn-outline-dark">Load session</label>
                     <input id="inputRV3State" type="file" accept=".json" ref="rv3_state_file" v-on:change="loadRV3State()"/>
                 </span>
             </div>
-            -->
+            
         </header>
         <v-tour 
           name="myTour"
@@ -126,7 +132,7 @@
                 };
                 req.send();
             }, goToAboutPage(){
-                window.open("https://apollo2.chemistry.gatech.edu/AboutProteoVision/", "_blank"); 
+                window.open("https://apollo2.chemistry.gatech.edu/AboutRiboVision2/about/", "_blank"); 
             },
         },
         mounted: function () {
