@@ -10,10 +10,12 @@
                 <span title="Start an interactive guide">
                     <button class="btn btn-outline-dark" v-on:click="startTour();" style="float: right;">Help</button>
                 </span>
+                -->
                 <p style="padding:2px;float: right;"></p>
-                <span title="Go to ProteoVision documentation">
+                <span title="Go to RiboVision2 documentation">
                     <button class="btn btn-outline-dark" id="aboutButton" v-on:click="goToAboutPage();" style="float: right;">About</button>
                 </span>
+                <!--
                 <p style="padding:2px;float: right;"></p>
                 <span title="Go to DESIRE api">
                     <a href="/desire-api/" target="_blank" id="desireAPIButton" class="btn btn-outline-dark" style="float: right;">API</a>
@@ -24,7 +26,7 @@
                 <span title="Reset the current session">
                     <button class="btn btn-outline-dark" id="resetButton" v-on:click="resetRV3State();" style="float: right;">Reset</button>
                 </span>
-                 -->
+                -->
                 <p style="padding:2px;float: right;"></p>
                 <span title="Save a RiboVision2 session file">
                     <button class="btn btn-outline-dark" id="saveButton" v-on:click="saveRV3State();" style="float: right;">Save session</button>
@@ -130,7 +132,7 @@
                 };
                 req.send();
             }, goToAboutPage(){
-                window.open("https://apollo2.chemistry.gatech.edu/AboutProteoVision/", "_blank"); 
+                window.open("https://apollo2.chemistry.gatech.edu/AboutRiboVision2/about/", "_blank"); 
             },
         },
         mounted: function () {
