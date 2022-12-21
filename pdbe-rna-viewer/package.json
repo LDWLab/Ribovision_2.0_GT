@@ -26,7 +26,7 @@
     "build-webpack": "webpack --mode production --config ./webpack.config.js",
     "watch": "concurrently --names \"tsc,srv,ext,wpc\" --kill-others \"npm:watch-tsc\" \"npm:watch-webpack\"",
     "watch-tsc": "tsc --watch --incremental",
-    "watch-webpack": "webpack -w --mode development --display minimal",
+    "watch-webpack": "webpack -w --mode production --display minimal",
     "serve": "http-server -p 1338",
     "bundle-webcomponent": "gulp"
   },

@@ -85,7 +85,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
             let resiPos = vm.structure_mapping[e.position+1];
             if (resiPos !== undefined){
                 viewerInstanceTop.viewInstance.selectResidue(resiPos);
-                viewerInstance.visual.highlight({
+                viewerInstance.visual.highlighting({
                     data:[{
                             entity_id:`${vm.entityID}`,
                             //start_residue_number:resiPos,
@@ -118,7 +118,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
             if (resiPos !== undefined){
                 viewerInstanceTop.viewInstance.clearSelection(resiPos);
             }
-            viewerInstance.visual.clearHighlight();
+            viewerInstance.visual.clearHighlighting();
         }
         this.setState({ fold: undefined, phase: undefined });
     };
