@@ -786,21 +786,22 @@ export class UiTemplateService {
                 //let BanProtName = ''
                 for (let val in value) {
 
-                    let banName = BanNameHelper.getBanName(this.pluginOptions.pdbId, value[val])
-                    if (banName != undefined) {
-                        chain = value[val];
-                        promises.push([banName, chain]);
-                        //chain = value[val];
-                    } else {
-                        promises.push(["", chain]);
-                    }
+
+                    promises.push(BanNameHelper.getBanName(this.pluginOptions.pdbId, value[val]));
+
+                    
+                    chain = value[val];
 
                 }
 
                 Promise.all(promises).then ((banNames : Array<any>) => {
                         
                     banNames.forEach(BanName => {
-                        tooltip += " " +BanName[0]+"; chain: " + BanName[1];
+                        if (BanName.length > 0) {
+                            tooltip += " " +BanName[0]+"; chain: " + chain;
+                        } else {
+                            tooltip = "chain: " + chain;
+                        }
                   
                         });
                         
