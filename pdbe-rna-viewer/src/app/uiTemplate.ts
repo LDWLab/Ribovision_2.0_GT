@@ -9,6 +9,7 @@ export class UiTemplateService {
     parsePVData = (window as any).parsePVData;
     getEntropyAnnotations = (window as any).getEntropyAnnotations;
     getTWCAnnotations = (window as any).getTWCAnnotations;
+    getCustomAnnotations = (window as any).getCustomAnnotations;
     getAnnotationArray = (window as any).getAnnotationArray;
     rv3VUEcomponent = (window as any).vm;
     private containerElement: HTMLElement;
@@ -91,7 +92,7 @@ export class UiTemplateService {
         this.uiActionsService.applyButtonActions();
         this.addEvents(apiData, BanName);
         <any>document.querySelector(".saveSVG")!.addEventListener("click", this.saveSVG.bind(this));
-        //this.getAnnotationFromRibovision(this.mapped_aa_properties)
+        this.getAnnotationFromRibovision(this.mapped_aa_properties);
         //this.rv3VUEcomponent.topology_loaded=true;
     }
 
@@ -329,6 +330,8 @@ export class UiTemplateService {
             const selectBoxEle = this.containerElement.querySelector<HTMLElement>('.mappingSelectbox');
             selectBoxEle!.innerHTML = optionList;
             selectBoxEle!.addEventListener("change", this.colorMapHelper.bind(this));
+            
+            //selectBoxEle!.addEventListener("change", this.updateProperty.bind(this));
 
             //const resetIconEle = this.containerElement.querySelector('.resetIcon');
             //resetIconEle.addEventListener("click", this.resetDisplay.bind(this));
@@ -352,7 +355,9 @@ export class UiTemplateService {
                     color: rgb_color[1],
                     sideChain: false,
                 });
+                
                 _this.defaultColours.qualityRiboVision= '#'+String(rgb_color[0].join(''));
+               
                 var colors = "rgb("+String(rgb_color[0].join(','))+")"
                 //_this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
                 residueDetails.push({ //2d
@@ -362,10 +367,13 @@ export class UiTemplateService {
                     tooltipMsg: Number.parseFloat(value).toPrecision(3),
                     tooltipPosition: "prefix"
                 });
+                
                 //_this.drawValidationShape(index, "circle", colors);
             }
         })
+       /* 
         if (TWCData.size < mapped_aa_properties.get("Shannon entropy")!.length) {
+            console.log("2D3D2", mapped_aa_properties);
             for(var i = TWCData.size - 1; i < this.mapped_aa_properties.get("Shannon entropy").length; i++) {
                 (window as any).selectSections_RV1.get(name).push({ //3d
                     entity_id: _this.pluginOptions.entityId,
@@ -376,7 +384,7 @@ export class UiTemplateService {
                     sideChain: false,
                 });
             }
-        }
+        }*/
         /*
         if (TWCData.size < mapped_aa_properties.get("TwinCons")!.length) {
             for(var i = TWCData.size - 1; i < this.mapped_aa_properties.get("TwinCons").length; i++) {
@@ -437,6 +445,12 @@ export class UiTemplateService {
                     this.getTWCAnnotations(separatedData, min, max, this.pluginOptions.chainId);
                     //console.log('name_TWC', name, this.getTWCAnnotations(separatedData, min, max, this.pluginOptions.chainId));
                 };
+
+                if  (name == "Custom Data"){
+                    
+                    this.getCustomAnnotations(separatedData, min, max, this.pluginOptions.chainId);
+                    //console.log('name_CD', name,  this.getEntropyAnnotations(separatedData, min, max, this.pluginOptions.chainId));
+                }; 
                 
                 const [TWCrgbMap, TWCData] = this.parsePVData(separatedData, min, max, colormapArray);
                 this.selectSections_RV1.get(name).push({entity_id: _this.pluginOptions.entityId, focus: true});

@@ -57,7 +57,7 @@ stat.prototype.resetSeqs = function reset(seqs) {
   this.seqs = [];
 
   // support sequence models
-  if (! seqs instanceof Array || "at" in seqs) {
+  if (! seqs instanceof Array) {
     this.mseqs = seqs;
     var mSeqsPluck = function() {
       var seqArr = this.mseqs.pluck("seq");

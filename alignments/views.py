@@ -85,8 +85,8 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     ### BE CAREFUL WHEN MERGING THE FOLLOWING LINES TO PUBLIC; PATHS ARE HARDCODED FOR THE APACHE SERVER ###
-    alignmentFileName = "/home/RiboVision3/static/alignment" + fileNameSuffix + ".txt"
-    ebiFileName = "/home/RiboVision3/static/ebi_sequence" + fileNameSuffix + ".txt"
+    alignmentFileName = "/home/anton/RiboVision2/Ribovision_3.0_GT/static/alignment" + fileNameSuffix + ".txt"
+    ebiFileName = "/home/anton/RiboVision2/Ribovision_3.0_GT/static/ebi_sequence" + fileNameSuffix + ".txt"
     #alignmentFileName = "./static/alignment" + fileNameSuffix + ".txt"
     #ebiFileName = "./static/ebi_sequence" + fileNameSuffix + ".txt"
     mappingFileName = ebiFileName + ".map"

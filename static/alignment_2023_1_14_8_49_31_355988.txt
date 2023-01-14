@@ -1,0 +1,204 @@
+>Bacteria_Bartonella henselae str. Houston-1|NR_075305
+----------------------------------------------------------------------GACUUGGUGGUUAUG-GCG-G----------AGUGA-ACGCACC-CGAU-CC-CAUCCCGAACU-CG-------------------------------------GCCGUGAAACGCUCC-AGCGCUGAUG----GUACUUUGCC--UUAA--GGCACG-GGA-GAGUAAGUCGCUGCCAGGUCU---------
+>Bacteria_Anabaena variabilis ATCC 29413 |NR_075347
+-----------------------------------------------------------------------UCCUGGUGCCUAUG-GUG-C----------AGUGG-AACCACU-CUGAUUC-CAUCCCGAACU-CA-------------------------------------GUUGUGAAACGCUGC-UACGGCUACG----AUAGUCUAGGG-GUUG-CCCUAUG-CCA-CAAUCGCUCGGUGCCAGGUU----------
+>Bacteria_Treponema pallidum subsp. pallidum str. Nichols |NR_075106
+------------------------------------------------------------------------CCUGGUUGCCAUG-GUG-G----------AGAGG-UCAUACC-CGUU-CC-CAUCCCGAACA-CG-------------------------------------GAAGUCAAGCUCUCC-UACGCCGAUG----AUACUGCU----CCUU----CGCG-GGA-AAGUAGGUAGUAGCCAGGCU----------
+>Bacteria_Cytophaga hutchinsonii ATCC 33406 |NR_103352
+--------------------------------------------------------------------------UGGUGGCUAUA-GCG-U----------UGGUG-UU-CACC-UCUU-CC-CAUUUCGAACA-GA-------------------------------------GAAGUUAAGCCCAAC-UGCGCCAAUG----GUACUGCAG---UCAA---AUGUG-GGA-GAGUAGGUCGCUGCCAACUU----------
+>Bacteria_Neisseria gonorrhoeae FA 1090 |NR_103877
+--------------------------------------------A-------------------------AGUUUGGCGGCCAUA-GCG-A----------GUUGG-UCCCACG-CCUU-CC-CAUCCCGAACA-GG-------------------------------------ACCGUGAAACGACUC-AGCGCCGAUG----AUAGUGUGGU--UC-U--UCCAUG-CGA-AAGUAGGUCACUGCCAAAC-----------
+>Bacteria_Leifsonia xyli subsp. xyli str. CTCB07|NR_075150
+----------------------------------------------------------------------GUUUCGGCGGCCAUA-GCG-A----------GAGGG-AAACGCC-CGGU-CA-CAUUCCGAACC-CG-------------------------------------GAAGCUAAGACUCUC-UGCGCCGAUG----GUACUGCAGGG-GGGA-CCCUGUG-GGA-GAGUAGGACACCGCCGGACUU---------
+>Bacteria_Yersinia pestis CO92 |NR_075183
+----------------------------------------------------------------------UACCUGGCGGCAAUA-GCG-C----------GGUGG-UCCCACC-UGAC-CC-CAUGCCGAACU-CA-------------------------------------GAAGUGAAACGCCGU-AGCGCCGAUG----GUAGUGUGGGG-UC-U-CCCCAUG-CGA-GAGUAGGACACUGCCAGGUAUCAA---AUA
+>Bacteria_Thermoanaerobacter tengcongensis MB4 |NR_075126
+---------------------------------------------------------------------------GGUGGCGAUA-GCG-G----------AGGGG-AAACACC-CGUU-CC-CAUUCCGAACA-CG-------------------------------------GAAGUUAAGCCCUCC-AGCGCCGAUG----GUACUGC-----AUAA-----GCG-GGA-GAGUAGGUCGCUGCCGGAA-----------
+>Bacteria_Blochmannia floridanus|NR_075302
+--------------------------------------------A-------------------------AACUUGGUGGCAUUA-GCG-C----------GAUAG-UACCACC-UGAUGAC-CAUUCCGAACU-CA-------------------------------------GAAGUGAAAUGUCGU-GGUACCGAUG----GUAGUGUGAGG-AU-U-CCUCAUG-UGA-GAGUAGGGGGCUGCCAAGUUU---------
+>Bacteria_Porphyromonas gingivalis W83 |NR_075146
+------------------------------------------------------------------------UCAGGUGGUUAUA-ACG-U----------UGGGG-AUCCACC-UCUU-CC-CAUUCCGAACA-GA-------------------------------------GAAGUUAAGCCCAAC-GGUGCCGAUG----GUACUGCG----UCAC----AGUG-GGA-GAGUAGGACGCCGCCG--------------
+>Bacteria_Tropheryma whipplei str. Twist |NR_075140
+----------------------------------------------------------------------GUCUCGGGGGCAAUG-GCA-A----------GAGGG-AAACGCC-UGGU-UA-CAUUCCGAACC-CA-------------------------------------GAAGCUAAGCCUCUU-AGCGCUGAUG----GUACUGCAGGG-GGGA-CCCUGUG-GGA-GAGUAAGACGCCCCCGGGCU----------
+>Bacteria_Dehalococcoides ethenogenes 195 |NR_075318
+--------------------------------------------U-------------------------CCCCCGGUGGUUAGA-GCG-G----------GGUGG-UACCACC-CGUU-CC-CGUCCCGAACA-CG-------------------------------------GUCGUGAAACGCCCC-AGCGCAGACG----AUACUUAGGAG-GCAA-CUCCUUGUGGA-AAAUAUGCCACUGCCCGGGGA---------
+>Bacteria_Streptococcus pneumoniae R6 |NR_075123
+-------------------------------------------------------------------------UAAGUGACGAUA-GCC-U----------AGGAG-AUACACC-UGUA-CC-CAUGCCGAACA-CA-------------------------------------GAAGUUAAGCCCUAG-AACGCCGGAA----GUAGUUGGGGG-UU-G-CCCCCUG-UGA-GAUAGGGAAGUCGCUUAGC-----------
+>Bacteria_Wolbachia endosymbiont strain TRS of Brugia malayi|NR_075175
+--------------------------------------------UAGAGGUUU------------UUAUUAACUUGGUGGUUUUA-GCA-A----------AAAUG-AAACACC-CGAU-CC-CAUCUCGAAUU-CG-------------------------------------GAAGUGAAACUUUUU-AGCGCUGAUG----GUACUU------GAAA------AG-GGA-GAGUAGGUCGCUGCCAAGUUU---------
+>Bacteria_Gloeobacter violaceus PCC 7421 |NR_075301
+-----------------------------------------------------------------------UCCUGGUGCUCA-G-GCG-C----------AGUGG-AACCACG-CCGA-UC-CAUCCCGAACU-CG-------------------------------------GACGUUAAACGCUGC-AGCAGCGAAG----AUACUUGGAGG-GCAG-CUUCCUG-GGA-AAAUAGCCCGGUGCCAGGG-----------
+>Bacteria_Thermotoga maritima MSB8 |NR_103224
+--------------------------------------------------------------------AUCCCCGGGUGCCGAUA-CUG-G---------GGCGGG-AAACACC-CGGU-UC-CAUUCCGAACC-CG-------------------------------------GCCGUUAAGCCGCCC-UGGGCCGAUG----GUAGUAUGGGG-GCAG-CCCCAUG-CGA-GAGUAGGUAGCGCCCGGGGAUUUGU-----
+>Bacteria_Gluconobacter oxydans 621H|NR_075312
+-------------------------------------------------------------------------CUGGUGGCCAUU-GCG-A----------GGGCC-CUACACC-CGAU-CC-CAUCCCGAACU-CG-------------------------------------GCCGUGAAAUCCCUC-AGCGCCUAUG----AUACUGCACC--UUAA--GGUGCG-GAA-AAGUCGGUCGCCGCCAGGUCCC--------
+>Bacteria_Helicobacter hepaticus ATCC 51449 |NR_103440
+--------------------------------------------UCC--------------------CUUUUUCUUGUGUUUAUA-GAG-A----------GAAGG-CAACACC-CAGC-UC-CAUUCCGAACC-UG-------------------------------------GCAGUUAAGCUUCUC-UUCGCCGAUG----AUACUGCAUCU-UU-C-AGGUGUG-GGA-AUGUAGGUCGAUGCAGGGAUAGGGA-AA--
+>Bacteria_Propionibacterium acnes KPA171202 |NR_075172
+----------------------------------------------------------------------UUUCCGGUGGCCAUA-GUG-G----------AAGGG-AAACACC-CGGU-CC-CAUUCCGAACC-CG-------------------------------------GUCGUUAAGCCUUCC-AACGCUGAUG----GUACUGCACGA-GGGA-UCGUGUG-GGA-GAGUAAGACGCUGCCGGAAUAC--------
+>Bacteria_Bacillus anthracis str. Ames |NR_075159
+------------------------------------------------------------------------UUUGGUGAUGAUG-GCA-G----------AGAGG-UCACACC-CGUU-CC-CAUACCGAACA-CG-------------------------------------GAAGUUAAGCUCUCU-AGCGCCGAUG----GUAGUUGGGAC-CU-U-GUCCCUG-UGA-GAGUAGGACGUCGCCAAGC-----------
+>Bacteria_Coxiella burnetii RSA 493 |NR_075155
+----------------------------------------------------------------------UUCCUGGCGGCCAUA-GCG-A----------GCGGG-CCCCACC-UGAU-UC-CAUUCCGAACU-CA-------------------------------------GAAGUGAAAACGCUU-AGCGCCGAUG----AUAGUGUGGG--UC---UCCCAUG-CGA-AAGUAGGUCACCGCCAGGUU----------
+>Bacteria_Shewanella oneidensis MR-1 |NR_075142
+----------------------------------------------------------------------UGCUUGGUGACAAUA-GCA-U----------UGUGG-UCCCACC-UGAU-CC-CAUCCCGAACU-CA-------------------------------------GAAGUGAAACGCAAU-CGCGCCGAUG----GUAGUGUGGGG-UC-U-CCCCAUG-UGA-GAGUAGGUCAUCGCCAAGCGC---------
+>Bacteria_Haemophilus influenzae Rd KW20 |NR_076074
+------------------------------------------------------------------------CCUGGCGGCGAUA-GUG-C----------GGUGG-ACCCACC-UGAG-AC-CAUACCGAACU-CA-------------------------------------GAAGUGAAACGCUGU-AAUGCCGAUG----GUAGUGUGGGG-UU-U-CCCCAUG-UGA-GAGUAGGGCACCGCCAGG------------
+>Bacteria_Xanthomonas axonopodis pv. citri str. 306 |NR_075130
+----------------------------------------------------------------------UCCCUGGUGAAAUUA-GCG-C----------UGUGG-AACCACC-CGAU-CC-CAUCCCGAACU-CG-------------------------------------GAAGUGAAACGCAGC-UGCGCCGAUG----GUAGUGUGGC--UCAA--GCCAUG-CGA-GAGUAGGUCAUCGCCAGGGGC---------
+>Bacteria_Sinorhizobium meliloti 1021 |NR_075184
+--------------------------------------------C-------------------------GACCUGGUGGUUCUG-GCG-G----------GGUGG-CUGCACC-CGUU-CC-CAUUCCGAACA-CG-------------------------------------GCCGUGAAACGCCCC-AGCGCCGAUG----GUACUUCGUC--UUAA--GACGCG-GGA-GAGUAGGUCGCUGCCAGGUCU---------
+>Bacteria_Nitrosomonas europaea ATCC 19718 |NR_075187
+--------------------------------------------U-------------------------UGCUUGGCGGCCAUA-GCG-C----------UUUGG-ACCCACC-UUUU-CC-CAUCCCGAACA-GA-------------------------------------GAAGUGAAACGAAGC-AGCGCCGAUG----AUAGUGUGU---UUCC---ACAUG-UGA-AAGUAGGUCACCGCCAGGCUU---------
+>Bacteria_Agrobacterium tumefaciens str. C58 |NR_075124
+----------------------------------------------------------------------GACCUGGUGGUUAUC-GCG-G----------GGCGG-CUGCACC-CGUU-CC-CAUUCCGAACA-CG-------------------------------------GCCGUGAAACGCCCC-AGCGCCAAUG----GUACUCCGUC--UCAA--GACGCG-GGA-GAGUAGGUCGCUGCCAGGUCU---------
+>Bacteria_Bradyrhizobium japonicum USDA 110 |NR_075299
+----------------------------------------------------------------------GGCCUGGUGGUUUUA-GCG-A----------AGAGC-CUCAACC-CGAU-CC-CAUCCCGAACU-CG-------------------------------------GCCGUUAAACUCUUC-AGCGCCAAUG----GUACUAUGGC--UUAA--GCCCUG-GGA-GAGUAGGUCGCUGCCAGGCCU---------
+>Bacteria_Geobacillus kaustophilus HTA426 |NR_075300
+--------------------------------------------------------------------------------------GCG-G----------AGGGG-AAACACC-CGUU-CC-CAUCCCGAACA-CG-------------------------------------GAAGUUAAGCCCUCC-AGCGCCGAUG----GUAGUUGGGGC-CAGC-GCCCCUG-CAA-GAGUAGGUCGUCGCUAGGC-----------
+>Bacteria_Fusobacterium nucleatum subsp. nucleatum ATCC 25586 |NR_075133
+------------------------------------------------------------------------CUUGGUGAGUAUA-GCU-A----------UGGGG-GUACACC-UAGU-UA-CAUUCCGAACC-UA-------------------------------------GAAGUUAAGCCCAUA-UACGCUGAUG----GUACUUGGCUG-GAAG-UGGCCUG-GGA-GAGUAUGGAUUUGCCAAG------------
+>Bacteria_Magnetococcus sp. MC-1 |NR_075421
+------------------------------------------------------------------------UCCGGUAGAGAUA-GCG-A----------GGGAG-UCACACC-CGAU-CC-CAUCCCGAACU-CG-------------------------------------GAAGUUAAGCCCCUU-AGCGCCGAUG----AUACUGCGUC--UUAA--GACGUG-GGA-AAGUAGGACACCGCCGGAA-----------
+>Bacteria_Dechloromonas aromatica RCB |NR_075335
+------------------------------------------------------------------------UCUGGCGUCAAUA-GCC-U----------GCUGG-UACCACC-CCUU-CC-CUUCCCGAACA-GG-------------------------------------ACCGUGAAACAGCAU-CGCGCCAAUG----AUAGUGAGCU--UA-C--CGCUCG-CGA-AAGUAGGUCAACGCCAGAC-----------
+>Bacteria_Oceanobacillus iheyensis HTE831 |NR_075294
+------------------------------------------------------------------------UCUGGUAGCGAUA-GCG-A----------AGAGG-CCACACC-UGUU-CC-CAUGCCGAACA-CA-------------------------------------GAAGUUAAGCUCUUC-AGCGCCGAUG----GUAGUUGGGGC-UU-U-GCCCCUG-CAA-GAGUAGGACGCCGCCAGGC-----------
+>Bacteria_Ralstonia eutropha JMP134 |NR_075336
+------------------------------------------------------------------------CCUGGUGACCAUA-GCG-A----------GCUGG-AACCACC-CCUU-CC-CAUCCCGAACA-GG-------------------------------------UCCGUGAAACAGCUC-CGCGCCGAUG----AUAGUGCGG---AUAC---CCGUG-UGA-AAGUAGGUCAUCGCCAGGC-----------
+>Bacteria_Symbiobacterium thermophilum IAM 14863|NR_075219
+-----------------------------------------------------------------------UUUGGGUGGCGAUG-CCG-G----------AGGGG-AU-CACC-CGUU-CC-CAUUCCGAACA-CG-------------------------------------GAAGUUAAGCCCUCC-AGGGCCGAAG----GUACUCC-----GCAA-----GGG-GGA-GAAUAGGUCGCUGCCCAAACUUCU------
+>Bacteria_Novosphingobium aromaticivorans DSM 12444 |NR_075369
+------------------------------------------------------------------------CCUGGUGGCCAUA-GCG-U----------CCGUG-CCCCACC-CGAU-CC-CAUCUCGAACU-CG-------------------------------------GCCGUGAAACCGGAC-AGCGCCAAUG----GUACUAACGC--UCAA--GCGUUG-GAA-GAGUAGGUCGUCGCCAGGC-----------
+>Bacteria_Polaromonas sp. JS666|NR_075383
+------------------------------------------------------------------------CCUGAUGACCAUA-GCA-A----------GUUGG-UACCACU-CCUU-CC-CAUCCCGAACA-GG-------------------------------------ACAGUGAAACGACUU-AGCGCCGAUG----AUAGUGCGG---AUUC---CCGUG-UGA-AAGUAGGACAUCGUCAGGC-----------
+>Bacteria_Deinococcus radiodurans R1 |NR_075105
+--------------------------------------------AC------------------------ACCCCCGUGCCCAUA-GCA-C----------UGUGG-AACCACC-CCAC-CC-CAUGCCGAACU-GG-------------------------------------GUCGUGAAACACAGC-AGCGCCAAUG----AUACUCGGACC-GCAG-GGUCCCG-GAA-AAGUCGGUCAGCGCGGGGGUUU--------
+>Bacteria_Vibrio cholerae O1 biovar El Tor str. N16961 |NR_075115
+----------------------------------------------------------------------UGCUUGGCGACCAUA-GCG-U----------UUUGG-ACCCACC-UGAU-UC-CAUCCCGAACU-CA-------------------------------------GAAGUGAAACGAAAC-AGCGUCGAUG----GUAGUGUGGGG-UC-U-CCCCAUG-UGA-GAGUAGAACAUCGCCAGGC-----------
+>Bacteria_Buchnera aphidicola str. 5A (Acyrthosiphon pisum)|URS000027867E
+--------------------------------------------------------------------------UGGUAAAAAUA-GUG-U----------AGUGG-UACCACC-UGAA-UC-CAUUCCGAACU-CA-------------------------------------GAAGUGAAACGCUAU-AACGCCGAUG----GUAGUACGGGG-CC-U-CCCCGUG-UGA-GAGUAGGUCAAAUCCAGGAA----------
+>Bacteria_Bacteroides thetaiotaomicron VPI-5482 |URS00006C40EC
+------------------------------------------------------------------------UCAGGUGGUUAUA-GCA-C----------GAGGG-UUCCACC-UCUU-CC-CAUUCCGAACA-GA-------------------------------------GAAGUUAAGCCUCGU-CACGCCGAUG----GUACUGCG----UAAC----AGUG-GGA-GAGUAGGUAGCCGCCAUUU-----------
+>Bacteria_Bifidobacterium longum DJO10A |URS00002D14A5
+-------------------------------------------------------------------------------------------------------------ACGCC-CGGU-CC-CAUUCCGAACC-CG-------------------------------------GAAGCUAAGGCCUGG-CACGGCGAUG----GUACUGCACCC-GACA-GGGUGUG-GGA-GAGUAG------------------------
+>Bacteria_Caulobacter crescentus NA1000|URS00000BE44E
+----------------------------------------------------------------------GACCUGGUGGCUAUG-CCG-G----------GGGUU-CCCCACC-CGAU-CC-CAUUCCGAACU-CG-------------------------------------GUCGUUAAGUCCCCC-UGGGCCAAUG----GUACUUCGUC--UCAA--GGCGCG-GGA-GAGUAGGUCGCCGCCAGGUC----------
+>Bacteria_Azoarcus sp. BH72|URS00007221F3
+------------------------------------------------------------------------UCUGACGACCAUA-GCG-U----------CUUGG-UACCACC-CCUU-CC-CAUCCCGAACA-GG-------------------------------------ACCGUGAAACAAGAC-CGCGCCGAUG----AUAGUGAGC---CCGC---GCUCG-UGA-AAGUAGGUCAUCGUCAGAC-----------
+>Bacteria_Geobacter sulfurreducens KN400|URS00000CE60B
+---------------------------------------------------------------------------GGUGGCUAUG-CCG-A----------GGGGG-UCACACC-CGUU-CC-CAUCUCGAACA-CG-------------------------------------GAAGUUAAGCCCCUC-UGGGCCGAUG----AUACUGCACGG-GCAG-CUGUGUG-GGA-AAGUAGGUCGCCGCCGG-------------
+>Bacteria_Chlorobium tepidum TLS |URS0000714905
+------------------------------------------------------------------------UACGGCGACUAUA-UCC-C----------UGGUG-UU-CACC-UCUU-CC-CAUUCCGAACA-GA-------------------------------------GUCGUUAAGCCCAGG-AGAGCCGAUG----GUACUGCU----UUAU----UGCG-GGA-GAGUAGGUCGUCGCCGAGU-----------
+>Bacteria_Listeria monocytogenes EGD-e |URS00000EF410
+------------------------------------------------------------------------UCUGGUAGUUAUG-GCG-A----------GAAGG-UCACACC-CGUU-CC-CAUCCCGAACA-CG-------------------------------------GUAGUUAAGCUUCUC-UGCGCCAAUG----GUAGUUGGGGG-CU-U-CCCCCUG-CGA-GAGUAGGUCGCUGCCGGGC-----------
+>Bacteria_Burkholderia sp. 383 |NR_103335
+------------------------------------------------------------------------CCUGAUGACCAUA-GCG-A----------GUCGG-UCCCACC-CCUU-CC-CAUCCCGAACA-GG-------------------------------------ACCGUGAAACGACUC-UACGCCGAUG----AUAGUGCGG---AUUC---CCGUG-UGA-AAGUAGGUAAUCGUCAGGC-----------
+>Bacteria_Legionella pneumophila str. Lens|URS00002FF835
+-----------------------------------------------------------------------UCCUGGCGACUAUA-GCG-A----------UUUGG-AACCACC-UGAU-AC-CAUCUCGAACU-CA-------------------------------------GAAGUGAAACAUUUC-CGCGCCAAUG----AUAGUGUGAGG-CU-U-CCUCAUG-CGA-AAGUAGGUCAUCGCCAGGGUUUUAUUCC--
+>Bacteria_Crocosphaera watsonii WH 8501 |URS00006D4CCF
+------------------------------------------------------------------------UCUGGUGUCUCUA-GCG-U----------GGUGG-UCCCACU-CCGACCC-CAUCCCGAACU-CG-------------------------------------GUAGUGAAACACCUC-AGCGGCAACG----AUACUUGUGGG-GUAG-CCCACUG-GAA-CAAUAGCUCGAUGCCAGAC-----------
+>Bacteria_Mesoplasma florum L1 |URS000018441C
+------------------------------------------------------------------------UCUGGUGGUCAUA-GCG-U----------AGAGG-UCACACC-UGUU-CC-CAUACCGAACA-CA-------------------------------------GAAGUUAAGCUCUAC-AGCGUCGACG----AUAUUGC-----------AUUGUG-AGA-AAAUAGAACGCUGCCAGUU-----------
+>Bacteria_Magnetospirillum magnetotacticum MS-1 |URS00007F9CC8
+--------------------------------------------------------------------------AGGUGGUCAUA-GCG-A----------GGGCC-CUCCACC-CGAU-CC-CAUCCCGAACU-CG-------------------------------------GACGUGAAACCCCUC-UGCGCCGAUG----GUACUGUGUC--UUAA--GGCACG-GGA-GAGUAGGACGCUGCCUGGUC----------
+>Bacteria_Pseudomonas aeruginosa UCBPP-PA14 |URS00004A9499
+--------------------------------------------CCG--------------------AAUUGCUUGACGAUCAUA-GAG-C----------GUUGG-AACCACC-UGAU-CC-CUUCCCGAACU-CA-------------------------------------GAAGUGAAACGACGC-AUCGCCGAUG----GUAGUGUGGGG-UC-U-CCCCAUG-UGA-GAGUAGGUCAUCGUCAAGCUCCUAU-CC--
+>Bacteria_Mycobacterium leprae TN |URS00006D1E58
+------------------------------------------------------------------------UACGGUGGCCACA-GCG-A----------UAGGG-AAACGCC-CGGU-CC-CAUACCGAACC-CG-------------------------------------GAAGCUAAGCCUGUC-AGCGCCGAUG----AUACUGCCC---AUUC---GGGUG-GAA-AAGUAGGACACUGCCGAAC-----------
+>Bacteria_Rhodobacter sphaeroides ATCC 17025|URS00002D1007
+--------------------------------------------------------------------------UGGUGGCCAUA-GCA-C----------GAGCA-AAACACC-CGAU-CC-CAUCCCGAACU-CG-------------------------------------GCCGUUAAGUGCCGU-CGCGCCAAUG----GUACUGCGUC--UCAA--GACGUG-GGA-GAGUAGGUCGCCGCCAGACC----------
+>Bacteria_Rhodopirellula baltica SH 1 |URS00000F2364
+-----------------------------------------------------------------------UUCCGGCGAUCAUA-UCU-U----------AAAGG-UUAUACC-UGUU-CC-CAUUCCGAACA-CA-------------------------------------GCAGUCAAGCUUUAA-GA-GCCGAUG----AUAGUGCC----CACC----AGCG-UGA-AAGUAGGUC-UUGCCGGAU-----------
+>Bacteria_Synechococcus sp. PCC 7335 |URS000071D225
+------------------------------------------------------------------------CCUGGUGUCUAUG-GCG-C----------AGUGG-ACCCACU-UCGACUC-CAUCCCGAACU-CG-------------------------------------AUUGUGAAACACUGC-AGCGGCGAAG----AUAGUUAGGGC-GUAG-GCCCUUG-UUA-AAAUAGCUCGAUGCCAGGU-----------
+>Bacteria_Zymomonas mobilis subsp. mobilis ATCC 10988|URS00003617FE
+--------------------------------------------------------------------------UGGUGGCUAUA-GCG-U----------CAGUG-ACCCACC-CGAU-CC-CAUUUCGAACU-CG-------------------------------------GACGUGAAACCUGUCCUGCGCCGAUG----GUACUGUUGC--UUAA--GCAACG-GAA-GAGUAGGUCGUCGCCAGGCU----------
+>Bacteria_Acinetobacter sp. RUH2624|URS00000CA028
+--------------------------------------------------------------------------UGGCGACCAUA-GCA-A----------GAGUG-AACCACC-UGAU-CC-CUUCCCGAACU-CA-------------------------------------GAAGUGAAACCUCUU-AGCGCUGAUG----GUAGUGUGGG--GUUA--CCCAUG-UGA-GAGUAAGUCAUCGCCAGCUC----------
+>Bacteria_Thermus thermophilus HB27 |NR_075167
+----------------------------------------------------------------------UCCCCCGUGCCCAUA-GCG-G----------CGUGG-AACCACC-CGUU-CC-CAUUCCGAACA-CG-------------------------------------GAAGUGAAACGCGCC-AGCGCCGAUG----GUACUGGGCGG-GCGA-CCGCCUG-GGA-GAGUAGGUCGGUGCGGGGGAUU--------
+>Archaea_Candidatus Bathyarchaeota archaeon BA1|URS0000C31412
+------------------------------------------------------------------------GUUGCCGGCCAUA-GGG-C----------GCGGG-ACCCACC-CGAU-CC-CGUUCCGAAAA-UGAGGGCGCAUGAAAGUGACGCCUCUUAUCGGUAGCUCGGAAGUUAAACCGCGC-UCCGUUCCCGGUG-UUAGUGUGGUCCUC---GGCCACG-CGAAGCCGGGAAAGCUGGCAGCC-----------
+>Archaea_Theionarchaea archaeon DG-70-1|URS00009F8878
+------------------------------------------------------------------------UACGGCGGUCACA-GCG-G-----------AAGGGUCAUACC-CGUU-CU-CAUUCCGAACA-CG-------------------------------------GAAGUUAAGCCUUCC-AGCGAUUCGGGUU-GUACUGCCAU---------AGGUG-GGAACCCCGGGACGCUGCCGGCC-----------
+>Archaea_Candidatus Thorarchaeota archaeon SMTZ1-45|URS0000A0CC08
+------------------------------------------------------------------------GAUGGCGGCCAUA-GUU-C----------UGAGG-GUACACC-UGAA-CU-CGGCC-GAACU-CA-------------------------------------GAAGUUAAGCCUCAG-GACGUUCAGGG-A-GAUGUGCGCUGCGCGA-GCGCGUG-ACA-GGCCCUGAAGCUGCCACAU-----------
+>Archaea_Korarchaeum cryptofilum (strain OPF8)|NR_075555
+---------------------------------------------------------------------------AGCGGCCAUA-GCG-G----------CCAGGGACACACC-CGGA-CC-CAUUCCGAACC-CG-------------------------------------GAAGUUAAGCCUGGC-CGCGUUCCGUGGA-GUACUGAGCUCCCCAA-GGGCUCG-GGAAACACGGAA----GCUGCU------------
+>Archaea_Nitrosopumilus maritimus (strain SCM1)|URS00002AA254
+------------------------------------------------------------------------CAAGCCGGCCAUA-GCG-U----------UAGGG-UGCGACC-CAAU-CC-CUUUCCGAACU-UG-------------------------------------GAAGUCAAACCUGAC-GUCGCUGUUGUG--CUACUAAGAUGCGAGA-GCCCUUG-GGA-AGCAACAGUGCUGGCAUUU-----------
+>Archaea_Cenarchaeum symbiosum (strain A)|URS0000611864
+AUGAUGUGCCAGACGCGUGCCUCUCCGGCCCUGCCGGGCAACCUUAAUAGAUAAGCGAGCGCCCGCCCUGAUCAAGCCGGCCAUA-GCG-U----------CAGGG-UGCGACC-CAAU-CC-CAUUCCGAACU-UG-------------------------------------GAAGUCAAACCUGAU-GUCGCUGUUGUG--UUACUAAGAUGCGAGA-GCUCUUG-GGA-AGCAACAGUGCUGGCAUCAUC---------
+>Archaea_Candidatus Nanopusillus acidilobi|URS0000A211A5
+------------------------------------------------------------------------UAGGGCGGCCAAA-GUG-G----------CCGGG-AAACACC-CGUA-CC-CAUUUCGAACA-CG-------------------------------------GAAGUUAAGCCGGCC-CACGUCCGUGUGA-GUACUGGCGGUAGC--------UG-GGAAAGCACGGAAGCCGCCCGAC-----------
+>Archaea_Pyrobaculum calidifontis JCM 11548|NR_075454
+---------------------------------------------------------------------------CCCGGCCAUAGGCG-C----------CGGUG-CUACACC-CGGU-CU-CAUCA-GAACC-CG-------------------------------------GAAGUUAAGGCCGGC-GCCGCGCUCGGGA-GUACUGGGCUCCGCGA-GGGCCCG-GGAAACCGGCG-UGCUGGGAG-------------
+>Archaea_Caldivirga maquilingensis IC-167|NR_103395
+---------------------------------------------------------------------------CCCGGCCAUAGGUG-G----------GGUGG-ACCCACC-CAGA-CU-CAUCA-GAACC-UG-------------------------------------GAAGUGAAACACCCC-ACCGCGGUGCUGA-GUACUGCGGUCCGCGA-GGCCGUG-GGA-AAGGCCCGUGCUGGGGU-------------
+>Archaea_Thermofilum pendens Hrk 5|URS00000407C7
+------------------------------------------------------------------------CGCCCCGCCCAUA-GUC-G----------GUGGG-CAACGCC-CGGU-CU-CGUCA-GAUCC-CG-------------------------------------GAAGCUAAGCCACCG-ACGCGGUCGCG-A-GUACUGGGGUCUGCGG-CCCCGGG-AAAGCGCCGUGGUGGGGCAU--------------
+>Archaea_Sulfolobus acidocaldarius DSM 639|URS000056704D
+--------------------------------------------U-------------------------GCCCACCCGGUCAUA-GUG-A----------GCGGG-UAACACC-CGGA-CU-CGUUUCGAACC-CG-------------------------------------GAAGUUAAGCCGCUC-ACGUCAGAGG--G-GCCGUGGGAUCCGAGA-GGGCCCG-CAGCCUCUCUG-AGCUGGGAUGG-----------
+>Archaea_Metallosphaera sedula DSM 5348|URS000064138C
+------------------------------------------------------------------------CCACCCGGCCAUA-GCG-G----------GGGAG-CAACACC-CGGA-CU-CAUCUCGAACC-CG-------------------------------------GAAGUAAAGUCCCCU-GCGUUGGGGAU---GCGGUGGGAUCCGAAA-GGGCCCG-CAG-CUACCCCAAGCUGGGAUGG-----------
+>Archaea_Staphylothermus marinus F1|NR_075459
+---------------------------------------------------------------------------CCCGGCCAUA-GUG-G----------CCGGG-CAACACC-CGGU-CU-CAUAUCGAACC-CG-------------------------------------GAAGUUAAGCCGGCC-ACGUUGGGGUG-G-GCCGUGAGGUCCGAGA-GGCCUCG-CAGCCGCCCCA-AGCUGGGAU-------------
+>Archaea_Ignicoccus hospitalis KIN4/I|NR_075517
+----------------------------------------------------------------------CCCGGCCCGGCCACA-GCG-A----------CCGGG-UAACACC-CGGA-CC-CAUUUCGAACC-CG-------------------------------------GAAGUUAAGCCGGUC-GCGCGGGGUCC-G-GCAGUGGCGUCCGAGA-GGCGCCG-CAG-CCGCCCCGUGCUGGGACCGGGC--------
+>Archaea_Aeropyrum pernix K1 |NR_103423
+--------------------------------------------UAGUGG--------------------CCCGGCCCGGCCAUA-GCG-G----------CCGGG-UAACACC-CGGA-CU-CAUUUCGAACC-CG-------------------------------------GAAGUUAAGCCGGCC-GCGUUGGAGGC-U-CCAGUGGGGUCCGAGAGGCCCUGC-AGG-GGCCUCCAA---------------------
+>Archaea_Hyperthermus butylicus DSM 5456|NR_103438
+--------------------------------------------ACGG----------------------CCCGACCCGGCCAUA-GCG-G----------CCGGG-CAACACC-CGGA-CC-CACUUCGAACC-CG-------------------------------------GAAGUUAAGCCGGCC-GCGUUGGGGGU-A-GCUGUGGGGUCCGCGA-GGCCCCG-CAG-CUCCCCCAAGCCGGGAUCGGGCC-------
+>Archaea_Methanosphaera stadtmanae DSM 3091|NR_075339
+--------------------------------------------U-------------------------GGUACGGCGACCAUA-GCG-A----------UAGGG-UCACAUC-UGAA-CU-CGUCUCGAUCU-CA-------------------------------------GUAAUAAAGUCUAUC-CACGUUUUGUUUG-GUACUAUAGAUGGUAA-GUCUAUG-GGAAUUUCAGAAAG--------------------
+>Archaea_Methanothermobacter thermautotrophicus str. Delta H |NR_075108
+--------------------------------------------G-------------------------GUUUUGGCGGUCAUG-GCG-U----------GGGGGUUUAUACC-UGAU-CU-CGUUUCGAUCU-CA-------------------------------------GUAGUUAAGUCCUGC-UGCGUUGUGGGUGUGUACUGCGGUU-UUUU--GCUGUG-GGAAGCCCACUUCACUGCCAGACCA---------
+>Archaea_Methanococcus aeolicus Nankai-3|NR_075496
+--------------------------------------------------------------------------UAACGGUCAUA-GCG-A----------AGGUG-UUAUAUC-CGAU-CC-CAUUCCGAUCU-CG-------------------------------------GAAAUCAAGCCCUUC-AGCGAUUCCCUAA-GUACUGCC----AUUC----GGUG-GAAACAGGGAGACGCUGUUAGU------------
+>Archaea_Methanocaldococcus jannaschii DSM 2661 |NR_076076
+--------------------------------------------U-------------------------GGUACGGCGGUCAUA-GCG-G-----------GGGGGCCACACC-CGAA-CC-CAUCCCGAACU-CG-------------------------------------GAAGUUAAGCCCCCC-AGCGAUGCCCCGA-GUACUGCC----AUCU----GGCG-GGAAAGGGGCGACACCGCCGGCCAC---------
+>Archaea_Halobacterium sp. NRC-1 |NR_075117
+-----------------------------------------------------------------------UUAAGGCGGCCAUA-GCG-G----------UGGGG-UUACUCC-CGUA-CC-CAUCCCGAACA-CG-------------------------------------GAAGAUAAGCCCGCC-UGCGUUCCGGUCA-GUACUGGAGUGCGCGA-GCCUCUG-GGAAAUCCGGUUCGCCGCCUACU-----------
+>Archaea_Haloarcula marismortui ATCC 43049 |NR_075280
+------------------------------------------------------------------------UUAGGCGGCCACA-GCG-G----------UGGGGUUGCCUCC-CGUA-CC-CAUCCCGAACA-CG-------------------------------------GAAGAUAAGCCCACC-AGCGUUCCAGGGA-GUACUGGAGUGCGCGA-GCCUCUG-GGAAAUCCGGUUCGCCGCCACC------------
+>Archaea_Natronomonas pharaonis DSM 2160|NR_076024
+------------------------------------------------------------------------UAAGGCGGCCACA-GCG-G----------CGGGG-CGACUCC-CGUA-CC-CAUCCCGAACA-CG-------------------------------------GAAGAUAAGCCCGCC-AGCGUUCCAGCGA-GUACUUGAGUGCGCGA-GCCUCUG-GGAAAUCUGGUUCGCCGCCUA-------------
+>Archaea_Haloferax volcanii DS2|NR_075733
+-----------------------------------------------------------------------UUAAGGCGGCCAGA-GCG-G----------UGAGG-UUCCACC-CGUA-CC-CAUCCCGAACA-CG-------------------------------------GAAGUUAAGCUCACC-UGCGUUCUGGUCA-GUACUGGAGUGAGCGA-UCCUCUG-GGAAAUCCAGUUCGCCGCCCCU------------
+>Archaea_Haloquadratum walsbyi DSM 16790|NR_075191
+-------------------------------------------------------------------------GAGGCGGCCAGA-GCG-G----------CAGGG-AAACACC-UGUA-CC-CAUCCCGAACA-CA-------------------------------------GUGGUUAAGUCUGCA-AGCGUUGGAGCAC-GUACUGGAGUGAGAGA-UCCUCUG-GGAGCGCUUCAUCGCCGCCUU-------------
+>Archaea_Halorubrum lacusprofundi ATCC 49239|NR_075620
+--------------------------------------------------------------------------AGGCGGCCAUA-GCG-G----------UGGAG-AAACACC-CGUA-CC-CAUUCCGAACA-CG-------------------------------------GAAGUUAAGCCCACC-AGCGUACCGGGAA-GUACUGGAGUGAGCGA-UCCUCUG-GGAACCGCGGUUCGCCGCCUA-------------
+>Archaea_Picrophilus torridus DSM 9790 |NR_075170
+--------------------------------------------AUUUAGUU------------------UAGACGACGACCAUA-ACA-U----------CGGGG-AAAUACC-AGGU-CC-CAUUCCGAACC-CG-------------------------------------ACGGUGAAGCCCGAU-GUGUUUCAUGU-G-GUACUGUCUUCCGCGA-GGGGAUG-GGAAGCAUGAUUC---------------------
+>Archaea_Thermoplasma volcanium GSS1 |NR_075285
+------------------------------------------------------------------------GGCAACGGUCAUA-GCA-A----------UAGGG-AAACACC-AGAU-CC-CAUUCCGAACU-CG-------------------------------------ACGGUUAAGCCUGUU-GCGUAUUACGU-U-GUACUGUAUUCCGCGA-GGGUACG-GGAAGCGUAGUAUGCUGUUGCCAUU---------
+>Archaea_Pyrococcus furiosus DSM 3638 |NR_075132
+--------------------------------------------------------------------------CGGCGGCCAUA-GC--G-----------GGGGGCCACACC-CGGU-CU-CAUUUCGAACC-CG-------------------------------------GAAGUUAAGCCCCCC-AGCGAUCCCGGUU-GUACUGCCCUCCGAGA-GGGGGCG-GGAAGCCGGGGACGCCGCCGGCCACU--------
+>Archaea_Thermococcus kodakarensis KOD1 |NR_075222
+----------------------------------------------------------------------GGUACGGCGGCCAUA-GCG-G-----------CGGGGCCACACC-CGGU-CU-CGUUUCGACCC-CG-------------------------------------GAAGUUAAGCCCGCC-AGCGUUCCCGGGU-GUACUGCCCUCCGAGA-GGGGGCG-GGAAACCGGGAACGCCGCCGGCCAC---------
+>Archaea_Archaeoglobus fulgidus DSM 4304 |NR_075109
+----------------------------------------------------------------------AUGCCGACGGUCAUA-GGA-C----------GGGGG-AAACACC-CGGA-CU-CAUUCCGAACC-CG-------------------------------------GAAGUUAAGCCCCGU-UCCGUCCCGCACA-GUACUGUGUUCCGAGA-GGGCACG-GGAACUGCGGGAACCGUCGGCUU-----------
+>Archaea_Methanopyrus kandleri AV19 |NR_075131
+--------------------------------------------U-------------------------GUGGCGGCGGCCACA-GCG-G----------CCGGGGCCACACC-CGGG-CCACAUCUCGAACC-CG-------------------------------------GAAGUUAAGCCCGGC-CGCGUCCCGGGUG-GUACUGCGCUCCGAGA-GGGCGCG-GGAAGCCCGGGAUGCCGCCGCCGUCCCC---C--
+>Archaea_Methanoculleus marisnigri JR1|NR_075455
+--------------------------------------------------------------------------UAGCGGCCAUA-GCA-G----------AGGGG-AAACACC-UGGA-CC-CAUUCCGAACC-CA-------------------------------------GCAGUUAAGCCCUCU-CACGUGCCAUGUG-GUACUGAGGUGCGCGA-GCCCUCG-GGAAGCACGGCUCGCUGCUAUUAC----------
+>Archaea_Methanocorpusculum labreanum Z|NR_075452
+------------------------------------------------------------------------UCAUGCGGCCAUA-GCA-G----------AGAGG-UUCCACC-CGGA-CC-CAUUCCGAACC-CG-------------------------------------GCAGUUAAGCUCUCU-UACGUCGGCUAUU-GUACUGAGAUAUGCGA-AUUCUCG-GGAAGUUGUCAACGCUGCACCCC-----------
+>Archaea_Methanospirillum hungatei JF-1|NR_075372
+------------------------------------------------------------------------AAUAGCGGCCACA-GCA-G----------GUGUG-UCACACC-CGUU-CC-CAUUCCGAACA-CG-------------------------------------GAAGUUAAGACACCU-CACGUGGAUGACG-GUACUGAGGUACGCGA-GUCCUCG-GGAAAUCAUCCUCGCUGCUAUUG-----------
+>Archaea_Methanoregula boonei 6A8|NR_075507
+------------------------------------------------------------------------GAUAGCGGCCAUA-GCU-G----------UCGGG-AAACACC-UGGU-CU-CAUUCCGAACC-CA-------------------------------------GCAGUUAAGCUGACA-CACGUAGUAUGCU-GUACUUGGGUACGCGA-GUCCCUG-GGAACCAUACCAAGCUGCUAUCA-----------
+>Archaea_Methanosarcina barkeri str. Fusaro |NR_075338
+------------------------------------------------AG--------------------AGUUUGGCGGCCAUA-GCG-G----------CAGUG-UAACUCC-UGUA-CC-CAUCCCGAACA-CA-------------------------------------GUAGAUAAGCCUGCC-CGCGUUCCUUACU-GUACUGAAGUGUGCGA-GCCUUCG-GGAACUCUGGAUCGCUGCCAUACUCACC------
+>Archaea_Methanosarcina mazei Go1 |URS0000460BE4
+--------------------------------------------UG------------------------AGUUUGGCGGCCAUA-GCG-G----------CAGGG-CAACUCC-UGUA-CC-CAUCCCGAACA-CA-------------------------------------GAAGAUAAGCCUGCC-CGCGUUCCUUACU-GUACUGAAGUGUGCGA-GCCUUCG-GGAACUCUGGAUCGCUGCCAAGCUC-----AC--
+>Archaea_Methanosarcina acetivorans C2A |NR_075135
+-------------------------------------------------G--------------------AGUUUGGCGGCCAUA-GCG-G----------UAGGG-CAACUCC-UGUA-CC-CAUCCCGAACA-CA-------------------------------------GCAGAUAAGCCUGCC-CGCGUUCCUUACU-GUACUGAAGUGUGCGA-GCCUUCG-GGAACUCUGGAUCGCUGCCAAGCUCACCU-UA--
+>Archaea_Methanococcoides burtonii DSM 6242 |NR_075381
+------------------------------------------------------------------------UAUGGCGGCCAUA-GUG-G----------UAGGG-CAACUCC-UGUU-CC-CAU-CCGAACA-CA-------------------------------------GAAGAUAAGUCUACC-UACGUUGUUUACU-GUACUGAAGUACGAGA-GUCUUCG-GGAAAUCUGCAUCGCUGCUAUGC-----------
+>Archaea_Methanosaeta thermophila PT|URS000071C893
+------------------------------------------------------------------------AGCGGCGGCCAUA-GCG-G----------CGGGG-AAACUCC-UGAA-CC-CUUCCCGAACU-CA-------------------------------------GAAGAUAAGCCCGCC-CACGUCCUGCACU-GUACUGAGGUGCGCGA-GCCCUCG-GGAAAUGCAGGUCGCUGCCAACU-----------
+>Archaea_Nanoarchaeum equitans Kin4-M |NR_075165
+--------------------------------------------AGG--------------------UUUCGUGGGAGGGCCAUA-GCG-G----------CCCGGGAACCACC-CGUA-CC-CAUCUCGAACA-CG-------------------------------------GAAGUUAAGCCGGGC-CGCGUCCCGAGUG-GUACUGCCCCG-CGAA--GGGGUG-GGAAGCUCGGGAUGCCC-----------------

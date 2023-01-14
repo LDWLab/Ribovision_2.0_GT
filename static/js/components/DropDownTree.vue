@@ -138,6 +138,7 @@
                 </p></div>
                 <p v-if="correct_mask!=true&&masking_range!=null">Incorrect range syntax!</p>
 
+            -->
                 <div id="customDataSection">
                 <p><div class="checkbox">
                         <label><input type="checkbox" v-model="checked_customMap" v-on:change="cleanCustomMap(checked_customMap)">
@@ -149,7 +150,7 @@
                         </button></p>
                     </div>
                 </p></div>
-            -->
+          
                 <p><select multiple class="form-control btn-outline-dark" id="polymerSelect2" v-bind:style="{ resize: 'both'}" v-model="pchainid">
                 <label>Select RNA-protein contacts to view in 3D</label>
                 <option :value ="null" selected disabled></option>

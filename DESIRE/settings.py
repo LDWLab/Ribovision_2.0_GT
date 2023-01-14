@@ -11,10 +11,6 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
-import json
-
-with open('/etc/ribovision_config.json') as config_file:
-    config = json.load(config_file)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -24,13 +20,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config['SECRET_KEY']
+SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '130.207.36.76','apollo2.chemistry.gatech.edu','ribovision2.chemistry.gatech.edu','[::1]']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -100,8 +96,8 @@ DATABASES = {
     'default': {
         'NAME': 'DESIRE',
         'ENGINE': 'mysql.connector.django',
-        'USER': config['DB_USER_NAME'],             #Write username here
-	'PASSWORD': config['DB_PASSWORD'],         #And password here
+        'USER': "website",
+	'PASSWORD': "desire_RiboVision3",
 	'HOST': '130.207.36.76',
         'PORT': '3306',
         'OPTIONS': {

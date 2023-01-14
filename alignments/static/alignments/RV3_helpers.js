@@ -1,5 +1,6 @@
 var annotationArraySE = [];
 var annotationArrayTWC = [];
+var annotationArrayCD = [];
 var absolutePosition = function (el) {
   var
       found,
@@ -578,6 +579,21 @@ var getEntropyAnnotations = function (separatedData, lowVal, highVal, chainid) {
     return annotationArraySE;
 };
 
+var getCustomAnnotations = function (separatedData, lowVal, highVal, chainid) {
+    annotationArrayCD.length=0;
+    for (var i = 1; i < 101; i++) {
+        annotationArrayCD.push({"annotation":i,"ids":[]})
+    }
+    separatedData.forEach(function (item, index) {
+        let parsedItem = item[0];
+        let itemValue = item[1];
+        let newValue = itemValue - lowVal;
+        let normalizedVal = Math.round(newValue/(highVal - lowVal) * 99)
+        annotationArrayCD[normalizedVal].ids.push(chainid + " " + parsedItem)
+    })
+    return annotationArrayCD;
+};
+
 var getTWCAnnotations = function (separatedData, lowVal, highVal, chainid) {
     annotationArrayTWC.length=0;
     for (var i = 1; i < 101; i++) {
@@ -602,7 +618,7 @@ var getTWCAnnotations = function (separatedData, lowVal, highVal, chainid) {
     return annotationArrayTWC;
 }
 var getAnnotationArray = function() {
-    return {'SE':annotationArraySE,'TWC':annotationArrayTWC };
+    return {'SE':annotationArraySE,'TWC':annotationArrayTWC,'CD':annotationArrayCD};
 }   
 var parsePVData = function (separatedData, lowVal, highVal, colormapArray, masking=null) {
     /*var s = ""
@@ -972,7 +988,11 @@ var recolorTopStar = function (name){
     }   else if(name == "TwinCons") {
         viewerInstance.visual.clearSelection();
         viewerInstance.coloring.twinCons({ sequence: true, het: false, keepStyle: true });
-    } else if(name == "Select data") {
+    }    else if(name == "Custom Data") {
+        viewerInstance.visual.clearSelection();
+        console.log("visual",viewerInstance.coloring);
+        viewerInstance.coloring.customData({ sequence: true, het: false, keepStyle: true });
+    }    else if(name == "Select data") {
         viewerInstance.visual.reset({ theme: true })
     }
     
