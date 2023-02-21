@@ -253,7 +253,8 @@ function cleanCustomMap(checked_customMap){
     }
     console.log("topviewer_RV32", topviewer.viewInstance.targetEle);
     //var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
-    var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.menuSelectbox');
+    //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.menuSelectbox');
+    var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
     topviewer.viewInstance.uiTemplateService.domainTypes = topviewer.viewInstance.uiTemplateService.domainTypes.filter(obj => {
         return !vm.custom_headers.includes(obj.label)
     })
@@ -299,7 +300,8 @@ var displayMappingDataByIndex = function(topviewer, selectedIndex){
 var mapCustomMappingData = function(custom_data, custom_data_name, topviewer){
     
     //var selectBoxEle = viewerInstanceTop.pluginInstance.targetEle.querySelector('.menuSelectbox');
-    var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.menuSelectbox');
+    //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.menuSelectbox');
+    var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
     
     let vals = custom_data.map(function(v){ return v[1] });
     let indexes = custom_data.map(function(v){ return v[0] });

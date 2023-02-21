@@ -848,7 +848,9 @@ def protein_contacts(request, pdbid, chain_id):
     return JsonResponse(neighbors)
 def r2dt(request, sequence):
     import os
+    import datetime
     cwd = os.getcwd()
+    now = datetime.datetime.now()
     
     RIBODIR=os.environ['RIBODIR']
     #RIBOINFERNALDIR="$RNA/infernal-1.1.2/bin" RIBOEASELDIR="$RNA/infernal-1.1.2/bin" &&
@@ -862,24 +864,54 @@ def r2dt(request, sequence):
 #export PATH="/rna/jiffy-infernal-hmmer-scripts:$PATH" &&
 #export PATH="/rna/RNAstructure/exe:$PATH" DATAPATH="/rna/RNAstructure/data_tables/" &&
 #export PATH="/rna/r2dt:$PATH"
-    os.chdir('/rna/r2dt')
+    os.chdir('/home/anton/RiboVision2/rna/R2DT-master')
+    fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
+  
     newcwd = os.getcwd()
-    with open('sequence.fasta', 'w') as f:
+    with open('sequence10.fasta', 'w') as f:
         f.write('>Sequence\n')
         f.write(sequence)
-    output = '/home/hmccann3/Ribovision_3/R2DT-test3'
-    cmd = f'python3 r2dt.py draw {newcwd}/sequence.fasta {output}'
+        f.close()       
+    output = f"/home/anton/RiboVision2/rna/R2DT-master/R2DT-test20{fileNameSuffix}"
+    #cmd = f'ribotyper.pl  -f sequence10.fasta {output}'
+    #os.system(cmd)
+    #time.sleep(20)
+    #cmd = f'cp  {output}/../sequence10.fasta {output}/subset.fasta'
+    #os.system(cmd)
+    #cmd = f'cp  {output}/../sequence10.fasta.ssi {output}/subset.fasta.ssi'
+    #os.system(cmd)
+    #time.sleep(20)
+    #cmd = f'python3 r2dt.py ribovision draw_lsu {newcwd}/sequence10.fasta {output}'
+    cmd = f'python3 r2dt.py  draw {newcwd}/sequence10.fasta {output}'
     os.system(cmd)
+    #time.sleep(40)
     os.chdir(cwd)
-    filename = ''
-    for topdir, dirs, files in os.walk(f'{output}/results/svg'):
+    filename = '' 
+          
+    for topdir, dirs, files in os.walk(f'{output}/results/json'):
         firstfile = sorted(files)[0]
-        filename = os.path.join(topdir, firstfile)
-    cmd = f'python3 svg2json.py test_model_chain {filename} {output}/jsonexample'
-    os.cmd()
-    with open(f'{output}/jsonexample', 'r') as f:
+        
+        filename = os.path.join(topdir, firstfile)  
+    #cmd = f'python3 svg2json.py test_model_chain {filename} {output}/jsonexample'
+    #print('filename')
+    #cmd = f'python3 /home/anton/RiboVision2/rna/R2DT-master/svg2json.py cust_1_B {output}/Sequence-PF_LSU_3D.svg {output}/../jsonexample8.json'
+    cmd = f'python3 /home/anton/RiboVision2/rna/R2DT-master/json2json_split.py -i {filename} -o {output}/results/json/RNA_2D_json.json'
+    os.system(cmd)
+    with open(f'{output}/results/json/RNA_2D_json.json', 'r') as f:
         data = json.loads(f.read())
+        f.close()
+        
+    #with open(f'{output}/../BPjsonexample.json', 'r') as f:
+    with open(f'{output}/../BP_7YSE_E.json', 'r') as f:
+        BP = json.loads(f.read())
+        f.close()   
+        #print(data)
     #doc = minidom.parse(filename)
     #path_strings = [path.getAttribute('d') for path
     #            in doc.getElementsByTagName('text')]
-    return data
+    r2dt_json = {
+        'RNA_2D_json' : data, 
+        'RNA_BP_json' : BP
+        
+    }
+    return JsonResponse(r2dt_json)

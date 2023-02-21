@@ -52,7 +52,7 @@ def handleCustomAlnGETRequest(fastastring):
     concat_fasta, twc, gap_only_cols, filtered_spec_list, alignment_obj = calculateFastaProps(fastastring)
     frequency_list = list()
     for i in range(0, alignment_obj.get_alignment_length()):
-        frequency_list.append(gap_adjusted_frequency(alignment_obj[:,i], IUPACData.protein_letters))
+        frequency_list.append(gap_adjusted_frequency(alignment_obj[:,i], IUPACData.unambiguous_rna_letters))
     response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc])
 
     return response_dict

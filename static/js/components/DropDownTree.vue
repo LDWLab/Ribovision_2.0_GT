@@ -11,11 +11,13 @@
                     <input type="radio" id="paralogs" value="para" v-model="type_tree" v-on:input="cleanTreeOpts()">
                     Paralogs
                 </label>-->
-
-                <!--<label class="btn btn-outline-dark" style="margin: 0 0 0 1%;width:50%;" for="upload">
+                
+                    <label class="btn btn-outline-dark" style="margin: 0 0 0 1%;width:50%;" for="upload">
                     <input type="radio" id="upload" value="upload" v-model="type_tree" v-on:input="cleanTreeOpts()">
                     User upload
-                </label>-->
+                </label>
+                <!--
+                -->
             </div>
             <div id="treeselect" v-if="type_tree=='para'|type_tree=='orth'">
             <treeselect ref="treeselect"
@@ -54,16 +56,17 @@
                 <div v-if="alnobj&&alnobj=='custom'&&file&&type_tree=='upload'">
                     <label for="uploadCustomPDB" id="pdb-upload" class="btn btn-outline-dark">Upload a custom PDB</label>
                     <input id="uploadCustomPDB" class="btn btn-outline-dark" type="file" accept=".pdb" ref="customPDBfile" v-on:change="uploadCustomPDB()"/>
-                    OR<br>
+                    <!--OR<br>-->
                 </div>
                 <span v-if="alnobj">Select/type PDB entry:</span>
-                <!--<select class="btn btn-outline-dark dropdown-toggle" id="pdb_input" v-if="alnobj&&alnobj!='custom'" v-model="pdbid">
+                <select class="btn btn-outline-dark dropdown-toggle" id="pdb_input" v-if="alnobj&&alnobj!='custom'" v-model="pdbid">
                     <option :value="null" selected disabled hidden>Select PDB entry</option>
                     <option v-for="pdb in pdbs" v-bind:value="pdb.id">{{pdb.name}}</option>
-                </select>-->
+                </select>
                 <p>
                 <autocomplete id="pdb_input" isAsync:true :items="pdbs" v-if="alnobj&&alnobj!='custom'" v-model="pdbid"></autocomplete>
                 <autocomplete isAsync:true :items="blastPDBresult" v-if="alnobj&&alnobj=='custom'" v-model="pdbid"></autocomplete>
+                <!--
                 <div id="blastingPDBsMSG" v-if="alnobj&&alnobj=='custom'&&fetchingPDBwithCustomAln&&fetchingPDBwithCustomAln==true">
                     <b>BLASTing first alignment sequence against PDB sequences</b>
                     <img src="static/img/loading.gif" alt="BLASTing available PDBs" style="height:25px;">
@@ -76,7 +79,7 @@
                 </div>
                 <span id="completeBLASTsMSG" v-if="alnobj&&alnobj=='custom'&&fetchingPDBwithCustomAln=='complete'"><b>Completed BLAST for similar PDBs.</b></span>
                 <div v-if="hide_chains" id="onFailedChains">Looking for available polymers <img src='static/img/loading.gif' alt='Searching available polymers' style='height:25px;'></div>
-                </p>
+                </p>-->
             <p><select multiple class="form-control btn-outline-dark" id="polymerSelect" v-bind:style="{ resize: 'both'}"  v-if="chains&&fasta_data&&pdbid||uploadSession" v-model="chainid" >
                 <option :value ="null" selected disabled>Select an RNA chain to visualize</option>
                 <option v-for="chain in chains" v-bind:key="chain.value" v-bind:value="chain.value" @click="postStructureData(pdbid, chainid); calculateProteinContacts(pdbid, chainid); populateECODranges(pdbid, chainid); showPDBViewer(pdbid, chainid, chain.entityID);">{{ chain.text }}</option>
@@ -98,7 +101,11 @@
             </p></div>
             <!--
             -->
+            <!--
             <div v-if="topology_loaded&&!checkedRNA&&!customPDBid&&protein_contacts">
+             -->
+            <div v-if="topology_loaded&&!checkedRNA">
+            
             <!--
                 <div id="domainSelectionSection" style="margin: 3% 0;">
                     <div>
@@ -138,7 +145,7 @@
                 </p></div>
                 <p v-if="correct_mask!=true&&masking_range!=null">Incorrect range syntax!</p>
 
-            -->
+            -->             
                 <div id="customDataSection">
                 <p><div class="checkbox">
                         <label><input type="checkbox" v-model="checked_customMap" v-on:change="cleanCustomMap(checked_customMap)">
@@ -150,12 +157,13 @@
                         </button></p>
                     </div>
                 </p></div>
-          
-                <p><select multiple class="form-control btn-outline-dark" id="polymerSelect2" v-bind:style="{ resize: 'both'}" v-model="pchainid">
-                <label>Select RNA-protein contacts to view in 3D</label>
-                <option :value ="null" selected disabled></option>
-                <option v-for="chain in protein_chains" v-bind:value="chain.value" v-bind:key="chain.key" @click="showContacts();">{{ chain.text }}</option>
-                </select></p>
+                <div v-if="topology_loaded&&protein_contacts">
+                    <p><select multiple class="form-control btn-outline-dark" id="polymerSelect2" v-bind:style="{ resize: 'both'}" v-model="pchainid">
+                    <label>Select RNA-protein contacts to view in 3D</label>
+                    <option :value ="null" selected disabled></option>
+                    <option v-for="chain in protein_chains" v-bind:value="chain.value" v-bind:key="chain.key" @click="showContacts();">{{ chain.text }}</option>
+                    </select></p>
+                </div>   
                 <p><select multiple class="form-control btn-outline-dark" id="polymerSelect3" v-bind:style="{ resize: 'both'}" v-model="modifications" v-if="modified">
                 <label>Select modified residues to highlight</label>
                 <option :value ="null" selected disabled></option>
@@ -242,7 +250,7 @@
                 Parsing PDB structure <img src="static/img/loading.gif" alt="Parsing PDB structure" style="height:25px;">
             </div>
             <div v-if="PDBparsing=='error'">
-                Failed to parse the PDB structure! Try a different structure.
+                Failed to parse the PDB structure!!! Try a different structure.
             </div>
             <span id="molif" v-if="chainid.length>0||customPDBsuccess">
                 <div id ="pdbeMolstarView">
@@ -281,7 +289,7 @@
   import {populatePDBsFromCustomAln} from './populatePDBsFromCustomAln.js'
   import {populateECODranges} from './populateECODranges.js'
   import {postCIFdata} from './postCustomStruct.js'
-  import {uploadCustomPDB} from './handleUploadPDB.js'
+  import {uploadCustomPDB} from './handleUploadPDB_RNA.js'
   import {loadViewersWithCustomUploadStructure} from './handleViewersWithUploadPDB.js'
   import ReactDOM, { render } from 'react-dom';
   import React, { Component } from "react";
@@ -686,9 +694,16 @@
             showModificationsAndContactsHelper("" + this.entityID);
         },
         getR2DT(sequence) {
-            console.log("getR2DT")
-            var url = `r2dt/${sequence}`
-            ajax(url);
+            //console.log("getR2DT.vue", sequence);
+            //var url = `r2dt/${sequence}`
+            
+            //ajax(url).then((returnedObject) => {
+                    //let returnedData = returnedObject["RNA_2D_json"]; 
+                    //console.log("r2dt_json", returnedData);   
+                    //viewerInstanceTop.viewInstance.uiTemplateService.render(returnedData);  
+        //})
+        
+        
         },
         loadData (value, type_tree) {
             if (this.uploadSession){return;}

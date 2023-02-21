@@ -143,8 +143,10 @@ export class UiTemplateService {
     colorMap=() => {
         const selectBoxEle:any = this.containerElement.querySelector<HTMLElement>('.mappingSelectbox');
         const selectedValue = parseInt(selectBoxEle.value);
+        console.log("CM0");
         if(selectedValue) {
             const selectedDomain = this.domainTypes[selectedValue];
+            console.log("CM1", selectedDomain);
             if (selectedDomain.data) {
                 selectedDomain.data.forEach((val:any, i:number) => {
                     if(val != undefined && val.color != undefined) {
@@ -169,6 +171,7 @@ export class UiTemplateService {
     }
     colorMapHelper=() => {
         var mappingDropdown = (<HTMLSelectElement>this.containerElement.querySelector<HTMLElement>('.mappingSelectbox'));
+        console.log("CM0");
         var num: number = +mappingDropdown.value;
         (<HTMLInputElement>document.getElementById('selectColorMappingProps')).value=mappingDropdown!.options[num].text;
         this.rv3VUEcomponent.selected_property = mappingDropdown!.options[num].text;
@@ -243,7 +246,6 @@ export class UiTemplateService {
         });  
         for (let val in this.rv3VUEcomponent.modifications) {
             var mod = this.rv3VUEcomponent.modifications[val];
-            console.log('in33',  mod);
             for(var i in this.rv3VUEcomponent.modified_residues.get(mod)) {
                 UiActionsService.colorNucleotide(this.pluginOptions.pdbId, this.rv3VUEcomponent.modified_residues.get(mod)[i], this.rv3VUEcomponent.modifiedColorMap.get(mod), undefined, this.mappingValue);
             }
@@ -341,8 +343,7 @@ export class UiTemplateService {
         }
     }
     create2D3DAnnotations(name: string, residueDetails: any, 
-        TWCrgbMap: Map<number, any>, TWCData: Map<number, string>, mapped_aa_properties: Map<string, Array<Array<number>>>,
-        chain_start: number, chain_end: number) {
+        TWCrgbMap: Map<number, any>, TWCData: Map<number, string>, mapped_aa_properties: Map<string, Array<Array<number>>>, chain_start: number, chain_end: number) {
         const _this = this;
         TWCData.forEach(function(value, index) {
             if (chain_start <= index && index <= chain_end){
@@ -355,7 +356,7 @@ export class UiTemplateService {
                     color: rgb_color[1],
                     sideChain: false,
                 });
-                
+               
                 _this.defaultColours.qualityRiboVision= '#'+String(rgb_color[0].join(''));
                
                 var colors = "rgb("+String(rgb_color[0].join(','))+")"
@@ -371,7 +372,7 @@ export class UiTemplateService {
                 //_this.drawValidationShape(index, "circle", colors);
             }
         })
-       /* 
+       /*
         if (TWCData.size < mapped_aa_properties.get("Shannon entropy")!.length) {
             console.log("2D3D2", mapped_aa_properties);
             for(var i = TWCData.size - 1; i < this.mapped_aa_properties.get("Shannon entropy").length; i++) {
@@ -403,7 +404,8 @@ export class UiTemplateService {
     getAnnotationFromRibovision(mapped_aa_properties: Map<string, Array<Array<number>>>) {
         const _this = this;
         const start = this.apiData?this.apiData.label_seq_ids[1]:0
-        const end = this.apiData?this.apiData.label_seq_ids[this.apiData.label_seq_ids.length - 2]:0
+        //const end = this.apiData?this.apiData.label_seq_ids[this.apiData.label_seq_ids.length - 2]:0
+
         if(typeof _this.domainTypes == 'undefined'){
             _this.domainTypes = [{
                 label: 'Select data',
@@ -437,7 +439,7 @@ export class UiTemplateService {
                 let max = Math.max(...this.aaPropertyConstants.get(name));
                 let colormapArray = this.aaColorData.get(name); 
                 if  (name == "Shannon entropy"){
-                    
+
                     this.getEntropyAnnotations(separatedData, min, max, this.pluginOptions.chainId);
                     //console.log('name_SE', name,  this.getEntropyAnnotations(separatedData, min, max, this.pluginOptions.chainId));
                 };    
@@ -454,11 +456,13 @@ export class UiTemplateService {
                 
                 const [TWCrgbMap, TWCData] = this.parsePVData(separatedData, min, max, colormapArray);
                 this.selectSections_RV1.get(name).push({entity_id: _this.pluginOptions.entityId, focus: true});
+                console.log("TWC11", TWCrgbMap, TWCData, TWCData.size);
+                const end = TWCData.size;
                 
                 if (void 0 !== TWCData){
                     residueDetails = _this.create2D3DAnnotations(name, residueDetails, 
                                                                 TWCrgbMap, TWCData, mapped_aa_properties,
-                                                                start, end);
+                                                                start, end);                                          
                     if(0 < residueDetails.length){
                         var current = _this.domainTypes.filter(order => (order.label === name))[0];
                         if(current && current != null) {

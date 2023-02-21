@@ -10,7 +10,8 @@ export type PluginOptions = {
     chainId: string,
     entityId: string,
     theme?: ThemeParam,
-    subscribeEvents?: boolean
+    subscribeEvents?: boolean,
+    rvAPI?: boolean
 }
 
 export type ApiData = {

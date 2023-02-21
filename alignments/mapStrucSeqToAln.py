@@ -84,12 +84,13 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
     print("Mafft")
     pipe = Popen(f"mafft --anysymbol --preservecase --quiet --addfull {pdb_seq_path} --mapout {aln_group_path}; cat {mappingFileName}", stdout=PIPE, shell=True)
     output = pipe.communicate()[0]
+    print("Mafft_done")
 
     if len(output.decode("ascii")) <= 0:
         for removeFile in tempfiles:
             remove(removeFile)
         return HttpResponseServerError("Failed mapping the polymer sequence to the alignment!\nTry a different structure.")
-
+    print("Mafft_done1")
     mapping_file = output.decode("ascii").split('\n#')[1]
     amendedAln = re.sub('>Structure sequence$','',output.decode("ascii").split('\n#')[0])
     groupName = output.decode('ascii').split('>')[1].split('_')[0]

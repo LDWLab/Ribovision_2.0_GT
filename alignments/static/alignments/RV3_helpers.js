@@ -433,7 +433,8 @@ var loadParaAlns = function (value, vm) {
 
 var setGlobalProperties = function(){
     let aaPropertiesData = new Map([
-        ["Shannon entropy",[0.000000000000001,2.0]],
+        //["Shannon entropy",[0.000000000000001,2.000]],
+        ["Shannon entropy",[0.000000000000001,2.000]],
         ["TwinCons",[-2.25,6.75]]
     ]);
     let aaColorData = new Map([
@@ -573,7 +574,8 @@ var getEntropyAnnotations = function (separatedData, lowVal, highVal, chainid) {
         let parsedItem = item[0];
         let itemValue = item[1];
         let newValue = itemValue - lowVal;
-        let normalizedVal = Math.round(newValue/(highVal - lowVal) * 99)
+        console.log();
+        let normalizedVal = Math.round(newValue/(highVal - lowVal) * 99);
         annotationArraySE[normalizedVal].ids.push(chainid + " " + parsedItem)
     })
     return annotationArraySE;
