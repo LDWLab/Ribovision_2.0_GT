@@ -346,25 +346,6 @@ def getAlignmentsFilterByProteinTypeAndTaxIdsDirect(request, concatenatedProtein
     context = {'results' : results}
     return JsonResponse(context)
 
-def index_orthologs(request):
-    print ("request.method == 'POST': " + str(request.method == 'POST'))
-    print ("'custom_propensity_data' in request.FILES: " + str('custom_propensity_data' in request.FILES))
-    print ("request.method: " + str(request.method))
-    for x in request.FILES:
-        print ("x: " + str(x))
-    if request.method == 'GET' and 'custom_propensity_data' in request.FILES:
-        propensity_indices_file = request.FILES['custom_propensity_data']
-        propensity_indices_string = ''
-        for propensity_part in propensity_indices_file.chunks():
-            propensity_indices_string += propensity_part.decode()
-        print ("propensity_indices_string: " + propensity_indices_string)
-    # if request.method == 'POST' and 'custom_propensity_data' in request.FILES:
-    #     propensity_indices_file = request.FILES['custom_propensity_data']
-    #     propensity_indices_string = ''
-    #     for propensity_part in propensity_indices_file.chunks():
-    #         propensity_indices_string += propensity_part.decode()
-    #     print ("propensity_indices_string: " + propensity_indices_string)
-    return render(request, 'alignments/index_orthologs.html')
 def index(request):
     return render(request, 'alignments/index.html')
 
@@ -553,27 +534,6 @@ def flushSession (request):
     except:
         return HttpResponseServerError ("Failed to flush the session!")
     return HttpResponse ("Success!")
-
-def ecodPassThroughQuery(request):
-    '''Request a password protected URL from our website that returns a JSON object.
-    '''
-    baseURL = 'http://'+get_current_site(request).domain
-    url = baseURL+request.GET['url']
-    if ('&format=json' not in url):
-        url += '&format=json'
-    req = urllib.request.Request(url)
-    #username = os.environ['DJANGO_USERNAME']
-    #password = os.environ['DJANGO_PASSWORD']
-    #credentials = (f'{username}:{password}')
-    credentials = ('website:desire_RiboVision3')
-    encoded_credentials = base64.b64encode(credentials.encode('ascii'))
-    req.add_header('Authorization', 'Basic %s' % encoded_credentials.decode("ascii"))
-
-    response = urllib.request.urlopen(req)
-    encoding = response.info().get_content_charset('utf-8')
-    data = response.read()
-    return JsonResponse(json.loads(data.decode(encoding)), safe=False)
-
 
 def parse_string_structure(request, stringData, strucID):
     #if(c.structureObj):

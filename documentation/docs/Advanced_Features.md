@@ -1,16 +1,4 @@
 # Advanced features
-## Frequencies 
-Once an alignment has been selected, the user can click the **show amino-acid frequencies** button to display amino acid frequencies for that alignment. 
-Amino acid frequencies are calculated by processing the alignment fasta using Biopython, and the resulting data is displayed as a faceted boxplot through the Plotly graphing library.
-Every point on an amino acid frequency plot represents the frequency of a single amino acid for a single species within the alignment. The species and amino acid frequency associated with each point can be viewed by hovering over the point.
-If a user chooses from the **Select secondary structure dropdown**, the amino acid frequencies will be calculated for the specified secondary structure within the polypeptide. 
-Users can choose to display frequencies from helix residues, coil residues, or strand residues.
-
-## Masking 
-Once a polymer has been selected, the user may select to **mask/unmask 2D and 3D residues**. This allows for coloration of only selected residue ranges specified by the user. All other residues will be colored in white and will have hovering functions disabled. The overall structure of the protein will still be visible.
-
-## Range selection 
-The user also has the option to **cut/uncut 2D and 3D residues**. This allows the user to view only the portion of the protein specified by the entered residues. The rest of the protein structure will be removed rather than colored white as in the masking feature. 
 
 ## Synchronization of navigation between the panels
 Navigation between all panels is synchronized. Hovering over an alignment position highlights the corresponding residue in the Topology and MolStar viewers. Reversely, hovering over a residue in the Topology or MolStar viewers highlights the alignment and the other structural viewer. When the amino-acid frequencies are shown, hovering over the datapoints on the graph highlights the current species in the alignment viewer.

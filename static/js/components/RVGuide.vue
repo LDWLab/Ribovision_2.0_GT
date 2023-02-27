@@ -289,37 +289,6 @@
               placement: 'right'
             },
         },{
-            target: '#showFrequencies',
-            header: {
-                title: 'Show amino-acid frequencies',
-            },
-            content: `Select this checkbox to show amino-acid frequencies, calculated from the loaded alignment.`,
-            params: {
-              placement: 'right'
-            },
-            before: type => new Promise((resolve, reject) => {
-                resolve (
-                    vm.checked_propensities = true,
-                    vm.handlePropensities(true)
-                )
-            })
-        },{
-            target: '#downloadFreqsBtn',
-            header: {
-                title: 'Download amino-acid frequencies',
-            },
-            content: `Download amino-acid frequencies showed in the graph as a csv file.`,
-            params: {
-              placement: 'right'
-            },
-        },{
-            target: '#total',
-            header: {
-                title: 'Frequency graph',
-            },
-            content: `Frequencies for the 20 amino-acids are shown as a boxplot figure. Each species is represented with a datapoint. <br>
-            Hovering on a datapoint highlights the corresponding species in the alignment viewer.`,
-        },{
             target: '#pdb_input',
             header: {
                 title: 'Select a structure for 2D and 3D display',
@@ -330,7 +299,6 @@
             },
             before: type => new Promise((resolve, reject) => {
                 resolve (
-                    vm.checked_propensities = false,
                     vm.pdbid = "4v9d",
                     vm.$children[1].search = "4v9d",
                 )
@@ -510,22 +478,6 @@
               placement: 'right'
             },
         },{
-            target: '#propensitiesSubstructure',
-            header: {
-                title: 'Recalculate AA frequencies',
-            },
-            content: `Once a structure has been defined, AA frequencies can be recalculated by a given secondary structure.<br>
-            The options are Coil, Strand, or Helix residues.`,
-            params: {
-              placement: 'right'
-            },
-            before: type => new Promise((resolve, reject) => {
-                resolve (
-                    vm.checked_customMap=false,
-                    vm.checked_propensities = true
-                )
-            })
-        },{
             target: '#tree_type',
             header: {
                 title: 'Upload a custom alignment',
@@ -538,7 +490,6 @@
             before: type => new Promise((resolve, reject) => {
                 vm.topology_loaded = false;
                 resolve (
-                    vm.checked_propensities = false,
                     vm.type_tree="upload",
                     document.getElementById('tree_type').children[1].click(),
                     vm.cleanTreeOpts(),

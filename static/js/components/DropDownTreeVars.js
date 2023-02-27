@@ -64,7 +64,6 @@ export function initialState (){
         csv_data: null,
         custom_headers: [],
         raiseCustomCSVWarn: null,
-        checked_propensities: false,
         all_residues: null,
         coil_residues: null,
         helix_residues: null,

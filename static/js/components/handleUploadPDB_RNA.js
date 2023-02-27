@@ -91,7 +91,6 @@ var threeLetterToOne = {
 function postPDBdata (pdbID, entities){
     vm.postedPDBEntities = false;
     let parseURL = `custom-struc-data/${pdbID}`;
-    //let postTopologyURL = `proOrigamiPOSTTopology/${pdbID}-${entities.entityID}-${entities.chainID}`;
     var stringEntities = JSON.stringify(entities); 
     ajaxProper({
         url: parseURL,
