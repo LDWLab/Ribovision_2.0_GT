@@ -1,7 +1,7 @@
 import React from "react";
 export function YSlider (props){
   const {alnViewerAdjHeight, maxYpos, MSAVObject} = props;
-  if (alnViewerAdjHeight < MSAVObject.state.tileHeight*vm.fastaSeqNames.length) {
+  if(vm.fastaSeqNames && alnViewerAdjHeight < MSAVObject.state.tileHeight*vm.fastaSeqNames.length) {
     return(
       <div style={{width: "30px"}}>
       <input
@@ -18,7 +18,8 @@ export function YSlider (props){
       />
       </div>
     );
-  }else{
+  }
+  else{
     return (null);
   }
 }

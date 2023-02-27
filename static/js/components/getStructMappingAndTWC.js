@@ -65,11 +65,9 @@ var assignColorsAndStrucMappings = function (vueObj, struct_mapping){
 var delayedMapping = function (){
     
     if ( typeof viewerInstanceTop === 'undefined' || viewerInstanceTop === null ){
-        console.log("DM0");
         tryCustomTopology(vm.pdbid, vm.entityID, vm.chainid[0]);
     } else {
         viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties);
-        console.log("DM1", viewerInstanceTop);
         }
     
 }
@@ -82,10 +80,8 @@ function retry (fn, maxAttempts = 1, delay = 0, attempts = 0) {
           return retry (fn, maxAttempts, delay, attempts + 1)
         }
         var topview = document.querySelector('#topview');
-        console.log(err);
         vm.topology_loaded = 'error';
         topview.innerHTML = "EBI topology diagram is taking too long!<br>Trying to generate topology from custom mode..."
-        console.log('tCT');
         tryCustomTopology(vm.pdbid, vm.entityID, vm.chainid[0]);
         throw err
       })
@@ -94,15 +90,12 @@ function retry (fn, maxAttempts = 1, delay = 0, attempts = 0) {
 var tryCustomTopology = function (pdbid, entityid, chainid){
     vm.topology_loaded = false;
 
-    console.log("TCT_2", pdbid, vm.sequence4); 
     vm.getR2DT(vm.sequence4);
     vm.URL = `r2dt/${vm.sequence3}`
     var postTopologyURL = `r2dt/${vm.sequence3}/`
     pdbid='cust'; 
     var topology_viewer = `<pdb-rna-viewer id="PdbeTopViewer" pdb-id="${pdbid}" entity-id="${entityid}" chain-id="${chainid}" rv-api="true" ></pdb-rna-viewer>`
-    console.log("postTopologyURL1", topology_viewer );  
     document.getElementById('topview').innerHTML = topology_viewer;
-    console.log("postTopologyURL2");  
     window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
     ajaxProper({
         url: postTopologyURL,
@@ -113,7 +106,7 @@ var tryCustomTopology = function (pdbid, entityid, chainid){
             //var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid} pvapi="true" filter-range=1,100000></pdb-topology-viewer>`
             //document.getElementById('topview').innerHTML = topology_viewer;
             //window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
-            console.log("Topology Success11");
+            console.log("Topology Success");
 
             
         }

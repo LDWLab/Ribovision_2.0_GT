@@ -85,8 +85,8 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     ### BE CAREFUL WHEN MERGING THE FOLLOWING LINES TO PUBLIC; PATHS ARE HARDCODED FOR THE APACHE SERVER ###
-    alignmentFileName = "./static/alignment" + fileNameSuffix + ".txt"
-    ebiFileName = "./static/ebi_sequence" + fileNameSuffix + ".txt"
+    alignmentFileName = "/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/alignment" + fileNameSuffix + ".txt"
+    ebiFileName = "/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/ebi_sequence" + fileNameSuffix + ".txt"
     mappingFileName = ebiFileName + ".map"
     fasta = re.sub('>Structure sequence[\s\S]*?>','>',fasta)
     fh = open(alignmentFileName, "w")
@@ -145,8 +145,11 @@ def request_post_data(post_data):
     return fasta, ebi_sequence, startIndex
 
 def make_map_from_alnix_to_sequenceix(request):
+    print(request)
     fasta, ebi_sequence, startIndex = request_post_data(request.POST)
+    print("hi")
     mapping = constructEbiAlignmentString(fasta, ebi_sequence, startIndex)
+    print(mapping)
     if type(mapping) != dict:
         return mapping
     return JsonResponse(mapping, safe = False)

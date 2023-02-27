@@ -30,15 +30,16 @@ class PdbRnaViewerPlugin {
             return;
         }
         this.options = options;
-        this.apiData = await this.dataService.getApiData(this.options.entityId, this.options.chainId, this.options.pdbId);
-        this.FR3DData = await this.dataService.getFR3DData(this.options.pdbId, this.options.chainId);
-        this.FR3DNestedData = await this.dataService.getFR3DNestedData(this.options.pdbId, this.options.chainId);
+        if (this.options.pdbId != "cust") {
+            this.apiData = await this.dataService.getApiData(this.options.entityId, this.options.chainId, this.options.pdbId);
+            this.FR3DData = await this.dataService.getFR3DData(this.options.pdbId, this.options.chainId);
+            this.FR3DNestedData = await this.dataService.getFR3DNestedData(this.options.pdbId, this.options.chainId);
+        }
         this.BanName = await BanNameHelper.getBanName(this.options.pdbId, 'H');
         this.targetEle = <HTMLElement> target;
 
 
         this.uiTemplateService = new UiTemplateService(this.targetEle, this.options, this.apiData);
-        console.log("API", this.options.pdbId, this.apiData);
         if(this.apiData) {
             // draw topology
             this.uiTemplateService.render(this.apiData, this.FR3DData, this.FR3DNestedData, this.BanName);
@@ -74,8 +75,6 @@ class PdbRnaViewerPlugin {
                 this.FR3DData = FR3DDataJ;
                 this.FR3DNestedData = FR3DNestedDataJ;
 
-                console.log('dataUrls', this.apiData);
-                console.log('dataUrls', this.FR3DData);
                 // draw topology
                 this.uiTemplateService.render(this.apiData, this.FR3DData, this.FR3DNestedData, this.BanName);
     

@@ -3,7 +3,6 @@ import parsePdb from 'parse-pdb'
 import {getStructMappingAndTWC} from './getStructMappingAndTWC.js'
 
 export function uploadCustomPDB(){
-    console.log('uCPDB',  vm.$refs.customPDBfile);
     if (vm.$refs.customPDBfile.files.length == 0){return;}
     vm.PDBparsing = true;
     vm.customPDBsuccess = null;
@@ -100,25 +99,8 @@ function postPDBdata (pdbID, entities){
     }).then (parsedResponse => {
         vm.PDBparsing = false;
         if (parsedResponse == "Success!"){
-            console.log("Posted PDB data successfully!");
             vm.customPDBsuccess = true;
             getStructMappingAndTWC (vm.fasta_data, vm.customPDBid, vm.pdbStart, vm.pdbEnd, null, vm);
-            ajaxProper({
-                url: postTopologyURL,
-                type: 'POST',
-                dataType: 'json'
-            }).then (parsedResponse => {
-                if (parsedResponse == "Success!"){ 
-                    var topology_viewer = `<pdb-rna-viewer id="PdbeTopViewer" pdb-id="${pdbid}" entity-id="${entityid}" chain-id="${chainid}" rvapi="true"></pdb-rna-viewer>`
-                    document.getElementById('topview').innerHTML = topology_viewer;
-                    window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
-                }
-            }).catch(error => {
-                var topview = document.querySelector('#topview');
-                vm.topology_loaded = 'error';
-                topview.innerHTML = "Failed to generate topology from the structure file!!! <br>Try different PDB."
-                console.log(error.responseText);
-            });
         }
     }).catch(error => {
         vm.PDBparsing = 'error';

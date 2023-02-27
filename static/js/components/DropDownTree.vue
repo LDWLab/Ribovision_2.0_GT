@@ -59,10 +59,10 @@
                     <!--OR<br>-->
                 </div>
                 <span v-if="alnobj">Select/type PDB entry:</span>
-                <select class="btn btn-outline-dark dropdown-toggle" id="pdb_input" v-if="alnobj&&alnobj!='custom'" v-model="pdbid">
+                <!--<select class="btn btn-outline-dark dropdown-toggle" id="pdb_input" v-if="alnobj&&alnobj!='custom'" v-model="pdbid">
                     <option :value="null" selected disabled hidden>Select PDB entry</option>
                     <option v-for="pdb in pdbs" v-bind:value="pdb.id">{{pdb.name}}</option>
-                </select>
+                </select>-->
                 <p>
                 <autocomplete id="pdb_input" isAsync:true :items="pdbs" v-if="alnobj&&alnobj!='custom'" v-model="pdbid"></autocomplete>
                 <autocomplete isAsync:true :items="blastPDBresult" v-if="alnobj&&alnobj=='custom'" v-model="pdbid"></autocomplete>
@@ -99,7 +99,53 @@
                 <label><input type="checkbox" v-model="checkedRNA" v-on:change="updateMolStarWithRibosome(checkedRNA)">
                     Show ribosomal context in 3D</label>
             </p></div>
-            <div v-if="topology_loaded&&!checkedRNA">  
+            <!--
+            -->
+            <!--
+            <div v-if="topology_loaded&&!checkedRNA&&!customPDBid&&protein_contacts">
+             -->
+            <div v-if="topology_loaded&&!checkedRNA">
+            
+            <!--
+                <div id="domainSelectionSection" style="margin: 3% 0;">
+                    <div>
+                        <label><input type="radio" v-model="domain_or_selection" value="domain">
+                        Select by ECOD domain</label>
+                    </div>
+                    <div v-if="selected_domain.length > 0" style="text-align: center;">
+                        <a :href="'http://prodata.swmed.edu/ecod/complete/domain/' + selected_domain[0].id" target="_blank">See {{selected_domain[0].id}} on ECOD</a>
+                    </div>
+                    <select multiple class="form-control btn-outline-dark" id="domainSelect" v-model="selected_domain" v-bind:style="{ resize: 'both'}" style="margin: 1.5% 0;" v-if="domain_list&&checked_domain">
+                        <option v-for="domain in domain_list" v-bind:value="domain">{{ domain.name }}</option>
+                    </select>
+                    <button id="disableDomainTruncation" class="btn btn-outline-dark" v-if="selected_domain.length > 0" type="button" v-on:click="domain_or_selection=null;" style="margin: 1.5% 0;">
+                            Show the entire structure
+                    </button>
+                </div>
+
+                <div id="filterSection"><p>
+                    <div>
+                        <label><input type="radio" v-model="domain_or_selection" value="selection">
+                        Select custom range</label>
+                    </div>
+                    <span v-if="checked_selection"><b>Input single</b> residue range to <b>show</b>, ending with semicolon. <br> For example: 1-80;</span>
+                    <input class="input-group-text" v-if="checked_selection" v-model="filter_range" v-on:input="handleFilterRange(filter_range)">
+                    <p><button id="disableCutTruncation" class="btn btn-outline-dark" v-if="filter_range" type="button" v-on:click="domain_or_selection=null;" style="margin: 3% 0;">
+                        Show the entire structure
+                    </button></p>
+                </p></div>
+
+                <div id="maskingSection"><p>
+                    <div class="checkbox">
+                        <label><input type="checkbox" v-model="checked_filter" v-on:change="cleanFilter(checked_filter, masking_range)">
+                        Mask/Unmask 2D and 3D residues</label>
+                    </div>
+                    <span v-if="checked_filter"><b>Input multiple</b> residue ranges to <b>show</b>, separated by semicolon. <br> For example: 1-80;91-111;</span>
+                    <input class="input-group-text" v-if="checked_filter" v-model="masking_range" v-on:input="handleMaskingRanges(masking_range)">
+                </p></div>
+                <p v-if="correct_mask!=true&&masking_range!=null">Incorrect range syntax!</p>
+
+            -->             
                 <div id="customDataSection">
                 <p><div class="checkbox">
                         <label><input type="checkbox" v-model="checked_customMap" v-on:change="cleanCustomMap(checked_customMap)">
@@ -124,6 +170,20 @@
                 <option v-for="[text, k] of modified_residues.entries()" v-bind:value="text" v-bind:key="k" @click="showModifications();">{{ text }}</option>
                 </select></p>
             </div>
+            <!--
+            <p><div v-if="alnobj" class="checkbox" id="showFrequencies">
+                <label><input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">
+                Show amino acid frequencies</label>
+                <select class="btn btn-outline-dark dropdown-toggle" id="propensitiesSubstructure" v-if="checked_propensities&&structure_mapping" v-model="property" v-on:change="getPropensities(property); handlePropensities(checked_propensities)">
+                    <option :value="null" selected disabled hidden>Select secondary structure</option>
+                    <option :value="0">All residues</option>
+                    <option v-for="substructure in substructures" v-bind:value="{ id: substructure.value, text: substructure.text, indices: substructure.indices }">{{ substructure.text }}</option>
+                </select>
+                <p><button id="downloadFreqsBtn" class="btn btn-outline-dark" style="margin: 3% 0;" v-if="checked_propensities" type="button" v-on:click="downloadFreqsData()">
+                    Download AA frequencies
+                </button></p>
+            </div></p>
+            -->
         </div>
         <div class="alignment_section">
             <div id="alnif" v-if="alnobj">
@@ -178,6 +238,12 @@
                 :key="prop.Name"
                 v-if = "selected_property == prop.Name"
                 :src="prop.url"
+            ><!--
+            <object id="gradientSVG"
+                v-for="prop in available_properties" 
+                v-if = "selected_property == prop.Name"
+                :data="prop.url" type="image/svg+xml">
+            </object>-->
         </div>
         <div class="molstar_section">
             <div v-if="PDBparsing==true">
@@ -192,6 +258,13 @@
                 </div>
             </span>
         </div>
+        <!--
+        <div class = "propensity_section">
+            <span id="propif" v-if="checked_propensities">
+                <div id = "total"></div>
+            </span>
+        </div>
+        -->
         <footer>
             <div id="footerDiv" style="display: flex;"></div>
         </footer>
@@ -354,6 +427,44 @@
                 downloadPyMOLscript();
                 this.downloadMapDataOpt = null;
             }
+        },domain_or_selection: function(selection){
+            if (this.uploadSession){return;}
+            this.checked_filter = false;
+            cleanFilter(this.checked_filter, this.masking_range);
+            this.masking_range = null;
+            if (selection == 'domain'){
+                if (vm.checked_selection){
+                    cleanSelection(false, vm.filter_range);
+                    vm.checked_selection = false;
+                }
+                vm.checked_domain = true;
+                if (vm.filter_range){
+                    vm.filter_range = null;
+                }
+            } else if (selection == 'selection'){
+                if (vm.checked_domain){
+                    cleanSelection(false, true)
+                    vm.checked_domain = false;
+                }
+                vm.checked_selection = true;
+                if (vm.selected_domain.length > 0){
+                    vm.selected_domain = [];
+                }
+            } else {
+                if (vm.selected_domain.length > 0){
+                    vm.selected_domain = [];
+                }
+                vm.filter_range = null;
+                vm.checked_selection = false;
+                vm.checked_domain = false;
+                cleanSelection(false, true);
+            }
+            if (vm.selected_property){
+                recolorTopStar(vm.selected_property);
+            }
+        },selected_domain: function (domainObj){
+            if(domainObj.length == 0){return}
+            handleDomainRange(domainObj[0].range);
         },selected_property: function(name){
             if (this.uploadSession){return;}
             if (!name){return;}
@@ -503,6 +614,7 @@
             this.type_tree="upload";
             this.topology_loaded=false;
             this.schemesMgr = new schemes();
+            window.viewerInstanceTop = null;
             //cleanupOnNewAlignment(this, "Select new alignment!");
             //[this.options, this.tax_id, this.alnobj, this.chainid] = [null, null, null, null];
             //var topview = document.getElementById("PdbeTopViewer");
@@ -727,6 +839,7 @@
             })
         }, showTopologyViewer (pdbid, chainid, fasta){
             this.topology_loaded = false;
+            window.filterRange = "-10000,10000";
             if (chainid.length > 1){this.chainid = chainid[0];}
             const topview_item = document.getElementById("topview");
             if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "")}
@@ -753,6 +866,61 @@
                 document.getElementById('topview').innerHTML = topology_viewer;
                 window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
             });
+            /*var topology_url = `https://www.ebi.ac.uk/pdbe/api/topology/entry/${pdblower}/chain/${chainid}`
+            
+            ajax(topology_url).then(data => {
+                if(vm.topology_loaded){return;}
+                var entityid = Object.keys(data[pdblower])[0];
+                let termStart = Number(data[pdblower][entityid][chainid]["terms"][0].resnum);
+                let termEnd = Number(data[pdblower][entityid][chainid]["terms"][1].resnum);
+                vm.all_residues = filterCoilResidues([{start: termStart, stop: termEnd}])
+                vm.coil_residues = filterCoilResidues(data[pdblower][entityid][chainid]["coils"])
+                vm.helix_residues = filterCoilResidues(data[pdblower][entityid][chainid]["helices"])
+                vm.strand_residues = filterCoilResidues(data[pdblower][entityid][chainid]["strands"])
+                listSecondaryStructures();
+                var mapping = [];
+                var range_string = minIndex.concat("-").concat(maxIndex);
+                let ebiMappingURL = 'https://www.ebi.ac.uk/pdbe/api/mappings/uniprot/'+pdbid;
+                ajax(ebiMappingURL).then(data=>{
+                    var result = [];
+                    customFilter(data, result, "chain_id", chainid);
+                    result = result[0];
+                    
+                    if(result != null) {
+                        var pdb_start = parseInt(result["start"]["residue_number"]);
+                        var pdb_end = parseInt(result["end"]["residue_number"]);
+                        var uniprot_start = parseInt(result["unp_start"]);
+                        for (let residue_number_str in range_string.split("-")){
+                            var residue_number = parseInt(residue_number_str);
+                            if(residue_number >= pdb_start && residue_number <= pdb_end){
+                                let offset = uniprot_start - pdb_start;
+                                mapping.push(residue_number - offset);
+                            }else{
+                                mapping.push(residue_number);
+                            }
+                        }
+                    }else{
+                        console.log("No mapping for pdb "+pdbid+" and chain"+ chainid)
+                        mapping = [range_string.split("-")[0],range_string.split("-")[1]];
+                    }
+                    var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid} filter-range=${mapping}></pdb-topology-viewer>`
+                    document.getElementById('topview').innerHTML = topology_viewer;
+                    window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
+                }).catch(error => {
+                    if (vm.topology_loaded&&vm.topology_loaded!='error'){return;}
+                    mapping = [range_string.split("-")[0],range_string.split("-")[1]];
+                    var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid} filter-range=${mapping}></pdb-topology-viewer>`
+                    document.getElementById('topview').innerHTML = topology_viewer;
+                    window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
+                    console.log(error);
+                });
+            }).catch(error => {
+                if (vm.topology_loaded&&vm.topology_loaded!='error'){return;}
+                var topview = document.querySelector('#topview');
+                console.log(error);
+                this.topology_loaded = 'error';
+                topview.innerHTML = "Failed to fetch the secondary structure!<br>Try another structure."
+            });*/
         }, showPDBViewer(pdbid, chainid, entityid){
             showPDBHelper(pdbid, chainid, entityid)
         }, populateECODranges(pdbid, chainid) {
@@ -827,12 +995,20 @@
             cleanCustomMap(checked_customMap);
         },handleCustomMappingData(){
             handleCustomMappingData();
+        },handleDomainRange(domain_range){
+            handleDomainRange(domain_range);
+        },handleFilterRange(filter_range){
+            handleFilterRange(filter_range);
+        },handlePropensities(checked_propensities){
+            handlePropensities(checked_propensities);
         },populatePDBs(alndata){
             populatePDBs(alndata);
         },populatePDBsFromCustomAln(firstSeq){
             if (this.guideOff){
                 populatePDBsFromCustomAln(firstSeq);
             }
+        },getPropensities(sequence_indices) {
+            getPropensities(sequence_indices);
         },listSecondaryStructures() {
             listSecondaryStructures();
         },downloadFreqsData(){
