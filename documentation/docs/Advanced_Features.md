@@ -17,11 +17,11 @@ Ribovision 2.0 offers visualization of rProtein contacts with a selected rRNA mo
 
 ## Show modified nucleotides
 
-Ribovision 2.0 offers visualization of modified nuclotides in a selected rRNA molecule. If a selected RNA chanin contain modifiedd nucleotides, the abbreviated modification types (e.g. 1MG, PSU, 5MU etc) will appear in the List of Modified Nuclotides beneath of Protein Contact List in the Main Navigation Pannel. The modified residues will be highlighted in the 2D and 3D applets  upon selecting the desired modification type from the List of Modified Nuclotides. All nucleototides of a given modification type will be highlighted in the same color. Selection of multiple modification types will higlight modified nucleotides in distinct colors (per podification type).
+Ribovision 2.0 offers visualization of modified nuclotides in a selected rRNA molecule. If a selected RNA chanin contain modifiedd nucleotides, the abbreviated modification types (e.g. 1MG, PSU, 5MU etc) will appear in the List of Modified Nuclotides beneath of Protein Contact List in the Main Navigation Pannel. The modified residues will be highlighted in the 2D and 3D applets  upon selecting the desired modification type from the List of Modified Nuclotides. All nucleototides of a given modification type will be highlighted in the same color. Selection of multiple modification types will higlight modified nucleotides in distinct colors (per modification type).
 
 
-## User upload mode
-ProteoVision supports the upload of custom alignments. The user can upload any fasta format alignment through the **User upload** menu and calculate amino-acid frequencies and mapping data from it. The user can select a PDB ID to visualize a structure and map the calculated data from their alignment.
+## User upload data
+RiboVision 2.0  supports the visualization of user supplied data. The user can upload any fasta format alignment through the **User upload** menu and calculate amino-acid frequencies and mapping data from it. The user can select a PDB ID to visualize a structure and map the calculated data from their alignment.
 
 ## Selecting a structure for visualization and mapping in user upload mode
 After uploading an alignment, ProteoVision will use the first sequence of the alignment to perform a BLAST search of the [PDB database](https://www.ebi.ac.uk/Tools/common/tools/help). BLAST results are filtered by E-value lower than 10<sup>-5</sup> and are used to populate a dropdown menu in the PDB input field. The dropdown menu is searchable, and shows filtered results depending on the user input. After a BLAST is complete the polymers associated with the polymer selection box will be filtered by the BLAST results.
