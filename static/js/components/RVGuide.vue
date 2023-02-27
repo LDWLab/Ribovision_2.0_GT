@@ -171,11 +171,11 @@
 
     var getExampleFasta = function(){
         $.ajax({
-            url: `static/alignments/EFTU_example.fas`,
+            url: `static/alignments/RV2_Archaea_b_LSU.fas`,
             type: 'GET',
             dataType: "text",
             success: function(data) {
-                vm.file = new File([data], "EFTU_example.fas", {});
+                vm.file = new File([data], "RV2_Archaea_b_LSU.fas", {});
             },
         })
     };

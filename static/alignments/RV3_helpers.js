@@ -563,7 +563,7 @@ var clearHighlight = function(pdbId) {
     document.querySelector(`svg.rnaTopoSvg`).getElementsByClassName(`rnaviewEle rnaviewEle_${pdbId} rnaview_${pdbId}_${selected}`)[0].setAttribute("fill","323232");
 //document.querySelector(`.rnaTopoSvgHighlight_${pdbId}`)!.innerHTML = "";
 };
-var  = function (separatedData, lowVal, highVal, chainid) {
+var getEntropyAnnotations = function (separatedData, lowVal, highVal, chainid) {
     annotationArraySE.length=0;
     for (var i = 1; i < 101; i++) {
         annotationArraySE.push({"annotation":i,"ids":[]})

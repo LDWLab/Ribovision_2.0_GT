@@ -1,60 +1,5 @@
-var registerHoverResiData = function (e, tooltipObj){
-  if (vm.type_tree == 'upload'){
-      //Figure out how to do the hover in this case;
-      return;
-  }
-  const strainQuery = '&res__poldata__strain__strain=';
-  var url = `/desire-api/residue-alignment/?format=json&aln_pos=${String(Number(e.position) + 1)}&aln=${vm.alnobj.id}${strainQuery}${vm.fastaSeqNames[Number(e.i)]}`
-  ajax(url).then(alnpos_data => {
-    var alnViewCanvasEle = document.querySelector("#alnDiv canvas:nth-of-type(1)");
-    var alnViewLabelsEle = document.querySelector("#alnViewerLabels");
-    let boundLabelBox = alnViewLabelsEle.getBoundingClientRect();
-    let boundingBox = absolutePosition(alnViewCanvasEle);
-    let relativeBox = alnViewCanvasEle.getBoundingClientRect();
-    if (alnpos_data.count != 0){
-        ajax('/resi-api/' + alnpos_data["results"][0]["res"].split("/")[5]).then(resiData => {
-            if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right){
-              let tooltipPosition = {
-                top: mousePos.y-boundingBox.top+15 +"px",
-                left: mousePos.x-relativeBox.left+boundLabelBox.right-boundLabelBox.left+8 +"px",
-              };
-              if (resiData["Structural fold"][0] !== undefined && resiData["Associated data"][0] !== undefined){
-                  tooltipObj.setState({
-                  fold: resiData["Structural fold"][0][1],
-                  phase: resiData["Associated data"][0][1],
-                  tooltipPosition,
-                });
-              }else{
-                  tooltipObj.setState({
-                  fold: 'NA',
-                  phase: 'NA',
-                  tooltipPosition,
-                });
-              }
-            }
-            window.ajaxRun = false;
-        });
-    }else{
-        if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right){
-            let tooltipPosition = {
-                top: mousePos.y-boundingBox.top+15 +"px",
-                left: mousePos.x-relativeBox.left+boundLabelBox.right-boundLabelBox.left+5 +"px",
-            };
-            window.ajaxRun = false;
-            tooltipObj.setState({
-                fold: 'NA',
-                phase: 'NA',
-                tooltipPosition,
-            });
-        }
-    }
-  }).catch(error => {
-    window.ajaxRun = false;
-    console.log(error);
-  })
-  return true;
-};
-
+//Masking and filtering functions for proteins, could be adapted for RNA 
+/*
 function isCorrectMask(mask_range){
     window.masking_range_array = null;
     if (mask_range.match(/^(\d+-\d+;)+$/)) {
@@ -216,6 +161,119 @@ function colorResidue(index, masked_array) {
         }
     })
 };
+
+function cleanFilter(checked_filter, masking_range){
+  if (checked_filter){return;}
+  if (masking_range == null){return;}
+  window.masked_array = [];
+  vm.masking_range = null;
+  vm.correct_mask = null;
+  var topviewer = document.getElementById("PdbeTopViewer");
+  topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);
+  if(window.custom_prop) {
+      topviewer.pluginInstance.getAnnotationFromRibovision(window.custom_prop);
+  }
+  var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
+  if (selectedIndex > 0){
+    topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data); 
+  }
+  window.viewerInstance.visual.select({data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), nonSelectedColor: {r:255,g:255,b:255}});
+};
+function cleanSelection(checked_selection, filter_range){
+  if (checked_selection || filter_range == null || !vm.pdbid){return;}
+  var selectBox = viewerInstanceTop.pluginInstance.targetEle.querySelector('.menuSelectbox');
+  var newIndex = indexMatchingText(selectBox.options, vm.selected_property);
+  vm.filter_range = null;
+  window.filterRange = "-10000,10000";
+  viewerInstanceTop.pluginInstance.alreadyRan = false;
+  viewerInstanceTop.pluginInstance.initPainting();
+  var coordURL = `https://coords.litemol.org/${vm.pdbid.toLowerCase()}/chains?entityId=${viewerInstanceTop.entityId}&authAsymId=${viewerInstanceTop.chainId}&encoding=bcif`;
+  //var coordURL = `https://www.ebi.ac.uk/pdbe/coordinates/${window.pdblower}/chains?entityId=${topviewer.entityId}&encoding=bcif`;
+  viewerInstance.visual.update({
+      customData: {
+          url: coordURL,
+          format: 'cif',
+          binary:true },
+      assemblyId: '1',
+      subscribeEvents: true,
+      bgColor: {r:255,g:255,b:255},
+    }).finally(response => {
+        viewerInstanceTop.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);
+        if(window.custom_prop) {
+            viewerInstanceTop.pluginInstance.getAnnotationFromRibovision(window.custom_prop);
+        }
+        if(newIndex > 0) {
+            viewerInstanceTop.pluginInstance.updateTheme(viewerInstanceTop.pluginInstance.domainTypes[newIndex].data); 
+        }
+        if (response){
+            window.viewerInstance.visual.select({data: selectSections_RV1.get(vm.selected_property), nonSelectedColor: {r:255,g:255,b:255}});
+        }
+        if(vm.correct_mask) {
+            handleMaskingRanges(vm.masking_range)
+        }
+          handlePropensities(vm.checked_propensities);
+    });
+};
+
+*/
+
+var registerHoverResiData = function (e, tooltipObj){
+    if (vm.type_tree == 'upload'){
+        //Figure out how to do the hover in this case;
+        return;
+    }
+    const strainQuery = '&res__poldata__strain__strain=';
+    var url = `/desire-api/residue-alignment/?format=json&aln_pos=${String(Number(e.position) + 1)}&aln=${vm.alnobj.id}${strainQuery}${vm.fastaSeqNames[Number(e.i)]}`
+    ajax(url).then(alnpos_data => {
+      var alnViewCanvasEle = document.querySelector("#alnDiv canvas:nth-of-type(1)");
+      var alnViewLabelsEle = document.querySelector("#alnViewerLabels");
+      let boundLabelBox = alnViewLabelsEle.getBoundingClientRect();
+      let boundingBox = absolutePosition(alnViewCanvasEle);
+      let relativeBox = alnViewCanvasEle.getBoundingClientRect();
+      if (alnpos_data.count != 0){
+          ajax('/resi-api/' + alnpos_data["results"][0]["res"].split("/")[5]).then(resiData => {
+              if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right){
+                let tooltipPosition = {
+                  top: mousePos.y-boundingBox.top+15 +"px",
+                  left: mousePos.x-relativeBox.left+boundLabelBox.right-boundLabelBox.left+8 +"px",
+                };
+                if (resiData["Structural fold"][0] !== undefined && resiData["Associated data"][0] !== undefined){
+                    tooltipObj.setState({
+                    fold: resiData["Structural fold"][0][1],
+                    phase: resiData["Associated data"][0][1],
+                    tooltipPosition,
+                  });
+                }else{
+                    tooltipObj.setState({
+                    fold: 'NA',
+                    phase: 'NA',
+                    tooltipPosition,
+                  });
+                }
+              }
+              window.ajaxRun = false;
+          });
+      }else{
+          if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right){
+              let tooltipPosition = {
+                  top: mousePos.y-boundingBox.top+15 +"px",
+                  left: mousePos.x-relativeBox.left+boundLabelBox.right-boundLabelBox.left+5 +"px",
+              };
+              window.ajaxRun = false;
+              tooltipObj.setState({
+                  fold: 'NA',
+                  phase: 'NA',
+                  tooltipPosition,
+              });
+          }
+      }
+    }).catch(error => {
+      window.ajaxRun = false;
+      console.log(error);
+    })
+    return true;
+};
+
 function clearInputFile(f){
     if(f.value){
         try{
@@ -329,59 +387,6 @@ var getExampleFile = function(url, name){
             anchor.click();
         },
     })
-};
-
-function cleanFilter(checked_filter, masking_range){
-  if (checked_filter){return;}
-  if (masking_range == null){return;}
-  window.masked_array = [];
-  vm.masking_range = null;
-  vm.correct_mask = null;
-  var topviewer = document.getElementById("PdbeTopViewer");
-  topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);
-  if(window.custom_prop) {
-      topviewer.pluginInstance.getAnnotationFromRibovision(window.custom_prop);
-  }
-  var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
-  if (selectedIndex > 0){
-    topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data); 
-  }
-  window.viewerInstance.visual.select({data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), nonSelectedColor: {r:255,g:255,b:255}});
-};
-function cleanSelection(checked_selection, filter_range){
-  if (checked_selection || filter_range == null || !vm.pdbid){return;}
-  var selectBox = viewerInstanceTop.pluginInstance.targetEle.querySelector('.menuSelectbox');
-  var newIndex = indexMatchingText(selectBox.options, vm.selected_property);
-  vm.filter_range = null;
-  window.filterRange = "-10000,10000";
-  viewerInstanceTop.pluginInstance.alreadyRan = false;
-  viewerInstanceTop.pluginInstance.initPainting();
-  var coordURL = `https://coords.litemol.org/${vm.pdbid.toLowerCase()}/chains?entityId=${viewerInstanceTop.entityId}&authAsymId=${viewerInstanceTop.chainId}&encoding=bcif`;
-  //var coordURL = `https://www.ebi.ac.uk/pdbe/coordinates/${window.pdblower}/chains?entityId=${topviewer.entityId}&encoding=bcif`;
-  viewerInstance.visual.update({
-      customData: {
-          url: coordURL,
-          format: 'cif',
-          binary:true },
-      assemblyId: '1',
-      subscribeEvents: true,
-      bgColor: {r:255,g:255,b:255},
-    }).finally(response => {
-        viewerInstanceTop.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);
-        if(window.custom_prop) {
-            viewerInstanceTop.pluginInstance.getAnnotationFromRibovision(window.custom_prop);
-        }
-        if(newIndex > 0) {
-            viewerInstanceTop.pluginInstance.updateTheme(viewerInstanceTop.pluginInstance.domainTypes[newIndex].data); 
-        }
-        if (response){
-            window.viewerInstance.visual.select({data: selectSections_RV1.get(vm.selected_property), nonSelectedColor: {r:255,g:255,b:255}});
-        }
-        if(vm.correct_mask) {
-            handleMaskingRanges(vm.masking_range)
-        }
-          handlePropensities(vm.checked_propensities);
-    });
 };
 
 var populatePDBs = function (alndata){

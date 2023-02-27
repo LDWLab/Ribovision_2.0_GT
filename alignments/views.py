@@ -85,10 +85,8 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     ### BE CAREFUL WHEN MERGING THE FOLLOWING LINES TO PUBLIC; PATHS ARE HARDCODED FOR THE APACHE SERVER ###
-    alignmentFileName = "/home/anton/RiboVision2/Ribovision_3.0_GT/static/alignment" + fileNameSuffix + ".txt"
-    ebiFileName = "/home/anton/RiboVision2/Ribovision_3.0_GT/static/ebi_sequence" + fileNameSuffix + ".txt"
-    #alignmentFileName = "./static/alignment" + fileNameSuffix + ".txt"
-    #ebiFileName = "./static/ebi_sequence" + fileNameSuffix + ".txt"
+    alignmentFileName = "./static/alignment" + fileNameSuffix + ".txt"
+    ebiFileName = "./static/ebi_sequence" + fileNameSuffix + ".txt"
     mappingFileName = ebiFileName + ".map"
     fasta = re.sub('>Structure sequence[\s\S]*?>','>',fasta)
     fh = open(alignmentFileName, "w")
@@ -549,55 +547,6 @@ def trim_fasta_by_index(input_file, indices):
         trimmed_align += align[:,int(i)-1:int(i)]
     return trimmed_align
 
-def propensity_data_custom (request):
-    response = propensity_data(request, None, None)
-    return response
-
-def propensity_data(request, aln_id, tax_group):
-    from io import StringIO
-    import alignments.propensities as propensities
-
-    if request.method == 'POST' and 'customFasta' in request.POST and aln_id is None:
-        fastastring = request.POST['customFasta']
-    else:
-        fastastring = simple_fasta(request, aln_id, tax_group, internal=True).replace('\\n', '\n')
-    fasta = StringIO(fastastring)
-
-    if request.method == 'POST' and 'indices' in request.POST:
-        indices = request.POST['indices']
-        trimmed_fasta = trim_fasta_by_index(fasta, indices)
-        fasta = StringIO(format(trimmed_fasta, 'fasta'))
-
-    aa = propensities.aa_composition(fasta, reduced = False)
-    fasta.seek(0) # reload the fasta object
-    red_aa = propensities.aa_composition(fasta, reduced = False)
-
-    data = {
-        'aln_id' : aln_id,
-        'tax_group' : tax_group,
-        'reduced alphabet' : red_aa,
-        'amino acid' : aa
-    }
-    return JsonResponse(data)
-
-def propensities(request, align_name, tax_group):
-    aln_id = Alignment.objects.filter(name = align_name)[0].aln_id
-    propensity_data = reverse('alignments:propensity_data', kwargs={'aln_id': aln_id, 'tax_group' : tax_group})
-
-    names = []
-    if type(tax_group) == int:
-        tax_group = str(tax_group)
-    for group in tax_group.split(','):
-        names.append(Taxgroups.objects.get(pk=group).groupname)
-
-    context = {
-        "propensity_data" : propensity_data, 
-        "align_name" : align_name,
-        "tax_name" : ', '.join(names)
-    }
-    
-    return render(request, 'alignments/propensities.html', context)
-
 def flushSession (request):
     try:
         request.session.flush()
@@ -864,7 +813,8 @@ def r2dt(request, sequence):
 #export PATH="/rna/jiffy-infernal-hmmer-scripts:$PATH" &&
 #export PATH="/rna/RNAstructure/exe:$PATH" DATAPATH="/rna/RNAstructure/data_tables/" &&
 #export PATH="/rna/r2dt:$PATH"
-    os.chdir('/home/anton/RiboVision2/rna/R2DT-master')
+    os.chdir('/rna/r2dt')
+    #os.chdir('/home/anton/RiboVision2/rna/R2DT-master')
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
   
     newcwd = os.getcwd()
@@ -872,7 +822,10 @@ def r2dt(request, sequence):
         f.write('>Sequence\n')
         f.write(sequence)
         f.close()       
-    output = f"/home/anton/RiboVision2/rna/R2DT-master/R2DT-test20{fileNameSuffix}"
+    #os.mkdir("R2DT-master")
+    print(newcwd)
+    output = f"{newcwd}/R2DT-test20{fileNameSuffix}"
+    #output = f"/home/anton/RiboVision2/rna/R2DT-master/R2DT-test20{fileNameSuffix}"
     #cmd = f'ribotyper.pl  -f sequence10.fasta {output}'
     #os.system(cmd)
     #time.sleep(20)
@@ -882,7 +835,7 @@ def r2dt(request, sequence):
     #os.system(cmd)
     #time.sleep(20)
     #cmd = f'python3 r2dt.py ribovision draw_lsu {newcwd}/sequence10.fasta {output}'
-    cmd = f'python3 r2dt.py  draw {newcwd}/sequence10.fasta {output}'
+    cmd = f'python3 r2dt.py draw {newcwd}/sequence10.fasta {output}'
     os.system(cmd)
     #time.sleep(40)
     os.chdir(cwd)
@@ -895,15 +848,25 @@ def r2dt(request, sequence):
     #cmd = f'python3 svg2json.py test_model_chain {filename} {output}/jsonexample'
     #print('filename')
     #cmd = f'python3 /home/anton/RiboVision2/rna/R2DT-master/svg2json.py cust_1_B {output}/Sequence-PF_LSU_3D.svg {output}/../jsonexample8.json'
-    cmd = f'python3 /home/anton/RiboVision2/rna/R2DT-master/json2json_split.py -i {filename} -o {output}/results/json/RNA_2D_json.json'
+    print("FILENAME")
+    print(filename)
+    cmd = f'python3 {newcwd}/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
+
     os.system(cmd)
+    
+
     with open(f'{output}/results/json/RNA_2D_json.json', 'r') as f:
+
         data = json.loads(f.read())
+
         f.close()
-        
-    #with open(f'{output}/../BPjsonexample.json', 'r') as f:
-    with open(f'{output}/../BP_7YSE_E.json', 'r') as f:
+
+    with open(f'{output}/results/json/BP_json.json', 'r') as f:
+
+    #with open(f'{output}/../BP_7YSE_E.json', 'r') as f:
+
         BP = json.loads(f.read())
+
         f.close()   
         #print(data)
     #doc = minidom.parse(filename)

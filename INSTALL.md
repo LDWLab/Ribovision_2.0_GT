@@ -57,18 +57,6 @@
 
 	>./node_modules/.bin/webpack --config webpack.config.js
 
-	e. Install Pro-origami following instructions from [here](http://munk.cis.unimelb.edu.au/pro-origami/about.shtml). At the desired folder for Pro-Origami:
-
-	```bash
-	wget http://munk.cis.unimelb.edu.au/pro-origami/proorigami-cde-package.tar.gz
-
-	tar zxf proorigami-cde-package.tar.gz
-	```
-
-	The path to this folder should be updated in project_root/alignments/handleStructureRequests.py around line 146!
-	
-	Unfortunately ProOrigami seems to be broken in WSL.
-
 	f. (Optional) If developing/updating the nodejs scripts
 
 	>npm run watch
@@ -87,9 +75,9 @@
 	exit()
 	```
 
-4. Installing PDB topology viewer for development
+4. Installing PDB RNA viewer for development
 
-	a. cd into the pdb-topology-viewer directory and execute the following (might need sudo)
+	a. cd into the pdbe-rna-viewer directory and execute the following (might need sudo)
 
 	> npm install
 	
@@ -97,13 +85,13 @@
 
 	b. cd into the root of the project directory (one up from the previous location) and run:
 
-	> npm link pdb-topology-viewer
+	> npm link pdb-rna-viewer
 
-	c. Go back to the **pdb-topology directory** and update babel
+	c. Go back to the **pdbe-rna directory** and update babel
 
 	> npm update --depth 5 @babel/compat-data
 	
-	d. After editing the typescript of the Topology viewer run the following command **from the pdb-topology directory!**
+	d. After editing the typescript of the Topology viewer run the following command **from the pdbe-rna directory!**
 
 	> npm run build
 
@@ -155,7 +143,7 @@ Public set-up does not differ significantly from local installations. There are 
 
 	e. Execute the commands from the home directory of the server. The folder called proorigami-cde-package should be located within the web-server home folder (NOT the web-server root directory).
 
-4. Steps are not necessary since all development of PDB-toplogy viewer and MSA viewer should be done locally and after compiling, the .js files should be synced with git. 
+4. Steps are not necessary since all development of PDB rna viewer and MSA viewer should be done locally and after compiling, the .js files should be synced with git. 
 
 5. Same as previous.
 
