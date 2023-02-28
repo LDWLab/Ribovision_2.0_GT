@@ -60,6 +60,6 @@ export function customCSVhandler(csv_data) {
             vm.custom_headers.push(custom_header[ix+1]);
             mapCustomMappingData(customDataArrays[ix], custom_header[ix+1], topviewer);
         }
-        displayMappingDataByIndex(topviewer, topviewer.viewInstance.uiTemplateService.domainTypes.length-1);
+        //displayMappingDataByIndex(topviewer, topviewer.viewInstance.uiTemplateService.domainTypes.length-1);
     }
 }
