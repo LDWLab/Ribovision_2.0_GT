@@ -25,11 +25,10 @@
     "babel-loader": "^8.1.0",
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
-    "css-loader": "^6.7.3",
     "vue-loader": "^15.9.3",
     "vue-template-compiler": "^2.6.12",
-    "webpack": "^5.75.0",
-    "webpack-bundle-tracker": "^1.8.1",
+    "webpack": "^4.44.0",
+    "webpack-bundle-tracker": "0.4.3",
     "webpack-clean-obsolete-chunks": "^0.4.0",
     "webpack-cli": "^3.3.12"
   },
@@ -44,9 +43,8 @@
     "react-dom": "^16.13.1",
     "react-msa-viewer": "^1.0.1",
     "scrollbooster": "^3.0.2",
-    "style-loader": "^3.3.1",
     "vue": "^2.6.12",
     "vue-style-loader": "^4.1.2",
-    "vue-tour": "^2.0.0"
+    "vue-tour": "^1.5.0"
   }
 }
