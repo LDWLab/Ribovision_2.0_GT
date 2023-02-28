@@ -1,4 +1,4 @@
-# ProteoVision Data
+# RiboVision 2 Data
 ## Phylogeny (DESIRE)
 The subset of 152 species from the [DESIRE](https://doi.org/10.1093/molbev/msy101) (Sparse and Efficient Representation of Extant Biology), 
 database was organized into a phylogenetic browser using a tree topology from the [Banfiled lab](https://doi.org/10.1038/nmicrobiol.2016.48).
@@ -17,7 +17,7 @@ Topologies of the protein secondary structures (Laskowski; [10.1093/nar/gkn860](
 
 ## Available attributes for calculated mapping data:
 ### Nucleotide frequencies
-Nucleotide frequencies in each column of an MSA were adjusted for presence of gaps. Thus, the gap frequencies were prorated and were treated as a uniform distribution among all possible amino acid characters, such that a single character in a gap counts as 0.05, as described by [Bernier et al.](10.1093/molbev/msy101).
+Nucleotide frequencies in each column of an MSA were adjusted for presence of gaps. Thus, the gap frequencies were prorated and were treated as a uniform distribution among all possible nucleotide characters, such that a single character in a gap counts as 0.05, as described by [Bernier et al.](10.1093/molbev/msy101).
 
 ### Shannon Entropy
 The Shannon entropy (as well as all properties listed below) was computed from the gap adjusted probabilities as:

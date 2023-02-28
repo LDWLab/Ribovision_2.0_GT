@@ -7,7 +7,8 @@ class PdbRnaViewer extends LitElement {
       pdbId: { type: String, attribute: 'pdb-id' },
       entityId: { type: String, attribute: 'entity-id' },
       chainId: { type: String, attribute: 'chain-id' },
-      subscribeEvents: { type: Boolean, attribute: 'subscribe-events' },
+      rvAPI: { type: Boolean, attribute: 'rv-api' },
+      subscribeEvents: { type: Boolean, attribute: 'subscribe-events' }
     };
   }
 
@@ -30,6 +31,7 @@ class PdbRnaViewer extends LitElement {
       chainId: this.chainId
     }
     if(this.subscribeEvents) options.subscribeEvents = true;
+    if(this.rvAPI) options.rvAPI = true;
     this.viewInstance.render(this, options);
   }
 

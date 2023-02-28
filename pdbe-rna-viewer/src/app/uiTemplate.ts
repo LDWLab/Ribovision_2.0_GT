@@ -9,6 +9,7 @@ export class UiTemplateService {
     parsePVData = (window as any).parsePVData;
     getEntropyAnnotations = (window as any).getEntropyAnnotations;
     getTWCAnnotations = (window as any).getTWCAnnotations;
+    getCustomAnnotations = (window as any).getCustomAnnotations;
     getAnnotationArray = (window as any).getAnnotationArray;
     rv3VUEcomponent = (window as any).vm;
     private containerElement: HTMLElement;
@@ -91,7 +92,7 @@ export class UiTemplateService {
         this.uiActionsService.applyButtonActions();
         this.addEvents(apiData, BanName);
         <any>document.querySelector(".saveSVG")!.addEventListener("click", this.saveSVG.bind(this));
-        //this.getAnnotationFromRibovision(this.mapped_aa_properties)
+        this.getAnnotationFromRibovision(this.mapped_aa_properties);
         //this.rv3VUEcomponent.topology_loaded=true;
     }
 
@@ -242,7 +243,6 @@ export class UiTemplateService {
         });  
         for (let val in this.rv3VUEcomponent.modifications) {
             var mod = this.rv3VUEcomponent.modifications[val];
-            console.log('in33',  mod);
             for(var i in this.rv3VUEcomponent.modified_residues.get(mod)) {
                 UiActionsService.colorNucleotide(this.pluginOptions.pdbId, this.rv3VUEcomponent.modified_residues.get(mod)[i], this.rv3VUEcomponent.modifiedColorMap.get(mod), undefined, this.mappingValue);
             }
@@ -329,6 +329,8 @@ export class UiTemplateService {
             const selectBoxEle = this.containerElement.querySelector<HTMLElement>('.mappingSelectbox');
             selectBoxEle!.innerHTML = optionList;
             selectBoxEle!.addEventListener("change", this.colorMapHelper.bind(this));
+            
+            //selectBoxEle!.addEventListener("change", this.updateProperty.bind(this));
 
             //const resetIconEle = this.containerElement.querySelector('.resetIcon');
             //resetIconEle.addEventListener("click", this.resetDisplay.bind(this));
@@ -338,8 +340,7 @@ export class UiTemplateService {
         }
     }
     create2D3DAnnotations(name: string, residueDetails: any, 
-        TWCrgbMap: Map<number, any>, TWCData: Map<number, string>, mapped_aa_properties: Map<string, Array<Array<number>>>,
-        chain_start: number, chain_end: number) {
+        TWCrgbMap: Map<number, any>, TWCData: Map<number, string>, mapped_aa_properties: Map<string, Array<Array<number>>>, chain_start: number, chain_end: number) {
         const _this = this;
         TWCData.forEach(function(value, index) {
             if (chain_start <= index && index <= chain_end){
@@ -352,7 +353,9 @@ export class UiTemplateService {
                     color: rgb_color[1],
                     sideChain: false,
                 });
+               
                 _this.defaultColours.qualityRiboVision= '#'+String(rgb_color[0].join(''));
+               
                 var colors = "rgb("+String(rgb_color[0].join(','))+")"
                 //_this.drawValidationShape(index, "circle", _this.defaultColours.qualityRiboVision);
                 residueDetails.push({ //2d
@@ -362,10 +365,13 @@ export class UiTemplateService {
                     tooltipMsg: Number.parseFloat(value).toPrecision(3),
                     tooltipPosition: "prefix"
                 });
+                
                 //_this.drawValidationShape(index, "circle", colors);
             }
         })
+       /*
         if (TWCData.size < mapped_aa_properties.get("Shannon entropy")!.length) {
+            console.log("2D3D2", mapped_aa_properties);
             for(var i = TWCData.size - 1; i < this.mapped_aa_properties.get("Shannon entropy").length; i++) {
                 (window as any).selectSections_RV1.get(name).push({ //3d
                     entity_id: _this.pluginOptions.entityId,
@@ -376,7 +382,7 @@ export class UiTemplateService {
                     sideChain: false,
                 });
             }
-        }
+        }*/
         /*
         if (TWCData.size < mapped_aa_properties.get("TwinCons")!.length) {
             for(var i = TWCData.size - 1; i < this.mapped_aa_properties.get("TwinCons").length; i++) {
@@ -395,7 +401,8 @@ export class UiTemplateService {
     getAnnotationFromRibovision(mapped_aa_properties: Map<string, Array<Array<number>>>) {
         const _this = this;
         const start = this.apiData?this.apiData.label_seq_ids[1]:0
-        const end = this.apiData?this.apiData.label_seq_ids[this.apiData.label_seq_ids.length - 2]:0
+        //const end = this.apiData?this.apiData.label_seq_ids[this.apiData.label_seq_ids.length - 2]:0
+
         if(typeof _this.domainTypes == 'undefined'){
             _this.domainTypes = [{
                 label: 'Select data',
@@ -429,7 +436,7 @@ export class UiTemplateService {
                 let max = Math.max(...this.aaPropertyConstants.get(name));
                 let colormapArray = this.aaColorData.get(name); 
                 if  (name == "Shannon entropy"){
-                    
+
                     this.getEntropyAnnotations(separatedData, min, max, this.pluginOptions.chainId);
                     //console.log('name_SE', name,  this.getEntropyAnnotations(separatedData, min, max, this.pluginOptions.chainId));
                 };    
@@ -437,14 +444,21 @@ export class UiTemplateService {
                     this.getTWCAnnotations(separatedData, min, max, this.pluginOptions.chainId);
                     //console.log('name_TWC', name, this.getTWCAnnotations(separatedData, min, max, this.pluginOptions.chainId));
                 };
+
+                if  (name == "Custom Data"){
+                    
+                    this.getCustomAnnotations(separatedData, min, max, this.pluginOptions.chainId);
+                    //console.log('name_CD', name,  this.getEntropyAnnotations(separatedData, min, max, this.pluginOptions.chainId));
+                }; 
                 
                 const [TWCrgbMap, TWCData] = this.parsePVData(separatedData, min, max, colormapArray);
                 this.selectSections_RV1.get(name).push({entity_id: _this.pluginOptions.entityId, focus: true});
+                const end = TWCData.size;
                 
                 if (void 0 !== TWCData){
                     residueDetails = _this.create2D3DAnnotations(name, residueDetails, 
                                                                 TWCrgbMap, TWCData, mapped_aa_properties,
-                                                                start, end);
+                                                                start, end);                                          
                     if(0 < residueDetails.length){
                         var current = _this.domainTypes.filter(order => (order.label === name))[0];
                         if(current && current != null) {
@@ -915,7 +929,9 @@ export class UiTemplateService {
                 let newY2: number = 2 * yVal - newY
                 newPathStr = `M${newX + deltaX},${newY - deltaY},${newX2 + deltaX},${newY2 - deltaY}`
             }
+
             pathStr = newPathStr;
+    
             this.pathStrs.push(
                 `<path 
                     class="${pathEleClass}" stroke-width="${strokeWide}" stroke="${strokeColor}" d="${pathStr}" 

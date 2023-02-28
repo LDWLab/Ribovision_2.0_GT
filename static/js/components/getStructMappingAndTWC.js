@@ -6,7 +6,7 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
     if (vm.fasta_data){
         let cleanFasta = vm.fasta_data.replace(/^>Structure sequence\n(.+\n)+?>/i, ">");
         vm.fasta_data = cleanFasta;
-    }
+    };
     ajax('/mapSeqAln/', {fasta, struc_id}).then(structMappingAndData=>{
         var struct_mapping = structMappingAndData["structureMapping"];
         var largestKey = Math.max(...Object.values(struct_mapping).filter(a=>typeof(a)=="number"))
@@ -28,7 +28,8 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
                 assignColorsAndStrucMappings(vueObj, origStructMappingAndData);
             })
         } else {
-            assignColorsAndStrucMappings(vueObj, structMappingAndData)
+            assignColorsAndStrucMappings(vueObj, structMappingAndData);
+            
         }
     }).catch(error => {
         vueObj.topology_loaded = 'error';
@@ -51,12 +52,24 @@ var assignColorsAndStrucMappings = function (vueObj, struct_mapping){
         }
     }
     window.mapped_aa_properties = mapped_aa_properties;
+
+    vm.sequence=vueObj.fasta_data.split(' ')[1];
+    let sequence2=vm.sequence.replaceAll(/-|\n/g, "");
+    vm.sequence3=sequence2.substring("sequence".length, sequence2.indexOf(">"));
+    vm.sequence4=vm.sequence3;
+    //tryCustomTopology(vm.pdbid, vm.entityID, vm.chainid[0]);
     delayedMapping();
-    retry(delayedMapping, 10, 1000);
+    //retry(delayedMapping, 10, 1000);
 }
 
 var delayedMapping = function (){
-    viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties);
+    
+    if ( typeof viewerInstanceTop === 'undefined' || viewerInstanceTop === null ){
+        tryCustomTopology(vm.pdbid, vm.entityID, vm.chainid[0]);
+    } else {
+        viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties);
+        }
+    
 }
 
 function retry (fn, maxAttempts = 1, delay = 0, attempts = 0) {
@@ -67,7 +80,6 @@ function retry (fn, maxAttempts = 1, delay = 0, attempts = 0) {
           return retry (fn, maxAttempts, delay, attempts + 1)
         }
         var topview = document.querySelector('#topview');
-        console.log(err);
         vm.topology_loaded = 'error';
         topview.innerHTML = "EBI topology diagram is taking too long!<br>Trying to generate topology from custom mode..."
         tryCustomTopology(vm.pdbid, vm.entityID, vm.chainid[0]);
@@ -77,16 +89,26 @@ function retry (fn, maxAttempts = 1, delay = 0, attempts = 0) {
 
 var tryCustomTopology = function (pdbid, entityid, chainid){
     vm.topology_loaded = false;
-    var postTopologyURL = `proOrigamiPOSTTopology/${pdbid}-${entityid}-${chainid}`;
+
+    vm.getR2DT(vm.sequence4);
+    vm.URL = `r2dt/${vm.sequence3}`
+    var postTopologyURL = `r2dt/${vm.sequence3}/`
+    pdbid='cust'; 
+    var topology_viewer = `<pdb-rna-viewer id="PdbeTopViewer" pdb-id="${pdbid}" entity-id="${entityid}" chain-id="${chainid}" rv-api="true" ></pdb-rna-viewer>`
+    document.getElementById('topview').innerHTML = topology_viewer;
+    window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
     ajaxProper({
         url: postTopologyURL,
         type: 'POST',
         dataType: 'json'
     }).then (parsedResponse => {
-        if (parsedResponse == "Success!"){
-            var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid} pvapi="true" filter-range=1,100000></pdb-topology-viewer>`
-            document.getElementById('topview').innerHTML = topology_viewer;
-            window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
+        if (parsedResponse == "Topology Success!"){
+            //var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid} pvapi="true" filter-range=1,100000></pdb-topology-viewer>`
+            //document.getElementById('topview').innerHTML = topology_viewer;
+            //window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
+            console.log("Topology Success");
+
+            
         }
     }).catch(error => {
         var topview = document.querySelector('#topview');
@@ -101,3 +123,4 @@ function sleeper(ms) {
         return new Promise(resolve => setTimeout(() => resolve(x), ms));
     };
 }
+

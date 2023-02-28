@@ -1,7 +1,0 @@
-.ios-style, .ios-style ul, .ios-style ol {background: #eeeeee; height: auto; padding: 2px; width: auto; }
-.ios-style { overflow-x: hidden; overflow-y: auto; color: #362b36; }
-.ios-style::-webkit-scrollbar { width: 5px; height: 5px; }
-.ios-style::-webkit-scrollbar-thumb { background: rgba(128, 128, 128, 0.6); border-radius: 4px; }
-.ios-style ul, .ios-style ol { overflow-y: visible; border: none; }
-.ios-style.ui-menu-icons .ui-menu-item { position: inherit; }
-.ios-style .ui-menu-item { cursor: pointer; outline: none; }

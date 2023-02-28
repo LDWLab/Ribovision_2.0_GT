@@ -85,10 +85,8 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     ### BE CAREFUL WHEN MERGING THE FOLLOWING LINES TO PUBLIC; PATHS ARE HARDCODED FOR THE APACHE SERVER ###
-    alignmentFileName = "/home/RiboVision3/static/alignment" + fileNameSuffix + ".txt"
-    ebiFileName = "/home/RiboVision3/static/ebi_sequence" + fileNameSuffix + ".txt"
-    #alignmentFileName = "./static/alignment" + fileNameSuffix + ".txt"
-    #ebiFileName = "./static/ebi_sequence" + fileNameSuffix + ".txt"
+    alignmentFileName = "/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/alignment" + fileNameSuffix + ".txt"
+    ebiFileName = "/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/ebi_sequence" + fileNameSuffix + ".txt"
     mappingFileName = ebiFileName + ".map"
     fasta = re.sub('>Structure sequence[\s\S]*?>','>',fasta)
     fh = open(alignmentFileName, "w")
@@ -147,8 +145,11 @@ def request_post_data(post_data):
     return fasta, ebi_sequence, startIndex
 
 def make_map_from_alnix_to_sequenceix(request):
+    print(request)
     fasta, ebi_sequence, startIndex = request_post_data(request.POST)
+    print("hi")
     mapping = constructEbiAlignmentString(fasta, ebi_sequence, startIndex)
+    print(mapping)
     if type(mapping) != dict:
         return mapping
     return JsonResponse(mapping, safe = False)
@@ -348,25 +349,6 @@ def getAlignmentsFilterByProteinTypeAndTaxIdsDirect(request, concatenatedProtein
     context = {'results' : results}
     return JsonResponse(context)
 
-def index_orthologs(request):
-    print ("request.method == 'POST': " + str(request.method == 'POST'))
-    print ("'custom_propensity_data' in request.FILES: " + str('custom_propensity_data' in request.FILES))
-    print ("request.method: " + str(request.method))
-    for x in request.FILES:
-        print ("x: " + str(x))
-    if request.method == 'GET' and 'custom_propensity_data' in request.FILES:
-        propensity_indices_file = request.FILES['custom_propensity_data']
-        propensity_indices_string = ''
-        for propensity_part in propensity_indices_file.chunks():
-            propensity_indices_string += propensity_part.decode()
-        print ("propensity_indices_string: " + propensity_indices_string)
-    # if request.method == 'POST' and 'custom_propensity_data' in request.FILES:
-    #     propensity_indices_file = request.FILES['custom_propensity_data']
-    #     propensity_indices_string = ''
-    #     for propensity_part in propensity_indices_file.chunks():
-    #         propensity_indices_string += propensity_part.decode()
-    #     print ("propensity_indices_string: " + propensity_indices_string)
-    return render(request, 'alignments/index_orthologs.html')
 def index(request):
     return render(request, 'alignments/index.html')
 
@@ -549,82 +531,12 @@ def trim_fasta_by_index(input_file, indices):
         trimmed_align += align[:,int(i)-1:int(i)]
     return trimmed_align
 
-def propensity_data_custom (request):
-    response = propensity_data(request, None, None)
-    return response
-
-def propensity_data(request, aln_id, tax_group):
-    from io import StringIO
-    import alignments.propensities as propensities
-
-    if request.method == 'POST' and 'customFasta' in request.POST and aln_id is None:
-        fastastring = request.POST['customFasta']
-    else:
-        fastastring = simple_fasta(request, aln_id, tax_group, internal=True).replace('\\n', '\n')
-    fasta = StringIO(fastastring)
-
-    if request.method == 'POST' and 'indices' in request.POST:
-        indices = request.POST['indices']
-        trimmed_fasta = trim_fasta_by_index(fasta, indices)
-        fasta = StringIO(format(trimmed_fasta, 'fasta'))
-
-    aa = propensities.aa_composition(fasta, reduced = False)
-    fasta.seek(0) # reload the fasta object
-    red_aa = propensities.aa_composition(fasta, reduced = False)
-
-    data = {
-        'aln_id' : aln_id,
-        'tax_group' : tax_group,
-        'reduced alphabet' : red_aa,
-        'amino acid' : aa
-    }
-    return JsonResponse(data)
-
-def propensities(request, align_name, tax_group):
-    aln_id = Alignment.objects.filter(name = align_name)[0].aln_id
-    propensity_data = reverse('alignments:propensity_data', kwargs={'aln_id': aln_id, 'tax_group' : tax_group})
-
-    names = []
-    if type(tax_group) == int:
-        tax_group = str(tax_group)
-    for group in tax_group.split(','):
-        names.append(Taxgroups.objects.get(pk=group).groupname)
-
-    context = {
-        "propensity_data" : propensity_data, 
-        "align_name" : align_name,
-        "tax_name" : ', '.join(names)
-    }
-    
-    return render(request, 'alignments/propensities.html', context)
-
 def flushSession (request):
     try:
         request.session.flush()
     except:
         return HttpResponseServerError ("Failed to flush the session!")
     return HttpResponse ("Success!")
-
-def ecodPassThroughQuery(request):
-    '''Request a password protected URL from our website that returns a JSON object.
-    '''
-    baseURL = 'http://'+get_current_site(request).domain
-    url = baseURL+request.GET['url']
-    if ('&format=json' not in url):
-        url += '&format=json'
-    req = urllib.request.Request(url)
-    #username = os.environ['DJANGO_USERNAME']
-    #password = os.environ['DJANGO_PASSWORD']
-    #credentials = (f'{username}:{password}')
-    credentials = ('website:desire_RiboVision3')
-    encoded_credentials = base64.b64encode(credentials.encode('ascii'))
-    req.add_header('Authorization', 'Basic %s' % encoded_credentials.decode("ascii"))
-
-    response = urllib.request.urlopen(req)
-    encoding = response.info().get_content_charset('utf-8')
-    data = response.read()
-    return JsonResponse(json.loads(data.decode(encoding)), safe=False)
-
 
 def parse_string_structure(request, stringData, strucID):
     #if(c.structureObj):
@@ -848,7 +760,9 @@ def protein_contacts(request, pdbid, chain_id):
     return JsonResponse(neighbors)
 def r2dt(request, sequence):
     import os
+    import datetime
     cwd = os.getcwd()
+    now = datetime.datetime.now()
     
     RIBODIR=os.environ['RIBODIR']
     #RIBOINFERNALDIR="$RNA/infernal-1.1.2/bin" RIBOEASELDIR="$RNA/infernal-1.1.2/bin" &&
@@ -863,23 +777,67 @@ def r2dt(request, sequence):
 #export PATH="/rna/RNAstructure/exe:$PATH" DATAPATH="/rna/RNAstructure/data_tables/" &&
 #export PATH="/rna/r2dt:$PATH"
     os.chdir('/rna/r2dt')
+    #os.chdir('/home/anton/RiboVision2/rna/R2DT-master')
+    fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
+  
     newcwd = os.getcwd()
-    with open('sequence.fasta', 'w') as f:
+    with open('sequence10.fasta', 'w') as f:
         f.write('>Sequence\n')
         f.write(sequence)
-    output = '/home/hmccann3/Ribovision_3/R2DT-test3'
-    cmd = f'python3 r2dt.py draw {newcwd}/sequence.fasta {output}'
+        f.close()       
+    #os.mkdir("R2DT-master")
+    print(newcwd)
+    output = f"{newcwd}/R2DT-test20{fileNameSuffix}"
+    #output = f"/home/anton/RiboVision2/rna/R2DT-master/R2DT-test20{fileNameSuffix}"
+    #cmd = f'ribotyper.pl  -f sequence10.fasta {output}'
+    #os.system(cmd)
+    #time.sleep(20)
+    #cmd = f'cp  {output}/../sequence10.fasta {output}/subset.fasta'
+    #os.system(cmd)
+    #cmd = f'cp  {output}/../sequence10.fasta.ssi {output}/subset.fasta.ssi'
+    #os.system(cmd)
+    #time.sleep(20)
+    #cmd = f'python3 r2dt.py ribovision draw_lsu {newcwd}/sequence10.fasta {output}'
+    cmd = f'python3 r2dt.py draw {newcwd}/sequence10.fasta {output}'
     os.system(cmd)
+    #time.sleep(40)
     os.chdir(cwd)
-    filename = ''
-    for topdir, dirs, files in os.walk(f'{output}/results/svg'):
+    filename = '' 
+          
+    for topdir, dirs, files in os.walk(f'{output}/results/json'):
         firstfile = sorted(files)[0]
-        filename = os.path.join(topdir, firstfile)
-    cmd = f'python3 svg2json.py test_model_chain {filename} {output}/jsonexample'
-    os.cmd()
-    with open(f'{output}/jsonexample', 'r') as f:
+        
+        filename = os.path.join(topdir, firstfile)  
+    #cmd = f'python3 svg2json.py test_model_chain {filename} {output}/jsonexample'
+    #print('filename')
+    #cmd = f'python3 /home/anton/RiboVision2/rna/R2DT-master/svg2json.py cust_1_B {output}/Sequence-PF_LSU_3D.svg {output}/../jsonexample8.json'
+    print("FILENAME")
+    print(filename)
+    cmd = f'python3 {newcwd}/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
+
+    os.system(cmd)
+    
+
+    with open(f'{output}/results/json/RNA_2D_json.json', 'r') as f:
+
         data = json.loads(f.read())
+
+        f.close()
+
+    with open(f'{output}/results/json/BP_json.json', 'r') as f:
+
+    #with open(f'{output}/../BP_7YSE_E.json', 'r') as f:
+
+        BP = json.loads(f.read())
+
+        f.close()   
+        #print(data)
     #doc = minidom.parse(filename)
     #path_strings = [path.getAttribute('d') for path
     #            in doc.getElementsByTagName('text')]
-    return data
+    r2dt_json = {
+        'RNA_2D_json' : data, 
+        'RNA_BP_json' : BP
+        
+    }
+    return JsonResponse(r2dt_json)

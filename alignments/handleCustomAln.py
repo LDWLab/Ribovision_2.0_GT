@@ -52,7 +52,7 @@ def handleCustomAlnGETRequest(fastastring):
     concat_fasta, twc, gap_only_cols, filtered_spec_list, alignment_obj = calculateFastaProps(fastastring)
     frequency_list = list()
     for i in range(0, alignment_obj.get_alignment_length()):
-        frequency_list.append(gap_adjusted_frequency(alignment_obj[:,i], IUPACData.protein_letters))
+        frequency_list.append(gap_adjusted_frequency(alignment_obj[:,i], IUPACData.unambiguous_rna_letters))
     response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc])
 
     return response_dict
@@ -72,9 +72,9 @@ def executeCDHit(fasta):
 
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
-    fastaName = f"./static/cleanFastaCD{fileNameSuffix}.fa"
-    cdHitOut = f"./static/cleanFastaCD{fileNameSuffix}"
-    cdHitClusters = f"./static/cleanFastaCD{fileNameSuffix}.clstr"
+    fastaName = f"/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/cleanFastaCD{fileNameSuffix}.fa"
+    cdHitOut = f"/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/cleanFastaCD{fileNameSuffix}"
+    cdHitClusters = f"/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/cleanFastaCD{fileNameSuffix}.clstr"
     tempfiles = [fastaName, cdHitOut, cdHitClusters]
     for tempf in tempfiles:
         if path.isfile(tempf):

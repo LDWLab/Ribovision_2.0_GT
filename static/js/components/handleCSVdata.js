@@ -55,11 +55,11 @@ export function customCSVhandler(csv_data) {
         colIndex += 1;
     }
 
-    if (topviewer != null && topviewer.pluginInstance.domainTypes != undefined){
+    if (topviewer != null && topviewer.viewInstance.uiTemplateService.domainTypes != undefined){
         for (let ix = 0; ix < customDataArrays.length; ix++) {
             vm.custom_headers.push(custom_header[ix+1]);
             mapCustomMappingData(customDataArrays[ix], custom_header[ix+1], topviewer);
         }
-        displayMappingDataByIndex(topviewer, topviewer.pluginInstance.domainTypes.length-1);
+        displayMappingDataByIndex(topviewer, topviewer.viewInstance.uiTemplateService.domainTypes.length-1);
     }
 }

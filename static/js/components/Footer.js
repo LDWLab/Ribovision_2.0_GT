@@ -4,7 +4,7 @@ export function addFooterImages (divID){
         <a href="http://apollo.chemistry.gatech.edu/RiboVision/" target="_blank">
             <img 
                 style="height:75px; padding:5px;"
-                src="static/ribovision/images/RiboVisionLogo.png" 
+                src="static/alignments/png/RiboVisionLogo.png" 
                 title="RiboVision" 
                 alt="RiboVision Logo">
         </a>
@@ -44,7 +44,7 @@ export function addFooterImages (divID){
         <a href="http://cool.gatech.edu/" target="_blank">
             <img 
                 style="height:75px; padding:10px;padding-top:2px;"
-                src="static/ribovision/images/cool_logo.png" 
+                src="static/alignments/png/cool_logo.png" 
                 title="Center for the Origin Of Life (COOL)" 
                 alt="COOL Logo">
         </a>
@@ -64,7 +64,7 @@ export function addFooterImages (divID){
         <a href="https://astrobiology.nasa.gov/" target="_blank">
             <img 
                 style="height:75px; padding:5px;padding-right:2px;"
-                src="/static/ribovision/images/NASALogo.png" 
+                src="/static/alignments/png/NASALogo.png" 
                 class="ComboLogo" 
                 title="NASA Astrobiology Institute (NAI)" alt="NASA Logo">
         </a>
