@@ -88,11 +88,17 @@
             -->
             <!-- 
             -->
-            <div v-if="structure_mapping">
+            <div v-if="structure_mapping&&chains">
                 <select id="downloadDataBtn" class="btn btn-outline-dark dropdown-toggle" v-model="downloadMapDataOpt" v-if="topology_loaded">
                     <option :value="null" selected disabled>Download mapped data</option>
                     <option value='csv'>As CSV file</option>
                     <option value='pymol'>As PyMOL script</option>
+                </select>
+            </div>
+            <div v-if="structure_mapping&& !chains">
+                <select id="downloadDataBtn" class="btn btn-outline-dark dropdown-toggle" v-model="downloadMapDataOpt" v-if="topology_loaded">
+                    <option :value="null" selected disabled>Download mapped data</option>
+                    <option value='csv'>As CSV file</option>
                 </select>
             </div>
             <p><div v-if="topology_loaded&&type_tree=='orth'" class="checkbox" id="showRNAcontext">
