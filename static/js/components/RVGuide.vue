@@ -136,10 +136,9 @@
             },
         },
         mounted: function () {
-            //localStorage.setItem("hasCodeRunBefore", true)
+
             //vm.guideOff = false
-            /*
-            if (localStorage.getItem("hasCodeRunBefore") === null) {
+            if (!(localStorage.getItem("hasCodeRunBefore") == 'true')) {
                 tourSteps[0].content += '<br><b>First time users are advised to complete this guide by only clicking the Next button ▼</b>';
                 tourSteps.unshift(cookieNotice);
                 tourSteps[1].before = function before(type) {
@@ -152,7 +151,7 @@
                 }
                 this.$tours['myTour'].start();
             }
-            */
+            
         },
     }
 
