@@ -1,4 +1,13 @@
-# Import User-supplied Data
+# User-upload Mode
+The **User Upload** mode allows the user to use most of the features of RiboVision 2.0 with an external MSA and 3D structure.
+
+## Upload an external multiple sequence alignment. 
+An alignment in a .fasta file format must be selected and then uploaded with the **Upload alignment** button. Once an alignment is uploaded, it will be displayed in the Alignment viewer.
+
+## Upload an external 3D structure.
+The **User Upload** mode allows the user to upload the the structure file  in the .PDB format. Currently, the pdb file must cotain a single RNA chain. Upon uploading the RNA sequence from the PDB file in extracted and appended to the supplied MSA by Mafft. Additionally, the 2D RNA structure is generated on the fly using a template based R2DT algorithm. This process may take several minutes. Upon completion of R2DT job, the  secondary structure will appear in the RNA topology viewer, and will be interactively linked to the MSA  and the uploaded 3D structure. Base pairs are currently derived from the R2DT layout. No 3D derived base pairing option are currenly suported. Thus, only canonical (cWW and Wobble)  base pairings are generated in the User-upload mode.
+
+
 ## Import an external dataset for a pre-selected alignment
 Once an alignment and a structure have been selected, the option becomes available to upload custom data for mapping onto the selected structure for visualization in the topology and MolStar viewers. 
 The data should be supplied in a .csv (comma-separated values) file format. The first row of the csv file contains the headers for each column. An Index column should always be indicated. 
@@ -6,6 +15,6 @@ All other additional columns require a unique header definition. The Index colum
 Once a correct csv file has been uploaded, the selected structure will be colored in the topology and MolStar viewers according to the values in the csv file. 
 Different columns in the csv file will appear as different **Annotations** in the dropdown menu in the lower right corner of the topology viewer. 
 
-## Upload an external multiple sequence alignment. 
-The **User Upload** mode allows the user to use all the ProteoVision features with an external MSA. An alignment in a .fasta file format must be selected and then uploaded with the **Upload alignment** button. Once an alignment is uploaded, it will be displayed in the Alignment viewer. The steps for structure selection, mapping, attribute calculation, and saving are the same as previously described.
+
+
 
