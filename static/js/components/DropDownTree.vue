@@ -59,10 +59,10 @@
                     <!--OR<br>-->
                 </div>
                 <span v-if="alnobj">Select/type PDB entry:</span>
-                <select class="btn btn-outline-dark dropdown-toggle" id="pdb_input" v-if="alnobj&&alnobj!='custom'" v-model="pdbid">
+                <!--<select class="btn btn-outline-dark dropdown-toggle" id="pdb_input" v-if="alnobj&&alnobj!='custom'" v-model="pdbid">
                     <option :value="null" selected disabled hidden>Select PDB entry</option>
                     <option v-for="pdb in pdbs" v-bind:value="pdb.id">{{pdb.name}}</option>
-                </select>
+                </select>-->
                 <p>
                 <autocomplete id="pdb_input" isAsync:true :items="pdbs" v-if="alnobj&&alnobj!='custom'" v-model="pdbid"></autocomplete>
                 <autocomplete isAsync:true :items="blastPDBresult" v-if="alnobj&&alnobj=='custom'" v-model="pdbid"></autocomplete>
@@ -88,11 +88,17 @@
             -->
             <!-- 
             -->
-            <div v-if="structure_mapping">
+            <div v-if="structure_mapping&&chains">
                 <select id="downloadDataBtn" class="btn btn-outline-dark dropdown-toggle" v-model="downloadMapDataOpt" v-if="topology_loaded">
                     <option :value="null" selected disabled>Download mapped data</option>
                     <option value='csv'>As CSV file</option>
                     <option value='pymol'>As PyMOL script</option>
+                </select>
+            </div>
+            <div v-if="structure_mapping&& !chains">
+                <select id="downloadDataBtn" class="btn btn-outline-dark dropdown-toggle" v-model="downloadMapDataOpt" v-if="topology_loaded">
+                    <option :value="null" selected disabled>Download mapped data</option>
+                    <option value='csv'>As CSV file</option>
                 </select>
             </div>
             <p><div v-if="topology_loaded&&type_tree=='orth'" class="checkbox" id="showRNAcontext">
@@ -614,6 +620,7 @@
             this.type_tree="upload";
             this.topology_loaded=false;
             this.schemesMgr = new schemes();
+            window.viewerInstanceTop = null;
             //cleanupOnNewAlignment(this, "Select new alignment!");
             //[this.options, this.tax_id, this.alnobj, this.chainid] = [null, null, null, null];
             //var topview = document.getElementById("PdbeTopViewer");

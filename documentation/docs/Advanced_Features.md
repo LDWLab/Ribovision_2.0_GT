@@ -1,11 +1,4 @@
 # Advanced features
-## Frequencies 
-Once an RNA alignment has been selected, the user can click the **show nucleo-base frequencies** button to display nucleobase frequencies for that alignment. 
-Nucleobase frequencies are calculated by processing the alignment fasta using Biopython, and the resulting data is displayed as a faceted boxplot through the Plotly graphing library.
-Every point on an nucleo base frequency plot represents the frequency of a single nucleo base for a single species within the alignment. The species and amino acid frequency associated with each point can be viewed by hovering over the point.
-
-
-
 
 ## Synchronization of navigation between the panels
 Navigation between all panels is synchronized. Hovering over an alignment position highlights the corresponding residue in the Topology and MolStar viewers. Reversely, hovering over a residue in the Topology or MolStar viewers highlights the alignment and the other structural viewer. When the amino-acid frequencies are shown, hovering over the datapoints on the graph highlights the current species in the alignment viewer.
