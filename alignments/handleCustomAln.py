@@ -7,6 +7,7 @@ from Bio.SeqUtils import IUPACData
 from alignments.views import validate_fasta_string, calculateFastaProps, construct_dict_for_json_response
 
 def handle_custom_upload_alignment(request):
+    print(request.FILES)
     if request.method == 'POST' and 'custom_aln_file' in request.FILES:
         aln_file = request.FILES['custom_aln_file']
         alignment_string = ''
@@ -35,6 +36,7 @@ def handle_custom_upload_alignment(request):
         else:
             return HttpResponseServerError("Alignment file had forbidden characters!\nWhat are you trying to do?")
     if request.method == 'GET':
+        print(request.session)
         fastastring = request.session.get('custom_alignment_file')
         response_dict = handleCustomAlnGETRequest(fastastring)
         response_dict['cdHitReport'] = request.session['cdHitReport']
@@ -72,9 +74,9 @@ def executeCDHit(fasta):
 
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
-    fastaName = f"/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/cleanFastaCD{fileNameSuffix}.fa"
-    cdHitOut = f"/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/cleanFastaCD{fileNameSuffix}"
-    cdHitClusters = f"/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/cleanFastaCD{fileNameSuffix}.clstr"
+    fastaName = f"/home/RiboVision3/static/cleanFastaCD{fileNameSuffix}.fa"
+    cdHitOut = f"/home/RiboVision3/static/cleanFastaCD{fileNameSuffix}"
+    cdHitClusters = f"/home/RiboVision3/static/cleanFastaCD{fileNameSuffix}.clstr"
     tempfiles = [fastaName, cdHitOut, cdHitClusters]
     for tempf in tempfiles:
         if path.isfile(tempf):

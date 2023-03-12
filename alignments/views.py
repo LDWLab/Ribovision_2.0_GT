@@ -85,8 +85,8 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     ### BE CAREFUL WHEN MERGING THE FOLLOWING LINES TO PUBLIC; PATHS ARE HARDCODED FOR THE APACHE SERVER ###
-    alignmentFileName = "/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/alignment" + fileNameSuffix + ".txt"
-    ebiFileName = "/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/ebi_sequence" + fileNameSuffix + ".txt"
+    alignmentFileName = "/home/RiboVision3/static/alignment" + fileNameSuffix + ".txt"
+    ebiFileName = "/home/RiboVision3/static/ebi_sequence" + fileNameSuffix + ".txt"
     mappingFileName = ebiFileName + ".map"
     fasta = re.sub('>Structure sequence[\s\S]*?>','>',fasta)
     fh = open(alignmentFileName, "w")
@@ -723,6 +723,17 @@ def modified_residues(request, pdbid, chain_id):
         e = match.end() + 1
         modified_residues.append([sequence_without_spaces[s:e - 2], s, e])
     #indices = [m.start(0) for m in iter]
+    import os
+    import datetime
+    cwd = os.getcwd()
+    now = datetime.datetime.now()
+    
+
+    os.chdir('/home/RiboVision3/R2DT/rna/R2DT')
+    #cmd = f'LANG=en_US.utf8 /usr/bin/python3 r2dt.py draw /home/RiboVision3/R2DT/rna/R2DT/examples/examples.fasta test15'
+    #cmd = f'LANG=en_US.utf8 /usr/bin/python3 r2dt.py draw /home/RiboVision3/R2DT/rna/R2DT/sequence10.fasta test10'
+    #os.system(cmd)
+    
     context = {
         'Modified' : modified_residues
     }
@@ -763,20 +774,7 @@ def r2dt(request, sequence):
     import datetime
     cwd = os.getcwd()
     now = datetime.datetime.now()
-    
-    RIBODIR=os.environ['RIBODIR']
-    #RIBOINFERNALDIR="$RNA/infernal-1.1.2/bin" RIBOEASELDIR="$RNA/infernal-1.1.2/bin" &&
-#export EPNOPTDIR="$RNA/epn-options" EPNOFILEDIR="$RNA/epn-ofile" EPNTESTDIR="$RNA/epn-test" &&
-#export RIBOTIMEDIR="/usr/bin" &&
-#export BIOEASELDIR="$RNA/Bio-Easel/blib/lib:$RNA/Bio-Easel/blib/arch:$RNA/Bio-Easel:$RNA/Bio-Easel/lib" &&
-#export PERL5LIB="$BIOEASELDIR:$RIBODIR:$EPNOPTDIR:$EPNOFILEDIR:$EPNTESTDIR:$PERL5LIB" &&
-#export LC_ALL="C.UTF-8" LANG="C.UTF-8" &&
-#export PATH="$RNA/traveler/bin:$RIBODIR:$RIBOINFERNALDIR:$PATH" &&
-#export PATH="/rna/rscape/bin:$PATH" &&
-#export PATH="/rna/jiffy-infernal-hmmer-scripts:$PATH" &&
-#export PATH="/rna/RNAstructure/exe:$PATH" DATAPATH="/rna/RNAstructure/data_tables/" &&
-#export PATH="/rna/r2dt:$PATH"
-    os.chdir('/rna/r2dt')
+    os.chdir('/home/RiboVision3/R2DT/rna/R2DT')
     #os.chdir('/home/anton/RiboVision2/rna/R2DT-master')
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
   
@@ -787,7 +785,7 @@ def r2dt(request, sequence):
         f.close()       
     #os.mkdir("R2DT-master")
     print(newcwd)
-    output = f"{newcwd}/R2DT-test20{fileNameSuffix}"
+    output = f"{newcwd}/R2DT-test{fileNameSuffix}"
     #output = f"/home/anton/RiboVision2/rna/R2DT-master/R2DT-test20{fileNameSuffix}"
     #cmd = f'ribotyper.pl  -f sequence10.fasta {output}'
     #os.system(cmd)
@@ -798,10 +796,9 @@ def r2dt(request, sequence):
     #os.system(cmd)
     #time.sleep(20)
     #cmd = f'python3 r2dt.py ribovision draw_lsu {newcwd}/sequence10.fasta {output}'
-    cmd = f'python3 r2dt.py draw {newcwd}/sequence10.fasta {output}'
+    cmd = f'LANG=en_US.utf8 /usr/bin/python3 r2dt.py draw {newcwd}/sequence10.fasta {output}'
     os.system(cmd)
     #time.sleep(40)
-    os.chdir(cwd)
     filename = '' 
           
     for topdir, dirs, files in os.walk(f'{output}/results/json'):
@@ -813,7 +810,7 @@ def r2dt(request, sequence):
     #cmd = f'python3 /home/anton/RiboVision2/rna/R2DT-master/svg2json.py cust_1_B {output}/Sequence-PF_LSU_3D.svg {output}/../jsonexample8.json'
     print("FILENAME")
     print(filename)
-    cmd = f'python3 {newcwd}/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
+    cmd = f'/usr/bin/python3 {newcwd}/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
 
     os.system(cmd)
     
@@ -841,3 +838,4 @@ def r2dt(request, sequence):
         
     }
     return JsonResponse(r2dt_json)
+
