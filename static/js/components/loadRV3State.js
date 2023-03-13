@@ -5,7 +5,7 @@ export function readLoadRV3State (fileInput) {
 		var uploadedState = JSON.parse(reader.result, reviver);
 		vm.uploadSession = true;
 		Object.assign(vm.$data, uploadedState);
-		let aaPropertiesData = setGlobalProperties();
+		let nPropertiesData = setGlobalProperties();
 		window.selectSections_RV1 = uploadedState["window.selectSections_RV1"];
 		window.aaFreqs = uploadedState["window.aaFreqs"];
 		window.barColors = uploadedState["window.barColors"];

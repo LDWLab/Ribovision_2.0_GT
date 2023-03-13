@@ -21,7 +21,7 @@ export function customCSVhandler(csv_data) {
           vm.raiseCustomCSVWarn = 'Bad CSV format:<br/>Bad data header definition!'
           return;
     }
-    if (custom_header.some(r=> Array.from(mapped_aa_properties.keys()).includes(r))){
+    if (custom_header.some(r=> Array.from(mapped_n_properties.keys()).includes(r))){
         vm.raiseCustomCSVWarn = 'Bad CSV format:<br/>Header definitions exist in RV3!<br/>Use different headers.'
         return;
     }

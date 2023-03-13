@@ -12,11 +12,10 @@ function clearInputFile(f){
         }
     }
 }
-
 function cleanCustomMap(checked_customMap){
     if (vm.uploadSession){return;}
     var topviewer = document.getElementById("PdbeTopViewer");
-    if (!topviewer || !topviewer.pluginInstance.domainTypes){
+    if (!topviewer || !topviewer.viewInstance.uiTemplateService.domainTypes){
         if (checked_customMap){return;}
         var sliceAvailProp = Array.prototype.slice.call(vm.available_properties).filter(availProp => {
             return vm.custom_headers.includes(availProp.Name)
@@ -26,8 +25,10 @@ function cleanCustomMap(checked_customMap){
         vm.available_properties = newArray;
         return;
     }
-    var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
-    topviewer.pluginInstance.domainTypes = topviewer.pluginInstance.domainTypes.filter(obj => {
+    //var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
+    //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.menuSelectbox');
+    var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
+    topviewer.viewInstance.uiTemplateService.domainTypes = topviewer.viewInstance.uiTemplateService.domainTypes.filter(obj => {
         return !vm.custom_headers.includes(obj.label)
     })
     
@@ -46,6 +47,38 @@ function cleanCustomMap(checked_customMap){
     vm.csv_data = null;
     vm.custom_headers = [];
 };
+var mapCustomMappingData = function(custom_data, custom_data_name, topviewer){
+    
+    //var selectBoxEle = viewerInstanceTop.pluginInstance.targetEle.querySelector('.menuSelectbox');
+    //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.menuSelectbox');
+    var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
+    
+    let vals = custom_data.map(function(v){ return v[1] });
+    let indexes = custom_data.map(function(v){ return v[0] });
+    window.nColorData.set(custom_data_name, [viridis]);
+    window.nPropertyConstants.set(custom_data_name, [Math.min(...vals), Math.max(...vals)]);
+    //let coilsOutOfCustom = vm.coil_residues.filter(value => !indexes.includes(value));
+    //window.coilsOutOfCustom = coilsOutOfCustom;
+    var custom_prop = new Map();
+    custom_prop.set(custom_data_name, custom_data);
+    if (window.custom_prop){
+        window.custom_prop.set(custom_data_name, custom_data)
+    } else {
+        window.custom_prop = custom_prop;
+    }
+    topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(custom_prop);
+    var custom_option = document.createElement("option");
+    custom_option.setAttribute("value", selectBoxEle.options.length);
+    custom_option.appendChild(document.createTextNode(custom_data_name));
+    selectBoxEle.appendChild(custom_option);
+    if (!vm.available_properties.some(prop => prop.Name === custom_data_name)){
+        vm.available_properties.push({Name:custom_data_name, url:"static/alignments/svg/Custom.svg"})
+    }
+    if(vm.correct_mask) {
+        var j = topviewer.viewInstance.uiTemplateService.domainTypes.length-1;
+        colorResidue(j, window.masked_array);
+    }
+}
 function handleCustomMappingData(){
   const readFile = function (fileInput) {
       var reader = new FileReader();
@@ -58,44 +91,15 @@ function handleCustomMappingData(){
 };
 
 var displayMappingDataByIndex = function(topviewer, selectedIndex){
-    var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
-    topviewer.pluginInstance.resetTheme();
-    topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data);
+    //var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
+    //topviewer.pluginInstance.resetTheme();
+    //topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data);
     window.viewerInstance.visual.select({
         data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), 
         nonSelectedColor: {r:255,g:255,b:255}
     });
     selectBoxEle.selectedIndex = selectedIndex;
     vm.selected_property = topviewer.pluginInstance.domainTypes[selectedIndex].label;
-}
-
-var mapCustomMappingData = function(custom_data, custom_data_name, topviewer){
-    var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
-    let vals = custom_data.map(function(v){ return v[1] });
-    let indexes = custom_data.map(function(v){ return v[0] });
-    window.aaColorData.set(custom_data_name, [viridis]);
-    window.aaPropertyConstants.set(custom_data_name, [Math.min(...vals), Math.max(...vals)]);
-    let coilsOutOfCustom = vm.coil_residues.filter(value => !indexes.includes(value));
-    window.coilsOutOfCustom = coilsOutOfCustom;
-    var custom_prop = new Map();
-    custom_prop.set(custom_data_name, custom_data);
-    if (window.custom_prop){
-        window.custom_prop.set(custom_data_name, custom_data)
-    } else {
-        window.custom_prop = custom_prop;
-    }
-    topviewer.pluginInstance.getAnnotationFromRibovision(custom_prop);
-    var custom_option = document.createElement("option");
-    custom_option.setAttribute("value", selectBoxEle.options.length);
-    custom_option.appendChild(document.createTextNode(custom_data_name));
-    selectBoxEle.appendChild(custom_option);
-    if (!vm.available_properties.some(prop => prop.Name === custom_data_name)){
-        vm.available_properties.push({Name:custom_data_name, url:"static/alignments/svg/Custom.svg"})
-    }
-    if(vm.correct_mask) {
-        var j = topviewer.pluginInstance.domainTypes.length-1;
-        colorResidue(j, window.masked_array);
-    }
 }
 
 var getExampleFile = function(url, name){
