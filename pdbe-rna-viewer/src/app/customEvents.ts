@@ -43,9 +43,9 @@ export namespace CustomEvents {
                 pluginCtx.selectResidue(e.eventData.auth_seq_id)
             }
         })),
-            document.addEventListener("PDB.molstar.mouseout", ((e: any) => {
-                pluginCtx.clearSelection(e.eventData.residueNumber)
-            }))
+        document.addEventListener("PDB.molstar.mouseout", ((e: any) => {
+            pluginCtx.clearSelection(e.eventData.residueNumber)
+        }))
     }
 
 }

@@ -94,7 +94,7 @@ var tryCustomTopology = function (pdbid, entityid, chainid){
     vm.URL = `r2dt/${vm.sequence3}`
     var postTopologyURL = `r2dt/${vm.sequence3}/`
     pdbid='cust'; 
-    var topology_viewer = `<pdb-rna-viewer id="PdbeTopViewer" pdb-id="${pdbid}" entity-id="${entityid}" chain-id="${chainid}" rv-api="true" ></pdb-rna-viewer>`
+    var topology_viewer = `<pdb-rna-viewer id="PdbeTopViewer" pdb-id="${pdbid}" entity-id="${entityid}" chain-id="${chainid}" rv-api=true subscribe-events=true></pdb-rna-viewer>`
     document.getElementById('topview').innerHTML = topology_viewer;
     window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
     ajaxProper({
