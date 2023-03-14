@@ -13,6 +13,9 @@ Topologies of the protein secondary structures (Laskowski; [10.1093/nar/gkn860](
 3D structures were fetched from the PDBe using the APIs of [EMBL-EBI coordinate server](https://www.ebi.ac.uk/pdbe/coordinates/). The selection of ranges was implemented using the syntax of the [LiteMol’s coordinate server](https://coords.litemol.org/).
 
 ## Secuence and structure associated data (Chemical modifications, Protein Contacts)
+Protein contacts are calculated on the fly from the specified RNA-protein complex using the NeighborSearch algorithm implemented in Biopython. All protein chains that are in contact within a cut off distance of 3.5 A of a specified RNA chain are reported in the Main Naviagtion panel upon data processing. The mapping of RNA-protein contacts onto 2D and 3D rperesentation of RNA molecules are performed by selecting the (sub-) set of preprocessed Protein chains from the Main Navigation papnel. Upon selection, RNA residues that are in contact with a given protein chain will be highlighed in a separate color in 2D and 3D templates. Arritionally, a more detailed information regarding the protein contact (protein name and the chain ID) is available via interactive Tooplip implemented in the 2D RNA viewer; the selected proteins will also appear as additional 3D objects in the 3D viewer and colored according to their contact map colors.
+
+Chemical modification  are parsed from  _entity_poly.pdbx_seq_one_letter_code of the CIF file. 
 .
 
 ## Available attributes for calculated mapping data:
