@@ -117,9 +117,9 @@
 
 7. Enter these commands in terminal to start local server:
 
-source .venv/bin/activate
+	>source .venv/bin/activate
 
-python3 manage.py runserver --noreload 
+	>python3 manage.py runserver --noreload 
 
 # Serving a public branch
 
