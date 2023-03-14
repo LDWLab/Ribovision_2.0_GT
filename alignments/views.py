@@ -88,8 +88,8 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     ### BE CAREFUL WHEN MERGING THE FOLLOWING LINES TO PUBLIC; PATHS ARE HARDCODED FOR THE APACHE SERVER ###
-    alignmentFileName = "/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/alignment" + fileNameSuffix + ".txt"
-    ebiFileName = "/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/ebi_sequence" + fileNameSuffix + ".txt"
+    alignmentFileName = "../static/alignment" + fileNameSuffix + ".txt"
+    ebiFileName = "../static/ebi_sequence" + fileNameSuffix + ".txt"
     mappingFileName = ebiFileName + ".map"
     fasta = re.sub('>Structure sequence[\s\S]*?>','>',fasta)
     fh = open(alignmentFileName, "w")
@@ -761,6 +761,7 @@ def protein_contacts(request, pdbid, chain_id):
                 neighbors[chain.id] = list(neighbors_L2_all)
     #modified_residues(pdbid)
     return JsonResponse(neighbors)
+
 def r2dt(request, sequence):
     cwd = os.getcwd()
     now = datetime.datetime.now()
@@ -806,3 +807,4 @@ def r2dt(request, sequence):
         
     }
     return JsonResponse(r2dt_json)
+
