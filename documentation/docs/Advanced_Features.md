@@ -1,5 +1,7 @@
 # Advanced features
 
+# RiboVision 2.0 mode
+
 ## Synchronization of navigation between the panels
 Navigation between all panels is synchronized. Hovering over an alignment position highlights the corresponding residue in the Topology and MolStar viewers. Reversely, hovering over a residue in the Topology or MolStar viewers highlights the alignment and the other structural viewer. When the amino-acid frequencies are shown, hovering over the datapoints on the graph highlights the current species in the alignment viewer.
 
@@ -16,11 +18,17 @@ Ribovision 2.0 offers visualization of modified nuclotides in a selected rRNA mo
 ## User upload data
 RiboVision 2.0  supports the visualization of user supplied data. Once an alignment and a structure have been selected, the option to upload custom data for mapping onto the selected structure for visualization in the topology and MolStar viewers becomes available in the Main Navigation Panel. The data should be supplied in a .csv (comma-separated values) file format. The first row of the csv file contains the headers for each column. An Index column should always be indicated. All other additional columns require a unique header definition. The Index column has the residue number to which the user-supplied data will be mapped. The rest of the columns have the data that will be mapped in the form of numerical values. Once a correct csv file has been uploaded, the selected structure will be colored in the topology and MolStar viewers according to the values in the csv file. Different columns in the csv file will appear as different Annotations in the Select Data dropdown menu in the lower right corner of the RNA topology viewer.
 
+# User Upload Mode 
+Users now have a limited ability to upload the their own sequences(MSAs) and structures, which are not part of RiboVision2.0 DESIRE database.
 ## Selecting a structure for visualization and mapping in user upload mode
-After uploading an alignment, ProteoVision will use the first sequence of the alignment to perform a BLAST search of the [PDB database](https://www.ebi.ac.uk/Tools/common/tools/help). BLAST results are filtered by E-value lower than 10<sup>-5</sup> and are used to populate a dropdown menu in the PDB input field. The dropdown menu is searchable, and shows filtered results depending on the user input. After a BLAST is complete the polymers associated with the polymer selection box will be filtered by the BLAST results.
-A BLAST search can take a long time, so ProteoVision displays a message that BLAST is running under the PDB input field (“BLASTing available PDBs”). While waiting the user can input any 4 letter PDB ID in the PDB input field the fetched polymers for that PDB ID will not be filtered. When the BLAST search is complete the message will change to indicate completion (“Completed BLAST for similar PDBs”).
+The sequence or MSA must be in the Fasta format.  
 
+## Selecting a structure for visualization and mapping in user upload mode
+The current support for the structure is a PDB file containing a single RNA chain. The RNA sequence extracted from  the PDB is added  to MSA using mafft algorithm and is used to generate the 2D RNA diagram using the template based R2DT approach. Thus, the utility of the User Upload Mode is not limited to the Ribosomal RNAs but is expandeble to other classes of RNAs that are hanled by R2DT. Warning! The current  implementation relies upon the nucleutide data in the PDB file and thus ignores unresolved nucleotides in 2D and 3D representations. The additional work is being performed to overcome this limitation.
+
+## User upload data
+User Upload Mode  also supports the visualization of user supplied data. The mapping procedure is similar to the data mapping in the RiboVision 2.0 mode. PLease refer to the relevant section of the RiboVision 2.0 mode. 
 
 
 ## DESIRE-API
-ProteoVision uses an API service which provides data about rProtein nomenclature, sequences, alignments, and annotations. Furthermore, it provides data about species phylogeny. The API is available [here]( https://proteovision.chemistry.gatech.edu/desire-api/).
+ProteoVision uses an API service which provides data about rProtein nomenclature, sequences, alignments, and annotations. Furthermore, it provides data about species phylogeny. The API is available [here]( https://ribovision2.chemistry.gatech.edu/desire-api/).
