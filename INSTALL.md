@@ -43,7 +43,7 @@
 
 	a. Activate the virtual environment
 
-	>source ./env/bin/activate
+	>source .venv/bin/activate
 
 	b. Install python requirements
 
@@ -119,7 +119,7 @@
 
 # Serving a public branch
 
-Public set-up does not differ significantly from local installations. There are several things to keep in mind when setting-up DESIRE/ProteoVision web-server on a Linux machine. The web-server should have it's own home folder within the Linux server (in our first implementation this was located in /home/Desire-Server). The steps are following the numbering from INSTALLATION up above:
+Public set-up does not differ significantly from local installations. There are several things to keep in mind when setting-up the RiboVision 2 web-server on a Linux machine. The web-server should have its own home folder within the Linux server (in our first implementation this was located in /home/RiboVision3). The steps are following the numbering from INSTALLATION up above:
 
 1. Initial set up and prerequisites:
 
@@ -170,9 +170,9 @@ Public set-up does not differ significantly from local installations. There are 
 
 	>git fetch
 
-	Merge the origin/dev branch onto public (you should be on public)
+	Merge the origin/local branch onto public (you should be on public)
 
-	>git merge origin/dev
+	>git merge origin/local
 
 	Rebuild Node.js scripts
 	
@@ -188,17 +188,10 @@ Public set-up does not differ significantly from local installations. There are 
 
 	Touch this so that Apache knows things have changed
 	
-	> touch /home/Desire-Server/DESIRE/DESIRE/wsgi.py
+	> touch /home/RiboVision3/Ribovision_2.0_GT/DESIRE/wsgi.py
 
 	After this command the public online web-server will be updated.
 
-	If everything works fine push your changes to the origin/public:
+	If everything works fine push your changes to the origin/master:
 
-	> git push origin public
-
-	To build documentation in the correct directory:
-
-	```bash
-	cd mkdocs
-	mkdocs build -d /home/Desire-Server/proteovision_docs/
-	```
+	> git push origin master
