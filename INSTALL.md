@@ -35,9 +35,9 @@
 	
 	>export DJANGO_PASSWORD='' (MySQL password provided by admin)
 
-	g. Set up GaTech VPN with the Cisco AnyConnect Secure Mobility Client. Follow <a href="https://faq.oit.gatech.edu/content/how-do-i-get-started-campus-vpn">these</a> instructions.
+	g. Set up the Georgia Tech GlobalProtect VPN. Follow <a href="https://vpn.gatech.edu/https/gatech.service-now.com/home/?id=kb_article_view&sysparm_article=KB0026837">these</a> instructions.
 
-2. Clone the <a href="https://github.com/LDWLab/DESIRE.git">project repository</a> in a new folder. Get on the latest development branch.
+2. Clone the <a href="https://github.com/hmccann3/Ribovision_2.0_GT_SWES.git">project repository</a> in a new folder. Switch to the local branch for development.
 
 3. Using the command line from the root directory of the project run the following commands:
 
