@@ -99,7 +99,7 @@
 
 	a. cd into the react-msa-viewer directory and execute the following (might need sudo and **do not** use VS code terminal)
 
-	c
+	> npm install
 	
 	> npm link
 
@@ -111,19 +111,11 @@
 
 	> npm run watch
 
-	d. **npm run watch** can also be running from the project root directory to update the top level main bundle.
-6. Follow steps 1-3 from this <a href="https://cloudbytes.dev/snippets/run-selenium-and-chrome-on-wsl2#step-2-install-latest-chrome-for-linux">this guide</a> to install chromedriver for Selenium testing 
-	> Update the path to chromedriver in seleniumtest.py to reflect your path
-	
-	> python3 seleniumtest.py to run tests
+	d. **npm run watch** can also be running from the project root directory to update the top level main buundle.
 
-7. Open a VS Code folder in the root directory of the project.
+6. Open a VS Code folder in the root directory of the project.
 
-8. Enter these commands in terminal to start local server:
-
-	>source .venv/bin/activate
-
-	>python3 manage.py runserver --noreload 
+7. The debugger should now work while connected to the GaTech VPN.
 
 # Serving a public branch
 
