@@ -37,7 +37,7 @@
 
 	g. Set up the Georgia Tech GlobalProtect VPN. Follow <a href="https://vpn.gatech.edu/https/gatech.service-now.com/home/?id=kb_article_view&sysparm_article=KB0026837">these</a> instructions.
 
-2. Clone the <a href="https://github.com/hmccann3/Ribovision_2.0_GT_SWES.git">project repository</a> in a new folder. Switch to the local branch for development.
+2. Clone the <a href="https://github.com/hmccann3/Ribovision_2.0_GT.git">project repository</a> in a new folder. Switch to the local branch for development.
 
 3. Using the command line from the root directory of the project run the following commands:
 
@@ -170,9 +170,9 @@ Public set-up does not differ significantly from local installations. There are 
 
 	>git fetch
 
-	Merge the origin/local branch onto public (you should be on public)
+	Merge the origin/develop branch onto public (you should be on public)
 
-	>git merge origin/local
+	>git merge origin/develop
 
 	Rebuild Node.js scripts
 	
