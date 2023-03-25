@@ -480,12 +480,12 @@
                         updatedBarColors.push("#808080")
                     });
             } else {
-                let min = Math.min(...aaPropertyConstants.get(name));
-                let max = Math.max(...aaPropertyConstants.get(name));
-                let colormapArray = aaColorData.get(name);
-                let propData = this.aa_properties.get(name);
+                let min = Math.min(...nPropertyConstants.get(name));
+                let max = Math.max(...nPropertyConstants.get(name));
+                let colormapArray = nColorData.get(name);
+                let propData = this.n_properties.get(name);
                 var separatedData = [];
-                if (this.aa_properties.has(name)){
+                if (this.n_properties.has(name)){
                     propData.forEach(function(data, index){
                         separatedData.push([index+1, Number(math.sum(data).toFixed(2))]);
                     })
@@ -839,7 +839,7 @@
                 var barColors = Array(aaFreqs.length).fill('#808080');
                 window.barColors = barColors;
                 this.fasta_data = fasta['Alignment'];
-                this.aa_properties = calculateFrequencyData(fasta['AA frequencies']);
+                this.n_properties = calculateFrequencyData(fasta['AA frequencies']);
                 loadAlignmentViewer (fasta['Alignment']);
             })
         }, showTopologyViewer (pdbid, chainid, fasta){
@@ -867,7 +867,7 @@
             ajax(rna_url).then(data => {
                 if(vm.topology_loaded){return;}
                 var entityid = data[pdblower]["molecules"][0].entity_id;
-                var topology_viewer = `<pdb-rna-viewer id="PdbeTopViewer" pdb-id="${pdbid}" entity-id="${entityid}" chain-id="${chainid}"></pdb-rna-viewer>`
+                var topology_viewer = `<pdb-rna-viewer id="PdbeTopViewer" pdb-id="${pdbid}" entity-id="${entityid}" chain-id="${chainid}" subscribe-events=true></pdb-rna-viewer>`
                 document.getElementById('topview').innerHTML = topology_viewer;
                 window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
             });
@@ -931,7 +931,7 @@
         }, populateECODranges(pdbid, chainid) {
             populateECODranges(pdbid, chainid);
         }, calculateProteinContacts(pdbid, chainid) {
-            vm.mapped_aa_contacts_mods = new Map();
+            vm.mapped_n_contacts_mods = new Map();
             var url = `protein-contacts/${pdbid}/${chainid}`
             ajax(url).then(data => {
                 calculateModifiedResidues(pdbid, chainid, this.entityID)
@@ -944,13 +944,13 @@
                     var i = 1.0;
                     var colorMap = new Map();
                     vm.selectSections_proteins = new Map();
-                    vm.mapped_aa_contacts_mods.set("Protein Contacts", [])
+                    vm.mapped_n_contacts_mods.set("Protein Contacts", [])
                     for (var val in vm.protein_contacts) {
                         vm.selectSections_proteins.set(val, [])
-                        var color = interpolateLinearly(i/filtered_chains.length, aaColorData.get("Protein contacts")[0])
+                        var color = interpolateLinearly(i/filtered_chains.length, nColorData.get("Protein contacts")[0])
                         var rgbColor = "rgb(" + color[0][0] + "," + color[0][1] + "," + color[0][2] + ")";
                         colorMap.set(val, rgbColor);
-                        //newContactMap.set(vm.protein_contacts, aaColorData.get("Shannon entropy")[0][1]
+                        //newContactMap.set(vm.protein_contacts, nColorData.get("Shannon entropy")[0][1]
                         i = i+1;
                         for (var j in vm.protein_contacts[val]) {
                             vm.selectSections_proteins.get(val).push({
@@ -960,7 +960,7 @@
                                 sideChain: false,
                             });
                             var protein_name = vm.protein_chains.filter(e => e.value == val)[0].text
-                            vm.mapped_aa_contacts_mods.get("Protein Contacts").push([vm.protein_contacts[val][j], protein_name])
+                            vm.mapped_n_contacts_mods.get("Protein Contacts").push([vm.protein_contacts[val][j], protein_name])
                         }
                     }                    
                     vm.proteinColorMap = colorMap;

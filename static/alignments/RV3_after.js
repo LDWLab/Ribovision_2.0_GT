@@ -15,7 +15,7 @@ function clearInputFile(f){
 function cleanCustomMap(checked_customMap){
     if (vm.uploadSession){return;}
     var topviewer = document.getElementById("PdbeTopViewer");
-    if (!topviewer || !topviewer.viewInstance.uiTemplateService.domainTypess){
+    if (!topviewer || !topviewer.viewInstance.uiTemplateService.domainTypes){
         if (checked_customMap){return;}
         var sliceAvailProp = Array.prototype.slice.call(vm.available_properties).filter(availProp => {
             return vm.custom_headers.includes(availProp.Name)
@@ -55,8 +55,8 @@ var mapCustomMappingData = function(custom_data, custom_data_name, topviewer){
     
     let vals = custom_data.map(function(v){ return v[1] });
     let indexes = custom_data.map(function(v){ return v[0] });
-    window.aaColorData.set(custom_data_name, [viridis]);
-    window.aaPropertyConstants.set(custom_data_name, [Math.min(...vals), Math.max(...vals)]);
+    window.nColorData.set(custom_data_name, [viridis]);
+    window.nPropertyConstants.set(custom_data_name, [Math.min(...vals), Math.max(...vals)]);
     //let coilsOutOfCustom = vm.coil_residues.filter(value => !indexes.includes(value));
     //window.coilsOutOfCustom = coilsOutOfCustom;
     var custom_prop = new Map();
@@ -91,9 +91,9 @@ function handleCustomMappingData(){
 };
 
 var displayMappingDataByIndex = function(topviewer, selectedIndex){
-    var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
-    topviewer.pluginInstance.resetTheme();
-    topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data);
+    //var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
+    //topviewer.pluginInstance.resetTheme();
+    //topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data);
     window.viewerInstance.visual.select({
         data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), 
         nonSelectedColor: {r:255,g:255,b:255}

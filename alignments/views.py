@@ -2,7 +2,10 @@ import contextlib
 import re, os, warnings, io, base64, json
 import datetime
 import urllib.request
+import os
+import datetime
 from subprocess import Popen, PIPE
+import subprocess
 from Bio import AlignIO, BiopythonDeprecationWarning, PDB
 from io import StringIO
 
@@ -87,6 +90,7 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
     ### BE CAREFUL WHEN MERGING THE FOLLOWING LINES TO PUBLIC; PATHS ARE HARDCODED FOR THE APACHE SERVER ###
     alignmentFileName = "/home/RiboVision3/static/alignment" + fileNameSuffix + ".txt"
     ebiFileName = "/home/RiboVision3/static/ebi_sequence" + fileNameSuffix + ".txt"
+
     mappingFileName = ebiFileName + ".map"
     fasta = re.sub('>Structure sequence[\s\S]*?>','>',fasta)
     fh = open(alignmentFileName, "w")
@@ -769,13 +773,14 @@ def protein_contacts(request, pdbid, chain_id):
                 neighbors[chain.id] = list(neighbors_L2_all)
     #modified_residues(pdbid)
     return JsonResponse(neighbors)
+
 def r2dt(request, sequence):
-    import os
-    import datetime
     cwd = os.getcwd()
     now = datetime.datetime.now()
+
     os.chdir('/home/RiboVision3/R2DT/rna/R2DT')
     #os.chdir('/home/anton/RiboVision2/rna/R2DT-master')
+
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
   
     newcwd = os.getcwd()
@@ -783,55 +788,32 @@ def r2dt(request, sequence):
         f.write('>Sequence\n')
         f.write(sequence)
         f.close()       
-    #os.mkdir("R2DT-master")
-    print(newcwd)
+
     output = f"{newcwd}/R2DT-test{fileNameSuffix}"
-    #output = f"/home/anton/RiboVision2/rna/R2DT-master/R2DT-test20{fileNameSuffix}"
-    #cmd = f'ribotyper.pl  -f sequence10.fasta {output}'
-    #os.system(cmd)
-    #time.sleep(20)
-    #cmd = f'cp  {output}/../sequence10.fasta {output}/subset.fasta'
-    #os.system(cmd)
-    #cmd = f'cp  {output}/../sequence10.fasta.ssi {output}/subset.fasta.ssi'
-    #os.system(cmd)
-    #time.sleep(20)
-    #cmd = f'python3 r2dt.py ribovision draw_lsu {newcwd}/sequence10.fasta {output}'
-    cmd = f'LANG=en_US.utf8 /usr/bin/python3 r2dt.py draw {newcwd}/sequence10.fasta {output}'
-    os.system(cmd)
-    #time.sleep(40)
+
+    cmd = ['python3', 'r2dt.py', 'draw', 'sequence10.fasta', output]
+    subprocess.run(cmd)
+
     filename = '' 
           
     for topdir, dirs, files in os.walk(f'{output}/results/json'):
         firstfile = sorted(files)[0]
-        
         filename = os.path.join(topdir, firstfile)  
-    #cmd = f'python3 svg2json.py test_model_chain {filename} {output}/jsonexample'
-    #print('filename')
-    #cmd = f'python3 /home/anton/RiboVision2/rna/R2DT-master/svg2json.py cust_1_B {output}/Sequence-PF_LSU_3D.svg {output}/../jsonexample8.json'
-    print("FILENAME")
-    print(filename)
-    cmd = f'/usr/bin/python3 {newcwd}/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
 
-    os.system(cmd)
+    o1 = output + '/results/json/RNA_2D_json.json'
+    o2 = output + '/results/json/BP_json.json'
+    cmd = ['python3', 'json2json_split2.py', '-i', filename, '-o1', o1,'-o2', o2]
+    subprocess.run(cmd)
     
-
     with open(f'{output}/results/json/RNA_2D_json.json', 'r') as f:
-
         data = json.loads(f.read())
-
         f.close()
 
     with open(f'{output}/results/json/BP_json.json', 'r') as f:
-
-    #with open(f'{output}/../BP_7YSE_E.json', 'r') as f:
-
         BP = json.loads(f.read())
-
         f.close()   
-        #print(data)
-    #doc = minidom.parse(filename)
-    #path_strings = [path.getAttribute('d') for path
-    #            in doc.getElementsByTagName('text')]
+
+    os.chdir(cwd)
     r2dt_json = {
         'RNA_2D_json' : data, 
         'RNA_BP_json' : BP

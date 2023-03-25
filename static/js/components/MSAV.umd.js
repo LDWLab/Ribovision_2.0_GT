@@ -22285,8 +22285,8 @@
               break;
             case "proteovision":
               var tempArr = [];
-              var maxEntr = window.aaPropertyConstants.get("Shannon entropy")[1];
-              var pvEntropy = vm.aa_properties.get("Shannon entropy");
+              var maxEntr = window.nPropertyConstants.get("Shannon entropy")[1];
+              var pvEntropy = vm.n_properties.get("Shannon entropy");
               pvEntropy.forEach(function (column) {
                 tempArr.push((maxEntr - column.reduce(function (a, b) {
                   return a + b;

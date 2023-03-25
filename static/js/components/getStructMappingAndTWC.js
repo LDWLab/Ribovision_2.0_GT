@@ -45,13 +45,13 @@ var assignColorsAndStrucMappings = function (vueObj, struct_mapping){
     vueObj.structure_mapping = struct_mapping["structureMapping"];
     loadAlignmentViewer (vueObj.fasta_data);
 
-    var mapped_aa_properties = mapAAProps(vueObj.aa_properties, vueObj.structure_mapping);
+    var mapped_n_properties = mapNProps(vueObj.n_properties, vueObj.structure_mapping);
     if (((vueObj.tax_id != null && vueObj.tax_id.length == 2) || (vueObj.custom_aln_twc_flag != null && vueObj.custom_aln_twc_flag == true) || (vueObj.type_tree == 'para'))) {
         if (vueObj.unmappedTWCdata) {
-            mapTWCdata(vueObj.structure_mapping, vueObj.unmappedTWCdata, mapped_aa_properties);
+            mapTWCdata(vueObj.structure_mapping, vueObj.unmappedTWCdata, mapped_n_properties);
         }
     }
-    window.mapped_aa_properties = mapped_aa_properties;
+    window.mapped_n_properties = mapped_n_properties;
 
     vm.sequence=vueObj.fasta_data.split(' ')[1];
     let sequence2=vm.sequence.replaceAll(/-|\n/g, "");
@@ -67,7 +67,7 @@ var delayedMapping = function (){
     if ( typeof viewerInstanceTop === 'undefined' || viewerInstanceTop === null ){
         tryCustomTopology(vm.pdbid, vm.entityID, vm.chainid[0]);
     } else {
-        viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties);
+        viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_n_properties);
         }
     
 }
@@ -94,7 +94,7 @@ var tryCustomTopology = function (pdbid, entityid, chainid){
     vm.URL = `r2dt/${vm.sequence3}`
     var postTopologyURL = `r2dt/${vm.sequence3}/`
     pdbid='cust'; 
-    var topology_viewer = `<pdb-rna-viewer id="PdbeTopViewer" pdb-id="${pdbid}" entity-id="${entityid}" chain-id="${chainid}" rv-api="true" ></pdb-rna-viewer>`
+    var topology_viewer = `<pdb-rna-viewer id="PdbeTopViewer" pdb-id="${pdbid}" entity-id="${entityid}" chain-id="${chainid}" rv-api=true subscribe-events=true></pdb-rna-viewer>`
     document.getElementById('topview').innerHTML = topology_viewer;
     window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
     ajaxProper({

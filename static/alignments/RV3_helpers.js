@@ -147,7 +147,7 @@ var parseFastaSeqForMSAViewer = function (fasta){
 
 function downloadCSVData() {
   let [month, date, year] = new Date().toLocaleDateString("en-US").split("/");
-  combined_map = new Map([...mapped_aa_properties, ...vm.mapped_aa_contacts_mods]);
+  combined_map = new Map([...mapped_n_properties, ...vm.mapped_n_contacts_mods]);
   let csv = generateCSVstring(combined_map);
   let anchor = document.createElement('a');
   anchor.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
@@ -286,7 +286,7 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
         if (vueObj.frequency_data) {vueObj.frequency_data = null;}
         if (aln_item) {aln_item.remove(); create_deleted_element("alnif", "alnDiv", aln_text, true)}
     }
-    window.mapped_aa_properties = null;
+    window.mapped_n_properties = null;
     vueObj.checkedRNA = false,
     vueObj.customPDBid = null,
     vueObj.pdbStart = null,
@@ -432,30 +432,30 @@ var loadParaAlns = function (value, vm) {
 };
 
 var setGlobalProperties = function(){
-    let aaPropertiesData = new Map([
+    let nPropertiesData = new Map([
         ["Shannon entropy",[0.000000000000001,2.0]],
         ["TwinCons",[-2.25,6.75]]
     ]);
-    let aaColorData = new Map([
+    let nColorData = new Map([
         ["Shannon entropy",[plasma]],
         ["Protein contacts",[rainbow]],
         //["TwinCons",[Reds, Greens]],
         ["TwinCons",[Reds, Blues]],
         //["TwinCons",[RdPu, YlGn]],
     ]);
-    window.aaColorData = aaColorData;
-    window.aaPropertyConstants = aaPropertiesData;
+    window.nColorData = nColorData;
+    window.nPropertyConstants = nPropertiesData;
     window.selectSections_RV1 = new Map();
-    return aaPropertiesData;
+    return nPropertiesData;
 }
 
 var calculateFrequencyData = function (frequencies){
   const multiplyvector = function (a,b){
       return a.map((e,i) => e * b[i]);
   }
-  aaPropertiesData = setGlobalProperties();
+  nPropertiesData = setGlobalProperties();
   let outPropertyPosition = new Map();
-  aaPropertiesData.forEach(function (data, property_name){
+  nPropertiesData.forEach(function (data, property_name){
       if (property_name == "TwinCons"){return;}
       let const_data = data
       outPropertyPosition.set(property_name, [])
@@ -476,9 +476,9 @@ var calculateFrequencyData = function (frequencies){
   return outPropertyPosition;
 };
 
-var mapAAProps = function (aa_properties, mapping){
+var mapNProps = function (n_properties, mapping){
   let outPropertyMappedPosition = new Map();
-  aa_properties.forEach(function (data, property_name){
+  n_properties.forEach(function (data, property_name){
       outPropertyMappedPosition.set(property_name, [])
       data.forEach(function (data, aln_ix) {
           let mappedI0 = mapping[aln_ix+1];
@@ -708,10 +708,10 @@ var build_mapped_props = function(mapped_props, twcDataUnmapped, structure_mappi
     return mapped_props;
 }
 
-var mapTWCdata = function (structMap, twcDataUnmapped, mapped_aa_properties){
+var mapTWCdata = function (structMap, twcDataUnmapped, mapped_n_properties){
     var topviewer = document.getElementById("PdbeTopViewer");
-    mapped_aa_properties = build_mapped_props(mapped_aa_properties, twcDataUnmapped, structMap);
-    window.mapped_aa_properties = mapped_aa_properties;
+    mapped_n_properties = build_mapped_props(mapped_n_properties, twcDataUnmapped, structMap);
+    window.mapped_n_properties = mapped_n_properties;
     if (topviewer != null && topviewer.viewInstance.uiTemplateService.domainTypes != undefined){
         var empty_props = new Map();
         let twc_props = build_mapped_props(empty_props, twcDataUnmapped, structMap);
@@ -835,14 +835,14 @@ var calculateModifiedResidues = function(pdbid, chainid, entityid) {
         var i = 1.0;
         var colorMap = new Map();
         vm.selectSections_modified = new Map();
-        vm.mapped_aa_contacts_mods.set("Modified Residues", [])
+        vm.mapped_n_contacts_mods.set("Modified Residues", [])
         for (var val of modifications) {
             vm.selectSections_modified.set(val, [])
             //Need to add modifications color scheme, using PC for now
-            var color = interpolateLinearly(i/modifications.length, aaColorData.get("Protein contacts")[0])
+            var color = interpolateLinearly(i/modifications.length, nColorData.get("Protein contacts")[0])
             var rgbColor = "rgb(" + color[0][0] + "," + color[0][1] + "," + color[0][2] + ")";
             colorMap.set(val, rgbColor);
-            //newContactMap.set(vm.protein_contacts, aaColorData.get("Shannon entropy")[0][1]
+            //newContactMap.set(vm.protein_contacts, nColorData.get("Shannon entropy")[0][1]
             i = i+1;
             for (var j of vm.modified_residues.get(val)) {
                 vm.selectSections_modified.get(val).push({
@@ -851,7 +851,7 @@ var calculateModifiedResidues = function(pdbid, chainid, entityid) {
                     color: color[1],
                     sideChain: false,
                 });
-                vm.mapped_aa_contacts_mods.get("Modified Residues").push([j, val])
+                vm.mapped_n_contacts_mods.get("Modified Residues").push([j, val])
             }
         }                 
         vm.modifiedColorMap = colorMap;
@@ -871,10 +871,6 @@ var showContactsHelper = function(entityid) {
             protein_data.get("contacts").push(vm.selectSections_proteins.get(chain)[entry])
         }
     }
-    /*window.viewerInstance.visual.select({
-        data: [],
-        nonSelectedColor: {r:255,g:255,b:255}
-    })*/
     const mapSort1 = protein_data.get("contacts").sort((a, b) => a.residue_number - b.residue_number);
     viewerInstance.visual.select({
         data: mapSort1, 
@@ -891,12 +887,6 @@ var showContactsHelper = function(entityid) {
 }
 const sleep = (delay) => new Promise (( resolve) => setTimeout (resolve, delay))
 var showProteins3D = function() {
-    
-    /*var viewerContainer = document.getElementById('pdbeMolstarView');
-    viewerInstance.render(viewerContainer, vm.viewer_options);
-    window.viewerInstance = viewerInstance;*/
-    
-    //viewerInstance.visual.update({customData: vm.viewer_options.customData}, true)
     showPDBHelper(vm.pdbid, vm.chainid, vm.entityID)
     
     const showProteins = async () => {
