@@ -289,7 +289,8 @@
   import {populatePDBsFromCustomAln} from './populatePDBsFromCustomAln.js'
   import {populateECODranges} from './populateECODranges.js'
   import {postCIFdata} from './postCustomStruct.js'
-  import {uploadCustomPDB} from './handleUploadPDB_RNA.js'
+  //import {uploadCustomPDB} from './handleUploadPDB_RNA.js'
+  import {uploadCustomPDB} from './handleUploadCIF_RNA.js'
   import {loadViewersWithCustomUploadStructure} from './handleViewersWithUploadPDB.js'
   import ReactDOM, { render } from 'react-dom';
   import React, { Component } from "react";
@@ -298,7 +299,8 @@
   import { intersection } from 'lodash';
   import {downloadPyMOLscript} from './handlePyMOLrequest.js'
   //import {parseRNAchains} from './handleRNAchains.js'
-  export default {
+  
+   export default {
       // register the component
       components: { Treeselect, Autocomplete },
       data: function () {
@@ -614,6 +616,7 @@
             this.type_tree="upload";
             this.topology_loaded=false;
             this.schemesMgr = new schemes();
+            window.viewerInstanceTop = null;
             //cleanupOnNewAlignment(this, "Select new alignment!");
             //[this.options, this.tax_id, this.alnobj, this.chainid] = [null, null, null, null];
             //var topview = document.getElementById("PdbeTopViewer");
@@ -767,7 +770,6 @@
                 // ajax(url).then(data => {
                 //     loadOrthAlns(data, this);
                 // });
-
             }
             if (type_tree == "para"){
                 loadParaAlns (value, this)
@@ -933,7 +935,6 @@
                     vm.protein_contacts = data;
                     var newContactMap;
                     var filtered_chains = vm.protein_chains.filter(e => e.value in data);
-
                     vm.protein_chains = filtered_chains;
                     var i = 1.0;
                     var colorMap = new Map();
@@ -1070,4 +1071,5 @@
         });
     },
 }
+
 </script>

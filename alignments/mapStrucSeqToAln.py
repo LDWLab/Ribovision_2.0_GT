@@ -13,6 +13,7 @@ def request_post_data(post_data):
     return fasta, struc_id
 
 def make_map_from_alnix_to_sequenceix_new(request):
+    print('make_map')
     fasta, struc_id = request_post_data(request.POST)
     serializeData = request.session[struc_id]
     strucObj = parse_string_structure(request, serializeData, struc_id)
@@ -25,12 +26,18 @@ def make_map_from_alnix_to_sequenceix_new(request):
 
 def constructStrucSeqMap(structure):
     chains = list()
+    print (structure.id)
+    RNA_chain=structure.id.rsplit('-', 1)[1]
     for chain in structure.get_chains():
+        print(chain.id)
+        
+        if chain.id ==RNA_chain:
+            residues = list(chain.get_residues())
         chains.append(chain)
     sequence, gapsInStruc, seq_ix_mapping = str(), list(), dict()
     old_resi, untrue_seq_ix = 0, 1
 
-    residues = list(chains[0].get_residues())
+    #residues = list(chains[70].get_residues())
     for resi in residues:
         resi_id = resi.get_id()
         if (old_resi == 0):
@@ -47,11 +54,13 @@ def constructStrucSeqMap(structure):
         old_resi = resi_id[1]
     if len(seq1(residues[0].get_resname().replace(' ',''))) != 0:
         sequence = seq1(sequence)
-
+    print("Seq")
+    print(sequence)
+    print(SeqRecord(Seq(sequence)))
+    print(seq_ix_mapping)
     return seq_ix_mapping, SeqRecord(Seq(sequence)), gapsInStruc
 
 def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
-
     from subprocess import Popen, PIPE
     from os import remove, path
     from warnings import warn
@@ -72,7 +81,6 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
             if path.isfile(tempf):
                 raise IOError(f"Couldn't delete the file {tempf} please remove it manually!")
     
-
     fh = open(aln_group_path, "w")
     fh.write(fasta)
     fh.close()
