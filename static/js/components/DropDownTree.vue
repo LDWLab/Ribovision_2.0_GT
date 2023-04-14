@@ -250,7 +250,7 @@
                 Parsing PDB structure <img src="static/img/loading.gif" alt="Parsing PDB structure" style="height:25px;">
             </div>
             <div v-if="PDBparsing=='error'">
-                Failed to parse the PDB structure!!! Try a different structure.
+                Failed to parse the PDB structure! Try a different structure.
             </div>
             <span id="molif" v-if="chainid.length>0||customPDBsuccess">
                 <div id ="pdbeMolstarView">
@@ -695,6 +695,9 @@
         showContacts() {
             viewerInstanceTop.viewInstance.uiTemplateService.colorMapContacts();  
             showModificationsAndContactsHelper("" + this.entityID);
+        },
+        getRNAChain(pdbid) {
+
         },
         getR2DT(sequence) {
             //console.log("getR2DT.vue", sequence);

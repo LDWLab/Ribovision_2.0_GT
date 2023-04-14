@@ -18,6 +18,7 @@ def make_map_from_alnix_to_sequenceix_new(request):
     serializeData = request.session[struc_id]
     strucObj = parse_string_structure(request, serializeData, struc_id)
     seq_ix_mapping, struc_seq, gapsInStruc = constructStrucSeqMap(strucObj)
+    
     mapping = create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping)
     mapping["gapsInStruc"] = gapsInStruc
     if type(mapping) != dict:
@@ -29,7 +30,6 @@ def constructStrucSeqMap(structure):
     print (structure.id)
     RNA_chain=structure.id.rsplit('-', 1)[1]
     for chain in structure.get_chains():
-        print(chain.id)
         
         if chain.id ==RNA_chain:
             residues = list(chain.get_residues())
@@ -54,10 +54,7 @@ def constructStrucSeqMap(structure):
         old_resi = resi_id[1]
     if len(seq1(residues[0].get_resname().replace(' ',''))) != 0:
         sequence = seq1(sequence)
-    print("Seq")
-    print(sequence)
-    print(SeqRecord(Seq(sequence)))
-    print(seq_ix_mapping)
+  
     return seq_ix_mapping, SeqRecord(Seq(sequence)), gapsInStruc
 
 def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
@@ -98,7 +95,6 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
         for removeFile in tempfiles:
             remove(removeFile)
         return HttpResponseServerError("Failed mapping the polymer sequence to the alignment!\nTry a different structure.")
-    print("Mafft_done1")
     mapping_file = output.decode("ascii").split('\n#')[1]
     amendedAln = re.sub('>Structure sequence$','',output.decode("ascii").split('\n#')[0])
     groupName = output.decode('ascii').split('>')[1].split('_')[0]

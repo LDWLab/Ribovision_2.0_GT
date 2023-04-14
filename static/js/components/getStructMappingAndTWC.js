@@ -93,32 +93,86 @@ var tryCustomTopology = function (pdbid, entityid, chainid){
     //vm.getR2DT(vm.sequence4);
     //vm.URL = `r2dt/${vm.sequence3}`
     //var postTopologyURL = `r2dt/${vm.sequence3}/`
-    vm.getR2DT(vm.pdbSeq);
-    vm.URL = `r2dt/${vm.pdbSeq}`
-    var postTopologyURL = `r2dt/${vm.pdbSeq}/`
+    console.log('eid1',entityid);
+
     pdbid='cust'; 
-    var topology_viewer = `<pdb-rna-viewer id="PdbeTopViewer" pdb-id="${pdbid}" entity-id="${entityid}" chain-id="${chainid}" rv-api="true" ></pdb-rna-viewer>` 
-    document.getElementById('topview').innerHTML = topology_viewer; 
-    window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
-    ajaxProper({
-        url: postTopologyURL,
+   
+    var RNA_full_sequence1='';
+    var RNA_full_sequence = null;
+
+    async function getRNAChain(pdbid) {
+      try {
+        const returnedObject = await ajax(`full-RNA-seq/${pdbid}/`);
+        console.log('RNA_full_sequence_pdb', pdbid);
+        const result = returnedObject["RNAseq"];
+        console.log('RNA_full_sequence', result);
+        return result;
+      } catch (error) {
+        console.error(error);
+        return null;
+      }
+    }
+    
+    async function RNAseqCall(pdbid) {
+      const RNA_full_sequence = await getRNAChain(pdbid);
+      console.log('RNA_full_sequence2', RNA_full_sequence);
+      return RNA_full_sequence;
+    }
+    
+    RNAseqCall(pdbid).then(seq1 => {
+      console.log('RNA_full_sequence3', seq1);
+      vm.getR2DT(seq1);
+      vm.URL = `r2dt/${seq1}/${entityid}`
+      var topology_viewer = `<pdb-rna-viewer id="PdbeTopViewer" pdb-id="${pdbid}" entity-id="${entityid}" chain-id="${chainid}" rv-api="true" ></pdb-rna-viewer>` 
+      document.getElementById('topview').innerHTML = topology_viewer; 
+      window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
+      ajaxProper({
+        //url: postTopologyURL,
+        url: vm.URL,
         type: 'POST',
         dataType: 'json'
-    }).then (parsedResponse => {
+      }).then (parsedResponse => {
         if (parsedResponse == "Topology Success!"){
             console.log("Topology Success!");          
         }
-    }).catch(error => {
+      }).catch(error => {
         var topview = document.querySelector('#topview');
         vm.topology_loaded = 'error';
         topview.innerHTML = "Failed to generate topology from the structure file!<br>Try different PDB."
         console.log(error.responseText);
+        });
+    }).catch(error => {
+      console.error(error);
     });
-}
+    
+    }
+    //vm.getR2DT(vm.pdbSeq);
+    //vm.URL = `r2dt/${vm.pdbSeq}/`
+    //vm.getR2DT(seq1);
+    //vm.URL = `r2dt/${seq1}/`
+    
+    //var topology_viewer = `<pdb-rna-viewer id="PdbeTopViewer" pdb-id="${pdbid}" entity-id="${entityid}" chain-id="${chainid}" rv-api="true" ></pdb-rna-viewer>` 
+    //document.getElementById('topview').innerHTML = topology_viewer; 
+    //window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
+   // ajaxProper({
+        //url: postTopologyURL,
+        //url: vm.URL,
+       //type: 'POST',
+        //dataType: 'json'
+    //}).then (parsedResponse => {
+        //if (parsedResponse == "Topology Success!"){
+            //console.log("Topology Success!");          
+        //}
+    //}).catch(error => {
+        //var topview = document.querySelector('#topview');
+        //vm.topology_loaded = 'error';
+        //topview.innerHTML = "Failed to generate topology from the structure file!<br>Try different PDB."
+        //console.log(error.responseText);
+    //});
+//}
 
 function sleeper(ms) {
     return function(x) {
         return new Promise(resolve => setTimeout(() => resolve(x), ms));
     };
 }
-

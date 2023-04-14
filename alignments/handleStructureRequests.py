@@ -21,40 +21,18 @@ def handleCustomUploadStructure (request, strucID):
             return HttpResponseServerError("POST was sent without entities to parse!")
         deStrEnt = json.loads(entities)
         print('json')
-        #print(deStrEnt)
         if strucID == "cust":
             #### This is not dependent on topology and should return success
             strucObj = parseCustomCIF(deStrEnt["stringData"], "CUST")
 
             strucString = strucToString(strucObj)
            
-            #print(strucString) 
-            #print(deStrEnt["chainID"])
-            #print(deStrEnt["entityID"])
-            
-            
-            import Bio.PDB.MMCIF2Dict
-            mmcdata = Bio.PDB.MMCIF2Dict.MMCIF2Dict("/tmp/cust2.cif")
-            index = 0
-            try:
-                index = mmcdata['_entity_poly.pdbx_strand_id'].index(deStrEnt["chainID"])
-            except:
-                i = 0
-                for item in mmcdata['_entity_poly.pdbx_strand_id']:
-                    if deStrEnt["chainID"] in item.split(','):
-                        index = i
-                    i += 1
-            pattern = '\([a-zA-Z0-9]*\)'
-            sequence = mmcdata['_entity_poly.pdbx_seq_one_letter_code_can'][index]
-            #FULL RNA SEQ IS PARSED AND STORED HERE
-            RNA_full_seqquence = ''.join(sequence.split())
-            print('cif_pdbx')
-            print(RNA_full_seqquence)
             
             fixedEntityStruc = fixEntityFieldofParsedCIF(strucString, {deStrEnt["chainID"]:deStrEnt["entityID"]})
             outStruc = fixResiFieldsofParsedCIF(fixedEntityStruc)
             request.session[f'{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = outStruc
             request.session[f'PDB-{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = deStrEnt["stringData"]
+    
             return JsonResponse("Success!", safe=False)
         for entry in deStrEnt:
             if request.session.get(f'{strucID}-{entry["entityID"]}-{entry["chainID"]}'):
@@ -162,7 +140,6 @@ def parseCustomCIF(stringData, pdbid):
     with open('/tmp/cust2.cif', 'w') as f:
             f.write(strucFile1.read())
             f.close()
-    print('MMCIF parser')
     structureObj = parser.get_structure(pdbid,strucFile)
     print('MMCIF parsed')
    

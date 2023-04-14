@@ -2,6 +2,7 @@ import contextlib
 import re, os, warnings, io, base64, json
 import datetime
 import urllib.request
+import shutil
 from subprocess import Popen, PIPE
 from pdbecif.mmcif_io import CifFileReader
 from Bio import AlignIO, BiopythonDeprecationWarning, PDB
@@ -180,7 +181,6 @@ def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure=''):
         for rawsql, parent in rawsqls:
             nogap_tupaln, max_alnposition= aqab.query_to_dict_structure(rawsql, parent, nogap_tupaln, max_alnposition)
 
-        print(nogap_tupaln)
         #### __________________Build alignment__________________ ####
         fastastring, frequency_list = aqab.build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_alnposition)
     
@@ -350,9 +350,6 @@ def getAlignmentsFilterByProteinTypeAndTaxIdsDirect(request, concatenatedProtein
     return JsonResponse(context)
 
 def index_orthologs(request):
-    print ("request.method == 'POST': " + str(request.method == 'POST'))
-    print ("'custom_propensity_data' in request.FILES: " + str('custom_propensity_data' in request.FILES))
-    print ("request.method: " + str(request.method))
     for x in request.FILES:
         print ("x: " + str(x))
     if request.method == 'GET' and 'custom_propensity_data' in request.FILES:
@@ -469,7 +466,6 @@ def rProtein(request, align_name, tax_group):
     #if tax_group == 0 - no filter
     align_id = Alignment.objects.filter(name = align_name)[0].aln_id
     fastastring = simple_fasta(request, align_id, tax_group, internal=True)
-    print(fastastring)
     #fastastring,max_aln_length = aqab.sql_filtered_aln_query(align_id,tax_group)
     context = {'fastastring': fastastring, 'aln_name':str(Alignment.objects.filter(aln_id = align_id)[0].name)}
     return render(request, 'alignments/detail.html', context)
@@ -848,7 +844,32 @@ def protein_contacts(request, pdbid, chain_id):
                 neighbors[chain.id] = list(neighbors_L2_all)
     #modified_residues(pdbid)
     return JsonResponse(neighbors)
-def r2dt(request, sequence):
+def full_RNA_seq(request, pdbid):
+    RNA_full_sequence={}
+    chain_id=str('a')
+    import Bio.PDB.MMCIF2Dict
+    mmcdata = Bio.PDB.MMCIF2Dict.MMCIF2Dict("/tmp/" + str(pdbid) + "2.cif")
+    
+    index = 0
+    try:
+        index = mmcdata['_entity_poly.pdbx_strand_id'].index(chain_id)
+        
+    except:
+        i = 0
+        for item in mmcdata['_entity_poly.pdbx_strand_id']:
+            if chain_id in item.split(','):
+                index = i
+            i += 1
+    pattern = '\([a-zA-Z0-9]*\)'
+    sequence = mmcdata['_entity_poly.pdbx_seq_one_letter_code_can'][index]
+    #FULL RNA SEQ IS PARSED AND STORED HERE
+    RNA_full_sequence = ''.join(sequence.split())
+    context = {
+        'RNAseq' : RNA_full_sequence
+    }
+    return JsonResponse(context)
+    
+def r2dt(request, sequence, entity_id):
     import os
     import datetime
     cwd = os.getcwd()
@@ -859,12 +880,12 @@ def r2dt(request, sequence):
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
   
     newcwd = os.getcwd()
-    with open('sequence10.fasta', 'w') as f:
+    with open('sequence10'+str(fileNameSuffix)+'.fasta', 'w') as f:
         f.write('>Sequence\n')
         f.write(sequence)
         f.close()       
     output = f"/home/anton/RiboVision2/rna/R2DT-master/R2DT-test20{fileNameSuffix}"    
-    cmd = f'python3 r2dt.py  draw {newcwd}/sequence10.fasta {output}'
+    cmd = f'python3 r2dt.py  draw {newcwd}/sequence10{fileNameSuffix}.fasta {output}'
     os.system(cmd)
     filename = '' 
           
@@ -872,7 +893,7 @@ def r2dt(request, sequence):
         firstfile = sorted(files)[0]
         
         filename = os.path.join(topdir, firstfile)  
-    cmd = f'python3 /home/anton/RiboVision2/rna/R2DT-master/parse_cif3.py -ij {filename} -ic /tmp/cust2.cif -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
+    cmd = f'python3 /home/anton/RiboVision2/rna/R2DT-master/parse_cif4.py -ij {filename} -ic /tmp/cust2.cif -ie {entity_id} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
     os.system(cmd)
     with open(f'{output}/results/json/RNA_2D_json.json', 'r') as f:
         data = json.loads(f.read())
@@ -887,4 +908,25 @@ def r2dt(request, sequence):
         'RNA_BP_json' : BP
         
     }
+    if os.path.isfile('./sequence10'+str(fileNameSuffix)+'.fasta'):
+        os.remove('./sequence10'+str(fileNameSuffix)+'.fasta')
+
+    else:
+        # If it fails, inform the user.
+        print("Error: %s file not found" % './sequence10'+str(fileNameSuffix)+'.fasta')
+        
+    if os.path.isfile('./sequence10'+str(fileNameSuffix)+'.fasta.ssi'):
+        os.remove('./sequence10'+str(fileNameSuffix)+'.fasta.ssi')
+
+    else:
+        # If it fails, inform the user.
+        print("Error: %s file not found" % './sequence10'+str(fileNameSuffix)+'.fasta.ssi')   
+    
+    dir_path = str(output)
+    if os.path.isdir(dir_path):
+        # remove directory and all its content
+        shutil.rmtree(dir_path)
+    else:
+        raise ValueError("Path {} is not a file or dir.".format(dir_path))
+     
     return JsonResponse(r2dt_json)
