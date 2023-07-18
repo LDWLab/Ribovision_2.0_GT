@@ -289,6 +289,7 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     window.mapped_aa_properties = null;
     vueObj.checkedRNA = false,
     vueObj.customPDBid = null,
+    vueObj.customFullSequence = null,
     vueObj.pdbStart = null,
     vueObj.pdbEnd = null,
     vueObj.pdbSeq = null,
@@ -478,15 +479,24 @@ var calculateFrequencyData = function (frequencies){
 
 var mapAAProps = function (aa_properties, mapping){
   let outPropertyMappedPosition = new Map();
+  console.log('Mapping inside AAProps aln_ix');
+  console.log(mapping );
+  console.log(aa_properties );
+
   aa_properties.forEach(function (data, property_name){
       outPropertyMappedPosition.set(property_name, [])
       data.forEach(function (data, aln_ix) {
           let mappedI0 = mapping[aln_ix+1];
+          //console.log( aln_ix, mapping[aln_ix+1]);
+
           if (mappedI0) {
+              //outPropertyMappedPosition.get(property_name).push([mappedI0, Number(math.sum(data).toFixed(2))]);
               outPropertyMappedPosition.get(property_name).push([mappedI0, Number(math.sum(data).toFixed(2))]);
           }
       });
   });
+  console.log('Mapping inside AAProps', mapping); 
+  console.log('Mapping inside AAProps', aa_properties); 
   return outPropertyMappedPosition;
 };
 
@@ -669,6 +679,7 @@ var parsePVData = function (separatedData, lowVal, highVal, colormapArray, maski
                 TWCData.set(parsedItem, null);
             }*/
         });
+        console.log('TWCData:', TWCData);
         return [TWCrgbMap, TWCData];
     }
 

@@ -452,9 +452,20 @@ export class UiTemplateService {
                 }; 
                 
                 const [TWCrgbMap, TWCData] = this.parsePVData(separatedData, min, max, colormapArray);
-                this.selectSections_RV1.get(name).push({entity_id: _this.pluginOptions.entityId, focus: true});
-                const end = TWCData.size;
+                const TWCData_keys =TWCData.keys();
                 
+                //const last_item  = 0;
+                let mapLastValue
+                let i
+                for (i = 0; i < TWCData.size; i += 1) {
+                    mapLastValue = TWCData_keys.next().value
+                  }
+                
+                console.log(mapLastValue);
+                console.log('RNAViewer_TWCData',TWCData, TWCData.size, TWCData[Symbol.iterator](),TWCData_keys);
+                this.selectSections_RV1.get(name).push({entity_id: _this.pluginOptions.entityId, focus: true});
+                //const end = TWCData.size;
+                const end = mapLastValue;
                 if (void 0 !== TWCData){
                     residueDetails = _this.create2D3DAnnotations(name, residueDetails, 
                                                                 TWCrgbMap, TWCData, mapped_aa_properties,

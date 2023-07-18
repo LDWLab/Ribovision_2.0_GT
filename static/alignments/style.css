@@ -300,6 +300,7 @@
 
   #inputRV3State,
   #uploadCustomPDB,
+  #uploadCustomFullSequence,
   #Counter{
     display: none;
   }

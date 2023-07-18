@@ -1,13 +1,13 @@
 import {loadAlignmentViewer} from './loadAlignmentViewer.js'
 import {ajaxProper} from './ajaxProper.js'
 
-export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, ebi_sequence, vueObj){
+export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, ebi_sequence, vueObj, hardcoded_structure = ""){
     vm.sequence = ebi_sequence;
     if (vm.fasta_data){
         let cleanFasta = vm.fasta_data.replace(/^>Structure sequence\n(.+\n)+?>/i, ">");
         vm.fasta_data = cleanFasta;
     };
-    ajax('/mapSeqAln/', {fasta, struc_id}).then(structMappingAndData=>{
+    ajax('/mapSeqAln/', {fasta, struc_id, hardcoded_structure}).then(structMappingAndData=>{
         var struct_mapping = structMappingAndData["structureMapping"];
         var largestKey = Math.max(...Object.values(struct_mapping).filter(a=>typeof(a)=="number"))
         var smallestKey = Math.min(...Object.values(struct_mapping).filter(a=>typeof(a)=="number"))
@@ -46,17 +46,25 @@ var assignColorsAndStrucMappings = function (vueObj, struct_mapping){
     loadAlignmentViewer (vueObj.fasta_data);
 
     var mapped_aa_properties = mapAAProps(vueObj.aa_properties, vueObj.structure_mapping);
+    console.log('Mapping_data');
+    console.log(vueObj.structure_mapping);
+    console.log('aa_properties');
+    console.log(vueObj.aa_properties);
+   
     if (((vueObj.tax_id != null && vueObj.tax_id.length == 2) || (vueObj.custom_aln_twc_flag != null && vueObj.custom_aln_twc_flag == true) || (vueObj.type_tree == 'para'))) {
         if (vueObj.unmappedTWCdata) {
-            mapTWCdata(vueObj.structure_mapping, vueObj.unmappedTWCdata, mapped_aa_properties);
+            
+            mapTWCdata(vueObj.structure_mapping,vueObj.unmappedTWCdata , mapped_aa_properties);
         }
     }
     window.mapped_aa_properties = mapped_aa_properties;
 
-    vm.sequence=vueObj.fasta_data.split(' ')[1];
+    vm.sequence=vueObj.fasta_data.split(' ')[2];
+    console.log(vm.sequence);
     let sequence2=vm.sequence.replaceAll(/-|\n/g, "");
     vm.sequence3=sequence2.substring("sequence".length, sequence2.indexOf(">"));
     vm.sequence4=vm.sequence3;
+    console.log(vm.sequence3);
     //tryCustomTopology(vm.pdbid, vm.entityID, vm.chainid[0]);
     delayedMapping();
     //retry(delayedMapping, 10, 1000);

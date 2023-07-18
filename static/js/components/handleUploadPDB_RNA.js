@@ -2,17 +2,18 @@ import {ajaxProper} from './ajaxProper.js'
 import parsePdb from 'parse-pdb'
 import {getStructMappingAndTWC} from './getStructMappingAndTWC.js'
 
-export function uploadCustomPDB(){
+export function uploadCustomPDB(hardcoded_structure = ""){
     if (vm.$refs.customPDBfile.files.length == 0){return;}
     vm.PDBparsing = true;
     vm.customPDBsuccess = null;
     vm.customPDBid = null;
-    submitCustomPDB(vm.$refs.customPDBfile.files[0]);
+    submitCustomPDB(vm.$refs.customPDBfile.files[0], hardcoded_structure);
     clearInputFile(document.getElementById('uploadCustomPDB'));
 }
 
-function submitCustomPDB(file){
+function submitCustomPDB(file, hardcoded_structure = ""){
     var fr = new FileReader();
+    postFullSeq(hardcoded_structure);
     fr.onload = function(){
         if (validatePDB(fr.result)){
             checkAndPopulateChains(fr.result).then (chainID => {
@@ -21,7 +22,8 @@ function submitCustomPDB(file){
                     return;
                 } else{
                     vm.customPDBid = `cust-1-${chainID[0]}`;
-                    postPDBdata("cust", { entityID: "1", chainID: chainID[0], stringData: fr.result });
+                    postPDBdata("cust", { entityID: "1", chainID: chainID[0], stringData: fr.result }, hardcoded_structure);
+                    
                 }
             }).catch(error => {
                 console.log(error)
@@ -87,7 +89,7 @@ var threeLetterToOne = {
    
 }
 
-function postPDBdata (pdbID, entities){
+function postPDBdata (pdbID, entities, hardcoded_structure = ""){
     vm.postedPDBEntities = false;
     let parseURL = `custom-struc-data/${pdbID}`;
     var stringEntities = JSON.stringify(entities); 
@@ -100,7 +102,28 @@ function postPDBdata (pdbID, entities){
         vm.PDBparsing = false;
         if (parsedResponse == "Success!"){
             vm.customPDBsuccess = true;
-            getStructMappingAndTWC (vm.fasta_data, vm.customPDBid, vm.pdbStart, vm.pdbEnd, null, vm);
+            getStructMappingAndTWC (vm.fasta_data, vm.customPDBid, vm.pdbStart, '2904', null, vm, hardcoded_structure);
+        }
+    }).catch(error => {
+        vm.PDBparsing = 'error';
+        console.log(error.responseText);
+    });
+}
+
+function postFullSeq (FullSeq){
+    vm.postedFullSeq = false;
+    let URL = `custom-struc-full-seq/`;
+    var stringSeq = JSON.stringify(FullSeq); 
+    ajaxProper({
+        url: URL,
+        type: 'POST',
+        dataType: 'json',
+        postData: {"sequence": stringSeq}
+    }).then (parsedResponse => {
+        vm.PDBparsing = false;
+        if (parsedResponse == "Success!"){
+            vm.postedFullSeq = true;
+            
         }
     }).catch(error => {
         vm.PDBparsing = 'error';

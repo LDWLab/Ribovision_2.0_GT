@@ -21,6 +21,7 @@ urlpatterns = [
     path('twc-api/<str:align_name>/<int:tax_group1>/<int:tax_group2>/<str:anchor_structure>', views.api_twc, name='api_twc'),
     path('twc-api/', views.api_twc_parameterless, name='api_twc'),
     path('mapSeqAln/', mapStrucSeqToAln.make_map_from_alnix_to_sequenceix_new, name='mapping_aln_to_seq'),
+    path('custom-struc-full-seq/', mapStrucSeqToAln.get_FullSeq, name='custom_struc_full_seq'),
     path('mapSeqAlnOrig/', views.make_map_from_alnix_to_sequenceix, name='mapping_aln_to_seq'),
     path('twc-api/<str:align_name>/<int:tax_group1>/<int:tax_group2>', views.api_twc, name='api_twc_no_struc'),
     path('resi-api/<int:resi_id>', views.resi_info),

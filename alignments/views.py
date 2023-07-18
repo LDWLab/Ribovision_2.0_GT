@@ -85,8 +85,8 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     ### BE CAREFUL WHEN MERGING THE FOLLOWING LINES TO PUBLIC; PATHS ARE HARDCODED FOR THE APACHE SERVER ###
-    alignmentFileName = "/home/RiboVision3/static/alignment" + fileNameSuffix + ".txt"
-    ebiFileName = "/home/RiboVision3/static/ebi_sequence" + fileNameSuffix + ".txt"
+    alignmentFileName = "/home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/static/alignment" + fileNameSuffix + ".txt"
+    ebiFileName = "/home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/static/ebi_sequence" + fileNameSuffix + ".txt"
     mappingFileName = ebiFileName + ".map"
     fasta = re.sub('>Structure sequence[\s\S]*?>','>',fasta)
     fh = open(alignmentFileName, "w")
@@ -544,6 +544,7 @@ def parse_string_structure(request, stringData, strucID):
     from Bio.PDB import MMCIFParser
     parser = MMCIFParser()
     strucFile = io.StringIO(stringData)
+    print('MMCIFParser')
     #c.structureObj = parser.get_structure(strucID,strucFile)
     #return c.structureObj
     return parser.get_structure(strucID,strucFile)
@@ -729,7 +730,7 @@ def modified_residues(request, pdbid, chain_id):
     now = datetime.datetime.now()
     
 
-    os.chdir('/home/RiboVision3/R2DT/rna/R2DT')
+    #os.chdir('/home/RiboVision3/R2DT/rna/R2DT')
     #cmd = f'LANG=en_US.utf8 /usr/bin/python3 r2dt.py draw /home/RiboVision3/R2DT/rna/R2DT/examples/examples.fasta test15'
     #cmd = f'LANG=en_US.utf8 /usr/bin/python3 r2dt.py draw /home/RiboVision3/R2DT/rna/R2DT/sequence10.fasta test10'
     #os.system(cmd)
@@ -774,8 +775,8 @@ def r2dt(request, sequence):
     import datetime
     cwd = os.getcwd()
     now = datetime.datetime.now()
-    os.chdir('/home/RiboVision3/R2DT/rna/R2DT')
-    #os.chdir('/home/anton/RiboVision2/rna/R2DT-master')
+    #os.chdir('/home/RiboVision3/R2DT/rna/R2DT')
+    os.chdir('/home/anton/RiboVision2/rna/R2DT-master')
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
   
     newcwd = os.getcwd()

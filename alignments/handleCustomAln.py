@@ -74,9 +74,9 @@ def executeCDHit(fasta):
 
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
-    fastaName = f"/home/RiboVision3/static/cleanFastaCD{fileNameSuffix}.fa"
-    cdHitOut = f"/home/RiboVision3/static/cleanFastaCD{fileNameSuffix}"
-    cdHitClusters = f"/home/RiboVision3/static/cleanFastaCD{fileNameSuffix}.clstr"
+    fastaName = f"/home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/static/cleanFastaCD{fileNameSuffix}.fa"
+    cdHitOut = f"/home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/static/cleanFastaCD{fileNameSuffix}"
+    cdHitClusters = f"/home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/static/cleanFastaCD{fileNameSuffix}.clstr"
     tempfiles = [fastaName, cdHitOut, cdHitClusters]
     for tempf in tempfiles:
         if path.isfile(tempf):
