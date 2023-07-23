@@ -779,25 +779,14 @@ def r2dt(request, sequence):
     #os.chdir('/home/RiboVision3/R2DT/rna/R2DT')
     os.chdir('/home/anton/RiboVision2/rna/R2DT-master')
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
-  
     newcwd = os.getcwd()
-    with open('sequence10.fasta', 'w') as f:
+    with open('sequence10'+str(fileNameSuffix)+'.fasta', 'w') as f:
         f.write('>Sequence\n')
         f.write(sequence)
         f.close()       
     #os.mkdir("R2DT-master")
     print(newcwd)
     output = f"{newcwd}/R2DT-test{fileNameSuffix}"
-    #output = f"/home/anton/RiboVision2/rna/R2DT-master/R2DT-test20{fileNameSuffix}"
-    #cmd = f'ribotyper.pl  -f sequence10.fasta {output}'
-    #os.system(cmd)
-    #time.sleep(20)
-    #cmd = f'cp  {output}/../sequence10.fasta {output}/subset.fasta'
-    #os.system(cmd)
-    #cmd = f'cp  {output}/../sequence10.fasta.ssi {output}/subset.fasta.ssi'
-    #os.system(cmd)
-    #time.sleep(20)
-    #cmd = f'python3 r2dt.py ribovision draw_lsu {newcwd}/sequence10.fasta {output}'
     cmd = f'LANG=en_US.utf8 /usr/bin/python3 r2dt.py draw {newcwd}/sequence10.fasta {output}'
     os.system(cmd)
     #time.sleep(40)
@@ -845,13 +834,7 @@ def r2dt(request, sequence):
     else:
         # If it fails, inform the user.
         print("Error: %s file not found" % './sequence10'+str(fileNameSuffix)+'.fasta')
-        
-    if os.path.isfile('./sequence10'+str(fileNameSuffix)+'.fasta.ssi'):
-        os.remove('./sequence10'+str(fileNameSuffix)+'.fasta.ssi')
-
-    else:
-        # If it fails, inform the user.
-        print("Error: %s file not found" % './sequence10'+str(fileNameSuffix)+'.fasta.ssi')   
+         
     
     dir_path = str(output)
     if os.path.isdir(dir_path):
