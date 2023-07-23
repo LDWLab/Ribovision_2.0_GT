@@ -102,7 +102,7 @@ function postPDBdata (pdbID, entities, hardcoded_structure = ""){
         vm.PDBparsing = false;
         if (parsedResponse == "Success!"){
             vm.customPDBsuccess = true;
-            getStructMappingAndTWC (vm.fasta_data, vm.customPDBid, vm.pdbStart, '2904', null, vm, hardcoded_structure);
+            getStructMappingAndTWC (vm.fasta_data, vm.customPDBid, vm.pdbStart, vm.pdbEnd, null, vm, hardcoded_structure);
         }
     }).catch(error => {
         vm.PDBparsing = 'error';
