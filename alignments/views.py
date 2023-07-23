@@ -2,6 +2,7 @@ import contextlib
 import re, os, warnings, io, base64, json
 import datetime
 import urllib.request
+import shutil
 from subprocess import Popen, PIPE
 from Bio import AlignIO, BiopythonDeprecationWarning, PDB
 from io import StringIO
@@ -838,5 +839,25 @@ def r2dt(request, sequence):
         'RNA_BP_json' : BP
         
     }
+    if os.path.isfile('./sequence10'+str(fileNameSuffix)+'.fasta'):
+        os.remove('./sequence10'+str(fileNameSuffix)+'.fasta')
+
+    else:
+        # If it fails, inform the user.
+        print("Error: %s file not found" % './sequence10'+str(fileNameSuffix)+'.fasta')
+        
+    if os.path.isfile('./sequence10'+str(fileNameSuffix)+'.fasta.ssi'):
+        os.remove('./sequence10'+str(fileNameSuffix)+'.fasta.ssi')
+
+    else:
+        # If it fails, inform the user.
+        print("Error: %s file not found" % './sequence10'+str(fileNameSuffix)+'.fasta.ssi')   
+    
+    dir_path = str(output)
+    if os.path.isdir(dir_path):
+        # remove directory and all its content
+        shutil.rmtree(dir_path)
+    else:
+        raise ValueError("Path {} is not a file or dir.".format(dir_path))
     return JsonResponse(r2dt_json)
 
