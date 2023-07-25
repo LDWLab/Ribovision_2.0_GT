@@ -7,7 +7,7 @@ from Bio.SeqUtils import IUPACData
 from alignments.views import validate_fasta_string, calculateFastaProps, construct_dict_for_json_response
 
 def handle_custom_upload_alignment(request):
-    print(request.FILES)
+    #print(request.FILES)
     if request.method == 'POST' and 'custom_aln_file' in request.FILES:
         aln_file = request.FILES['custom_aln_file']
         alignment_string = ''
@@ -56,7 +56,6 @@ def handleCustomAlnGETRequest(fastastring):
     for i in range(0, alignment_obj.get_alignment_length()):
         frequency_list.append(gap_adjusted_frequency(alignment_obj[:,i], IUPACData.unambiguous_rna_letters))
     response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc])
-
     return response_dict
 
 def prepareCDHit (alnObj):

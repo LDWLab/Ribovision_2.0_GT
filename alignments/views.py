@@ -150,7 +150,6 @@ def make_map_from_alnix_to_sequenceix(request):
     fasta, ebi_sequence, startIndex = request_post_data(request.POST)
     print("hi")
     mapping = constructEbiAlignmentString(fasta, ebi_sequence, startIndex)
-    print(mapping)
     if type(mapping) != dict:
         return mapping
     return JsonResponse(mapping, safe = False)
@@ -451,7 +450,6 @@ def rProtein(request, align_name, tax_group):
     #if tax_group == 0 - no filter
     align_id = Alignment.objects.filter(name = align_name)[0].aln_id
     fastastring = simple_fasta(request, align_id, tax_group, internal=True)
-    print(fastastring)
     #fastastring,max_aln_length = aqab.sql_filtered_aln_query(align_id,tax_group)
     context = {'fastastring': fastastring, 'aln_name':str(Alignment.objects.filter(aln_id = align_id)[0].name)}
     return render(request, 'alignments/detail.html', context)
@@ -787,7 +785,7 @@ def r2dt(request, sequence):
     #os.mkdir("R2DT-master")
     print(newcwd)
     output = f"{newcwd}/R2DT-test{fileNameSuffix}"
-    cmd = f'LANG=en_US.utf8 /usr/bin/python3 r2dt.py draw {newcwd}/sequence10.fasta {output}'
+    cmd = f'LANG=en_US.utf8 /usr/bin/python3 r2dt.py draw {newcwd}/sequence10{fileNameSuffix}.fasta {output}'
     os.system(cmd)
     #time.sleep(40)
     filename = '' 
@@ -799,8 +797,7 @@ def r2dt(request, sequence):
     #cmd = f'python3 svg2json.py test_model_chain {filename} {output}/jsonexample'
     #print('filename')
     #cmd = f'python3 /home/anton/RiboVision2/rna/R2DT-master/svg2json.py cust_1_B {output}/Sequence-PF_LSU_3D.svg {output}/../jsonexample8.json'
-    print("FILENAME")
-    print(filename)
+
     cmd = f'/usr/bin/python3 {newcwd}/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
 
     os.system(cmd)

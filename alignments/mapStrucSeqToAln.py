@@ -15,20 +15,16 @@ def request_post_data(post_data):
 
 def get_FullSeq(request):
     full_sequence = request.POST["sequence"]
-    print(f"full_sequence: {full_sequence}")
     return JsonResponse(full_sequence, safe=False)
 
 def make_map_from_alnix_to_sequenceix_new(request):
     fasta, struc_id = request_post_data(request.POST)
     hardcoded_structure = request.POST["hardcoded_structure"]
-    print(f"hardcoded_structure: {hardcoded_structure}")
     serializeData = request.session[struc_id]
     
     strucObj = parse_string_structure(request, serializeData, struc_id)
     seq_ix_mapping, struc_seq, gapsInStruc = constructStrucSeqMap(strucObj)
-    print('seq_ix_mapping')
-    print(seq_ix_mapping)
-    print(struc_seq)
+
     full_seq=SeqRecord(Seq(hardcoded_structure))
     mapping = create_aln_true_seq_mapping_with_mafft(fasta, full_seq, seq_ix_mapping)
     mapping = create_aln_struc_mapping_with_mafft(mapping["amendedAln"], struc_seq, seq_ix_mapping)
@@ -65,9 +61,6 @@ def constructStrucSeqMap(structure):
         old_resi = resi_id[1]
     if len(seq1(residues[0].get_resname().replace(' ',''))) != 0:
         sequence = seq1(sequence)
-    
-    print('PDB_seq')
-    print(sequence)
     
     return seq_ix_mapping, SeqRecord(Seq(sequence)), gapsInStruc
 
@@ -106,8 +99,7 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
     fh.write(">Structure sequence\n")
     fh.write(str(struc_seq.seq))
     fh.close()
-    print('struc_seq')
-    print(str(struc_seq.seq))
+   
     print("Mafft")
     pipe = Popen(f"/usr/local/bin/mafft --anysymbol --preservecase --quiet --addfull {pdb_seq_path} --mapout {aln_group_path}; /usr/bin/cat {mappingFileName}", stdout=PIPE, shell=True)
     output = pipe.communicate()[0]
@@ -135,7 +127,6 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
         if row[1] == '-':
             fail_map = True
         mapping[int(row[2])] = seq_ix_mapping[int(row[1])]
-        print(mapping[int(row[2])])
     for tempf in tempfiles:
         remove(tempf)
     if fail_map:
@@ -144,7 +135,6 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
         outputDict['BadMappingPositions'] = bad_map_positions
     outputDict["amendedAln"] = f'>Structure sequence{amendedAln.split(">Structure sequence")[1]}{amendedAln.split(">Structure sequence")[0]}'
     outputDict["structureMapping"] = mapping
-    print('structMapping', mapping)
     return outputDict
 
 
@@ -165,7 +155,7 @@ def create_aln_true_seq_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
     #aln_group_path = "/home/RiboVision3/static/alignment" + fileNameSuffix + ".txt"
     #pdb_seq_path = "/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/ebi_sequence" + fileNameSuffix + ".txt"
     #pdb_seq_path = "/home/RiboVision3/static/ebi_sequence" + fileNameSuffix + ".txt"
-    mappingFileName = pdb_seq_path + ".map"
+    #mappingFileName = pdb_seq_path + ".map"
     tempfiles = [aln_group_path, pdb_seq_path]
     for tempf in tempfiles:
         if path.isfile(tempf):
@@ -184,7 +174,8 @@ def create_aln_true_seq_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
     fh.write(str(struc_seq.seq))
     fh.close()
     print("Mafft")
-    pipe = Popen(f"/usr/local/bin/mafft --anysymbol --preservecase --quiet --addfull {pdb_seq_path} {aln_group_path}", stdout=PIPE, shell=True)
+    #pipe = Popen(f"/usr/local/bin/mafft --anysymbol --preservecase --quiet --addfull {pdb_seq_path} {aln_group_path}", stdout=PIPE, shell=True)
+    pipe = Popen(f"/usr/local/bin/mafft --preservecase --anysymbol --addfull {pdb_seq_path}  --keeplength {aln_group_path}", stdout=PIPE, shell=True)
     output = pipe.communicate()[0]
     
     #print(seq_ix_mapping[int(row[1])])
