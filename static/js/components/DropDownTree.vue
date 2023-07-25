@@ -844,7 +844,10 @@
                 var barColors = Array(aaFreqs.length).fill('#808080');
                 window.barColors = barColors;
                 this.fasta_data = fasta['Alignment'];
+                console.log('fasta_data');
+                console.log(this.fasta_data);
                 this.aa_properties = calculateFrequencyData(fasta['AA frequencies']);
+                console.log('frequencies', fasta['AA frequencies']);
                 loadAlignmentViewer (fasta['Alignment']);
             })
         }, showTopologyViewer (pdbid, chainid, fasta){

@@ -455,6 +455,8 @@ var calculateFrequencyData = function (frequencies){
       return a.map((e,i) => e * b[i]);
   }
   aaPropertiesData = setGlobalProperties();
+  console.log('frequencies');
+  console.log(frequencies);
   let outPropertyPosition = new Map();
   aaPropertiesData.forEach(function (data, property_name){
       if (property_name == "TwinCons"){return;}
