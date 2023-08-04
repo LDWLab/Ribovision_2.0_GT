@@ -7,7 +7,12 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
         let cleanFasta = vm.fasta_data.replace(/^>Structure sequence\n(.+\n)+?>/i, ">");
         vm.fasta_data = cleanFasta;
     };
-    ajax('/mapSeqAln/', {fasta, struc_id}).then(structMappingAndData=>{
+    const postData = {
+        fasta,
+        struc_id,
+        "cif_mode_flag" : vm.user_uploaded_cif_flag
+    };
+    ajax('/mapSeqAln/', postData).then(structMappingAndData=>{
         var struct_mapping = structMappingAndData["structureMapping"];
         var largestKey = Math.max(...Object.values(struct_mapping).filter(a=>typeof(a)=="number"))
         var smallestKey = Math.min(...Object.values(struct_mapping).filter(a=>typeof(a)=="number"))
@@ -53,7 +58,7 @@ var assignColorsAndStrucMappings = function (vueObj, struct_mapping){
     }
     window.mapped_aa_properties = mapped_aa_properties;
 
-    vm.sequence=vueObj.fasta_data.split(' ')[1];
+    vm.sequence=vueObj.fasta_data.split(' ')[vm.user_uploaded_cif_flag === null || vm.user_uploaded_cif_flag ? 1 : 2];
     let sequence2=vm.sequence.replaceAll(/-|\n/g, "");
     vm.sequence3=sequence2.substring("sequence".length, sequence2.indexOf(">"));
     vm.sequence4=vm.sequence3;
@@ -85,7 +90,7 @@ function retry (fn, maxAttempts = 1, delay = 0, attempts = 0) {
         tryCustomTopology(vm.pdbid, vm.entityID, vm.chainid[0]);
         throw err
       })
-  }
+}
 
 var tryCustomTopology = function (pdbid, entityid, chainid){
     vm.topology_loaded = false;
@@ -95,10 +100,7 @@ var tryCustomTopology = function (pdbid, entityid, chainid){
     //var postTopologyURL = `r2dt/${vm.sequence3}/`
     console.log('eid1',entityid);
 
-    pdbid='cust'; 
-   
-    var RNA_full_sequence1='';
-    var RNA_full_sequence = null;
+    pdbid='cust';
 
     async function getRNAChain(pdbid) {
       try {
@@ -130,7 +132,10 @@ var tryCustomTopology = function (pdbid, entityid, chainid){
         //url: postTopologyURL,
         url: vm.URL,
         type: 'POST',
-        dataType: 'json'
+        dataType: 'json',
+        postData : {
+            cif_mode_flag : vm.user_uploaded_cif_flag
+        }
       }).then (parsedResponse => {
         if (parsedResponse == "Topology Success!"){
             console.log("Topology Success!");          
@@ -144,8 +149,7 @@ var tryCustomTopology = function (pdbid, entityid, chainid){
     }).catch(error => {
       console.error(error);
     });
-    
-    }
+}
     //vm.getR2DT(vm.pdbSeq);
     //vm.URL = `r2dt/${vm.pdbSeq}/`
     //vm.getR2DT(seq1);

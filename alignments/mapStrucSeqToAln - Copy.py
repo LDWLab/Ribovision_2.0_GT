@@ -19,35 +19,19 @@ def get_FullSeq(request):
 def make_map_from_alnix_to_sequenceix_new(request):
     print('make_map')
     fasta, struc_id = request_post_data(request.POST)
-    # pull cif_mode_flag from POST
+    # TODO: pull cif_mode_flag from POST
     cif_mode_flag = request.POST["cif_mode_flag"]
-    parsed_cif_mode_flag = cif_mode_flag
-    if cif_mode_flag == "true":
-        parsed_cif_mode_flag = True
-    elif cif_mode_flag == "false":
-        parsed_cif_mode_flag = False
-    elif cif_mode_flag == "":
-        parsed_cif_mode_flag = None
-    cif_mode_flag = parsed_cif_mode_flag
     serializeData = request.session[struc_id]
-    strucObj = parse_string_structure(request, serializeData, struc_id)
-    seq_ix_mapping, struc_seq, gapsInStruc = constructStrucSeqMap(strucObj)
-
-    
-
-    print(f"cif_mode_flag: {cif_mode_flag}")
     if not (cif_mode_flag is None):
         if not cif_mode_flag:
             hardcoded_structure = request.POST["hardcoded_structure"]
             full_seq=SeqRecord(Seq(hardcoded_structure))
             mapping = create_aln_true_seq_mapping_with_mafft(fasta, full_seq, seq_ix_mapping)
             mapping = create_aln_struc_mapping_with_mafft(mapping["amendedAln"], struc_seq, seq_ix_mapping)
-        else:
-            mapping = create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping)
-    else:
-        mapping = create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping)
-        
-        
+    strucObj = parse_string_structure(request, serializeData, struc_id)
+    seq_ix_mapping, struc_seq, gapsInStruc = constructStrucSeqMap(strucObj)
+    
+    mapping = create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping)
     mapping["gapsInStruc"] = gapsInStruc
     if type(mapping) != dict:
         return mapping

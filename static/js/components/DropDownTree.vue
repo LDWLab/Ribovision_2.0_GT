@@ -54,9 +54,17 @@
             </p>
                 <!--<span v-if="alnobj&&alnobj!='custom'">Select structure for mapping:</span>-->
                 <div v-if="alnobj&&alnobj=='custom'&&file&&type_tree=='upload'">
+                    <label for="uploadCustomFullSequence" id="full-sequence-upload" class="btn btn-outline-dark">Upload a custom full sequence</label>
+                    <input id="uploadCustomFullSequence" class="btn btn-outline-dark" type="file" accept=".txt" ref="customFullSequence" v-on:change="uploadCustomFullSequence(); uploadCustomPDB()"></input>
+                    AND<br>
                     <label for="uploadCustomPDB" id="pdb-upload" class="btn btn-outline-dark">Upload a custom PDB</label>
-                    <input id="uploadCustomPDB" class="btn btn-outline-dark" type="file" accept=".pdb" ref="customPDBfile" v-on:change="uploadCustomPDB()"/>
-                    <!--OR<br>-->
+                    <input id="uploadCustomPDB" class="btn btn-outline-dark" type="file" accept=".pdb" ref="customPDBfile" v-on:change="uploadCustomPDB();"/>
+                    OR<br>
+                    <label for="uploadCustomCIF" id="cif-upload" class="btn btn-outline-dark">Upload a custom CIF</label>
+                    <input id="uploadCustomCIF" class="btn btn-outline-dark" type="file" accept=".cif" ref="customCIFfile" v-on:change="uploadCustomCIF();"/>
+                    <br>AND<br>
+                    <label for="provideEntityID">Provide an Entity ID for a desired RNA chain</label>
+                    <input id="provideEntityID" class="btn btn-outline-dark" type="number" ref="entity_id" v-on:change="uploadCustomCIF()"/>
                 </div>
                 <span v-if="alnobj">Select/type PDB entry:</span>
                 <select class="btn btn-outline-dark dropdown-toggle" id="pdb_input" v-if="alnobj&&alnobj!='custom'" v-model="pdbid">
@@ -273,6 +281,7 @@
 
 
 <script>
+  import {uploadCustomFullSequence} from './handleUploadCustomFullSequence.js'
   import schemes from './msaColorSchemes/index.js'
   import {ajaxProper} from './ajaxProper.js'
   import {addFooterImages} from './Footer.js'
@@ -290,7 +299,8 @@
   import {populateECODranges} from './populateECODranges.js'
   import {postCIFdata} from './postCustomStruct.js'
   //import {uploadCustomPDB} from './handleUploadPDB_RNA.js'
-  import {uploadCustomPDB} from './handleUploadCIF_RNA.js'
+  import {uploadCustomPDB} from './handleUploadPDB_RNA.js'
+  import {uploadCustomCIF} from "./handleUploadCIF_RNA.js"
   import {loadViewersWithCustomUploadStructure} from './handleViewersWithUploadPDB.js'
   import ReactDOM, { render } from 'react-dom';
   import React, { Component } from "react";
@@ -564,6 +574,9 @@
             }
         }
     },methods: {
+        uploadCustomFullSequence: function() {
+            uploadCustomFullSequence();
+        },
         handleFileUpload(){
             this.file = this.$refs.custom_aln_file.files[0];
             if (this.tax_id != null){this.tax_id = null;}
@@ -1033,6 +1046,8 @@
             })
         }, uploadCustomPDB(){
             uploadCustomPDB();
+        }, uploadCustomCIF(){
+            uploadCustomCIF();
         }, updateMolStarWithRibosome(checkRibo){
             if(checkRibo&&viewerInstance&&this.pdbid&&this.entityID){
                 this.completeRiboContext = false;

@@ -43,6 +43,7 @@ export function initialState (){
         aaPos: 0, seqPos: 0,
         hide_chains: null,
         type_tree: "orth",
+        user_uploaded_cif_flag : null,
         aa_properties: null,
         structure_mapping: null,
         poor_structure_map: null,

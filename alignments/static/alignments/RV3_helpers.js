@@ -289,6 +289,7 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     window.mapped_aa_properties = null;
     vueObj.checkedRNA = false,
     vueObj.customPDBid = null,
+    vueObj.customFullSequence = null,
     vueObj.pdbStart = null,
     vueObj.pdbEnd = null,
     vueObj.pdbSeq = null,
@@ -433,7 +434,6 @@ var loadParaAlns = function (value, vm) {
 
 var setGlobalProperties = function(){
     let aaPropertiesData = new Map([
-        //["Shannon entropy",[0.000000000000001,2.000]],
         ["Shannon entropy",[0.000000000000001,2.000]],
         ["TwinCons",[-2.25,6.75]]
     ]);

@@ -4,6 +4,8 @@ import parseMmcif from 'parse-mmcif'
 import {getStructMappingAndTWC} from './getStructMappingAndTWC.js'
 
 export function uploadCustomPDB(){
+    console.log("uploadCustomPDB()");
+    vm.user_uploaded_cif_flag = false;
     console.log('uCPDB',  vm.$refs.customPDBfile);
     if (vm.$refs.customPDBfile.files.length == 0){return;}
     vm.PDBparsing = true;
@@ -12,6 +14,24 @@ export function uploadCustomPDB(){
     vm.customChain='a';
     //submitCustomPDB(vm.$refs.customPDBfile.files[0]);
     submitCustomCIF(vm.$refs.customPDBfile.files[0]);
+    clearInputFile(document.getElementById('uploadCustomPDB'));
+}
+
+export function uploadCustomCIF() {
+    console.log("uploadCustomCIF()");
+    vm.user_uploaded_cif_flag = true;
+    if (vm.$refs.customCIFfile.files.length === 0) {
+        return;
+    }
+    const entity_id = Number.parseInt(vm.$refs.entity_id.value);
+    if (Number.isNaN(entity_id)) {
+        return;
+    }
+    vm.PDBparsing = true;
+    vm.customPDBsuccess = null;
+    vm.customPDBid = null;
+    vm.customChain='a';
+    submitCustomCIF(vm.$refs.customCIFfile.files[0], entity_id);
     clearInputFile(document.getElementById('uploadCustomPDB'));
 }
 
@@ -38,7 +58,8 @@ function submitCustomPDB(file){
     fr.readAsText(file)
 }
 
-function submitCustomCIF(file){
+function submitCustomCIF(file, entity_id = -1){
+    console.log("entity_id", entity_id);
     var fr = new FileReader();
     fr.onload = function(){
         if (validateCIF(fr.result)){
@@ -47,8 +68,8 @@ function submitCustomCIF(file){
                     alert("Detected multiple chains! Currently supports only single chain CIFs!");
                     return;
                 } else{
-                    vm.customPDBid = `cust-22-${vm.customChain}`;
-                    postPDBdata("cust", { entityID: "22", chainID: vm.customChain, stringData: fr.result });
+                    vm.customPDBid = `cust-${entity_id}-${vm.customChain}`;
+                    postPDBdata("cust", { entityID: `${entity_id}`, chainID: vm.customChain, stringData: fr.result });
                     
                     //postPDBdata("cust", { entityID: "67", chainID: vm.customChain, stringData: str(fr) });
                 }

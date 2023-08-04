@@ -349,7 +349,22 @@ def getAlignmentsFilterByProteinTypeAndTaxIdsDirect(request, concatenatedProtein
     context = {'results' : results}
     return JsonResponse(context)
 
-
+def index_orthologs(request):
+    for x in request.FILES:
+        print ("x: " + str(x))
+    if request.method == 'GET' and 'custom_propensity_data' in request.FILES:
+        propensity_indices_file = request.FILES['custom_propensity_data']
+        propensity_indices_string = ''
+        for propensity_part in propensity_indices_file.chunks():
+            propensity_indices_string += propensity_part.decode()
+        print ("propensity_indices_string: " + propensity_indices_string)
+    # if request.method == 'POST' and 'custom_propensity_data' in request.FILES:
+    #     propensity_indices_file = request.FILES['custom_propensity_data']
+    #     propensity_indices_string = ''
+    #     for propensity_part in propensity_indices_file.chunks():
+    #         propensity_indices_string += propensity_part.decode()
+    #     print ("propensity_indices_string: " + propensity_indices_string)
+    return render(request, 'alignments/index_orthologs.html')
 def index(request):
     return render(request, 'alignments/index.html')
 
@@ -531,6 +546,55 @@ def trim_fasta_by_index(input_file, indices):
         trimmed_align += align[:,int(i)-1:int(i)]
     return trimmed_align
 
+def propensity_data_custom (request):
+    response = propensity_data(request, None, None)
+    return response
+
+def propensity_data(request, aln_id, tax_group):
+    from io import StringIO
+    import alignments.propensities as propensities
+
+    if request.method == 'POST' and 'customFasta' in request.POST and aln_id is None:
+        fastastring = request.POST['customFasta']
+    else:
+        fastastring = simple_fasta(request, aln_id, tax_group, internal=True).replace('\\n', '\n')
+    fasta = StringIO(fastastring)
+
+    if request.method == 'POST' and 'indices' in request.POST:
+        indices = request.POST['indices']
+        trimmed_fasta = trim_fasta_by_index(fasta, indices)
+        fasta = StringIO(format(trimmed_fasta, 'fasta'))
+
+    aa = propensities.aa_composition(fasta, reduced = False)
+    fasta.seek(0) # reload the fasta object
+    red_aa = propensities.aa_composition(fasta, reduced = False)
+
+    data = {
+        'aln_id' : aln_id,
+        'tax_group' : tax_group,
+        'reduced alphabet' : red_aa,
+        'amino acid' : aa
+    }
+    return JsonResponse(data)
+
+def propensities(request, align_name, tax_group):
+    aln_id = Alignment.objects.filter(name = align_name)[0].aln_id
+    propensity_data = reverse('alignments:propensity_data', kwargs={'aln_id': aln_id, 'tax_group' : tax_group})
+
+    names = []
+    if type(tax_group) == int:
+        tax_group = str(tax_group)
+    for group in tax_group.split(','):
+        names.append(Taxgroups.objects.get(pk=group).groupname)
+
+    context = {
+        "propensity_data" : propensity_data, 
+        "align_name" : align_name,
+        "tax_name" : ', '.join(names)
+    }
+    
+    return render(request, 'alignments/propensities.html', context)
+
 def flushSession (request):
     try:
         request.session.flush()
@@ -538,13 +602,36 @@ def flushSession (request):
         return HttpResponseServerError ("Failed to flush the session!")
     return HttpResponse ("Success!")
 
+def ecodPassThroughQuery(request):
+    '''Request a password protected URL from our website that returns a JSON object.
+    '''
+    baseURL = 'http://'+get_current_site(request).domain
+    url = baseURL+request.GET['url']
+    if ('&format=json' not in url):
+        url += '&format=json'
+    req = urllib.request.Request(url)
+    #username = os.environ['DJANGO_USERNAME']
+    #password = os.environ['DJANGO_PASSWORD']
+    #credentials = (f'{username}:{password}')
+    credentials = ('website:desire_RiboVision3')
+    encoded_credentials = base64.b64encode(credentials.encode('ascii'))
+    req.add_header('Authorization', 'Basic %s' % encoded_credentials.decode("ascii"))
+
+    response = urllib.request.urlopen(req)
+    encoding = response.info().get_content_charset('utf-8')
+    data = response.read()
+    return JsonResponse(json.loads(data.decode(encoding)), safe=False)
+
+
 def parse_string_structure(request, stringData, strucID):
     #if(c.structureObj):
     #    return c.structureObj
     from Bio.PDB import MMCIFParser
     parser = MMCIFParser()
     strucFile = io.StringIO(stringData)
- 
+    #c.structureObj = parser.get_structure(strucID,strucFile)
+    #return c.structureObj
+    print('MMCIFParser2')
     return parser.get_structure(strucID,strucFile)
 
 def getAlignmentsFilterByProteinTypeDirect(request, concatenatedProteinTypes):
@@ -658,7 +745,47 @@ def string_fasta(request, protein_type, aln_name, tax_group, internal=False):
         raw_result = aqab.dictfetchall(cursor)
     return simple_fasta(request, raw_result[0]['Aln_id'], tax_group, internal)
 
+"""
+def protein_contacts(request, pdbid, chain_id):
+    #while not c.structureObj:
+    #    time.sleep(5)
+    #structure = c.structureObj
+    
+    pdbl = PDB.PDBList()
+    pdbl.retrieve_pdb_file(pdbid, pdir='./')
+    parser = PDB.MMCIFParser()
+    structure = parser.get_structure(pdbid, "./" + str(pdbid) + ".cif")
+    #c.structureObj = structure
 
+    atom_list = PDB.Selection.unfold_entities(structure[0], 'A')
+    neighbor = PDB.NeighborSearch(atom_list)
+    target_atoms = {}
+
+    for struct in list(structure[0][chain_id]):
+        resi = str(struct).split('resseq=')[1].split()[0]
+        target_atoms[resi] = struct.get_atoms()
+    #target_atoms=list(structure[0][chain_id][781].get_atoms())
+    neighbors = dict()
+    for residue, atoms in target_atoms.items():
+        for atom in atoms:
+            point = atom.get_coord()
+            n = neighbor.search(point, 3.5, level='C')
+            i = 0
+            for chain in n:
+                val = str(chain).split('=')[1].split('>')[0]
+                #neighbors.add(val)
+                if val in neighbors:
+                    neighbors[val].add(residue)
+                else: 
+                    neighbors[val] = {residue}
+                i = i + 1
+    for val in neighbors:
+        neighbors[val] = list(neighbors[val])
+    #context = {
+    #    'Neighbors' : list(neighbors)
+    #}
+    return JsonResponse(neighbors)
+"""
 def modified_residues(request, pdbid, chain_id):
     import Bio.PDB.MMCIF2Dict
     mmcdata = Bio.PDB.MMCIF2Dict.MMCIF2Dict("/tmp/PDB/" + str(pdbid) + ".cif")
@@ -715,7 +842,7 @@ def protein_contacts(request, pdbid, chain_id):
 
             if len(neighbors_L2_all) > 0:
                 neighbors[chain.id] = list(neighbors_L2_all)
-    
+    #modified_residues(pdbid)
     return JsonResponse(neighbors)
 def full_RNA_seq(request, pdbid):
     RNA_full_sequence={}
@@ -761,34 +888,12 @@ def r2dt(request, sequence, entity_id):
     cmd = f'python3 r2dt.py  draw {newcwd}/sequence10{fileNameSuffix}.fasta {output}'
     os.system(cmd)
     filename = '' 
-    # pull cif_mode_flag from POST
-    if request.method == "POST":
-        cif_mode_flag = request.POST["cif_mode_flag"]
-        parsed_cif_mode_flag = cif_mode_flag
-        if cif_mode_flag == "true":
-            parsed_cif_mode_flag = True
-        elif cif_mode_flag == "false":
-            parsed_cif_mode_flag = False
-        elif cif_mode_flag == "":
-            parsed_cif_mode_flag = None
-        cif_mode_flag = parsed_cif_mode_flag
-    else:
-        cif_mode_flag = None
-
+          
     for topdir, dirs, files in os.walk(f'{output}/results/json'):
         firstfile = sorted(files)[0]
         
         filename = os.path.join(topdir, firstfile)  
-    
-    
-    if (cif_mode_flag is None) or (not cif_mode_flag):
-        #FOR NONE OR PDB modes
-        #cmd = f'/usr/bin/python3 {newcwd}/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
-        cmd = f'/usr/bin/python3 /home/caeden/R2DT/RNA/R2DT/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
-    else:
-        #FOR CIF MODE
-        cmd = f'python3 /home/caeden/R2DT/RNA/R2DT/parse_cif4.py -ij {filename} -ic /tmp/cust2.cif -ie {entity_id} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
-    
+    cmd = f'python3 /home/caeden/R2DT/RNA/R2DT/parse_cif4.py -ij {filename} -ic /tmp/cust2.cif -ie {entity_id} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
     os.system(cmd)
     with open(f'{output}/results/json/RNA_2D_json.json', 'r') as f:
         data = json.loads(f.read())
