@@ -1,7 +1,7 @@
 import {loadAlignmentViewer} from './loadAlignmentViewer.js'
 import {ajaxProper} from './ajaxProper.js'
 
-export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, ebi_sequence, vueObj){
+export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, ebi_sequence, vueObj, full_sequence_from_pdb = ""){
     vm.sequence = ebi_sequence;
     if (vm.fasta_data){
         let cleanFasta = vm.fasta_data.replace(/^>Structure sequence\n(.+\n)+?>/i, ">");
@@ -10,7 +10,8 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
     const postData = {
         fasta,
         struc_id,
-        "cif_mode_flag" : vm.user_uploaded_cif_flag
+        "cif_mode_flag" : vm.user_uploaded_cif_flag,
+        hardcoded_structure: full_sequence_from_pdb
     };
     ajax('/mapSeqAln/', postData).then(structMappingAndData=>{
         var struct_mapping = structMappingAndData["structureMapping"];

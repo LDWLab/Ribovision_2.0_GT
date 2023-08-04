@@ -2,24 +2,23 @@ import {ajaxProper} from './ajaxProper.js'
 import parsePdb from 'parse-pdb'
 import {getStructMappingAndTWC} from './getStructMappingAndTWC.js'
 
-export function uploadCustomPDB(hardcoded_structure = ""){
+export function uploadCustomPDB(full_sequence_from_pdb = ""){
     if (!vm.customFullSequence) {
         return;
     }
-    console.log("uploadCustomPDB(hardcoded_structure = \"\")");
     vm.user_uploaded_cif_flag = false;
     console.log('uCPDB',  vm.$refs.customPDBfile);
     if (vm.$refs.customPDBfile.files.length == 0){return;}
     vm.PDBparsing = true;
     vm.customPDBsuccess = null;
     vm.customPDBid = null;
-    submitCustomPDB(vm.$refs.customPDBfile.files[0], hardcoded_structure);
+    submitCustomPDB(vm.$refs.customPDBfile.files[0], full_sequence_from_pdb);
     clearInputFile(document.getElementById('uploadCustomPDB'));
 }
 
-function submitCustomPDB(file, hardcoded_structure = ""){
+function submitCustomPDB(file, full_sequence_from_pdb = ""){
     var fr = new FileReader();
-    postFullSeq(hardcoded_structure);
+    postFullSeq(full_sequence_from_pdb);
     fr.onload = function(){
         if (validatePDB(fr.result)){
             checkAndPopulateChains(fr.result).then (chainID => {
@@ -28,7 +27,7 @@ function submitCustomPDB(file, hardcoded_structure = ""){
                     return;
                 } else{
                     vm.customPDBid = `cust-1-${chainID[0]}`;
-                    postPDBdata("cust", { entityID: "1", chainID: chainID[0], stringData: fr.result, hardcoded_structure });
+                    postPDBdata("cust", { entityID: "1", chainID: chainID[0], stringData: fr.result, full_sequence_from_pdb });
                 }
             }).catch(error => {
                 console.log(error)
@@ -94,7 +93,7 @@ var threeLetterToOne = {
    
 }
 
-function postPDBdata (pdbID, entities, hardcoded_structure = ""){
+function postPDBdata (pdbID, entities, full_sequence_from_pdb = ""){
     vm.postedPDBEntities = false;
     let parseURL = `custom-struc-data-pdb/${pdbID}`;
     var stringEntities = JSON.stringify(entities); 
@@ -107,7 +106,7 @@ function postPDBdata (pdbID, entities, hardcoded_structure = ""){
         vm.PDBparsing = false;
         if (parsedResponse == "Success!"){
             vm.customPDBsuccess = true;
-            getStructMappingAndTWC (vm.fasta_data, vm.customPDBid, vm.pdbStart, vm.pdbEnd, null, vm, hardcoded_structure);
+            getStructMappingAndTWC (vm.fasta_data, vm.customPDBid, vm.pdbStart, vm.pdbEnd, null, vm, full_sequence_from_pdb);
         }
     }).catch(error => {
         vm.PDBparsing = 'error';

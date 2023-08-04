@@ -186,7 +186,7 @@ def create_aln_true_seq_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
     fh.close()
     print("Mafft")
     #pipe = Popen(f"/usr/local/bin/mafft --anysymbol --preservecase --quiet --addfull {pdb_seq_path} {aln_group_path}", stdout=PIPE, shell=True)
-    pipe = Popen(f"/usr/local/bin/mafft --preservecase --anysymbol --addfull {pdb_seq_path}  --keeplength {aln_group_path}", stdout=PIPE, shell=True)
+    pipe = Popen(f"/usr/bin/mafft --preservecase --anysymbol --addfull {pdb_seq_path}  --keeplength {aln_group_path}", stdout=PIPE, shell=True)
     output = pipe.communicate()[0]
     
     #print(seq_ix_mapping[int(row[1])])
