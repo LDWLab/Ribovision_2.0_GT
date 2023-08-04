@@ -78,148 +78,6 @@ def handleCustomUploadStructure (request, strucID):
             return HttpResponseServerError("Failed to parse structures!")
         return HttpResponse(stringStruc, content_type="text/plain")
 
-def handleCustomUploadStructure_CIF (request, strucID):
-    '''We will POST all structure chains we need with uniqueIDs.
-    Then when we GET them we can list the strucIDs separated by coma 
-    this would mean "combine these in one CIF and return them".
-    '''
-    strucID = strucID
-    if request.method == 'POST':
-        from urllib.request import urlopen
-        try:
-            entities = request.POST.get("entities")
-        except:
-            return HttpResponseServerError("POST was sent without entities to parse!")
-        deStrEnt = json.loads(entities)
-        print('json')
-        if strucID == "cust":
-            #### This is not dependent on topology and should return success
-            strucObj = parseCustomCIF(deStrEnt["stringData"], "CUST")
-
-            strucString = strucToString(strucObj)
-           
-            
-            fixedEntityStruc = fixEntityFieldofParsedCIF(strucString, {deStrEnt["chainID"]:deStrEnt["entityID"]})
-            outStruc = fixResiFieldsofParsedCIF(fixedEntityStruc)
-            request.session[f'{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = outStruc
-            request.session[f'PDB-{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = deStrEnt["stringData"]
-    
-            return JsonResponse("Success!", safe=False)
-        for entry in deStrEnt:
-            if request.session.get(f'{strucID}-{entry["entityID"]}-{entry["chainID"]}'):
-                continue
-            ebiURL = f'https://coords.litemol.org/{strucID.lower()}/chains?entityId={entry["entityID"]}&authAsymId={entry["chainID"]}&atomSitesOnly=1'
-            #ebiURL = f'https://www.ebi.ac.uk/pdbe/coordinates/{strucID.lower()}/chains?entityId={entityId}&atomSitesOnly=1'
-            try:
-                data = urlopen(ebiURL)
-            except:
-                return HttpResponseServerError(f'Failed to fetch coordinates from litemol for PDB {strucID} and entityID {entry["entityID"]} and chain id {entry["chainID"]}.')
-            try:
-                tempStrucStr = str()
-                for line in data:
-                    tempStrucStr+=line.decode('UTF-8')
-            except:
-                return HttpResponseServerError("Failed to parse the provided structure!")
-            request.session[f'{strucID}-{entry["entityID"]}-{entry["chainID"]}'] = tempStrucStr
-        return JsonResponse("Success!", safe=False)
-    
-    if request.method == 'GET':
-        if request.session.get(strucID):
-            stringStruc = request.session[strucID]
-            return HttpResponse(stringStruc, content_type="text/plain")
-        structureList = list()
-        chainToEntity = dict()
-        for singleID in strucID.split(','):
-            pdbAndEntityAndChain = singleID.split('-')
-            try:
-                stringData = request.session[singleID]
-            except:
-                return HttpResponseServerError(f"Requested structure {singleID} was not present in the session! Wait for POST to finish.")
-            strucObj = parse_string_structure(request, stringData, pdbAndEntityAndChain[0])
-            chainToEntity[pdbAndEntityAndChain[2]] = pdbAndEntityAndChain[1]
-            structureList.append(strucObj)
-        try:
-            if len(structureList) > 1:
-                structureList = combineChainsInSingleStruc(structureList)
-            stringStruc = strucToString(structureList[0])
-            outStruc = fixEntityFieldofParsedCIF(stringStruc, chainToEntity)
-            request.session[strucID] = outStruc
-            stringStruc = outStruc
-        except:
-            return HttpResponseServerError("Failed to parse structures!")
-        return HttpResponse(stringStruc, content_type="text/plain")
-
-def handleCustomUploadStructure_PDB (request, strucID):
-    '''We will POST all structure chains we need with uniqueIDs.
-    Then when we GET them we can list the strucIDs separated by coma 
-    this would mean "combine these in one CIF and return them".
-    '''
-    strucID = strucID
-    if request.method == 'POST':
-        from urllib.request import urlopen
-        try:
-            entities = request.POST.get("entities")
-        except:
-            return HttpResponseServerError("POST was sent without entities to parse!")
-        deStrEnt = json.loads(entities)
-        print('json')
-        if strucID == "cust":
-            #### This is not dependent on topology and should return success
-            strucObj = parseCustomPDB(deStrEnt["stringData"], "CUST")
-
-            strucString = strucToString(strucObj)
-           
-            
-            fixedEntityStruc = fixEntityFieldofParsedPDB(strucString, {deStrEnt["chainID"]:deStrEnt["entityID"]})
-            outStruc = fixResiFieldsofParsedCIF(fixedEntityStruc)
-            request.session[f'{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = outStruc
-            request.session[f'PDB-{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = deStrEnt["stringData"]
-    
-            return JsonResponse("Success!", safe=False)
-        for entry in deStrEnt:
-            if request.session.get(f'{strucID}-{entry["entityID"]}-{entry["chainID"]}'):
-                continue
-            ebiURL = f'https://coords.litemol.org/{strucID.lower()}/chains?entityId={entry["entityID"]}&authAsymId={entry["chainID"]}&atomSitesOnly=1'
-            #ebiURL = f'https://www.ebi.ac.uk/pdbe/coordinates/{strucID.lower()}/chains?entityId={entityId}&atomSitesOnly=1'
-            try:
-                data = urlopen(ebiURL)
-            except:
-                return HttpResponseServerError(f'Failed to fetch coordinates from litemol for PDB {strucID} and entityID {entry["entityID"]} and chain id {entry["chainID"]}.')
-            try:
-                tempStrucStr = str()
-                for line in data:
-                    tempStrucStr+=line.decode('UTF-8')
-            except:
-                return HttpResponseServerError("Failed to parse the provided structure!")
-            request.session[f'{strucID}-{entry["entityID"]}-{entry["chainID"]}'] = tempStrucStr
-        return JsonResponse("Success!", safe=False)
-    
-    if request.method == 'GET':
-        if request.session.get(strucID):
-            stringStruc = request.session[strucID]
-            return HttpResponse(stringStruc, content_type="text/plain")
-        structureList = list()
-        chainToEntity = dict()
-        for singleID in strucID.split(','):
-            pdbAndEntityAndChain = singleID.split('-')
-            try:
-                stringData = request.session[singleID]
-            except:
-                return HttpResponseServerError(f"Requested structure {singleID} was not present in the session! Wait for POST to finish.")
-            strucObj = parse_string_structure(request, stringData, pdbAndEntityAndChain[0])
-            chainToEntity[pdbAndEntityAndChain[2]] = pdbAndEntityAndChain[1]
-            structureList.append(strucObj)
-        try:
-            if len(structureList) > 1:
-                structureList = combineChainsInSingleStruc(structureList)
-            stringStruc = strucToString(structureList[0])
-            outStruc = fixEntityFieldofParsedCIF(stringStruc, chainToEntity)
-            request.session[strucID] = outStruc
-            stringStruc = outStruc
-        except:
-            return HttpResponseServerError("Failed to parse structures!")
-        return HttpResponse(stringStruc, content_type="text/plain")
-
 def fixEntityFieldofParsedCIF(stringStruc, chainToEntity):
     listStruc = stringStruc.split('\n')
     outStruc = listStruc[:21]
@@ -232,17 +90,6 @@ def fixEntityFieldofParsedCIF(stringStruc, chainToEntity):
                 rowList[7] = chainToEntity[rowList[16]]
         outStruc.append(' '.join(rowList))
     return '\n'.join(outStruc)
-
-def fixEntityFieldofParsedPDB(stringStruc, chainToEntity):
-    listStruc = stringStruc.split('\n')
-    outStruc = listStruc[:21]
-    for row in listStruc[21:]:
-        rowList = row.split()
-        if len(rowList) > 10:    
-            rowList[7] = chainToEntity[rowList[16]]
-            
-        outStruc.append(' '.join(rowList))
-    return '\n'.join(outStruc)    
 
 def fixResiFieldsofParsedCIF(stringStruc):
     listStruc = stringStruc.split('\n')
@@ -280,17 +127,16 @@ def combineChainsInSingleStruc(structureList):
         structureList[0][0].add(chain[0])
     return structureList
 
-def parseCustomPDB(stringData, id = "CUST"):
+def parseCustomPDB(stringData):
     parser = PDBParser()
     strucFile = io.StringIO(stringData)
-    structureObj = parser.get_structure(id, strucFile)
+    structureObj = parser.get_structure("CUST",strucFile)
     return structureObj
 
 def parseCustomCIF(stringData, pdbid):
     parser = MMCIFParser()
     strucFile = io.StringIO(stringData)
     strucFile1 = io.StringIO(stringData)
-    ###NEED time here
     with open('/tmp/cust2.cif', 'w') as f:
             f.write(strucFile1.read())
             f.close()
@@ -317,6 +163,41 @@ def getTopology (request, topID):
         topology = request.session[topID]
         return JsonResponse(topology, safe=False)
 
+def handleTopologyBuilding(pdbString, proorigamiLocation):
+    from subprocess import Popen, PIPE
+    from os import remove, path
+    import datetime, re
+
+    cwd = os.getcwd()
+    now = datetime.datetime.now()
+    pdbString = re.sub(r'^HEADER.*\n','',pdbString)
+    fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
+    fileLoc = f"{proorigamiLocation}CUSTOMPDB{fileNameSuffix}"
+    tempfiles = [f"{fileLoc}.pdb", f"{fileLoc}.svg", f"{fileLoc}.png"]
+    for tempf in tempfiles:
+        if path.isfile(tempf):
+            remove(tempf)
+    
+    fh = open(f"{fileLoc}.pdb", "w")
+    fh.write(pdbString)
+    fh.close()
+
+    os.chdir(proorigamiLocation)
+    pipe = Popen(f"./make_cartoon.sh.cde {fileLoc}.pdb ; cat {fileLoc}.svg", stdout=PIPE, shell=True)
+    output = pipe.communicate()[0]
+    os.chdir(cwd)
+
+    if len(output.decode("ascii")) <= 0:
+        for removeFile in tempfiles:
+            remove(removeFile)
+        return HttpResponseServerError("Failed creating topology diagram!\nTry a different structure.")
+
+    svgData = output.decode("ascii")
+    for removeFile in tempfiles:
+        if path.isfile(tempf):
+            remove(tempf)
+
+    return svgData
 
 class OutOfChainsError(Exception): pass
 def rename_chains(structure):

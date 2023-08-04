@@ -96,7 +96,7 @@ var threeLetterToOne = {
 
 function postPDBdata (pdbID, entities, hardcoded_structure = ""){
     vm.postedPDBEntities = false;
-    let parseURL = `custom-struc-data/${pdbID}`;
+    let parseURL = `custom-struc-data-pdb/${pdbID}`;
     var stringEntities = JSON.stringify(entities); 
     ajaxProper({
         url: parseURL,

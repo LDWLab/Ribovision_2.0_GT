@@ -13,6 +13,7 @@ def request_post_data(post_data):
     return fasta, struc_id
 
 def get_FullSeq(request):
+    global full_sequence
     full_sequence = request.POST["sequence"]
     return JsonResponse(full_sequence, safe=False)
 
@@ -39,7 +40,7 @@ def make_map_from_alnix_to_sequenceix_new(request):
     if not (cif_mode_flag is None):
         if not cif_mode_flag:
             hardcoded_structure = request.POST["hardcoded_structure"]
-            full_seq=SeqRecord(Seq(hardcoded_structure))
+            full_seq = SeqRecord(Seq(hardcoded_structure))
             mapping = create_aln_true_seq_mapping_with_mafft(fasta, full_seq, seq_ix_mapping)
             mapping = create_aln_struc_mapping_with_mafft(mapping["amendedAln"], struc_seq, seq_ix_mapping)
         else:
