@@ -3,6 +3,7 @@ from django.http import JsonResponse, HttpResponse, HttpResponseServerError
 from Bio.PDB import PDBParser, MMCIFParser, PDBIO
 from Bio.PDB.mmcifio import MMCIFIO
 from pdbecif.mmcif_io import CifFileReader
+import datetime
 from alignments.views import parse_string_structure
 from alignments.topologyAPIgenerators import generateTopologyJSONfromSVG, generateEntityJSON, generatePolCoverageJSON
 from alignments.mapStrucSeqToAln import constructStrucSeqMap
@@ -23,7 +24,7 @@ def handleCustomUploadStructure (request, strucID):
         print('json')
         if strucID == "cust":
             #### This is not dependent on topology and should return success
-            strucObj = parseCustomCIF(deStrEnt["stringData"], "CUST")
+            strucObj, cif_file_path = parseCustomCIF(deStrEnt["stringData"], "CUST")
 
             strucString = strucToString(strucObj)
            
@@ -33,7 +34,10 @@ def handleCustomUploadStructure (request, strucID):
             request.session[f'{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = outStruc
             request.session[f'PDB-{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = deStrEnt["stringData"]
     
-            return JsonResponse("Success!", safe=False)
+            return JsonResponse({
+                "successFlag" : True,
+                "cif_file_path" : cif_file_path
+            }, safe=False)
         for entry in deStrEnt:
             if request.session.get(f'{strucID}-{entry["entityID"]}-{entry["chainID"]}'):
                 continue
@@ -94,7 +98,7 @@ def handleCustomUploadStructure_CIF (request, strucID):
         print('json')
         if strucID == "cust":
             #### This is not dependent on topology and should return success
-            strucObj = parseCustomCIF(deStrEnt["stringData"], "CUST")
+            strucObj, cif_file_path = parseCustomCIF(deStrEnt["stringData"], "CUST")
 
             strucString = strucToString(strucObj)
            
@@ -104,7 +108,11 @@ def handleCustomUploadStructure_CIF (request, strucID):
             request.session[f'{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = outStruc
             request.session[f'PDB-{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = deStrEnt["stringData"]
     
-            return JsonResponse("Success!", safe=False)
+    
+            return JsonResponse({
+                "successFlag" : True,
+                "cif_file_path" : cif_file_path
+            }, safe=False)
         for entry in deStrEnt:
             if request.session.get(f'{strucID}-{entry["entityID"]}-{entry["chainID"]}'):
                 continue
@@ -291,14 +299,17 @@ def parseCustomCIF(stringData, pdbid):
     strucFile = io.StringIO(stringData)
     strucFile1 = io.StringIO(stringData)
     ###NEED time here
-    with open('/tmp/cust2.cif', 'w') as f:
+    now = datetime.datetime.now()
+    fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
+    cif_file_path = f'/tmp/cust2{fileNameSuffix}.cif'
+    with open(cif_file_path, 'w') as f:
             f.write(strucFile1.read())
             f.close()
     structureObj = parser.get_structure(pdbid,strucFile)
     print('MMCIF parsed')
    
 
-    return structureObj
+    return structureObj, cif_file_path
 
 def postTopology(request, strucID):
     if request.method == 'POST':

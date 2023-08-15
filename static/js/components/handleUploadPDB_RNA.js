@@ -104,7 +104,11 @@ function postPDBdata (pdbID, entities, full_sequence_from_pdb = ""){
         postData: {"entities": stringEntities}
     }).then (parsedResponse => {
         vm.PDBparsing = false;
-        if (parsedResponse == "Success!"){
+        if (parsedResponse == "Success!") {
+            vm.customPDBsuccess = true;
+            getStructMappingAndTWC (vm.fasta_data, vm.customPDBid, vm.pdbStart, vm.pdbEnd, null, vm, full_sequence_from_pdb);
+        } else if ("successFlag" in parsedResponse && parsedResponse.successFlag) {
+            vm.cif_file_path = parsedResponse.cif_file_path;
             vm.customPDBsuccess = true;
             getStructMappingAndTWC (vm.fasta_data, vm.customPDBid, vm.pdbStart, vm.pdbEnd, null, vm, full_sequence_from_pdb);
         }

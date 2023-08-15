@@ -114,7 +114,7 @@ function postPDBdata (pdbID, entities){
         postData: {"entities": stringEntities}
     }).then (parsedResponse => {
         vm.PDBparsing = false;
-        if (parsedResponse == "Success!"){
+        function handleSuccess() {
             console.log("Posted PDB data successfully!");
             vm.customPDBsuccess = true;
             getStructMappingAndTWC (vm.fasta_data, vm.customPDBid, vm.pdbStart, vm.pdbEnd, null, vm);
@@ -134,6 +134,12 @@ function postPDBdata (pdbID, entities){
                 topview.innerHTML = "Failed to generate topology from the structure file!<br>Try different PDB."
                 console.log(error.responseText);
             });
+        }
+        if (parsedResponse == "Success!"){
+            handleSuccess();
+        } else if ("successFlag" in parsedResponse && parsedResponse.successFlag){
+            vm.cif_file_path = parsedResponse.cif_file_path;
+            handleSuccess();
         }
     }).catch(error => {
         vm.PDBparsing = 'error';

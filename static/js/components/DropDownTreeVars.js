@@ -53,6 +53,7 @@ export function initialState (){
         topology_loaded: false,
         twc_loaded: false,
         masking_range: null,
+        cif_file_path: null,
         filter_range: null,
         correct_mask: null,
         domain_or_selection: null,

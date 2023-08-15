@@ -11,6 +11,9 @@ export function postCIFdata (pdbID, entities){
     }).then (parsedResponse => {
         if (parsedResponse == "Success!"){
             vm.postedPDBEntities = true;
+        } else if ("successFlag" in parsedResponse && parsedResponse.successFlag){
+            vm.cif_file_path = parsedResponse.cif_file_path;
+            vm.postedPDBEntities = true;
         }
     }).catch(error => {
         var topview = document.querySelector('#topview');

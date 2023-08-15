@@ -143,10 +143,8 @@ export class UiTemplateService {
     colorMap=() => {
         const selectBoxEle:any = this.containerElement.querySelector<HTMLElement>('.mappingSelectbox');
         const selectedValue = parseInt(selectBoxEle.value);
-        console.log("CM0");
         if(selectedValue) {
             const selectedDomain = this.domainTypes[selectedValue];
-            console.log("CM1", selectedDomain);
             if (selectedDomain.data) {
                 selectedDomain.data.forEach((val:any, i:number) => {
                     if(val != undefined && val.color != undefined) {
@@ -171,7 +169,6 @@ export class UiTemplateService {
     }
     colorMapHelper=() => {
         var mappingDropdown = (<HTMLSelectElement>this.containerElement.querySelector<HTMLElement>('.mappingSelectbox'));
-        console.log("CM0");
         var num: number = +mappingDropdown.value;
         (<HTMLInputElement>document.getElementById('selectColorMappingProps')).value=mappingDropdown!.options[num].text;
         this.rv3VUEcomponent.selected_property = mappingDropdown!.options[num].text;
@@ -455,10 +452,20 @@ export class UiTemplateService {
                 }; 
                 
                 const [TWCrgbMap, TWCData] = this.parsePVData(separatedData, min, max, colormapArray);
-                this.selectSections_RV1.get(name).push({entity_id: _this.pluginOptions.entityId, focus: true});
-                console.log("TWC11", TWCrgbMap, TWCData, TWCData.size);
-                const end = TWCData.size;
+                const TWCData_keys =TWCData.keys();
                 
+                //const last_item  = 0;
+                let mapLastValue;
+                let i;
+                for (i = 0; i < TWCData.size; i += 1) {
+                    mapLastValue = TWCData_keys.next().value
+                  }
+                
+                console.log(mapLastValue);
+                console.log('RNAViewer_TWCData',TWCData, TWCData.size, TWCData[Symbol.iterator](),TWCData_keys);
+                this.selectSections_RV1.get(name).push({entity_id: _this.pluginOptions.entityId, focus: true});
+                //const end = TWCData.size;
+                const end = mapLastValue;
                 if (void 0 !== TWCData){
                     residueDetails = _this.create2D3DAnnotations(name, residueDetails, 
                                                                 TWCrgbMap, TWCData, mapped_aa_properties,
@@ -933,7 +940,9 @@ export class UiTemplateService {
                 let newY2: number = 2 * yVal - newY
                 newPathStr = `M${newX + deltaX},${newY - deltaY},${newX2 + deltaX},${newY2 - deltaY}`
             }
+
             pathStr = newPathStr;
+    
             this.pathStrs.push(
                 `<path 
                     class="${pathEleClass}" stroke-width="${strokeWide}" stroke="${strokeColor}" d="${pathStr}" 

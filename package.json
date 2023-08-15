@@ -47,6 +47,6 @@
     "scrollbooster": "^3.0.2",
     "vue": "^2.6.12",
     "vue-style-loader": "^4.1.2",
-    "vue-tour": "^1.5.0"
+    "vue-tour": "^2.0.0"
   }
 }

@@ -781,15 +781,20 @@ def r2dt(request, sequence, entity_id):
         filename = os.path.join(topdir, firstfile)  
     
     
+    files_to_remove = []
+
     if (cif_mode_flag is None) or (not cif_mode_flag):
         #FOR NONE OR PDB modes
         #cmd = f'/usr/bin/python3 {newcwd}/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
         cmd = f'/usr/bin/python3 /home/caeden/R2DT/RNA/R2DT/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
     else:
         #FOR CIF MODE
-        cmd = f'python3 /home/caeden/R2DT/RNA/R2DT/parse_cif4.py -ij {filename} -ic /tmp/cust2.cif -ie {entity_id} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
+        cif_file_path = request.POST["cif_file_path"]
+        files_to_remove.append(cif_file_path)
+        cmd = f'python3 /home/caeden/R2DT/RNA/R2DT/parse_cif4.py -ij {filename} -ic {cif_file_path} -ie {entity_id} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
     
     os.system(cmd)
+
     with open(f'{output}/results/json/RNA_2D_json.json', 'r') as f:
         data = json.loads(f.read())
         f.close()
@@ -803,16 +808,19 @@ def r2dt(request, sequence, entity_id):
         'RNA_BP_json' : BP
         
     }
+
+    for file_path in files_to_remove:
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+
     if os.path.isfile('./sequence10'+str(fileNameSuffix)+'.fasta'):
         os.remove('./sequence10'+str(fileNameSuffix)+'.fasta')
-
     else:
         # If it fails, inform the user.
         print("Error: %s file not found" % './sequence10'+str(fileNameSuffix)+'.fasta')
         
     if os.path.isfile('./sequence10'+str(fileNameSuffix)+'.fasta.ssi'):
         os.remove('./sequence10'+str(fileNameSuffix)+'.fasta.ssi')
-
     else:
         # If it fails, inform the user.
         print("Error: %s file not found" % './sequence10'+str(fileNameSuffix)+'.fasta.ssi')   

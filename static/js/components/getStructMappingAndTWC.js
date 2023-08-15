@@ -135,7 +135,8 @@ var tryCustomTopology = function (pdbid, entityid, chainid){
         type: 'POST',
         dataType: 'json',
         postData : {
-            cif_mode_flag : vm.user_uploaded_cif_flag
+            cif_mode_flag : vm.user_uploaded_cif_flag,
+            cif_file_path : vm.cif_file_path
         }
       }).then (parsedResponse => {
         if (parsedResponse == "Topology Success!"){

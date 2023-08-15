@@ -136,10 +136,9 @@
             },
         },
         mounted: function () {
-            //localStorage.setItem("hasCodeRunBefore", true)
             //vm.guideOff = false
-            /*
-            if (localStorage.getItem("hasCodeRunBefore") === null) {
+            
+            if (localStorage.getItem("hasCodeRunBefore") !== 'true') {
                 tourSteps[0].content += '<br><b>First time users are advised to complete this guide by only clicking the Next button ▼</b>';
                 tourSteps.unshift(cookieNotice);
                 tourSteps[1].before = function before(type) {
@@ -152,7 +151,9 @@
                 }
                 this.$tours['myTour'].start();
             }
-            */
+
+            localStorage.setItem("hasCodeRunBefore", true)
+            
         },
     }
 
@@ -161,7 +162,7 @@
             header: {
                 title: 'Privacy Notice',
             },
-        content: `ProteoVision uses two essential cookies.
+        content: `RiboVision 2.0 uses two essential cookies.
             One ensures you do not see this message every time you visit the website;<br>
             the other ensures our server can validate a secure connection to your browser.<br>
             We do not store any other data from you. Uploaded CSV files are kept in your browser memory and are not stored between sessions. 
@@ -183,9 +184,9 @@
         {
             target: 'header',
             header: {
-                title: 'Welcome to ProteoVision!',
+                title: 'Welcome to RiboVision 2.0!',
             },
-            content: `ProteoVision is a visualization tool for ribosomal proteins 
+            content: `RiboVision 2.0 is a web-server for visualization of (ribosomal) RNAs 
             designed to display phylogenetic, structural, and physicochemical 
             properties in primary, secondary, and tertiary representations.`
         },{
@@ -194,7 +195,7 @@
                 title: 'Mode of operation',
             },
             content: `Select either of two possible modes of operation.<br/>
-            <b>DESIRE</b> retrieves alignments from the DatabasE for Study and Imaging of Ribosomal Evolution.<br/>
+            <b>RiboVision</b> retrieves alignments from the DatabasE for Study and Imaging of Ribosomal Evolution.<br/>
             <b>User upload</b> allows you to upload your own fasta formatted alignment.`,
             before: type => new Promise((resolve, reject) => {
                 resolve (
@@ -221,17 +222,44 @@
                 )
             })
         },{
-            target: '#selectaln',
+            target: '#select_protein_type',
             header: {
-                title: 'Alignment selection',
+                title: 'RNA family',
             },
-            content: `Select an alignment from the DESIRE database.`,
+            content: `Select RNA family.`,
             params: {
               placement: 'right'
             },
             before: type => new Promise((resolve, reject) => {
+                var selectEl = document.querySelector('#select_protein_type');
                 resolve (
-                    vm.alnobj = {id: 1, text: "uL02"},
+        
+                    
+                    selectEl.value = "LSU-rRNA",
+                    selectEl.dispatchEvent(new Event('change'))
+                    
+    
+                )
+            })
+        },{
+            target: '#selectaln',
+            header: {
+                title: 'Alignment selection',
+            },
+            content: `Select an alignment from the RiboVision database.`,
+            params: {
+              placement: 'right'
+            },
+            before: type => new Promise((resolve, reject) => {
+                var selectEl1 = document.querySelector('#selectaln');
+                resolve (
+                    vm.alnobj = {id: 256, text: "5S rRNA"},
+                    //selectEl1.value = "5S",
+                    //selectEl1.dispatchEvent(new Event('change'))
+                    
+                    
+                    
+                    
                 )
             })
         },{
@@ -239,7 +267,7 @@
             header: {
                 title: 'Alignment viewer',
             },
-            content: `This is the alignment viewer. 
+            content: `This is the MSA alignment viewer. 
             The viewer window can be moved by dragging or by using the scrollbars.<br/>
             Hover over residue to reveal associated data for it.`,
         },{
@@ -288,38 +316,41 @@
             params: {
               placement: 'right'
             },
-        },{
-            target: '#showFrequencies',
-            header: {
-                title: 'Show amino-acid frequencies',
-            },
-            content: `Select this checkbox to show amino-acid frequencies, calculated from the loaded alignment.`,
-            params: {
-              placement: 'right'
-            },
-            before: type => new Promise((resolve, reject) => {
-                resolve (
-                    vm.checked_propensities = true,
-                    vm.handlePropensities(true)
-                )
-            })
-        },{
-            target: '#downloadFreqsBtn',
-            header: {
-                title: 'Download amino-acid frequencies',
-            },
-            content: `Download amino-acid frequencies showed in the graph as a csv file.`,
-            params: {
-              placement: 'right'
-            },
-        },{
-            target: '#total',
-            header: {
-                title: 'Frequency graph',
-            },
-            content: `Frequencies for the 20 amino-acids are shown as a boxplot figure. Each species is represented with a datapoint. <br>
-            Hovering on a datapoint highlights the corresponding species in the alignment viewer.`,
-        },{
+        },
+        
+        //{
+            //target: '#showFrequencies',
+           // header: {
+                //title: 'Show amino-acid frequencies',
+           // },
+            //content: `Select this checkbox to show amino-acid frequencies, calculated from the loaded alignment.`,
+            //params: {
+              //placement: 'right'
+            //},
+            //before: type => new Promise((resolve, reject) => {
+                //resolve (
+                   // vm.checked_propensities = true,
+                    //vm.handlePropensities(true)
+                //)
+            //})
+        //},{
+            //target: '#downloadFreqsBtn',
+            //header: {
+                //title: 'Download amino-acid frequencies',
+            //},
+            //content: `Download amino-acid frequencies showed in the graph as a csv file.`,
+            //params: {
+             //placement: 'right'
+           //},
+        //},{
+            //target: '#total',
+           //header: {
+               // title: 'Frequency graph',
+            //},
+            //content: `Frequencies for the 20 amino-acids are shown as a boxplot figure. Each species is represented with a datapoint. <br>
+           // Hovering on a datapoint highlights the corresponding species in the alignment viewer.`,
+        //},
+        {
             target: '#pdb_input',
             header: {
                 title: 'Select a structure for 2D and 3D display',
@@ -347,7 +378,7 @@
             before: type => new Promise((resolve, reject) => {
                 var polSele = document.querySelector("#polymerSelect")
                 resolve (
-                    vm.chainid = ["CC"],
+                    vm.chainid = ["CB"],
                     vm.$nextTick(function(){
                         polSele.lastElementChild.click();
                     }),
@@ -356,9 +387,9 @@
         },{
             target: '.topology_section',
             header: {
-                title: 'Topology viewer',
+                title: 'RNA topology viewer',
             },
-            content: `This is the topology viewer that shows secondary protein structure.`,
+            content: `This is the RNA topology viewer that depicts 2D RNA layout and base pairing.`,
         },{
             target: '.molstar_section',
             header: {
@@ -367,7 +398,7 @@
             content: `This is the 3D viewer that shows tertiary protein structure.<br/>
             The alignment, topology, and 3D viewers have integrated hover effects.`,
         },{
-            target: '.menuSelectbox',
+            target: '.mappingSelectbox',
             header: {
                 title: 'Mapping data',
             },
@@ -378,13 +409,19 @@
             },
             before: type => new Promise((resolve, reject) => {
                 var topviewer = document.getElementById("PdbeTopViewer");
-                var annotationSelect = document.querySelector(".menuSelectbox");
-                var exampleData = topviewer.pluginInstance.domainTypes[4];
+                var annotationSelect = document.querySelector(".mappingSelectbox");
+                
+                console.log('TV1', topviewer);
+                console.log('TV2', topviewer.viewInstance);
+                var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
+                var exampleData = topviewer.viewInstance.uiTemplateService.domainTypes[1];
+                console.log('TV3', exampleData);
+                
                 resolve (
-                    vm.selected_property = "Polarity",
-                    topviewer.pluginInstance.updateTheme(exampleData.data),
-                    window.viewerInstance.visual.select({data: selectSections_RV1.get(exampleData.label), nonSelectedColor: {r:255,g:255,b:255}}),
-                    annotationSelect.selectedIndex=4,
+                    vm.selected_property = "Shannon Entropy",
+                    topviewer.viewInstance.uiTemplateService.domainTypes[1],
+                    //window.viewerInstance.visual.select({data: selectSections_RV1.get(exampleData.label), nonSelectedColor: {r:255,g:255,b:255}}),
+                    annotationSelect.selectedIndex=1
                 )
             })
         },{
