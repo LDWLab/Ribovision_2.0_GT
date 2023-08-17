@@ -832,7 +832,12 @@ def r2dt(request, sequence):
         # If it fails, inform the user.
         print("Error: %s file not found" % './sequence10'+str(fileNameSuffix)+'.fasta')
          
-    
+    if os.path.isfile('./sequence10'+str(fileNameSuffix)+'.fasta.ssi'):
+        os.remove('./sequence10'+str(fileNameSuffix)+'.fasta.ssi')
+
+    else:
+        # If it fails, inform the user.
+        print("Error: %s file not found" % './sequence10'+str(fileNameSuffix)+'.fasta.ssi')
     dir_path = str(output)
     if os.path.isdir(dir_path):
         # remove directory and all its content
