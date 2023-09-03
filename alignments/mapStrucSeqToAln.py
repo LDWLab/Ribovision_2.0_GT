@@ -15,10 +15,12 @@ def request_post_data(post_data):
 def get_FullSeq(request):
     global full_sequence
     full_sequence = request.POST["sequence"]
+    print('full_seq_in_get_request')
+    print(full_sequence)
     return JsonResponse(full_sequence, safe=False)
 
 def make_map_from_alnix_to_sequenceix_new(request):
-    print('make_map')
+    
     fasta, struc_id = request_post_data(request.POST)
     # pull cif_mode_flag from POST
     cif_mode_flag = request.POST["cif_mode_flag"]
@@ -41,6 +43,8 @@ def make_map_from_alnix_to_sequenceix_new(request):
         if not cif_mode_flag:
             hardcoded_structure = request.POST["hardcoded_structure"]
             full_seq = SeqRecord(Seq(hardcoded_structure))
+            print('full_seq_after_request')
+            print(full_seq)
             mapping = create_aln_true_seq_mapping_with_mafft(fasta, full_seq, seq_ix_mapping)
             mapping = create_aln_struc_mapping_with_mafft(mapping["amendedAln"], struc_seq, seq_ix_mapping)
         else:
@@ -96,8 +100,8 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     ### BE CAREFUL WHEN MERGING THE FOLLOWING LINES TO PUBLIC; PATHS ARE HARDCODED FOR THE APACHE SERVER ###
-    aln_group_path = "/home/caeden/Ribovision_2.0_GT/static/alignment" + fileNameSuffix + ".txt"
-    pdb_seq_path = "/home/caeden/Ribovision_2.0_GT/static/ebi_sequence" + fileNameSuffix + ".txt"
+    aln_group_path = "/home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/static/alignment" + fileNameSuffix + ".txt"
+    pdb_seq_path = "/home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/static/ebi_sequence" + fileNameSuffix + ".txt"
     mappingFileName = pdb_seq_path + ".map"
     tempfiles = [aln_group_path, pdb_seq_path, mappingFileName]
     for tempf in tempfiles:
@@ -162,8 +166,8 @@ def create_aln_true_seq_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     ### BE CAREFUL WHEN MERGING THE FOLLOWING LINES TO PUBLIC; PATHS ARE HARDCODED FOR THE APACHE SERVER ###
-    aln_group_path = "/home/caeden/Ribovision_2.0_GT/static/alignment" + fileNameSuffix + ".txt"
-    pdb_seq_path = "/home/caeden/Ribovision_2.0_GT/static/ebi_sequence" + fileNameSuffix + ".txt"
+    aln_group_path = "/home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/static/alignment" + fileNameSuffix + ".txt"
+    pdb_seq_path = "/home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/ebi_sequence" + fileNameSuffix + ".txt"
     #aln_group_path = "/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/alignment" + fileNameSuffix + ".txt"
     #aln_group_path = "/home/RiboVision3/static/alignment" + fileNameSuffix + ".txt"
     #pdb_seq_path = "/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/ebi_sequence" + fileNameSuffix + ".txt"
@@ -183,10 +187,12 @@ def create_aln_true_seq_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
     fh = open(pdb_seq_path, "w")
     fh.write(">True sequence\n")
     fh.write(str(struc_seq.seq))
+    print('True sequence in mafft')
+    print(str(struc_seq.seq))
     fh.close()
     print("Mafft")
     #pipe = Popen(f"/usr/local/bin/mafft --anysymbol --preservecase --quiet --addfull {pdb_seq_path} {aln_group_path}", stdout=PIPE, shell=True)
-    pipe = Popen(f"/usr/bin/mafft --preservecase --anysymbol --addfull {pdb_seq_path}  --keeplength {aln_group_path}", stdout=PIPE, shell=True)
+    pipe = Popen(f"/usr/local/bin/mafft --preservecase --anysymbol --addfull {pdb_seq_path}  --keeplength {aln_group_path}", stdout=PIPE, shell=True)
     output = pipe.communicate()[0]
     
     #print(seq_ix_mapping[int(row[1])])
@@ -194,7 +200,7 @@ def create_aln_true_seq_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
         for removeFile in tempfiles:
             remove(removeFile)
         return HttpResponseServerError("Failed mapping the polymer sequence to the alignment!\nTry a different structure.")
-    print("Mafft_done")
+    print("Mafft_full_seq_done")
     #mapping_file = output.decode("ascii").split('\n#')[1]
     amendedAln = re.sub('>True sequence$','',output.decode("ascii").split('\n#')[0])
     groupName = output.decode('ascii').split('>')[1].split('_')[0]

@@ -11,7 +11,8 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
         fasta,
         struc_id,
         "cif_mode_flag" : vm.user_uploaded_cif_flag,
-        hardcoded_structure: full_sequence_from_pdb
+        //hardcoded_structure: full_sequence_from_pdb
+        hardcoded_structure: vm.customFullSequence
     };
     ajax('/mapSeqAln/', postData).then(structMappingAndData=>{
         var struct_mapping = structMappingAndData["structureMapping"];
@@ -58,7 +59,7 @@ var assignColorsAndStrucMappings = function (vueObj, struct_mapping){
         }
     }
     window.mapped_aa_properties = mapped_aa_properties;
-
+    console.log(vueObj.fasta_data);
     vm.sequence=vueObj.fasta_data.split(' ')[vm.user_uploaded_cif_flag === null || vm.user_uploaded_cif_flag ? 1 : 2];
     let sequence2=vm.sequence.replaceAll(/-|\n/g, "");
     vm.sequence3=sequence2.substring("sequence".length, sequence2.indexOf(">"));

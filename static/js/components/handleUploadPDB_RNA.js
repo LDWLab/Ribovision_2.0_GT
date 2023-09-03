@@ -8,17 +8,20 @@ export function uploadCustomPDB(full_sequence_from_pdb = ""){
     }
     vm.user_uploaded_cif_flag = false;
     console.log('uCPDB',  vm.$refs.customPDBfile);
+    console.log('FS', vm.customFullSequence);
     if (vm.$refs.customPDBfile.files.length == 0){return;}
     vm.PDBparsing = true;
     vm.customPDBsuccess = null;
     vm.customPDBid = null;
-    submitCustomPDB(vm.$refs.customPDBfile.files[0], full_sequence_from_pdb);
+    console.log('full_seq',full_sequence_from_pdb );
+    submitCustomPDB(vm.$refs.customPDBfile.files[0], vm.customFullSequence);
     clearInputFile(document.getElementById('uploadCustomPDB'));
 }
 
 function submitCustomPDB(file, full_sequence_from_pdb = ""){
     var fr = new FileReader();
     postFullSeq(full_sequence_from_pdb);
+    console.log('FSFPDB', full_sequence_from_pdb )
     fr.onload = function(){
         if (validatePDB(fr.result)){
             checkAndPopulateChains(fr.result).then (chainID => {
@@ -97,6 +100,7 @@ function postPDBdata (pdbID, entities, full_sequence_from_pdb = ""){
     vm.postedPDBEntities = false;
     let parseURL = `custom-struc-data-pdb/${pdbID}`;
     var stringEntities = JSON.stringify(entities); 
+    console.log("PostPDB_FS", full_sequence_from_pdb);
     ajaxProper({
         url: parseURL,
         type: 'POST',

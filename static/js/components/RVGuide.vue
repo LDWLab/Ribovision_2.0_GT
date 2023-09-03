@@ -137,7 +137,7 @@
         },
         mounted: function () {
             //vm.guideOff = false
-            
+            localStorage.setItem("hasCodeRunBefore", false);
             if (localStorage.getItem("hasCodeRunBefore") !== 'true') {
                 tourSteps[0].content += '<br><b>First time users are advised to complete this guide by only clicking the Next button ▼</b>';
                 tourSteps.unshift(cookieNotice);
