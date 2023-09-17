@@ -286,8 +286,9 @@ function handleCustomMappingData(){
 };
 
 var displayMappingDataByIndex = function(topviewer, selectedIndex){
-    var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
-    topviewer.pluginInstance.resetTheme();
+    //var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
+    var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
+    //topviewer.pluginInstance.resetTheme();
     topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data);
     window.viewerInstance.visual.select({
         data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), 

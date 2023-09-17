@@ -106,9 +106,10 @@ var tryCustomTopology = function (pdbid, entityid, chainid){
 
     async function getRNAChain(pdbid) {
       try {
-        const returnedObject = await ajax(`full-RNA-seq/${pdbid}/`);
-        console.log('RNA_full_sequence_pdb', pdbid);
+        const returnedObject = await ajax(`full-RNA-seq/${pdbid}/${chainid}`);
+        console.log('RNA_full_sequence_cif', pdbid);
         const result = returnedObject["RNAseq"];
+    
         console.log('RNA_full_sequence', result);
         return result;
       } catch (error) {
@@ -118,9 +119,20 @@ var tryCustomTopology = function (pdbid, entityid, chainid){
     }
     
     async function RNAseqCall(pdbid) {
-      const RNA_full_sequence = await getRNAChain(pdbid);
-      console.log('RNA_full_sequence2', RNA_full_sequence);
-      return RNA_full_sequence;
+      if (vm.user_uploaded_cif_flag == true){
+        const RNA_full_sequence = await getRNAChain(pdbid);
+        console.log('RNA_full_sequence2c', RNA_full_sequence);
+        return RNA_full_sequence;
+      }
+      console.log('cf',vm.user_uploaded_cif_flag)
+      if (vm.user_uploaded_cif_flag == false){
+        const RNA_full_sequence=vm.customFullSequence;
+        console.log('RNA_full_sequence2p', vm.customFullSequence, RNA_full_sequence);
+        return RNA_full_sequence;
+      }
+      
+      //return RNA_full_sequence;
+      //return vm.customFullSequence;
     }
     
     RNAseqCall(pdbid).then(seq1 => {

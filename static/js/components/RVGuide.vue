@@ -53,6 +53,7 @@
     import {initialState} from './DropDownTreeVars.js'
     import {replacer} from './jsonMapReplacer.js'
     import {readLoadRV3State} from './loadRV3State.js'
+    import {uploadCustomFullSequence} from './handleUploadCustomFullSequence.js'
     import {cloneDeep} from 'lodash'
     export default {
         name: 'my-tour',
@@ -172,11 +173,69 @@
 
     var getExampleFasta = function(){
         $.ajax({
-            url: `static/alignments/EFTU_example.fas`,
+            url: `static/alignments/RNAseP_example.fas`,
             type: 'GET',
             dataType: "text",
             success: function(data) {
-                vm.file = new File([data], "EFTU_example.fas", {});
+                vm.file = new File([data], "RNAseP_example.fas", {});
+            },
+        })
+    };
+    var getExampleCIF = function(){
+        $.ajax({
+            url: `static/alignments/3Q1Q.cif`,
+            type: 'GET',
+            dataType: "text",
+            success: function(data) {
+                vm.$refs.customCIFfile.files = [new File([data], "3Q1Q.cif", {})];
+            },
+        })
+    };
+    var getExamplePDB = function(){
+        $.ajax({
+            url: `static/alignments/3Q1Q_B.pdb`,
+            type: 'GET',
+            dataType: "text",
+            success: function(data) {
+                let list = new DataTransfer();
+                let file =new File([data], "3Q1Q_B.pdb", {});
+                list.items.add(file);
+
+                let myFileList = list.files;
+                vm.$refs.customPDBfile.files = myFileList;
+            },
+        })
+    };
+    var getExampleFullSeqPDB = function(){
+        $.ajax({
+            url: `static/alignments/3Q1Q_B.fas`,
+            type: 'GET',
+            dataType: "text",
+            success: function(data) {
+                let list = new DataTransfer();
+                let file =new File([data], "3Q1Q_B.fas", {});
+                list.items.add(file);
+
+                let myFileList = list.files;
+                vm.$refs.customFullSequence.files = myFileList;
+                uploadCustomFullSequence();
+            },
+        })
+    };
+    var getExampleDataCSV = function(){
+        $.ajax({
+            url: `static/alignments/custom_data.csv`,
+            type: 'GET',
+            dataType: "text",
+            success: function(data) {
+                let list = new DataTransfer();
+                let file =new File([data], "custom_data.csv", {});
+                list.items.add(file);
+
+                let myFileList = list.files;
+                vm.$refs.custom_csv_file.files = myFileList;
+                vm.csv_data=new File([data], "custom_data.csv", {});
+                handleCustomMappingData();
             },
         })
     };
@@ -189,7 +248,9 @@
             content: `RiboVision 2.0 is a web-server for visualization of (ribosomal) RNAs 
             designed to display phylogenetic, structural, and physicochemical 
             properties in primary, secondary, and tertiary representations.`
-        },{
+        }, 
+        /*
+        {
             target: '#tree_type',
             header: {
                 title: 'Mode of operation',
@@ -251,13 +312,9 @@
               placement: 'right'
             },
             before: type => new Promise((resolve, reject) => {
-                var selectEl1 = document.querySelector('#selectaln');
+               
                 resolve (
-                    vm.alnobj = {id: 256, text: "5S rRNA"},
-                    //selectEl1.value = "5S",
-                    //selectEl1.dispatchEvent(new Event('change'))
-                    
-                    
+                    vm.alnobj = {id: 256, text: "5S"},
                     
                     
                 )
@@ -362,8 +419,8 @@
             before: type => new Promise((resolve, reject) => {
                 resolve (
                     vm.checked_propensities = false,
-                    vm.pdbid = "4v9d",
-                    vm.$children[1].search = "4v9d",
+                    vm.pdbid = "7k00",
+                    vm.$children[1].search = "7k00",
                 )
             })
         },{
@@ -377,8 +434,9 @@
             },
             before: type => new Promise((resolve, reject) => {
                 var polSele = document.querySelector("#polymerSelect")
+                vm.RVGuideEntityId = 23;
                 resolve (
-                    vm.chainid = ["CB"],
+                    vm.chainid = ["b"],
                     vm.$nextTick(function(){
                         polSele.lastElementChild.click();
                     }),
@@ -418,10 +476,30 @@
                 console.log('TV3', exampleData);
                 
                 resolve (
-                    vm.selected_property = "Shannon Entropy",
+                    vm.selected_property = "Shannon entropy",
                     topviewer.viewInstance.uiTemplateService.domainTypes[1],
                     //window.viewerInstance.visual.select({data: selectSections_RV1.get(exampleData.label), nonSelectedColor: {r:255,g:255,b:255}}),
                     annotationSelect.selectedIndex=1
+                )
+            })
+        },{
+            target: '#basePairingSelectElement',
+            header: {
+                title: 'Base-pairing data',
+            },
+            content: `Calculated mapping data from the alignment can be selected from this dropdown menu.<br/>
+            The data gets mapped on the alignment conservation bar as well as the topology and 3D viewers.`,
+            params: {
+              placement: 'left'
+            },
+            before: type => new Promise((resolve, reject) => {
+                var menuToClick = document.querySelector("#basePairingSelectElement");
+                menuToClick.click();
+                var checkBoxAll = document.querySelector("#Checkbox_cWS");
+                checkBoxAll.checked = true;
+                let x = document.getElementById("PdbeTopViewer");
+                x.viewInstance.uiTemplateService.changeBP("cWS", false);
+                resolve (
                 )
             })
         },{
@@ -433,6 +511,11 @@
             params: {
               placement: 'left'
             },
+            before: type => new Promise((resolve, reject) => {
+                var menuToClick = document.querySelector("#basePairingSelectElement");
+                menuToClick.click();
+                resolve();
+            })
         },{
             target: '.saveSVG',
             header: {
@@ -443,7 +526,7 @@
               placement: 'left'
             },
         },{
-            target: '.resetIcon',
+            target: '#rnaTopologyReset-7k00',
             header: {
                 title: 'Reset the view.',
             },
@@ -474,52 +557,6 @@
               placement: 'right'
             },
         },{
-            target: '#domainSelectionSection',
-            header: {
-                title: 'ECOD domains',
-            },
-            content: `ECOD annotations for the selected pdb and chain are retrieved and displayed here.
-            You can select a domain by which the 2D and 3D representations will be truncated.`,
-            params: {
-              placement: 'right'
-            },
-            before: type => new Promise((resolve, reject) => {
-                resolve (
-                    vm.domain_or_selection="domain"
-                )
-            })
-        },{
-            target: '#filterSection',
-            header: {
-                title: 'Custom truncation range',
-            },
-            content: `Here you can specify a range to truncate the structure shown on the topology and 3D viewers.
-            <br>You can either truncate the structure by range or by ECOD domain.
-            Amino acid frequencies will be recalculated based on the active selection between these two.`,
-            params: {
-              placement: 'right'
-            },
-            before: type => new Promise((resolve, reject) => {
-                resolve (
-                    vm.domain_or_selection="selection"
-                )
-            })
-        },{
-            target: '#maskingSection',
-            header: {
-                title: 'Masking ranges',
-            },
-            content: `Here you can specify ranges that mask mapped data on the topology and 3D viewers.`,
-            params: {
-              placement: 'right'
-            },
-            before: type => new Promise((resolve, reject) => {
-                resolve (
-                    vm.domain_or_selection=null,
-                    vm.checked_filter=true,
-                )
-            })
-        },{
             target: '#customDataSection',
             header: {
                 title: 'Upload custom data',
@@ -547,22 +584,29 @@
               placement: 'right'
             },
         },{
-            target: '#propensitiesSubstructure',
-            header: {
-                title: 'Recalculate AA frequencies',
+            target: '#polymerSelect2',
+            header : {
+                title: 'PolymerSelect2'
             },
-            content: `Once a structure has been defined, AA frequencies can be recalculated by a given secondary structure.<br>
-            The options are Coil, Strand, or Helix residues.`,
+            content: 'This is content.',
             params: {
-              placement: 'right'
+                placement: 'right'
             },
             before: type => new Promise((resolve, reject) => {
-                resolve (
-                    vm.checked_customMap=false,
-                    vm.checked_propensities = true
-                )
+                const newValue = "50S ribosomal protein L25";
+                //var polymerSelect2 = document.querySelector("#polymerSelect2");
+                //polymerSelect2.value = newValue;
+
+                vm.pchainid = [newValue];
+                const newEntityID = 42;
+                vm.entityID = newEntityID;
+                viewerInstanceTop.viewInstance.uiTemplateService.colorMapContacts();  
+                showModificationsAndContactsHelper("" + newEntityID);
+                resolve();
             })
-        },{
+        },
+        */
+        {
             target: '#tree_type',
             header: {
                 title: 'Upload a custom alignment',
@@ -579,8 +623,8 @@
                     vm.type_tree="upload",
                     document.getElementById('tree_type').children[1].click(),
                     vm.cleanTreeOpts(),
-                    document.getElementById("pdbeMolstarView").textContent = null,
-                    document.getElementById("topview").textContent = null,
+                    //document.getElementById("pdbeMolstarView").textContent = null,
+                    //document.getElementById("topview").textContent = null,
                     vm.topology_loaded = false,
                 )
             })
@@ -613,7 +657,8 @@
                 title: 'Upload the chosen alignment.',
             },
             content: `The alignment will be sent to our server, but it won't be stored there. <br/>
-            Our server will calculate amino-acid frequencies and check the format.`,
+            Our server will calculate amino-acid frequencies and check the format.
+            WAIT UNTIL MSA IS LOADED.`,
             params: {
               placement: 'right'
             },
@@ -624,7 +669,8 @@
                     vm.fetchingPDBwithCustomAln=true,
                 )
             })
-        },{
+        },
+        {
             target: '#warningCDHITtruncation',
             header: {
                 title: 'Warning for clustering of alignment.',
@@ -633,13 +679,43 @@
             have been clustered by CD-HIT. This is done to ensure there is no overrepresentation of certain sequences.<br/>
             The number of clustered sequences at 90% identity threshold will be indicated.<br/>
             The user can input a different PDB or select a new polymer or restart with a new alignment.`,
-        },{
+        },
+        {
             target: '#cdHITResults',
             header: {
                 title: 'CD-HIT options.',
             },
             content: `The user can select to use their original unclustered alignment from this dropdown menu.
             The user can also download the CD-HIT report from their alignment.`,
+        },
+        {
+            target: '#radioCIF',
+            header: {
+                title: 'Select CIF format for the custom 3D structure. ',
+            },
+            content: `When using custom alignment ProteoVision supports a custom PDB structure file.
+            The structure file must be in PDB format and must contain only a single chain.`,
+            params: {
+              placement: 'right'
+            },
+        },{
+            target: '#radioPDB',
+            header: {
+                title: 'Select PDB format for the custom 3D structure.',
+            },
+            content: `When using custom alignment ProteoVision supports a custom PDB structure file.
+            The structure file must be in PDB format and must contain only a single chain.`,
+            params: {
+              placement: 'right'
+            },
+        
+            before: type => new Promise((resolve, reject) => {
+                let uploadButton = document.querySelector("#radioPDB")
+                resolve (
+                    uploadButton.click(),
+                    
+                )
+            })
         },{
             target: '#pdb-upload',
             header: {
@@ -650,7 +726,156 @@
             params: {
               placement: 'right'
             },
+        
+            before: type => new Promise((resolve, reject) => {
+                //let uploadButton = document.querySelector("#radioPDB")
+                resolve (
+                    getExamplePDB(),
+                    vm.pdbFileUploadedFlag=true,
+                    
+                )
+            })
+        },
+
+        {
+            target: '#full-sequence-upload',
+            header: {
+                title: 'Upload full sequnce for the custom PDB file.',
+            },
+            content: `When using custom alignment ProteoVision supports a custom PDB structure file.
+            The structure file must be in PDB format and must contain only a single chain.
+            WAIT UNTIL 2D and 3D structures are generated BEFORE CLICKING NEXT`,
+            params: {
+              placement: 'right'
+            },
+        
+            before: type => new Promise((resolve, reject) => {
+                //let uploadButton = document.querySelector("#radioPDB")
+                resolve (
+                    getExampleFullSeqPDB(),
+                    
+                    
+                )
+            })
         },{
+            target: '#downloadDataBtn',
+            header: {
+                title: 'Download Custom Data.',
+            },
+            content: `When using custom alignment ProteoVision supports a custom PDB structure file.
+            The structure file must be in PDB format and must contain only a single chain.`,
+            params: {
+              placement: 'right'
+            },
+        
+            before: type => new Promise((resolve, reject) => {
+                //let uploadButton = document.querySelector("#radioPDB")
+                resolve (
+                    //vm.checked_customMap = true,
+                    //vm.cleanCustomMap(true),
+                    
+                    
+                )
+            })
+        },
+        {
+            target: '#uploadCustomData',
+            header: {
+                title: 'Upload custom data from CSV file.',
+            },
+            content: `When using custom alignment ProteoVision supports a custom PDB structure file.
+            The structure file must be in PDB format and must contain only a single chain.`,
+            params: {
+              placement: 'right'
+            },
+        
+            before: type => new Promise((resolve, reject) => {
+                //let uploadButton = document.querySelector("#radioPDB")
+                resolve (
+                    vm.checked_customMap = true,
+                    vm.cleanCustomMap(true),
+                    
+                    
+                )
+            })
+        },
+        {
+            target: '#inputUploadCSV',
+            header: {
+                title: 'Upload custom data from CSV file.',
+            },
+            content: `When using custom alignment ProteoVision supports a custom PDB structure file.
+            The structure file must be in PDB format and must contain only a single chain.`,
+            params: {
+              placement: 'right'
+            },
+        
+            before: type => new Promise((resolve, reject) => {
+                //let uploadButton = document.querySelector("#radioPDB")
+                resolve (
+                    //vm.checked_customMap = true,
+                    //vm.cleanCustomMap(true),
+                    getExampleDataCSV()
+                    
+                    
+                )
+            })
+        },
+        {
+            target: '.menuSelectbox',
+            header: {
+                title: 'Representation of Custom Data',
+            },
+            content: `Calculated mapping data from the alignment can be selected from this dropdown menu.<br/>
+            The data gets mapped on the alignment conservation bar as well as the topology and 3D viewers.`,
+            params: {
+              placement: 'left'
+            },
+            before: type => new Promise((resolve, reject) => {
+                var topviewer = document.getElementById("PdbeTopViewer");
+                var annotationSelect = document.querySelector(".menuSelectbox");
+                var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.menuSelectbox');
+                //var exampleData = topviewer.viewInstance.uiTemplateService.domainTypes[2];
+                //console.log('TV3', exampleData);
+                
+                resolve (
+                    vm.selected_property = "circle",
+                    //topviewer.viewInstance.uiTemplateService.domainTypes[2],
+                    selectBoxEle.value=2,
+                    //selectBoxEle!.innerHTML = optionList;
+                    selectBoxEle.addEventListener("change",selectBoxEle.value),
+                    //window.viewerInstance.visual.select({data: selectSections_RV1.get(exampleData.label), nonSelectedColor: {r:255,g:255,b:255}}),
+                    //annotationSelect.selectedIndex=1
+                )
+            })
+        },
+        {
+            target: '.mappingSelectbox',
+            header: {
+                title: 'Custom Mapping data',
+            },
+            content: `Calculated mapping data from the alignment can be selected from this dropdown menu.<br/>
+            The data gets mapped on the alignment conservation bar as well as the topology and 3D viewers.`,
+            params: {
+              placement: 'left'
+            },
+            before: type => new Promise((resolve, reject) => {
+                var topviewer = document.getElementById("PdbeTopViewer");
+                var annotationSelect = document.querySelector(".mappingSelectbox");
+                var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
+                var exampleData = topviewer.viewInstance.uiTemplateService.domainTypes[2];
+                console.log('TV3', exampleData);
+                
+                resolve (
+                    vm.selected_property = "Custom Data",
+                    topviewer.viewInstance.uiTemplateService.domainTypes[2],
+                    //window.viewerInstance.visual.select({data: selectSections_RV1.get(exampleData.label), nonSelectedColor: {r:255,g:255,b:255}}),
+                    annotationSelect.selectedIndex=1
+                )
+            })
+        },
+        /*
+        {
             target: '.autocomplete',
             header: {
                 title: 'Write a PDB ID for structure display',
@@ -665,7 +890,9 @@
                     vm.$children[0].search = "1efu",
                 )
             })
-        },{
+        },
+    
+        {
             target: '#blastingPDBsMSG',
             header: {
                 title: 'Background BLAST search',
@@ -769,7 +996,9 @@
                     }),
                 )
             })
-        },{
+        },
+        */
+        {
             target: '#aboutButton',
             header: {
                 title: 'About ProteoVision',

@@ -63,6 +63,7 @@ def constructStrucSeqMap(structure):
     print (structure.id)
     RNA_chain=structure.id.rsplit('-', 1)[1]
     for chain in structure.get_chains():
+        print(chain.id, RNA_chain)
         
         if chain.id ==RNA_chain:
             residues = list(chain.get_residues())

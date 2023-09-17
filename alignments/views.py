@@ -717,12 +717,17 @@ def protein_contacts(request, pdbid, chain_id):
                 neighbors[chain.id] = list(neighbors_L2_all)
     
     return JsonResponse(neighbors)
-def full_RNA_seq(request, pdbid):
-    RNA_full_sequence={}
-    chain_id=str('a')
-    import Bio.PDB.MMCIF2Dict
-    mmcdata = Bio.PDB.MMCIF2Dict.MMCIF2Dict("/tmp/" + str(pdbid) + "2.cif")
+def full_RNA_seq(request, pdbid, chain_id):
+    import alignments.config
     
+    RNA_full_sequence={}
+    print('cid',chain_id)
+    cif_fileNameSuffix=alignments.config.cif_fileNameSuffix_share
+    print(alignments.config.cif_fileNameSuffix_share)
+    import Bio.PDB.MMCIF2Dict
+    #mmcdata = Bio.PDB.MMCIF2Dict.MMCIF2Dict('/tmp/cust2{cif_fileNameSuffix}.cif')
+    mmcdata = Bio.PDB.MMCIF2Dict.MMCIF2Dict("/tmp/cust2"+str(cif_fileNameSuffix)+".cif")
+    #print(mmcdata)
     index = 0
     try:
         index = mmcdata['_entity_poly.pdbx_strand_id'].index(chain_id)
@@ -740,6 +745,12 @@ def full_RNA_seq(request, pdbid):
     context = {
         'RNAseq' : RNA_full_sequence
     }
+    
+    if os.path.isfile("/tmp/cust2"+str(cif_fileNameSuffix)+".cif"):
+        os.remove("/tmp/cust2"+str(cif_fileNameSuffix)+".cif")
+    else:
+        # If it fails, inform the user.
+        print("Error: %s file not found" % "/tmp/cust2"+str(cif_fileNameSuffix)+".cif") 
     return JsonResponse(context)
     
 def r2dt(request, sequence, entity_id):

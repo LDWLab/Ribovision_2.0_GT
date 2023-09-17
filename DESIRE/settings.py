@@ -93,10 +93,10 @@ WSGI_APPLICATION = 'DESIRE.wsgi.application'
 DATABASES = {
     'default': {
         'NAME': 'DESIRE',
-        'ENGINE': 'mysql.connector.django',#django.db.backends.mysql
-        'USER': 'caeden',#os.environ['DJANGO_USERNAME'],#config['DB_USER_NAME'],             #Write username here
-	'PASSWORD': '43164316',#os.environ['DJANGO_PASSWORD'],#config['DB_PASSWORD'],         #And password here
-	'HOST': 'localhost',
+        'ENGINE': 'mysql.connector.django',
+        'USER': os.environ['DJANGO_USERNAME'],             #Write username here
+	'PASSWORD': os.environ['DJANGO_PASSWORD'],         #And password here
+	'HOST': '130.207.36.76',
         'PORT': '3306',
         'OPTIONS': {
           'autocommit': True,

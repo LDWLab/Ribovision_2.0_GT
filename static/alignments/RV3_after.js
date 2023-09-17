@@ -274,9 +274,9 @@ function handleCustomMappingData(){
   };
   readFile(vm.$refs.custom_csv_file.files[0]);
 };
-
 var displayMappingDataByIndex = function(topviewer, selectedIndex){
-    var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
+    //var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
+    var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.mappingSelectbox');
     topviewer.pluginInstance.resetTheme();
     topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data);
     window.viewerInstance.visual.select({
@@ -288,7 +288,8 @@ var displayMappingDataByIndex = function(topviewer, selectedIndex){
 }
 
 var mapCustomMappingData = function(custom_data, custom_data_name, topviewer){
-    var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
+    //var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
+    var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.mappingSelectbox');
     let vals = custom_data.map(function(v){ return v[1] });
     let indexes = custom_data.map(function(v){ return v[0] });
     window.aaColorData.set(custom_data_name, [viridis]);

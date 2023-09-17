@@ -41,7 +41,7 @@
                 <p><button id="downloadExampleFasta" class="btn btn-outline-dark" v-on:click="getExampleFile(`static/alignments/EFTU_example.fas`, `PVExampleAlignment.fas`)" v-if="!file&&type_tree=='upload'">Download example alignment</button></p>
             </div>
             <p>
-                <select class="btn btn-outline-dark dropdown-toggle" id="select_protein_type" v-if="tax_id" v-model="protein_type_obj" v-on:change="loadData(tax_id, type_tree)">
+                <select class="btn btn-outline-dark dropdown-toggle" id="select_protein_type" v-if="tax_id" v-model="protein_type_obj" v-on:change="loadData(tax_id, type_tree)" style="margin: 0 1% 0 0;width:100%;">
                     <option :value="null" selected disabled hidden>Select RNA type</option>
                     <option v-for="proteinType in proteinTypes" v-bind:key="proteinType">{{ proteinType }}</option>
                 </select>
@@ -54,26 +54,45 @@
             </p>
                 <!--<span v-if="alnobj&&alnobj!='custom'">Select structure for mapping:</span>-->
                 <div v-if="alnobj&&alnobj=='custom'&&file&&type_tree=='upload'">
-                    <label for="uploadCustomFullSequence" id="full-sequence-upload" class="btn btn-outline-dark">Upload a custom full sequence</label>
-                    <input id="uploadCustomFullSequence" class="btn btn-outline-dark" type="file" accept=".txt" ref="customFullSequence" v-on:change="uploadCustomFullSequence(); uploadCustomPDB()"></input>
-                    AND<br>
-                    <label for="uploadCustomPDB" id="pdb-upload" class="btn btn-outline-dark">Upload a custom PDB</label>
-                    <input id="uploadCustomPDB" class="btn btn-outline-dark" type="file" accept=".pdb" ref="customPDBfile" v-on:change="uploadCustomPDB();"/>
-                    OR<br>
-                    <label for="uploadCustomCIF" id="cif-upload" class="btn btn-outline-dark">Upload a custom CIF</label>
-                    <input id="uploadCustomCIF" class="btn btn-outline-dark" type="file" accept=".cif" ref="customCIFfile" v-on:change="uploadCustomCIF();"/>
-                    <br>AND<br>
-                    <label for="provideEntityID">Provide an Entity ID for a desired RNA chain</label>
-                    <input id="provideEntityID" class="btn btn-outline-dark" type="number" ref="entity_id" v-on:change="uploadCustomCIF()"/>
+                    <b>Select a format for 3D structure:</b>
+                    <br/>
+                    <input type="radio" id="radioCIF" name="CIF/PDB mode" value="CIF" v-model="cifPdbMode">CIF</input>
+                    <input type="radio" id="radioPDB" name="CIF/PDB mode" value="PDB" v-model="cifPdbMode">PDB</input>
+                    <br/>
+                    <div v-if="cifPdbMode=='CIF'">
+    
+                        Upload a custom CIF:
+                        <br/>
+                        <label for="uploadCustomCIF" id="cif-upload" class="btn btn-outline-dark" style="margin: 0 1% 0 0;width:100%;">Choose File</label>
+                        <input id="uploadCustomCIF" class="btn btn-outline-dark" type="file" accept=".cif" ref="customCIFfile" v-on:change="vm.cifFileUploadedFlag=true;" style="margin: 0 1% 0 0;width:100%;"/>
+                        <div v-if="vm.cifFileUploadedFlag">
+                            <label for="provideEntityID" style="margin: 0 1% 0 0;width:100%;">Provide an Entity ID for a desired RNA chain</label>
+                            <input id="provideEntityID" class="btn btn-outline-dark" type="number" ref="entity_id" v-on:change="uploadCustomCIF()" placeholder="Entity ID" style="margin: 0 1% 0 0;width:100%;"/>
+                        </div>
+                    </div>
+                    <div v-if="cifPdbMode=='PDB'"> 
+                        Upload a custom PDB:
+                        <br/>
+                        <label for="uploadCustomPDB" id="pdb-upload" class="btn btn-outline-dark">Choose File</label>
+                        <input id="uploadCustomPDB" class="btn btn-outline-dark" type="file" accept=".pdb" ref="customPDBfile" v-on:change="pdbFileUploadedFlag = true;"/>
+                        <div v-if="pdbFileUploadedFlag">
+                            Upload the matching RNA sequence:
+                            <br/>
+                            <label for="uploadCustomFullSequence" id="full-sequence-upload" class="btn btn-outline-dark" style="margin: 0 1% 0 0;width:100%;">Choose File</label>
+                            <input id="uploadCustomFullSequence" class="btn btn-outline-dark" type="file" accept=".fas,.fasta,.fa" ref="customFullSequence" v-on:change="uploadCustomFullSequence();" style="margin: 0 1% 0 0;width:100%;"/>
+                        </div>
+                    </div>
                 </div>
+                <!--
                 <span v-if="alnobj">Select/type PDB entry:</span>
                 <select class="btn btn-outline-dark dropdown-toggle" id="pdb_input" v-if="alnobj&&alnobj!='custom'" v-model="pdbid">
                     <option :value="null" selected disabled hidden>Select PDB entry</option>
                     <option v-for="pdb in pdbs" v-bind:value="pdb.id">{{pdb.name}}</option>
                 </select>
+                <autocomplete isAsync:true :items="blastPDBresult" v-if="alnobj&&alnobj=='custom'" v-model="pdbid"></autocomplete>
+                -->
                 <p>
                 <autocomplete id="pdb_input" isAsync:true :items="pdbs" v-if="alnobj&&alnobj!='custom'" v-model="pdbid"></autocomplete>
-                <autocomplete isAsync:true :items="blastPDBresult" v-if="alnobj&&alnobj=='custom'" v-model="pdbid"></autocomplete>
                 <!--
                 <div id="blastingPDBsMSG" v-if="alnobj&&alnobj=='custom'&&fetchingPDBwithCustomAln&&fetchingPDBwithCustomAln==true">
                     <b>BLASTing first alignment sequence against PDB sequences</b>
@@ -90,7 +109,8 @@
                 </p>-->
             <p><select multiple class="form-control btn-outline-dark" id="polymerSelect" v-bind:style="{ resize: 'both'}"  v-if="chains&&fasta_data&&pdbid||uploadSession" v-model="chainid" >
                 <option :value ="null" selected disabled>Select an RNA chain to visualize</option>
-                <option v-for="chain in chains" v-bind:key="chain.value" v-bind:value="chain.value" @click="postStructureData(pdbid, chainid); calculateProteinContacts(pdbid, chainid); populateECODranges(pdbid, chainid); showPDBViewer(pdbid, chainid, chain.entityID);">{{ chain.text }}</option>
+                <option v-for="chain in chains" v-bind:key="chain.value" v-bind:value="chain.value" @click="postStructureData(pdbid, chainid); calculateProteinContacts(pdbid, chainid); populateECODranges(pdbid, chainid); showPDBViewer(pdbid, chainid, guideOff ? chain.entityID : RVGuideEntityId);">{{ chain.text }}</option>
+                <!-- <option v-for="chain in chains" v-bind:key="chain.value" v-bind:value="chain.value" @click="postStructureData(pdbid, chainid); calculateProteinContacts(pdbid, chainid); populateECODranges(pdbid, chainid); showPDBViewer(pdbid, chainid, chain.entityID);">{{ chain.text }}</option> -->
             </select></p>
             <!-- 
             -->
@@ -156,11 +176,11 @@
             -->             
                 <div id="customDataSection">
                 <p><div class="checkbox">
-                        <label><input type="checkbox" v-model="checked_customMap" v-on:change="cleanCustomMap(checked_customMap)">
+                        <label><input type="checkbox" id="uploadCustomData"  v-model="checked_customMap" v-on:change="cleanCustomMap(checked_customMap)">
                         Upload custom mapping data</label>
                         <p><input class="btn btn-outline-dark" id="inputUploadCSV" v-if="checked_customMap" type="file" accept=".csv" ref="custom_csv_file" v-on:change="handleCustomMappingData()"/></p>
                         <p v-if="raiseCustomCSVWarn" v-html="raiseCustomCSVWarn"></p>
-                        <p><button class="btn btn-outline-dark" id="downloadExampleCSV" v-if="checked_customMap&&csv_data==null" type="button" v-on:click="getExampleFile(`static/alignments/rv3_example_cusom_mapping.csv`, `PVExampleCustomMapping.csv`)">
+                        <p><button class="btn btn-outline-dark" id="downloadExampleCSV" v-if="checked_customMap&&csv_data==null" type="button" v-on:click="getExampleFile(`static/alignments/rv3_example_cusom_mapping.csv`, `RVExampleCustomMapping.csv`)">
                         Download example mapping data
                         </button></p>
                     </div>
@@ -169,7 +189,7 @@
                     <p><select multiple class="form-control btn-outline-dark" id="polymerSelect2" v-bind:style="{ resize: 'both'}" v-model="pchainid">
                     <label>Select RNA-protein contacts to view in 3D</label>
                     <option :value ="null" selected disabled></option>
-                    <option v-for="chain in protein_chains" v-bind:value="chain.value" v-bind:key="chain.key" @click="showContacts();">{{ chain.text }}</option>
+                    <option v-for="chain in protein_chains" v-bind:value="chain.value" v-bind:key="chain.key" v-bind:id="chain.value" @click="showContacts();">{{ chain.text }}</option>
                     </select></p>
                 </div>   
                 <p><select multiple class="form-control btn-outline-dark" id="polymerSelect3" v-bind:style="{ resize: 'both'}" v-model="modifications" v-if="modified">
@@ -487,8 +507,9 @@
                         updatedBarColors.push("#808080")
                     });
             } else {
-                let min = Math.min(...aaPropertyConstants.get(name));
-                let max = Math.max(...aaPropertyConstants.get(name));
+                const constants = aaPropertyConstants.get(name);
+                let min = Math.min(...constants);
+                let max = Math.max(...constants);
                 let colormapArray = aaColorData.get(name);
                 let propData = this.aa_properties.get(name);
                 var separatedData = [];

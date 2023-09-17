@@ -11,7 +11,7 @@ export function uploadCustomPDB(){
     vm.PDBparsing = true;
     vm.customPDBsuccess = null;
     vm.customPDBid = null;
-    vm.customChain='a';
+    //vm.customChain='a';
     //submitCustomPDB(vm.$refs.customPDBfile.files[0]);
     submitCustomCIF(vm.$refs.customPDBfile.files[0]);
     clearInputFile(document.getElementById('uploadCustomPDB'));
@@ -31,6 +31,7 @@ export function uploadCustomCIF() {
     vm.customPDBsuccess = null;
     vm.customPDBid = null;
     vm.customChain='a';
+    vm.customEntity=vm.$refs.entity_id.value;
     submitCustomCIF(vm.$refs.customCIFfile.files[0], entity_id);
     clearInputFile(document.getElementById('uploadCustomPDB'));
 }
@@ -141,8 +142,9 @@ function validateCIF(strucString){
         let parsed = parseMmcif(strucString);
         let RNA_atoms=[];
         parsed.atoms.forEach(function(atom){
-            if  (atom.auth_asym_id == vm.customChain){
+            if  (atom.label_entity_id == vm.customEntity){
             RNA_atoms.push(atom);
+            vm.customChain=atom.auth_asym_id;
             }
         });
 

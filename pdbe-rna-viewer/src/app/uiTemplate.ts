@@ -73,7 +73,7 @@ export class UiTemplateService {
                     <select class="mappingSelectbox" style="width:20%; display: inline-block;"><option value="">Mapping</option></select>
                     <div class="multiselect">
                         <div class="selectBox" onclick="UiActionsService.showCheckboxes()" style="display:inline-block;float:right;width:25%">
-                            <select>
+                            <select id="basePairingSelectElement">
                                 <option>Base Pairings</option>
                             </select>
                             <div class="overSelect"></div>
@@ -250,7 +250,7 @@ export class UiTemplateService {
         }
         this.addEvents(this.apiData!)
     }
-    changeBP(val: string) {
+    changeBP(val: string, flag : boolean | undefined = undefined) {
         this.displayBaseStrs = '';
         this.displayNestedBaseStrs = '';
         const allBP = this.containerElement.querySelector<HTMLInputElement>('#Checkbox_All')!.checked
@@ -265,9 +265,9 @@ export class UiTemplateService {
                 }
             });
         } else {
-            if(this.baseStrs.get(val)![0]) {
+            if(flag ?? this.baseStrs.get(val)![0]) {
                 this.baseStrs.set(val, [false,  this.baseStrs.get(val)![1]]);
-                this.nestedBaseStrs.set(val, [false,  this.nestedBaseStrs.get(val)![1]]);
+                this.nestedBaseStrs.set(val, [false, this.nestedBaseStrs.get(val)![1]]);
             } else {
                 this.baseStrs.set(val, [true,  this.baseStrs.get(val)![1]]);
                 this.nestedBaseStrs.set(val, [true,  this.nestedBaseStrs.get(val)![1]]);
@@ -313,6 +313,7 @@ export class UiTemplateService {
         let optionList = `<option value="0">Nucleotides</option><option value="1">Path</option><option value="2">Circle</option>`;
         const selectBoxEle = this.containerElement.querySelector<HTMLElement>('.menuSelectbox');
         selectBoxEle!.innerHTML = optionList;
+        console.log(this.PathOrNucleotide.bind(this));
         selectBoxEle!.addEventListener("change", this.PathOrNucleotide.bind(this));
         const nestedBP = this.containerElement.querySelector<HTMLElement>('#nestedBP');
         nestedBP!.addEventListener("change", this.PathOrNucleotide.bind(this));

@@ -85,6 +85,7 @@ export function initialState (){
         downloadAlignmentOpt: null,
         downloadMapDataOpt: null,
         freqCSV: null,
+        cifPdbMode: null,
         customPDBsuccess: null,
         customPDBid: null,
         PDBparsing: false,
@@ -97,5 +98,8 @@ export function initialState (){
             {Name:'Download cdhit report', value:'download'},
             {Name:'Reload original alignment', value:'untrunc'}
         ],
+        cifFileUploadedFlag: false,
+        pdbFileUploadedFlag: false,
+        RVGuideEntityId: -1
     }
 }

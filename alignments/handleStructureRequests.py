@@ -7,6 +7,7 @@ import datetime
 from alignments.views import parse_string_structure
 from alignments.topologyAPIgenerators import generateTopologyJSONfromSVG, generateEntityJSON, generatePolCoverageJSON
 from alignments.mapStrucSeqToAln import constructStrucSeqMap
+import alignments.config
 
 def handleCustomUploadStructure (request, strucID):
     '''We will POST all structure chains we need with uniqueIDs.
@@ -102,7 +103,7 @@ def handleCustomUploadStructure_CIF (request, strucID):
 
             strucString = strucToString(strucObj)
            
-            
+            print('structString')
             fixedEntityStruc = fixEntityFieldofParsedCIF(strucString, {deStrEnt["chainID"]:deStrEnt["entityID"]})
             outStruc = fixResiFieldsofParsedCIF(fixedEntityStruc)
             request.session[f'{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = outStruc
@@ -295,20 +296,22 @@ def parseCustomPDB(stringData, id = "CUST"):
     return structureObj
 
 def parseCustomCIF(stringData, pdbid):
+    #import config
     parser = MMCIFParser()
     strucFile = io.StringIO(stringData)
     strucFile1 = io.StringIO(stringData)
     ###NEED time here
     now = datetime.datetime.now()
-    fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
-    cif_file_path = f'/tmp/cust2{fileNameSuffix}.cif'
+    cif_fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
+    alignments.config.cif_fileNameSuffix_share=cif_fileNameSuffix
+    cif_file_path = f'/tmp/cust2{cif_fileNameSuffix}.cif'
     with open(cif_file_path, 'w') as f:
             f.write(strucFile1.read())
             f.close()
     structureObj = parser.get_structure(pdbid,strucFile)
     print('MMCIF parsed')
    
-
+    print(cif_file_path)
     return structureObj, cif_file_path
 
 def postTopology(request, strucID):

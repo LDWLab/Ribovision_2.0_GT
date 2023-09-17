@@ -13,7 +13,7 @@ export function uploadCustomPDB(full_sequence_from_pdb = ""){
     vm.PDBparsing = true;
     vm.customPDBsuccess = null;
     vm.customPDBid = null;
-    console.log('full_seq',full_sequence_from_pdb );
+    
     submitCustomPDB(vm.$refs.customPDBfile.files[0], vm.customFullSequence);
     clearInputFile(document.getElementById('uploadCustomPDB'));
 }
