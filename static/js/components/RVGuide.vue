@@ -845,8 +845,7 @@
                 var topviewer = document.getElementById("PdbeTopViewer");
                 var annotationSelect = document.querySelector(".menuSelectbox");
                 var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.menuSelectbox');
-                //var exampleData = topviewer.viewInstance.uiTemplateService.domainTypes[2];
-                //console.log('TV3', exampleData);
+
                 
                 resolve (
                     vm.selected_property = "circle",
@@ -875,7 +874,7 @@
                 var annotationSelect = document.querySelector(".mappingSelectbox");
                 var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
                 var exampleData = topviewer.viewInstance.uiTemplateService.domainTypes[2];
-                console.log('TV3', exampleData);
+                
                 
                 resolve (
                     vm.selected_property = "Custom Data",
