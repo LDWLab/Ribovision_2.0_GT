@@ -12,7 +12,7 @@
                 </span>
                 -->
                 <p style="padding:2px;float: right;"></p>
-                <span title="Go to RiboVision2 documentation">
+                <span title="Go to RiboVision 2.0 documentation">
                     <button class="btn btn-outline-dark" id="aboutButton" v-on:click="goToAboutPage();" style="float: right;">About</button>
                 </span>
                 <!--
@@ -28,11 +28,11 @@
                 </span>
                 -->
                 <p style="padding:2px;float: right;"></p>
-                <span title="Save a RiboVision2 session file">
+                <span title="Save a RiboVision 2.0 session file">
                     <button class="btn btn-outline-dark" id="saveButton" v-on:click="saveRV3State();" style="float: right;">Save session</button>
                 </span>
                 <p style="padding:2px;float: right;"></p>
-                <span title="Load a RiboVision2 session file">
+                <span title="Load a RiboVision 2.0 session file">
                     <label for="inputRV3State" id="rv3-state-upload" class="btn btn-outline-dark">Load session</label>
                     <input id="inputRV3State" type="file" accept=".json" ref="rv3_state_file" v-on:change="loadRV3State()"/>
                 </span>
@@ -256,7 +256,7 @@
                 title: 'Mode of operation',
             },
             content: `Select either of two possible modes of operation.<br/>
-            <b>RiboVision</b> retrieves alignments from the DatabasE for Study and Imaging of Ribosomal Evolution.<br/>
+            <b>RiboVision 2.0 </b> retrieves alignments from the DatabasE for Study and Imaging of Ribosomal Evolution.<br/>
             <b>User upload</b> allows you to upload your own fasta formatted alignment.`,
             before: type => new Promise((resolve, reject) => {
                 resolve (
@@ -334,7 +334,7 @@
             },
             content: `Bar representation of conservation for each alignment position.
             The conservation is calculated as Shannon entropy and represented by the column heights.
-            The columns can be colored with custom data or with ProteoVision calculated data.`,
+            The columns can be colored with custom data or with RiboVision 2.0 calculated data.`,
         },{
             target: '#downloadFastaBtn',
             header: {
@@ -577,7 +577,7 @@
             header: {
                 title: 'Download a mapping data example',
             },
-            content: `CSV format example that is supported by ProteoVision. The file must have a header row with column labeled
+            content: `CSV format example that is supported by RiboVision 2.0. The file must have a header row with column labeled
             <b>Index</b> indicating the structure residues. At least one more header is necessary which 
             labels the data column. The viridis colormap is used to map the datapoints with colors.`,
             params: {
@@ -693,18 +693,33 @@
             header: {
                 title: 'Select CIF format for the custom 3D structure. ',
             },
-            content: `When using custom alignment ProteoVision supports a custom PDB structure file.
-            The structure file must be in PDB format and must contain only a single chain.`,
+            content: `Users have an option to select the format of the 3D custom structure (CIF or PDB).`,
             params: {
               placement: 'right'
             },
+            before: type => new Promise((resolve, reject) => {
+                let uploadButton = document.querySelector("#radioCIF")
+                resolve (
+                    uploadButton.click(),
+                    
+                )
+            })
+        },{
+            target: '#cif-upload',
+            header: {
+                title: 'Upload custom CIF file.',
+            },
+            content: `If the CIF option is selected, the users will need to provide a 3D structure in the CIF format and the entity ID of the desired RNA chain. The additional requiremnts for the CIF file format are provided in the documentation.`,
+            params: {
+              placement: 'right'
+            },
+        
         },{
             target: '#radioPDB',
             header: {
                 title: 'Select PDB format for the custom 3D structure.',
             },
-            content: `When using custom alignment ProteoVision supports a custom PDB structure file.
-            The structure file must be in PDB format and must contain only a single chain.`,
+            content: `RiboVision 2.0 also supports a custom structure in the PDB format.`,
             params: {
               placement: 'right'
             },
@@ -721,8 +736,7 @@
             header: {
                 title: 'Upload custom PDB file.',
             },
-            content: `When using custom alignment ProteoVision supports a custom PDB structure file.
-            The structure file must be in PDB format and must contain only a single chain.`,
+            content: `The PDB structure file must contain only a single RNA chain.`,
             params: {
               placement: 'right'
             },
@@ -740,11 +754,10 @@
         {
             target: '#full-sequence-upload',
             header: {
-                title: 'Upload full sequnce for the custom PDB file.',
+                title: 'Upload a complete RNA sequence',
             },
-            content: `When using custom alignment ProteoVision supports a custom PDB structure file.
-            The structure file must be in PDB format and must contain only a single chain.
-            WAIT UNTIL 2D and 3D structures are generated BEFORE CLICKING NEXT`,
+            content: `In addition to the PDB structure, a complete RNA sequence for the structure in the PDB file must also be uploaded separately. This sequence is required to generate the complete 2D diagram without omission of unresolved regions.
+            WAIT until 2D and 3D structures are generated BEFORE CLICKING NEXT`,
             params: {
               placement: 'right'
             },
@@ -762,8 +775,7 @@
             header: {
                 title: 'Download Custom Data.',
             },
-            content: `When using custom alignment ProteoVision supports a custom PDB structure file.
-            The structure file must be in PDB format and must contain only a single chain.`,
+            content: `Custom mode also allows the users to map and  visualize custom data. The data must be uploaded as CSV file.`,
             params: {
               placement: 'right'
             },
@@ -783,8 +795,7 @@
             header: {
                 title: 'Upload custom data from CSV file.',
             },
-            content: `When using custom alignment ProteoVision supports a custom PDB structure file.
-            The structure file must be in PDB format and must contain only a single chain.`,
+            content: `The data in the CSV file are orgainized in a specific way. Please download an example of the custom CSV file here.`,
             params: {
               placement: 'right'
             },
@@ -813,8 +824,7 @@
             before: type => new Promise((resolve, reject) => {
                 //let uploadButton = document.querySelector("#radioPDB")
                 resolve (
-                    //vm.checked_customMap = true,
-                    //vm.cleanCustomMap(true),
+
                     getExampleDataCSV()
                     
                     
@@ -841,9 +851,10 @@
                 resolve (
                     vm.selected_property = "circle",
                     //topviewer.viewInstance.uiTemplateService.domainTypes[2],
-                    selectBoxEle.value=2,
-                    //selectBoxEle!.innerHTML = optionList;
-                    selectBoxEle.addEventListener("change",selectBoxEle.value),
+                    selectBoxEle.value="2",
+                    selectBoxEle.dispatchEvent(new Event('change')),
+                    //selectBoxEle.innerHTML = optionList
+                    //topviewer.viewInstance.uiTemplateService.PathOrNucleotide
                     //window.viewerInstance.visual.select({data: selectSections_RV1.get(exampleData.label), nonSelectedColor: {r:255,g:255,b:255}}),
                     //annotationSelect.selectedIndex=1
                 )
@@ -1001,10 +1012,10 @@
         {
             target: '#aboutButton',
             header: {
-                title: 'About ProteoVision',
+                title: 'About RiboVision 2.0',
             },
             content: `Redirects to a comprehensive online documentation that describes
-            all functions and features of ProteoVision.`,
+            all functions and features of RiboVision 2.0.`,
         },{
             target: '#desireAPIButton',
             header: {

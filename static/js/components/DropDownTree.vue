@@ -64,8 +64,8 @@
                         Upload a custom CIF:
                         <br/>
                         <label for="uploadCustomCIF" id="cif-upload" class="btn btn-outline-dark" style="margin: 0 1% 0 0;width:100%;">Choose File</label>
-                        <input id="uploadCustomCIF" class="btn btn-outline-dark" type="file" accept=".cif" ref="customCIFfile" v-on:change="vm.cifFileUploadedFlag=true;" style="margin: 0 1% 0 0;width:100%;"/>
-                        <div v-if="vm.cifFileUploadedFlag">
+                        <input id="uploadCustomCIF" class="btn btn-outline-dark" type="file" accept=".cif" ref="customCIFfile" v-on:change="cifFileUploadedFlag=true;" style="margin: 0 1% 0 0;width:100%;"/>
+                        <div v-if="cifFileUploadedFlag">
                             <label for="provideEntityID" style="margin: 0 1% 0 0;width:100%;">Provide an Entity ID for a desired RNA chain</label>
                             <input id="provideEntityID" class="btn btn-outline-dark" type="number" ref="entity_id" v-on:change="uploadCustomCIF()" placeholder="Entity ID" style="margin: 0 1% 0 0;width:100%;"/>
                         </div>

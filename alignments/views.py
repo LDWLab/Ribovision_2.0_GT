@@ -746,16 +746,12 @@ def full_RNA_seq(request, pdbid, chain_id):
         'RNAseq' : RNA_full_sequence
     }
     
-    if os.path.isfile("/tmp/cust2"+str(cif_fileNameSuffix)+".cif"):
-        os.remove("/tmp/cust2"+str(cif_fileNameSuffix)+".cif")
-    else:
-        # If it fails, inform the user.
-        print("Error: %s file not found" % "/tmp/cust2"+str(cif_fileNameSuffix)+".cif") 
     return JsonResponse(context)
-    
+file_r2dt_counter_dict={}    
 def r2dt(request, sequence, entity_id):
     import os
     import datetime
+    import alignments.config
     cwd = os.getcwd()
     now = datetime.datetime.now()
     
@@ -801,9 +797,11 @@ def r2dt(request, sequence, entity_id):
     else:
         #FOR CIF MODE
         cif_file_path = request.POST["cif_file_path"]
-        files_to_remove.append(cif_file_path)
+        #files_to_remove.append(cif_file_path)
+        print('r2dt results parsing cif')
+        print('cif_file_path')
         cmd = f'python3 /home/anton/RiboVision2/rna/R2DT-master/parse_cif4.py -ij {filename} -ic {cif_file_path} -ie {entity_id} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
-    
+        print('r2dt cif parsed')
     os.system(cmd)
 
     with open(f'{output}/results/json/RNA_2D_json.json', 'r') as f:
@@ -834,7 +832,23 @@ def r2dt(request, sequence, entity_id):
         os.remove('./sequence10'+str(fileNameSuffix)+'.fasta.ssi')
     else:
         # If it fails, inform the user.
-        print("Error: %s file not found" % './sequence10'+str(fileNameSuffix)+'.fasta.ssi')   
+        print("Error: %s file not found" % './sequence10'+str(fileNameSuffix)+'.fasta.ssi') 
+    
+    cif_fileNameSuffix=alignments.config.cif_fileNameSuffix_share
+    cif_file_name="/tmp/cust2"+str(cif_fileNameSuffix)+".cif"
+    if not cif_file_name in file_r2dt_counter_dict:
+        file_r2dt_counter_dict[cif_file_name] = 0
+    file_r2dt_counter_dict[cif_file_name] += 1
+
+    if file_r2dt_counter_dict[cif_file_name] == 2:  
+
+        # Delete file
+        if os.path.isfile(cif_file_name):
+            os.remove(cif_file_name)
+            file_r2dt_counter_dict[cif_file_name] = 0
+        else:
+        # If it fails, inform the user.
+            print("Error: %s file not found" % cif_file_name)       
     
     dir_path = str(output)
     if os.path.isdir(dir_path):
