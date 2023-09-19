@@ -6,11 +6,11 @@
             </div>
             
             <div class="headerOptions" style="margin-left: auto;padding-top:10px;">
-                <!--
+                
                 <span title="Start an interactive guide">
                     <button class="btn btn-outline-dark" v-on:click="startTour();" style="float: right;">Help</button>
                 </span>
-                -->
+                
                 <p style="padding:2px;float: right;"></p>
                 <span title="Go to RiboVision 2.0 documentation">
                     <button class="btn btn-outline-dark" id="aboutButton" v-on:click="goToAboutPage();" style="float: right;">About</button>
@@ -138,8 +138,9 @@
         },
         mounted: function () {
             //vm.guideOff = false
-            localStorage.setItem("hasCodeRunBefore", false);
-            if (localStorage.getItem("hasCodeRunBefore") !== 'true') {
+            //localStorage.setItem("hasCodeRunBefore", false);
+            //if (localStorage.getItem("hasCodeRunBefore") !== 'true') {
+             if (localStorage.getItem("hasCodeRunBefore") === null) {   
                 tourSteps[0].content += '<br><b>First time users are advised to complete this guide by only clicking the Next button ▼</b>';
                 tourSteps.unshift(cookieNotice);
                 tourSteps[1].before = function before(type) {
@@ -153,7 +154,7 @@
                 this.$tours['myTour'].start();
             }
 
-            localStorage.setItem("hasCodeRunBefore", true)
+            //localStorage.setItem("hasCodeRunBefore", true)
             
         },
     }
@@ -249,7 +250,7 @@
             designed to display phylogenetic, structural, and physicochemical 
             properties in primary, secondary, and tertiary representations.`
         }, 
-        /*
+        
         {
             target: '#tree_type',
             header: {
@@ -594,18 +595,32 @@
             },
             before: type => new Promise((resolve, reject) => {
                 const newValue = "50S ribosomal protein L25";
-                //var polymerSelect2 = document.querySelector("#polymerSelect2");
-                //polymerSelect2.value = newValue;
+                var polymerSelect2 = document.querySelector("#polymerSelect2");
 
-                vm.pchainid = [newValue];
-                const newEntityID = 42;
+                var topviewer = document.getElementById("PdbeTopViewer");
+                
+                
+                
+                polymerSelect2.value = newValue;
+                polymerSelect2.dispatchEvent(new Event('change'))
+                vm.pchainid = ['f'];
+                var pchainid = ['f'];
+                const newEntityID = 23;
+                
                 vm.entityID = newEntityID;
-                viewerInstanceTop.viewInstance.uiTemplateService.colorMapContacts();  
+                topviewer.viewInstance.uiTemplateService.colorMapContacts(); 
+                topviewer.viewInstance.uiTemplateService.colorMapContacts(); 
                 showModificationsAndContactsHelper("" + newEntityID);
+                //setTimeout(function() {
+                    //secondFunctionCall();
+                    //showModificationsAndContactsHelper("" + newEntityID);
+                    //}, 5100);
                 resolve();
             })
+
+           
         },
-        */
+        
         {
             target: '#tree_type',
             header: {
@@ -879,7 +894,7 @@
                 resolve (
                     vm.selected_property = "Custom Data",
                     topviewer.viewInstance.uiTemplateService.domainTypes[2],
-                    //window.viewerInstance.visual.select({data: selectSections_RV1.get(exampleData.label), nonSelectedColor: {r:255,g:255,b:255}}),
+                    
                     annotationSelect.selectedIndex=1
                 )
             })
