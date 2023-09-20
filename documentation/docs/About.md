@@ -7,3 +7,4 @@ Petar I. Penev and Loren Dean Williams.
 
 ## Licensing 
 Webserver is licensed under the MIT license.
+![COOL logo](https://ribovision2.chemistry.gatech.edu/static/alignments/png/cool_logo.png)
