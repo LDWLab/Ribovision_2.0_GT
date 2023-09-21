@@ -3,11 +3,14 @@
 The subset of 152 species from the [DESIRE](https://doi.org/10.1093/molbev/msy101) (Sparse and Efficient Representation of Extant Biology), 
 database was organized into a phylogenetic browser using a tree topology from the [Banfiled lab](https://doi.org/10.1038/nmicrobiol.2016.48).
 
+## RNA Sequences
+Sequences have been obtained and tagged from [RFAM](https://rfam.org).
+
 ## Alignments 
 Each ribosomal RNA has an associated MSA. The alignments were generated accodring to procedure desribed at (https://doi.org/10.1093/molbev/msy101)
 
 ## 2D maps 
-Topologies of the protein secondary structures (Laskowski; [10.1093/nar/gkn860](https://dx.doi.org/10.1093%2Fnar%2Fgkn860)) were exported into PDB topology viewer using the [EMBL-EBI PDBe API](https://www.ebi.ac.uk/pdbe/api/doc/).
+Pregenerated 2D layouts of RNAs were exported into RNA topology viewer using the [EMBL-EBI PDBe API](https://www.ebi.ac.uk/pdbe/static/entry/7k00_1_A.json).
 
 ## 3D Structures 
 3D structures were fetched from the PDBe using the APIs of [EMBL-EBI coordinate server](https://www.ebi.ac.uk/pdbe/coordinates/). The selection of ranges was implemented using the syntax of the [LiteMol’s coordinate server](https://coords.litemol.org/).
