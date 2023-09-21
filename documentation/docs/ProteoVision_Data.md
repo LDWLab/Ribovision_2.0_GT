@@ -1,4 +1,4 @@
-# ProteoVision Data
+# RiboVision 2.0 Data
 ## Phylogeny (DESIRE)
 The subset of 152 species from the [DESIRE](https://doi.org/10.1093/molbev/msy101) (Sparse and Efficient Representation of Extant Biology), 
 database was organized into a phylogenetic browser using a tree topology from the [Banfiled lab](https://doi.org/10.1038/nmicrobiol.2016.48).
@@ -13,7 +13,7 @@ Topologies of the protein secondary structures (Laskowski; [10.1093/nar/gkn860](
 3D structures were fetched from the PDBe using the APIs of [EMBL-EBI coordinate server](https://www.ebi.ac.uk/pdbe/coordinates/). The selection of ranges was implemented using the syntax of the [LiteMol’s coordinate server](https://coords.litemol.org/).
 
 ## Secuence and structure associated data (Chemical modifications, Protein Contacts)
-.
+
 
 ## Available attributes for calculated mapping data:
 ### Nucleotide frequencies
