@@ -14,6 +14,7 @@ a) following ids:
 b) block containing: 
 
 -loop_
+
 _entity_poly.entity_id
 _entity_poly.type
 _entity_poly.nstd_linkage
