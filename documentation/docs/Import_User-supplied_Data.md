@@ -26,7 +26,7 @@ _entity_poly.pdbx_target_identifier
 This block is required by RiboVision 2.0 code to extract the complete RNA sequence from the cif file.
 
 c)  block containing:
--loop_
+-loop_ 
 _pdbx_poly_seq_scheme.asym_id
 _pdbx_poly_seq_scheme.entity_id
 _pdbx_poly_seq_scheme.seq_id
@@ -47,7 +47,7 @@ In addition to uploading of the CIF file, the users must specify an entity ID of
 2) The PDB file is restricted to a single RNA chain.
 In addition to uploading the 3D structure in the PDB file, the users must supply a full genetic sequence of the corresponding RNA chain. This requirement ensures that the secondary structure is generated from the complete sequence (and not from the resolved fragments).    Upon uploading the genomic RNA sequence, it will be appended to the MSA (as full sequence ) by Mafft. This sequence will be excluded from all statistics (e.g. nucleotide frequency).
 
-The hallmark of RiboVision 2.0 is generation of the  2D RNA structure on the fly using a template based R2DT algorithm. This process may take several minutes (depending on the size of the supplied RNA chain). The available RNA templates include but not limited to the LSU and SSU rRNAs, tRNAs, RNAseP, microRNAs. Please refer to R2DT documentation for additional details and current capabilities of ![R2DT](https://docs.r2dt.bio/en/latest/). 
+The hallmark of RiboVision 2.0 is generation of the  2D RNA structure on the fly using a template based R2DT algorithm. This process may take several minutes (depending on the size of the supplied RNA chain). The available RNA templates include but not limited to the LSU and SSU rRNAs, tRNAs, RNAseP, microRNAs. Please refer to R2DT documentation for additional details and current capabilities of [R2DT](https://docs.r2dt.bio/en/latest/). 
 
 Upon completion of R2DT job, the  secondary structure will appear in the RNA topology viewer, and will be interactively linked to the MSA  and the uploaded 3D structure. Base pairs are currently derived from the R2DT layout. No 3D derived base pairing option are currenly suported. Thus, only canonical (cWW and Wobble)  base pairings are generated in the User-upload mode.
 
