@@ -27,7 +27,9 @@ _entity_poly.pdbx_target_identifier
 This block is required by RiboVision 2.0 code to extract the complete RNA sequence from the cif file.
 
 c)  block containing:
+
 -loop_ 
+
 _pdbx_poly_seq_scheme.asym_id
 _pdbx_poly_seq_scheme.entity_id
 _pdbx_poly_seq_scheme.seq_id
