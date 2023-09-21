@@ -18,7 +18,10 @@ Pregenerated 2D layouts of RNAs were exported into RNA topology viewer using the
 ## 3D coloring
 To facilitate coloring of the 3D structures, the RiboVision 2.0 color themes were created within PDBe Mol*, using color wraper of (Proteopedia)[https://github.com/molstar/molstar/tree/master/src/examples/proteopedia-wrapper]  as a template. The taylored Mol* code is available from local [GitHub repo](https://github.com/LDWLab/pdbe-molstar-GT).
 
-## Secuence and structure associated data (Chemical modifications, Protein Contacts)
+## Sequence and structure associated data
+### Chemical modifications
+
+### Protein Contacts
 
 
 ## Available attributes for calculated mapping data:
