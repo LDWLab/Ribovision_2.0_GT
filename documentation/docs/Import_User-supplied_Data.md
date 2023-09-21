@@ -6,7 +6,8 @@ A custom alignment (or a single RNA sequence) in a .fasta file format must be ch
 
 ## Upload an external 3D structure.
 The **User Upload** mode requires the user to upload the the structure file  in one of the two formats (CIF or PDB). 
-The CIF cormat may contain multiple chains but is requred to contain a certain fields described below:
+1) The CIF cormat may contain multiple chains but is requred to contain a certain fields described below:
+   
 a) following ids:
 -auth_seq_id, auth_comp_id, label_entity_id, auth_asym_id;
 
@@ -41,7 +42,14 @@ _pdbx_poly_seq_scheme.hetero
 
 This block is required to map the full (genomic) RNA sequence onto nucleotides resolved in the structure (even if the all nucleotides are resolved in the 3D structure). RiboVision 2.0 code takes an advantage of the provided cif dictionary and performs the mapping automatically.
 
-Currently, the pdb file must cotain a single RNA chain. Upon uploading the RNA sequence from the PDB file in extracted and appended to the supplied MSA by Mafft. Additionally, the 2D RNA structure is generated on the fly using a template based R2DT algorithm. This process may take several minutes. Upon completion of R2DT job, the  secondary structure will appear in the RNA topology viewer, and will be interactively linked to the MSA  and the uploaded 3D structure. Base pairs are currently derived from the R2DT layout. No 3D derived base pairing option are currenly suported. Thus, only canonical (cWW and Wobble)  base pairings are generated in the User-upload mode.
+In addition to uploading of the CIF file, the users must specify an entity ID of the desired RNA chain. This will be done in a field form beneath "Upload CIF file" button.
+
+2) The PDB file is restricted to a single RNA chain.
+In addition to uploading the 3D structure in the PDB file, the users must supply a full genetic sequence of the corresponding RNA chain. This requirement ensures that the secondary structure is generated from the complete sequence (and not from the resolved fragments).    Upon uploading the genomic RNA sequence, it will be appended to the MSA (as full sequence ) by Mafft. This sequence will be excluded from all statistics (e.g. nucleotide frequency).
+
+The hallmark of RiboVision 2.0 is generation of the  2D RNA structure on the fly using a template based R2DT algorithm. This process may take several minutes (depending on the size of the supplied RNA chain). The available RNA templates include but not limited to the LSU and SSU rRNAs, tRNAs, RNAseP, microRNAs. Please refer to R2DT documentation for additional details and current capabilities of ![R2DT](https://docs.r2dt.bio/en/latest/). 
+
+Upon completion of R2DT job, the  secondary structure will appear in the RNA topology viewer, and will be interactively linked to the MSA  and the uploaded 3D structure. Base pairs are currently derived from the R2DT layout. No 3D derived base pairing option are currenly suported. Thus, only canonical (cWW and Wobble)  base pairings are generated in the User-upload mode.
 
 
 ## Import an external dataset for a pre-selected alignment
