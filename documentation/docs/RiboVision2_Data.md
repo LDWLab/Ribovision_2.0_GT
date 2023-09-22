@@ -23,7 +23,7 @@ To facilitate coloring of the 3D structures, the RiboVision 2.0 color themes wer
 RNA-Protein contacts are computed upon selecting a specific RNA complex and specifying the main RNA chain. The contacts are computed by [NeighborSearch module of BioPython](https://biopython.org/docs/1.75/api/Bio.PDB.NeighborSearch.html) using the [KD Tree algorithm](https://biopython.org/docs/1.75/api/Bio.KDTree.KDTree.html) with a cutoff distance of 3.5 A.
 
 ### Chemical modifications
-
+Chemical modifications (if any) are extracted from "_entity_poly.pdbx_seq_one_letter_code" fields of the selected CIF file. 
 
 ## Available attributes for calculated mapping data:
 ### Nucleotide frequencies
