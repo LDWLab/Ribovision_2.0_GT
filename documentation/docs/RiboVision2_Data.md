@@ -19,9 +19,10 @@ Pregenerated 2D layouts of RNAs were exported into RNA topology viewer using the
 To facilitate coloring of the 3D structures, the RiboVision 2.0 color themes were created within PDBe Mol*, using color wraper of (Proteopedia)[https://github.com/molstar/molstar/tree/master/src/examples/proteopedia-wrapper]  as a template. The taylored Mol* code is available from local [GitHub repo](https://github.com/LDWLab/pdbe-molstar-GT).
 
 ## Sequence and structure associated data
-### Chemical modifications
+### Protein contacts
+RNA-Protein contacts are computed upon selecting a specific RNA complex and specifying the main RNA chain. The contacts are computed by [NeighborSearch module of BioPython](https://biopython.org/docs/1.75/api/Bio.PDB.NeighborSearch.html) using the [KD Tree algorithm](https://biopython.org/docs/1.75/api/Bio.KDTree.KDTree.html) with a cutoff distance of 3.5 A.
 
-### Protein Contacts
+### Chemical modifications
 
 
 ## Available attributes for calculated mapping data:
