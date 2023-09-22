@@ -43,7 +43,7 @@ _pdbx_poly_seq_scheme.pdb_strand_id
 _pdbx_poly_seq_scheme.pdb_ins_code
 _pdbx_poly_seq_scheme.hetero
 
-This block is required to map the full (genomic) RNA sequence onto nucleotides resolved in the structure (even if the all nucleotides are resolved in the 3D structure). RiboVision 2.0 code takes an advantage of the provided cif dictionary and performs the mapping automatically.
+This block is required to map the full (genomic) RNA sequence onto nucleotides resolved in the structure (even if the all nucleotides are resolved in the 3D structure). RiboVision 2.0 code takes an advantage of the provided cif dictionary and performs the mapping automatically. If CIF file does not contain the abovementioned data, we suggest to re-save the structure in the PDB format and use the option described below.
 
 In addition to uploading of the CIF file, the users must specify an entity ID of the desired RNA chain. This will be done in a field form beneath "Upload CIF file" button.
 
