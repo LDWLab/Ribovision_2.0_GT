@@ -230,7 +230,8 @@
                     </select>
                     <select id="selectColorMappingProps" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="selected_property" v-if="msavWillMount">
                         <option :value="null" selected disabled>Select data</option>
-                        <option value="Select data">Clear data</option>
+                        <option value="Clear data">Clear data</option>
+                        <option value="Select data">Contacts</option>
                         <option v-for="prop in available_properties" :key="prop.Name">{{ prop.Name }}</option>
                     </select>
                     <select id="selectAlnColorScheme" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="colorScheme" v-if="msavWillMount">
@@ -502,7 +503,7 @@
             if (!name){return;}
             if(this.colorSchemeData){this.colorSchemeData = null;}
             var updatedBarColors = [];
-            if(name == "Select data") {
+            if(name == "Select data" || name == "Clear data" ) {
                 window.aaFreqs.forEach(function(){
                         updatedBarColors.push("#808080")
                     });

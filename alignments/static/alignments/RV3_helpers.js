@@ -923,6 +923,8 @@ var showProteins3D = function() {
 var showModificationsAndContactsHelper = function(entityid) {
     if (vm.pchainid.length > 0){
         showProteins3D()
+    } else {
+        showPDBHelper(vm.pdbid, vm.chainid, vm.entityID)
     }
     var modified_data = new Map();
     modified_data.set("mods", [])
@@ -984,20 +986,61 @@ var recolorTopStar = function (name){
         }) 
         */
     //}
+
     if(name == "Shannon entropy") {
-        viewerInstance.visual.clearSelection();
-        viewerInstance.coloring.shannonEntropy({ sequence: true, het: false, keepStyle: true });
+        //viewerInstance.visual.clearSelection();
+        if(vm.customPDBsuccess) {
+            viewerInstance.visual.clearSelection();
+            viewerInstance.coloring.shannonEntropy({ sequence: true, het: false, keepStyle: true });
+        } else {
+        let wait = async () => {
+            vm.pchainid = []
+            vm.modifications = []
+            showPDBHelper(vm.pdbid, vm.chainid, vm.entityID)
+            await sleep (5000)
+            viewerInstance.coloring.shannonEntropy({ sequence: true, het: false, keepStyle: true });
+        }
+        wait()
+    }
     }   else if(name == "TwinCons") {
-        viewerInstance.visual.clearSelection();
-        viewerInstance.coloring.twinCons({ sequence: true, het: false, keepStyle: true });
+        if(vm.customPDBsuccess) {
+            viewerInstance.visual.clearSelection();
+            viewerInstance.coloring.twinCons({ sequence: true, het: false, keepStyle: true });
+        } else {
+        let wait = async () => {
+            vm.pchainid = []
+            vm.modifications = []
+            showPDBHelper(vm.pdbid, vm.chainid, vm.entityID)
+            await sleep (6000)
+            viewerInstance.coloring.twinCons({ sequence: true, het: false, keepStyle: true });
+        }
+        wait() }
     }    else if(name == "Custom Data") {
-        viewerInstance.visual.clearSelection();
-        console.log("visual",viewerInstance.coloring);
-        viewerInstance.coloring.customData({ sequence: true, het: false, keepStyle: true });
+            if(vm.customPDBsuccess) {
+                viewerInstance.visual.clearSelection();
+                viewerInstance.coloring.customData({ sequence: true, het: false, keepStyle: true });
+            } else {
+        let wait = async () => {
+            vm.pchainid = []
+            vm.modifications = []
+            showPDBHelper(vm.pdbid, vm.chainid, vm.entityID)
+            await sleep (6000)
+            viewerInstance.coloring.customData({ sequence: true, het: false, keepStyle: true });
+        }
+        wait() 
+    }
     }    else if(name == "Select data") {
         viewerInstance.visual.reset({ theme: true })
-    }
-    
+    }   
+    else if(name == "Clear data") {
+        if(vm.customPDBsuccess) {
+            viewerInstance.visual.clearSelection();
+        } else {
+        vm.pchainid = []
+        vm.modifications = []
+        showPDBHelper(vm.pdbid, vm.chainid, vm.entityID)
+        }
+    }   
     viewerInstanceTop.viewInstance.uiTemplateService.colorMap(); 
 }
 
