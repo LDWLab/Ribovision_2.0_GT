@@ -81,7 +81,9 @@ def executeCDHit(fasta):
     for tempf in tempfiles:
         if path.isfile(tempf):
             remove(tempf)
+    import os
 
+    curpath = os.path.abspath(os.curdir)
     fh = open(fastaName, "w")
     fh.write(fasta)
     fh.close()

@@ -43,6 +43,7 @@ export function initialState (){
         aaPos: 0, seqPos: 0,
         hide_chains: null,
         type_tree: "orth",
+        user_uploaded_cif_flag : null,
         aa_properties: null,
         structure_mapping: null,
         poor_structure_map: null,
@@ -52,6 +53,7 @@ export function initialState (){
         topology_loaded: false,
         twc_loaded: false,
         masking_range: null,
+        cif_file_path: null,
         filter_range: null,
         correct_mask: null,
         domain_or_selection: null,
@@ -82,6 +84,7 @@ export function initialState (){
         downloadAlignmentOpt: null,
         downloadMapDataOpt: null,
         freqCSV: null,
+        cifPdbMode: null,
         customPDBsuccess: null,
         customPDBid: null,
         PDBparsing: false,
@@ -94,5 +97,8 @@ export function initialState (){
             {Name:'Download cdhit report', value:'download'},
             {Name:'Reload original alignment', value:'untrunc'}
         ],
+        cifFileUploadedFlag: false,
+        pdbFileUploadedFlag: false,
+        RVGuideEntityId: -1
     }
 }

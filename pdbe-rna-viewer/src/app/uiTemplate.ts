@@ -73,7 +73,7 @@ export class UiTemplateService {
                     <select class="mappingSelectbox" style="width:20%; display: inline-block;"><option value="">Mapping</option></select>
                     <div class="multiselect">
                         <div class="selectBox" onclick="UiActionsService.showCheckboxes()" style="display:inline-block;float:right;width:25%">
-                            <select>
+                            <select id="basePairingSelectElement">
                                 <option>Base Pairings</option>
                             </select>
                             <div class="overSelect"></div>
@@ -165,6 +165,8 @@ export class UiTemplateService {
                     }
                 });
             }
+            this.colorMapContacts()
+            this.colorMapModifications()
         }
     }
     colorMapHelper=() => {
@@ -174,6 +176,7 @@ export class UiTemplateService {
         this.rv3VUEcomponent.selected_property = mappingDropdown!.options[num].text;
     }
     colorMapContacts=() => {
+
         if(this.rv3VUEcomponent.pchainid.length > 0 && this.rv3VUEcomponent.selected_property != "Select data") {
             this.rv3VUEcomponent.selected_property = "Select data"
         }
@@ -214,6 +217,9 @@ export class UiTemplateService {
         this.addEvents(this.apiData!, BanNameHelper.getBanName(this.pluginOptions.pdbId, ''))
     }
     colorMapModifications=() => {
+        if(this.rv3VUEcomponent.pchainid.length > 0 && this.rv3VUEcomponent.selected_property != "Select data") {
+            this.rv3VUEcomponent.selected_property = "Select data"
+        }
         this.mapped_modifications.forEach((val) => {   
             if(!this.rv3VUEcomponent.modifications.includes(val)) {
                 for(var i in this.rv3VUEcomponent.modified_residues.get(val)) {
@@ -250,7 +256,7 @@ export class UiTemplateService {
         }
         this.addEvents(this.apiData!)
     }
-    changeBP(val: string) {
+    changeBP(val: string, flag : boolean | undefined = undefined) {
         this.displayBaseStrs = '';
         this.displayNestedBaseStrs = '';
         const allBP = this.containerElement.querySelector<HTMLInputElement>('#Checkbox_All')!.checked
@@ -265,9 +271,9 @@ export class UiTemplateService {
                 }
             });
         } else {
-            if(this.baseStrs.get(val)![0]) {
+            if(flag ?? this.baseStrs.get(val)![0]) {
                 this.baseStrs.set(val, [false,  this.baseStrs.get(val)![1]]);
-                this.nestedBaseStrs.set(val, [false,  this.nestedBaseStrs.get(val)![1]]);
+                this.nestedBaseStrs.set(val, [false, this.nestedBaseStrs.get(val)![1]]);
             } else {
                 this.baseStrs.set(val, [true,  this.baseStrs.get(val)![1]]);
                 this.nestedBaseStrs.set(val, [true,  this.nestedBaseStrs.get(val)![1]]);
@@ -452,9 +458,20 @@ export class UiTemplateService {
                 }; 
                 
                 const [TWCrgbMap, TWCData] = this.parsePVData(separatedData, min, max, colormapArray);
-                this.selectSections_RV1.get(name).push({entity_id: _this.pluginOptions.entityId, focus: true});
-                const end = TWCData.size;
+                const TWCData_keys =TWCData.keys();
                 
+                //const last_item  = 0;
+                let mapLastValue;
+                let i;
+                for (i = 0; i < TWCData.size; i += 1) {
+                    mapLastValue = TWCData_keys.next().value
+                  }
+                
+                //console.log(mapLastValue);
+                //console.log('RNAViewer_TWCData',TWCData, TWCData.size, TWCData[Symbol.iterator](),TWCData_keys);
+                this.selectSections_RV1.get(name).push({entity_id: _this.pluginOptions.entityId, focus: true});
+                //const end = TWCData.size;
+                const end = mapLastValue;
                 if (void 0 !== TWCData){
                     residueDetails = _this.create2D3DAnnotations(name, residueDetails, 
                                                                 TWCrgbMap, TWCData, mapped_aa_properties,
@@ -885,22 +902,50 @@ export class UiTemplateService {
 
     private svgTemplate(apiData: ApiData, FR3DData: any, FR3DNestedData: any): string { 
         const font_size:number = this.calculateFontSize(apiData)
-        const lastPathIndex = apiData.svg_paths.length - 1;
+        var lastPathIndex = apiData.svg_paths.length - 1;
         var locations2: Map<any, number[]> = new Map();
-        apiData.svg_paths.forEach((pathStr: string, recordIndex: number) => {
-            if(recordIndex === 0 || recordIndex === 1 || recordIndex === lastPathIndex + 1) return;
-            let pathStrParsed:string[] = pathStr.split('M').join(',').split(',')
-            let x1Val: number = Number(pathStrParsed[1]) 
-            let y1Val: number = Number(pathStrParsed[2]) 
-            let xVal:number = Number(pathStrParsed[3]) 
-            let yVal:number = Number(pathStrParsed[4])
-            let midX = (xVal + x1Val)/2;
-            let midY = (yVal + y1Val)/2;
-            locations2.set(apiData.label_seq_ids[recordIndex - 1], [midX, midY])
-            this.locations.set(apiData.label_seq_ids[recordIndex - 1], [xVal, yVal])
+        var locations3: Map<any, number[]> = new Map();
+        if(this.pluginOptions.pdbId == "cust") {
+            lastPathIndex = lastPathIndex - 2
+            console.log(lastPathIndex)
+            apiData.svg_paths.forEach((pathStr: string, recordIndex: number) => {
+                console.log(recordIndex)
+                console.log(recordIndex == lastPathIndex + 1)
+                if(recordIndex == 0 || recordIndex >= lastPathIndex + 1) return;
+                console.log("parsing")
+                let pathStrParsed:string[] = pathStr.split('M').join(',').split(',')
+                let xVal:number = Number(pathStrParsed[3]) 
+                let yVal:number = Number(pathStrParsed[4])
+                let midX = (xVal);
+                let midY = (yVal);
+                locations2.set(apiData.label_seq_ids[recordIndex - 1], [midX, midY])
+                if (recordIndex >= 2) {
+                let lastX = locations2.get(apiData.label_seq_ids[recordIndex - 2])![0]
+                let lastY = locations2.get(apiData.label_seq_ids[recordIndex - 2])![1]
+                locations3.set(apiData.label_seq_ids[recordIndex - 1], [(lastX + midX)/2, (lastY + midY)/2])
+                }
+                this.locations.set(apiData.label_seq_ids[recordIndex - 1], [xVal, yVal])
+            });   
+       } else {
+            apiData.svg_paths.forEach((pathStr: string, recordIndex: number) => {
+                if(recordIndex === 0 || recordIndex === 1 || recordIndex >= lastPathIndex + 1) return;
+                let pathStrParsed:string[] = pathStr.split('M').join(',').split(',')
+                let x1Val: number = Number(pathStrParsed[1]) 
+                let y1Val: number = Number(pathStrParsed[2]) 
+                let xVal:number = Number(pathStrParsed[3]) 
+                let yVal:number = Number(pathStrParsed[4])
+                let midX = (xVal + x1Val)/2;
+                let midY = (yVal + y1Val)/2;
+                locations2.set(apiData.label_seq_ids[recordIndex - 1], [midX, midY])
+                this.locations.set(apiData.label_seq_ids[recordIndex - 1], [xVal, yVal])
         });
+       }
         apiData.svg_paths.forEach((pathStr: string, recordIndex: number) => {
-            if(recordIndex === 0 || recordIndex === 1 || recordIndex === (lastPathIndex + 1)) return;
+            console.log(lastPathIndex)
+            console.log(recordIndex)
+            console.log(pathStr)
+            //if(recordIndex === 0 || recordIndex === 1 || recordIndex === (lastPathIndex + 1)) return;
+            if(recordIndex === 0 || recordIndex === 1 || recordIndex >= (lastPathIndex + 1)) return;
             const pathEleClass = `rnaviewEle rnaviewEle_${this.pluginOptions.pdbId} rnaview_${this.pluginOptions.pdbId}_${apiData.label_seq_ids[recordIndex - 1]}`;
             let strokeColor = this.pluginOptions.theme?.color || '#323232';
             const strokeWide = this.pluginOptions.theme?.strokeWidth || '2';
@@ -916,18 +961,35 @@ export class UiTemplateService {
             let deltaX: number = font_size/2
             let deltaY: number = font_size/2
             let newPathStr
-            if (recordIndex < (lastPathIndex)) {
-                let newX: number = locations2.get(apiData.label_seq_ids[recordIndex - 1])![0]
-                let newX2: number = locations2.get(apiData.label_seq_ids[recordIndex])![0]
-                let newY: number = locations2.get(apiData.label_seq_ids[recordIndex - 1])![1] 
-                let newY2: number = locations2.get(apiData.label_seq_ids[recordIndex])![1]
-                newPathStr = `M${newX + deltaX},${newY - deltaY},${newX2 + deltaX},${newY2 - deltaY}`
-            } else {
-                let newX: number = locations2.get(apiData.label_seq_ids[recordIndex - 1])![0]
-                let newY: number = locations2.get(apiData.label_seq_ids[recordIndex - 1])![1] 
-                let newX2: number = 2 * xVal - newX 
-                let newY2: number = 2 * yVal - newY
-                newPathStr = `M${newX + deltaX},${newY - deltaY},${newX2 + deltaX},${newY2 - deltaY}`
+            if (this.pluginOptions.pdbId == "cust") {
+                if (recordIndex < (lastPathIndex)) {
+                    let newX: number = locations3.get(apiData.label_seq_ids[recordIndex - 1])![0]
+                    let newX2: number = locations3.get(apiData.label_seq_ids[recordIndex])![0]
+                    let newY: number = locations3.get(apiData.label_seq_ids[recordIndex - 1])![1] 
+                    let newY2: number = locations3.get(apiData.label_seq_ids[recordIndex])![1]
+                    newPathStr = `M${newX + deltaX},${newY - deltaY},${newX2 + deltaX},${newY2 - deltaY}`
+                } else {
+                    let newX: number = locations3.get(apiData.label_seq_ids[recordIndex - 1])![0]
+                    let newY: number = locations3.get(apiData.label_seq_ids[recordIndex - 1])![1] 
+                    let newX2: number = 2 * xVal - newX 
+                    let newY2: number = 2 * yVal - newY
+                    newPathStr = `M${newX + deltaX},${newY - deltaY},${newX2 + deltaX},${newY2 - deltaY}`
+                }
+            }
+            else {
+                if (recordIndex < (lastPathIndex)) {
+                    let newX: number = locations2.get(apiData.label_seq_ids[recordIndex - 1])![0]
+                    let newX2: number = locations2.get(apiData.label_seq_ids[recordIndex])![0]
+                    let newY: number = locations2.get(apiData.label_seq_ids[recordIndex - 1])![1] 
+                    let newY2: number = locations2.get(apiData.label_seq_ids[recordIndex])![1]
+                    newPathStr = `M${newX + deltaX},${newY - deltaY},${newX2 + deltaX},${newY2 - deltaY}`
+                } else {
+                    let newX: number = locations2.get(apiData.label_seq_ids[recordIndex - 1])![0]
+                    let newY: number = locations2.get(apiData.label_seq_ids[recordIndex - 1])![1] 
+                    let newX2: number = 2 * xVal - newX 
+                    let newY2: number = 2 * yVal - newY
+                    newPathStr = `M${newX + deltaX},${newY - deltaY},${newX2 + deltaX},${newY2 - deltaY}`
+                }
             }
 
             pathStr = newPathStr;

@@ -169,6 +169,20 @@ var AlnViewer = class RV3AlnViewer extends Component {
                           onResidueMouseLeave={this.onResidueMouseLeave}
                         />
                         <OverviewBar id="conservationBar" method='proteovision'/>
+                        {this.state.fold && (
+                          <div
+                            style={{
+                              position: "absolute",
+                              opacity: 0.8,
+                              ...this.state.tooltipPosition,
+                            }}
+                          >
+                            {/*<Tooltip>
+                              Fold: {this.state.fold} <br></br>
+                              Phase: {this.state.phase}
+                        </Tooltip>*/}
+                          </div>
+                        )}
                     </div>
                 </div>
                 <XYDispatch parent_state={this.state} />

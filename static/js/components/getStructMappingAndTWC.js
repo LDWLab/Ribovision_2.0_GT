@@ -1,13 +1,20 @@
 import {loadAlignmentViewer} from './loadAlignmentViewer.js'
 import {ajaxProper} from './ajaxProper.js'
 
-export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, ebi_sequence, vueObj){
+export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, ebi_sequence, vueObj, full_sequence_from_pdb = ""){
     vm.sequence = ebi_sequence;
     if (vm.fasta_data){
         let cleanFasta = vm.fasta_data.replace(/^>Structure sequence\n(.+\n)+?>/i, ">");
         vm.fasta_data = cleanFasta;
     };
-    ajax('/mapSeqAln/', {fasta, struc_id}).then(structMappingAndData=>{
+    const postData = {
+        fasta,
+        struc_id,
+        "cif_mode_flag" : vm.user_uploaded_cif_flag,
+        //hardcoded_structure: full_sequence_from_pdb
+        hardcoded_structure: vm.customFullSequence
+    };
+    ajax('/mapSeqAln/', postData).then(structMappingAndData=>{
         var struct_mapping = structMappingAndData["structureMapping"];
         var largestKey = Math.max(...Object.values(struct_mapping).filter(a=>typeof(a)=="number"))
         var smallestKey = Math.min(...Object.values(struct_mapping).filter(a=>typeof(a)=="number"))
@@ -52,8 +59,8 @@ var assignColorsAndStrucMappings = function (vueObj, struct_mapping){
         }
     }
     window.mapped_aa_properties = mapped_aa_properties;
-
-    vm.sequence=vueObj.fasta_data.split(' ')[1];
+    console.log(vueObj.fasta_data);
+    vm.sequence=vueObj.fasta_data.split(' ')[vm.user_uploaded_cif_flag === null || vm.user_uploaded_cif_flag ? 1 : 2];
     let sequence2=vm.sequence.replaceAll(/-|\n/g, "");
     vm.sequence3=sequence2.substring("sequence".length, sequence2.indexOf(">"));
     vm.sequence4=vm.sequence3;
@@ -85,42 +92,106 @@ function retry (fn, maxAttempts = 1, delay = 0, attempts = 0) {
         tryCustomTopology(vm.pdbid, vm.entityID, vm.chainid[0]);
         throw err
       })
-  }
+}
 
 var tryCustomTopology = function (pdbid, entityid, chainid){
     vm.topology_loaded = false;
+    //console.log("TCT_2", pdbid, vm.sequence4); 
+    //vm.getR2DT(vm.sequence4);
+    //vm.URL = `r2dt/${vm.sequence3}`
+    //var postTopologyURL = `r2dt/${vm.sequence3}/`
+    console.log('eid1',entityid);
 
-    vm.getR2DT(vm.sequence4);
-    vm.URL = `r2dt/${vm.sequence3}`
-    var postTopologyURL = `r2dt/${vm.sequence3}/`
-    pdbid='cust'; 
-    var topology_viewer = `<pdb-rna-viewer id="PdbeTopViewer" pdb-id="${pdbid}" entity-id="${entityid}" chain-id="${chainid}" rv-api="true" ></pdb-rna-viewer>`
-    document.getElementById('topview').innerHTML = topology_viewer;
-    window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
-    ajaxProper({
-        url: postTopologyURL,
+    pdbid='cust';
+
+    async function getRNAChain(pdbid) {
+      try {
+        const returnedObject = await ajax(`full-RNA-seq/${pdbid}/${chainid}`);
+        console.log('RNA_full_sequence_cif', pdbid);
+        const result = returnedObject["RNAseq"];
+    
+        console.log('RNA_full_sequence', result);
+        return result;
+      } catch (error) {
+        console.error(error);
+        return null;
+      }
+    }
+    
+    async function RNAseqCall(pdbid) {
+      if (vm.user_uploaded_cif_flag == true){
+        const RNA_full_sequence = await getRNAChain(pdbid);
+        console.log('RNA_full_sequence2c', RNA_full_sequence);
+        return RNA_full_sequence;
+      }
+      console.log('cf',vm.user_uploaded_cif_flag)
+      if (vm.user_uploaded_cif_flag == false){
+        const RNA_full_sequence=vm.customFullSequence;
+        console.log('RNA_full_sequence2p', vm.customFullSequence, RNA_full_sequence);
+        return RNA_full_sequence;
+      }
+      
+      //return RNA_full_sequence;
+      //return vm.customFullSequence;
+    }
+    
+    RNAseqCall(pdbid).then(seq1 => {
+      console.log('RNA_full_sequence3', seq1);
+      vm.getR2DT(seq1);
+      vm.URL = `r2dt/${seq1}/${entityid}`
+      var topology_viewer = `<pdb-rna-viewer id="PdbeTopViewer" pdb-id="${pdbid}" entity-id="${entityid}" chain-id="${chainid}" rv-api="true" ></pdb-rna-viewer>` 
+      document.getElementById('topview').innerHTML = topology_viewer; 
+      window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
+      ajaxProper({
+        //url: postTopologyURL,
+        url: vm.URL,
         type: 'POST',
-        dataType: 'json'
-    }).then (parsedResponse => {
-        if (parsedResponse == "Topology Success!"){
-            //var topology_viewer = `<pdb-topology-viewer id="PdbeTopViewer" entry-id=${pdbid} entity-id=${entityid} chain-id=${chainid} pvapi="true" filter-range=1,100000></pdb-topology-viewer>`
-            //document.getElementById('topview').innerHTML = topology_viewer;
-            //window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
-            console.log("Topology Success");
-
-            
+        dataType: 'json',
+        postData : {
+            cif_mode_flag : vm.user_uploaded_cif_flag,
+            cif_file_path : vm.cif_file_path
         }
-    }).catch(error => {
+      }).then (parsedResponse => {
+        if (parsedResponse == "Topology Success!"){
+            console.log("Topology Success!");          
+        }
+      }).catch(error => {
         var topview = document.querySelector('#topview');
         vm.topology_loaded = 'error';
         topview.innerHTML = "Failed to generate topology from the structure file!<br>Try different PDB."
         console.log(error.responseText);
+        });
+    }).catch(error => {
+      console.error(error);
     });
 }
+    //vm.getR2DT(vm.pdbSeq);
+    //vm.URL = `r2dt/${vm.pdbSeq}/`
+    //vm.getR2DT(seq1);
+    //vm.URL = `r2dt/${seq1}/`
+    
+    //var topology_viewer = `<pdb-rna-viewer id="PdbeTopViewer" pdb-id="${pdbid}" entity-id="${entityid}" chain-id="${chainid}" rv-api="true" ></pdb-rna-viewer>` 
+    //document.getElementById('topview').innerHTML = topology_viewer; 
+    //window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
+   // ajaxProper({
+        //url: postTopologyURL,
+        //url: vm.URL,
+       //type: 'POST',
+        //dataType: 'json'
+    //}).then (parsedResponse => {
+        //if (parsedResponse == "Topology Success!"){
+            //console.log("Topology Success!");          
+        //}
+    //}).catch(error => {
+        //var topview = document.querySelector('#topview');
+        //vm.topology_loaded = 'error';
+        //topview.innerHTML = "Failed to generate topology from the structure file!<br>Try different PDB."
+        //console.log(error.responseText);
+    //});
+//}
 
 function sleeper(ms) {
     return function(x) {
         return new Promise(resolve => setTimeout(() => resolve(x), ms));
     };
 }
-

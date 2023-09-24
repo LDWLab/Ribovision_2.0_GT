@@ -29,7 +29,10 @@ var postRNACIFdata = function (pdbID, entities){
         dataType: 'json',
         postData: {"entities": stringEntities}
     }).then (parsedResponse => {
-        if (parsedResponse == "Success!"){
+        if (parsedResponse == "Success!") {
+            vm.postedRNAEntities = true;
+        } else if ("successFlag" in parsedResponse && parsedResponse.successFlag){
+            vm.cif_file_path = parsedResponse.cif_file_path;
             vm.postedRNAEntities = true;
         }
     }).catch(error => {
@@ -55,7 +58,10 @@ var postedRNAEntities = function (successPost){
             dataType: 'json',
             postData: {"entities": stringEntities}
         }).then (parsedResponse => {
-            if (parsedResponse == "Success!"){
+            if (parsedResponse == "Success!") {
+                vm.repostedPDBentity = true;
+            } else if ("successFlag" in parsedResponse && parsedResponse.successFlag){
+                vm.cif_file_path = parsedResponse.cif_file_path;
                 vm.repostedPDBentity = true;
             }
         }).catch(error => {

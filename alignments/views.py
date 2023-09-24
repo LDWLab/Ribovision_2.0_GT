@@ -2,7 +2,9 @@ import contextlib
 import re, os, warnings, io, base64, json
 import datetime
 import urllib.request
+import shutil
 from subprocess import Popen, PIPE
+from pdbecif.mmcif_io import CifFileReader
 from Bio import AlignIO, BiopythonDeprecationWarning, PDB
 from io import StringIO
 
@@ -180,7 +182,6 @@ def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure=''):
         for rawsql, parent in rawsqls:
             nogap_tupaln, max_alnposition= aqab.query_to_dict_structure(rawsql, parent, nogap_tupaln, max_alnposition)
 
-        print(nogap_tupaln)
         #### __________________Build alignment__________________ ####
         fastastring, frequency_list = aqab.build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_alnposition)
     
@@ -450,7 +451,6 @@ def rProtein(request, align_name, tax_group):
     #if tax_group == 0 - no filter
     align_id = Alignment.objects.filter(name = align_name)[0].aln_id
     fastastring = simple_fasta(request, align_id, tax_group, internal=True)
-    print(fastastring)
     #fastastring,max_aln_length = aqab.sql_filtered_aln_query(align_id,tax_group)
     context = {'fastastring': fastastring, 'aln_name':str(Alignment.objects.filter(aln_id = align_id)[0].name)}
     return render(request, 'alignments/detail.html', context)
@@ -544,8 +544,7 @@ def parse_string_structure(request, stringData, strucID):
     from Bio.PDB import MMCIFParser
     parser = MMCIFParser()
     strucFile = io.StringIO(stringData)
-    #c.structureObj = parser.get_structure(strucID,strucFile)
-    #return c.structureObj
+ 
     return parser.get_structure(strucID,strucFile)
 
 def getAlignmentsFilterByProteinTypeDirect(request, concatenatedProteinTypes):
@@ -659,47 +658,7 @@ def string_fasta(request, protein_type, aln_name, tax_group, internal=False):
         raw_result = aqab.dictfetchall(cursor)
     return simple_fasta(request, raw_result[0]['Aln_id'], tax_group, internal)
 
-"""
-def protein_contacts(request, pdbid, chain_id):
-    #while not c.structureObj:
-    #    time.sleep(5)
-    #structure = c.structureObj
-    
-    pdbl = PDB.PDBList()
-    pdbl.retrieve_pdb_file(pdbid, pdir='./')
-    parser = PDB.MMCIFParser()
-    structure = parser.get_structure(pdbid, "./" + str(pdbid) + ".cif")
-    #c.structureObj = structure
 
-    atom_list = PDB.Selection.unfold_entities(structure[0], 'A')
-    neighbor = PDB.NeighborSearch(atom_list)
-    target_atoms = {}
-
-    for struct in list(structure[0][chain_id]):
-        resi = str(struct).split('resseq=')[1].split()[0]
-        target_atoms[resi] = struct.get_atoms()
-    #target_atoms=list(structure[0][chain_id][781].get_atoms())
-    neighbors = dict()
-    for residue, atoms in target_atoms.items():
-        for atom in atoms:
-            point = atom.get_coord()
-            n = neighbor.search(point, 3.5, level='C')
-            i = 0
-            for chain in n:
-                val = str(chain).split('=')[1].split('>')[0]
-                #neighbors.add(val)
-                if val in neighbors:
-                    neighbors[val].add(residue)
-                else: 
-                    neighbors[val] = {residue}
-                i = i + 1
-    for val in neighbors:
-        neighbors[val] = list(neighbors[val])
-    #context = {
-    #    'Neighbors' : list(neighbors)
-    #}
-    return JsonResponse(neighbors)
-"""
 def modified_residues(request, pdbid, chain_id):
     import Bio.PDB.MMCIF2Dict
     mmcdata = Bio.PDB.MMCIF2Dict.MMCIF2Dict("/tmp/PDB/" + str(pdbid) + ".cif")
@@ -767,11 +726,43 @@ def protein_contacts(request, pdbid, chain_id):
 
             if len(neighbors_L2_all) > 0:
                 neighbors[chain.id] = list(neighbors_L2_all)
-    #modified_residues(pdbid)
+    
     return JsonResponse(neighbors)
-def r2dt(request, sequence):
+def full_RNA_seq(request, pdbid, chain_id):
+    import alignments.config
+    
+    RNA_full_sequence={}
+    print('cid',chain_id)
+    cif_fileNameSuffix=alignments.config.cif_fileNameSuffix_share
+    print(alignments.config.cif_fileNameSuffix_share)
+    import Bio.PDB.MMCIF2Dict
+    #mmcdata = Bio.PDB.MMCIF2Dict.MMCIF2Dict('/tmp/cust2{cif_fileNameSuffix}.cif')
+    mmcdata = Bio.PDB.MMCIF2Dict.MMCIF2Dict("/tmp/cust2"+str(cif_fileNameSuffix)+".cif")
+    #print(mmcdata)
+    index = 0
+    try:
+        index = mmcdata['_entity_poly.pdbx_strand_id'].index(chain_id)
+        
+    except:
+        i = 0
+        for item in mmcdata['_entity_poly.pdbx_strand_id']:
+            if chain_id in item.split(','):
+                index = i
+            i += 1
+    pattern = '\([a-zA-Z0-9]*\)'
+    sequence = mmcdata['_entity_poly.pdbx_seq_one_letter_code_can'][index]
+    #FULL RNA SEQ IS PARSED AND STORED HERE
+    RNA_full_sequence = ''.join(sequence.split())
+    context = {
+        'RNAseq' : RNA_full_sequence
+    }
+    
+    return JsonResponse(context)
+file_r2dt_counter_dict={}    
+def r2dt(request, sequence, entity_id):
     import os
     import datetime
+    import alignments.config
     cwd = os.getcwd()
     now = datetime.datetime.now()
     os.chdir('/home/RiboVision3/R2DT/rna/R2DT')
@@ -779,7 +770,7 @@ def r2dt(request, sequence):
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
   
     newcwd = os.getcwd()
-    with open('sequence10.fasta', 'w') as f:
+    with open('sequence10'+str(fileNameSuffix)+'.fasta', 'w') as f:
         f.write('>Sequence\n')
         f.write(sequence)
         f.close()       
@@ -800,42 +791,97 @@ def r2dt(request, sequence):
     os.system(cmd)
     #time.sleep(40)
     filename = '' 
-          
+    # pull cif_mode_flag from POST
+    if request.method == "POST":
+        cif_mode_flag = request.POST["cif_mode_flag"]
+        parsed_cif_mode_flag = cif_mode_flag
+        if cif_mode_flag == "true":
+            parsed_cif_mode_flag = True
+        elif cif_mode_flag == "false":
+            parsed_cif_mode_flag = False
+        elif cif_mode_flag == "":
+            parsed_cif_mode_flag = None
+        cif_mode_flag = parsed_cif_mode_flag
+    else:
+        cif_mode_flag = None
+
     for topdir, dirs, files in os.walk(f'{output}/results/json'):
         firstfile = sorted(files)[0]
         
         filename = os.path.join(topdir, firstfile)  
-    #cmd = f'python3 svg2json.py test_model_chain {filename} {output}/jsonexample'
-    #print('filename')
-    #cmd = f'python3 /home/anton/RiboVision2/rna/R2DT-master/svg2json.py cust_1_B {output}/Sequence-PF_LSU_3D.svg {output}/../jsonexample8.json'
-    print("FILENAME")
-    print(filename)
-    cmd = f'/usr/bin/python3 {newcwd}/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
-
-    os.system(cmd)
     
+    
+    files_to_remove = []
+
+    if (cif_mode_flag is None) or (not cif_mode_flag):
+        #FOR NONE OR PDB modes
+        #cmd = f'/usr/bin/python3 {newcwd}/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
+        cmd = f'/usr/bin/python3 {newcwd}/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
+    else:
+        #FOR CIF MODE
+        cif_file_path = request.POST["cif_file_path"]
+        #files_to_remove.append(cif_file_path)
+        #print('r2dt results parsing cif')
+        #print('cif_file_path')
+        cmd = f'python3 {newcwd}/parse_cif4.py -ij {filename} -ic {cif_file_path} -ie {entity_id} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
+        #print('r2dt cif parsed')
+    os.system(cmd)
 
     with open(f'{output}/results/json/RNA_2D_json.json', 'r') as f:
 
         data = json.loads(f.read())
 
         f.close()
-
+        
     with open(f'{output}/results/json/BP_json.json', 'r') as f:
-
-    #with open(f'{output}/../BP_7YSE_E.json', 'r') as f:
-
         BP = json.loads(f.read())
 
         f.close()   
-        #print(data)
-    #doc = minidom.parse(filename)
-    #path_strings = [path.getAttribute('d') for path
-    #            in doc.getElementsByTagName('text')]
+
     r2dt_json = {
         'RNA_2D_json' : data, 
         'RNA_BP_json' : BP
         
     }
+
+    for file_path in files_to_remove:
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+
+    if os.path.isfile('./sequence10'+str(fileNameSuffix)+'.fasta'):
+        os.remove('./sequence10'+str(fileNameSuffix)+'.fasta')
+    else:
+        # If it fails, inform the user.
+        print("Error: %s file not found" % './sequence10'+str(fileNameSuffix)+'.fasta')
+        
+    if os.path.isfile('./sequence10'+str(fileNameSuffix)+'.fasta.ssi'):
+        os.remove('./sequence10'+str(fileNameSuffix)+'.fasta.ssi')
+    else:
+        # If it fails, inform the user.
+        print("Error: %s file not found" % './sequence10'+str(fileNameSuffix)+'.fasta.ssi') 
+    
+    cif_fileNameSuffix=alignments.config.cif_fileNameSuffix_share
+    cif_file_name="/tmp/cust2"+str(cif_fileNameSuffix)+".cif"
+    if not cif_file_name in file_r2dt_counter_dict:
+        file_r2dt_counter_dict[cif_file_name] = 0
+    file_r2dt_counter_dict[cif_file_name] += 1
+
+    if file_r2dt_counter_dict[cif_file_name] == 2:  
+
+        # Delete file
+        if os.path.isfile(cif_file_name):
+            os.remove(cif_file_name)
+            file_r2dt_counter_dict[cif_file_name] = 0
+        else:
+        # If it fails, inform the user.
+            print("Error: %s file not found" % cif_file_name)       
+    
+    dir_path = str(output)
+    if os.path.isdir(dir_path):
+        # remove directory and all its content
+        shutil.rmtree(dir_path)
+    else:
+        raise ValueError("Path {} is not a file or dir.".format(dir_path))
+     
     return JsonResponse(r2dt_json)
 

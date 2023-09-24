@@ -13,12 +13,47 @@ def request_post_data(post_data):
     struc_id = post_data["struc_id"]
     return fasta, struc_id
 
+def get_FullSeq(request):
+    global full_sequence
+    full_sequence = request.POST["sequence"]
+    print('full_seq_in_get_request')
+    print(full_sequence)
+    return JsonResponse(full_sequence, safe=False)
+
 def make_map_from_alnix_to_sequenceix_new(request):
+    
     fasta, struc_id = request_post_data(request.POST)
+    # pull cif_mode_flag from POST
+    cif_mode_flag = request.POST["cif_mode_flag"]
+    parsed_cif_mode_flag = cif_mode_flag
+    if cif_mode_flag == "true":
+        parsed_cif_mode_flag = True
+    elif cif_mode_flag == "false":
+        parsed_cif_mode_flag = False
+    elif cif_mode_flag == "":
+        parsed_cif_mode_flag = None
+    cif_mode_flag = parsed_cif_mode_flag
     serializeData = request.session[struc_id]
     strucObj = parse_string_structure(request, serializeData, struc_id)
     seq_ix_mapping, struc_seq, gapsInStruc = constructStrucSeqMap(strucObj)
-    mapping = create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping)
+
+    
+
+    print(f"cif_mode_flag: {cif_mode_flag}")
+    if not (cif_mode_flag is None):
+        if not cif_mode_flag:
+            hardcoded_structure = request.POST["hardcoded_structure"]
+            full_seq = SeqRecord(Seq(hardcoded_structure))
+            print('full_seq_after_request')
+            print(full_seq)
+            mapping = create_aln_true_seq_mapping_with_mafft(fasta, full_seq, seq_ix_mapping)
+            mapping = create_aln_struc_mapping_with_mafft(mapping["amendedAln"], struc_seq, seq_ix_mapping)
+        else:
+            mapping = create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping)
+    else:
+        mapping = create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping)
+        
+        
     mapping["gapsInStruc"] = gapsInStruc
     if type(mapping) != dict:
         return mapping
@@ -26,12 +61,18 @@ def make_map_from_alnix_to_sequenceix_new(request):
 
 def constructStrucSeqMap(structure):
     chains = list()
+    print (structure.id)
+    RNA_chain=structure.id.rsplit('-', 1)[1]
     for chain in structure.get_chains():
+        print(chain.id, RNA_chain)
+        
+        if chain.id ==RNA_chain:
+            residues = list(chain.get_residues())
         chains.append(chain)
     sequence, gapsInStruc, seq_ix_mapping = str(), list(), dict()
     old_resi, untrue_seq_ix = 0, 1
 
-    residues = list(chains[0].get_residues())
+    #residues = list(chains[70].get_residues())
     for resi in residues:
         resi_id = resi.get_id()
         if (old_resi == 0):
@@ -48,11 +89,10 @@ def constructStrucSeqMap(structure):
         old_resi = resi_id[1]
     if len(seq1(residues[0].get_resname().replace(' ',''))) != 0:
         sequence = seq1(sequence)
-
+  
     return seq_ix_mapping, SeqRecord(Seq(sequence)), gapsInStruc
 
 def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
-
     from subprocess import Popen, PIPE
     from os import remove, path
     from warnings import warn
@@ -77,7 +117,6 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
             if path.isfile(tempf):
                 raise IOError(f"Couldn't delete the file {tempf} please remove it manually!")
     
-
     fh = open(aln_group_path, "w")
     fh.write(fasta)
     fh.close()
@@ -95,7 +134,6 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
         for removeFile in tempfiles:
             remove(removeFile)
         return HttpResponseServerError("Failed mapping the polymer sequence to the alignment!\nTry a different structure.")
-    print("Mafft_done1")
     mapping_file = output.decode("ascii").split('\n#')[1]
     amendedAln = re.sub('>Structure sequence$','',output.decode("ascii").split('\n#')[0])
     groupName = output.decode('ascii').split('>')[1].split('_')[0]
@@ -122,4 +160,58 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
         outputDict['BadMappingPositions'] = bad_map_positions
     outputDict["amendedAln"] = f'>Structure sequence{amendedAln.split(">Structure sequence")[1]}{amendedAln.split(">Structure sequence")[0]}'
     outputDict["structureMapping"] = mapping
+    return outputDict
+
+def create_aln_true_seq_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
+    from subprocess import Popen, PIPE
+    from os import remove, path
+    from warnings import warn
+    import datetime
+    
+    fasta = re.sub('>True sequence[\s\S]*?>','>',fasta)
+    now = datetime.datetime.now()
+    fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
+    ### BE CAREFUL WHEN MERGING THE FOLLOWING LINES TO PUBLIC; PATHS ARE HARDCODED FOR THE APACHE SERVER ###
+    aln_group_path = "/home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/static/alignment" + fileNameSuffix + ".txt"
+    pdb_seq_path = "/home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/ebi_sequence" + fileNameSuffix + ".txt"
+    #aln_group_path = "/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/alignment" + fileNameSuffix + ".txt"
+    #aln_group_path = "/home/RiboVision3/static/alignment" + fileNameSuffix + ".txt"
+    #pdb_seq_path = "/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/ebi_sequence" + fileNameSuffix + ".txt"
+    #pdb_seq_path = "/home/RiboVision3/static/ebi_sequence" + fileNameSuffix + ".txt"
+    #mappingFileName = pdb_seq_path + ".map"
+    tempfiles = [aln_group_path, pdb_seq_path]
+    for tempf in tempfiles:
+        if path.isfile(tempf):
+            warn(f"When using mafft to make structural mapping the working directory must be free of file {tempf}. Trying to delete the file.")
+            remove(tempf)
+            if path.isfile(tempf):
+                raise IOError(f"Couldn't delete the file {tempf} please remove it manually!")
+    
+    fh = open(aln_group_path, "w")
+    fh.write(fasta)
+    fh.close()
+    fh = open(pdb_seq_path, "w")
+    fh.write(">True sequence\n")
+    fh.write(str(struc_seq.seq))
+    print('True sequence in mafft')
+    print(str(struc_seq.seq))
+    fh.close()
+    print("Mafft")
+    #pipe = Popen(f"/usr/local/bin/mafft --anysymbol --preservecase --quiet --addfull {pdb_seq_path} {aln_group_path}", stdout=PIPE, shell=True)
+    pipe = Popen(f"/usr/local/bin/mafft --preservecase --anysymbol --addfull {pdb_seq_path}  --keeplength {aln_group_path}", stdout=PIPE, shell=True)
+    output = pipe.communicate()[0]
+    
+    #print(seq_ix_mapping[int(row[1])])
+    if len(output.decode("ascii")) <= 0:
+        for removeFile in tempfiles:
+            remove(removeFile)
+        return HttpResponseServerError("Failed mapping the polymer sequence to the alignment!\nTry a different structure.")
+    print("Mafft_full_seq_done")
+    #mapping_file = output.decode("ascii").split('\n#')[1]
+    amendedAln = re.sub('>True sequence$','',output.decode("ascii").split('\n#')[0])
+    groupName = output.decode('ascii').split('>')[1].split('_')[0]
+    firstLine = True
+    outputDict, mapping, bad_map_positions, fail_map = dict(), dict(), 0, False
+   
+    outputDict["amendedAln"] = f'>True sequence{amendedAln.split(">True sequence")[1]}{amendedAln.split(">True sequence")[0]}'
     return outputDict

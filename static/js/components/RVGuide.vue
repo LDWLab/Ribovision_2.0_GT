@@ -6,13 +6,13 @@
             </div>
             
             <div class="headerOptions" style="margin-left: auto;padding-top:10px;">
-                <!--
+                
                 <span title="Start an interactive guide">
                     <button class="btn btn-outline-dark" v-on:click="startTour();" style="float: right;">Help</button>
                 </span>
-                -->
+                
                 <p style="padding:2px;float: right;"></p>
-                <span title="Go to RiboVision2 documentation">
+                <span title="Go to RiboVision 2.0 documentation">
                     <button class="btn btn-outline-dark" id="aboutButton" v-on:click="goToAboutPage();" style="float: right;">About</button>
                 </span>
                 <!--
@@ -28,11 +28,11 @@
                 </span>
                 -->
                 <p style="padding:2px;float: right;"></p>
-                <span title="Save a RiboVision2 session file">
+                <span title="Save a RiboVision 2.0 session file">
                     <button class="btn btn-outline-dark" id="saveButton" v-on:click="saveRV3State();" style="float: right;">Save session</button>
                 </span>
                 <p style="padding:2px;float: right;"></p>
-                <span title="Load a RiboVision2 session file">
+                <span title="Load a RiboVision 2.0 session file">
                     <label for="inputRV3State" id="rv3-state-upload" class="btn btn-outline-dark">Load session</label>
                     <input id="inputRV3State" type="file" accept=".json" ref="rv3_state_file" v-on:change="loadRV3State()"/>
                 </span>
@@ -53,6 +53,7 @@
     import {initialState} from './DropDownTreeVars.js'
     import {replacer} from './jsonMapReplacer.js'
     import {readLoadRV3State} from './loadRV3State.js'
+    import {uploadCustomFullSequence} from './handleUploadCustomFullSequence.js'
     import {cloneDeep} from 'lodash'
     export default {
         name: 'my-tour',
@@ -136,10 +137,10 @@
             },
         },
         mounted: function () {
-            //localStorage.setItem("hasCodeRunBefore", true)
             //vm.guideOff = false
-            /*
-            if (localStorage.getItem("hasCodeRunBefore") === null) {
+            //localStorage.setItem("hasCodeRunBefore", false);
+            //if (localStorage.getItem("hasCodeRunBefore") !== 'true') {
+             if (localStorage.getItem("hasCodeRunBefore") === null) {   
                 tourSteps[0].content += '<br><b>First time users are advised to complete this guide by only clicking the Next button ▼</b>';
                 tourSteps.unshift(cookieNotice);
                 tourSteps[1].before = function before(type) {
@@ -152,7 +153,9 @@
                 }
                 this.$tours['myTour'].start();
             }
-            */
+
+            //localStorage.setItem("hasCodeRunBefore", true)
+            
         },
     }
 
@@ -161,7 +164,7 @@
             header: {
                 title: 'Privacy Notice',
             },
-        content: `ProteoVision uses two essential cookies.
+        content: `RiboVision 2.0 uses two essential cookies.
             One ensures you do not see this message every time you visit the website;<br>
             the other ensures our server can validate a secure connection to your browser.<br>
             We do not store any other data from you. Uploaded CSV files are kept in your browser memory and are not stored between sessions. 
@@ -171,11 +174,69 @@
 
     var getExampleFasta = function(){
         $.ajax({
-            url: `static/alignments/RV2_Archaea_b_LSU.fas`,
+            url: `static/alignments/RNAseP_example.fas`,
             type: 'GET',
             dataType: "text",
             success: function(data) {
-                vm.file = new File([data], "RV2_Archaea_b_LSU.fas", {});
+                vm.file = new File([data], "RNAseP_example.fas", {});
+            },
+        })
+    };
+    var getExampleCIF = function(){
+        $.ajax({
+            url: `static/alignments/3Q1Q.cif`,
+            type: 'GET',
+            dataType: "text",
+            success: function(data) {
+                vm.$refs.customCIFfile.files = [new File([data], "3Q1Q.cif", {})];
+            },
+        })
+    };
+    var getExamplePDB = function(){
+        $.ajax({
+            url: `static/alignments/3Q1Q_B.pdb`,
+            type: 'GET',
+            dataType: "text",
+            success: function(data) {
+                let list = new DataTransfer();
+                let file =new File([data], "3Q1Q_B.pdb", {});
+                list.items.add(file);
+
+                let myFileList = list.files;
+                vm.$refs.customPDBfile.files = myFileList;
+            },
+        })
+    };
+    var getExampleFullSeqPDB = function(){
+        $.ajax({
+            url: `static/alignments/3Q1Q_B.fas`,
+            type: 'GET',
+            dataType: "text",
+            success: function(data) {
+                let list = new DataTransfer();
+                let file =new File([data], "3Q1Q_B.fas", {});
+                list.items.add(file);
+
+                let myFileList = list.files;
+                vm.$refs.customFullSequence.files = myFileList;
+                uploadCustomFullSequence();
+            },
+        })
+    };
+    var getExampleDataCSV = function(){
+        $.ajax({
+            url: `static/alignments/custom_data.csv`,
+            type: 'GET',
+            dataType: "text",
+            success: function(data) {
+                let list = new DataTransfer();
+                let file =new File([data], "custom_data.csv", {});
+                list.items.add(file);
+
+                let myFileList = list.files;
+                vm.$refs.custom_csv_file.files = myFileList;
+                vm.csv_data=new File([data], "custom_data.csv", {});
+                handleCustomMappingData();
             },
         })
     };
@@ -183,18 +244,20 @@
         {
             target: 'header',
             header: {
-                title: 'Welcome to ProteoVision!',
+                title: 'Welcome to RiboVision 2.0!',
             },
-            content: `ProteoVision is a visualization tool for ribosomal proteins 
+            content: `RiboVision 2.0 is a web-server for visualization of (ribosomal) RNAs 
             designed to display phylogenetic, structural, and physicochemical 
             properties in primary, secondary, and tertiary representations.`
-        },{
+        }, 
+        
+        {
             target: '#tree_type',
             header: {
                 title: 'Mode of operation',
             },
             content: `Select either of two possible modes of operation.<br/>
-            <b>DESIRE</b> retrieves alignments from the DatabasE for Study and Imaging of Ribosomal Evolution.<br/>
+            <b>RiboVision 2.0 </b> retrieves alignments from the DatabasE for Study and Imaging of Ribosomal Evolution.<br/>
             <b>User upload</b> allows you to upload your own fasta formatted alignment.`,
             before: type => new Promise((resolve, reject) => {
                 resolve (
@@ -221,17 +284,40 @@
                 )
             })
         },{
-            target: '#selectaln',
+            target: '#select_protein_type',
             header: {
-                title: 'Alignment selection',
+                title: 'RNA family',
             },
-            content: `Select an alignment from the DESIRE database.`,
+            content: `Select RNA family.`,
             params: {
               placement: 'right'
             },
             before: type => new Promise((resolve, reject) => {
+                var selectEl = document.querySelector('#select_protein_type');
                 resolve (
-                    vm.alnobj = {id: 1, text: "uL02"},
+        
+                    
+                    selectEl.value = "LSU-rRNA",
+                    selectEl.dispatchEvent(new Event('change'))
+                    
+    
+                )
+            })
+        },{
+            target: '#selectaln',
+            header: {
+                title: 'Alignment selection',
+            },
+            content: `Select an alignment from the RiboVision database.`,
+            params: {
+              placement: 'right'
+            },
+            before: type => new Promise((resolve, reject) => {
+               
+                resolve (
+                    vm.alnobj = {id: 256, text: "5S"},
+                    
+                    
                 )
             })
         },{
@@ -239,7 +325,7 @@
             header: {
                 title: 'Alignment viewer',
             },
-            content: `This is the alignment viewer. 
+            content: `This is the MSA alignment viewer. 
             The viewer window can be moved by dragging or by using the scrollbars.<br/>
             Hover over residue to reveal associated data for it.`,
         },{
@@ -249,7 +335,7 @@
             },
             content: `Bar representation of conservation for each alignment position.
             The conservation is calculated as Shannon entropy and represented by the column heights.
-            The columns can be colored with custom data or with ProteoVision calculated data.`,
+            The columns can be colored with custom data or with RiboVision 2.0 calculated data.`,
         },{
             target: '#downloadFastaBtn',
             header: {
@@ -288,7 +374,41 @@
             params: {
               placement: 'right'
             },
-        },{
+        },
+        
+        //{
+            //target: '#showFrequencies',
+           // header: {
+                //title: 'Show amino-acid frequencies',
+           // },
+            //content: `Select this checkbox to show amino-acid frequencies, calculated from the loaded alignment.`,
+            //params: {
+              //placement: 'right'
+            //},
+            //before: type => new Promise((resolve, reject) => {
+                //resolve (
+                   // vm.checked_propensities = true,
+                    //vm.handlePropensities(true)
+                //)
+            //})
+        //},{
+            //target: '#downloadFreqsBtn',
+            //header: {
+                //title: 'Download amino-acid frequencies',
+            //},
+            //content: `Download amino-acid frequencies showed in the graph as a csv file.`,
+            //params: {
+             //placement: 'right'
+           //},
+        //},{
+            //target: '#total',
+           //header: {
+               // title: 'Frequency graph',
+            //},
+            //content: `Frequencies for the 20 amino-acids are shown as a boxplot figure. Each species is represented with a datapoint. <br>
+           // Hovering on a datapoint highlights the corresponding species in the alignment viewer.`,
+        //},
+        {
             target: '#pdb_input',
             header: {
                 title: 'Select a structure for 2D and 3D display',
@@ -299,8 +419,9 @@
             },
             before: type => new Promise((resolve, reject) => {
                 resolve (
-                    vm.pdbid = "4v9d",
-                    vm.$children[1].search = "4v9d",
+                    vm.checked_propensities = false,
+                    vm.pdbid = "7k00",
+                    vm.$children[1].search = "7k00",
                 )
             })
         },{
@@ -314,8 +435,9 @@
             },
             before: type => new Promise((resolve, reject) => {
                 var polSele = document.querySelector("#polymerSelect")
+                vm.RVGuideEntityId = 23;
                 resolve (
-                    vm.chainid = ["CC"],
+                    vm.chainid = ["b"],
                     vm.$nextTick(function(){
                         polSele.lastElementChild.click();
                     }),
@@ -324,9 +446,9 @@
         },{
             target: '.topology_section',
             header: {
-                title: 'Topology viewer',
+                title: 'RNA topology viewer',
             },
-            content: `This is the topology viewer that shows secondary protein structure.`,
+            content: `This is the RNA topology viewer that depicts 2D RNA layout and base pairing.`,
         },{
             target: '.molstar_section',
             header: {
@@ -335,7 +457,7 @@
             content: `This is the 3D viewer that shows tertiary protein structure.<br/>
             The alignment, topology, and 3D viewers have integrated hover effects.`,
         },{
-            target: '.menuSelectbox',
+            target: '.mappingSelectbox',
             header: {
                 title: 'Mapping data',
             },
@@ -346,13 +468,39 @@
             },
             before: type => new Promise((resolve, reject) => {
                 var topviewer = document.getElementById("PdbeTopViewer");
-                var annotationSelect = document.querySelector(".menuSelectbox");
-                var exampleData = topviewer.pluginInstance.domainTypes[4];
+                var annotationSelect = document.querySelector(".mappingSelectbox");
+                
+                console.log('TV1', topviewer);
+                console.log('TV2', topviewer.viewInstance);
+                var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
+                var exampleData = topviewer.viewInstance.uiTemplateService.domainTypes[1];
+                console.log('TV3', exampleData);
+                
                 resolve (
-                    vm.selected_property = "Polarity",
-                    topviewer.pluginInstance.updateTheme(exampleData.data),
-                    window.viewerInstance.visual.select({data: selectSections_RV1.get(exampleData.label), nonSelectedColor: {r:255,g:255,b:255}}),
-                    annotationSelect.selectedIndex=4,
+                    vm.selected_property = "Shannon entropy",
+                    topviewer.viewInstance.uiTemplateService.domainTypes[1],
+                    //window.viewerInstance.visual.select({data: selectSections_RV1.get(exampleData.label), nonSelectedColor: {r:255,g:255,b:255}}),
+                    annotationSelect.selectedIndex=1
+                )
+            })
+        },{
+            target: '#basePairingSelectElement',
+            header: {
+                title: 'Base-pairing data',
+            },
+            content: `Calculated mapping data from the alignment can be selected from this dropdown menu.<br/>
+            The data gets mapped on the alignment conservation bar as well as the topology and 3D viewers.`,
+            params: {
+              placement: 'left'
+            },
+            before: type => new Promise((resolve, reject) => {
+                var menuToClick = document.querySelector("#basePairingSelectElement");
+                menuToClick.click();
+                var checkBoxAll = document.querySelector("#Checkbox_cWS");
+                checkBoxAll.checked = true;
+                let x = document.getElementById("PdbeTopViewer");
+                x.viewInstance.uiTemplateService.changeBP("cWS", false);
+                resolve (
                 )
             })
         },{
@@ -364,6 +512,11 @@
             params: {
               placement: 'left'
             },
+            before: type => new Promise((resolve, reject) => {
+                var menuToClick = document.querySelector("#basePairingSelectElement");
+                menuToClick.click();
+                resolve();
+            })
         },{
             target: '.saveSVG',
             header: {
@@ -374,7 +527,7 @@
               placement: 'left'
             },
         },{
-            target: '.resetIcon',
+            target: '#rnaTopologyReset-7k00',
             header: {
                 title: 'Reset the view.',
             },
@@ -405,52 +558,6 @@
               placement: 'right'
             },
         },{
-            target: '#domainSelectionSection',
-            header: {
-                title: 'ECOD domains',
-            },
-            content: `ECOD annotations for the selected pdb and chain are retrieved and displayed here.
-            You can select a domain by which the 2D and 3D representations will be truncated.`,
-            params: {
-              placement: 'right'
-            },
-            before: type => new Promise((resolve, reject) => {
-                resolve (
-                    vm.domain_or_selection="domain"
-                )
-            })
-        },{
-            target: '#filterSection',
-            header: {
-                title: 'Custom truncation range',
-            },
-            content: `Here you can specify a range to truncate the structure shown on the topology and 3D viewers.
-            <br>You can either truncate the structure by range or by ECOD domain.
-            Amino acid frequencies will be recalculated based on the active selection between these two.`,
-            params: {
-              placement: 'right'
-            },
-            before: type => new Promise((resolve, reject) => {
-                resolve (
-                    vm.domain_or_selection="selection"
-                )
-            })
-        },{
-            target: '#maskingSection',
-            header: {
-                title: 'Masking ranges',
-            },
-            content: `Here you can specify ranges that mask mapped data on the topology and 3D viewers.`,
-            params: {
-              placement: 'right'
-            },
-            before: type => new Promise((resolve, reject) => {
-                resolve (
-                    vm.domain_or_selection=null,
-                    vm.checked_filter=true,
-                )
-            })
-        },{
             target: '#customDataSection',
             header: {
                 title: 'Upload custom data',
@@ -471,13 +578,50 @@
             header: {
                 title: 'Download a mapping data example',
             },
-            content: `CSV format example that is supported by ProteoVision. The file must have a header row with column labeled
+            content: `CSV format example that is supported by RiboVision 2.0. The file must have a header row with column labeled
             <b>Index</b> indicating the structure residues. At least one more header is necessary which 
             labels the data column. The viridis colormap is used to map the datapoints with colors.`,
             params: {
               placement: 'right'
             },
         },{
+            target: '#polymerSelect2',
+            header : {
+                title: 'PolymerSelect2'
+            },
+            content: 'This is content.',
+            params: {
+                placement: 'right'
+            },
+            before: type => new Promise((resolve, reject) => {
+                const newValue = "50S ribosomal protein L25";
+                var polymerSelect2 = document.querySelector("#polymerSelect2");
+
+                var topviewer = document.getElementById("PdbeTopViewer");
+                
+                
+                
+                polymerSelect2.value = newValue;
+                polymerSelect2.dispatchEvent(new Event('change'))
+                vm.pchainid = ['f'];
+                var pchainid = ['f'];
+                const newEntityID = 23;
+                
+                vm.entityID = newEntityID;
+                topviewer.viewInstance.uiTemplateService.colorMapContacts(); 
+                topviewer.viewInstance.uiTemplateService.colorMapContacts(); 
+                showModificationsAndContactsHelper("" + newEntityID);
+                //setTimeout(function() {
+                    //secondFunctionCall();
+                    //showModificationsAndContactsHelper("" + newEntityID);
+                    //}, 5100);
+                resolve();
+            })
+
+           
+        },
+        
+        {
             target: '#tree_type',
             header: {
                 title: 'Upload a custom alignment',
@@ -493,8 +637,8 @@
                     vm.type_tree="upload",
                     document.getElementById('tree_type').children[1].click(),
                     vm.cleanTreeOpts(),
-                    document.getElementById("pdbeMolstarView").textContent = null,
-                    document.getElementById("topview").textContent = null,
+                    //document.getElementById("pdbeMolstarView").textContent = null,
+                    //document.getElementById("topview").textContent = null,
                     vm.topology_loaded = false,
                 )
             })
@@ -527,7 +671,8 @@
                 title: 'Upload the chosen alignment.',
             },
             content: `The alignment will be sent to our server, but it won't be stored there. <br/>
-            Our server will calculate amino-acid frequencies and check the format.`,
+            Our server will calculate amino-acid frequencies and check the format.
+            WAIT UNTIL MSA IS LOADED.`,
             params: {
               placement: 'right'
             },
@@ -538,7 +683,8 @@
                     vm.fetchingPDBwithCustomAln=true,
                 )
             })
-        },{
+        },
+        {
             target: '#warningCDHITtruncation',
             header: {
                 title: 'Warning for clustering of alignment.',
@@ -547,24 +693,213 @@
             have been clustered by CD-HIT. This is done to ensure there is no overrepresentation of certain sequences.<br/>
             The number of clustered sequences at 90% identity threshold will be indicated.<br/>
             The user can input a different PDB or select a new polymer or restart with a new alignment.`,
-        },{
+        },
+        {
             target: '#cdHITResults',
             header: {
                 title: 'CD-HIT options.',
             },
             content: `The user can select to use their original unclustered alignment from this dropdown menu.
             The user can also download the CD-HIT report from their alignment.`,
+        },
+        {
+            target: '#radioCIF',
+            header: {
+                title: 'Select CIF format for the custom 3D structure. ',
+            },
+            content: `Users have an option to select the format of the 3D custom structure (CIF or PDB).`,
+            params: {
+              placement: 'right'
+            },
+            before: type => new Promise((resolve, reject) => {
+                let uploadButton = document.querySelector("#radioCIF")
+                resolve (
+                    uploadButton.click(),
+                    
+                )
+            })
+        },{
+            target: '#cif-upload',
+            header: {
+                title: 'Upload custom CIF file.',
+            },
+            content: `If the CIF option is selected, the users will need to provide a 3D structure in the CIF format and the entity ID of the desired RNA chain. The additional requiremnts for the CIF file format are provided in the documentation.`,
+            params: {
+              placement: 'right'
+            },
+        
+        },{
+            target: '#radioPDB',
+            header: {
+                title: 'Select PDB format for the custom 3D structure.',
+            },
+            content: `RiboVision 2.0 also supports a custom structure in the PDB format.`,
+            params: {
+              placement: 'right'
+            },
+        
+            before: type => new Promise((resolve, reject) => {
+                let uploadButton = document.querySelector("#radioPDB")
+                resolve (
+                    uploadButton.click(),
+                    
+                )
+            })
         },{
             target: '#pdb-upload',
             header: {
                 title: 'Upload custom PDB file.',
+            },
+            content: `The PDB structure file must contain only a single RNA chain.`,
+            params: {
+              placement: 'right'
+            },
+        
+            before: type => new Promise((resolve, reject) => {
+                //let uploadButton = document.querySelector("#radioPDB")
+                resolve (
+                    getExamplePDB(),
+                    vm.pdbFileUploadedFlag=true,
+                    
+                )
+            })
+        },
+
+        {
+            target: '#full-sequence-upload',
+            header: {
+                title: 'Upload a complete RNA sequence',
+            },
+            content: `In addition to the PDB structure, a complete RNA sequence for the structure in the PDB file must also be uploaded separately. This sequence is required to generate the complete 2D diagram without omission of unresolved regions.
+            WAIT until 2D and 3D structures are generated BEFORE CLICKING NEXT`,
+            params: {
+              placement: 'right'
+            },
+        
+            before: type => new Promise((resolve, reject) => {
+                //let uploadButton = document.querySelector("#radioPDB")
+                resolve (
+                    getExampleFullSeqPDB(),
+                    
+                    
+                )
+            })
+        },{
+            target: '#downloadDataBtn',
+            header: {
+                title: 'Download Custom Data.',
+            },
+            content: `Custom mode also allows the users to map and  visualize custom data. The data must be uploaded as CSV file.`,
+            params: {
+              placement: 'right'
+            },
+        
+            before: type => new Promise((resolve, reject) => {
+                //let uploadButton = document.querySelector("#radioPDB")
+                resolve (
+                    //vm.checked_customMap = true,
+                    //vm.cleanCustomMap(true),
+                    
+                    
+                )
+            })
+        },
+        {
+            target: '#uploadCustomData',
+            header: {
+                title: 'Upload custom data from CSV file.',
+            },
+            content: `The data in the CSV file are orgainized in a specific way. Please download an example of the custom CSV file here.`,
+            params: {
+              placement: 'right'
+            },
+        
+            before: type => new Promise((resolve, reject) => {
+                //let uploadButton = document.querySelector("#radioPDB")
+                resolve (
+                    vm.checked_customMap = true,
+                    vm.cleanCustomMap(true),
+                    
+                    
+                )
+            })
+        },
+        {
+            target: '#inputUploadCSV',
+            header: {
+                title: 'Upload custom data from CSV file.',
             },
             content: `When using custom alignment ProteoVision supports a custom PDB structure file.
             The structure file must be in PDB format and must contain only a single chain.`,
             params: {
               placement: 'right'
             },
-        },{
+        
+            before: type => new Promise((resolve, reject) => {
+                //let uploadButton = document.querySelector("#radioPDB")
+                resolve (
+
+                    getExampleDataCSV()
+                    
+                    
+                )
+            })
+        },
+        {
+            target: '.menuSelectbox',
+            header: {
+                title: 'Representation of Custom Data',
+            },
+            content: `Calculated mapping data from the alignment can be selected from this dropdown menu.<br/>
+            The data gets mapped on the alignment conservation bar as well as the topology and 3D viewers.`,
+            params: {
+              placement: 'left'
+            },
+            before: type => new Promise((resolve, reject) => {
+                var topviewer = document.getElementById("PdbeTopViewer");
+                var annotationSelect = document.querySelector(".menuSelectbox");
+                var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.menuSelectbox');
+
+                
+                resolve (
+                    vm.selected_property = "circle",
+                    //topviewer.viewInstance.uiTemplateService.domainTypes[2],
+                    selectBoxEle.value="2",
+                    selectBoxEle.dispatchEvent(new Event('change')),
+                    //selectBoxEle.innerHTML = optionList
+                    //topviewer.viewInstance.uiTemplateService.PathOrNucleotide
+                    //window.viewerInstance.visual.select({data: selectSections_RV1.get(exampleData.label), nonSelectedColor: {r:255,g:255,b:255}}),
+                    //annotationSelect.selectedIndex=1
+                )
+            })
+        },
+        {
+            target: '.mappingSelectbox',
+            header: {
+                title: 'Custom Mapping data',
+            },
+            content: `Calculated mapping data from the alignment can be selected from this dropdown menu.<br/>
+            The data gets mapped on the alignment conservation bar as well as the topology and 3D viewers.`,
+            params: {
+              placement: 'left'
+            },
+            before: type => new Promise((resolve, reject) => {
+                var topviewer = document.getElementById("PdbeTopViewer");
+                var annotationSelect = document.querySelector(".mappingSelectbox");
+                var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
+                var exampleData = topviewer.viewInstance.uiTemplateService.domainTypes[2];
+                
+                
+                resolve (
+                    vm.selected_property = "Custom Data",
+                    topviewer.viewInstance.uiTemplateService.domainTypes[2],
+                    
+                    annotationSelect.selectedIndex=1
+                )
+            })
+        },
+        /*
+        {
             target: '.autocomplete',
             header: {
                 title: 'Write a PDB ID for structure display',
@@ -579,7 +914,9 @@
                     vm.$children[0].search = "1efu",
                 )
             })
-        },{
+        },
+    
+        {
             target: '#blastingPDBsMSG',
             header: {
                 title: 'Background BLAST search',
@@ -683,13 +1020,15 @@
                     }),
                 )
             })
-        },{
+        },
+        */
+        {
             target: '#aboutButton',
             header: {
-                title: 'About ProteoVision',
+                title: 'About RiboVision 2.0',
             },
             content: `Redirects to a comprehensive online documentation that describes
-            all functions and features of ProteoVision.`,
+            all functions and features of RiboVision 2.0.`,
         },{
             target: '#desireAPIButton',
             header: {

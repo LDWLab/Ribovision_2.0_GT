@@ -33,11 +33,13 @@
     "webpack-cli": "^3.3.12"
   },
   "dependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.18.6",
     "@plotly/react-msa-viewer": "^0.0.12",
     "@riophae/vue-treeselect": "^0.4.0",
     "caniuse-lite": "^1.0.30001179",
     "docute": "^4.23.3",
     "lodash": "^4.17.20",
+    "parse-mmcif": "^0.0.1",
     "parse-pdb": "^1.0.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
@@ -45,6 +47,6 @@
     "scrollbooster": "^3.0.2",
     "vue": "^2.6.12",
     "vue-style-loader": "^4.1.2",
-    "vue-tour": "^1.5.0"
+    "vue-tour": "^2.0.0"
   }
 }

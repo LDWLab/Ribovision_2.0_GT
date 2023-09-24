@@ -47,12 +47,32 @@ function cleanCustomMap(checked_customMap){
     vm.csv_data = null;
     vm.custom_headers = [];
 };
+function handleCustomMappingData(){
+  const readFile = function (fileInput) {
+      var reader = new FileReader();
+      reader.onload = function () {
+          vm.csv_data = reader.result.replace("\u00EF\u00BB\u00BF", '');
+      };
+      reader.readAsBinaryString(fileInput);
+  };
+  readFile(vm.$refs.custom_csv_file.files[0]);
+};
+var displayMappingDataByIndex = function(topviewer, selectedIndex){
+    //var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
+    var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.mappingSelectbox');
+    topviewer.pluginInstance.resetTheme();
+    topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data);
+    window.viewerInstance.visual.select({
+        data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), 
+        nonSelectedColor: {r:255,g:255,b:255}
+    });
+    selectBoxEle.selectedIndex = selectedIndex;
+    vm.selected_property = topviewer.pluginInstance.domainTypes[selectedIndex].label;
+}
+
 var mapCustomMappingData = function(custom_data, custom_data_name, topviewer){
-    
-    //var selectBoxEle = viewerInstanceTop.pluginInstance.targetEle.querySelector('.menuSelectbox');
-    //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.menuSelectbox');
-    var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
-    
+    //var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
+    var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.mappingSelectbox');
     let vals = custom_data.map(function(v){ return v[1] });
     let indexes = custom_data.map(function(v){ return v[0] });
     window.aaColorData.set(custom_data_name, [viridis]);
