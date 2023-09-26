@@ -823,7 +823,7 @@ def r2dt(request, sequence, entity_id):
         #files_to_remove.append(cif_file_path)
         #print('r2dt results parsing cif')
         #print('cif_file_path')
-        cmd = f'python3 {newcwd}/parse_cif4.py -ij {filename} -ic {cif_file_path} -ie {entity_id} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
+        cmd = f'/usr/bin/python3 {newcwd}/parse_cif4.py -ij {filename} -ic {cif_file_path} -ie {entity_id} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
         #print('r2dt cif parsed')
     os.system(cmd)
 
