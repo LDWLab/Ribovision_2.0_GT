@@ -256,6 +256,7 @@ export class UiTemplateService {
         }
         this.addEvents(this.apiData!)
     }
+    //changeBP(val: string, flag : boolean | undefined = undefined) {
     changeBP(val: string, flag : boolean | undefined = undefined) {
         this.displayBaseStrs = '';
         this.displayNestedBaseStrs = '';
@@ -271,7 +272,9 @@ export class UiTemplateService {
                 }
             });
         } else {
-            if(flag ?? this.baseStrs.get(val)![0]) {
+            //console.log(flag)
+            //if(flag ?? this.baseStrs.get(val)![0]) {
+            if(this.baseStrs.get(val)![0]) {
                 this.baseStrs.set(val, [false,  this.baseStrs.get(val)![1]]);
                 this.nestedBaseStrs.set(val, [false, this.nestedBaseStrs.get(val)![1]]);
             } else {
@@ -724,11 +727,14 @@ export class UiTemplateService {
             (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(`rnaTopoSvg_${this.pluginOptions.pdbId}`)[0].innerHTML = this.pathStrs.join('') + this.circleStrs.join('') + displayBP;
         } else if(selectedValue == 2) {
             this.mappingValue = 'circle';
+            (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(`rnaTopoSvg_${this.pluginOptions.pdbId}`)[0].innerHTML = this.nucleotideStrs.join('') + this.circleStrs.join('') + displayBP;
+            //this.circleStrs.join('') + displayBP;
         } 
-        if(e) {
+        //(e) {
             //this.containerElement.querySelector<HTMLInputElement>('.mappingSelectbox')!.value="0";
-            this.colorMap()
-        }
+         //   this.colorMap()
+        //}
+        this.colorMap()
         this.colorMapContacts()
         this.colorMapModifications()
     }
@@ -907,12 +913,8 @@ export class UiTemplateService {
         var locations3: Map<any, number[]> = new Map();
         if(this.pluginOptions.pdbId == "cust") {
             lastPathIndex = lastPathIndex - 2
-            console.log(lastPathIndex)
             apiData.svg_paths.forEach((pathStr: string, recordIndex: number) => {
-                console.log(recordIndex)
-                console.log(recordIndex == lastPathIndex + 1)
                 if(recordIndex == 0 || recordIndex >= lastPathIndex + 1) return;
-                console.log("parsing")
                 let pathStrParsed:string[] = pathStr.split('M').join(',').split(',')
                 let xVal:number = Number(pathStrParsed[3]) 
                 let yVal:number = Number(pathStrParsed[4])
@@ -941,9 +943,6 @@ export class UiTemplateService {
         });
        }
         apiData.svg_paths.forEach((pathStr: string, recordIndex: number) => {
-            console.log(lastPathIndex)
-            console.log(recordIndex)
-            console.log(pathStr)
             //if(recordIndex === 0 || recordIndex === 1 || recordIndex === (lastPathIndex + 1)) return;
             if(recordIndex === 0 || recordIndex === 1 || recordIndex >= (lastPathIndex + 1)) return;
             const pathEleClass = `rnaviewEle rnaviewEle_${this.pluginOptions.pdbId} rnaview_${this.pluginOptions.pdbId}_${apiData.label_seq_ids[recordIndex - 1]}`;

@@ -991,6 +991,7 @@ var recolorTopStar = function (name){
         //viewerInstance.visual.clearSelection();
         if(vm.customPDBsuccess) {
             viewerInstance.visual.clearSelection();
+            viewerInstance.visual.reset({ theme: true })
             viewerInstance.coloring.shannonEntropy({ sequence: true, het: false, keepStyle: true });
         } else {
         let wait = async () => {
@@ -1005,6 +1006,7 @@ var recolorTopStar = function (name){
     }   else if(name == "TwinCons") {
         if(vm.customPDBsuccess) {
             viewerInstance.visual.clearSelection();
+            viewerInstance.visual.reset({ theme: true })
             viewerInstance.coloring.twinCons({ sequence: true, het: false, keepStyle: true });
         } else {
         let wait = async () => {
@@ -1018,6 +1020,7 @@ var recolorTopStar = function (name){
     }    else if(name == "Custom Data") {
             if(vm.customPDBsuccess) {
                 viewerInstance.visual.clearSelection();
+                viewerInstance.visual.reset({ theme: true })
                 viewerInstance.coloring.customData({ sequence: true, het: false, keepStyle: true });
             } else {
         let wait = async () => {
@@ -1035,6 +1038,7 @@ var recolorTopStar = function (name){
     else if(name == "Clear data") {
         if(vm.customPDBsuccess) {
             viewerInstance.visual.clearSelection();
+            viewerInstance.visual.reset({ theme: true })
         } else {
         vm.pchainid = []
         vm.modifications = []

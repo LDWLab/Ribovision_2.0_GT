@@ -302,7 +302,7 @@ var mapCustomMappingData = function(custom_data, custom_data_name, topviewer){
     
     //var selectBoxEle = viewerInstanceTop.pluginInstance.targetEle.querySelector('.menuSelectbox');
     //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.menuSelectbox');
-    var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
+    //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
     
     let vals = custom_data.map(function(v){ return v[1] });
     let indexes = custom_data.map(function(v){ return v[0] });
@@ -318,10 +318,10 @@ var mapCustomMappingData = function(custom_data, custom_data_name, topviewer){
         window.custom_prop = custom_prop;
     }
     topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(custom_prop);
-    var custom_option = document.createElement("option");
-    custom_option.setAttribute("value", selectBoxEle.options.length);
-    custom_option.appendChild(document.createTextNode(custom_data_name));
-    selectBoxEle.appendChild(custom_option);
+    //var custom_option = document.createElement("option");
+    //custom_option.setAttribute("value", selectBoxEle.options.length);
+    //custom_option.appendChild(document.createTextNode(custom_data_name));
+    //selectBoxEle.appendChild(custom_option);
     if (!vm.available_properties.some(prop => prop.Name === custom_data_name)){
         vm.available_properties.push({Name:custom_data_name, url:"static/alignments/svg/Custom.svg"})
     }
