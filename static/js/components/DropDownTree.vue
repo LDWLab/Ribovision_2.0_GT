@@ -193,13 +193,13 @@
                 <div v-if="topology_loaded&&protein_contacts">
                     <p><select multiple class="form-control btn-outline-dark" id="polymerSelect2" v-bind:style="{ resize: 'both'}" v-model="pchainid">
                     <label>Select RNA-protein contacts to view in 3D</label>
-                    <option :value ="null" selected disabled></option>
+                    <option :value ="null" selected disabled>Select RNA-protein contacts to view in 3D</option>
                     <option v-for="chain in protein_chains" v-bind:value="chain.value" v-bind:key="chain.key" v-bind:id="chain.value" @click="showContacts();">{{ chain.text }}</option>
                     </select></p>
                 </div>   
                 <p><select multiple class="form-control btn-outline-dark" id="polymerSelect3" v-bind:style="{ resize: 'both'}" v-model="modifications" v-if="modified">
                 <label>Select modified residues to highlight</label>
-                <option :value ="null" selected disabled></option>
+                <option :value ="null" selected disabled>Select modified residues to highlight</option>
                 <option v-for="[text, k] of modified_residues.entries()" v-bind:value="text" v-bind:key="k" @click="showModifications();">{{ text }}</option>
                 </select></p>
             </div>
