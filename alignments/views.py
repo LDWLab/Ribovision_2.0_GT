@@ -689,9 +689,7 @@ def modified_residues(request, pdbid, chain_id):
     
 
     os.chdir('/home/RiboVision3/R2DT/rna/R2DT')
-    #cmd = f'LANG=en_US.utf8 /usr/bin/python3 r2dt.py draw /home/RiboVision3/R2DT/rna/R2DT/examples/examples.fasta test15'
-    #cmd = f'LANG=en_US.utf8 /usr/bin/python3 r2dt.py draw /home/RiboVision3/R2DT/rna/R2DT/sequence10.fasta test10'
-    #os.system(cmd)
+
     
     context = {
         'Modified' : modified_residues
@@ -787,7 +785,7 @@ def r2dt(request, sequence, entity_id):
     #os.system(cmd)
     #time.sleep(20)
     #cmd = f'python3 r2dt.py ribovision draw_lsu {newcwd}/sequence10.fasta {output}'
-    cmd = f'LANG=en_US.utf8 /usr/bin/python3 r2dt.py draw {newcwd}/sequence10.fasta {output}'
+    cmd = f'LANG=en_US.utf8 /usr/bin/python3 r2dt.py draw {newcwd}/sequence10{fileNameSuffix}.fasta {output}'
     os.system(cmd)
     #time.sleep(40)
     filename = '' 
