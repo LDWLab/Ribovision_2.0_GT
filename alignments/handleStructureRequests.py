@@ -5,7 +5,6 @@ from Bio.PDB.mmcifio import MMCIFIO
 from pdbecif.mmcif_io import CifFileReader
 import datetime
 from alignments.views import parse_string_structure
-from alignments.topologyAPIgenerators import generateTopologyJSONfromSVG, generateEntityJSON, generatePolCoverageJSON
 from alignments.mapStrucSeqToAln import constructStrucSeqMap
 import alignments.config
 
