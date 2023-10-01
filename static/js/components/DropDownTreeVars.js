@@ -99,6 +99,8 @@ export function initialState (){
         ],
         cifFileUploadedFlag: false,
         pdbFileUploadedFlag: false,
-        RVGuideEntityId: -1
+        RVGuideEntityId: -1,
+        sequence_for_r2dt : null,
+        json_structures_from_r2dt : null
     }
 }
