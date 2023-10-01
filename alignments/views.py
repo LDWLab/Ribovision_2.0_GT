@@ -763,6 +763,13 @@ def r2dt(request, sequence, entity_id):
     import alignments.config
     cwd = os.getcwd()
     now = datetime.datetime.now()
+    sequence_file = request.FILES["custom_seq_file"]
+    as_bytes = sequence_file.read()
+    sequence_file_text = as_bytes.decode().replace("\r", "")
+    sequence_file_lines = sequence_file_text.split("\n")
+    keys = json.loads(sequence_file_lines[0])
+    sequence = "\n".join(sequence_file_lines[1:])
+    
     os.chdir('/home/RiboVision3/R2DT/rna/R2DT')
     #os.chdir('/home/anton/RiboVision2/rna/R2DT-master')
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
@@ -791,7 +798,7 @@ def r2dt(request, sequence, entity_id):
     filename = '' 
     # pull cif_mode_flag from POST
     if request.method == "POST":
-        cif_mode_flag = request.POST["cif_mode_flag"]
+        cif_mode_flag = keys["cif_mode_flag"]#cif_mode_flag = request.POST["cif_mode_flag"]
         parsed_cif_mode_flag = cif_mode_flag
         if cif_mode_flag == "true":
             parsed_cif_mode_flag = True
@@ -817,7 +824,7 @@ def r2dt(request, sequence, entity_id):
         cmd = f'/usr/bin/python3 {newcwd}/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
     else:
         #FOR CIF MODE
-        cif_file_path = request.POST["cif_file_path"]
+        cif_file_path = keys["cif_file_path"]#cif_file_path = request.POST["cif_file_path"]
         #files_to_remove.append(cif_file_path)
         #print('r2dt results parsing cif')
         #print('cif_file_path')
