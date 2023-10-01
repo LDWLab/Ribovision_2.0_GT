@@ -1,6 +1,16 @@
 import {loadAlignmentViewer} from './loadAlignmentViewer.js'
 import {ajaxProper} from './ajaxProper.js'
 
+async function getBanName(pdbId, PchainId) {   
+    try {
+        const apiUrl = `https://api.ribosome.xyz/neo4j/get_banclass_for_chain/?pdbid=${pdbId}&auth_asym_id=${PchainId}&format=json`  
+        return await (await fetch(apiUrl)).json();  
+    } catch (e) {
+        //console.log(`Ban naming is not available!`, e);
+        return void 0;
+    };
+}
+
 export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, ebi_sequence, vueObj, full_sequence_from_pdb = ""){
     vm.sequence = ebi_sequence;
     if (vm.fasta_data){
@@ -118,6 +128,7 @@ var tryCustomTopology = function (pdbid, entityid, chainid){
       }
     }
     
+
     async function RNAseqCall(pdbid) {
       if (vm.user_uploaded_cif_flag == true){
         const RNA_full_sequence = await getRNAChain(pdbid);
@@ -136,59 +147,63 @@ var tryCustomTopology = function (pdbid, entityid, chainid){
     }
     
     RNAseqCall(pdbid).then(seq1 => {
+      vm.sequence_for_r2dt = seq1;
       console.log('RNA_full_sequence3', seq1);
       vm.getR2DT(seq1);
-      vm.URL = `r2dt/${seq1}/${entityid}`
+      vm.URL = `r2dt/${entityid}`
       var topology_viewer = `<pdb-rna-viewer id="PdbeTopViewer" pdb-id="${pdbid}" entity-id="${entityid}" chain-id="${chainid}" rv-api="true" ></pdb-rna-viewer>` 
       document.getElementById('topview').innerHTML = topology_viewer; 
       window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
-      ajaxProper({
-        //url: postTopologyURL,
-        url: vm.URL,
-        type: 'POST',
-        dataType: 'json',
-        postData : {
-            cif_mode_flag : vm.user_uploaded_cif_flag,
-            cif_file_path : vm.cif_file_path
-        }
-      }).then (parsedResponse => {
+      
+      function success(parsedResponse) {
         if (parsedResponse == "Topology Success!"){
             console.log("Topology Success!");          
         }
-      }).catch(error => {
+        // const banName = getBanName(pdbid, 'H')
+        vm.json_structures_from_r2dt = parsedResponse;
+        window.viewerInstanceTop.viewInstance.uiTemplateService.render(parsedResponse.RNA_2D_json, parsedResponse.RNA_BP_json, parsedResponse.RNA_BP_json, undefined);
+      }
+      function handle_error(error) {
         var topview = document.querySelector('#topview');
         vm.topology_loaded = 'error';
         topview.innerHTML = "Failed to generate topology from the structure file!<br>Try different PDB."
         console.log(error.responseText);
-        });
+      }
+      call_r2dt("POST", success, handle_error);
     }).catch(error => {
       console.error(error);
     });
 }
-    //vm.getR2DT(vm.pdbSeq);
-    //vm.URL = `r2dt/${vm.pdbSeq}/`
-    //vm.getR2DT(seq1);
-    //vm.URL = `r2dt/${seq1}/`
-    
-    //var topology_viewer = `<pdb-rna-viewer id="PdbeTopViewer" pdb-id="${pdbid}" entity-id="${entityid}" chain-id="${chainid}" rv-api="true" ></pdb-rna-viewer>` 
-    //document.getElementById('topview').innerHTML = topology_viewer; 
-    //window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
-   // ajaxProper({
-        //url: postTopologyURL,
-        //url: vm.URL,
-       //type: 'POST',
-        //dataType: 'json'
-    //}).then (parsedResponse => {
-        //if (parsedResponse == "Topology Success!"){
-            //console.log("Topology Success!");          
-        //}
-    //}).catch(error => {
-        //var topview = document.querySelector('#topview');
-        //vm.topology_loaded = 'error';
-        //topview.innerHTML = "Failed to generate topology from the structure file!<br>Try different PDB."
-        //console.log(error.responseText);
-    //});
-//}
+
+export function call_r2dt(request_method, success = function() {/* Do nothing. */}, handle_error = function() {/* Do nothing. */}) {
+    let keys_as_string = JSON.stringify({
+      cif_mode_flag : vm.user_uploaded_cif_flag,
+      cif_file_path : vm.cif_file_path
+    });
+    let all_lines = [
+      keys_as_string,
+      "\n",
+      ...vm.sequence_for_r2dt.split("\n")
+    ];
+    let sequence_file = new File(all_lines, "my_sequence.txt", {
+      type: "text/plain"
+    });
+    const formData = new FormData();
+    formData.append("custom_seq_file", sequence_file);
+    $.ajax({
+      url : vm.URL,
+      data: formData,
+      cache: false,
+      contentType: false,
+      processData: false,
+      method: request_method,
+      dataType: 'json',
+      type: request_method, // For jQuery < 1.9
+      success,
+      handle_error
+    });
+}
+
 
 function sleeper(ms) {
     return function(x) {
