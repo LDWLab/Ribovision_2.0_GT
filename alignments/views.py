@@ -757,7 +757,7 @@ def full_RNA_seq(request, pdbid, chain_id):
     
     return JsonResponse(context)
 file_r2dt_counter_dict={}    
-def r2dt(request, sequence, entity_id):
+def r2dt(request, entity_id):
     import os
     import datetime
     import alignments.config
