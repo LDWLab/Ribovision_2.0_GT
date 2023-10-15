@@ -30,7 +30,7 @@ export function initialState (){
         modified: false,
         modifications: [],
         viewer_options: null,
-        mapped_aa_contacts_mods: null,
+        mapped_aa_contacts_mods: new Map(),
         modifiedColorMap: null,
         unfilteredChains: null,
         entityID: null,
@@ -100,6 +100,12 @@ export function initialState (){
         ],
         cifFileUploadedFlag: false,
         pdbFileUploadedFlag: false,
-        RVGuideEntityId: -1
+        RVGuideEntityId: -1,
+        sequence_for_r2dt : null,
+        json_structures_from_r2dt : null, 
+        pdbdata: null,
+        cifdata: null,
+        pdbcust: null,
+        cifcust: null,
     }
 }

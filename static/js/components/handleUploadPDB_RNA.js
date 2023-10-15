@@ -30,6 +30,10 @@ function submitCustomPDB(file, full_sequence_from_pdb = ""){
                     return;
                 } else{
                     vm.customPDBid = `cust-1-${chainID[0]}`;
+                    vm.chains = [{value: chainID[0], text: chainID[0]}];
+                    console.log(fr.result);
+                    vm.pdbdata = fr.result;
+                    vm.pdbcust=true;
                     postPDBdata("cust", { entityID: "1", chainID: chainID[0], stringData: fr.result, full_sequence_from_pdb });
                 }
             }).catch(error => {

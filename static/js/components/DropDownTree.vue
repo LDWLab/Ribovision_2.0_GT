@@ -11,7 +11,6 @@
                     <input type="radio" id="paralogs" value="para" v-model="type_tree" v-on:input="cleanTreeOpts()">
                     Paralogs
                 </label>-->
-                
                     <label class="btn btn-outline-dark" style="margin: 0 0 0 1%;width:50%;" for="upload">
                     <input type="radio" id="upload" value="upload" v-model="type_tree" v-on:input="cleanTreeOpts()">
                     User upload
@@ -85,13 +84,14 @@
                 </div>
                 <!--
                 <span v-if="alnobj">Select/type PDB entry:</span>
-                <select class="btn btn-outline-dark dropdown-toggle" id="pdb_input" v-if="alnobj&&alnobj!='custom'" v-model="pdbid">
+                <!--<select class="btn btn-outline-dark dropdown-toggle" id="pdb_input" v-if="alnobj&&alnobj!='custom'" v-model="pdbid">
                     <option :value="null" selected disabled hidden>Select PDB entry</option>
                     <option v-for="pdb in pdbs" v-bind:value="pdb.id">{{pdb.name}}</option>
                 </select>
                 <autocomplete isAsync:true :items="blastPDBresult" v-if="alnobj&&alnobj=='custom'" v-model="pdbid"></autocomplete>
                 -->
                 <p>
+                <span v-if="alnobj">Select/type PDB entry:</span>    
                 <autocomplete id="pdb_input" isAsync:true :items="pdbs" v-if="alnobj&&alnobj!='custom'" v-model="pdbid"></autocomplete>
                 <!--
                 <div id="blastingPDBsMSG" v-if="alnobj&&alnobj=='custom'&&fetchingPDBwithCustomAln&&fetchingPDBwithCustomAln==true">
@@ -116,11 +116,18 @@
             -->
             <!-- 
             -->
-            <div v-if="structure_mapping">
+            <div v-if="structure_mapping&&chains&& !pdbcust && !cifcust">
                 <select id="downloadDataBtn" class="btn btn-outline-dark dropdown-toggle" v-model="downloadMapDataOpt" v-if="topology_loaded">
                     <option :value="null" selected disabled>Download mapped data</option>
                     <option value='csv'>As CSV file</option>
                     <option value='pymol'>As PyMOL script</option>
+                </select>
+            </div>
+            <div v-if="structure_mapping&& (pdbcust || cifcust) ">
+                <select id="downloadDataBtn" class="btn btn-outline-dark dropdown-toggle" v-model="downloadMapDataOpt" v-if="topology_loaded">
+                    <option :value="null" selected disabled>Download mapped data</option>
+                    <option value='csv'>As CSV file</option>
+                    <option value='pymol_custom'>As PyMOL script</option>
                 </select>
             </div>
             <p><div v-if="topology_loaded&&type_tree=='orth'" class="checkbox" id="showRNAcontext">
@@ -188,13 +195,13 @@
                 <div v-if="topology_loaded&&protein_contacts">
                     <p><select multiple class="form-control btn-outline-dark" id="polymerSelect2" v-bind:style="{ resize: 'both'}" v-model="pchainid">
                     <label>Select RNA-protein contacts to view in 3D</label>
-                    <option :value ="null" selected disabled></option>
+                    <option :value ="null" selected disabled>Select RNA-protein contacts to view in 3D</option>
                     <option v-for="chain in protein_chains" v-bind:value="chain.value" v-bind:key="chain.key" v-bind:id="chain.value" @click="showContacts();">{{ chain.text }}</option>
                     </select></p>
                 </div>   
                 <p><select multiple class="form-control btn-outline-dark" id="polymerSelect3" v-bind:style="{ resize: 'both'}" v-model="modifications" v-if="modified">
                 <label>Select modified residues to highlight</label>
-                <option :value ="null" selected disabled></option>
+                <option :value ="null" selected disabled>Select modified residues to highlight</option>
                 <option v-for="[text, k] of modified_residues.entries()" v-bind:value="text" v-bind:key="k" @click="showModifications();">{{ text }}</option>
                 </select></p>
             </div>
@@ -230,7 +237,8 @@
                     </select>
                     <select id="selectColorMappingProps" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="selected_property" v-if="msavWillMount">
                         <option :value="null" selected disabled>Select data</option>
-                        <option value="Select data">Clear data</option>
+                        <option value="Clear data">Clear data</option>
+                        <option value="Select data">Contacts</option>
                         <option v-for="prop in available_properties" :key="prop.Name">{{ prop.Name }}</option>
                     </select>
                     <select id="selectAlnColorScheme" class="btn btn-outline-dark dropdown-toggle" style="margin: 0 1%;" v-model="colorScheme" v-if="msavWillMount">
@@ -328,6 +336,7 @@
   import Autocomplete from './Autocomplete.vue'
   import { intersection } from 'lodash';
   import {downloadPyMOLscript} from './handlePyMOLrequest.js'
+  import {downloadPyMOLcustomscript} from './handlePyMOLcustomrequest.js'
   //import {parseRNAchains} from './handleRNAchains.js'
   
    export default {
@@ -458,6 +467,9 @@
             } else if (opt == 'pymol'){
                 downloadPyMOLscript();
                 this.downloadMapDataOpt = null;
+            } else if (opt == 'pymol_custom'){
+                downloadPyMOLcustomscript();
+                this.downloadMapDataOpt = null;
             }
         },domain_or_selection: function(selection){
             if (this.uploadSession){return;}
@@ -502,7 +514,7 @@
             if (!name){return;}
             if(this.colorSchemeData){this.colorSchemeData = null;}
             var updatedBarColors = [];
-            if(name == "Select data") {
+            if(name == "Select data" || name == "Clear data" ) {
                 window.aaFreqs.forEach(function(){
                         updatedBarColors.push("#808080")
                     });

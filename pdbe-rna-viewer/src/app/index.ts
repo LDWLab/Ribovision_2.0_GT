@@ -53,7 +53,8 @@ class PdbRnaViewerPlugin {
             if(options.rvAPI == true) this.rvAPI = true;
 
             if (this.rvAPI){
-                const dataUrls = (window as any).vm.URL;
+                const vm = (window as any).vm;
+                //const dataUrls = vm.URL;
                
                 //this.apiData = await (await fetch(dataUrls)).json().then((r2dtjson) => r2dtjson.RNA_2D_json) as ApiData;
                 //this.FR3DData = await (await fetch(dataUrls)).json().then((r2dtjson) => r2dtjson.RNA_BP_json) as any;
@@ -61,23 +62,24 @@ class PdbRnaViewerPlugin {
 
 
                 
-                const {
-                    apiDataJ,
-                    FR3DDataJ, 
-                    FR3DNestedDataJ
-                } = await (await fetch(dataUrls)).json().then((r2dtjson) => ({
-                    apiDataJ : r2dtjson.RNA_2D_json as ApiData,
-                    FR3DDataJ : r2dtjson.RNA_BP_json as any, 
-                    FR3DNestedDataJ : r2dtjson.RNA_BP_json as any,
-                }));
-                this.apiData = apiDataJ;
-                this.FR3DData = FR3DDataJ;
-                this.FR3DNestedData = FR3DNestedDataJ;
+                // const {
+                //     apiDataJ,
+                //     FR3DDataJ, 
+                //     FR3DNestedDataJ
+                // } = await (await fetch(dataUrls)).json().then((r2dtjson) => ({
+                //     apiDataJ : r2dtjson.RNA_2D_json as ApiData,
+                //     FR3DDataJ : r2dtjson.RNA_BP_json as any, 
+                //     FR3DNestedDataJ : r2dtjson.RNA_BP_json as any,
+                // }));
+                const r2dtjson = vm.json_structures_from_r2dt;
+                this.apiData = r2dtjson.RNA_2D_json as ApiData;
+                this.FR3DData = r2dtjson.RNA_BP_json as any;
+                this.FR3DNestedData = r2dtjson.RNA_BP_json as any;
 
-                console.log('dataUrls', this.apiData);
-                console.log('dataUrls', this.FR3DData);
+                // console.log('dataUrls', this.apiData);
+                // console.log('dataUrls', this.FR3DData);
                 // draw topology
-                this.uiTemplateService.render(this.apiData, this.FR3DData, this.FR3DNestedData, this.BanName);
+                //this.uiTemplateService.render(this.apiData, this.FR3DData, this.FR3DNestedData, this.BanName);
     
         
             };
