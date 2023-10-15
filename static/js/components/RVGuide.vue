@@ -168,7 +168,7 @@
             One ensures you do not see this message every time you visit the website;<br>
             the other ensures our server can validate a secure connection to your browser.<br>
             We do not store any other data from you. Uploaded CSV files are kept in your browser memory and are not stored between sessions. 
-            Uploaded alignments are sent to our server for processing, however they are deleted immediately on completion of the job.<br>
+            Uploaded alignments are sent to our server for processing; however, they are deleted immediately upon completion of the job.<br>
             Continuing to use our website indicates you consent to this data processing.`
     }
 
@@ -246,8 +246,8 @@
             header: {
                 title: 'Welcome to RiboVision 2.0!',
             },
-            content: `RiboVision 2.0 is a web-server for visualization of (ribosomal) RNAs 
-            designed to display phylogenetic, structural, and physicochemical 
+            content: `RiboVision 2.0 is a web server for visualization of (ribosomal) RNAs 
+            designed to display phylogenetic, structural, and evolutionary 
             properties in primary, secondary, and tertiary representations.`
         }, 
         
@@ -257,8 +257,8 @@
                 title: 'Mode of operation',
             },
             content: `Select either of two possible modes of operation.<br/>
-            <b>RiboVision 2.0 </b> retrieves alignments from the DatabasE for Study and Imaging of Ribosomal Evolution.<br/>
-            <b>User upload</b> allows you to upload your own fasta formatted alignment.`,
+            <b>RiboVision 2.0 </b> retrieves alignments from the DatabasE for Study and Imaging of Ribosomal Evolution (DESIRE).<br/>
+            <b>User upload</b> allows you to upload your own fasta-formatted alignment and 3D structure.`,
             before: type => new Promise((resolve, reject) => {
                 resolve (
                     vm.type_tree="orth",
@@ -288,7 +288,7 @@
             header: {
                 title: 'RNA family',
             },
-            content: `Select RNA family.`,
+            content: `Select an RNA family.`,
             params: {
               placement: 'right'
             },
@@ -327,15 +327,15 @@
             },
             content: `This is the MSA alignment viewer. 
             The viewer window can be moved by dragging or by using the scrollbars.<br/>
-            Hover over residue to reveal associated data for it.`,
+            Hover over a residue to reveal its associated data.`,
         },{
             target: '#conservationBar',
             header: {
                 title: 'Sequence conservation',
             },
             content: `Bar representation of conservation for each alignment position.
-            The conservation is calculated as Shannon entropy and represented by the column heights.
-            The columns can be colored with custom data or with RiboVision 2.0 calculated data.`,
+            The conservation is calculated as Shannon entropy and is represented by the column heights.
+            These columns can be colored with custom data or with RiboVision-2.0-calculated data.`,
         },{
             target: '#downloadFastaBtn',
             header: {
@@ -351,7 +351,7 @@
                 title: 'Download alignment image',
             },
             content: `Download the visible part of the alignment or the entire alignment as a png image. 
-            Large alignments might take some time so please be patient.`,
+            Large alignments might take some time, so please be patient.`,
             params: {
               placement: 'right'
             },
@@ -360,7 +360,7 @@
             header: {
                 title: 'Select calculated data.',
             },
-            content: `Select a property to color the conservation bar. Same coloring will be applied to the 
+            content: `Select a property to color the conservation bar. The same coloring will be applied to the 
             2D and 3D viewers if they are enabled.`,
             params: {
               placement: 'right'
@@ -370,50 +370,18 @@
             header: {
                 title: 'Select alignment color scheme.',
             },
-            content: `Select an alignment color scheme from the available ones.`,
+            content: `Select an alignment color scheme from those available.`,
             params: {
               placement: 'right'
             },
         },
         
-        //{
-            //target: '#showFrequencies',
-           // header: {
-                //title: 'Show amino-acid frequencies',
-           // },
-            //content: `Select this checkbox to show amino-acid frequencies, calculated from the loaded alignment.`,
-            //params: {
-              //placement: 'right'
-            //},
-            //before: type => new Promise((resolve, reject) => {
-                //resolve (
-                   // vm.checked_propensities = true,
-                    //vm.handlePropensities(true)
-                //)
-            //})
-        //},{
-            //target: '#downloadFreqsBtn',
-            //header: {
-                //title: 'Download amino-acid frequencies',
-            //},
-            //content: `Download amino-acid frequencies showed in the graph as a csv file.`,
-            //params: {
-             //placement: 'right'
-           //},
-        //},{
-            //target: '#total',
-           //header: {
-               // title: 'Frequency graph',
-            //},
-            //content: `Frequencies for the 20 amino-acids are shown as a boxplot figure. Each species is represented with a datapoint. <br>
-           // Hovering on a datapoint highlights the corresponding species in the alignment viewer.`,
-        //},
         {
             target: '#pdb_input',
             header: {
                 title: 'Select a structure for 2D and 3D display',
             },
-            content: `Type any PDB ID or select a one from the dropdown menu. PDBs can be searched by the species name or PDB ID.`,
+            content: `Type any PDB ID or select one from the dropdown menu. PDBs can be searched by the species name or PDB ID.`,
             params: {
               placement: 'right'
             },
@@ -429,8 +397,8 @@
             header: {
                 title: 'Select a polymer for structure display',
             },
-            content: `Select one of the filtered polymers to see 2D and 3D structures.`,
-            params: {
+            content: `Select one of the filtered polymers to see 2D and 3D structures. WAIT UNTIL 2D and 3D STRUCTURES LOADED BEFORE CLICKING "Next".`,
+            params: { 
               placement: 'right'
             },
             before: type => new Promise((resolve, reject) => {
@@ -455,14 +423,14 @@
                 title: '3D MolStar viewer',
             },
             content: `This is the 3D viewer that shows tertiary protein structure.<br/>
-            The alignment, topology, and 3D viewers have integrated hover effects.`,
+            The alignment, topology, and 3D viewers feature integrated hover effects.`,
         },{
             target: '.mappingSelectbox',
             header: {
                 title: 'Mapping data',
             },
             content: `Calculated mapping data from the alignment can be selected from this dropdown menu.<br/>
-            The data gets mapped on the alignment conservation bar as well as the topology and 3D viewers.`,
+            The data gets mapped on the alignment conservation bar, as well as the topology and 3D viewers.`,
             params: {
               placement: 'left'
             },
@@ -489,7 +457,7 @@
                 title: 'Base-pairing data',
             },
             content: `Calculated mapping data from the alignment can be selected from this dropdown menu.<br/>
-            The data gets mapped on the alignment conservation bar as well as the topology and 3D viewers.`,
+            The data gets mapped on the alignment conservation bar, as well as the topology and 3D viewers.`,
             params: {
               placement: 'left'
             },
@@ -553,7 +521,7 @@
             content: `When selected, the 3D viewer shows the entire ribosomal structure in gray
             and the protein of interest is highlighted. Color mapping is possible but can 
             take a while, since the entire ribosome is being recolored.
-            The user is advised to exercise patience as the web server might be unresponsive when colormapping with this option.`,
+            The user is advised to exercise patience, as the web server might be unresponsive when colormapping with this option.`,
             params: {
               placement: 'right'
             },
@@ -562,7 +530,7 @@
             header: {
                 title: 'Upload custom data',
             },
-            content: `Upload custom data in csv format to be mapped on the alignment conservation bar 
+            content: `Upload custom data in CSV format to be mapped on the alignment conservation bar 
             as well as the topology and 3D viewers.`,
             params: {
               placement: 'right'
@@ -587,9 +555,9 @@
         },{
             target: '#polymerSelect2',
             header : {
-                title: 'PolymerSelect2'
+                title: 'Select RNA-protein contacts to visualize'
             },
-            content: 'This is content.',
+            content: 'The RNA contacts with selected proteins are represented by coloring respective RNA nucleotides within the 2D and 3D structure viewers. The 3D viewer also shows the structure of the selected protein',
             params: {
                 placement: 'right'
             },
@@ -634,7 +602,6 @@
             before: type => new Promise((resolve, reject) => {
                 vm.topology_loaded = false;
                 resolve (
-                    vm.checked_propensities = false,
                     vm.type_tree="upload",
                     document.getElementById('tree_type').children[1].click(),
                     vm.cleanTreeOpts(),
@@ -648,7 +615,7 @@
             header: {
                 title: 'Download example alignment.',
             },
-            content: `Download an example of a fasta format alignment.`,
+            content: `Download an example of a fasta-format alignment.`,
             params: {
               placement: 'right'
             },
@@ -657,7 +624,7 @@
             header: {
                 title: 'Input custom alignment',
             },
-            content: `Select a fasta format alignment from your computer.`,
+            content: `Select a fasta-format alignment from your computer.`,
             params: {
               placement: 'right'
             },
@@ -673,7 +640,7 @@
             },
             content: `The alignment will be sent to our server, but it won't be stored there. <br/>
             Our server will calculate amino-acid frequencies and check the format.
-            WAIT UNTIL MSA IS LOADED.`,
+            WAIT UNTIL MSA IS LOADED BEFORE CLICKING "Next".`,
             params: {
               placement: 'right'
             },
@@ -724,7 +691,7 @@
             header: {
                 title: 'Upload custom CIF file.',
             },
-            content: `If the CIF option is selected, the users will need to provide a 3D structure in the CIF format and the entity ID of the desired RNA chain. The additional requiremnts for the CIF file format are provided in the documentation.`,
+            content: `If the CIF option is selected, the users will need to provide a 3D structure in the CIF format and the entity ID of the desired RNA chain. The additional requirements for the CIF file format are detailed in the documentation.`,
             params: {
               placement: 'right'
             },
@@ -772,7 +739,7 @@
                 title: 'Upload a complete RNA sequence',
             },
             content: `In addition to the PDB structure, a complete RNA sequence for the structure in the PDB file must also be uploaded separately. This sequence is required to generate the complete 2D diagram without omission of unresolved regions.
-            WAIT until 2D and 3D structures are generated BEFORE CLICKING NEXT`,
+            WAIT until 2D and 3D structures are generated BEFORE CLICKING "Next"`,
             params: {
               placement: 'right'
             },
@@ -790,7 +757,7 @@
             header: {
                 title: 'Download Custom Data.',
             },
-            content: `Custom mode also allows the users to map and  visualize custom data. The data must be uploaded as CSV file.`,
+            content: `Custom mode also allows the users to map and  visualize custom data. The data must be uploaded as a CSV file.`,
             params: {
               placement: 'right'
             },
@@ -808,7 +775,7 @@
         {
             target: '#uploadCustomData',
             header: {
-                title: 'Upload custom data from CSV file.',
+                title: 'Choose to upload custom data from CSV file.',
             },
             content: `The data in the CSV file are orgainized in a specific way. Please download an example of the custom CSV file here.`,
             params: {
@@ -816,7 +783,7 @@
             },
         
             before: type => new Promise((resolve, reject) => {
-                //let uploadButton = document.querySelector("#radioPDB")
+                
                 resolve (
                     vm.checked_customMap = true,
                     vm.cleanCustomMap(true),
@@ -828,16 +795,15 @@
         {
             target: '#inputUploadCSV',
             header: {
-                title: 'Upload custom data from CSV file.',
+                title: 'Select and upload  CSV data file.',
             },
-            content: `When using custom alignment ProteoVision supports a custom PDB structure file.
-            The structure file must be in PDB format and must contain only a single chain.`,
+            content: `CSV format example that is supported by RiboVision 2.0. The file must have a header row with column labeled Index indicating the structure residues. At least one more header is necessary which labels the data column. The viridis colormap is used to map the datapoints with colors.`,
             params: {
               placement: 'right'
             },
         
             before: type => new Promise((resolve, reject) => {
-                //let uploadButton = document.querySelector("#radioPDB")
+                
                 resolve (
 
                     getExampleDataCSV()
@@ -852,7 +818,7 @@
                 title: 'Representation of Custom Data',
             },
             content: `Calculated mapping data from the alignment can be selected from this dropdown menu.<br/>
-            The data gets mapped on the alignment conservation bar as well as the topology and 3D viewers.`,
+            The data gets mapped on the alignment conservation bar, as well as the topology and 3D viewers.`,
             params: {
               placement: 'left'
             },
@@ -864,13 +830,10 @@
                 
                 resolve (
                     vm.selected_property = "circle",
-                    //topviewer.viewInstance.uiTemplateService.domainTypes[2],
+                    
                     selectBoxEle.value="2",
                     selectBoxEle.dispatchEvent(new Event('change')),
-                    //selectBoxEle.innerHTML = optionList
-                    //topviewer.viewInstance.uiTemplateService.PathOrNucleotide
-                    //window.viewerInstance.visual.select({data: selectSections_RV1.get(exampleData.label), nonSelectedColor: {r:255,g:255,b:255}}),
-                    //annotationSelect.selectedIndex=1
+
                 )
             })
         },
@@ -880,7 +843,7 @@
                 title: 'Custom Mapping data',
             },
             content: `Calculated mapping data from the alignment can be selected from this dropdown menu.<br/>
-            The data gets mapped on the alignment conservation bar as well as the topology and 3D viewers.`,
+            The data gets mapped on the alignment conservation bar, as well as the topology and 3D viewers.`,
             params: {
               placement: 'left'
             },
@@ -899,130 +862,7 @@
                 )
             })
         },
-        /*
-        {
-            target: '.autocomplete',
-            header: {
-                title: 'Write a PDB ID for structure display',
-            },
-            content: `For uploaded alignment you can write in any PDB ID of length 4.`,
-            params: {
-              placement: 'right'
-            },
-            before: type => new Promise((resolve, reject) => {
-                resolve (
-                    vm.pdbid = "1efu",
-                    vm.$children[0].search = "1efu",
-                )
-            })
-        },
-    
-        {
-            target: '#blastingPDBsMSG',
-            header: {
-                title: 'Background BLAST search',
-            },
-            content: `The first sequence of the uploaded alignment will be BLASTed against the PDB database 
-            to find structures with similar chains. This process takes some time so you are free to input any 4 letter PDB while waiting.
-            <br>When the BLAST finishes a searchable dropdown menu will be available with the PDB results.`,
-            params: {
-              placement: 'right'
-            },
-        },{
-            target: '#polymerSelect',
-            header: {
-                title: 'Select polymer for structure display',
-            },
-            content: `For uploaded alignment while BLAST is running we do not filter the available PDB chains and 
-            you can select any polymer from the PDB structure.<br>
-            When the BLAST finishes, only chains with high similarity will be shown here.`,
-            params: {
-              placement: 'right'
-            },
-            before: type => new Promise((resolve, reject) => {
-                var polSele = document.querySelector("#polymerSelect")
-                resolve (
-                    vm.chainid = ["B"],
-                    vm.$nextTick(function(){
-                        polSele.lastElementChild.click();
-                    }),
-                )
-            })
-        },{
-            target: '#warningPoorStructureAln',
-            header: {
-                title: 'Warning for poor alignment.',
-            },
-            content: `A warning will be displayed here when the selected structure and alignment sequences 
-            have poor alignment.<br/>
-            The number of misaligned positions will be indicated.<br/>
-            The user can input a different PDB or select a new polymer or restart with a new alignment.`,
-        },{
-            target: '#completeBLASTsMSG',
-            header: {
-                title: 'Background BLAST complete',
-            },
-            content: `A message will be shown here when the BLAST search is complete.
-            PDB IDs with chains that are highly similar to the first sequence of the alignment will be populated in the
-            <b>Input PDB</b> box as searchable dropdown menu.`,
-            params: {
-              placement: 'right'
-            },
-            before: type => new Promise((resolve, reject) => {
-                var tempMap = new Map();
-                tempMap.set("1EFT", ["A"]);
-                tempMap.set("1EFU", ["A", "C"]);
-                vm.fetchingPDBwithCustomAln = 'complete';
-                resolve (
-                    vm.blastPDBresult = [{id:"1EFT", name:"1EFT"},
-                                        {id:"1EFU", name:"1EFU"}],
-                    vm.blastMAPresult = tempMap,
-                );
-            })
-        },{
-            target: '.autocomplete',
-            header: {
-                title: 'Select a different PDB ID for structure display',
-            },
-            content: `Writing a new PDB ID will clear all data related to the old PDB.`,
-            params: {
-              placement: 'right'
-            },
-            before: type => new Promise((resolve, reject) => {
-                vm.pdbid = "1eft";
-                vm.$children[0].search = "1eft";
-                var pdbinput = document.querySelector('.input-group-text');
-                var autoresult = document.querySelector('#autocomplete-results');
-                autoresult.firstElementChild.click();
-                resolve (
-                    vm.$nextTick(function(){
-                        vm.$children[0].isOpen=true;
-                        pdbinput.click();
-                    }),
-                )
-            })
-        },{
-            target: '#polymerSelect',
-            header: {
-                title: 'Select a polymer for structure display',
-            },
-            content: `If you select a polymer that produces good alignment with 
-            the sequence alignment, it won't raise a warning.`,
-            params: {
-              placement: 'right'
-            },
-            before: type => new Promise((resolve, reject) => {
-                var polSele = document.querySelector("#polymerSelect")
-                resolve (
-                    vm.$children[0].isOpen=false,
-                    vm.chainid = ["A"],
-                    vm.$nextTick(function(){
-                        polSele.lastElementChild.click();
-                    }),
-                )
-            })
-        },
-        */
+       
         {
             target: '#aboutButton',
             header: {
@@ -1030,20 +870,16 @@
             },
             content: `Redirects to a comprehensive online documentation that describes
             all functions and features of RiboVision 2.0.`,
-        },{
-            target: '#desireAPIButton',
-            header: {
-                title: 'DESIRE API',
-            },
-            content: `This is a link to the DESIRE REST API that supports this webserver.`,
-        },{
-            target: '#resetButton',
-            header: {
-                title: 'Reset the session',
-            },
-            content: `Reset the current ProteoVision session.<br/>
-            All loaded data will be removed.`,
-        },{
+        },
+        //{
+            //target: '#resetButton',
+            //header: { 
+            //    title: 'Reset the session',
+            //},
+            //content: `Reset the current ProteoVision session.<br/>
+            //All loaded data will be removed.`,
+        //},
+        {
             target: '#saveButton',
             header: {
                 title: 'Save the session',
