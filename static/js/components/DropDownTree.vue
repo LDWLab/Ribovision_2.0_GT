@@ -116,17 +116,18 @@
             -->
             <!-- 
             -->
-            <div v-if="structure_mapping&&chains">
+            <div v-if="structure_mapping&& !pdbcust && !cifcust">
                 <select id="downloadDataBtn" class="btn btn-outline-dark dropdown-toggle" v-model="downloadMapDataOpt" v-if="topology_loaded">
                     <option :value="null" selected disabled>Download mapped data</option>
                     <option value='csv'>As CSV file</option>
                     <option value='pymol'>As PyMOL script</option>
                 </select>
             </div>
-            <div v-if="structure_mapping&& !chains">
+            <div v-if="structure_mapping&& (pdbcust || cifcust) ">
                 <select id="downloadDataBtn" class="btn btn-outline-dark dropdown-toggle" v-model="downloadMapDataOpt" v-if="topology_loaded">
                     <option :value="null" selected disabled>Download mapped data</option>
                     <option value='csv'>As CSV file</option>
+                    <option value='pymol_custom'>As PyMOL script</option>
                 </select>
             </div>
             <p><div v-if="topology_loaded&&type_tree=='orth'" class="checkbox" id="showRNAcontext">
@@ -335,6 +336,7 @@
   import Autocomplete from './Autocomplete.vue'
   import { intersection } from 'lodash';
   import {downloadPyMOLscript} from './handlePyMOLrequest.js'
+  import {downloadPyMOLcustomscript} from './handlePyMOLcustomrequest.js'  
   //import {parseRNAchains} from './handleRNAchains.js'
   
    export default {
@@ -464,6 +466,9 @@
                 this.downloadMapDataOpt = null;
             } else if (opt == 'pymol'){
                 downloadPyMOLscript();
+                this.downloadMapDataOpt = null;
+            } else if (opt == 'pymol_custom'){
+                downloadPyMOLcustomscript();
                 this.downloadMapDataOpt = null;
             }
         },domain_or_selection: function(selection){
