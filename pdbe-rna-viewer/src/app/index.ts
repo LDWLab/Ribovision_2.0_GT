@@ -76,7 +76,7 @@ class PdbRnaViewerPlugin {
                 this.FR3DNestedData = FR3DNestedDataJ;
 
                 // draw topology
-                this.uiTemplateService.render(this.apiData, this.FR3DData, this.FR3DNestedData, this.BanName);
+                //this.uiTemplateService.render(this.apiData, this.FR3DData, this.FR3DNestedData, this.BanName);
     
         
             };
