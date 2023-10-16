@@ -871,7 +871,7 @@ def r2dt(request, entity_id):
         file_r2dt_counter_dict[cif_file_name] = 0
     file_r2dt_counter_dict[cif_file_name] += 1
 
-    if file_r2dt_counter_dict[cif_file_name] == 2:  
+    if file_r2dt_counter_dict[cif_file_name] == 1:  
 
         # Delete file
         if os.path.isfile(cif_file_name):
