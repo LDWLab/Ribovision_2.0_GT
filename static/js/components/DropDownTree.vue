@@ -196,7 +196,7 @@
                     <p><select multiple class="form-control btn-outline-dark" id="polymerSelect2" v-bind:style="{ resize: 'both'}" v-model="pchainid">
                     <label>Select RNA-protein contacts to view in 3D</label>
                     <option :value ="null" selected disabled>Select RNA-protein contacts to view in 3D</option>
-                    <option v-for="chain in protein_chains" v-bind:value="chain.value" v-bind:key="chain.key" v-bind:id="chain.value" @click="showContacts();">{{ chain.text }}</option>
+                    <option v-for="chain in protein_chains" v-bind:value="chain.value" v-bind:key="chain.key" v-bind:id="chain.value" @click="showContacts();">{{ chain.banname }}</option>
                     </select></p>
                 </div>   
                 <p><select multiple class="form-control btn-outline-dark" id="polymerSelect3" v-bind:style="{ resize: 'both'}" v-model="modifications" v-if="modified">
@@ -837,6 +837,7 @@
                 ajax(`https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/${pdbid.toLowerCase()}`).then(struc_data => {
                     if(vm.unfilteredChains){return;}
                     vm.unfilteredChains = struc_data[pdbid.toLowerCase()];
+                    vm.unfilteredChains_orig = struc_data[pdbid.toLowerCase()];
                 }).catch(error => {
                     console.log(error);
                     var elt = document.querySelector("#onFailedChains");
@@ -985,6 +986,9 @@
                     var newContactMap;
                     var filtered_chains = vm.protein_chains.filter(e => e.value in data);
                     vm.protein_chains = filtered_chains;
+                    for (let chain of vm.protein_chains){
+                        chain.banname=vm.unfilteredChains_orig[chain.entityID].molecule_name[0].replace('Large ribosomal subunit', 'LSU').replace('Small ribosomal subunit', 'SSU')
+                    } 
                     var i = 1.0;
                     var colorMap = new Map();
                     vm.selectSections_proteins = new Map();
