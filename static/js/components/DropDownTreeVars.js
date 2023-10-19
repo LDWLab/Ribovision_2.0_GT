@@ -106,5 +106,7 @@ export function initialState (){
         cifdata: null,
         pdbcust: null,
         cifcust: null,
+        unfilteredChains_orig: null,
+        
     }
 }
