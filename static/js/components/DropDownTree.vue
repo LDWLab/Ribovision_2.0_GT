@@ -987,7 +987,8 @@
                     var filtered_chains = vm.protein_chains.filter(e => e.value in data);
                     vm.protein_chains = filtered_chains;
                     for (let chain of vm.protein_chains){
-                        chain.banname=vm.unfilteredChains_orig[chain.entityID].molecule_name[0].replace('Large ribosomal subunit', 'LSU').replace('Small ribosomal subunit', 'SSU')
+                        chain.banname=vm.unfilteredChains_orig[chain.entityID].molecule_name[0].replace('Large ribosomal subunit', 'LSU').replace('Small ribosomal subunit', 'SSU');
+                        console.log('CB',chain.banname);
                     } 
                     var i = 1.0;
                     var colorMap = new Map();
