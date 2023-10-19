@@ -196,7 +196,7 @@
                     <p><select multiple class="form-control btn-outline-dark" id="polymerSelect2" v-bind:style="{ resize: 'both'}" v-model="pchainid">
                     <label>Select RNA-protein contacts to view in 3D</label>
                     <option :value ="null" selected disabled>Select RNA-protein contacts to view in 3D</option>
-                    <option v-for="chain in protein_chains" v-bind:value="chain.value" v-bind:key="chain.key" v-bind:id="chain.value" @click="showContacts();">{{ chain.banname }}</option>
+                    <option v-for="chain in protein_chains" v-bind:value="chain.value" v-bind:key="chain.key" v-bind:id="chain.value" @click="showContacts();">{{ chain.banname}}</option>
                     </select></p>
                 </div>   
                 <p><select multiple class="form-control btn-outline-dark" id="polymerSelect3" v-bind:style="{ resize: 'both'}" v-model="modifications" v-if="modified">
