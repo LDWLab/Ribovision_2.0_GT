@@ -990,8 +990,12 @@ var recolorTopStar = function (name){
         viewerInstance.coloring.twinCons({ sequence: true, het: false, keepStyle: true });
     }    else if(name == "Custom Data") {
         viewerInstance.visual.clearSelection();
-        console.log("visual",viewerInstance.coloring);
+        console.log("custom",viewerInstance.coloring);
         viewerInstance.coloring.customData({ sequence: true, het: false, keepStyle: true });
+    }    else if(name == "Associated Data1") {
+        viewerInstance.visual.clearSelection();
+        console.log("Associated",viewerInstance.coloring);
+        viewerInstance.coloring.associatedData({ sequence: true, het: false, keepStyle: true });
     }    else if(name == "Select data") {
         viewerInstance.visual.reset({ theme: true })
     }

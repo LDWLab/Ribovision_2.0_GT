@@ -79,7 +79,7 @@ class PdbRnaViewerPlugin {
                 // console.log('dataUrls', this.apiData);
                 // console.log('dataUrls', this.FR3DData);
                 // draw topology
-                //this.uiTemplateService.render(this.apiData, this.FR3DData, this.FR3DNestedData, this.BanName);
+                this.uiTemplateService.render(this.apiData, this.FR3DData, this.FR3DNestedData, this.BanName);
     
         
             };

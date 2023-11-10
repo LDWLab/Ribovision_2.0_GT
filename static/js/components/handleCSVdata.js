@@ -4,6 +4,7 @@ export function customCSVhandler(csv_data) {
     cleanCustomMap(vm.checked_customMap);
     vm.raiseCustomCSVWarn = null;
     vm.custom_headers = [];
+    vm.AD_headers = [];
     if (csv_data == null){
         topviewer.pluginInstance.resetTheme();
         window.viewerInstance.visual.select({data: null, nonSelectedColor: {r:255,g:255,b:255}});
@@ -54,12 +55,13 @@ export function customCSVhandler(csv_data) {
         customDataArrays.push(tempArr);
         colIndex += 1;
     }
-
+    
     if (topviewer != null && topviewer.viewInstance.uiTemplateService.domainTypes != undefined){
         for (let ix = 0; ix < customDataArrays.length; ix++) {
             vm.custom_headers.push(custom_header[ix+1]);
             mapCustomMappingData(customDataArrays[ix], custom_header[ix+1], topviewer);
         }
-        displayMappingDataByIndex(topviewer, topviewer.viewInstance.uiTemplateService.domainTypes.length-1);
+
+        //displayMappingDataByIndex(topviewer, topviewer.viewInstance.uiTemplateService.domainTypes.length-1);
     }
 }

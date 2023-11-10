@@ -207,6 +207,7 @@ class SimpleTooltip extends Component {
               if (alnpos_data.count != 0){
                 ajax('/resi-api/' + alnpos_data["results"][0]["res"].split("/")[5]).then(resiData => {
                   var alnViewEle = document.querySelector("canvas");
+                  console.log('AD2',resiData["Associated data"]);
                   let boundingBox = alnViewEle.getBoundingClientRect();
                   if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right){
                     let tooltipPosition;
@@ -216,14 +217,14 @@ class SimpleTooltip extends Component {
                     };
                     if (resiData["Structural fold"][0] !== undefined && resiData["Associated data"][0] !== undefined){
                       this.setState({
-                        fold: resiData["Structural fold"][0][1],
+                        //fold: resiData["Structural fold"][0][1],
                         phase: resiData["Associated data"][0][1],
                         tooltipPosition,
                       });
                     }else{
                       this.setState({
-                        fold: 'NA',
-                        phase: 'NA',
+                        //fold: 'NA2',
+                        phase: 'NA2',
                         tooltipPosition,
                       });
                     }
@@ -289,10 +290,10 @@ class SimpleTooltip extends Component {
                     ...this.state.tooltipPosition
                   }}
                   >
-                  <Tooltip>
-                    Fold: {this.state.fold} <br></br>
+                  {<Tooltip>
+                    //Fold: {this.state.fold} <br></br>
                     Phase: {this.state.phase}
-                  </Tooltip>
+                  </Tooltip>}
                 </div>
               )}
             </div>

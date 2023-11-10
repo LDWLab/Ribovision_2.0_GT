@@ -107,5 +107,8 @@ export function initialState (){
         cifdata: null,
         pdbcust: null,
         cifcust: null,
+        unfilteredChains_orig: null,
+        associatedDataCache: null,
+        associatedData1: null
     }
 }

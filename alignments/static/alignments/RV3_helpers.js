@@ -1,6 +1,11 @@
 var annotationArraySE = [];
 var annotationArrayTWC = [];
 var annotationArrayCD = [];
+var annotationArrayAD = [];
+var annotationArrayHD = [];
+var annotationArrayPD = [];
+var annotationArrayAESD = [];
+
 var absolutePosition = function (el) {
   var
       found,
@@ -596,6 +601,70 @@ var getCustomAnnotations = function (separatedData, lowVal, highVal, chainid) {
     return annotationArrayCD;
 };
 
+var getAssociatedAnnotations = function (separatedData, lowVal, highVal, chainid) {
+    annotationArrayAD.length=0;
+    for (var i = 1; i < 101; i++) {
+        annotationArrayAD.push({"annotation":i,"ids":[]})
+    }
+    separatedData.forEach(function (item, index) {
+        let parsedItem = item[0];
+        let itemValue = item[1];
+        let newValue = itemValue - lowVal;
+        let normalizedVal = Math.round(newValue/(highVal - lowVal) * 99)
+        annotationArrayAD[normalizedVal].ids.push(chainid + " " + parsedItem)
+    })
+    return annotationArrayAD;
+};
+
+
+var getHelicalAnnotations = function (separatedData, lowVal, highVal, chainid) {
+    annotationArrayAD.length=0;
+    for (var i = 1; i < 101; i++) {
+        annotationArrayAD.push({"annotation":i,"ids":[]})
+    }
+    separatedData.forEach(function (item, index) {
+        let parsedItem = item[0];
+        let itemValue = item[1];
+        let newValue = itemValue - lowVal;
+        let normalizedVal = Math.round(newValue/(highVal - lowVal) * 99)
+        annotationArrayAD[normalizedVal].ids.push(chainid + " " + parsedItem)
+    })
+    return annotationArrayHD;
+};
+
+
+
+var getPhaseAnnotations = function (separatedData, lowVal, highVal, chainid) {
+    annotationArrayAD.length=0;
+    for (var i = 1; i < 101; i++) {
+        annotationArrayAD.push({"annotation":i,"ids":[]})
+    }
+    separatedData.forEach(function (item, index) {
+        let parsedItem = item[0];
+        let itemValue = item[1];
+        let newValue = itemValue - lowVal;
+        let normalizedVal = Math.round(newValue/(highVal - lowVal) * 99)
+        annotationArrayAD[normalizedVal].ids.push(chainid + " " + parsedItem)
+    })
+    return annotationArrayPD;
+};
+
+var getExpansionAnnotations = function (separatedData, lowVal, highVal, chainid) {
+    annotationArrayAD.length=0;
+    for (var i = 1; i < 101; i++) {
+        annotationArrayAD.push({"annotation":i,"ids":[]})
+    }
+    separatedData.forEach(function (item, index) {
+        let parsedItem = item[0];
+        let itemValue = item[1];
+        let newValue = itemValue - lowVal;
+        let normalizedVal = Math.round(newValue/(highVal - lowVal) * 99)
+        annotationArrayAD[normalizedVal].ids.push(chainid + " " + parsedItem)
+    })
+    return annotationArrayAESD;
+};
+
+
 var getTWCAnnotations = function (separatedData, lowVal, highVal, chainid) {
     annotationArrayTWC.length=0;
     for (var i = 1; i < 101; i++) {
@@ -620,7 +689,7 @@ var getTWCAnnotations = function (separatedData, lowVal, highVal, chainid) {
     return annotationArrayTWC;
 }
 var getAnnotationArray = function() {
-    return {'SE':annotationArraySE,'TWC':annotationArrayTWC,'CD':annotationArrayCD};
+    return {'SE':annotationArraySE,'TWC':annotationArrayTWC,'CD':annotationArrayCD, 'AD':annotationArrayAD, 'HD':annotationArrayHD, 'PD':annotationArrayPD, 'AESD':annotationArrayAESD};
 }   
 var parsePVData = function (separatedData, lowVal, highVal, colormapArray, masking=null) {
     /*var s = ""
@@ -923,6 +992,8 @@ var showProteins3D = function() {
 var showModificationsAndContactsHelper = function(entityid) {
     if (vm.pchainid.length > 0){
         showProteins3D()
+    } else {
+        showPDBHelper(vm.pdbid, vm.chainid, vm.entityID)
     }
     var modified_data = new Map();
     modified_data.set("mods", [])
@@ -984,20 +1055,142 @@ var recolorTopStar = function (name){
         }) 
         */
     //}
+
     if(name == "Shannon entropy") {
-        viewerInstance.visual.clearSelection();
-        viewerInstance.coloring.shannonEntropy({ sequence: true, het: false, keepStyle: true });
-    }   else if(name == "TwinCons") {
-        viewerInstance.visual.clearSelection();
-        viewerInstance.coloring.twinCons({ sequence: true, het: false, keepStyle: true });
-    }    else if(name == "Custom Data") {
-        viewerInstance.visual.clearSelection();
-        console.log("visual",viewerInstance.coloring);
-        viewerInstance.coloring.customData({ sequence: true, het: false, keepStyle: true });
-    }    else if(name == "Select data") {
-        viewerInstance.visual.reset({ theme: true })
+        //viewerInstance.visual.clearSelection();
+        if(vm.customPDBsuccess) {
+            viewerInstance.visual.clearSelection();
+            viewerInstance.visual.reset({ theme: true })
+            viewerInstance.coloring.shannonEntropy({ sequence: true, het: false, keepStyle: true });
+        } else {
+        let wait = async () => {
+            vm.pchainid = []
+            vm.modifications = []
+            showPDBHelper(vm.pdbid, vm.chainid, vm.entityID)
+            await sleep (5000)
+            viewerInstance.coloring.shannonEntropy({ sequence: true, het: false, keepStyle: true });
+        }
+        wait()
     }
+    }   else if(name == "TwinCons") {
+        if(vm.customPDBsuccess) {
+            viewerInstance.visual.clearSelection();
+            viewerInstance.visual.reset({ theme: true })
+            viewerInstance.coloring.twinCons({ sequence: true, het: false, keepStyle: true });
+        } else {
+        let wait = async () => {
+            vm.pchainid = []
+            vm.modifications = []
+            showPDBHelper(vm.pdbid, vm.chainid, vm.entityID)
+            await sleep (6000)
+            viewerInstance.coloring.twinCons({ sequence: true, het: false, keepStyle: true });
+        }
+        wait() }
+    }    else if(name == "Custom Data") {
+            if(vm.customPDBsuccess) {
+                viewerInstance.visual.clearSelection();
+                viewerInstance.visual.reset({ theme: true })
+                viewerInstance.coloring.customData({ sequence: true, het: false, keepStyle: true });
+            } else {
+        let wait = async () => {
+            vm.pchainid = []
+            vm.modifications = []
+            showPDBHelper(vm.pdbid, vm.chainid, vm.entityID)
+            await sleep (6000)
+            viewerInstance.coloring.customData({ sequence: true, het: false, keepStyle: true });
+        }
+        wait() 
+    }
+    }  
+    else if(name == "Associated Data1") {
+        console.log('ADname0');
+        if(vm.customPDBsuccess) {
+            viewerInstance.visual.clearSelection();
+            console.log('ADname');
+            viewerInstance.visual.reset({ theme: true })
+            viewerInstance.coloring.associatedData({ sequence: true, het: false, keepStyle: true });
+        } else {
+    let wait = async () => {
+        vm.pchainid = []
+        vm.modifications = []
+        showPDBHelper(vm.pdbid, vm.chainid, vm.entityID)
+        await sleep (6000)
+        viewerInstance.coloring.associatedData({ sequence: true, het: false, keepStyle: true });
+    }
+    wait() 
+    }
+    } 
+
+
+    else if(name == "Phase") {
+       
+        if(vm.customPDBsuccess) {
+            viewerInstance.visual.clearSelection();
+            console.log('ADname');
+            viewerInstance.visual.reset({ theme: true })
+            viewerInstance.coloring.associatedData({ sequence: true, het: false, keepStyle: true });
+        } else {
+    let wait = async () => {
+        vm.pchainid = []
+        vm.modifications = []
+        showPDBHelper(vm.pdbid, vm.chainid, vm.entityID)
+        await sleep (6000)
+        viewerInstance.coloring.associatedData({ sequence: true, het: false, keepStyle: true });
+    }
+    wait() 
+    }
+    } 
+    else if(name == "Helix") {
+        
+        if(vm.customPDBsuccess) {
+            viewerInstance.visual.clearSelection();
+            console.log('ADname');
+            viewerInstance.visual.reset({ theme: true })
+            viewerInstance.coloring.associatedData({ sequence: true, het: false, keepStyle: true });
+        } else {
+    let wait = async () => {
+        vm.pchainid = []
+        vm.modifications = []
+        showPDBHelper(vm.pdbid, vm.chainid, vm.entityID)
+        await sleep (6000)
+        viewerInstance.coloring.associatedData({ sequence: true, het: false, keepStyle: true });
+    }
+    wait() 
+    }
+    } 
+    else if(name == "AES") {
+        
+        if(vm.customPDBsuccess) {
+            viewerInstance.visual.clearSelection();
+            console.log('AES');
+            viewerInstance.visual.reset({ theme: true })
+            viewerInstance.coloring.associatedData({ sequence: true, het: false, keepStyle: true });
+        } else {
+    let wait = async () => {
+        vm.pchainid = []
+        vm.modifications = []
+        showPDBHelper(vm.pdbid, vm.chainid, vm.entityID)
+        await sleep (6000)
+        viewerInstance.coloring.associatedData({ sequence: true, het: false, keepStyle: true });
+    }
+    wait() 
+    }
+    } 
     
+    
+    else if(name == "Select data") {
+        viewerInstance.visual.reset({ theme: true })
+    }   
+    else if(name == "Clear data") {
+        if(vm.customPDBsuccess) {
+            viewerInstance.visual.clearSelection();
+            viewerInstance.visual.reset({ theme: true })
+        } else {
+        vm.pchainid = []
+        vm.modifications = []
+        showPDBHelper(vm.pdbid, vm.chainid, vm.entityID)
+        }
+    }   
     viewerInstanceTop.viewInstance.uiTemplateService.colorMap(); 
 }
 

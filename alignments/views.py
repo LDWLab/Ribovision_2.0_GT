@@ -748,12 +748,18 @@ def full_RNA_seq(request, pdbid, chain_id):
     
     return JsonResponse(context)
 file_r2dt_counter_dict={}    
-def r2dt(request, sequence, entity_id):
+def r2dt(request, entity_id):
     import os
     import datetime
     import alignments.config
     cwd = os.getcwd()
     now = datetime.datetime.now()
+    sequence_file = request.FILES["custom_seq_file"]
+    as_bytes = sequence_file.read()
+    sequence_file_text = as_bytes.decode().replace("\r", "")
+    sequence_file_lines = sequence_file_text.split("\n")
+    keys = json.loads(sequence_file_lines[0])
+    sequence = "\n".join(sequence_file_lines[1:])
     
     RIBODIR=os.environ['RIBODIR']
     os.chdir('/home/anton/RiboVision2/rna/R2DT-master')
@@ -765,12 +771,13 @@ def r2dt(request, sequence, entity_id):
         f.write(sequence)
         f.close()       
     output = f"/home/anton/RiboVision2/rna/R2DT-master/R2DT-test20{fileNameSuffix}"    
-    cmd = f'python3 r2dt.py  draw {newcwd}/sequence10{fileNameSuffix}.fasta {output}'
+    cmd = f'python3 r2dt.py draw --skip_ribovore_filters {newcwd}/sequence10{fileNameSuffix}.fasta {output}'
     os.system(cmd)
     filename = '' 
     # pull cif_mode_flag from POST
     if request.method == "POST":
-        cif_mode_flag = request.POST["cif_mode_flag"]
+        
+        cif_mode_flag = keys["cif_mode_flag"]#request.POST["cif_mode_flag"]
         parsed_cif_mode_flag = cif_mode_flag
         if cif_mode_flag == "true":
             parsed_cif_mode_flag = True
@@ -796,7 +803,7 @@ def r2dt(request, sequence, entity_id):
         cmd = f'/usr/bin/python3 /home/anton/RiboVision2/rna/R2DT-master/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
     else:
         #FOR CIF MODE
-        cif_file_path = request.POST["cif_file_path"]
+        cif_file_path = keys["cif_file_path"]#request.POST["cif_file_path"]
         #files_to_remove.append(cif_file_path)
         print('r2dt results parsing cif')
         print('cif_file_path')
@@ -834,21 +841,22 @@ def r2dt(request, sequence, entity_id):
         # If it fails, inform the user.
         print("Error: %s file not found" % './sequence10'+str(fileNameSuffix)+'.fasta.ssi') 
     
-    cif_fileNameSuffix=alignments.config.cif_fileNameSuffix_share
-    cif_file_name="/tmp/cust2"+str(cif_fileNameSuffix)+".cif"
-    if not cif_file_name in file_r2dt_counter_dict:
-        file_r2dt_counter_dict[cif_file_name] = 0
-    file_r2dt_counter_dict[cif_file_name] += 1
-
-    if file_r2dt_counter_dict[cif_file_name] == 2:  
-
-        # Delete file
-        if os.path.isfile(cif_file_name):
-            os.remove(cif_file_name)
+    if cif_mode_flag is True:
+        cif_fileNameSuffix=alignments.config.cif_fileNameSuffix_share
+        cif_file_name="/tmp/cust2"+str(cif_fileNameSuffix)+".cif"
+        if not cif_file_name in file_r2dt_counter_dict:
             file_r2dt_counter_dict[cif_file_name] = 0
-        else:
-        # If it fails, inform the user.
-            print("Error: %s file not found" % cif_file_name)       
+        file_r2dt_counter_dict[cif_file_name] += 1
+
+        if file_r2dt_counter_dict[cif_file_name] == 2:  
+
+            # Delete file
+            if os.path.isfile(cif_file_name):
+                os.remove(cif_file_name)
+                file_r2dt_counter_dict[cif_file_name] = 0
+            else:
+            # If it fails, inform the user.
+                print("Error: %s file not found" % cif_file_name)       
     
     dir_path = str(output)
     if os.path.isdir(dir_path):

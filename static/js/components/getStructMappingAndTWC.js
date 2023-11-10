@@ -26,6 +26,53 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
     };
     ajax('/mapSeqAln/', postData).then(structMappingAndData=>{
         var struct_mapping = structMappingAndData["structureMapping"];
+        const associatedDataMappedPerType = {
+          "AES" : [[2, 1], [3, 51], [4, 101]]
+        };
+
+        for (const [alignmentIndexAsString, structureIndex] of Object.entries(struct_mapping)) {
+          const alignmentIndex = Number.parseInt(alignmentIndexAsString);
+          const associatedDataCache = vm.associatedDataCache;
+          if (alignmentIndex in associatedDataCache) {
+            for (let {type, value} of associatedDataCache[alignmentIndex]) {
+              if (!(type in associatedDataMappedPerType)) {
+                associatedDataMappedPerType[type] = [];
+              }
+              value = value.replaceAll(/\D/g, "");
+              if (value.length === 0) {
+                value = "0";
+              }
+              value = Number.parseInt(value);
+              const associatedDataI = [
+                structureIndex,
+                value
+              ];
+              associatedDataMappedPerType[type].push(associatedDataI);
+              // console.log(`${structureIndex}, ${alignmentIndex}, `, type, value);
+            }
+          }
+        }
+
+        vm.AD_headers = [];
+        var topviewer = document.getElementById("PdbeTopViewer");
+        associatedDataMappedPerType["Associated Data1"] = associatedDataMappedPerType["Helix"];
+        for (const [type, associatedDataMappedPerTypeI] of Object.entries(associatedDataMappedPerType)) {
+          associatedDataMappedPerTypeI.sort(function(entry0, entry1) {
+            return entry0[0] - entry1[0];
+          })
+          const AD_header = type;
+          const ADDataArray = associatedDataMappedPerTypeI;
+          vm.AD_headers.push(AD_header);
+          mapAssociatedData(ADDataArray, AD_header, topviewer);
+        }
+
+        //const AD_header='Associated Data1';
+        //const ADDataArray=[[1,1],[2,2],[3,3],[4,6],[5,9]];
+        //vm.AD_headers.push(AD_header)
+        //mapAssociatedData(ADDataArray, AD_header, topviewer );
+
+
+        console.log('Struct_mapping', struct_mapping );
         var largestKey = Math.max(...Object.values(struct_mapping).filter(a=>typeof(a)=="number"))
         var smallestKey = Math.min(...Object.values(struct_mapping).filter(a=>typeof(a)=="number"))
         if ((largestKey != stopIndex || smallestKey != startIndex)&&ebi_sequence){

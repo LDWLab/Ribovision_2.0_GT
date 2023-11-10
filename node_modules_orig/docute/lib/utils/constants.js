@@ -1,0 +1,1 @@
+export var INITIAL_STATE_NAME = '__DOCUTE_INITIAL_STATE__';
