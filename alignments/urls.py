@@ -47,6 +47,7 @@ urlpatterns = [
     # path('propensities/<str:align_name>/<int:tax_group>', views.propensities, name = 'propensities'),
     # path('propensities/<str:align_name>/<str:tax_group>', views.propensities, name = 'propensities'),
     path('protein-contacts/<str:pdbid>/<str:chain_id>', views.protein_contacts, name = 'protein_contacts'),
+    path('custom-modified-residues/<str:entity_id>/<str:cif_file_path>', views.custom_modified_residues, name = 'custom_modified_residues'),
     path('modified-residues/<str:pdbid>/<str:chain_id>', views.modified_residues, name = 'modified_residues'),
     path('r2dt/<str:entity_id>', views.r2dt, name = 'r2dt'),
     path('full-RNA-seq/<str:pdbid>/<str:chain_id>', views.full_RNA_seq, name = 'full_RNA_seq'),

@@ -26,7 +26,7 @@
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
     "vue-loader": "15.9",
-    "vue-template-compiler": "^2.6.12",
+    "vue-template-compiler": "^2.7.15",
     "vuetify-loader": "^1.9.2",
     "webpack": "4.44",
     "webpack-bundle-tracker": "^0.4.3",

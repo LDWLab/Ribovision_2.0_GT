@@ -1,6 +1,6 @@
 import { UiActionsService } from './uiActions';
 import { PluginOptions, ApiData, BanNameHelper} from './data';
-
+import { CustomEvents } from './customEvents';
 export class UiTemplateService {
     selectSections_RV1 = (window as any).selectSections_RV1;
     aaPropertyConstants = (window as any).aaPropertyConstants;
@@ -60,7 +60,7 @@ export class UiTemplateService {
         this.uiActionsService = new UiActionsService(this.pluginOptions.pdbId);
     }
 
-    render(apiData: ApiData, FR3DData: any, FR3DNestedData: any, BanName:any) {
+    render(apiData: ApiData, FR3DData: any, FR3DNestedData: any, BanName:any, instance?:any) {
         this.containerElement.innerHTML = 
         `<div class="pdb-rna-view-container pdb-rna-view-container-${this.pluginOptions.pdbId}">
             ${this.svgTemplate(apiData, FR3DData, FR3DNestedData)}
@@ -97,6 +97,9 @@ export class UiTemplateService {
         this.addEvents(apiData, BanName);
         <any>document.querySelector(".saveSVG")!.addEventListener("click", this.saveSVG.bind(this));
         this.getAnnotationFromRibovision(this.mapped_aa_properties);
+        if (instance) {
+            CustomEvents.subscribeToComponentEvents(instance)
+        }
         //this.rv3VUEcomponent.topology_loaded=true;
     }
 

@@ -61,13 +61,17 @@ export namespace CustomEvents {
 
         document.addEventListener("PDB.molstar.mouseover", (e: any) => {
             if(typeof e.eventData !== 'undefined' && typeof e.eventData.residueNumber !== 'undefined' && e.eventData.auth_asym_id === pluginCtx.options.chainId){
-                pluginCtx.clearHighlight();
-                pluginCtx.highlightResidue(e.eventData.residueNumber);
+                //pluginCtx.clearHighlight();
+                //pluginCtx.highlightResidue(e.eventData.residueNumber);
+                pluginCtx.selectResidue(e.eventData.auth_seq_id)
+            } else{
+               pluginCtx.clearSelection(undefined)
             }
         });
 
-        document.addEventListener("PDB.molstar.mouseout", () => {
-            pluginCtx.clearHighlight();
+        document.addEventListener("PDB.molstar.mouseout", (e: any) => {
+            //pluginCtx.clearHighlight();
+            pluginCtx.clearSelection(e.eventData.residueNumber)
         });
     }
 

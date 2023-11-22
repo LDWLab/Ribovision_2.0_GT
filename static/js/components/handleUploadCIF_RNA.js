@@ -33,7 +33,7 @@ export function uploadCustomCIF() {
     vm.customChain='a';
     vm.customEntity=vm.$refs.entity_id.value;
     submitCustomCIF(vm.$refs.customCIFfile.files[0], entity_id);
-    clearInputFile(document.getElementById('uploadCustomPDB'));
+    clearInputFile(document.getElementById('uploadCustomCIF'));
 }
 
 function submitCustomPDB(file){

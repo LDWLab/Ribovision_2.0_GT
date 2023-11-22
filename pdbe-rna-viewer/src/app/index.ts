@@ -42,11 +42,7 @@ class PdbRnaViewerPlugin {
         if(this.apiData) {
             // draw topology
             this.uiTemplateService.render(this.apiData, this.FR3DData, this.FR3DNestedData, this.BanName);
-
-            // Bind to other PDB Component events
-            if(this.options.subscribeEvents){
-                CustomEvents.subscribeToComponentEvents(this);
-            }
+            CustomEvents.subscribeToComponentEvents(this);
 
         } else {
 
@@ -85,23 +81,29 @@ class PdbRnaViewerPlugin {
             };
     
         }
-        
-        document.addEventListener("PDB.molstar.mouseover", ((e: any) => {
-            if(e.eventData && e.eventData.auth_seq_id && e.eventData.auth_asym_id === this.options.chainId) {
-                this.selectResidue(e.eventData.auth_seq_id)
+        // Bind to other PDB Component events
+        //if(this.options.subscribeEvents){
+        //    CustomEvents.subscribeToComponentEvents(this);
+//}
+        //console.log("render")
+        //document.addEventListener("PDB.molstar.mouseover", ((e: any) => {
+        //    console.log(e)
+        //    console.log(this.options.chainId)
+        //    if(e.eventData && e.eventData.auth_seq_id && e.eventData.auth_asym_id === this.options.chainId) {
+        //        this.selectResidue(e.eventData.auth_seq_id)
                 //this.clearHighlight()
-            }
-        })),
-        document.addEventListener("PDB.molstar.mouseout", ((e: any) => {
-            this.clearSelection(e.eventData.residueNumber)
-        }))
+        //    }
+       // })),
+        //document.addEventListener("PDB.molstar.mouseout", ((e: any) => {
+         //   this.clearSelection(e.eventData.residueNumber)
+        //}))
     }
 
     selectResidue(label_seq_id: number, color?: string) {
         UiActionsService.selectNucleotide(this.options.pdbId, this.options.entityId, label_seq_id, 'mouseover', false, color);
     }
 
-    clearSelection(label_seq_id: number) {
+    clearSelection(label_seq_id: any) {
         UiActionsService.unSelectNucleotide(this.options.pdbId, this.options.entityId, label_seq_id, false);
     }
 

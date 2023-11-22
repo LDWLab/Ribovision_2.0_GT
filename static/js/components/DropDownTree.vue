@@ -66,7 +66,7 @@
                         <input id="uploadCustomCIF" class="btn btn-outline-dark" type="file" accept=".cif" ref="customCIFfile" v-on:change="cifFileUploadedFlag=true;" style="margin: 0 1% 0 0;width:100%;"/>
                         <div v-if="cifFileUploadedFlag">
                             <label for="provideEntityID" style="margin: 0 1% 0 0;width:100%;">Provide an Entity ID for a desired RNA chain</label>
-                            <input id="provideEntityID" class="btn btn-outline-dark" type="number" ref="entity_id" v-on:change="uploadCustomCIF()" placeholder="Entity ID" style="margin: 0 1% 0 0;width:100%;"/>
+                            <input id="provideEntityID" class="btn btn-outline-dark" type="number" ref="entity_id" v-on:change="uploadCustomCIF();" placeholder="Entity ID" style="margin: 0 1% 0 0;width:100%;"/>
                         </div>
                     </div>
                     <div v-if="cifPdbMode=='PDB'"> 
@@ -93,7 +93,7 @@
                 <autocomplete isAsync:true :items="blastPDBresult" v-if="alnobj&&alnobj=='custom'" v-model="pdbid"></autocomplete>
                 -->
                 <p>
-                <span v-if="alnobj">Select/type PDB entry:</span>    
+                <span v-if="alnobj&&alnobj!='custom'">Select/type PDB entry:</span>    
                 <autocomplete id="pdb_input" isAsync:true :items="pdbs" v-if="alnobj&&alnobj!='custom'" v-model="pdbid"></autocomplete>
                 </p>
                 <!--
@@ -137,6 +137,13 @@
                 <label><input type="checkbox" v-model="checkedRNA" v-on:change="updateMolStarWithRibosome(checkedRNA)">
                     Show ribosomal context in 3D</label>
             </div></p>
+            <div v-if="structure_mapping&&cifcust">
+            <p><select multiple class="form-control btn-outline-dark" id="polymerSelect3" v-bind:style="{ resize: 'both'}" v-model="modifications" v-if="modified">
+                <label>Select modified residues to highlight</label>
+                <option :value ="null" selected disabled>Select modified residues to highlight</option>
+                <option v-for="[text, k] of modified_residues.entries()" v-bind:value="text" v-bind:key="k" @click="showModificationsCustom();">{{ text }}</option>
+                </select></p>
+            </div>
             <!--
             -->
             <!--
@@ -202,11 +209,13 @@
                     <option v-for="chain in protein_chains" v-bind:value="chain.value" v-bind:key="chain.key" v-bind:id="chain.value" @click="showContacts();">{{ chain.banname}}</option>
                     </select></p>
                 </div>   
+                <div v-if="!cifcust">
                 <p><select multiple class="form-control btn-outline-dark" id="polymerSelect3" v-bind:style="{ resize: 'both'}" v-model="modifications" v-if="modified">
                 <label>Select modified residues to highlight</label>
                 <option :value ="null" selected disabled>Select modified residues to highlight</option>
                 <option v-for="[text, k] of modified_residues.entries()" v-bind:value="text" v-bind:key="k" @click="showModifications();">{{ text }}</option>
                 </select></p>
+                </div>
             </div>
             <!--
             <p><div v-if="alnobj" class="checkbox" id="showFrequencies">
@@ -373,7 +382,11 @@
             }else{
                 this.getPDBchains(pdbid, vm.alnobj.id);
             }
-        },unfilteredChains: function(chain_list){
+        },cif_file_path: function(cif_file_path){
+            this.calculateModifiedCustom(vm.customEntity, cif_file_path);
+        },
+        
+        unfilteredChains: function(chain_list){
             if (!chain_list){return;}
             if (this.type_tree == "para") {aln_id = aln_id.split(',')[1]}
             if (this.type_tree != "upload") {
@@ -513,6 +526,7 @@
             if(domainObj.length == 0){return}
             handleDomainRange(domainObj[0].range);
         },selected_property: function(name){
+
             if (this.uploadSession){return;}
             if (!name){return;}
             if(this.colorSchemeData){this.colorSchemeData = null;}
@@ -757,6 +771,10 @@
             viewerInstanceTop.viewInstance.uiTemplateService.colorMapModifications();  
             showModificationsAndContactsHelper("" + this.entityID);
         },
+        showModificationsCustom() {
+            viewerInstanceTop.viewInstance.uiTemplateService.colorMapModifications();  
+            showModificationsHelper("" + this.customEntity);
+        },
         showContacts() {
             viewerInstanceTop.viewInstance.uiTemplateService.colorMapContacts();  
             showModificationsAndContactsHelper("" + this.entityID);
@@ -901,11 +919,15 @@
                 const associatedDataCache = {};
                 this.associatedDataCache = associatedDataCache;
 
+                if(!(vm.alnobj == "custom")) {
                 const url = `/aln-api/${vm.alnobj.id}/${alignmentLength}`;
                 ajax(url).then(aln_data => {
                     vm.associatedDataCache = aln_data;
                     // console.log("aln_data", aln_data);
+                }).catch(error => {
+                    console.log('No associated data');
                 });
+                }
                 
                 /*const strainQuery = '&res__poldata__strain__strain=';
                 var url = `/desire-api/residue-alignment/?format=json&aln=${vm.alnobj.id}${strainQuery}${zerothFastaSeqName}`;
@@ -1053,7 +1075,10 @@
             showPDBHelper(pdbid, chainid, entityid)
         }, populateECODranges(pdbid, chainid) {
             populateECODranges(pdbid, chainid);
-        }, calculateProteinContacts(pdbid, chainid) {
+        }, calculateModifiedCustom(entity_id, filepath) {
+            calculateModifiedCustom(entity_id, filepath)
+        }, 
+        calculateProteinContacts(pdbid, chainid) {
             vm.mapped_aa_contacts_mods = new Map();
             var url = `protein-contacts/${pdbid}/${chainid}`
             ajax(url).then(data => {

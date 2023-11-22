@@ -86,10 +86,10 @@ var mapAssociatedData = function(associated_data, associated_data_name, topviewe
     // associated_prop.set(associated_data_name, associated_data);
     var associated_prop = new Map();
     associated_prop.set(associated_data_name, associated_data);
-    if (window.associated_prop){
+    if (window.custom_prop){
         window.custom_prop.set(associated_data_name, associated_data)
     } else {
-        window.associated_prop = associated_prop;
+        window.custom_prop = associated_prop;
     }
     topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(associated_prop);
     var associated_option = document.createElement("option");

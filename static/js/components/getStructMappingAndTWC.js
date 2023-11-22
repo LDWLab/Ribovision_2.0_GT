@@ -27,7 +27,7 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
     ajax('/mapSeqAln/', postData).then(structMappingAndData=>{
         var struct_mapping = structMappingAndData["structureMapping"];
         const associatedDataMappedPerType = {
-          "AES" : [[2, 1], [3, 51], [4, 101]]
+         // "AES" : [[2, 1], [3, 51], [4, 101]]
         };
 
         for (const [alignmentIndexAsString, structureIndex] of Object.entries(struct_mapping)) {
@@ -55,7 +55,7 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
 
         vm.AD_headers = [];
         var topviewer = document.getElementById("PdbeTopViewer");
-        associatedDataMappedPerType["Associated Data1"] = associatedDataMappedPerType["Helix"];
+       // associatedDataMappedPerType["Associated Data1"] = associatedDataMappedPerType["Helix"];
         for (const [type, associatedDataMappedPerTypeI] of Object.entries(associatedDataMappedPerType)) {
           associatedDataMappedPerTypeI.sort(function(entry0, entry1) {
             return entry0[0] - entry1[0];
@@ -197,7 +197,7 @@ var tryCustomTopology = function (pdbid, entityid, chainid){
       console.log('RNA_full_sequence3', seq1);
       vm.getR2DT(seq1);
       vm.URL = `r2dt/${entityid}`
-      var topology_viewer = `<pdb-rna-viewer id="PdbeTopViewer" pdb-id="${pdbid}" entity-id="${entityid}" chain-id="${chainid}" rv-api="true" ></pdb-rna-viewer>` 
+      var topology_viewer = `<pdb-rna-viewer id="PdbeTopViewer" pdb-id="${pdbid}" entity-id="${entityid}" chain-id="${chainid}" rv-api="true"></pdb-rna-viewer>` 
       document.getElementById('topview').innerHTML = topology_viewer; 
       window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
       
@@ -207,7 +207,7 @@ var tryCustomTopology = function (pdbid, entityid, chainid){
         }
         // const banName = getBanName(pdbid, 'H')
         vm.json_structures_from_r2dt = parsedResponse;
-        window.viewerInstanceTop.viewInstance.uiTemplateService.render(parsedResponse.RNA_2D_json, parsedResponse.RNA_BP_json, parsedResponse.RNA_BP_json, undefined);
+        window.viewerInstanceTop.viewInstance.uiTemplateService.render(parsedResponse.RNA_2D_json, parsedResponse.RNA_BP_json, parsedResponse.RNA_BP_json, undefined, window.viewerInstanceTop.viewInstance);
       }
       function handle_error(error) {
         var topview = document.querySelector('#topview');
