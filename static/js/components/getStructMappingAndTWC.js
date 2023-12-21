@@ -38,7 +38,17 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
               if (!(type in associatedDataMappedPerType)) {
                 associatedDataMappedPerType[type] = [];
               }
-              value = value.replaceAll(/\D/g, "");
+              //value = value.replaceAll(/\D/g, "");
+              var extractedDigits = value.match(/^\d+_/);
+
+              if (extractedDigits) {
+                value = extractedDigits[0].replace('_', '');
+                console.log(value); // Output: "4"
+              } else {
+                console.log("No digits followed by an underscore found in the input string.");
+              }
+
+              //value = value.replaceAll(/[a-zA-Z0-9_]+/g, "");
               if (value.length === 0) {
                 value = "0";
               }

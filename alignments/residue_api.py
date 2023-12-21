@@ -80,7 +80,12 @@ def recurse_get_fold_lineage(fold_id):
 def aln_info(request, aln_id, aln_length):
     aln_id_to_strain_id_map = {
         38 : "272569",
-        39 : "511145"
+        39 : "511145",
+        256 : "272569",
+        248 : "9606",
+        249 : "9606",
+        250 : "9606"
+        
     }
     ad_annotated_species = aln_id_to_strain_id_map[aln_id]
     aln_info_results = {}

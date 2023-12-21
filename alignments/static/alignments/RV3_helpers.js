@@ -447,6 +447,7 @@ var setGlobalProperties = function(){
         ["Protein contacts",[rainbow]],
         //["TwinCons",[Reds, Greens]],
         ["TwinCons",[Reds, Blues]],
+        ["Helix",[rainbow]],
         //["TwinCons",[RdPu, YlGn]],
     ]);
     window.aaColorData = aaColorData;
