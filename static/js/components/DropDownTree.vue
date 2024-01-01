@@ -112,7 +112,7 @@
                 </p>-->
             <p><select multiple class="form-control btn-outline-dark" id="polymerSelect" v-bind:style="{ resize: 'both'}"  v-if="chains&&fasta_data&&pdbid||uploadSession" v-model="chainid" >
                 <option :value ="null" selected disabled>Select the matching RNA chain to visualize</option>
-                <option v-for="chain in chains" v-bind:key="chain.value" v-bind:value="chain.value" @click="postStructureData(pdbid, chainid); calculateProteinContacts(pdbid, chainid); populateECODranges(pdbid, chainid); showPDBViewer(pdbid, chainid, guideOff ? chain.entityID : RVGuideEntityId);">{{ chain.text }}</option>
+                <option v-for="chain in chains" v-bind:key="chain.value" v-bind:value="chain.value" @click="selectedProteins = []; postStructureData(pdbid, chainid); calculateProteinContacts(pdbid, chainid); populateECODranges(pdbid, chainid); showPDBViewer(pdbid, chainid, guideOff ? chain.entityID : RVGuideEntityId);">{{ chain.text }}</option>
                 <!-- <option v-for="chain in chains" v-bind:key="chain.value" v-bind:value="chain.value" @click="postStructureData(pdbid, chainid); calculateProteinContacts(pdbid, chainid); populateECODranges(pdbid, chainid); showPDBViewer(pdbid, chainid, chain.entityID);">{{ chain.text }}</option> -->
             </select></p>
             <!-- 
@@ -137,6 +137,42 @@
                 <label><input type="checkbox" v-model="checkedRNA" v-on:change="updateMolStarWithRibosome(checkedRNA)">
                     Show ribosomal context in 3D</label>
             </div></p>
+            <div v-if="modified&&cifcust&&structure_mapping">
+                <form @submit.prevent="submitModificationsCustom">
+                    <label>Select modified residues to highlight</label>
+                    <div
+                    id="modSelectCustom"
+                    class="selection-box"
+                    :style="{ backgroundColor: 'white', padding: '10px', border: '1px solid #ddd', marginBottom: '10px', maxHeight: '100px', overflowY: 'auto' }"
+                    >
+                    
+                    <div>
+                        <input
+                            type="checkbox"
+                            id="selectAllModifiedCustom"
+                            v-model="selectAllModifiedCustomChecked"
+                            @change="selectAllModifiedCustomChanged"
+                        />
+                        <label for="selectAllModifiedCustom">Select All</label>
+                        </div>
+                        <div v-for="[text, k] of modified_residues.entries()" :key="k">
+                        <input
+                            type="checkbox"
+                            :id="text"
+                            :value="text"
+                            v-model="selectedResiduesCustom"
+                        />
+                        <label :for="text">{{ text }}</label>
+                        </div>
+                    
+                    </div>
+
+                    <button type="submit">Submit Residues</button>
+                </form>
+            </div>
+            
+            <!--
+
             <div v-if="structure_mapping&&cifcust">
             <p><select multiple class="form-control btn-outline-dark" id="polymerSelect3" v-bind:style="{ resize: 'both'}" v-model="modifications" v-if="modified">
                 <label>Select modified residues to highlight</label>
@@ -144,6 +180,7 @@
                 <option v-for="[text, k] of modified_residues.entries()" v-bind:value="text" v-bind:key="k" @click="showModificationsCustom();">{{ text }}</option>
                 </select></p>
             </div>
+            -->
             <!--
             -->
             <!--
@@ -202,21 +239,90 @@
                         </button></p>
                     </div>
                 </p></div>
-                <div v-if="topology_loaded&&protein_contacts">
+                <!--<div v-if="topology_loaded&&protein_contacts">
                     <p><select multiple class="form-control btn-outline-dark" id="polymerSelect2" v-bind:style="{ resize: 'both'}" v-model="pchainid">
                     <label>Select RNA-protein contacts to view in 3D</label>
                     <option :value ="null" selected disabled>Select RNA-protein contacts to view in 3D</option>
                     <option v-for="chain in protein_chains" v-bind:value="chain.value" v-bind:key="chain.key" v-bind:id="chain.value" @click="showContacts();">{{ chain.banname}}</option>
                     </select></p>
-                </div>   
-                <div v-if="!cifcust">
+                </div>-->
+                
+  <div v-if="topology_loaded && protein_contacts">
+    <form @submit.prevent="submitProteins">
+      <label>Select RNA-protein contacts to view in 3D</label>
+      <div
+        id="proteinSelect"
+        class="selection-box"
+        :style="{ backgroundColor: 'white', padding: '10px', border: '1px solid #ddd', marginBottom: '10px', maxHeight: '100px', overflowY: 'auto' }"
+      >
+        <div>
+          <input
+            type="checkbox"
+            id="selectAllProteins"
+            v-model="selectAllProteinsChecked"
+            @change="selectAllProteinsChanged"
+          />
+          <label for="selectAllProteins">Select All</label>
+        </div>
+        <div v-for="chain in protein_chains" :key="chain.key">
+          <input
+            type="checkbox"
+            :id="chain.value"
+            :value="chain.value"
+            v-model="selectedProteins"
+          />
+          <label :for="chain.value">{{ chain.banname }}</label>
+        </div>
+      </div>
+
+      <button type="submit">Submit Proteins</button>
+    </form>
+  </div>
+
+
+              <!--  <div v-if="!cifcust">
                 <p><select multiple class="form-control btn-outline-dark" id="polymerSelect3" v-bind:style="{ resize: 'both'}" v-model="modifications" v-if="modified">
                 <label>Select modified residues to highlight</label>
                 <option :value ="null" selected disabled>Select modified residues to highlight</option>
                 <option v-for="[text, k] of modified_residues.entries()" v-bind:value="text" v-bind:key="k" @click="showModifications();">{{ text }}</option>
                 </select></p>
                 </div>
-            </div>
+             -->
+
+    <div v-if="modified&&!cifcust">
+  <form @submit.prevent="submitModifications">
+    <label>Select modified residues to highlight</label>
+    <div
+      id="modSelect"
+      class="selection-box"
+      :style="{ backgroundColor: 'white', padding: '10px', border: '1px solid #ddd', marginBottom: '10px', maxHeight: '100px', overflowY: 'auto' }"
+    >
+      
+      <div>
+          <input
+            type="checkbox"
+            id="selectAllModified"
+            v-model="selectAllModifiedChecked"
+            @change="selectAllModifiedChanged"
+          />
+          <label for="selectAllModified">Select All</label>
+        </div>
+        <div v-for="[text, k] of modified_residues.entries()" :key="k">
+          <input
+            type="checkbox"
+            :id="text"
+            :value="text"
+            v-model="selectedResidues"
+          />
+          <label :for="text">{{ text }}</label>
+        </div>
+      
+    </div>
+
+    <button type="submit">Submit Residues</button>
+  </form>
+</div>
+  </div>
             <!--
             <p><div v-if="alnobj" class="checkbox" id="showFrequencies">
                 <label><input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">
@@ -563,7 +669,7 @@
 // 
                 } else {
                     //assume custom data
-                    console.log('CD_name', name);
+                    //console.log('CD_name', name);
                     if (this.structure_mapping && window.custom_prop){
                         var customProp = window.custom_prop.get(name);
                         window.aaFreqs.forEach(function(aaFr, alnIx){
@@ -639,7 +745,42 @@
                 this.cdhitSelectedOpt = null;
             }
         }
+  
     },methods: {
+       
+    submitProteins() {
+      this.pchainid = this.selectedProteins
+      this.showContacts()
+    },
+    selectAllProteinsChanged() {
+      if (this.selectAllProteinsChecked) {
+        this.selectedProteins = this.protein_chains.map(chain => chain.value);
+      } else {
+        this.selectedProteins = [];
+      }
+    },
+    submitModifications() {
+      this.modifications = this.selectedResidues
+      this.showModifications()
+    },
+    submitModificationsCustom() {
+      this.modifications = this.selectedResiduesCustom
+      this.showModificationsCustom()
+    },
+    selectAllModifiedCustomChanged() {
+      if (this.selectAllModifiedCustomChecked) {
+        this.selectedResiduesCustom = Array.from(this.modified_residues.keys())
+      } else {
+        this.selectedResiduesCustom = [];
+      }
+    },
+    selectAllModifiedChanged() {
+      if (this.selectAllModifiedChecked) {
+        this.selectedResidues = Array.from(this.modified_residues.keys())
+      } else {
+        this.selectedResidues = [];
+      }
+    },
         uploadCustomFullSequence: function() {
             uploadCustomFullSequence();
         },
@@ -776,6 +917,7 @@
             showModificationsHelper("" + this.customEntity);
         },
         showContacts() {
+            //console.log("Top contacts")
             viewerInstanceTop.viewInstance.uiTemplateService.colorMapContacts();  
             showModificationsAndContactsHelper("" + this.entityID);
         },

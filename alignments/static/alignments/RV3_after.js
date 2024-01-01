@@ -9,14 +9,14 @@ var registerHoverResiData = function (e, tooltipObj){
     if (index !== -1){
       url=url.substring(0, index)
     }
-    console.log('url', url);
+    //console.log('url', url);
     ajax(url).then(alnpos_data => {
       var alnViewCanvasEle = document.querySelector("#alnDiv canvas:nth-of-type(1)");
       var alnViewLabelsEle = document.querySelector("#alnViewerLabels");
       let boundLabelBox = alnViewLabelsEle.getBoundingClientRect();
       let boundingBox = absolutePosition(alnViewCanvasEle);
       let relativeBox = alnViewCanvasEle.getBoundingClientRect();
-      console.log('alnpos_data', alnpos_data.count );
+      //console.log('alnpos_data', alnpos_data.count );
       if (alnpos_data.count != 0){
           ajax('/resi-api/' + alnpos_data["results"][0]["res"].split("/")[5]).then(resiData => {
               if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right){
@@ -24,7 +24,7 @@ var registerHoverResiData = function (e, tooltipObj){
                   top: mousePos.y-boundingBox.top+15 +"px",
                   left: mousePos.x-relativeBox.left+boundLabelBox.right-boundLabelBox.left+8 +"px",
                 };
-                console.log('AD1',resiData["Associated data"]);
+                //console.log('AD1',resiData["Associated data"]);
                 if (resiData["Associated data"][0] !== undefined){
                     tooltipObj.setState({
                     
@@ -247,7 +247,7 @@ var registerHoverResiData = function (e, tooltipObj){
   function cleanCustomMap(checked_customMap){
       if (vm.uploadSession){return;}
       var topviewer = document.getElementById("PdbeTopViewer");
-      console.log("topviewer_RV310", topviewer.viewInstance.uiTemplateService.domainTypes);
+      //console.log("topviewer_RV310", topviewer.viewInstance.uiTemplateService.domainTypes);
       if (!topviewer || !topviewer.viewInstance.uiTemplateService.domainTypess){
           if (checked_customMap){return;}
           var sliceAvailProp = Array.prototype.slice.call(vm.available_properties).filter(availProp => {
@@ -258,7 +258,7 @@ var registerHoverResiData = function (e, tooltipObj){
           vm.available_properties = newArray;
           return;
       }
-      console.log("topviewer_RV320", topviewer.viewInstance.targetEle);
+      //console.log("topviewer_RV320", topviewer.viewInstance.targetEle);
       //var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
       //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.menuSelectbox');
       var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
@@ -317,7 +317,7 @@ var registerHoverResiData = function (e, tooltipObj){
       window.aaPropertyConstants.set(custom_data_name, [Math.min(...vals), Math.max(...vals)]);
       //let coilsOutOfCustom = vm.coil_residues.filter(value => !indexes.includes(value));
       //window.coilsOutOfCustom = coilsOutOfCustom;
-      console.log('CD1', custom_data_name, custom_data );
+      //console.log('CD1', custom_data_name, custom_data );
       var custom_prop = new Map();
       custom_prop.set(custom_data_name, custom_data);
       if (window.custom_prop){
@@ -347,7 +347,8 @@ var registerHoverResiData = function (e, tooltipObj){
     
     let vals = associated_data.map(function(v){ return v[1] });
     let indexes =  associated_data.map(function(v){ return v[0] });
-    window.aaColorData.set(associated_data_name, [viridis]);
+    //window.aaColorData.set(associated_data_name, [viridis]);
+    window.aaColorData.set(associated_data_name, [rainbow]);
     window.aaPropertyConstants.set( associated_data_name, [Math.min(...vals), Math.max(...vals)]);
     //let coilsOutOfCustom = vm.coil_residues.filter(value => !indexes.includes(value));
     //window.coilsOutOfCustom = coilsOutOfCustom;
@@ -368,9 +369,9 @@ var registerHoverResiData = function (e, tooltipObj){
     //custom_option.setAttribute("value", selectBoxEle.options.length);
     //custom_option.appendChild(document.createTextNode(custom_data_name));
     //selectBoxEle.appendChild(custom_option);
-    if (!vm.available_properties.some(prop => prop.Name === associated_data_name)){
-        vm.available_properties.push({Name:associated_data_name, url:"static/alignments/svg/Custom.svg"})
-    }
+    //if (!vm.available_properties.some(prop => prop.Name === associated_data_name)){
+    //    vm.available_properties.push({Name:associated_data_name, url:"static/alignments/svg/Custom.svg"})
+    //}
     if(vm.correct_mask) {
         var j = topviewer.viewInstance.uiTemplateService.domainTypes.length-1;
         colorResidue(j, window.masked_array);

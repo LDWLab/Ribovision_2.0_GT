@@ -553,7 +553,7 @@
               placement: 'right'
             },
         },{
-            target: '#polymerSelect2',
+            target: '#proteinSelect',
             header : {
                 title: 'Select RNA-protein contacts to visualize'
             },
@@ -563,16 +563,16 @@
             },
             before: type => new Promise((resolve, reject) => {
                 const newValue = "50S ribosomal protein L25";
-                var polymerSelect2 = document.querySelector("#polymerSelect2");
+                //var polymerSelect2 = document.querySelector("#polymerSelect2");
 
                 var topviewer = document.getElementById("PdbeTopViewer");
                 
                 
                 
-                polymerSelect2.value = newValue;
-                polymerSelect2.dispatchEvent(new Event('change'))
+                //polymerSelect2.value = newValue;
+                //polymerSelect2.dispatchEvent(new Event('change'))
+                vm.selectedProteins = ['f'];
                 vm.pchainid = ['f'];
-                var pchainid = ['f'];
                 const newEntityID = 23;
                 
                 vm.entityID = newEntityID;

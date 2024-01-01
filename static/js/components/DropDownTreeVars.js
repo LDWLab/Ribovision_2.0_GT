@@ -17,6 +17,12 @@ export function initialState (){
         available_properties: [
             {Name:"Shannon entropy", url:"static/alignments/svg/ShannonNA.svg"},
             ],
+        selectAllProteinsChecked: false,
+        selectedProteins: [],
+        selectAllModifiedChecked: false,
+        selectedResidues: [],
+        selectAllModifiedCustomChecked: false,
+        selectedResiduesCustom: [],
         domain_list: null,
         selected_domain: [],
         pdbid: null,

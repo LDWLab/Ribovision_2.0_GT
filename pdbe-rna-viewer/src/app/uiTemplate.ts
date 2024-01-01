@@ -29,6 +29,7 @@ export class UiTemplateService {
     pathStrs: string[] = [];  
     nucleotideStrs: string[] = [];
     circleStrs: string[] = [];
+    banNameMap: Map<string, JSON | undefined> = new Map();
     baseStrs: Map <string, [boolean, string[]]> = new Map();
     nestedBaseStrs: Map <string, [boolean, string[]]> = new Map();
     displayBaseStrs: string;
@@ -148,6 +149,24 @@ export class UiTemplateService {
         circle.style.display = "block";
     }
     colorMap=() => {
+        const tempDomain =  this.domainTypes.find(item => item.label === 'Shannon entropy');
+        if (tempDomain) {
+            tempDomain.data.forEach((val:any, i:number) => {
+                if(val != undefined && val.start != undefined) {
+                    UiActionsService.colorNucleotide(this.pluginOptions.pdbId, val.start, 'rgb(0,0,0)', undefined, this.mappingValue);
+                    let cPath = `circle_${this.pluginOptions.pdbId}_${val.start}`;
+                    let nPath = `rnaviewEle rnaviewEle_${this.pluginOptions.pdbId} rnaview_${this.pluginOptions.pdbId}_${val.start}`;
+                    if(document.getElementsByClassName(nPath).length > 0) {
+                        (<HTMLElement>document.getElementsByClassName(nPath)[0]).setAttribute('onmouseover', document.getElementsByClassName(nPath)[0].getAttribute('onmouseover')!.split(';')[0]);
+                        (<HTMLElement>document.getElementsByClassName(nPath)[0]).setAttribute('onmouseout', document.getElementsByClassName(nPath)[0].getAttribute('onmouseout')!.split(';')[0]);
+                    }
+                    if(document.getElementsByClassName(cPath).length > 0) {
+                        (<HTMLElement>document.getElementsByClassName(cPath)[0]).setAttribute('onmouseover', document.getElementsByClassName(cPath)[0].getAttribute('onmouseover')!.split(';')[0]);
+                        (<HTMLElement>document.getElementsByClassName(cPath)[0]).setAttribute('onmouseout', document.getElementsByClassName(cPath)[0].getAttribute('onmouseout')!.split(';')[0]);
+                    }
+                }
+            });
+        }
         const selectBoxEle:any = this.containerElement.querySelector<HTMLElement>('.mappingSelectbox');
         const selectedValue = parseInt(selectBoxEle.value);
         if(selectedValue) {
@@ -159,11 +178,48 @@ export class UiTemplateService {
                             //this.drawCircle(this.pluginOptions.pdbId, val.start, val.color);
                             //UiActionsService.colorNucleotide(this.pluginOptions.pdbId, val.start, val.color);
                             UiActionsService.colorNucleotide(this.pluginOptions.pdbId, val.start, val.color, undefined, this.mappingValue);
+                            
+                            if (['helix', 'aes', 'phase'].includes(selectedDomain.label.toLowerCase()) && val.start in this.rv3VUEcomponent.struct_to_alignment_mapping) {
+                                let align_index = this.rv3VUEcomponent.struct_to_alignment_mapping[val.start]
+                                let circlePath = `circle_${this.pluginOptions.pdbId}_${val.start}`;
+                                let path = `rnaviewEle rnaviewEle_${this.pluginOptions.pdbId} rnaview_${this.pluginOptions.pdbId}_${val.start}`;
+                                if (align_index in this.rv3VUEcomponent.associatedDataCache) {
+                                    for (let {type, value} of this.rv3VUEcomponent.associatedDataCache[align_index]) {
+                                        if (type == selectedDomain.label) {
+                                            let tooltip = type + ' ' + value;
+                                            this.toolTips.set(val.start, tooltip);
+                                            (<HTMLElement>document.getElementsByClassName(circlePath)[0]).setAttribute(
+                                                'onmouseover',
+                                                document.getElementsByClassName(circlePath)[0].getAttribute('onmouseover')!.split(';')[0] +
+                                                `;UiActionsService.showTooltip(evt, '${tooltip}', '${circlePath}', '${val.color}','${val.color}')`
+                                            );
+                                            (<HTMLElement>document.getElementsByClassName(circlePath)[0]).setAttribute(
+                                                'onmouseout',
+                                                document.getElementsByClassName(circlePath)[0].getAttribute('onmouseout')!.split(';')[0] +
+                                                `;UiActionsService.hideTooltip('${circlePath}')`
+                                            );
+                                            if ((<HTMLElement>document.getElementsByClassName(path)[0])) {
+                                                (<HTMLElement>document.getElementsByClassName(path)[0]).setAttribute(
+                                                'onmouseover',
+                                                document.getElementsByClassName(path)[0].getAttribute('onmouseover')!.split(';')[0] +
+                                                    `;UiActionsService.showTooltip(evt, '${tooltip}', '${path}', '${val.color}', '${val.color}')`
+                                                );
+                                                (<HTMLElement>document.getElementsByClassName(path)[0]).setAttribute(
+                                                'onmouseout',
+                                                document.getElementsByClassName(path)[0].getAttribute('onmouseout')!.split(';')[0] +
+                                                    `;UiActionsService.hideTooltip('${path}')`
+                                                );
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 });
             } 
-        } else {
+        } /* else {
+            
             const tempDomain = this.domainTypes[1];
             if (tempDomain.data) {
                 tempDomain.data.forEach((val:any, i:number) => {
@@ -174,7 +230,8 @@ export class UiTemplateService {
             }
             this.colorMapContacts()
             this.colorMapModifications()
-        }
+            
+        }*/
     }
     colorMapHelper=() => {
         var mappingDropdown = (<HTMLSelectElement>this.containerElement.querySelector<HTMLElement>('.mappingSelectbox'));
@@ -224,7 +281,7 @@ export class UiTemplateService {
         this.addEvents(this.apiData!, BanNameHelper.getBanName(this.pluginOptions.pdbId, ''))
     }
     colorMapModifications=() => {
-        if(this.rv3VUEcomponent.pchainid.length > 0 && this.rv3VUEcomponent.selected_property != "Select data") {
+        if(this.rv3VUEcomponent.modifications.length > 0 && this.rv3VUEcomponent.selected_property != "Select data") {
             this.rv3VUEcomponent.selected_property = "Select data"
         }
         this.mapped_modifications.forEach((val) => {   
@@ -263,7 +320,8 @@ export class UiTemplateService {
         }
         this.addEvents(this.apiData!)
     }
-    changeBP(val: string, flag : boolean | undefined = undefined) {
+    changeBP(val: string, e: Event | undefined = undefined, flag : boolean | undefined = undefined) {
+        //Figure out what flag is doing
         this.displayBaseStrs = '';
         this.displayNestedBaseStrs = '';
         const allBP = this.containerElement.querySelector<HTMLInputElement>('#Checkbox_All')!.checked
@@ -468,19 +526,19 @@ export class UiTemplateService {
                     this.getAssociatedAnnotations(separatedData, min, max, this.pluginOptions.chainId);
                     
                 }; 
-                if  (name == "Helix"){
+                if  (name == "Helix" || name == "helix"){
                     
                     this.getHelicalAnnotations(separatedData, min, max, this.pluginOptions.chainId);
                     
                 };
                 
-                if  (name == "Phase"){
+                if  (name == "Phase" || name == 'phase'){
                     
                     this.getPhaseAnnotations(separatedData, min, max, this.pluginOptions.chainId);
                     
                 };
-                if  (name == "AES"){
-                    console.log('name_AES', name, this.getExpansionAnnotations(separatedData, min, max, this.pluginOptions.chainId))
+                if  (name == "AES" || name == 'aes'){
+                    //console.log('name_AES', name, this.getExpansionAnnotations(separatedData, min, max, this.pluginOptions.chainId))
                     this.getExpansionAnnotations(separatedData, min, max, this.pluginOptions.chainId);
                     
                 };
@@ -750,17 +808,27 @@ export class UiTemplateService {
         } else if(selectedValue == 1) {
             (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(`rnaTopoSvg_${this.pluginOptions.pdbId}`)[0].innerHTML = this.pathStrs.join('') + this.circleStrs.join('') + displayBP;
         } else if(selectedValue == 2) {
+            (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(`rnaTopoSvg_${this.pluginOptions.pdbId}`)[0].innerHTML = this.nucleotideStrs.join('') + this.circleStrs.join('') + displayBP;
             this.mappingValue = 'circle';
         } 
-        if(e) {
+        //if(e) {
             //this.containerElement.querySelector<HTMLInputElement>('.mappingSelectbox')!.value="0";
-            this.colorMap()
-        }
+        this.colorMap()
+        //}
+        //console.log("Path or nucleotide!")
         this.colorMapContacts()
         this.colorMapModifications()
     }
     
-    private addEvents(apiData: ApiData,  BanName:any= undefined) {
+    
+    private async addEvents(apiData: ApiData,  BanName:any= undefined) {
+
+        if (this.rv3VUEcomponent.protein_contacts) {
+            let proteinContactsValues = Object.keys(this.rv3VUEcomponent.protein_contacts);
+            for (const val of proteinContactsValues) {
+              await BanNameHelper.getBanName(this.pluginOptions.pdbId, val);
+            }
+          }
         /*
         const lastPathIndex = apiData.svg_paths.length - 1;
         let strokeColor = this.pluginOptions.theme?.color || '#323232';
@@ -833,7 +901,59 @@ export class UiTemplateService {
                     
                 }
             });
-           
+            const _this = this;
+            async function processContacts(contacts: Map<number, string[]>) {
+                await Promise.all(
+                  Array.from(contacts.entries()).map(async ([key, value]) => {
+                    let tooltip = "Contact:";
+                    let circlePath = `circle_${_this.pluginOptions.pdbId}_${key}`;
+                    let path = `rnaviewEle rnaviewEle_${_this.pluginOptions.pdbId} rnaview_${_this.pluginOptions.pdbId}_${key}`;
+                    let chain = '';
+                    let promises = [];
+              
+                    for (let val of value) {
+                      promises.push(BanNameHelper.getBanName(_this.pluginOptions.pdbId, val));
+                      chain = val;
+                    }
+              
+                    const banNames = await Promise.all(promises);
+              
+                    banNames.forEach((BanName:any, index) => {
+                      if (BanName) {
+                        tooltip += ` ${BanName[0]}; chain: ${chain}`;
+                      } else {
+                        tooltip = `chain: ${chain}`;
+                      }
+              
+                      _this.toolTips.set(key, tooltip);
+                      (<HTMLElement>document.getElementsByClassName(circlePath)[0]).setAttribute(
+                        'onmouseover',
+                        document.getElementsByClassName(circlePath)[0].getAttribute('onmouseover')!.split(';')[0] +
+                          `;UiActionsService.showTooltip(evt, '${tooltip}', '${circlePath}', '${_this.rv3VUEcomponent.proteinColorMap.get(chain)}', '${_this.rv3VUEcomponent.proteinColorMap.get(chain)}')`
+                      );
+                      (<HTMLElement>document.getElementsByClassName(circlePath)[0]).setAttribute(
+                        'onmouseout',
+                        document.getElementsByClassName(circlePath)[0].getAttribute('onmouseout')!.split(';')[0] +
+                          `;UiActionsService.hideTooltip('${circlePath}')`
+                      );
+                      if ((<HTMLElement>document.getElementsByClassName(path)[0])) {
+                        (<HTMLElement>document.getElementsByClassName(path)[0]).setAttribute(
+                          'onmouseover',
+                          document.getElementsByClassName(path)[0].getAttribute('onmouseover')!.split(';')[0] +
+                            `;UiActionsService.showTooltip(evt, '${tooltip}', '${path}', '${_this.rv3VUEcomponent.proteinColorMap.get(chain)}', '${_this.rv3VUEcomponent.proteinColorMap.get(chain)}')`
+                        );
+                        (<HTMLElement>document.getElementsByClassName(path)[0]).setAttribute(
+                          'onmouseout',
+                          document.getElementsByClassName(path)[0].getAttribute('onmouseout')!.split(';')[0] +
+                            `;UiActionsService.hideTooltip('${path}')`
+                        );
+                      }
+                    });
+                  })
+                );
+              }
+              await processContacts(contacts)
+            /*
             contacts.forEach((value: string[], key: number) => {
                 let tooltip = "Contact:"
                 let circlePath = `circle_${this.pluginOptions.pdbId}_${key}`
@@ -844,15 +964,14 @@ export class UiTemplateService {
                 //let BanProtName = ''
                 for (let val in value) {
 
-
                     promises.push(BanNameHelper.getBanName(this.pluginOptions.pdbId, value[val]));
-
+                    
                     
                     chain = value[val];
 
                 }
 
-                Promise.all(promises).then ((banNames : Array<any>) => {
+                /*Promise.all(promises).then ((banNames : Array<any>) => {
                         
                     banNames.forEach(BanName => {
                         if (BanName.length > 0) {
@@ -862,6 +981,14 @@ export class UiTemplateService {
                         }
                   
                         });
+                const banNames = await Promise.all(promises);
+
+                banNames.forEach((BanName, index) => {
+                    if (BanName.length > 0) {
+                    tooltip += " " + BanName[0] + "; chain: " + chain;
+                    } else {
+                    tooltip = "chain: " + chain;
+                    }
                         
                 this.toolTips.set(key, tooltip);
                 (<HTMLElement>document.getElementsByClassName(circlePath)[0]).setAttribute('onmouseover', document.getElementsByClassName(circlePath)[0].getAttribute('onmouseover')!.split(';')[0] + `;UiActionsService.showTooltip(evt, '${tooltip}', '${circlePath}', '${this.rv3VUEcomponent.proteinColorMap.get(chain)}', '${this.rv3VUEcomponent.proteinColorMap.get(chain)}')`);
@@ -876,7 +1003,7 @@ export class UiTemplateService {
                
 
 
-            });
+            });*/
             chem_mods.forEach((value: string[], key: number) => {
                 let tooltip = "Modified_nucleotide:"
                 let circlePath = `circle_${this.pluginOptions.pdbId}_${key}`
@@ -934,12 +1061,8 @@ export class UiTemplateService {
         var locations3: Map<any, number[]> = new Map();
         if(this.pluginOptions.pdbId == "cust") {
             lastPathIndex = lastPathIndex - 2
-            console.log(lastPathIndex)
             apiData.svg_paths.forEach((pathStr: string, recordIndex: number) => {
-                console.log(recordIndex)
-                console.log(recordIndex == lastPathIndex + 1)
                 if(recordIndex == 0 || recordIndex >= lastPathIndex + 1) return;
-                console.log("parsing")
                 let pathStrParsed:string[] = pathStr.split('M').join(',').split(',')
                 let xVal:number = Number(pathStrParsed[3]) 
                 let yVal:number = Number(pathStrParsed[4])
@@ -968,9 +1091,6 @@ export class UiTemplateService {
         });
        }
         apiData.svg_paths.forEach((pathStr: string, recordIndex: number) => {
-            console.log(lastPathIndex)
-            console.log(recordIndex)
-            console.log(pathStr)
             //if(recordIndex === 0 || recordIndex === 1 || recordIndex === (lastPathIndex + 1)) return;
             if(recordIndex === 0 || recordIndex === 1 || recordIndex >= (lastPathIndex + 1)) return;
             const pathEleClass = `rnaviewEle rnaviewEle_${this.pluginOptions.pdbId} rnaview_${this.pluginOptions.pdbId}_${apiData.label_seq_ids[recordIndex - 1]}`;

@@ -38,7 +38,7 @@ class PdbRnaViewerPlugin {
 
 
         this.uiTemplateService = new UiTemplateService(this.targetEle, this.options, this.apiData);
-        console.log("API", this.options.pdbId, this.apiData);
+        //console.log("API", this.options.pdbId, this.apiData);
         if(this.apiData) {
             // draw topology
             this.uiTemplateService.render(this.apiData, this.FR3DData, this.FR3DNestedData, this.BanName);

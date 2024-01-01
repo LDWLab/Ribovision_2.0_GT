@@ -22,7 +22,7 @@ const Series = (name, i) => {
                                  
 let series = ['A', 'B', 'C', 'D', 'E',].map(Series)
 
-console.log(series)
+//console.log(series)
 
 const mean = (m) => m.mean
 const sd = (m) => m.sd
@@ -106,7 +106,7 @@ let data = [
     traceBoxplotIQR(series),
     ...series.map(traceBoxpointsScatter)
 ]
-console.log(data)
+//console.log(data)
 let range = [10, -1.1]
 let chart = document.getElementById('myDiv')
 

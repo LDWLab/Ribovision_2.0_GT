@@ -69,7 +69,7 @@ export class DataService {
     }
 
 }
-export class BanNameHelper {
+/*export class BanNameHelper {
     public static async getBanName(pdbId : string, PchainId : string): Promise<JSON | undefined> {   
            try {
                const apiUrl = `https://api.ribosome.xyz/neo4j/get_banclass_for_chain/?pdbid=${pdbId}&auth_asym_id=${PchainId}&format=json`  
@@ -79,4 +79,35 @@ export class BanNameHelper {
                return void 0;
            };
        }
-    }
+    }*/
+
+    export class BanNameHelper {
+        private static banNameMap: Map<string, JSON | undefined> = new Map();
+      
+        public static async getBanName(pdbId: string, PchainId: string): Promise<JSON | undefined> {
+          const cacheKey = `${pdbId}_${PchainId}`;
+      
+          // Check if the value is in the map
+          if (BanNameHelper.banNameMap.has(cacheKey)) {
+            //console.log(`Using map value for ${cacheKey}`);
+            return BanNameHelper.banNameMap.get(cacheKey);
+          }
+      
+          try {
+            const apiUrl = `https://api.ribosome.xyz/neo4j/get_banclass_for_chain/?pdbid=${pdbId}&auth_asym_id=${PchainId}&format=json`;
+      
+            const response = await fetch(apiUrl);
+            const jsonData = await response.json() as JSON;
+      
+            // Store the value in the map
+            BanNameHelper.banNameMap.set(cacheKey, jsonData);
+      
+            return jsonData;
+          } catch (e) {
+            console.error(`Error fetching ban name for ${cacheKey}`, e);
+            return void 0;
+          }
+        }
+      }
+      
+      
