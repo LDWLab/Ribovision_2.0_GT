@@ -1253,8 +1253,10 @@
                                 color: color[1],
                                 sideChain: false,
                             });
-                            var protein_name = vm.protein_chains.filter(e => e.value == val)[0].text
-                            vm.mapped_aa_contacts_mods.get("Protein Contacts").push([vm.protein_contacts[val][j], protein_name])
+                            var protein_name = vm.protein_chains.filter(e => e.value === val)[0]?.text;
+                            if (protein_name) {
+                            vm.mapped_aa_contacts_mods.get("Protein Contacts").push([vm.protein_contacts[val][j], protein_name]);
+                            }
                         }
                     }                    
                     vm.proteinColorMap = colorMap;
