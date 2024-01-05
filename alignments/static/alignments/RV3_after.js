@@ -19,6 +19,7 @@ var registerHoverResiData = function (e, tooltipObj){
       //console.log('alnpos_data', alnpos_data.count );
       if (alnpos_data.count != 0){
           ajax('/resi-api/' + alnpos_data["results"][0]["res"].split("/")[5]).then(resiData => {
+            /*
               if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right){
                 let tooltipPosition = {
                   top: mousePos.y-boundingBox.top+15 +"px",
@@ -39,6 +40,7 @@ var registerHoverResiData = function (e, tooltipObj){
                   });
                 }
               }
+              */
               window.ajaxRun = false;
           });
       }else{
