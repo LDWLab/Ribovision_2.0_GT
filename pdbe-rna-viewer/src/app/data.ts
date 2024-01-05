@@ -89,20 +89,30 @@ export class DataService {
       
           // Check if the value is in the map
           if (BanNameHelper.banNameMap.has(cacheKey)) {
-            //console.log(`Using map value for ${cacheKey}`);
+         
             return BanNameHelper.banNameMap.get(cacheKey);
           }
+          const vm = (window as any).vm;
       
           try {
-            const apiUrl = `https://api.ribosome.xyz/neo4j/get_banclass_for_chain/?pdbid=${pdbId}&auth_asym_id=${PchainId}&format=json`;
-      
-            const response = await fetch(apiUrl);
-            const jsonData = await response.json() as JSON;
-      
-            // Store the value in the map
-            BanNameHelper.banNameMap.set(cacheKey, jsonData);
-      
-            return jsonData;
+           
+            var matches = vm.unfilteredChains_orig.filter(function(entry:any) {
+            return entry.in_chains.includes(PchainId);
+            });
+
+            for (let chain of vm.protein_chains){
+                if (matches.length === 0) {
+                    console.log('pchainID',PchainId);
+                }     
+                chain.banname_2D=matches[0].molecule_name[0].replace('Large ribosomal subunit', 'LSU').replace('Small ribosomal subunit', 'SSU');
+            
+            }
+            return matches.map(function(entry : any) {
+
+            return entry.molecule_name[0].replace('Large ribosomal subunit protein ', '').replace('Small ribosomal subunit protein ', '');
+            });       
+            
+
           } catch (e) {
             console.error(`Error fetching ban name for ${cacheKey}`, e);
             return void 0;
