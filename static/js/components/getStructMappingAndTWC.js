@@ -19,6 +19,7 @@ async function getBanName(pdbId, PchainId) {
 }
 
 export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, ebi_sequence, vueObj, full_sequence_from_pdb = ""){
+    vm.structFailed = false
     vm.sequence = ebi_sequence;
     if (vm.fasta_data){
         let cleanFasta = vm.fasta_data.replace(/^>Structure sequence\n(.+\n)+?>/i, ">");
@@ -99,15 +100,20 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
         vm.AD_headers = [];
         var topviewer = document.getElementById("PdbeTopViewer");
        // associatedDataMappedPerType["Associated Data1"] = associatedDataMappedPerType["Helix"];
-        for (const [type, associatedDataMappedPerTypeI] of Object.entries(associatedDataMappedPerType)) {
-          associatedDataMappedPerTypeI.sort(function(entry0, entry1) {
-            return entry0[0] - entry1[0];
-          })
-          const AD_header = type;
-          const ADDataArray = associatedDataMappedPerTypeI;
-          vm.AD_headers.push(AD_header);
-          mapAssociatedData(ADDataArray, AD_header, topviewer);
-        }
+       try{
+          for (const [type, associatedDataMappedPerTypeI] of Object.entries(associatedDataMappedPerType)) {
+            associatedDataMappedPerTypeI.sort(function(entry0, entry1) {
+              return entry0[0] - entry1[0];
+            })
+            const AD_header = type;
+            const ADDataArray = associatedDataMappedPerTypeI;
+            vm.AD_headers.push(AD_header);
+            mapAssociatedData(ADDataArray, AD_header, topviewer);
+          }
+       } catch(error) {
+          console.log("Mapping associated data failed")
+          vm.structFailed = true
+       }
 
         //const AD_header='Associated Data1';
         //const ADDataArray=[[1,1],[2,2],[3,3],[4,6],[5,9]];
@@ -170,8 +176,9 @@ var assignColorsAndStrucMappings = function (vueObj, struct_mapping){
 }
 
 var delayedMapping = function (){
-    
-    if ( typeof viewerInstanceTop === 'undefined' || viewerInstanceTop === null ){
+    console.log("delayed mapping")
+    if ( typeof viewerInstanceTop === 'undefined' || viewerInstanceTop === null || vm.structFailed){
+        console.log("trying custom topo")
         tryCustomTopology(vm.pdbid, vm.entityID, vm.chainid[0]);
     } else {
         viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties);
