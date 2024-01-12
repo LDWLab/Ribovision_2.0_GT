@@ -366,7 +366,9 @@ var registerHoverResiData = function (e, tooltipObj){
     } else {
         window.custom_prop = associated_prop;
     }
+    console.log("getAnnRV1");
     topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(associated_prop);
+    console.log("getAnnRV2");
     //var custom_option = document.createElement("option");
     //custom_option.setAttribute("value", selectBoxEle.options.length);
     //custom_option.appendChild(document.createTextNode(custom_data_name));

@@ -1016,6 +1016,7 @@
                 ajax(`https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/${pdbid.toLowerCase()}`).then(struc_data => {
                     if(vm.unfilteredChains){return;}
                     vm.unfilteredChains = struc_data[pdbid.toLowerCase()];
+                    console.log("Unfiltered chains", vm.unfilteredChains);
                     vm.unfilteredChains_orig = struc_data[pdbid.toLowerCase()];
                 }).catch(error => {
                     console.log(error);

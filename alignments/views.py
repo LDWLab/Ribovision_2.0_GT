@@ -87,8 +87,8 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     ### BE CAREFUL WHEN MERGING THE FOLLOWING LINES TO PUBLIC; PATHS ARE HARDCODED FOR THE APACHE SERVER ###
-    alignmentFileName = "/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/alignment" + fileNameSuffix + ".txt"
-    ebiFileName = "/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/ebi_sequence" + fileNameSuffix + ".txt"
+    alignmentFileName = "/home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/static/alignment" + fileNameSuffix + ".txt"
+    ebiFileName = "/home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/static/ebi_sequence" + fileNameSuffix + ".txt"
     #alignmentFileName = "./static/alignment" + fileNameSuffix + ".txt"
     #ebiFileName = "./static/ebi_sequence" + fileNameSuffix + ".txt"
     mappingFileName = ebiFileName + ".map"
@@ -314,7 +314,7 @@ def proteinTypesDirect(request, concatenatedTaxIds):
             # results = Taxgroups.objects.raw(sql)
             for row in cursor.fetchall():
                 proteinTypesList.append(row[0])
-            filteredList = [s for s in proteinTypesList if s[-3:] == 'RNA']
+            filteredList = [s for s in proteinTypesList if s.find("RNA") !=-1]
             results.append(filteredList)
     context = {'results' : results}
     return JsonResponse(context)
@@ -789,19 +789,8 @@ def r2dt(request, entity_id):
     sequence = "\n".join(sequence_file_lines[1:])
     
     RIBODIR=os.environ['RIBODIR']
-    os.chdir('/rna/r2dt')
+    os.chdir('/home/anton/RiboVision2/rna/R2DT-master')
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
-  
-    newcwd = os.getcwd()
-    with open('sequence10'+str(fileNameSuffix)+'.fasta', 'w') as f:
-        f.write('>Sequence\n')
-        f.write(sequence)
-        f.close()       
-    output = f"/rna/r2dt/R2DT-test20{fileNameSuffix}"    
-    cmd = f'python3 r2dt.py draw --skip_ribovore_filters {newcwd}/sequence10{fileNameSuffix}.fasta {output}'
-    os.system(cmd)
-    filename = '' 
-    # pull cif_mode_flag from POST
     if request.method == "POST":
         
         cif_mode_flag = keys["cif_mode_flag"]#request.POST["cif_mode_flag"]
@@ -816,25 +805,48 @@ def r2dt(request, entity_id):
     else:
         cif_mode_flag = None
 
-    for topdir, dirs, files in os.walk(f'{output}/results/json'):
-        firstfile = sorted(files)[0]
-        
-        filename = os.path.join(topdir, firstfile)  
+    newcwd = os.getcwd()
+    with open('sequence10'+str(fileNameSuffix)+'.fasta', 'w') as f:
+        f.write('>Sequence\n')
+        f.write(sequence)
+        f.close()       
+    output = f"/home/anton/RiboVision2/rna/R2DT-master/R2DT-test20{fileNameSuffix}"    
+     
     
+    cmd = f'python3 r2dt.py draw  {newcwd}/sequence10{fileNameSuffix}.fasta {output}' # --skip_ribovore_filters 
+    os.system(cmd)
+    
+    filename = '' 
+    print('output_dir', output)
+    
+    files = os.listdir(os.path.join(output, "results/json"))
+    
+    print('json_file',  files)
+    
+    if len(files) == 0:
+        print('reached here')
+        # clean up
+        shutil.rmtree(output)
+        
+        cmd = f'python3 r2dt.py draw --skip_ribovore_filters {newcwd}/sequence10{fileNameSuffix}.fasta {output}' 
+        os.system(cmd)
+        
+    files = os.listdir(os.path.join(output, "results/json"))
+    filename = os.path.join(output, "results/json", files[0])
     
     files_to_remove = []
 
     if (cif_mode_flag is None) or (not cif_mode_flag):
         #FOR NONE OR PDB modes
         #cmd = f'/usr/bin/python3 {newcwd}/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
-        cmd = f'/usr/bin/python3 /rna/r2dt/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
+        cmd = f'/usr/bin/python3 /home/anton/RiboVision2/rna/R2DT-master/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
     else:
         #FOR CIF MODE
         cif_file_path = keys["cif_file_path"]#request.POST["cif_file_path"]
         #files_to_remove.append(cif_file_path)
         print('r2dt results parsing cif')
         print('cif_file_path')
-        cmd = f'python3 /rna/r2dt/parse_cif4.py -ij {filename} -ic {cif_file_path} -ie {entity_id} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
+        cmd = f'python3 /home/anton/RiboVision2/rna/R2DT-master/parse_cif4.py -ij {filename} -ic {cif_file_path} -ie {entity_id} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
         print('r2dt cif parsed')
     os.system(cmd)
 

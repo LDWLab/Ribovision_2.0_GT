@@ -93,6 +93,11 @@ export class DataService {
             return BanNameHelper.banNameMap.get(cacheKey);
           }
           const vm = (window as any).vm;
+
+          if (!vm || !vm.unfilteredChains_orig) {
+            console.error("vm or vm.unfilteredChains_orig is not defined");
+            return void 0; // or handle the error appropriately
+          }
       
           try {
            
@@ -103,7 +108,7 @@ export class DataService {
             for (let chain of vm.protein_chains){
                 if (matches.length === 0) {
                     console.log('pchainID',PchainId);
-                }     
+                }
                 chain.banname_2D=matches[0].molecule_name[0].replace('Large ribosomal subunit', 'LSU').replace('Small ribosomal subunit', 'SSU');
             
             }

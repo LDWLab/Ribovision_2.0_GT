@@ -209,8 +209,11 @@ var tryCustomTopology = function (pdbid, entityid, chainid){
     //var postTopologyURL = `r2dt/${vm.sequence3}/`
     //console.log('eid1',entityid);
 
-    pdbid='cust';
-
+    //pdbid='cust';
+    if (pdbid=='' || pdbid=='cust'){
+      pdbid='cust'
+    }
+   
     async function getRNAChain(pdbid) {
       try {
         const returnedObject = await ajax(`full-RNA-seq/${pdbid}/${chainid}`);
@@ -243,7 +246,11 @@ var tryCustomTopology = function (pdbid, entityid, chainid){
     }
     
     RNAseqCall(pdbid).then(seq1 => {
-      vm.sequence_for_r2dt = seq1;
+      //
+      if (pdbid=="cust") {
+        vm.sequence_for_r2dt = seq1}
+      else  
+        vm.sequence_for_r2dt=vm.sequence3;
       //console.log('RNA_full_sequence3', seq1);
       vm.getR2DT(seq1);
       vm.URL = `r2dt/${entityid}`
