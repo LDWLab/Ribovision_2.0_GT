@@ -44,17 +44,18 @@ var registerHoverResiData = function (e, tooltipObj){
               window.ajaxRun = false;
           });
       }else{
-          if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right){
-              let tooltipPosition = {
+          if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right){ 
+             /* let tooltipPosition = {
                   top: mousePos.y-boundingBox.top+15 +"px",
                   left: mousePos.x-relativeBox.left+boundLabelBox.right-boundLabelBox.left+5 +"px",
-              };
+              };*/
               window.ajaxRun = false;
+              /*
               tooltipObj.setState({
                   fold: 'NA',
                   phase: 'NA',
                   tooltipPosition,
-              });
+              });*/
           }
       }
     }).catch(error => {
@@ -366,9 +367,7 @@ var registerHoverResiData = function (e, tooltipObj){
     } else {
         window.custom_prop = associated_prop;
     }
-    console.log("getAnnRV1");
     topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(associated_prop);
-    console.log("getAnnRV2");
     //var custom_option = document.createElement("option");
     //custom_option.setAttribute("value", selectBoxEle.options.length);
     //custom_option.appendChild(document.createTextNode(custom_data_name));

@@ -292,6 +292,7 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
         if (vueObj.frequency_data) {vueObj.frequency_data = null;}
         if (aln_item) {aln_item.remove(); create_deleted_element("alnif", "alnDiv", aln_text, true)}
     }
+
     window.mapped_aa_properties = null;
     vueObj.checkedRNA = false,
     vueObj.customPDBid = null,
@@ -316,8 +317,19 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     vueObj.structure_mapping = null;
     vueObj.poor_structure_map = null;
     vueObj.freqCSV = null;
+    vueObj.selectAllProteinsChecked = false
+    vueObj.selectAllModifiedChecked = false
+    vueObj.selectAllModifiedCustomChecked = false
+    vueObj.selectedProteins = []
+    vueObj.selectedResidues = []
+    vueObj.selectedResiduesCustom = []
+    vueObj.pchainid = []
+    vueObj.modifications = []
+    vueObj.protein_contacts = null
+    vueObj.modified = null
     window.ajaxRun = false;
     window.custom_prop = null;
+
     if (vueObj.fasta_data) {vueObj.fasta_data = vueObj.fasta_data.replace(/^>Structure sequence\n(.+\n)+?>/i, ">");}
     if (vueObj.topology_loaded) {vueObj.topology_loaded = false;}
     if (vueObj.raiseCustomCSVWarn) {vueObj.raiseCustomCSVWarn = null;}
@@ -1075,7 +1087,9 @@ var showProteins3D = async function() {
             }
         }
         }
-        tryColor()
+        if(vm.pchainid.length == colorData.length) {
+            tryColor()
+        }
     }
         //viewerInstance.visual.colorByChain(colorData)
     await showProteins()
@@ -1222,6 +1236,8 @@ var recolorTopStar = function (name){
                 vm.selectAllModifiedChecked = false
                 vm.selectedProteins = []
                 vm.selectedResidues = []
+                vm.pchainid = []
+                vm.modifications = []
                 async function tryColoring() {
                     try {
                         await viewerInstance.coloring.shannonEntropy({ sequence: true, het: false, keepStyle: true });
@@ -1247,6 +1263,8 @@ var recolorTopStar = function (name){
             vm.selectAllModifiedChecked = false
             vm.selectedProteins = []
             vm.selectedResidues = []
+            vm.pchainid = []
+            vm.modifications = []
             async function tryColoring() {
                 try {
                     await viewerInstance.coloring.twinCons({ sequence: true, het: false, keepStyle: true });
@@ -1272,6 +1290,8 @@ var recolorTopStar = function (name){
                 vm.selectAllModifiedChecked = false
                 vm.selectedProteins = []
                 vm.selectedResidues = []
+                vm.pchainid = []
+                vm.modifications = []
                 async function tryColoring() {
                     try {
                         await viewerInstance.coloring.customData({ sequence: true, het: false, keepStyle: true });
@@ -1298,6 +1318,8 @@ var recolorTopStar = function (name){
             vm.selectAllModifiedChecked = false
             vm.selectedProteins = []
             vm.selectedResidues = []
+            vm.pchainid = []
+            vm.modifications = []
             async function tryColoring() {
                 try {
                     await viewerInstance.coloring.associatedData({ sequence: true, het: false, keepStyle: true });
@@ -1327,6 +1349,8 @@ var recolorTopStar = function (name){
             vm.selectAllModifiedChecked = false
             vm.selectedProteins = []
             vm.selectedResidues = []
+            vm.pchainid = []
+            vm.modifications = []
             async function tryColoring() {
                 try {
                     await viewerInstance.coloring.phaseData({ sequence: true, het: false, keepStyle: true });
@@ -1354,6 +1378,8 @@ var recolorTopStar = function (name){
             vm.selectAllModifiedChecked = false
             vm.selectedProteins = []
             vm.selectedResidues = []
+            vm.pchainid = []
+            vm.modifications = []
             async function tryColoring() {
                 try {
                     await viewerInstance.coloring.helixData({ sequence: true, het: false, keepStyle: true });
@@ -1381,6 +1407,8 @@ var recolorTopStar = function (name){
             vm.selectAllModifiedChecked = false
             vm.selectedProteins = []
             vm.selectedResidues = []
+            vm.pchainid = []
+            vm.modifications = []
             async function tryColoring() {
                 try {
                     await viewerInstance.coloring.aesData({ sequence: true, het: false, keepStyle: true });
@@ -1413,6 +1441,8 @@ var recolorTopStar = function (name){
         vm.selectedProteins = []
         vm.selectedResidues = []
         vm.selectedResiduesCustom = []
+        vm.pchainid = []
+        vm.modifications = []
         showPDBHelper(vm.pdbid, vm.chainid, vm.entityID)
         }
     }   

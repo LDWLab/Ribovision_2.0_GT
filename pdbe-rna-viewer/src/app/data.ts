@@ -106,9 +106,6 @@ export class DataService {
             });
 
             for (let chain of vm.protein_chains){
-                if (matches.length === 0) {
-                    console.log('pchainID',PchainId);
-                }
                 chain.banname_2D=matches[0].molecule_name[0].replace('Large ribosomal subunit', 'LSU').replace('Small ribosomal subunit', 'SSU');
             
             }

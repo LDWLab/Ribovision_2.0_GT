@@ -32,7 +32,6 @@ class PdbRnaViewer extends LitElement {
     }
     if(this.subscribeEvents) options.subscribeEvents = true;
     if(this.rvAPI) options.rvAPI = true;
-    console.log("opt", options);
     this.viewInstance.render(this, options);
   }
 

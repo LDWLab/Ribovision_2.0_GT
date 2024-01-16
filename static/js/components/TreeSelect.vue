@@ -207,7 +207,6 @@ class SimpleTooltip extends Component {
               if (alnpos_data.count != 0){
                 ajax('/resi-api/' + alnpos_data["results"][0]["res"].split("/")[5]).then(resiData => {
                   var alnViewEle = document.querySelector("canvas");
-                  console.log('AD2',resiData["Associated data"]);
                   let boundingBox = alnViewEle.getBoundingClientRect();
                   if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right){
                     let tooltipPosition;

@@ -100,6 +100,7 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
         vm.AD_headers = [];
         var topviewer = document.getElementById("PdbeTopViewer");
        // associatedDataMappedPerType["Associated Data1"] = associatedDataMappedPerType["Helix"];
+       vm.associatedDataMappedPerType = associatedDataMappedPerType
        try{
           for (const [type, associatedDataMappedPerTypeI] of Object.entries(associatedDataMappedPerType)) {
             associatedDataMappedPerTypeI.sort(function(entry0, entry1) {
@@ -157,7 +158,6 @@ var assignColorsAndStrucMappings = function (vueObj, struct_mapping){
     vueObj.fasta_data = struct_mapping["amendedAln"];
     vueObj.structure_mapping = struct_mapping["structureMapping"];
     loadAlignmentViewer (vueObj.fasta_data);
-
     var mapped_aa_properties = mapAAProps(vueObj.aa_properties, vueObj.structure_mapping);
     if (((vueObj.tax_id != null && vueObj.tax_id.length == 2) || (vueObj.custom_aln_twc_flag != null && vueObj.custom_aln_twc_flag == true) || (vueObj.type_tree == 'para'))) {
         if (vueObj.unmappedTWCdata) {
@@ -176,10 +176,29 @@ var assignColorsAndStrucMappings = function (vueObj, struct_mapping){
 }
 
 var delayedMapping = function (){
-    console.log("delayed mapping")
+    //console.log("delayed mapping")
     if ( typeof viewerInstanceTop === 'undefined' || viewerInstanceTop === null || vm.structFailed){
-        console.log("trying custom topo")
+        //console.log("trying custom topo")
+        //console.log(mapped_aa_properties)
         tryCustomTopology(vm.pdbid, vm.entityID, vm.chainid[0]);
+        /*if(vm.structFailed) {   
+          vm.AD_headers = [];
+          var topviewer = document.getElementById("PdbeTopViewer");
+          try{
+            for (const [type, associatedDataMappedPerTypeI] of Object.entries(associatedDataMappedPerType)) {
+              associatedDataMappedPerTypeI.sort(function(entry0, entry1) {
+                return entry0[0] - entry1[0];
+              })
+              const AD_header = type;
+              const ADDataArray = associatedDataMappedPerTypeI;
+              vm.AD_headers.push(AD_header);
+              mapAssociatedData(ADDataArray, AD_header, topviewer);
+            }
+         } catch(error) {
+            console.log("Mapping associated data failed")
+            vm.structFailed = true
+         }
+        }*/
     } else {
         viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties);
         }
@@ -265,6 +284,24 @@ var tryCustomTopology = function (pdbid, entityid, chainid){
         // const banName = getBanName(pdbid, 'H')
         vm.json_structures_from_r2dt = parsedResponse;
         window.viewerInstanceTop.viewInstance.uiTemplateService.render(parsedResponse.RNA_2D_json, parsedResponse.RNA_BP_json, parsedResponse.RNA_BP_json, undefined, window.viewerInstanceTop.viewInstance);
+        if(vm.structFailed) {   
+          vm.AD_headers = [];
+          var topviewer = document.getElementById("PdbeTopViewer");
+          try{
+            for (const [type, associatedDataMappedPerTypeI] of Object.entries(vm.associatedDataMappedPerType)) {
+              associatedDataMappedPerTypeI.sort(function(entry0, entry1) {
+                return entry0[0] - entry1[0];
+              })
+              const AD_header = type;
+              const ADDataArray = associatedDataMappedPerTypeI;
+              vm.AD_headers.push(AD_header);
+              mapAssociatedData(ADDataArray, AD_header, topviewer);
+            }
+         } catch(error) {
+            console.log("Mapping associated data failed")
+            vm.structFailed = true
+         }
+        }
       }
       function handle_error(error) {
         var topview = document.querySelector('#topview');

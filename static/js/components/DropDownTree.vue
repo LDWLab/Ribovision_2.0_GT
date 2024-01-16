@@ -46,7 +46,7 @@
                 </select>
             </p>
             <p>
-                <select class="btn btn-outline-dark dropdown-toggle" id="selectaln" v-if="protein_type_obj && tax_id" v-model="alnobj">
+                <select class="btn btn-outline-dark dropdown-toggle" id="selectaln" v-if="protein_type_obj && tax_id" v-model="alnobj" v-on:change="handleAlignChange()">
                     <option :value="null" selected disabled hidden>Select an alignment</option>
                     <option v-for="aln in alignments" v-bind:key = aln.txt v-bind:value="{ id: aln.value, text: aln.text }">{{ aln.text }}</option>
                 </select>
@@ -110,7 +110,7 @@
                 <span id="completeBLASTsMSG" v-if="alnobj&&alnobj=='custom'&&fetchingPDBwithCustomAln=='complete'"><b>Completed BLAST for similar PDBs.</b></span>
                 <div v-if="hide_chains" id="onFailedChains">Looking for available polymers <img src='static/img/loading.gif' alt='Searching available polymers' style='height:25px;'></div>
                 </p>-->
-            <p><select multiple class="form-control btn-outline-dark" id="polymerSelect" v-bind:style="{ resize: 'both'}"  v-if="chains&&fasta_data&&pdbid||uploadSession" v-model="chainid" >
+            <p><select multiple class="form-control btn-outline-dark" id="polymerSelect" v-bind:style="{ resize: 'both'}"  v-if="alnobj&&chains&&fasta_data&&pdbid||uploadSession" v-model="chainid" >
                 <option :value ="null" selected disabled>Select the matching RNA chain to visualize</option>
                 <option v-for="chain in chains" v-bind:key="chain.value" v-bind:value="chain.value" @click="selectedProteins = []; postStructureData(pdbid, chainid); calculateProteinContacts(pdbid, chainid); populateECODranges(pdbid, chainid); showPDBViewer(pdbid, chainid, guideOff ? chain.entityID : RVGuideEntityId);">{{ chain.text }}</option>
                 <!-- <option v-for="chain in chains" v-bind:key="chain.value" v-bind:value="chain.value" @click="postStructureData(pdbid, chainid); calculateProteinContacts(pdbid, chainid); populateECODranges(pdbid, chainid); showPDBViewer(pdbid, chainid, chain.entityID);">{{ chain.text }}</option> -->
@@ -781,6 +781,9 @@
         this.selectedResidues = [];
       }
     },
+    handleAlignChange() {
+        vm.pdbid = ""
+    },
         uploadCustomFullSequence: function() {
             uploadCustomFullSequence();
         },
@@ -886,6 +889,10 @@
             }
         }, 
         loadProteinTypes (tax_id, type_tree) {
+            cleanupOnNewAlignment(this)
+            vm.protein_type_obj = null
+            vm.alnobj = null
+            //vm.alnobj = null
             if (type_tree == "orth") {
                 this.alignments = null;
                 this.proteinTypes = null;
@@ -1016,7 +1023,6 @@
                 ajax(`https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/${pdbid.toLowerCase()}`).then(struc_data => {
                     if(vm.unfilteredChains){return;}
                     vm.unfilteredChains = struc_data[pdbid.toLowerCase()];
-                    console.log("Unfiltered chains", vm.unfilteredChains);
                     vm.unfilteredChains_orig = struc_data[pdbid.toLowerCase()];
                 }).catch(error => {
                     console.log(error);

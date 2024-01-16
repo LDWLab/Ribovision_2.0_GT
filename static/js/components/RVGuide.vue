@@ -438,11 +438,9 @@
                 var topviewer = document.getElementById("PdbeTopViewer");
                 var annotationSelect = document.querySelector(".mappingSelectbox");
                 
-                console.log('TV1', topviewer);
-                console.log('TV2', topviewer.viewInstance);
+               
                 var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
                 var exampleData = topviewer.viewInstance.uiTemplateService.domainTypes[1];
-                console.log('TV3', exampleData);
                 
                 resolve (
                     vm.selected_property = "Shannon entropy",

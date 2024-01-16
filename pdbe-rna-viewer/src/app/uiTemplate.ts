@@ -98,6 +98,7 @@ export class UiTemplateService {
         this.addEvents(apiData, BanName);
         <any>document.querySelector(".saveSVG")!.addEventListener("click", this.saveSVG.bind(this));
         this.getAnnotationFromRibovision(this.mapped_aa_properties);
+        
         if (instance) {
             CustomEvents.subscribeToComponentEvents(instance)
         }
@@ -471,7 +472,6 @@ export class UiTemplateService {
     }
     getAnnotationFromRibovision(mapped_aa_properties: Map<string, Array<Array<number>>>) {
         const _this = this;
-        console.log("into get AnRV1");
         const start = this.apiData?this.apiData.label_seq_ids[1]:0
         //const end = this.apiData?this.apiData.label_seq_ids[this.apiData.label_seq_ids.length - 2]:0
 
@@ -487,7 +487,7 @@ export class UiTemplateService {
                                 start_residue_number: 0, 
                                 end_residue_number: 1000,
                                 color: {r: 255, g: 255, b: 255},
-                                sideChain: false,
+                                sideChain: false,pchainid
                             }*/])
         this.aaPropertyConstants = (window as any).aaPropertyConstants
         this.aaColorData = (window as any).aaColorData
@@ -501,7 +501,6 @@ export class UiTemplateService {
                 }];
                 let name = index;
                 let separatedData = value;
-                console.log("into get AnRV2");
                 this.selectSections_RV1.set(name, [])
 
                 let min = Math.min(...this.aaPropertyConstants.get(name));
@@ -528,7 +527,6 @@ export class UiTemplateService {
                     
                 }; 
                 if  (name == "Helix" || name == "helix"){
-                    console.log("into get AnRV3");
                     this.getHelicalAnnotations(separatedData, min, max, this.pluginOptions.chainId);
                     
                 };
@@ -558,16 +556,12 @@ export class UiTemplateService {
                 this.selectSections_RV1.get(name).push({entity_id: _this.pluginOptions.entityId, focus: true});
                 //const end = TWCData.size;
                 const end = mapLastValue;
-                console.log("into get AnRV4");
                 if (void 0 !== TWCData){
                     residueDetails = _this.create2D3DAnnotations(name, residueDetails, 
                                                                 TWCrgbMap, TWCData, mapped_aa_properties,
-                                                                start, end);  
-                    console.log("into get AnRV5", residueDetails);                                                                                    
+                                                                start, end);                                                                                     
                     if(0 < residueDetails.length){
-                        var current = _this.domainTypes.filter(order => (order.label === name))[0];
-
-                        console.log("into get AnRV6", current);   
+                        var current = _this.domainTypes.filter(order => (order.label === name))[0]; 
                         if(current && current != null) {
                             current.data = residueDetails;
                         } else {
