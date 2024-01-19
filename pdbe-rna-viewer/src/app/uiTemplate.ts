@@ -1058,7 +1058,7 @@ export class UiTemplateService {
         var lastPathIndex = apiData.svg_paths.length - 1;
         var locations2: Map<any, number[]> = new Map();
         var locations3: Map<any, number[]> = new Map();
-        if(this.pluginOptions.pdbId == "cust") {
+        if(this.pluginOptions.pdbId == "cust" || this.rv3VUEcomponent.structFailed) {
             lastPathIndex = lastPathIndex - 2
             apiData.svg_paths.forEach((pathStr: string, recordIndex: number) => {
                 if(recordIndex == 0 || recordIndex >= lastPathIndex + 1) return;
