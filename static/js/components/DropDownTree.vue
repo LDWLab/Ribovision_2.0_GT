@@ -46,7 +46,7 @@
                 </select>
             </p>
             <p>
-                <select class="btn btn-outline-dark dropdown-toggle" id="selectaln" v-if="protein_type_obj && tax_id" v-model="alnobj">
+                <select class="btn btn-outline-dark dropdown-toggle" id="selectaln" v-if="protein_type_obj && tax_id" v-model="alnobj" v-on:change="handleAlignChange()">
                     <option :value="null" selected disabled hidden>Select an alignment</option>
                     <option v-for="aln in alignments" v-bind:key = aln.txt v-bind:value="{ id: aln.value, text: aln.text }">{{ aln.text }}</option>
                 </select>
@@ -66,7 +66,7 @@
                         <input id="uploadCustomCIF" class="btn btn-outline-dark" type="file" accept=".cif" ref="customCIFfile" v-on:change="cifFileUploadedFlag=true;" style="margin: 0 1% 0 0;width:100%;"/>
                         <div v-if="cifFileUploadedFlag">
                             <label for="provideEntityID" style="margin: 0 1% 0 0;width:100%;">Provide an Entity ID for a desired RNA chain</label>
-                            <input id="provideEntityID" class="btn btn-outline-dark" type="number" ref="entity_id" v-on:change="uploadCustomCIF()" placeholder="Entity ID" style="margin: 0 1% 0 0;width:100%;"/>
+                            <input id="provideEntityID" class="btn btn-outline-dark" type="number" ref="entity_id" v-on:change="uploadCustomCIF();" placeholder="Entity ID" style="margin: 0 1% 0 0;width:100%;"/>
                         </div>
                     </div>
                     <div v-if="cifPdbMode=='PDB'"> 
@@ -81,6 +81,8 @@
                             <input id="uploadCustomFullSequence" class="btn btn-outline-dark" type="file" accept=".fas,.fasta,.fa" ref="customFullSequence" v-on:change="uploadCustomFullSequence();" style="margin: 0 1% 0 0;width:100%;"/>
                         </div>
                     </div>
+
+
                 </div>
                 <!--
                 <span v-if="alnobj">Select/type PDB entry:</span>
@@ -91,8 +93,9 @@
                 <autocomplete isAsync:true :items="blastPDBresult" v-if="alnobj&&alnobj=='custom'" v-model="pdbid"></autocomplete>
                 -->
                 <p>
-                <span v-if="alnobj">Select/type PDB entry:</span>    
+                <span v-if="alnobj&&alnobj!='custom'">Select/type PDB entry:</span>    
                 <autocomplete id="pdb_input" isAsync:true :items="pdbs" v-if="alnobj&&alnobj!='custom'" v-model="pdbid"></autocomplete>
+                </p>
                 <!--
                 <div id="blastingPDBsMSG" v-if="alnobj&&alnobj=='custom'&&fetchingPDBwithCustomAln&&fetchingPDBwithCustomAln==true">
                     <b>BLASTing first alignment sequence against PDB sequences</b>
@@ -107,16 +110,16 @@
                 <span id="completeBLASTsMSG" v-if="alnobj&&alnobj=='custom'&&fetchingPDBwithCustomAln=='complete'"><b>Completed BLAST for similar PDBs.</b></span>
                 <div v-if="hide_chains" id="onFailedChains">Looking for available polymers <img src='static/img/loading.gif' alt='Searching available polymers' style='height:25px;'></div>
                 </p>-->
-            <p><select multiple class="form-control btn-outline-dark" id="polymerSelect" v-bind:style="{ resize: 'both'}"  v-if="chains&&fasta_data&&pdbid||uploadSession" v-model="chainid" >
+            <p><select multiple class="form-control btn-outline-dark" id="polymerSelect" v-bind:style="{ resize: 'both'}"  v-if="alnobj&&chains&&fasta_data&&pdbid||uploadSession" v-model="chainid" >
                 <option :value ="null" selected disabled>Select the matching RNA chain to visualize</option>
-                <option v-for="chain in chains" v-bind:key="chain.value" v-bind:value="chain.value" @click="postStructureData(pdbid, chainid); calculateProteinContacts(pdbid, chainid); populateECODranges(pdbid, chainid); showPDBViewer(pdbid, chainid, guideOff ? chain.entityID : RVGuideEntityId);">{{ chain.text }}</option>
+                <option v-for="chain in chains" v-bind:key="chain.value" v-bind:value="chain.value" @click="selectedProteins = []; postStructureData(pdbid, chainid); calculateProteinContacts(pdbid, chainid); populateECODranges(pdbid, chainid); showPDBViewer(pdbid, chainid, guideOff ? chain.entityID : RVGuideEntityId);">{{ chain.text }}</option>
                 <!-- <option v-for="chain in chains" v-bind:key="chain.value" v-bind:value="chain.value" @click="postStructureData(pdbid, chainid); calculateProteinContacts(pdbid, chainid); populateECODranges(pdbid, chainid); showPDBViewer(pdbid, chainid, chain.entityID);">{{ chain.text }}</option> -->
             </select></p>
             <!-- 
             -->
             <!-- 
             -->
-            <div v-if="structure_mapping&& !pdbcust && !cifcust">
+            <div v-if="structure_mapping&&chains&& !pdbcust && !cifcust">
                 <select id="downloadDataBtn" class="btn btn-outline-dark dropdown-toggle" v-model="downloadMapDataOpt" v-if="topology_loaded">
                     <option :value="null" selected disabled>Download mapped data</option>
                     <option value='csv'>As CSV file</option>
@@ -133,7 +136,51 @@
             <p><div v-if="topology_loaded&&type_tree=='orth'" class="checkbox" id="showRNAcontext">
                 <label><input type="checkbox" v-model="checkedRNA" v-on:change="updateMolStarWithRibosome(checkedRNA)">
                     Show ribosomal context in 3D</label>
-            </p></div>
+            </div></p>
+            <div v-if="modified&&cifcust&&structure_mapping">
+                <form @submit.prevent="submitModificationsCustom">
+                    <label>Select modified residues to highlight</label>
+                    <div
+                    id="modSelectCustom"
+                    class="selection-box"
+                    :style="{ backgroundColor: 'white', padding: '10px', border: '1px solid #ddd', marginBottom: '10px', maxHeight: '100px', overflowY: 'auto' }"
+                    >
+                    
+                    <div>
+                        <input
+                            type="checkbox"
+                            id="selectAllModifiedCustom"
+                            v-model="selectAllModifiedCustomChecked"
+                            @change="selectAllModifiedCustomChanged"
+                        />
+                        <label for="selectAllModifiedCustom">Select All</label>
+                        </div>
+                        <div v-for="[text, k] of modified_residues.entries()" :key="k">
+                        <input
+                            type="checkbox"
+                            :id="text"
+                            :value="text"
+                            v-model="selectedResiduesCustom"
+                        />
+                        <label :for="text">{{ text }}</label>
+                        </div>
+                    
+                    </div>
+
+                    <button type="submit">Submit Residues</button>
+                </form>
+            </div>
+            
+            <!--
+
+            <div v-if="structure_mapping&&cifcust">
+            <p><select multiple class="form-control btn-outline-dark" id="polymerSelect3" v-bind:style="{ resize: 'both'}" v-model="modifications" v-if="modified">
+                <label>Select modified residues to highlight</label>
+                <option :value ="null" selected disabled>Select modified residues to highlight</option>
+                <option v-for="[text, k] of modified_residues.entries()" v-bind:value="text" v-bind:key="k" @click="showModificationsCustom();">{{ text }}</option>
+                </select></p>
+            </div>
+            -->
             <!--
             -->
             <!--
@@ -192,20 +239,90 @@
                         </button></p>
                     </div>
                 </p></div>
-                <div v-if="topology_loaded&&protein_contacts">
+                <!--<div v-if="topology_loaded&&protein_contacts">
                     <p><select multiple class="form-control btn-outline-dark" id="polymerSelect2" v-bind:style="{ resize: 'both'}" v-model="pchainid">
                     <label>Select RNA-protein contacts to view in 3D</label>
                     <option :value ="null" selected disabled>Select RNA-protein contacts to view in 3D</option>
-                     <!--<option v-for="chain in protein_chains" v-bind:value="chain.value" v-bind:key="chain.key" v-bind:id="chain.value" @click="showContacts();">{{ chain.text}}</option> --> 
                     <option v-for="chain in protein_chains" v-bind:value="chain.value" v-bind:key="chain.key" v-bind:id="chain.value" @click="showContacts();">{{ chain.banname}}</option>
                     </select></p>
-                </div>   
+                </div>-->
+                
+  <div v-if="topology_loaded && protein_contacts">
+    <form @submit.prevent="submitProteins">
+      <label>Select RNA-protein contacts to view in 3D</label>
+      <div
+        id="proteinSelect"
+        class="selection-box"
+        :style="{ backgroundColor: 'white', padding: '10px', border: '1px solid #ddd', marginBottom: '10px', maxHeight: '100px', overflowY: 'auto' }"
+      >
+        <div>
+          <input
+            type="checkbox"
+            id="selectAllProteins"
+            v-model="selectAllProteinsChecked"
+            @change="selectAllProteinsChanged"
+          />
+          <label for="selectAllProteins">Select All</label>
+        </div>
+        <div v-for="chain in protein_chains" :key="chain.key">
+          <input
+            type="checkbox"
+            :id="chain.value"
+            :value="chain.value"
+            v-model="selectedProteins"
+          />
+          <label :for="chain.value">{{ chain.banname }}</label>
+        </div>
+      </div>
+
+      <button type="submit">Submit Proteins</button>
+    </form>
+  </div>
+
+
+              <!--  <div v-if="!cifcust">
                 <p><select multiple class="form-control btn-outline-dark" id="polymerSelect3" v-bind:style="{ resize: 'both'}" v-model="modifications" v-if="modified">
                 <label>Select modified residues to highlight</label>
                 <option :value ="null" selected disabled>Select modified residues to highlight</option>
                 <option v-for="[text, k] of modified_residues.entries()" v-bind:value="text" v-bind:key="k" @click="showModifications();">{{ text }}</option>
                 </select></p>
-            </div>
+                </div>
+             -->
+
+    <div v-if="modified&&!cifcust">
+  <form @submit.prevent="submitModifications">
+    <label>Select modified residues to highlight</label>
+    <div
+      id="modSelect"
+      class="selection-box"
+      :style="{ backgroundColor: 'white', padding: '10px', border: '1px solid #ddd', marginBottom: '10px', maxHeight: '100px', overflowY: 'auto' }"
+    >
+      
+      <div>
+          <input
+            type="checkbox"
+            id="selectAllModified"
+            v-model="selectAllModifiedChecked"
+            @change="selectAllModifiedChanged"
+          />
+          <label for="selectAllModified">Select All</label>
+        </div>
+        <div v-for="[text, k] of modified_residues.entries()" :key="k">
+          <input
+            type="checkbox"
+            :id="text"
+            :value="text"
+            v-model="selectedResidues"
+          />
+          <label :for="text">{{ text }}</label>
+        </div>
+      
+    </div>
+
+    <button type="submit">Submit Residues</button>
+  </form>
+</div>
+  </div>
             <!--
             <p><div v-if="alnobj" class="checkbox" id="showFrequencies">
                 <label><input type="checkbox" v-model="checked_propensities" v-on:change="handlePropensities(checked_propensities)">
@@ -337,7 +454,7 @@
   import Autocomplete from './Autocomplete.vue'
   import { intersection } from 'lodash';
   import {downloadPyMOLscript} from './handlePyMOLrequest.js'
-  import {downloadPyMOLcustomscript} from './handlePyMOLcustomrequest.js'  
+  import {downloadPyMOLcustomscript} from './handlePyMOLcustomrequest.js'
   //import {parseRNAchains} from './handleRNAchains.js'
   
    export default {
@@ -371,7 +488,11 @@
             }else{
                 this.getPDBchains(pdbid, vm.alnobj.id);
             }
-        },unfilteredChains: function(chain_list){
+        },cif_file_path: function(cif_file_path){
+            this.calculateModifiedCustom(vm.customEntity, cif_file_path);
+        },
+        
+        unfilteredChains: function(chain_list){
             if (!chain_list){return;}
             if (this.type_tree == "para") {aln_id = aln_id.split(',')[1]}
             if (this.type_tree != "upload") {
@@ -511,6 +632,7 @@
             if(domainObj.length == 0){return}
             handleDomainRange(domainObj[0].range);
         },selected_property: function(name){
+
             if (this.uploadSession){return;}
             if (!name){return;}
             if(this.colorSchemeData){this.colorSchemeData = null;}
@@ -532,12 +654,28 @@
                     })
                 } else if (name == 'TwinCons'){
                     separatedData = this.unmappedTWCdata;
+                // } else if (name == 'Associated Data1'){
+                //     console.log('AD_name', name);
+                //     if (this.aa_properties.has(name)){
+                //     console.log('Prop_Data', propData);
+
+                //     }
+
+                //     separatedData.push([1,1]);
+                //     separatedData.push([2,2]);
+                //     separatedData.push([3,4]);
+                //     separatedData.push([4,6]);
+                //     separatedData.push([5,10]);
+// 
                 } else {
                     //assume custom data
+                    //console.log('CD_name', name);
                     if (this.structure_mapping && window.custom_prop){
                         var customProp = window.custom_prop.get(name);
                         window.aaFreqs.forEach(function(aaFr, alnIx){
+                            
                             var strucIx = vm.structure_mapping[alnIx+1];
+                            
                             if (strucIx && customProp[strucIx-1]){
                                 customProp.forEach(function(customData){
                                     if (customData[0] == strucIx){
@@ -607,7 +745,45 @@
                 this.cdhitSelectedOpt = null;
             }
         }
+  
     },methods: {
+       
+    submitProteins() {
+      this.pchainid = this.selectedProteins
+      this.showContacts()
+    },
+    selectAllProteinsChanged() {
+      if (this.selectAllProteinsChecked) {
+        this.selectedProteins = this.protein_chains.map(chain => chain.value);
+      } else {
+        this.selectedProteins = [];
+      }
+    },
+    submitModifications() {
+      this.modifications = this.selectedResidues
+      this.showModifications()
+    },
+    submitModificationsCustom() {
+      this.modifications = this.selectedResiduesCustom
+      this.showModificationsCustom()
+    },
+    selectAllModifiedCustomChanged() {
+      if (this.selectAllModifiedCustomChecked) {
+        this.selectedResiduesCustom = Array.from(this.modified_residues.keys())
+      } else {
+        this.selectedResiduesCustom = [];
+      }
+    },
+    selectAllModifiedChanged() {
+      if (this.selectAllModifiedChecked) {
+        this.selectedResidues = Array.from(this.modified_residues.keys())
+      } else {
+        this.selectedResidues = [];
+      }
+    },
+    handleAlignChange() {
+        vm.pdbid = ""
+    },
         uploadCustomFullSequence: function() {
             uploadCustomFullSequence();
         },
@@ -713,6 +889,10 @@
             }
         }, 
         loadProteinTypes (tax_id, type_tree) {
+            cleanupOnNewAlignment(this)
+            vm.protein_type_obj = null
+            vm.alnobj = null
+            //vm.alnobj = null
             if (type_tree == "orth") {
                 this.alignments = null;
                 this.proteinTypes = null;
@@ -739,7 +919,12 @@
             viewerInstanceTop.viewInstance.uiTemplateService.colorMapModifications();  
             showModificationsAndContactsHelper("" + this.entityID);
         },
+        showModificationsCustom() {
+            viewerInstanceTop.viewInstance.uiTemplateService.colorMapModifications();  
+            showModificationsHelper("" + this.customEntity);
+        },
         showContacts() {
+            //console.log("Top contacts")
             viewerInstanceTop.viewInstance.uiTemplateService.colorMapContacts();  
             showModificationsAndContactsHelper("" + this.entityID);
         },
@@ -872,6 +1057,68 @@
                 return;
             }
             ajax(url).then(fasta => {
+                const alignment = fasta["Alignment"];
+                const alignmentSplitBySequence = alignment.split(">").filter(function(splitSequence) {
+                    return splitSequence.length > 0;
+                });
+                const zerothSequenceSplitByLines = alignmentSplitBySequence[0].split("\n");
+                const zerothFastaSeqName = fasta['Sequence names'][0];
+                // const zerothFastaSeqName = "Escherichia coli str. K-12 substr. MG1655"; //fasta['Sequence names'][0];
+                const alignmentLength = zerothSequenceSplitByLines[1].length;
+                const associatedDataCache = {};
+                this.associatedDataCache = associatedDataCache;
+
+                if(!(vm.alnobj == "custom")) {
+                const url = `/aln-api/${vm.alnobj.id}/${alignmentLength}`;
+                ajax(url).then(aln_data => {
+                    vm.associatedDataCache = aln_data;
+                    // console.log("aln_data", aln_data);
+                }).catch(error => {
+                    console.log('No associated data');
+                });
+                }
+                
+                /*const strainQuery = '&res__poldata__strain__strain=';
+                var url = `/desire-api/residue-alignment/?format=json&aln=${vm.alnobj.id}${strainQuery}${zerothFastaSeqName}`;
+                let index=url.indexOf('|');
+                if (index !== -1){
+                    url=url.substring(0, index);
+                }
+                ajax(url).then(aln_data => {
+                    console.log("aln_data", aln_data);
+                    for (const result of aln_data.results) {
+                        const url = `/resi-api/${result.res.split("/")[5]}`;
+                        const aln_pos = result.aln_pos;
+                        ajax(url).then(resiData => {
+                            const associatedData = resiData["Associated data"];
+                            associatedDataCache[aln_pos] = associatedData;
+                            console.log('AD1', associatedData, "aln_pos", aln_pos);
+                            window.ajaxRun = false;
+                        });
+                    }
+                });*/
+                
+                /*for (let aln_pos = 1; aln_pos <= alignmentLength; aln_pos++) {
+                    const strainQuery = '&res__poldata__strain__strain=';
+                    var url = `/desire-api/residue-alignment/?format=json&aln_pos=${aln_pos}&aln=${vm.alnobj.id}${strainQuery}${zerothFastaSeqName}`;
+                    let index=url.indexOf('|');
+                    if (index !== -1){
+                        url=url.substring(0, index);
+                    }
+                    console.log("url", url);
+                    ajax(url).then(alnpos_data => {
+                    console.log('alnpos_data', alnpos_data.count );
+                    if (alnpos_data.count != 0){
+                        ajax('/resi-api/' + alnpos_data["results"][0]["res"].split("/")[5]).then(resiData => {
+                            console.log('AD1',resiData["Associated data"]);
+                            window.ajaxRun = false;
+                        });
+                    }
+                    }).catch(error => {
+                    window.ajaxRun = false;
+                    console.log(error);
+                    })
+                }*/
                 if (fasta['TwinCons']){
                     this.custom_aln_twc_flag = fasta['TwinCons'];
                     fetchTWCdata(fasta['Alignment']);
@@ -977,7 +1224,10 @@
             showPDBHelper(pdbid, chainid, entityid)
         }, populateECODranges(pdbid, chainid) {
             populateECODranges(pdbid, chainid);
-        }, calculateProteinContacts(pdbid, chainid) {
+        }, calculateModifiedCustom(entity_id, filepath) {
+            calculateModifiedCustom(entity_id, filepath)
+        }, 
+        calculateProteinContacts(pdbid, chainid) {
             vm.mapped_aa_contacts_mods = new Map();
             var url = `protein-contacts/${pdbid}/${chainid}`
             ajax(url).then(data => {
@@ -988,9 +1238,10 @@
                     var filtered_chains = vm.protein_chains.filter(e => e.value in data);
                     vm.protein_chains = filtered_chains;
                     for (let chain of vm.protein_chains){
-                        chain.banname=vm.unfilteredChains_orig[chain.entityID-1].molecule_name[0].replace('Large ribosomal subunit', 'LSU').replace('Small ribosomal subunit', 'SSU');
-                        console.log('CB',chain.banname);
+                        chain.banname=vm.unfilteredChains_orig[chain.entityID-1].molecule_name[0].replace('Large ribosomal subunit', 'LSU').replace('Small ribosomal subunit', 'SSU')
                     } 
+                    
+
                     var i = 1.0;
                     var colorMap = new Map();
                     vm.selectSections_proteins = new Map();
@@ -1009,8 +1260,10 @@
                                 color: color[1],
                                 sideChain: false,
                             });
-                            var protein_name = vm.protein_chains.filter(e => e.value == val)[0].text
-                            vm.mapped_aa_contacts_mods.get("Protein Contacts").push([vm.protein_contacts[val][j], protein_name])
+                            var protein_name = vm.protein_chains.filter(e => e.value === val)[0]?.text;
+                            if (protein_name) {
+                            vm.mapped_aa_contacts_mods.get("Protein Contacts").push([vm.protein_contacts[val][j], protein_name]);
+                            }
                         }
                     }                    
                     vm.proteinColorMap = colorMap;

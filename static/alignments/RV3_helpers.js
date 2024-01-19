@@ -816,6 +816,55 @@ var drawCircle = function (pdbId, i, color){
     circle.setAttribute("fill", `${color}`);
     circle.style.display = "block";
 }
+
+var calculateModifiedCustom = function(entityid, filepath) {
+    console.log("calculating")
+    var url = `custom-modified-residues/${entityid}/${filepath}`
+    ajax(url).then(data => {
+        console.log(data)
+        let offset = 0
+        let modifiedData = new Map()
+        let modifications = []
+        for (let val in data.Modified) {
+            if(modifications.indexOf(data.Modified[val][0]) < 0) {
+                modifications.push(data.Modified[val][0])
+                modifiedData.set(data.Modified[val][0], [])
+            }
+            index = data.Modified[val][1] - offset
+            modifiedData.get(data.Modified[val][0]).push(index)
+            offset += 4
+        }
+        vm.modified_residues = modifiedData
+        var i = 1.0;
+        var colorMap = new Map();
+        vm.selectSections_modified = new Map();
+        vm.mapped_aa_contacts_mods.set("Modified Residues", [])
+        for (var val of modifications) {
+            vm.selectSections_modified.set(val, [])
+            //Need to add modifications color scheme, using PC for now
+            var color = interpolateLinearly(i/modifications.length, aaColorData.get("Protein contacts")[0])
+            var rgbColor = "rgb(" + color[0][0] + "," + color[0][1] + "," + color[0][2] + ")";
+            colorMap.set(val, rgbColor);
+            //newContactMap.set(vm.protein_contacts, aaColorData.get("Shannon entropy")[0][1]
+            i = i+1;
+            for (var j of vm.modified_residues.get(val)) {
+                vm.selectSections_modified.get(val).push({
+                    entity_id: "" + entityid,
+                    residue_number: j, 
+                    color: color[1],
+                    sideChain: false,
+                });
+                vm.mapped_aa_contacts_mods.get("Modified Residues").push([j, val])
+            }
+        }                 
+        vm.modifiedColorMap = colorMap;
+        if(data.Modified.length > 0) {
+            vm.modified = true
+        }
+        //viewerInstanceTop.viewInstance.uiTemplateService.colorMap(); 
+    });
+}
+
 var calculateModifiedResidues = function(pdbid, chainid, entityid) {
     var url = `modified-residues/${pdbid}/${chainid}`
     ajax(url).then(data => {
@@ -990,8 +1039,12 @@ var recolorTopStar = function (name){
         viewerInstance.coloring.twinCons({ sequence: true, het: false, keepStyle: true });
     }    else if(name == "Custom Data") {
         viewerInstance.visual.clearSelection();
-        console.log("visual",viewerInstance.coloring);
+        console.log("custom",viewerInstance.coloring);
         viewerInstance.coloring.customData({ sequence: true, het: false, keepStyle: true });
+    }    else if(name == "Associated Data1") {
+        viewerInstance.visual.clearSelection();
+        console.log("Associated",viewerInstance.coloring);
+        viewerInstance.coloring.associatedData({ sequence: true, het: false, keepStyle: true });
     }    else if(name == "Select data") {
         viewerInstance.visual.reset({ theme: true })
     }

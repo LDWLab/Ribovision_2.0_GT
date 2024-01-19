@@ -315,7 +315,7 @@ def proteinTypesDirect(request, concatenatedTaxIds):
             # results = Taxgroups.objects.raw(sql)
             for row in cursor.fetchall():
                 proteinTypesList.append(row[0])
-            filteredList = [s for s in proteinTypesList if s[-3:] == 'RNA']
+            filteredList = [s for s in proteinTypesList if s.find("RNA") !=-1]
             results.append(filteredList)
     context = {'results' : results}
     return JsonResponse(context)
@@ -658,6 +658,33 @@ def string_fasta(request, protein_type, aln_name, tax_group, internal=False):
         raw_result = aqab.dictfetchall(cursor)
     return simple_fasta(request, raw_result[0]['Aln_id'], tax_group, internal)
 
+def custom_modified_residues(request, entity_id, cif_file_path):
+    import Bio.PDB.MMCIF2Dict
+    mmcdata = Bio.PDB.MMCIF2Dict.MMCIF2Dict("/tmp/" + cif_file_path)
+    index = 0
+    try:
+        index = mmcdata['_entity_poly.pdbx_strand_id'].index(entity_id)
+    except:
+        i = 0
+        for item in mmcdata['_entity_poly.pdbx_strand_id']:
+            if entity_id in item.split(','):
+                index = i
+            i += 1
+    pattern = '\([a-zA-Z0-9]*\)'
+    sequence = mmcdata['_entity_poly.pdbx_seq_one_letter_code'][index]
+    sequence_without_spaces = ''.join(sequence.split())
+    #modiifed_residues = re.findall('\([a-zA-Z0-9]*\)', mmcdata['_entity_poly.pdbx_seq_one_letter_code'][0])
+    #iter = re.finditer('\([a-zA-Z0-9]*\)', mmcdata['_entity_poly.pdbx_seq_one_letter_code'][0])
+    modified_residues = []
+    for match in re.finditer(pattern, sequence_without_spaces):
+        s = match.start() + 1
+        e = match.end() + 1
+        modified_residues.append([sequence_without_spaces[s:e - 2], s, e])
+    #indices = [m.start(0) for m in iter]
+    context = {
+        'Modified' : modified_residues
+    }
+    return JsonResponse(context)
 
 def modified_residues(request, pdbid, chain_id):
     import Bio.PDB.MMCIF2Dict
@@ -773,32 +800,9 @@ def r2dt(request, entity_id):
     os.chdir('/home/RiboVision3/R2DT/rna/R2DT')
     #os.chdir('/home/anton/RiboVision2/rna/R2DT-master')
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
-  
-    newcwd = os.getcwd()
-    with open('sequence10'+str(fileNameSuffix)+'.fasta', 'w') as f:
-        f.write('>Sequence\n')
-        f.write(sequence)
-        f.close()       
-    #os.mkdir("R2DT-master")
-    print(newcwd)
-    output = f"{newcwd}/R2DT-test{fileNameSuffix}"
-    #output = f"/home/anton/RiboVision2/rna/R2DT-master/R2DT-test20{fileNameSuffix}"
-    #cmd = f'ribotyper.pl  -f sequence10.fasta {output}'
-    #os.system(cmd)
-    #time.sleep(20)
-    #cmd = f'cp  {output}/../sequence10.fasta {output}/subset.fasta'
-    #os.system(cmd)
-    #cmd = f'cp  {output}/../sequence10.fasta.ssi {output}/subset.fasta.ssi'
-    #os.system(cmd)
-    #time.sleep(20)
-    #cmd = f'python3 r2dt.py ribovision draw_lsu {newcwd}/sequence10.fasta {output}'
-    cmd = f'LANG=en_US.utf8 /usr/bin/python3 r2dt.py draw {newcwd}/sequence10{fileNameSuffix}.fasta {output}'
-    os.system(cmd)
-    #time.sleep(40)
-    filename = '' 
-    # pull cif_mode_flag from POST
     if request.method == "POST":
-        cif_mode_flag = keys["cif_mode_flag"]#cif_mode_flag = request.POST["cif_mode_flag"]
+        
+        cif_mode_flag = keys["cif_mode_flag"]#request.POST["cif_mode_flag"]
         parsed_cif_mode_flag = cif_mode_flag
         if cif_mode_flag == "true":
             parsed_cif_mode_flag = True
@@ -810,11 +814,34 @@ def r2dt(request, entity_id):
     else:
         cif_mode_flag = None
 
-    for topdir, dirs, files in os.walk(f'{output}/results/json'):
-        firstfile = sorted(files)[0]
-        
-        filename = os.path.join(topdir, firstfile)  
+    newcwd = os.getcwd()
+    with open('sequence10'+str(fileNameSuffix)+'.fasta', 'w') as f:
+        f.write('>Sequence\n')
+        f.write(sequence)
+        f.close()       
+    output = f"/home//RiboVision3/R2DT/rna/R2DT/R2DT-test20{fileNameSuffix}"    
+     
     
+    cmd = f'python3 r2dt.py draw  {newcwd}/sequence10{fileNameSuffix}.fasta {output}' # --skip_ribovore_filters 
+    os.system(cmd)
+    
+    filename = '' 
+    print('output_dir', output)
+    
+    files = os.listdir(os.path.join(output, "results/json"))
+    
+    print('json_file',  files)
+    
+    if len(files) == 0:
+        print('reached here')
+        # clean up
+        shutil.rmtree(output)
+        
+        cmd = f'python3 r2dt.py draw --skip_ribovore_filters {newcwd}/sequence10{fileNameSuffix}.fasta {output}' 
+        os.system(cmd)
+        
+    files = os.listdir(os.path.join(output, "results/json"))
+    filename = os.path.join(output, "results/json", files[0])
     
     files_to_remove = []
 
@@ -824,7 +851,7 @@ def r2dt(request, entity_id):
         cmd = f'/usr/bin/python3 {newcwd}/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
     else:
         #FOR CIF MODE
-        cif_file_path = keys["cif_file_path"]#cif_file_path = request.POST["cif_file_path"]
+        cif_file_path = keys["cif_file_path"]#request.POST["cif_file_path"]
         #files_to_remove.append(cif_file_path)
         #print('r2dt results parsing cif')
         #print('cif_file_path')
@@ -865,21 +892,22 @@ def r2dt(request, entity_id):
         # If it fails, inform the user.
         print("Error: %s file not found" % './sequence10'+str(fileNameSuffix)+'.fasta.ssi') 
     
-    cif_fileNameSuffix=alignments.config.cif_fileNameSuffix_share
-    cif_file_name="/tmp/cust2"+str(cif_fileNameSuffix)+".cif"
-    if not cif_file_name in file_r2dt_counter_dict:
-        file_r2dt_counter_dict[cif_file_name] = 0
-    file_r2dt_counter_dict[cif_file_name] += 1
-
-    if file_r2dt_counter_dict[cif_file_name] == 2:  
-
-        # Delete file
-        if os.path.isfile(cif_file_name):
-            os.remove(cif_file_name)
+    if cif_mode_flag is True:
+        cif_fileNameSuffix=alignments.config.cif_fileNameSuffix_share
+        cif_file_name="/tmp/cust2"+str(cif_fileNameSuffix)+".cif"
+        if not cif_file_name in file_r2dt_counter_dict:
             file_r2dt_counter_dict[cif_file_name] = 0
-        else:
-        # If it fails, inform the user.
-            print("Error: %s file not found" % cif_file_name)       
+        file_r2dt_counter_dict[cif_file_name] += 1
+
+        if file_r2dt_counter_dict[cif_file_name] == 2:  
+
+            # Delete file
+            if os.path.isfile(cif_file_name):
+                os.remove(cif_file_name)
+                file_r2dt_counter_dict[cif_file_name] = 0
+            else:
+            # If it fails, inform the user.
+                print("Error: %s file not found" % cif_file_name)       
     
     dir_path = str(output)
     if os.path.isdir(dir_path):

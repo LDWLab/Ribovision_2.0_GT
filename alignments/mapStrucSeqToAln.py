@@ -128,8 +128,7 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
     print("Mafft")
     pipe = Popen(f"/usr/local/bin/mafft --anysymbol --preservecase --quiet --addfull {pdb_seq_path} --mapout {aln_group_path}; /usr/bin/cat {mappingFileName}", stdout=PIPE, shell=True)
     output = pipe.communicate()[0]
-    print("Mafft_done")
-
+    print("Mafft done")
     if len(output.decode("ascii")) <= 0:
         for removeFile in tempfiles:
             remove(removeFile)

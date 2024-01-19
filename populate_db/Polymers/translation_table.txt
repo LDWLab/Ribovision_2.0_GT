@@ -1,0 +1,182 @@
+192952,METMA;Methanosarcina mazei Go1;Methanosarcina mazei Goe1;Methanosarcina mazei str. Goe1;Methanosarcina mazei str. Go1;Methanosarcina mazei strain Go1
+456442,METB6;Methanoregula boonei;Candidatus Methanoregula boonei 6A8;methanogenic archaeon 6A8;Methanoregula boonei str. 6A8;Methanoregula boonei strain 6A8;Methanoregula boonei 6A8
+272627,MAGMG;Magnetospirillum magnetotacticum MS-1;Magnetospirillum sp. MS-1;Rhodospirillaceae;Magnetospirillum magnetotacticum str. MS-1;Magnetospirillum magnetotacticum strain MS-1
+243277,VIBCH;Vibrio cholerae O1 biovar El Tor str. N16961;VIBCH;Vibrio cholerae O1 biovar eltor str. N16961;Vibrio cholerae El Tor N16961;Vibrio cholerae serotype O1 biotype El Tor strain N16961;Vibrio cholerae serotype O1 biotype ElTor strain N16961
+273116,THEVO;Thermoplasma volcanium GSS1;Thermoplasma volcanium str. GSS1;Thermoplasma volcanium strain GSS1
+235909,GEOKA;Geobacillus kaustophilus HTA426;Bacillaceae
+292459,SYMTH;Symbiobacterium thermophilum IAM 14863;SYMTH;Symbiobacterium thermophilum IAM14863;Symbiobacterium thermophilum str. IAM 14863;Symbiobacterium thermophilum strain IAM 14863
+425595,MICAC;Micrarchaeum acidiphilum;Candidatus Micrarchaeum acidiphilum ARMAN-2;uncultured euryarchaeote ARMAN-2
+104782,ADIVA;Adineta vaga;Adineta vaga (Davis, 1873)
+74969,FERRA;Ferroplasma acidiphilum;Ferromonas metallovorans;Ferroplasma acidiphilum Golyshina et al. 2000;DSM 12658;JCM 10970;Ferriplasma acidophilum
+297245,LEGPL;Legionella pneumophila str. Lens;Legionella pneumophila Lens;Legionellaceae;Legionella pneumophila
+416348,HALLT;Halorubrum lacusprofundi ATCC 49239;Halorubrum lacusprofundi ACAM 34;Halorubrum lacusprofundi str. ATCC 49239;Halorubrum lacusprofundi strain ATCC 49239
+1700835,BATHA;Bathyarchaeota archaeon;Candidatus Bathyarchaeota archaeon BA1;Bathyarchaeota archaeon BA1
+1803814,THEIO;Theionarchaea archaeon DG-70-1;Thermoplasmatales archaeon DG-70-1
+1803500,ENIGM;Aenigmarchaeota archaeon;Candidatus Aenigmarchaeota archaeon CG1_02_38_14
+420245,LEIBR;Leishmania braziliensis MHOM/BR/75/M2904;Leishmania major
+224911,BRADU;Bradyrhizobium diazoefficiens USDA 110;Bradyrhizobium japonicum USDA 110;Bradyrhizobium japonicum USDA110;Bradyrhizobiaceae
+235279,HELHP;Helicobacter hepaticus ATCC 51449;Helicobacter hepaticus str. ATCC 51449
+100226,STRCO;Streptomyces coelicolor A3(2);Streptomyces coelicolor
+511145,ECOLI;Escherichia coli K-12;Escherichia coli K12;Escherichia coli str K12;Escherichia coli strain K12;Escherichia coli str. K-12 substr. MG1655
+482957,BURL3;Burkholderia lata;Burkholderia lata Vanlaere et al. 2009;ATCC 17760;CCUG 55525;LMG 22485;strain 383;Burkholderia mana;Burkholderiaceae;Burkholderia sp.
+272631,MYCLE;Mycobacterium leprae TN;Mycobacterium leprae str. TN;Mycobacterium leprae strain TN;Actinobacteria
+348780,NATPD;Natronomonas pharaonis DSM 2160;Natronomonas pharaonis ATCC 35678;Natronomonas pharaonis Gabara;Natronomonas pharaonis JCM 8858;Natronomonas pharaonis str. DSM 2160;Natronomonas pharaonis strain DSM 2160
+1852841,Diapherotrites archaeon;Candidatus Diapherotrites archaeon ADurb.Bin253
+565050,CAUCN;Caulobacter vibrioides NA1000;Caulobacter crescentus NA1000
+283166,BARHE;Bartonella henselae str. Houston-1;Bartonella henselae ATCC 49882;Bartonella henselae str. ATCC 49882;Bartonella henselae strain ATCC 49882;Bartonella henselae strain Houston-1
+7955,DANRE;Danio rerio;Brachydanio rerio;Brachydanio rerio frankei;Cyprinus rerio;Danio frankei;Danio rerio frankei;Cyprinus rerio Hamilton, 1822;Danio rerio (Hamilton, 1822);Brachidanio rerio
+180454,ANOGA;Anopheles gambiae str. PEST;Anopheles gambiae PEST
+208963,PSEAB;Pseudomonas aeruginosa UCBPP-PA14;Pseudomonas aeruginosa PAO1;Pseudomonas aeruginosa str. UCBPP-PA14;Pseudomonadaceae
+453591,IGNH4;Ignicoccus hospitalis KIN4/I;Ignicoccus hospitalis DSM 18386;Ignicoccus hospitalis JCM 14125;Ignicoccus sp. Kin4-I;Ignicoccus hospitalis str. KIN4/I;Ignicoccus hospitalis strain KIN4/I
+272569,HALMA;Haloarcula marismortui ATCC 43049;Haloarcula marismortui str. ATCC 43049;Haloarcula marismortui strain ATCC 43049
+176299,AGRFC;Agrobacterium fabrum str. C58;Agrobacterium tumefaciens str. C58;Rhizobium Agrobacteri;Agrobacter
+575564,ACISP;Acinetobacter sp. RUH2624;Acinetobacter sp. RUH 2624;Acinetobacter genomosp. 13TU str. RUH2624;Acinetobacter genomosp. 13TU strain RUH2624;Acinetobacter calcoaceticus
+45157,CYAME;Cyanidioschyzon merolae;Cyanidioschyzon merolae strain 10D
+71421,HAEIN;Haemophilus influenzae Rd KW20;Haemophilus influenzae KW20;Haemophilus influenzae Rd;Pasteurellaceae
+36329,PLAF7;Plasmodium falciparum 3D7;Plasmodium falciparum (isolate 3D7);PLASMODIUM FALCIPARUM (ISOLATE 3D7)
+1706444,THOR;Thorarchaeota archaeon;Candidatus Thorarchaeota archaeon SMTZ1-45;Thorarchaeota archaeon SMTZ1-45
+1538547,LOKI;Lokiarchaeum sp;Lokiarchaeum sp. GC14_75;archaeon Loki;archeaon Loki;Lokiarchaeum sp.;Lokiarchaeum sp. GC14 75;Lokiarchaeota archaeon
+1936271,ODIN;Odinarchaeota archaeum;Candidatus Odinarchaeota;Odinarchaeota;Candidatus Odinarchaeota archaeum;Odinarchaeota archaeon
+211586,SHEON;Shewanella oneidensis MR-1;Shewanella oneidensis ATCC 700550;Shewanella sp. MR-1;Shewanella oneidensis str. MR-1;Shewanella oneidensis strain MR-1
+339860,METST;Methanosphaera stadtmanae DSM 3091;Methanosphaera stadtmanae ATCC 43021;Methanosphaera stadtmanae MCB-3;Methanosphaera stadtmanae str. DSM 3091;Methanosphaera stadtmanae strain DSM 3091
+368407,METMJ;Methanoculleus marisnigri JR1;Methanoculleus marisnigri str. JR1;Methanoculleus marisnigri strain JR1
+323259,METHJ;Methanospirillum hungatei JF-1;Methanospirillum hungatei DSM 864;Methanospirillum hungatei NBRC 100397;Methanospirillum hungatei str. JF-1;Methanospirillum hungatei strain JF-1
+190486,XANAC;Xanthomonas axonopodis pv. citri str. 306;Xanthomonas citri pv. citri str. 306;Xanthomonadaceae
+284591,YARLI;Yarrowia lipolytica CLIB122;Yarrowia lipolytica CLIB99
+242231,NEIG1;Neisseria gonorrhoeae FA 1090;Neisseria gonorrhoeae FA1090;Neisseria gonorrhoeae str. FA 1090;Neisseria gonorrhoeae strain FA 1090
+267747,PROAC;Cutibacterium acnes KPA171202;Propionibacterium acnes DSM 16379;Propionibacterium acnes KPA171202;Propionibacteriaceae
+663917,GEOSK;Geobacter sulfurreducens KN400;Geobacter sulfurreducens str. KN400;Geobacter sulfurreducens strain KN400
+284812,SCHPO;Schizosaccharomyces pombe 972h-
+419665,META3;Methanococcus aeolicus Nankai-3;Methanococcus aeolicus str. Nankai-3;Methanococcus aeolicus strain Nankai-3
+214092,YERPE;Yersinia pestis CO92;Yersinia pestis str. CO92;Yersinia pestis strain CO92;Yersinia pestis Nepal
+243274,THEMA;Thermotoga maritima MSB8;Thermotoga maritima DSM 3109;Thermotoga maritima str. MSB8;Thermotoga maritima strain MSB8
+3702,ARATH;Arabidopsis thaliana;Arabidopsis thaliana (L.) Heynh.;Arabidopsis thaliana (thale cress);Arabidopsis_thaliana;Arbisopsis thaliana;thale kress
+203907,BLOFL;Candidatus Blochmannia floridanus;"Candidatus Blochmannia floridanus" Sauer et al. 2000;Blochmannia floridanus
+186497,PYRFU;Pyrococcus furiosus DSM 3638;Pyrococcus furiosus DSM3638;Pyrococcus furiosus str. DSM 3638;Pyrococcus furiosus strain DSM 3638
+7897,LATCH;Latimeria chalumnae;Latimeria chalumnae Smith, 1939
+1577684,NANOP;Nanopusillus acidilobi;Candidatus Nanopusillus acidilobi;"Candidatus Nanopusillus acidilobi" Wurch et al. 2016
+410358,METLZ;Methanocorpusculum labreanum Z;Methanocorpusculum labreanum str. Z;Methanocorpusculum labreanum strain Z
+39947,ORYSJ;Oryza sativa Japonica Group;Oryza sativa (japonica cultivar-group);Oryza sativa subsp. japonica;Oryza sativa (japonica culticar-group);Oryza sativa japonica;Oryza sativa ssp. japonica
+169963,LISMO;Listeria monocytogenes EGD-e;Listeria monocytogenes ATCC BAA-679;Listeria monocytogenes EGDe;Listeria monocytogenes str. EGD-e;Listeria monocytogenes strain EGD-e
+243090,RHOBA;Rhodopirellula baltica SH 1;Pirellula sp. 1;Rhodopirellula baltica str. SH 1;Rhodopirellula baltica strain SH 1
+273063,SULTO;Sulfolobus tokodaii str. 7;Sulfurisphaera tokodaii str. 7;Sulfolobus sp. (strain 7);Sulfolobus sp. 7;Sulfolobus tokodaii strain 7;Sulfurisphaera tokodaii
+309800,HALVD;Haloferax volcanii DS2;Haloferax volcanii ATCC 29605;Haloferax volcanii DSM 3757;Haloferax volcanii str. DS2;Haloferax volcanii strain DS2;Haloferax volcaniir
+194439,CHLTE;Chlorobaculum tepidum TLS;Chlorobium tepidum TLS
+1805424,WOESE;Candidatus Woesearchaeota archaeon CG1_02_57_44;Woesearchaeota archaeon
+563178,BUCA5;Buchnera aphidicola str. 5A (Acyrthosiphon pisum);Buchnera aphidicola strain 5A (Acyrthosiphon pisum);Obesumbacterium Buchnera aphidicola str. 5A
+1801881,PACER;Pacearchaeota archaeon;Candidatus Pacearchaeota archaeon RBG_13_36_9;Pacearchaeota archaeon
+165597,CROWT;Crocosphaera watsonii WH 8501;Crocosphaera watsonii WH8501;Synechocystis WH8501;Synechocystis WH 8501
+414004,CENSY;Cenarchaeum symbiosum A;Cenarchaeum symbiosum (strain A)
+330779,SULAC;Sulfolobus acidocaldarius DSM 639;Sulfolobus acidocaldarius ATCC 33909;Sulfolobus acidocaldarius NCIB 11770
+7227,DROME;Drosophila melanogaster;Sophophora melanogaster;Drosophila melanogaster Meigen, 1830;Sophophora melanogaster (Meigen, 1830);Drosophila melangaster
+273068,CALS4;Caldanaerobacter subterraneus subsp. tengcongensis MB4;Thermoanaerobacter tengcongensis MB4T;Thermoanaerobacter tengcongensis str. MB4;Thermoanaerobacter tengcongensis strain MB4;Thermoanaerobacter tengcongensis MB4
+259564,METBU;Methanococcoides burtonii DSM 6242;Methanococcoides burtonii str. DSM 6242
+1148,SYNYG;Synechocystis sp. PCC 6803;Synechocystis sp. PCC 6803 substr. GT-I;Aphanocapsa sp. (strain N-1);Aphanocapsa sp. N-1;Synechocystis sp. (ATCC 27184);Synechocystis sp. ATCC 27184;Synechocystis 6803;Synechocystis PCC6803;Synechocystis sp. PCC6803;Synechocystis sp.PCC6803;Synechocystis sp. (PCC 6803);Synechocystis sp. (strain PCC 6803)
+349102,RHOS5;Rhodobacter sphaeroides ATCC 17025;Rhodobacter sphaeroides str. ATCC 17025;Rhodobacter sphaeroides strain ATCC 17025;Rhodobacteraceae
+9031,CHICK;Gallus gallus;Gallus gallus domesticus;Gallus domesticus
+188937,METAC;Methanosarcina acetivorans C2A;Methanosarcina acetivorans str. C2A;Methanosarcina siciliae
+272557,AERPE;Aeropyrum pernix K1;Aeropyrum pernix str. K1;Aeropyrum pernix strain K1
+243230,DEIRA;Deinococcus radiodurans R1;Deinococcus radiodurans str. R1
+243276,TREPA;Treponema pallidum subsp. pallidum str. Nichols;Treponema pallidum Nichols;Treponema paraluiscuniculi;TREPA
+13616,MONDO;Monodelphis domestica;Monodelphis domesticus
+10090,MOUSE;Mus musculus;Mus muscaris;Mus musculus Linnaeus, 1758;mice C57BL/6xCBA/CaJ hybrid
+243232,METJA;Methanocaldococcus jannaschii DSM 2661;Methanococcus jannaschii DSM 2661;Methanocaldococcus jannaschii str. DSM 2661
+227377,COXBU;Coxiella burnetii RSA 493;Coxiella burnetii str. RSA 493
+159087,DECAR;Dechloromonas aromatica RCB;Dechloromonas sp. RCB;Dechloromonas aromatica str. RCB
+185431,TRYB2;Trypanosoma brucei brucei TREU927;Trypanosoma brucei TREU927;Trypanosoma brucei brucei strain 927/4 GUTat10.1;Trypanosoma brucei strain TREU927
+198094,BACAN;Bacillus anthracis str. Ames;Bacilli;Bacillus anthracis (strain Ames);Bacillus anthracis Ames;Bacillus anthracis strain Ames
+8355,XENLA;Xenopus laevis;Bufo laevis;Xenopus laevis (Daudin, 1802);Xenopus leavis
+436308,NITMS;Nitrosopumilus maritimus SCM1;Seattle Aquarium strain SCM1;Candidatus Nitrosopumilus maritimus SCM1;Nitrosopumilus maritimus str. SCM1;Nitrosopumilus maritimus strain SCM1
+171101,STRR6;Streptococcus pneumoniae R6;STRR6;Streptococcus pneumoniae (strain ATCC BAA-255 / R6);Streptococcus pneumoniae str. R6
+353151,CRYHT;Cryptosporidium hominis TU502;Cryptosporidium hominis strain TU502
+91464,SYNS7;Synechococcus sp. PCC 7335;Synechococcus PCC 7335;Synechococcus PCC7335;Synechococcus sp. PCC7335
+203267,TROWT;Tropheryma whipplei str. Twist;Tropheryma whipplei Twist;Tropheryma whipplei strain Twist
+55529,GUITH;Guillardia theta;Guillardia theta CC
+6239,CAEEL;Caenorhabditis elegans;Rhabditis elegans;Caenorhabditis elegans (Maupas, 1900);Rhabditis elegans Maupas, 1900
+6238,CAEBR;Caenorhabditis briggsae;Caenorhabditis briggsae Dougherty & Nigon, 1949
+296543,THAPS;Thalassiosira pseudonana CCMP1335;Thalassiosira pseudonana strain CCMP1335
+349307,METTP;Methanothrix thermoacetophila PT;Methanothrix thermophila DSM 6194;Methanothrix thermophila PT;Methanosaeta thermophila PT
+33169,EREGO;Eremothecium gossypii;Ashbya gossipii;Ashbya gossypii;Nematospora gossypii;Eremothecium gossypii (Ashby & Nowell);1 Ashbya gossypii 
+282458,STAAR;Staphylococcus aureus subsp. aureus MRSA252;Staphylococcus aureus subsp. aureus str. MRSA252;Staphylococcus aureus subsp. aureus strain MRSA252;Staphylococcus aureus
+1072681,HALSG;Candidatus Haloredivivus sp. G17;Nanohaloarchaea archaeon G17;Haloredivivus sp. G17
+227941,CHLCV;Chlamydophila caviae GPIC;Chlamydia caviae
+10116,RAT;Rattus norvegicus;Gunn rats;Rattus rattiscus;Rattus norvegicus8;Rattus norwegicus;Rattus sp. strain Wistar
+190192,METKA;Methanopyrus kandleri AV19;Methanopyrus kandleri str. AV19
+226186,BACTN;Bacteroides thetaiotaomicron VPI-5482;Bacteroides thetaiotaomicron str. VPI-5482;Bacteroides thetaiotaomicron strain VPI-5482
+269798,CYTH3;Cytophaga hutchinsonii ATCC 33406;Cytophaga hutchinsonii str. ATCC 33406;Cytophaga hutchinsonii strain ATCC 33406
+296591,POLSJ;Polaromonas sp. JS666
+281090,LEIXX;Leifsonia xyli subsp. xyli str. CTCB07;Leifsonia xyli subsp. xyli CTCB07;Leifsonia xyli subsp. xyli strain CTCB07;Microbacteriaceae
+69014,THEKO;Thermococcus kodakarensis KOD1;Pyrococcus sp. (strain KOD1);Pyrococcus sp. KOD1;Thermococcus kodakaraensis KOD1;Thermococcus kodakarensis str. KOD1;Thermococcus kodakarensis strain KOD1
+228908,NANEQ;Nanoarchaeum equitans Kin4-M;Nanoarchaeum equitans str. Kin4-M;Microarchaeum sp. Kin4-M
+1776334,Hadesarchaea archaeon YNP_45;Hadesarchaea archaeon;Candidatus Hadarchaeum yellowstonense
+290633,GLUOX;Gluconobacter oxydans 621H;Gluconobacter oxydans str. 621H;Gluconobacter oxydans strain 621H
+62928,AZOSB;Azoarcus sp. BH72
+9598,PANTR;Pan troglodytes;Chimpansee troglodytes
+292805,WOLTR;Wolbachia endosymbiont strain TRS of Brugia malayi;Wolbachia malayi TRS;Wolbachia sp. subsp. Brugia malayi
+243164,DEHM1;Dehalococcoides mccartyi 195;Dehalococcoides ethenogenes 195;Dehalococcoides mccartyi str. 195;Dehalococcoides mccartyi strain 195
+228410,NITEU;Nitrosomonas europaea ATCC 19718;NITEU;Nitrosomonas europaea str. ATCC 19718
+156889,MAGMM;Magnetococcus marinus MC-1;Magnetococcus sp. MC-1;Magnetococcus sp. SS-1;Magnetococcus marinus str. MC-1;Magnetococcus marinus strain MC-1
+559292,YEAST;Saccharomyces cerevisiae S288C
+262724,THET2;Thermus thermophilus HB27;Thermus thermophilus str. HB27;Thermus thermophilus strain HB27;THET8
+242619,PORGI;Porphyromonas gingivalis W83;Porphyromonas gingivalis str. W83;Porphyromonas gingivalis strain W83
+352472,DICDI;Dictyostelium discoideum AX4;Dictyostelium discoideum strain AX4
+9606,HUMAN;Homo sapiens;Homo sapiens Linnaeus, 1758;Home sapiens;Homo sampiens;Homo sapeins;Homo sapian;Homo sapians;Homo sapien;Homo sapience;Homo sapiense;Homo sapients;Homo sapines;Homo spaiens;Homo spiens;Humo sapiens
+251221,GLOVI;Gloeobacter violaceus PCC 7421;Gloeobacter violaceus ATCC 29082;Gloeobacter violaceus str. PCC 7421;Gloeobacter violaceus strain PCC 7421
+662760,PARVA;Parvarchaeum acidiphilum;Candidatus Parvarchaeum acidiphilum ARMAN-4;Parvarchaeum acidiphilum ARMAN-4
+205913,BIFLD;Bifidobacterium longum DJO10A;Bifidobacterium longum str. DJO10A;Bifidobacterium_longum_NCC2705
+269797,METBF;Methanosarcina barkeri str. Fusaro;Methanosarcina barkeri DSM 804;Methanosarcina barkeri Fusaro;Methanosarcina barkeri 'Fusaro';Methanosarcina barkeri strain Fusaro
+224325,ARCFU;Archaeoglobus fulgidus DSM 4304;Archaeoglobus fulgidus VC-16;Archaeoglobus fulgidus str. VC-16;Archaeoglobus fulgidus strain VC-16;Archaeoglobus fulgidus str. DSM 4304;Archaeoglobus fulgidus strain DSM 4304
+197221,THEEB;Thermosynechococcus elongatus BP-1;Thermosynechococcus elongatus IAM M-273;Thermosynechococcus elongatus NIES-2133;Thermosynechococcus elongatus str. BP-1;Thermosynechococcus elongatus strain BP-1
+187420,METTH;Methanothermobacter thermautotrophicus str. Delta H;Methanobacterium thermoautotrophicum str. deltaH;Methanobacterium thermoautotrophicum str. Delta H;Methanothermobacter thermautotrophicus str. deltaH;mergS9 METTH
+265311,MESFL;Mesoplasma florum L1;Mesoplasma florum str. L1;Mesoplasma florum strain L1;Entomoplasmataceae
+374847,KORCO;Candidatus Korarchaeum cryptofilum OPF8;Korarchaeum cryptofilum OPF8;korarchaeote OPF1-KOR;Candidatus Korarchaeum cryptofilum str. OPF8;Candidatus Korarchaeum cryptofilum strain OPF8
+279238,NOVAD;Novosphingobium aromaticivorans DSM 12444;NOVAD;Novosphingobium aromaticivorans str. DSM 12444;Novosphingobium aromaticivorans strain DSM 12444
+362976,HALWD;Haloquadratum walsbyi DSM 16790;Haloquadratum walsbyi str. DSM 16790;Haloquadratum walsbyi strain DSM 16790
+1841598,HEIM;Heimdallarchaeota archaeon;Candidatus Heimdallarchaeota archaeon LC_3;archaeon Heimdall LC_3
+264198,CUPNJ;Ralstonia eutropha JMP134;Cupriavidus necator JMP134;Cupriavidus pinatubonensis JMP134;Ralstonia sp. JMP134;Wautersia eutropha JMP134;Ralstonia eutropha JMP-134;Ralstonia eutropha str. JMP134;Ralstonia eutropha strain JMP134
+243265,PHOLL;Photorhabdus luminescens subsp. laumondii TTO1;Photorhabdus luminescens subsp. laumondii str. TTO1
+64091,HALSA;Halobacterium salinarum NRC-1;Halobacterium halobium NRC-1;Halobacterium sp. (strain NRC-1 / ATCC 700922 / JCM 11081);Halobacterium sp. (strain NRC-1);Halobacterium sp. ATCC 700922;Halobacterium sp. JCM 11081;Halobacterium salinarum str. NRC-1;Halobacterium salinarum strain NRC-1;Halobacterium sp. NRC-1
+266834,RHIME;Sinorhizobium meliloti 1021;Sinorhizobium meliloti str. 1021;Sinorhizobium Ensifer;Sinorhizobium ensife;Rhizobium meliloti
+368408,THEPD;Thermofilum pendens Hrk 5;Thermofilum pendens str. Hrk 5;Thermofilum pendens strain Hrk 5
+190304,FUSNN;Fusobacterium nucleatum subsp. nucleatum ATCC 25586;FUSNN;Fusobacterium nucleatum subsp. nucleatum JCM 8532;Fusobacterium nucleatum subsp. nucleatum str. ATCC 25586;Fusobacterium nucleatum subsp. nucleatum strain ATCC 25586
+7160,AEDAL;Aedes albopictus;Stegomyia albopicta;Aedes albopictus (Skuse, 1894)
+221109,OCEIH;Oceanobacillus iheyensis HTE831;marine firmicute HTE831;Oceanobacillus iheyensis str. HTE831;Oceanobacillus iheyensis strain HTE831
+410359,PYRCJ;Pyrobaculum calidifontis JCM 11548;Pyrobaculum calidifontis VA1;Pyrobaculum calidifontis str. JCM 11548;Pyrobaculum calidifontis strain JCM 11548
+555217,ZYMMA;Zymomonas mobilis subsp. mobilis ATCC 10988;Zymomonas mobilis subsp. mobilis str. ATCC 10988;Zymomonas mobilis subsp. mobilis strain ATCC 10988
+397948,CALMQ;Caldivirga maquilingensis IC-167;Caldivirga maquilingensis DSM 13496;Caldivirga maquilingensis JCM 10307;Caldivirga maquilingensis str. IC-167;Caldivirga maquilingensis strain IC-167
+263820,PICTO;Picrophilus torridus DSM 9790;Picrophilus torridus DSM9790;Picrophilus torridus str. DSM 9790;Picrophilus torridus strain DSM 9790
+399549,METS5;Metallosphaera sedula DSM 5348;Metallosphaera sedula IFO 15509;Metallosphaera sedula JCM 9185;Metallosphaera sedula NBRC 15509;Metallosphaera sedula str. DSM 5348;Metallosphaera sedula strain DSM 5348
+415426,HYPBU;Hyperthermus butylicus DSM 5456;Hyperthermus butylicus str. DSM 5456;Hyperthermus butylicus strain DSM 5456
+240292,ANAVT;Trichormus variabilis ATCC 29413;ANAVT;Anabaena flos-aquae (strain IUCC 1444);Anabaena flos-aquae A-37;Anabaena flos-aquae UTCC 67;Anabaena flos-aquae UTEX 1444;Anabaena sp. CCALA 007;Anabaena sp. CCAP 1403/13A;Anabaena sp. PCC 7937;Anabaena variabilis ATCC 29413;Anabaena variabilis CCAP 1403/13A;Anabaena variabilis IAM M-204;Anabaena variabilis UTCC 105;Anabaena ATCC29413;Anabaena PCC7937;Anabaena sp. (ATCC 29413);Anabaena sp. (PCC 7937);Anabaena sp. (strain ATCC 29413);Anabaena sp. (strain PCC 7937);Anabaena sp. A37;Anabaena sp. UTEX1444;Nostoc PCC7937;Nostoc sp. PCC 7937
+399550,STAMF;Staphylothermus marinus F1;Staphylothermus marinus ATCC 43588;Staphylothermus marinus DSM 3639;Staphylothermus marinus JCM 9404;Staphylothermus marinus str. F1;Staphylothermus marinus strain F1
+5911,TETTH;Tetrahymena thermophila
+28377,ANOCA;Anolis carolinensis
+1802726,YONAT;Yonathbacteria bacterium;Parcubacteria (Yonathbacteria) bacterium RIFCSPLOWO2_01_FULL_43_27;Candidatus Yonathbacteria bacterium RIFCSPLOWO2 01 FULL 43 27
+1798407,HARIS;Harrisonbacteria bacterium;Parcubacteria (Harrisonbacteria) bacterium RIFCSPLOWO2 01 FULL 44 18;Candidatus Harrisonbacteria bacterium RIFCSPLOWO2 01 FULL 44 18
+1802224,STASK;Staskawiczbacteria bacterium;Parcubacteria (Staskawiczbacteria) bacterium RIFOXYB1 FULL 38 37;Candidatus Staskawiczbacteria bacterium RIFOXYB1 FULL 38 37
+1798009,FALKO;Falkowbacteria bacterium;Candidatus Falkowbacteria bacterium RIFOXYD2 FULL 39 16
+1802479,WOESB;Woesebacteria bacterium;Candidatus Woesebacteria bacterium RBG 13 46 13
+1798391,GOTTS;Gottesmanbacteria bacterium;Candidatus Gottesmanbacteria bacterium RIFCSPLOWO2 01 FULL 42 22
+1802616,WWE3B;WWE3 bacterium;candidate division WWE3 bacterium RIFCSPHIGHO2 01 FULL 40 23
+1817897,DOJKB;Dojkabacteria bacterium;Candidatus Dojkabacteria bacterium RIFOXYB1 FULL 33 15;candidate division WS6 bacterium RIFOXYB1 FULL 33 15
+1802133,SACCH;Saccharibacteria bacterium;Candidatus Saccharibacteria bacterium RIFCSPHIGHO2 01 FULL 46 30
+1801902,PEREG;Peregrinibacteria bacterium;Candidatus Peregrinibacteria bacterium RIFOXYA2 FULL 33 21
+1797471,BERKE;Berkelbacteria bacterium;Candidatus Berkelbacteria bacterium RIFCSPLOWO2 01 FULL 50 28
+3055,CHLRE;Chlamydomonas smithii;Chlamydomonas reinhardtii P.A.Dangeard, 1888;Chlamydomonas smithii R.W.Howshaw & H.Ettl;SAG 53.72;SAG 54.72;SAG:53.72;SAG:54.72;UTEX 90;UTEX:90;Chlamydomonas reihhardtii;Chlamydonas reinhardtii;Chlamydomonas reinhardtii
+2769,CHOCR;Chondrus crispus Stackhouse, 1797;Chondrus crispus
+227086,BIGNA;Chlorarachnion CCMP621;Bigellowiella natans;Bigelowiella natans
+3075,AUXPR;Chlorella protothecoides;Chlorella protothecoides var. galactophila;Auxenochlorella protothecoides (Krueger) Kalina & M.Puncoch.;Chlorella protothecoides Krueger;Chlorella protothecoides var. galactophila Shihira & R.W.Krauss;SAG 211-7a;SAG:211-7a;Auxenochlorella protothecoides var. galactophila;Auxenochlorella protothecoides
+13221,CHRCT;Pleurochrysis carterae;Syracosphaera carterae;Chrysotila carterae (T.Braarud & E.Fagerland) Andersen, Kim, Tittley & Yoon 2014;Pleurochrysis carterae (Braarud & Fagerland) Christensen 1978;Syracosphaera carterae Braarud & Fargerland 1946;Chrysotila carterae
+13706,SYNRA;Syncephalastrum racemosum Cohn ex J. Schröt., 1889;Syncephalastrum racemosus;Syncephastrum racemosum;Syncephalastrum racemosum
+3088,TETOB;Tetradesmus obliquus;Achnanthes obliqua;Acutodesmus obliquus;Scenedesmus obliquus;Achnanthes obliqua Turpin, 1828;Acutodesmus obliquus (Turpin) Hegewald & Hanagata, 2000;Scenedesmus obliquus (Turpin) Kuetzing, 1834;Tetradesmus obliquus (Turpin) M.J.Wynne, 2016;Tetradesmus obliquus
+461836,THETB;Amastigomonas sp. ATCC 50062;Thecamonas trahens ATCC 50062
+5888,PARTE;Paramecium aurelia syngen 4;Paramecium tetraurelia
+37360,PLABS;Plasmodiophora brassicae Woronin 1877;Plasmodiophora brassicae
+5722,TRIVA;Tritrichomonas vaginalis;Trichomonas vaginalis
+2903,EMIHU;Gephyrocapsa huxleyi;Pontosphaera huxleyi;Emiliania huxleyi (Lohmann) W.W.Hay & H.P.Mohler;Gephyrocapsa huxleyi (Lohmann) Reinhardt 1972;Pontosphaera huxleyi Lohmann 1902;Emiliania huxleyii;Emiliania huxleyi
+70448,OSTTA;Ostreococcus tauri C.Courties & M.-J.Chretiennot-Dinet, 1995;Ostreococcus tauri
+5762,NAEGR;Naegleria gruberi
+5741,GIAIN;Giardia duodenalis;Giardia lamblia;Lamblia intestinalis;Giardia intestinalis (Lambl, 1859) Kofoid & Christiansen, 1915;Giardia intestinalis
+2801,RHOVL;Porphyridium violaceum;Rhodella maculata;Porphyridium violaceum Kornmann 1965;Rhodella maculata L.V.Evans 1970;SAG 115.79;SAG:115.79;Rhodella violacea
+3039,EUGGR;Euglena gracilis bacillaris;Euglena gracilis Klebs, 1883;Euglena gracilis
+1801883,Candidatus Pacearchaeota archaeon RBG_19FT_COMBO_34_9

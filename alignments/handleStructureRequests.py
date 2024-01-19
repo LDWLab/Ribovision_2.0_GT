@@ -104,7 +104,8 @@ def handleCustomUploadStructure_CIF (request, strucID):
            
             print('structString')
             fixedEntityStruc = fixEntityFieldofParsedCIF(strucString, {deStrEnt["chainID"]:deStrEnt["entityID"]})
-            outStruc = fixResiFieldsofParsedCIF(fixedEntityStruc)
+            outStruc_full = fixResiFieldsofParsedCIF(fixedEntityStruc)
+            outStruc = delResiofParsedPDB(outStruc_full)
             request.session[f'{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = outStruc
             request.session[f'PDB-{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = deStrEnt["stringData"]
     
@@ -253,6 +254,24 @@ def fixEntityFieldofParsedPDB(stringStruc, chainToEntity):
     return '\n'.join(outStruc) 
    
 def delResiofParsedPDB(stringStruc):
+    listStruc = stringStruc.split('\n')
+    outStruc = listStruc[:21]
+    for row in listStruc[21:]:
+        rowList = row.split()
+        if len(rowList) >6:
+            if str(rowList[5])=='URA':
+               rowList[5]=='U'
+            if str(rowList[5])=='GUA':
+               rowList[5]=='G'
+            if str(rowList[5])=='CYT':
+               rowList[5]=='C'
+            if str(rowList[5])=='ADE':
+               rowList[5]=='A'          
+            if str(rowList[5])=='U' or str(rowList[5])=='A' or str(rowList[5])=='G' or str(rowList[5])=='C':
+                outStruc.append(' '.join(rowList))
+    return '\n'.join(outStruc)   
+
+def delResiofParsedCIF(stringStruc):
     listStruc = stringStruc.split('\n')
     outStruc = listStruc[:21]
     for row in listStruc[21:]:

@@ -17,6 +17,12 @@ export function initialState (){
         available_properties: [
             {Name:"Shannon entropy", url:"static/alignments/svg/ShannonNA.svg"},
             ],
+        selectAllProteinsChecked: false,
+        selectedProteins: [],
+        selectAllModifiedChecked: false,
+        selectedResidues: [],
+        selectAllModifiedCustomChecked: false,
+        selectedResiduesCustom: [],
         domain_list: null,
         selected_domain: [],
         pdbid: null,
@@ -101,12 +107,13 @@ export function initialState (){
         pdbFileUploadedFlag: false,
         RVGuideEntityId: -1,
         sequence_for_r2dt : null,
-        json_structures_from_r2dt : null,
+        json_structures_from_r2dt : null, 
         pdbdata: null,
         cifdata: null,
         pdbcust: null,
         cifcust: null,
         unfilteredChains_orig: null,
-        
+        associatedDataCache: null,
+        associatedData1: null
     }
 }

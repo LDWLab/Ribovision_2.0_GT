@@ -40,21 +40,19 @@ class PdbRnaViewerPlugin {
 
 
         this.uiTemplateService = new UiTemplateService(this.targetEle, this.options, this.apiData);
+        //console.log("API", this.options.pdbId, this.apiData);
         if(this.apiData) {
             // draw topology
             this.uiTemplateService.render(this.apiData, this.FR3DData, this.FR3DNestedData, this.BanName);
-
-            // Bind to other PDB Component events
-            if(this.options.subscribeEvents){
-                CustomEvents.subscribeToComponentEvents(this);
-            }
+            CustomEvents.subscribeToComponentEvents(this);
 
         } else {
 
             if(options.rvAPI == true) this.rvAPI = true;
 
             if (this.rvAPI){
-                const dataUrls = (window as any).vm.URL;
+                const vm = (window as any).vm;
+                //const dataUrls = vm.URL;
                
                 //this.apiData = await (await fetch(dataUrls)).json().then((r2dtjson) => r2dtjson.RNA_2D_json) as ApiData;
                 //this.FR3DData = await (await fetch(dataUrls)).json().then((r2dtjson) => r2dtjson.RNA_BP_json) as any;
@@ -62,19 +60,22 @@ class PdbRnaViewerPlugin {
 
 
                 
-                const {
-                    apiDataJ,
-                    FR3DDataJ, 
-                    FR3DNestedDataJ
-                } = await (await fetch(dataUrls)).json().then((r2dtjson) => ({
-                    apiDataJ : r2dtjson.RNA_2D_json as ApiData,
-                    FR3DDataJ : r2dtjson.RNA_BP_json as any, 
-                    FR3DNestedDataJ : r2dtjson.RNA_BP_json as any,
-                }));
-                this.apiData = apiDataJ;
-                this.FR3DData = FR3DDataJ;
-                this.FR3DNestedData = FR3DNestedDataJ;
+                // const {
+                //     apiDataJ,
+                //     FR3DDataJ, 
+                //     FR3DNestedDataJ
+                // } = await (await fetch(dataUrls)).json().then((r2dtjson) => ({
+                //     apiDataJ : r2dtjson.RNA_2D_json as ApiData,
+                //     FR3DDataJ : r2dtjson.RNA_BP_json as any, 
+                //     FR3DNestedDataJ : r2dtjson.RNA_BP_json as any,
+                // }));
+                const r2dtjson = vm.json_structures_from_r2dt;
+                this.apiData = r2dtjson.RNA_2D_json as ApiData;
+                this.FR3DData = r2dtjson.RNA_BP_json as any;
+                this.FR3DNestedData = r2dtjson.RNA_BP_json as any;
 
+                // console.log('dataUrls', this.apiData);
+                // console.log('dataUrls', this.FR3DData);
                 // draw topology
                 this.uiTemplateService.render(this.apiData, this.FR3DData, this.FR3DNestedData, this.BanName);
     
@@ -82,23 +83,29 @@ class PdbRnaViewerPlugin {
             };
     
         }
-        
-        document.addEventListener("PDB.molstar.mouseover", ((e: any) => {
-            if(e.eventData && e.eventData.auth_seq_id && e.eventData.auth_asym_id === this.options.chainId) {
-                this.selectResidue(e.eventData.auth_seq_id)
+        // Bind to other PDB Component events
+        //if(this.options.subscribeEvents){
+        //    CustomEvents.subscribeToComponentEvents(this);
+//}
+        //console.log("render")
+        //document.addEventListener("PDB.molstar.mouseover", ((e: any) => {
+        //    console.log(e)
+        //    console.log(this.options.chainId)
+        //    if(e.eventData && e.eventData.auth_seq_id && e.eventData.auth_asym_id === this.options.chainId) {
+        //        this.selectResidue(e.eventData.auth_seq_id)
                 //this.clearHighlight()
-            }
-        })),
-        document.addEventListener("PDB.molstar.mouseout", ((e: any) => {
-            this.clearSelection(e.eventData.residueNumber)
-        }))
+        //    }
+       // })),
+        //document.addEventListener("PDB.molstar.mouseout", ((e: any) => {
+         //   this.clearSelection(e.eventData.residueNumber)
+        //}))
     }
 
     selectResidue(label_seq_id: number, color?: string) {
         UiActionsService.selectNucleotide(this.options.pdbId, this.options.entityId, label_seq_id, 'mouseover', false, color);
     }
 
-    clearSelection(label_seq_id: number) {
+    clearSelection(label_seq_id: any) {
         UiActionsService.unSelectNucleotide(this.options.pdbId, this.options.entityId, label_seq_id, false);
     }
 

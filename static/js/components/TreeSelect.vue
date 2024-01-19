@@ -216,14 +216,14 @@ class SimpleTooltip extends Component {
                     };
                     if (resiData["Structural fold"][0] !== undefined && resiData["Associated data"][0] !== undefined){
                       this.setState({
-                        fold: resiData["Structural fold"][0][1],
+                        //fold: resiData["Structural fold"][0][1],
                         phase: resiData["Associated data"][0][1],
                         tooltipPosition,
                       });
                     }else{
                       this.setState({
-                        fold: 'NA',
-                        phase: 'NA',
+                        //fold: 'NA2',
+                        phase: 'NA2',
                         tooltipPosition,
                       });
                     }

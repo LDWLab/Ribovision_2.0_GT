@@ -69,7 +69,7 @@ export class DataService {
     }
 
 }
-export class BanNameHelper {
+/*export class BanNameHelper {
     public static async getBanName(pdbId : string, PchainId : string): Promise<JSON | undefined> {   
            try {
                const apiUrl = `https://api.ribosome.xyz/neo4j/get_banclass_for_chain/?pdbid=${pdbId}&auth_asym_id=${PchainId}&format=json`  
@@ -79,4 +79,47 @@ export class BanNameHelper {
                return void 0;
            };
        }
-    }
+    }*/
+
+    export class BanNameHelper {
+        private static banNameMap: Map<string, JSON | undefined> = new Map();
+      
+        public static async getBanName(pdbId: string, PchainId: string): Promise<JSON | undefined> {
+          const cacheKey = `${pdbId}_${PchainId}`;
+      
+          // Check if the value is in the map
+          if (BanNameHelper.banNameMap.has(cacheKey)) {
+         
+            return BanNameHelper.banNameMap.get(cacheKey);
+          }
+          const vm = (window as any).vm;
+
+          if (!vm || !vm.unfilteredChains_orig) {
+            console.error("vm or vm.unfilteredChains_orig is not defined");
+            return void 0; // or handle the error appropriately
+          }
+      
+          try {
+           
+            var matches = vm.unfilteredChains_orig.filter(function(entry:any) {
+            return entry.in_chains.includes(PchainId);
+            });
+
+            for (let chain of vm.protein_chains){
+                chain.banname_2D=matches[0].molecule_name[0].replace('Large ribosomal subunit', 'LSU').replace('Small ribosomal subunit', 'SSU');
+            
+            }
+            return matches.map(function(entry : any) {
+
+            return entry.molecule_name[0].replace('Large ribosomal subunit protein ', '').replace('Small ribosomal subunit protein ', '');
+            });       
+            
+
+          } catch (e) {
+            console.error(`Error fetching ban name for ${cacheKey}`, e);
+            return void 0;
+          }
+        }
+      }
+      
+      

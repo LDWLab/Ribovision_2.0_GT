@@ -70,6 +70,41 @@ var displayMappingDataByIndex = function(topviewer, selectedIndex){
     vm.selected_property = topviewer.pluginInstance.domainTypes[selectedIndex].label;
 }
 
+var mapAssociatedData = function(associated_data, associated_data_name, topviewer){
+    //var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
+    var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.mappingSelectbox');
+    let vals = associated_data.map(function(v){ return v[1] });
+    let indexes = associated_data.map(function(v){ return v[0] });
+    window.aaColorData.set(associated_data_name, [viridis]);
+    window.aaPropertyConstants.set(associated_data_data_name, [Math.min(...vals), Math.max(...vals)]);
+    //let coilsOutOfCustom = vm.coil_residues.filter(value => !indexes.includes(value));
+    //window.coilsOutOfCustom = coilsOutOfCustom;
+    // if (!window.associated_prop) {
+    //     window.associated_prop = new Map();
+    // }
+    // var associated_prop = window.associated_prop;
+    // associated_prop.set(associated_data_name, associated_data);
+    var associated_prop = new Map();
+    associated_prop.set(associated_data_name, associated_data);
+    if (window.custom_prop){
+        window.custom_prop.set(associated_data_name, associated_data)
+    } else {
+        window.custom_prop = associated_prop;
+    }
+    topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(associated_prop);
+    var associated_option = document.createElement("option");
+    associated_option.setAttribute("value", selectBoxEle.options.length);
+    associated_option.appendChild(document.createTextNode(associated_data_name));
+    selectBoxEle.appendChild(associated_option);
+    if (!vm.available_properties.some(prop => prop.Name === associated_data_name)){
+        vm.available_properties.push({Name:associated_data_name, url:"static/alignments/svg/Custom.svg"})
+    }
+    if(vm.correct_mask) {
+        var j = topviewer.viewInstance.uiTemplateService.domainTypes.length-1;
+        colorResidue(j, window.masked_array);
+    }
+}
+
 var mapCustomMappingData = function(custom_data, custom_data_name, topviewer){
     //var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
     var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.mappingSelectbox');
