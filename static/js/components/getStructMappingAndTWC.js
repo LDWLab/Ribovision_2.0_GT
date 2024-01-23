@@ -67,21 +67,7 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
         }
 
         vm.AD_headers = [];
-        var topviewer = document.getElementById("PdbeTopViewer");
        vm.associatedDataMappedPerType = associatedDataMappedPerType
-       try{
-          for (const [type, associatedDataMappedPerTypeI] of Object.entries(associatedDataMappedPerType)) {
-            associatedDataMappedPerTypeI.sort(function(entry0, entry1) {
-              return entry0[0] - entry1[0];
-            })
-            const AD_header = type;
-            const ADDataArray = associatedDataMappedPerTypeI;
-            vm.AD_headers.push(AD_header);
-            mapAssociatedData(ADDataArray, AD_header, topviewer);
-          }
-       } catch(error) {
-          console.log("Mapping associated data failed")
-       }
 
         //const AD_header='Associated Data1';
         //const ADDataArray=[[1,1],[2,2],[3,3],[4,6],[5,9]];
@@ -167,8 +153,23 @@ var delayedMapping = function (){
          }
         }*/
     } else {
-        viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties);  
+      try{
+          var topviewer = document.getElementById("PdbeTopViewer");
+          for (const [type, associatedDataMappedPerTypeI] of Object.entries(vm.associatedDataMappedPerType)) {
+            associatedDataMappedPerTypeI.sort(function(entry0, entry1) {
+              return entry0[0] - entry1[0];
+            })
+            const AD_header = type;
+            const ADDataArray = associatedDataMappedPerTypeI;
+            vm.AD_headers.push(AD_header);
+            mapAssociatedData(ADDataArray, AD_header, topviewer);
+          }
+      } catch(error) {
+          console.log(error)
+          console.log("Mapping associated data failed")
+      }
     }
+    viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties);  
 }
 
 function retry (fn, maxAttempts = 1, delay = 0, attempts = 0) {
@@ -265,6 +266,7 @@ var tryCustomTopology = function (pdbid, entityid, chainid){
               mapAssociatedData(ADDataArray, AD_header, topviewer);
             }
          } catch(error) {
+            console.log(error)
             console.log("Mapping associated data failed")
          }
         }
