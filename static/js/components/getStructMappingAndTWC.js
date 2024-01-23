@@ -153,23 +153,26 @@ var delayedMapping = function (){
          }
         }*/
     } else {
-      try{
-          var topviewer = document.getElementById("PdbeTopViewer");
-          for (const [type, associatedDataMappedPerTypeI] of Object.entries(vm.associatedDataMappedPerType)) {
-            associatedDataMappedPerTypeI.sort(function(entry0, entry1) {
-              return entry0[0] - entry1[0];
-            })
-            const AD_header = type;
-            const ADDataArray = associatedDataMappedPerTypeI;
-            vm.AD_headers.push(AD_header);
-            mapAssociatedData(ADDataArray, AD_header, topviewer);
-          }
-      } catch(error) {
-          console.log(error)
-          console.log("Mapping associated data failed")
+      if(vm.type_tree != "upload") {
+        try{
+            var topviewer = document.getElementById("PdbeTopViewer");
+            for (const [type, associatedDataMappedPerTypeI] of Object.entries(vm.associatedDataMappedPerType)) {
+              associatedDataMappedPerTypeI.sort(function(entry0, entry1) {
+                return entry0[0] - entry1[0];
+              })
+              const AD_header = type;
+              const ADDataArray = associatedDataMappedPerTypeI;
+              vm.AD_headers.push(AD_header);
+              mapAssociatedData(ADDataArray, AD_header, topviewer);
+            }
+        } catch(error) {
+            console.log(error)
+            console.log("Mapping associated data failed")
+        }
       }
-    }
+    
     viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties);  
+    } 
 }
 
 function retry (fn, maxAttempts = 1, delay = 0, attempts = 0) {
