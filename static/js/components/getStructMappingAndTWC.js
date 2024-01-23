@@ -47,41 +47,11 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
               if (!(type in associatedDataMappedPerType)) {
                 associatedDataMappedPerType[type] = [];
               }
-              /*
-              value = value.replaceAll(/\D/g, "");
-              
-              var extractedDigits = value.match(/^\d+_/);
 
-              if (extractedDigits) {
-                value = extractedDigits[0].replace('_', '');
-                console.log(value); // Output: "4"
-              } else {
-                console.log("No digits followed by an underscore found in the input string.");
-              }
-
-              //value = value.replaceAll(/[a-zA-Z0-9_]+/g, "");
-              if (value.length === 0) {
-                value = "0";
-              }
-              value = Number.parseInt(value);
-              */
-              //console.log(type)
               if (type in typeMappings){
                   const selectedDataDict = typeMappings[type] || {};
                   value = selectedDataDict[value] || 0;
               } else {
-                    //value = value.replaceAll(/\D/g, "");
-                  
-                    //var extractedDigits = value.match(/^\d+_/);
-                    
-                    //if (extractedDigits) {
-                    //  value = extractedDigits[0].replace('_', '');
-                    //  console.log(value); // Output: "4"
-                    //} else {
-                    //  console.log("No digits followed by an underscore found in the input string.");
-                    //}
-      
-                    //value = value.replaceAll(/[a-zA-Z0-9_]+/g, "");
                     if (value.length === 0) {
                       value = "0";
                     }
@@ -92,14 +62,12 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
                 value
               ];
               associatedDataMappedPerType[type].push(associatedDataI);
-              // console.log(`${structureIndex}, ${alignmentIndex}, `, type, value);
             }
           }
         }
 
         vm.AD_headers = [];
         var topviewer = document.getElementById("PdbeTopViewer");
-       // associatedDataMappedPerType["Associated Data1"] = associatedDataMappedPerType["Helix"];
        vm.associatedDataMappedPerType = associatedDataMappedPerType
        try{
           for (const [type, associatedDataMappedPerTypeI] of Object.entries(associatedDataMappedPerType)) {
@@ -113,7 +81,6 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
           }
        } catch(error) {
           console.log("Mapping associated data failed")
-          vm.structFailed = true
        }
 
         //const AD_header='Associated Data1';
@@ -200,9 +167,8 @@ var delayedMapping = function (){
          }
         }*/
     } else {
-        viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties);
-        }
-    
+        viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties);  
+    }
 }
 
 function retry (fn, maxAttempts = 1, delay = 0, attempts = 0) {
@@ -299,7 +265,6 @@ var tryCustomTopology = function (pdbid, entityid, chainid){
             }
          } catch(error) {
             console.log("Mapping associated data failed")
-            vm.structFailed = true
          }
         }
       }
