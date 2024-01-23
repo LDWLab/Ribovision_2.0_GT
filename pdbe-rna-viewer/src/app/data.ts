@@ -1,3 +1,4 @@
+var rv3VUEcomponent = (window as any).vm;
 export type ThemeParam = {
     color?: string,
     highlightColor?: string,
@@ -62,6 +63,7 @@ export class DataService {
     }
 
     private handleError(e: any): void {
+        rv3VUEcomponent.structFailed = true
         console.log(`RNA topology data not available!`, e);
     }
     private handleFR3DError(e: any): void {
