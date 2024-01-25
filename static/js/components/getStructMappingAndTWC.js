@@ -131,48 +131,34 @@ var assignColorsAndStrucMappings = function (vueObj, struct_mapping){
 var delayedMapping = function (){
     //console.log("delayed mapping")
     if ( typeof viewerInstanceTop === 'undefined' || viewerInstanceTop === null || vm.structFailed){
-        //console.log("trying custom topo")
-        //console.log(mapped_aa_properties)
         tryCustomTopology(vm.pdbid, vm.entityID, vm.chainid[0]);
-        /*if(vm.structFailed) {   
-          vm.AD_headers = [];
-          var topviewer = document.getElementById("PdbeTopViewer");
-          try{
-            for (const [type, associatedDataMappedPerTypeI] of Object.entries(associatedDataMappedPerType)) {
-              associatedDataMappedPerTypeI.sort(function(entry0, entry1) {
-                return entry0[0] - entry1[0];
-              })
-              const AD_header = type;
-              const ADDataArray = associatedDataMappedPerTypeI;
-              vm.AD_headers.push(AD_header);
-              mapAssociatedData(ADDataArray, AD_header, topviewer);
-            }
-         } catch(error) {
-            console.log("Mapping associated data failed")
-            vm.structFailed = true
-         }
-        }*/
     } else {
       if(vm.type_tree != "upload") {
-        try{
-            var topviewer = document.getElementById("PdbeTopViewer");
-            for (const [type, associatedDataMappedPerTypeI] of Object.entries(vm.associatedDataMappedPerType)) {
-              associatedDataMappedPerTypeI.sort(function(entry0, entry1) {
-                return entry0[0] - entry1[0];
-              })
-              const AD_header = type;
-              const ADDataArray = associatedDataMappedPerTypeI;
-              vm.AD_headers.push(AD_header);
-              mapAssociatedData(ADDataArray, AD_header, topviewer);
+        if(vm.topology_loaded) {
+            try{
+                var topviewer = document.getElementById("PdbeTopViewer");
+                for (const [type, associatedDataMappedPerTypeI] of Object.entries(vm.associatedDataMappedPerType)) {
+                  associatedDataMappedPerTypeI.sort(function(entry0, entry1) {
+                    return entry0[0] - entry1[0];
+                  })
+                  const AD_header = type;
+                  const ADDataArray = associatedDataMappedPerTypeI;
+                  vm.AD_headers.push(AD_header);
+                  mapAssociatedData(ADDataArray, AD_header, topviewer);
+                }
+            } catch(error) {
+                console.log(error)
+                console.log("Mapping associated data failed")
             }
-        } catch(error) {
-            console.log(error)
-            console.log("Mapping associated data failed")
-        }
+          }
+        //viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties);  
+      
+      else {
+        viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties);
+        setTimeout(delayedMapping, 500);
       }
-    
-    viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties);  
-    } 
+    }
+  }
 }
 
 function retry (fn, maxAttempts = 1, delay = 0, attempts = 0) {
