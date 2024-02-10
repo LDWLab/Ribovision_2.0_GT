@@ -194,6 +194,8 @@ var populatePDBs = function (alndata){
                     });
                     if (pdb_entries.length == 0){return;}
                     vm.pdbs.push(...pdb_entries.sort((a, b) => (a.id > b.id) ? 1 : -1));
+                    const pdbSet = new Set();
+                    vm.pdbs = vm.pdbs.filter(entry => !pdbSet.has(entry.id) && pdbSet.add(entry.id));
                 }).catch(error => {
                     console.log(error);
                 })
