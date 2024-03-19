@@ -87,8 +87,8 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     ### BE CAREFUL WHEN MERGING THE FOLLOWING LINES TO PUBLIC; PATHS ARE HARDCODED FOR THE APACHE SERVER ###
-    alignmentFileName = "/home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/static/alignment" + fileNameSuffix + ".txt"
-    ebiFileName = "/home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/static/ebi_sequence" + fileNameSuffix + ".txt"
+    alignmentFileName = "/home/sumon/repos/Ribovision_2.0_GT/static/alignment" + fileNameSuffix + ".txt"
+    ebiFileName = "/home/sumon/repos/Ribovision_2.0_GT/static/ebi_sequence" + fileNameSuffix + ".txt"
     #alignmentFileName = "./static/alignment" + fileNameSuffix + ".txt"
     #ebiFileName = "./static/ebi_sequence" + fileNameSuffix + ".txt"
     mappingFileName = ebiFileName + ".map"
@@ -280,6 +280,7 @@ def index_test(request):
 
 def proteinTypes(request):
     if request.method == 'POST' and 'taxIDs' in request.POST:
+        print("request.POST['taxIDs']", request.POST['taxIDs'])
         taxIDs = request.POST['taxIDs']
         return proteinTypesDirect(request, taxIDs)
     else:
@@ -303,6 +304,8 @@ def proteinTypesDirect(request, concatenatedTaxIds):
         if concatenatedTaxIds.endswith(','):
             concatenatedTaxIds = concatenatedTaxIds[:-1]
         for taxID in concatenatedTaxIds.split(','):
+            if not taxID:
+                continue
             taxID = int(taxID)
             proteinTypesList = []
             sql = "use DESIRE;"
@@ -379,13 +382,16 @@ def extract_species_list(fastastring):
 
 def extract_gap_only_cols(fastastring):
     '''Extracts positions in the fastastring that are only gaps'''
+    print("fastastring views", fastastring)
     unf_seq_list = [x.split('\\n')[1] for x in fastastring.split('>')[1:]]
     list_for_intersect = list()
     for sequence in unf_seq_list:
         iterator = re.finditer('-', sequence)
         gap_positions = [m.start(0) for m in iterator]
         list_for_intersect.append(gap_positions)
-    gap_only_cols = list(set(list_for_intersect[0]).intersection(*list_for_intersect))
+    print('list_for_intersect', list_for_intersect)
+    gap_only_cols = sorted(list(set(list_for_intersect[0]).intersection(*list_for_intersect)))
+    print("views gap_only_cols", gap_only_cols)
     return gap_only_cols
 
 def construct_dict_for_json_response(response_data):
@@ -413,6 +419,7 @@ def construct_dict_for_json_response(response_data):
     return response_dict
 
 def simple_fasta(request, aln_id, tax_group, internal=False):
+    print("Simple Fasta tax_group", tax_group)
     rawsqls = []
     if type(tax_group) == int:
         tax_group = str(tax_group)
@@ -426,16 +433,23 @@ def simple_fasta(request, aln_id, tax_group, internal=False):
         nogap_tupaln, max_alnposition= aqab.query_to_dict_structure(rawsql, parent, nogap_tupaln, max_alnposition)
     
     fastastring, frequency_list = aqab.build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_alnposition)
+    # print('fastastring', fastastring)
     
     if internal:
         return fastastring
     
-    concat_fasta, twc, gap_only_cols, filtered_spec_list, alignment_obj = calculateFastaProps(fastastring)
-    response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc])
+    # concat_fasta, twc, gap_only_cols, filtered_spec_list, alignment_obj = calculateFastaProps(fastastring)
+    # print('gap_only_cols', gap_only_cols)
+    # # print('alignment_obj', alignment_obj)
+    # response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc])
+    
+    concat_fasta, twc, gap_only_cols, filtered_spec_list, alignment_obj, fr_list = calculateFastaProps(fastastring, frequency_list)
+    print('GOC', gap_only_cols)
+    response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,fr_list,twc])
 
     return JsonResponse(response_dict, safe = False)
 
-def calculateFastaProps(fastastring):
+def calculateFastaProps(fastastring, frequency_list):
     concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
     alignment_obj = AlignIO.read(StringIO(concat_fasta), 'fasta')
     twc = False
@@ -444,8 +458,65 @@ def calculateFastaProps(fastastring):
         if len(sliced_alns.keys()) == 2:
             twc = True
     gap_only_cols = extract_gap_only_cols(fastastring)
+    
+    removed_gaps = gap_only_cols[:] 
+    print(gap_only_cols)
+    mapped_dict = {}
+    pos = 0
+    
+    for i in range(len(alignment_obj[0])):
+        if i in gap_only_cols:
+            continue
+        mapped_dict[i] = pos
+        pos += 1
+    # print(mapped_dict)
+    
+    for gap in removed_gaps[::-1]:
+        alignment_obj = alignment_obj[:, :gap] + alignment_obj[:, gap+1:]
+        gap_only_cols.remove(gap)
+        frequency_list.pop(gap)
+        
+    # for i in range(max(gap_only_cols)+1)[::-1]:
+    #     if i in gap_only_cols:
+    #         alignment_obj = alignment_obj[:, :i] + alignment_obj[:, i+1:]
+    #         gap_only_cols.remove(i)
+    #         frequency_list.pop(i)
+    #         deleted_gaps += 1
+        # mapped_dict[i] = (i-deleted_gaps)
+    
+    
+    file_path = "../data_mapping.json"
+    # Removing the file if it exists
+    if os.path.exists(file_path):
+        os.remove(file_path)
+    
+    # Convert dictionary to JSON string
+    json_string = json.dumps(mapped_dict)
+    
+    with open(file_path, "w") as json_file:
+        json_file.write(json_string)
+        
+    # for gap in removed_gaps[::-1]:
+    #     # print(f'Removing: {gap}')
+    #     alignment_obj = alignment_obj[:, :gap] + alignment_obj[:, gap+1:]
+    #     gap_only_cols.remove(gap)
+    #     frequency_list.pop(gap)
+    # print("Post removal")
+    # print(gap_only_cols)
+    
+    # print('gap_only_cols', gap_only_cols)
+    # print(10 * '-')
+    string_writer = StringIO()
+    # AlignmentWriter(string_writer).write_alignment(alignment_obj)
+
+    AlignIO.write(alignment_obj, string_writer, "fasta")
+    alignment_string = string_writer.getvalue()
+    
+    # print('alignment_obj', alignment_string)
+    
     filtered_spec_list = extract_species_list(fastastring)
-    return concat_fasta, twc, gap_only_cols, filtered_spec_list, alignment_obj
+    # return concat_fasta, twc, gap_only_cols, filtered_spec_list, alignment_obj
+    return alignment_string, twc, gap_only_cols, filtered_spec_list, alignment_obj, frequency_list
 
 def rProtein(request, align_name, tax_group):
     #if tax_group == 0 - no filter
@@ -789,7 +860,7 @@ def r2dt(request, entity_id):
     sequence = "\n".join(sequence_file_lines[1:])
     
     RIBODIR=os.environ['RIBODIR']
-    os.chdir('/home/anton/RiboVision2/rna/R2DT-master')
+    os.chdir('/home/sumon/repos/Ribovision_2.0_GT/rna/R2DT-master')
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     if request.method == "POST":
         
@@ -810,7 +881,7 @@ def r2dt(request, entity_id):
         f.write('>Sequence\n')
         f.write(sequence)
         f.close()       
-    output = f"/home/anton/RiboVision2/rna/R2DT-master/R2DT-test20{fileNameSuffix}"    
+    output = f"/home/sumon/repos/Ribovision_2.0_GT/rna/R2DT-master/R2DT-test20{fileNameSuffix}"    
      
     
     cmd = f'python3 r2dt.py draw  {newcwd}/sequence10{fileNameSuffix}.fasta {output}' # --skip_ribovore_filters 
@@ -839,14 +910,14 @@ def r2dt(request, entity_id):
     if (cif_mode_flag is None) or (not cif_mode_flag):
         #FOR NONE OR PDB modes
         #cmd = f'/usr/bin/python3 {newcwd}/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
-        cmd = f'/usr/bin/python3 /home/anton/RiboVision2/rna/R2DT-master/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
+        cmd = f'/usr/bin/python3 /home/sumon/repos/Ribovision_2.0_GT/rna/R2DT-master/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
     else:
         #FOR CIF MODE
         cif_file_path = keys["cif_file_path"]#request.POST["cif_file_path"]
         #files_to_remove.append(cif_file_path)
         print('r2dt results parsing cif')
         print('cif_file_path')
-        cmd = f'python3 /home/anton/RiboVision2/rna/R2DT-master/parse_cif4.py -ij {filename} -ic {cif_file_path} -ie {entity_id} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
+        cmd = f'python3 /home/sumon/repos/Ribovision_2.0_GT/rna/R2DT-master/parse_cif4.py -ij {filename} -ic {cif_file_path} -ie {entity_id} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
         print('r2dt cif parsed')
     os.system(cmd)
 

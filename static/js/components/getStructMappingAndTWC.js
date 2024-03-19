@@ -38,7 +38,7 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
         const associatedDataMappedPerType = {
          // "AES" : [[2, 1], [3, 51], [4, 101]]
         };
-
+        // console.log(struct_mapping);
         for (const [alignmentIndexAsString, structureIndex] of Object.entries(struct_mapping)) {
           const alignmentIndex = Number.parseInt(alignmentIndexAsString);
           const associatedDataCache = vm.associatedDataCache;
@@ -65,10 +65,25 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
             }
           }
         }
-
-        vm.AD_headers = [];
-       vm.associatedDataMappedPerType = associatedDataMappedPerType
-
+      // todo: insert color patching function here.  
+      // associatedDataMappedPerType.helix[0]=[6, '1']
+      const fix_colors = require('./graphColorPrediction.js');
+      vm.AD_headers = [];
+      // console.log(associatedDataMappedPerType);
+      vm.associatedDataMappedPerType = associatedDataMappedPerType;
+      vm.associatedDataMappedPerType = fix_colors(
+        viewerInstanceTop.viewInstance.uiTemplateService.apiData.sequence, 
+        viewerInstanceTop.viewInstance.uiTemplateService.baseStrs.get('cWW')[1],
+        associatedDataMappedPerType
+      );
+      // for (let a = 0; a < 2; a++){
+      //   vm.associatedDataMappedPerType = fix_colors(
+      //         viewerInstanceTop.viewInstance.uiTemplateService.apiData.sequence, 
+      //         viewerInstanceTop.viewInstance.uiTemplateService.baseStrs.get('cWW')[1],
+      //         vm.associatedDataMappedPerType
+      //   );
+      // }
+ 
         //const AD_header='Associated Data1';
         //const ADDataArray=[[1,1],[2,2],[3,3],[4,6],[5,9]];
         //vm.AD_headers.push(AD_header)
