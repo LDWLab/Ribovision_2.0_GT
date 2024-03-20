@@ -112,8 +112,12 @@ export class DataService {
             
             }
             return matches.map(function(entry : any) {
-
-            return entry.molecule_name[0].replace('Large ribosomal subunit protein ', '').replace('Small ribosomal subunit protein ', '');
+                if(entry.molecule_name) {
+                    return entry.molecule_name[0].replace('Large ribosomal subunit protein ', '').replace('Small ribosomal subunit protein ', '');
+                } else {
+                    return entry[0].molecule_name[0].replace('Large ribosomal subunit protein ', '').replace('Small ribosomal subunit protein ', '');
+                }
+            
             });       
             
 

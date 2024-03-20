@@ -8,12 +8,14 @@ from alignments.views import parse_string_structure
 from alignments.topologyAPIgenerators import generateTopologyJSONfromSVG, generateEntityJSON, generatePolCoverageJSON
 from alignments.mapStrucSeqToAln import constructStrucSeqMap
 import alignments.config
+import ssl
 
 def handleCustomUploadStructure (request, strucID):
     '''We will POST all structure chains we need with uniqueIDs.
     Then when we GET them we can list the strucIDs separated by coma 
     this would mean "combine these in one CIF and return them".
     '''
+
     strucID = strucID
     if request.method == 'POST':
         from urllib.request import urlopen
@@ -22,7 +24,7 @@ def handleCustomUploadStructure (request, strucID):
         except:
             return HttpResponseServerError("POST was sent without entities to parse!")
         deStrEnt = json.loads(entities)
-        print('json')
+
         if strucID == "cust":
             #### This is not dependent on topology and should return success
             strucObj, cif_file_path = parseCustomCIF(deStrEnt["stringData"], "CUST")
@@ -45,7 +47,8 @@ def handleCustomUploadStructure (request, strucID):
             ebiURL = f'https://coords.litemol.org/{strucID.lower()}/chains?entityId={entry["entityID"]}&authAsymId={entry["chainID"]}&atomSitesOnly=1'
             #ebiURL = f'https://www.ebi.ac.uk/pdbe/coordinates/{strucID.lower()}/chains?entityId={entityId}&atomSitesOnly=1'
             try:
-                data = urlopen(ebiURL)
+                ssl_context = ssl._create_unverified_context()
+                data = urlopen(ebiURL, context=ssl_context)
             except:
                 return HttpResponseServerError(f'Failed to fetch coordinates from litemol for PDB {strucID} and entityID {entry["entityID"]} and chain id {entry["chainID"]}.')
             try:
@@ -121,7 +124,9 @@ def handleCustomUploadStructure_CIF (request, strucID):
             ebiURL = f'https://coords.litemol.org/{strucID.lower()}/chains?entityId={entry["entityID"]}&authAsymId={entry["chainID"]}&atomSitesOnly=1'
             #ebiURL = f'https://www.ebi.ac.uk/pdbe/coordinates/{strucID.lower()}/chains?entityId={entityId}&atomSitesOnly=1'
             try:
-                data = urlopen(ebiURL)
+                ssl_context = ssl._create_unverified_context()
+                data = urlopen(ebiURL, context=ssl_context)
+                #data = urlopen(ebiURL)
             except:
                 return HttpResponseServerError(f'Failed to fetch coordinates from litemol for PDB {strucID} and entityID {entry["entityID"]} and chain id {entry["chainID"]}.')
             try:
@@ -193,7 +198,8 @@ def handleCustomUploadStructure_PDB (request, strucID):
             ebiURL = f'https://coords.litemol.org/{strucID.lower()}/chains?entityId={entry["entityID"]}&authAsymId={entry["chainID"]}&atomSitesOnly=1'
             #ebiURL = f'https://www.ebi.ac.uk/pdbe/coordinates/{strucID.lower()}/chains?entityId={entityId}&atomSitesOnly=1'
             try:
-                data = urlopen(ebiURL)
+                ssl_context = ssl._create_unverified_context()
+                data = urlopen(ebiURL, context=ssl_context)
             except:
                 return HttpResponseServerError(f'Failed to fetch coordinates from litemol for PDB {strucID} and entityID {entry["entityID"]} and chain id {entry["chainID"]}.')
             try:

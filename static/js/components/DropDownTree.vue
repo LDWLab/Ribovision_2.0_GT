@@ -205,8 +205,8 @@
                             Show the entire structure
                     </button>
                 </div>
-
-                <div id="filterSection"><p>
+            -->
+            <!--    <div id="filterSection"><p>
                     <div>
                         <label><input type="radio" v-model="domain_or_selection" value="selection">
                         Select custom range</label>
@@ -216,19 +216,19 @@
                     <p><button id="disableCutTruncation" class="btn btn-outline-dark" v-if="filter_range" type="button" v-on:click="domain_or_selection=null;" style="margin: 3% 0;">
                         Show the entire structure
                     </button></p>
-                </p></div>
-
+                </p></div> -->
+            
                 <div id="maskingSection"><p>
                     <div class="checkbox">
                         <label><input type="checkbox" v-model="checked_filter" v-on:change="cleanFilter(checked_filter, masking_range)">
-                        Mask/Unmask 2D and 3D residues</label>
+                        Highlight region</label>
                     </div>
                     <span v-if="checked_filter"><b>Input multiple</b> residue ranges to <b>show</b>, separated by semicolon. <br> For example: 1-80;91-111;</span>
                     <input class="input-group-text" v-if="checked_filter" v-model="masking_range" v-on:input="handleMaskingRanges(masking_range)">
                 </p></div>
                 <p v-if="correct_mask!=true&&masking_range!=null">Incorrect range syntax!</p>
 
-            -->             
+                       
                 <div id="customDataSection">
                 <p><div class="checkbox">
                         <label><input type="checkbox" id="uploadCustomData"  v-model="checked_customMap" v-on:change="cleanCustomMap(checked_customMap)">
@@ -633,12 +633,12 @@
             if(domainObj.length == 0){return}
             handleDomainRange(domainObj[0].range);
         },selected_property: function(name){
-
+            
             if (this.uploadSession){return;}
             if (!name){return;}
             if(this.colorSchemeData){this.colorSchemeData = null;}
             var updatedBarColors = [];
-            if(name == "Select data" || name == "Clear data" ) {
+            if(name == "Select data" || name == "Clear data") {
                 window.aaFreqs.forEach(function(){
                         updatedBarColors.push("#808080")
                     });

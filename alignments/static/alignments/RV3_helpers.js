@@ -1425,6 +1425,34 @@ var recolorTopStar = function (name){
         wait();
     }
     } 
+    else if(name == "highlight") {
+        if(vm.customPDBsuccess) {
+            viewerInstance.visual.clearSelection();
+            viewerInstance.visual.reset({ theme: true })
+            viewerInstance.coloring.highlighting({ sequence: true, het: false, keepStyle: true });
+        } else {let wait = async () => {
+            vm.selectAllProteinsChecked = false
+            vm.selectAllModifiedChecked = false
+            vm.selectedProteins = []
+            vm.selectedResidues = []
+            vm.pchainid = []
+            vm.modifications = []
+            async function tryColoring() {
+                try {
+                    await viewerInstance.coloring.highlighting({ sequence: true, het: false, keepStyle: true });
+                } catch (error) {
+                    console.error("Structure not yet loaded, waiting to color");
+                    await sleep(6000);
+                    await tryColoring();
+                }
+            }
+            await showPDBHelper(vm.pdbid, vm.chainid, vm.entityID);
+            await sleep(6000);
+            await tryColoring();
+        };
+        wait();
+    }
+    } 
     
     
     else if(name == "Select data") {
