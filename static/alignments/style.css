@@ -273,7 +273,7 @@
   }
 
   #selectaln, #pdb_input, #polymerSelect, #domainSelect, #downloadDataBtn, #downloadExampleFasta,
-  #propensitiesSubstructure, #downloadExampleCSV, #uploadShowFasta, #pdb_input_custom, #pdb-upload,
+  #downloadExampleCSV, #uploadShowFasta, #pdb_input_custom, #pdb-upload,
   #maskingSection, .input-group-text, #filterSection, #disableCutTruncation, #disableDomainTruncation,
   #downloadFreqsBtn {
     width: 267px;

@@ -342,7 +342,9 @@ export class UiTemplateService {
                 }
             });
         } else {
-            if(flag ?? this.baseStrs.get(val)![0]) {
+            //console.log(flag)
+            //if(flag ?? this.baseStrs.get(val)![0]) {
+            if(this.baseStrs.get(val)![0]) {
                 this.baseStrs.set(val, [false,  this.baseStrs.get(val)![1]]);
                 this.nestedBaseStrs.set(val, [false, this.nestedBaseStrs.get(val)![1]]);
             } else {
@@ -814,6 +816,8 @@ export class UiTemplateService {
         } else if(selectedValue == 2) {
             (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(`rnaTopoSvg_${this.pluginOptions.pdbId}`)[0].innerHTML = this.nucleotideStrs.join('') + this.circleStrs.join('') + displayBP;
             this.mappingValue = 'circle';
+            (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(`rnaTopoSvg_${this.pluginOptions.pdbId}`)[0].innerHTML = this.nucleotideStrs.join('') + this.circleStrs.join('') + displayBP;
+            //this.circleStrs.join('') + displayBP;
         } 
         //if(e) {
             //this.containerElement.querySelector<HTMLInputElement>('.mappingSelectbox')!.value="0";

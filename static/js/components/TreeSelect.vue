@@ -289,10 +289,10 @@ class SimpleTooltip extends Component {
                     ...this.state.tooltipPosition
                   }}
                   >
-                  {<Tooltip>
-                    //Fold: {this.state.fold} <br></br>
+                  {/*<Tooltip>
+                    Fold: {this.state.fold} <br></br>
                     Phase: {this.state.phase}
-                  </Tooltip>}
+                  </Tooltip>*/}
                 </div>
               )}
             </div>

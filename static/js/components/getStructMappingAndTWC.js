@@ -154,7 +154,11 @@ var delayedMapping = function (){
         //viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties);  
       
       else {
-        viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties);
+        try {
+          viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties);
+        } catch (error) {
+          console.error("Structure not yet loaded");
+        }
         setTimeout(delayedMapping, 500);
       }
     }
@@ -255,6 +259,7 @@ var tryCustomTopology = function (pdbid, entityid, chainid){
               mapAssociatedData(ADDataArray, AD_header, topviewer);
             }
          } catch(error) {
+            console.log(error)
             console.log("Mapping associated data failed")
          }
         }

@@ -30,9 +30,11 @@ class PdbRnaViewerPlugin {
             return;
         }
         this.options = options;
-        this.apiData = await this.dataService.getApiData(this.options.entityId, this.options.chainId, this.options.pdbId);
-        this.FR3DData = await this.dataService.getFR3DData(this.options.pdbId, this.options.chainId);
-        this.FR3DNestedData = await this.dataService.getFR3DNestedData(this.options.pdbId, this.options.chainId);
+        if (this.options.pdbId != "cust") {
+            this.apiData = await this.dataService.getApiData(this.options.entityId, this.options.chainId, this.options.pdbId);
+            this.FR3DData = await this.dataService.getFR3DData(this.options.pdbId, this.options.chainId);
+            this.FR3DNestedData = await this.dataService.getFR3DNestedData(this.options.pdbId, this.options.chainId);
+        }
         this.BanName = await BanNameHelper.getBanName(this.options.pdbId, 'H');
         this.targetEle = <HTMLElement> target;
 
