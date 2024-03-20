@@ -24,8 +24,10 @@
     border-right: 1px solid black;
     grid-column: 1 / 2;
     grid-row: 2 / 6 ;
-    width: 300px;
+    width: 310px;
     color: #174060;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 
   .alignment_section{
@@ -194,6 +196,11 @@
     height: 500px;
     float:left;
     position:relative;
+  }
+
+  #topview:fullscreen {
+    width: 100vw;
+    height: 100vh;
   }
   
   @-moz-document url-prefix() {

@@ -9,7 +9,7 @@ export function YSlider (props){
             width: alnViewerAdjHeight+"px",
         }}
         type="range"
-        min="1"
+        min="-1"
         max={maxYpos}
         value={MSAVObject.state.seqPos}
         onChange={(evt) => MSAVObject.setState({ seqPos: evt.target.value })}
@@ -36,7 +36,7 @@ export function XSlider (props){
               left: ((window.innerWidth - 300) * 0.2)+3+"px"
               }}
           type="range"
-          min="1"
+          min="-1"
           max={maxXpos}
           value={MSAVObject.state.aaPos}
           onChange={(evt) => MSAVObject.setState({ aaPos: evt.target.value })}
