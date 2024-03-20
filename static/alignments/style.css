@@ -159,7 +159,6 @@
   .vue-treeselect__multi-value-item:hover,
   .vue-treeselect__limit-tip-text:hover,
   .input-group-text:hover,
-  #polymerSelect:hover,
   #domainSelect:hover,
   #pdb_input_custom:hover{
     color: white;

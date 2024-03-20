@@ -89,7 +89,7 @@ var registerHoverResiData = function (e, tooltipObj){
       var topviewer = document.getElementById("PdbeTopViewer");
       var masked_array = [];
       var j = 0;
-      while(j < mapped_aa_properties.get(topviewer.pluginInstance.domainTypes[4].label).length) {
+      while(j < mapped_aa_properties.get("Shannon entropy").length) {
           masked_array[j] = false;
           var i = 0;
           while(i < window.masking_range_array.length && !masked_array[j]) {
@@ -108,24 +108,63 @@ var registerHoverResiData = function (e, tooltipObj){
     window.masking_range_array = null;
     if (isCorrectMask(mask_range)) {   
         var topviewer = document.getElementById("PdbeTopViewer");
-        topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);   
+        var selectedIndex = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox').selectedIndex;
+        topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties);   
         if(window.custom_prop) {
-            topviewer.pluginInstance.getAnnotationFromRibovision(window.custom_prop); 
+            topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(window.custom_prop); 
         }
-        window.masked_array = initializeMaskedArray();          
-        var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
-  
+        window.masked_array = initializeMaskedArray();
         var index = 1;
-        while(index < topviewer.pluginInstance.domainTypes.length) {
+        while(index < topviewer.viewInstance.uiTemplateService.domainTypes.length) {
             colorResidue(index, window.masked_array);
             index++;
         }
-        let selectedData = topviewer.pluginInstance.domainTypes[selectedIndex]
-        
-        if (selectedData.data){
-            topviewer.pluginInstance.updateTheme(selectedData.data); 
-            window.viewerInstance.visual.select({data: selectSections_RV1.get(selectedData.label), nonSelectedColor: {r:255,g:255,b:255}});
+        let selectedData = topviewer.viewInstance.uiTemplateService.domainTypes[selectedIndex]
+        maskedAnnotationArray = new Map()
+        for (let mapping in getAnnotationArray()) {
+            maskedAnnotationArray[mapping] = []
+            map_array = getAnnotationArray()[mapping]
+            for (let i = 0; i < map_array.length; i++) {
+                maskedAnnotationArray[mapping].push({annotation: map_array[i].annotation, ids:[]})
+                ids = map_array[i].ids
+                for (let id of ids) {
+                    if(window.masked_array[parseInt(id.replace(/\D/g, ""))]) {
+                        maskedAnnotationArray[mapping][i].ids.push(id)
+                    }
+                }
             }
+        }
+        window.maskedAnnotationArray = maskedAnnotationArray
+        var checkBoxAll = document.querySelector("#Checkbox_All");
+        checkBoxAll.checked = false;
+        topviewer.viewInstance.uiTemplateService.changeBP("All", false);
+        const mapped_highlights = new Map()
+        mapped_highlights.set('highlight',[])
+        window.aaPropertyConstants.set('highlight', [0, 5]);
+        window.aaColorData.set('highlight', [custom_highlight])
+        for (let i = 0; i < masked_array.length; i++) {
+            if (masked_array[i]) {
+                mapped_highlights.get('highlight').push([i, 5])
+            } else {
+                mapped_highlights.get('highlight').push([i, 0])
+            }
+        }
+        window.custom_prop.set("highlight", mapped_highlights.get("highlight"))
+        topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_highlights)
+        if(vm.selected_property == "highlight" || vm.selected_property == 'Select data' || vm.selected_property == 'Clear data' || !vm.selected_property) {
+            vm.selected_property = 'Select data'
+            setTimeout(function() {
+                vm.selected_property = 'highlight';
+            }, 1000);
+            recolorTopStar("highlight")
+        }
+        else if (selectedData.data){
+            //topviewer.pluginInstance.updateTheme(selectedData.data); 
+            recolorTopStar(selectedData.label)
+            //window.viewerInstance.visual.select({data: selectSections_RV1.get(selectedData.label), nonSelectedColor: {r:255,g:255,b:255}});
+            }
+        
+        
         vm.correct_mask = true;
     } else {
         vm.correct_mask = false;
@@ -149,7 +188,6 @@ var registerHoverResiData = function (e, tooltipObj){
   }
   function handleFilterRange(filter_range) {
       if (filter_range.match(/^\d+-\d+;/)) {
-          handlePropensities(vm.checked_propensities);
           var filter_range = filter_range.slice(0, -1);
           const temp_array = filter_range.split('-');
           if (Number(temp_array[0]) < Number(temp_array[1])){
@@ -169,6 +207,7 @@ var registerHoverResiData = function (e, tooltipObj){
                   subscribeEvents: true,
                   bgColor: {r:255,g:255,b:255},
               });
+              /*
               viewerInstance.events.loadComplete.subscribe(() => { 
                   if(!vm.selected_property){return;}
                   let rangeArr = window.filterRange.split(',');
@@ -180,7 +219,7 @@ var registerHoverResiData = function (e, tooltipObj){
                           /*if (resi3D.start_residue_number >= Number(rangeArr[0]) && resi3D.start_residue_number <= Number(rangeArr[1])){
                               return resi3D;
                           }*/
-                          if (resi3D.residue_number >= Number(rangeArr[0]) && resi3D.residue_number <= Number(rangeArr[1])){
+                         /* if (resi3D.residue_number >= Number(rangeArr[0]) && resi3D.residue_number <= Number(rangeArr[1])){
                               return resi3D;
                           }
                       })
@@ -193,17 +232,17 @@ var registerHoverResiData = function (e, tooltipObj){
                       topviewer.pluginInstance.updateTheme(selectedDomain.data);
                   }
                   selectBox.selectedIndex = selectedIndex;
-              });
-              topviewer.pluginInstance.alreadyRan = false;
-              topviewer.pluginInstance.initPainting(window.select_sections)
-              let selectedData = topviewer.pluginInstance.domainTypes[selectedIndexOut];
+              });*/
+              //topviewer.pluginInstance.alreadyRan = false;
+              //topviewer.pluginInstance.initPainting(window.select_sections)
+              //let selectedData = topviewer.pluginInstance.domainTypes[selectedIndexOut];
               topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);   
               if(selectedIndexOut > 0) {
                   topviewer.pluginInstance.updateTheme(selectedData.data);
               }
-              if(vm.correct_mask){
-                  handleMaskingRanges(vm.masking_range)
-              }
+              //if(vm.correct_mask){
+               //   handleMaskingRanges(vm.masking_range)
+              //}
           }else{
               //Swapped start end
           }
@@ -213,26 +252,20 @@ var registerHoverResiData = function (e, tooltipObj){
   };
   
   function colorResidue(index, masked_array) {
-      viewerInstanceTop.pluginInstance.domainTypes[index].data.forEach(function(resiEntry){
+      viewerInstanceTop.viewInstance.uiTemplateService.domainTypes[index].data.forEach(function(resiEntry){
           if (!masked_array[resiEntry.start]){
               resiEntry.color = "rgb(255,255,255)";
               resiEntry.tooltipMsg = "NaN";
           } 
-          if (!masked_array[resiEntry.start] && vm.coil_residues.includes(resiEntry.start)){
-              resiEntry.color = "rgb(0,0,0)";
-              resiEntry.tooltipMsg = "NaN";
-          }
       })
-      selectSections_RV1.get(viewerInstanceTop.pluginInstance.domainTypes[index].label).forEach(function(resiEntry){
-          /*if (!masked_array[resiEntry.start_residue_number]){
-              resiEntry.color = {r: 255, g: 255, b: 255};
-          }*/
+      selectSections_RV1.get(viewerInstanceTop.viewInstance.uiTemplateService.domainTypes[index].label).forEach(function(resiEntry){
           if (!masked_array[resiEntry.residue_number]){
               resiEntry.color = {r: 255, g: 255, b: 255};
           }
       })
   };
   function clearInputFile(f){
+    if(f) {
       if(f.value){
           try{
               f.value = ''; //for IE11, latest Chrome/Firefox/Opera...
@@ -245,6 +278,7 @@ var registerHoverResiData = function (e, tooltipObj){
               parentNode.insertBefore(f,ref);
           }
       }
+    }
   }
   
   function cleanCustomMap(checked_customMap){
@@ -441,15 +475,26 @@ var mapHelixData = function(helix_data, helix_data_name, topviewer){
     vm.masking_range = null;
     vm.correct_mask = null;
     var topviewer = document.getElementById("PdbeTopViewer");
-    topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);
+    topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties);
     if(window.custom_prop) {
-        topviewer.pluginInstance.getAnnotationFromRibovision(window.custom_prop);
+        topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(window.custom_prop);
     }
-    var selectedIndex = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox').selectedIndex;
-    if (selectedIndex > 0){
-      topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data); 
+    domainTypes = topviewer.viewInstance.uiTemplateService.domainTypes;
+    var indexToRemove = domainTypes.findIndex(obj => obj.label === 'highlight');
+    if (indexToRemove !== -1) {
+        domainTypes.splice(indexToRemove, 1);
     }
-    window.viewerInstance.visual.select({data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), nonSelectedColor: {r:255,g:255,b:255}});
+    var selectElement = document.querySelector('.mappingSelectBox');
+    var optionToRemove;
+    Array.from(selectElement.options).forEach(function(option) {
+        if (option.label === 'highlight') {
+            optionToRemove = option;
+        }
+    });
+    if (optionToRemove) {
+        selectElement.removeChild(optionToRemove);
+    }
+    vm.selected_property = "Clear data"
   };
   function cleanSelection(checked_selection, filter_range){
     if (checked_selection || filter_range == null || !vm.pdbid){return;}
@@ -501,7 +546,22 @@ var mapHelixData = function(helix_data, helix_data_name, topviewer){
                   if (oldnomData.count == 0){return;}
                   //let oldName = oldnomData.results[0].old_name.replace(/^(.{2})(0)/,"$1")
                   //let riboXYZurl = `https://api.ribosome.xyz/neo4j/gmo_nom_class/?banName=${oldName}&format=json`
-                  let riboXYZurl = `https://api.ribosome.xyz/neo4j/get_rna_class/?rna_class=23SrRNA&format=json`
+                  //Use vm.alnobj.text for name of alignment
+                  rna_class = []
+                  if(vm.alnobj.text == "5S") {
+                    rna_class = ['5S']
+                  } else if (vm.alnobj.text == '5.8S') {
+                    rna_class = ['5.8S']
+                  } else if (vm.alnobj.text == 'LSUa' || vm.alnobj.text == 'LSUb') {
+                    rna_class = ['23S']
+                  } else if (vm.alnobj.text == '28S') {
+                    //Should we include 25S for this?
+                    rna_class = ['25S', '28S']
+                  } else if(vm.alnobj.text == 'SSU') {
+                    rna_class = ['16S']
+                  }
+                  rna_class.forEach(rnaClass => {
+                  let riboXYZurl = `https://api.ribosome.xyz/neo4j/get_rna_class/?rna_class=${rnaClass}rRNA&format=json`
                  
                   ajax(riboXYZurl).then(data => {
                       var pdb_entries = []
@@ -521,10 +581,12 @@ var mapHelixData = function(helix_data, helix_data_name, topviewer){
                       
                       if (pdb_entries.length == 0){return;}
                       vm.pdbs.push(...pdb_entries.sort((a, b) => (a.id > b.id) ? 1 : -1));
+                      const pdbSet = new Set();
+                      vm.pdbs = vm.pdbs.filter(entry => !pdbSet.has(entry.id) && pdbSet.add(entry.id));
                   }).catch(error => {
                       console.log(error);
                   })
-              }).catch(error => {
+              })}).catch(error => {
                   console.log(error);
               })
           }).catch(error => {

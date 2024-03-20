@@ -148,20 +148,21 @@
   .vue-treeselect__label:hover{
     color: white;
   }
-
+  .vue-treeselect__option {
+    color: black;
+    background-color: white;
+  }
   .vue-treeselect__option:hover, 
   .vue-treeselect__option:hover{
     color: white;
-    background-color: DodgerBlue;
+    background-color: #767676;
   }
   .vue-treeselect__control:hover, 
   .vue-treeselect__placeholder:hover,
-  .vue-treeselect__menu:hover,
   .vue-treeselect__value-container:hover,
   .vue-treeselect__multi-value-item:hover,
   .vue-treeselect__limit-tip-text:hover,
   .input-group-text:hover,
-  #polymerSelect:hover,
   #domainSelect:hover,
   #pdb_input_custom:hover{
     color: white;
@@ -289,7 +290,21 @@
   #pdb_input{
     max-height: 75px;
   }
-  
+  #polymerSelect {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  #polymerSelect option {
+    color: black; 
+    max-width: 267px;
+    text-align: left;
+    padding-left: 15px;
+    margin: 0;
+  }
+  #polymerSelect option:hover {
+    background-color: #767676;
+    color: white;
+  }
   #polymerSelect, #domainSelect{
     max-width: 267px;
     background:none;
@@ -332,7 +347,7 @@
   }
 
   .autocomplete-results {
-    position:absolute;
+    position: absolute;
     max-height: 200px;
     padding: 0;
     margin: 0;
@@ -342,19 +357,27 @@
     background-color: white;
     cursor: default;
   }
-
+  
   .autocomplete-result {
     list-style: none;
     text-align: left;
-    margin-left: 15px;
+    padding-left: 15px;
   }
   
-  .autocomplete-results:hover,
   .autocomplete-result:hover {
     color: white;
-    background-color: #343a40;
+    background-color: #767676;
   }
 
   #alnViewerLabels{
     cursor: ew-resize;
+  }
+
+  #select_protein_type option{
+    color: black;
+    background-color: white;
+  }
+  #selectaln option{
+    color: black;
+    background-color: white;
   }
