@@ -248,30 +248,37 @@ function generateFinalSegmentation(allSegments, bpSegments) {
     return finalSegmentation;
 }
 
-function findActualSegments(dotBracket) {
+function segmentElements(dotBracket) {
     let stack = [];
-    let segmentList = [];
+    let segments = [];
 
     for (let i = 0; i < dotBracket.length; i++) {
         if (dotBracket[i] === "(") {
             stack.push(i);
         } else if (dotBracket[i] === ")") {
-            let stackTop = stack.pop();
-            segmentList.push([stackTop, i]);
+            let boundaries = [stack.pop() + 1, i + 1];
+            if (segments.length !== 0) {
+                let last = segments[segments.length - 1];
+
+                if (Math.abs(last[0] - boundaries[0]) < 3 && Math.abs(last[1] - boundaries[1]) < 3) {
+                    segments.pop();
+                }
+            }
+            segments.push(boundaries);
         }
     }
 
-    let actualSegments = [];
+    let elementsSegments = [];
 
-    for (let s of segmentList) {
-        let values = new Set([...Array(s[1] - s[0] + 2).keys()].map(x => x + s[0] + 1));
-        for (let i of actualSegments) {
+    for (let s of segments) {
+        let values = new Set([...Array(s[1] - s[0] + 1).keys()].map(x => x + s[0]));
+        for (let i of elementsSegments) {
             values = new Set([...values].filter(x => !i.has(x)));
         }
-        actualSegments.push(values);
+        elementsSegments.push(values);
     }
 
-    return actualSegments;
+    return elementsSegments;
 }
 
 function calculateDotBracket(basePairsList, sequenceLength) {
@@ -327,7 +334,7 @@ function colorSegments(graph, colors, edgeMap, beacketSegement, minLength = 4) {
     // let finalSegments = bpSegments;
     // console.log("Stacked Segments: ", JSON.stringify(finalSegments));
 
-    for (let finalSegments of [allSegments, bpSegments]){ // beacketSegement
+    for (let finalSegments of [allSegments]){ // bpSegments, beacketSegement
         for (let i = 0; i < finalSegments.length; i++) {
             let segment = finalSegments[i];
 

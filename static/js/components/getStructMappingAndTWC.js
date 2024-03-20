@@ -32,16 +32,19 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
         //hardcoded_structure: full_sequence_from_pdb
         hardcoded_structure: vm.customFullSequence
     };
-    ajax('/mapSeqAln/', postData).then(structMappingAndData=>{
+    // ajax('/mapSeqAln/', postData).then(structMappingAndData=>{
+    ajax('/mapSeqAlnOrig/', {fasta, ebi_sequence, startIndex:1}).then(structMappingAndData=>{
         var struct_mapping = structMappingAndData["structureMapping"];
         vm.struct_to_alignment_mapping = Object.fromEntries(Object.entries(struct_mapping).map(([key, value]) => [value, key]));
         const associatedDataMappedPerType = {
          // "AES" : [[2, 1], [3, 51], [4, 101]]
         };
-        // console.log(struct_mapping);
-        for (const [alignmentIndexAsString, structureIndex] of Object.entries(struct_mapping)) {
-          const alignmentIndex = Number.parseInt(alignmentIndexAsString);
-          const associatedDataCache = vm.associatedDataCache;
+        console.log("struct_mapping 1", JSON.stringify(struct_mapping));
+        for (let [alignmentIndexAsString, structureIndex] of Object.entries(struct_mapping)) {
+          let alignmentIndex = Number.parseInt(alignmentIndexAsString);
+          // associatedDataCache has correct boundaries
+          let associatedDataCache = vm.associatedDataCache;
+          //todo:  wrong below 
           if (alignmentIndex in associatedDataCache) {
             for (let {type, value} of associatedDataCache[alignmentIndex]) {
               if (!(type in associatedDataMappedPerType)) {
@@ -49,7 +52,7 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
               }
 
               if (type in typeMappings){
-                  const selectedDataDict = typeMappings[type] || {};
+                  let selectedDataDict = typeMappings[type] || {};
                   value = selectedDataDict[value] || 0;
               } else {
                     if (value.length === 0) {
@@ -57,7 +60,7 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
                     }
                     value = Number.parseInt(value);
               }
-              const associatedDataI = [
+              let associatedDataI = [
                 structureIndex,
                 value
               ];
@@ -70,7 +73,7 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
       const fix_colors = require('./graphColorPrediction.js');
       vm.AD_headers = [];
       // console.log(associatedDataMappedPerType);
-      vm.associatedDataMappedPerType = associatedDataMappedPerType;
+      // vm.associatedDataMappedPerType = associatedDataMappedPerType;
       vm.associatedDataMappedPerType = fix_colors(
         viewerInstanceTop.viewInstance.uiTemplateService.apiData.sequence, 
         viewerInstanceTop.viewInstance.uiTemplateService.baseStrs.get('cWW')[1],
@@ -90,12 +93,14 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
         //mapAssociatedData(ADDataArray, AD_header, topviewer );
 
 
-        //console.log('Struct_mapping', struct_mapping );
+        // console.log('ebi_sequence', ebi_sequence);
         var largestKey = Math.max(...Object.values(struct_mapping).filter(a=>typeof(a)=="number"))
         var smallestKey = Math.min(...Object.values(struct_mapping).filter(a=>typeof(a)=="number"))
         if ((largestKey != stopIndex || smallestKey != startIndex)&&ebi_sequence){
             ajax('/mapSeqAlnOrig/', {fasta, ebi_sequence, startIndex:1}).then(origStructMappingAndData=>{
                 var orig_struct_mapping = origStructMappingAndData["structureMapping"];
+                console.log("struct_mapping 2", JSON.stringify(orig_struct_mapping));
+                console.log("origStructMappingAndData", origStructMappingAndData);
                 if (structMappingAndData["gapsInStruc"]&&structMappingAndData["gapsInStruc"].length > 0){
                     structMappingAndData["gapsInStruc"].forEach(function(gapTup){
                         let lowMiss = Number(_.invert(struct_mapping)[gapTup[0]]);
