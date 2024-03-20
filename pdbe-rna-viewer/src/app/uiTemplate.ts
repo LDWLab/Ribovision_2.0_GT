@@ -23,7 +23,7 @@ export class UiTemplateService {
 
    
     private locations: Map<any, number[]> = new Map();
-    menuStyle = 'position:relative;z-index:10;height:7%;width:500px;line-height:7%;background-color:#696969;padding: 0 10px;font-size:16px; color: #efefef;display:inline-block;';
+    menuStyle = 'position:relative;z-index:10;height:7%;line-height:7%;background-color:#696969;padding: 0 10px;font-size:16px; color: #efefef;display:block;';
     domainTypes: any[];
     selectedDomain: string;
     pathStrs: string[] = [];  
@@ -98,6 +98,11 @@ export class UiTemplateService {
         this.addEvents(apiData, BanName);
         <any>document.querySelector(".saveSVG")!.addEventListener("click", this.saveSVG.bind(this));
         this.getAnnotationFromRibovision(this.mapped_aa_properties);
+
+        var el = document.getElementById("topview");
+        document.getElementById("TopologyFSCR")?.addEventListener("click", (event) => {
+            document.fullscreenElement ? document.exitFullscreen() : el?.requestFullscreen();
+        })
         
         if (instance) {
             CustomEvents.subscribeToComponentEvents(instance)
@@ -337,7 +342,9 @@ export class UiTemplateService {
                 }
             });
         } else {
-            if(flag ?? this.baseStrs.get(val)![0]) {
+            //console.log(flag)
+            //if(flag ?? this.baseStrs.get(val)![0]) {
+            if(this.baseStrs.get(val)![0]) {
                 this.baseStrs.set(val, [false,  this.baseStrs.get(val)![1]]);
                 this.nestedBaseStrs.set(val, [false, this.nestedBaseStrs.get(val)![1]]);
             } else {
@@ -470,7 +477,7 @@ export class UiTemplateService {
         }*/
         return residueDetails;
     }
-    getAnnotationFromRibovision(mapped_aa_properties: Map<string, Array<Array<number>>>) {
+    getAnnotationFromRibovision(mapped_aa_properties: Map<string, Array<Array<number>>>, mapped_3D_properties?: Map<string, Array<Array<number>>>) {
         const _this = this;
         const start = this.apiData?this.apiData.label_seq_ids[1]:0
         //const end = this.apiData?this.apiData.label_seq_ids[this.apiData.label_seq_ids.length - 2]:0
@@ -505,40 +512,46 @@ export class UiTemplateService {
 
                 let min = Math.min(...this.aaPropertyConstants.get(name));
                 let max = Math.max(...this.aaPropertyConstants.get(name));
-                let colormapArray = this.aaColorData.get(name); 
+                let colormapArray = this.aaColorData.get(name);
+                let data3D;
+                data3D = separatedData;
+                if(mapped_3D_properties) {
+                    if(mapped_3D_properties.get(name)) {
+                        data3D = mapped_3D_properties.get(name);
+                    }
+                }
                 if  (name == "Shannon entropy"){
-
-                    this.getEntropyAnnotations(separatedData, min, max, this.pluginOptions.chainId);
+                    this.getEntropyAnnotations(data3D, min, max, this.pluginOptions.chainId);
                     //console.log('name_SE', name,  this.getEntropyAnnotations(separatedData, min, max, this.pluginOptions.chainId));
                 };    
                 if  (name == "TwinCons"){
-                    this.getTWCAnnotations(separatedData, min, max, this.pluginOptions.chainId);
+                    this.getTWCAnnotations(data3D, min, max, this.pluginOptions.chainId);
                     //console.log('name_TWC', name, this.getTWCAnnotations(separatedData, min, max, this.pluginOptions.chainId));
                 };
 
                 if  (name == "Custom Data"){
                     
-                    this.getCustomAnnotations(separatedData, min, max, this.pluginOptions.chainId);
+                    this.getCustomAnnotations(data3D, min, max, this.pluginOptions.chainId);
                     //console.log('name_CD', name,  this.getEntropyAnnotations(separatedData, min, max, this.pluginOptions.chainId));
                 };
                 if  (name == "Associated Data1"){
                     
-                    this.getAssociatedAnnotations(separatedData, min, max, this.pluginOptions.chainId);
+                    this.getAssociatedAnnotations(data3D, min, max, this.pluginOptions.chainId);
                     
                 }; 
                 if  (name == "Helix" || name == "helix"){
-                    this.getHelicalAnnotations(separatedData, min, max, this.pluginOptions.chainId);
+                    this.getHelicalAnnotations(data3D, min, max, this.pluginOptions.chainId);
                     
                 };
                 
                 if  (name == "Phase" || name == 'phase'){
                     
-                    this.getPhaseAnnotations(separatedData, min, max, this.pluginOptions.chainId);
+                    this.getPhaseAnnotations(data3D, min, max, this.pluginOptions.chainId);
                     
                 };
                 if  (name == "AES" || name == 'aes'){
                     //console.log('name_AES', name, this.getExpansionAnnotations(separatedData, min, max, this.pluginOptions.chainId))
-                    this.getExpansionAnnotations(separatedData, min, max, this.pluginOptions.chainId);
+                    this.getExpansionAnnotations(data3D, min, max, this.pluginOptions.chainId);
                     
                 };
                 const [TWCrgbMap, TWCData] = this.parsePVData(separatedData, min, max, colormapArray);
@@ -809,6 +822,8 @@ export class UiTemplateService {
         } else if(selectedValue == 2) {
             (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(`rnaTopoSvg_${this.pluginOptions.pdbId}`)[0].innerHTML = this.nucleotideStrs.join('') + this.circleStrs.join('') + displayBP;
             this.mappingValue = 'circle';
+            (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(`rnaTopoSvg_${this.pluginOptions.pdbId}`)[0].innerHTML = this.nucleotideStrs.join('') + this.circleStrs.join('') + displayBP;
+            //this.circleStrs.join('') + displayBP;
         } 
         //if(e) {
             //this.containerElement.querySelector<HTMLInputElement>('.mappingSelectbox')!.value="0";
@@ -1245,6 +1260,7 @@ export class UiTemplateService {
             <span class="pdb-rna-view-btn" title="Zoom-in" id="rnaTopologySaveSVG-${this.pluginOptions.pdbId}">
                 <img class="saveSVG" src="static/alignments/png/Save.png" style="height:24px; width: 24px; border:0;position: relative;cursor:pointer;" title="saveSVG"/>
             </span>
+
             <span class="pdb-rna-view-btn" title="Zoom-in" id="rnaTopologyZoomIn-${this.pluginOptions.pdbId}">
                 <svg style="width:24px;height:24px" viewBox="0 0 24 24">
                     <path fill="currentColor" d="M15.5,14L20.5,19L19,20.5L14,15.5V14.71L13.73,14.43C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.43,13.73L14.71,14H15.5M9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14M12,10H10V12H9V10H7V9H9V7H10V9H12V10Z" />
@@ -1260,6 +1276,12 @@ export class UiTemplateService {
             <span class="pdb-rna-view-btn" title="Reset" id="rnaTopologyReset-${this.pluginOptions.pdbId}">
                 <svg style="width:24px;height:24px" viewBox="0 0 24 24">
                     <path fill="currentColor" d="M12,6V9L16,5L12,1V4A8,8 0 0,0 4,12C4,13.57 4.46,15.03 5.24,16.26L6.7,14.8C6.25,13.97 6,13 6,12A6,6 0 0,1 12,6M18.76,7.74L17.3,9.2C17.74,10.04 18,11 18,12A6,6 0 0,1 12,18V15L8,19L12,23V20A8,8 0 0,0 20,12C20,10.43 19.54,8.97 18.76,7.74Z" />
+                </svg>
+            </span>
+
+            <span class="pdb-rna-view-btn" title="Full-Screen"  id="rnaTopologyFSCR-${this.pluginOptions.pdbId}">
+                <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" id="TopologyFSCR", title="Full-Screen" >
+                    <path transform="translate(-1, -1)" d="M4 15V18C4 19.1046 4.89543 20 6 20H9M15.2173 20H18C19.1046 20 20 19.1046 20 18V15M20 9V6C20 4.89543 19.1046 4 18 4H15M4 9V6C4 4.89543 4.89543 4 6 4H9" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
                 </svg>
             </span>
         </div>`;
@@ -1303,5 +1325,7 @@ export class UiTemplateService {
       }
         saveSvg1(svg, 'rv3Topology.svg')
   }
+
+
 
 }

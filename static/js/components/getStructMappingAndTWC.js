@@ -79,6 +79,8 @@ export function getStructMappingAndTWC (fasta, struc_id, startIndex, stopIndex, 
         viewerInstanceTop.viewInstance.uiTemplateService.baseStrs.get('cWW')[1],
         associatedDataMappedPerType
       );
+      vm.associatedDataMappedPerType_3D = vm.associatedDataMappedPerType;
+      vm.associatedDataMappedPerType_2D = vm.associatedDataMappedPerType;
       // for (let a = 0; a < 2; a++){
       //   vm.associatedDataMappedPerType = fix_colors(
       //         viewerInstanceTop.viewInstance.uiTemplateService.apiData.sequence, 
@@ -157,14 +159,20 @@ var delayedMapping = function (){
         if(vm.topology_loaded) {
             try{
                 var topviewer = document.getElementById("PdbeTopViewer");
-                for (const [type, associatedDataMappedPerTypeI] of Object.entries(vm.associatedDataMappedPerType)) {
-                  associatedDataMappedPerTypeI.sort(function(entry0, entry1) {
+                for (const [type, _] of Object.entries(vm.associatedDataMappedPerType_2D)) {
+                  let associatedDataMappedPerTypeI_2D = vm.associatedDataMappedPerType_2D[type];
+                  let associatedDataMappedPerTypeI_3D = vm.associatedDataMappedPerType_3D[type];
+                  
+                  associatedDataMappedPerTypeI_2D.sort(function (entry0, entry1) {
                     return entry0[0] - entry1[0];
-                  })
+                  });
+                  associatedDataMappedPerTypeI_3D.sort(function (entry0, entry1) {
+                    return entry0[0] - entry1[0];
+                  });
                   const AD_header = type;
-                  const ADDataArray = associatedDataMappedPerTypeI;
+                  // const ADDataArray = associatedDataMappedPerTypeI;
                   vm.AD_headers.push(AD_header);
-                  mapAssociatedData(ADDataArray, AD_header, topviewer);
+                  mapAssociatedData(associatedDataMappedPerTypeI_2D, associatedDataMappedPerTypeI_3D, AD_header, topviewer);
                 }
             } catch(error) {
                 console.log(error)
@@ -265,14 +273,20 @@ var tryCustomTopology = function (pdbid, entityid, chainid){
           vm.AD_headers = [];
           var topviewer = document.getElementById("PdbeTopViewer");
           try{
-            for (const [type, associatedDataMappedPerTypeI] of Object.entries(vm.associatedDataMappedPerType)) {
-              associatedDataMappedPerTypeI.sort(function(entry0, entry1) {
+            for (const [type, _] of Object.entries(vm.associatedDataMappedPerType_2D)) {
+              let associatedDataMappedPerTypeI_2D = vm.associatedDataMappedPerType_2D[type];
+              let associatedDataMappedPerTypeI_3D = vm.associatedDataMappedPerType_3D[type];
+              
+              associatedDataMappedPerTypeI_2D.sort(function (entry0, entry1) {
                 return entry0[0] - entry1[0];
-              })
+              });
+              associatedDataMappedPerTypeI_3D.sort(function (entry0, entry1) {
+                return entry0[0] - entry1[0];
+              });
               const AD_header = type;
-              const ADDataArray = associatedDataMappedPerTypeI;
+              // const ADDataArray = associatedDataMappedPerTypeI;
               vm.AD_headers.push(AD_header);
-              mapAssociatedData(ADDataArray, AD_header, topviewer);
+              mapAssociatedData(associatedDataMappedPerTypeI_2D, associatedDataMappedPerTypeI_3D, AD_header, topviewer);
             }
          } catch(error) {
             console.log("Mapping associated data failed")

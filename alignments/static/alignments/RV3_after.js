@@ -342,14 +342,14 @@ var registerHoverResiData = function (e, tooltipObj){
       }
   }
   
-  var mapAssociatedData = function(associated_data, associated_data_name, topviewer){
+  var mapAssociatedData = function(associated_data_2D,associated_data_3D,  associated_data_name, topviewer){
       
     //var selectBoxEle = viewerInstanceTop.pluginInstance.targetEle.querySelector('.menuSelectbox');
     //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.menuSelectbox');
     //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
     
-    let vals = associated_data.map(function(v){ return v[1] });
-    let indexes =  associated_data.map(function(v){ return v[0] });
+    let vals = associated_data_3D.map(function(v){ return v[1] });
+    let indexes =  associated_data_3D.map(function(v){ return v[0] });
     //window.aaColorData.set(associated_data_name, [viridis]);
     window.aaColorData.set(associated_data_name, [rainbow]);
     window.aaPropertyConstants.set( associated_data_name, [Math.min(...vals), Math.max(...vals)]);
@@ -360,14 +360,23 @@ var registerHoverResiData = function (e, tooltipObj){
     //     window.associated_prop = new Map();
     // }
     // var associated_prop = window.associated_prop;
-    var associated_prop = new Map();
-    associated_prop.set(associated_data_name, associated_data);
+    var associated_prop_2D = new Map();
+    var associated_prop_3D = new Map();
+    
+    associated_prop_2D.set(associated_data_name, associated_data_2D);
     if (window.custom_prop){
-        window.custom_prop.set(associated_data_name, associated_data)
+        window.custom_prop.set(associated_data_name, associated_data_2D)
     } else {
-        window.custom_prop = associated_prop;
+        window.custom_prop = associated_prop_2D;
     }
-    topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(associated_prop);
+    
+    associated_prop_3D.set(associated_data_name, associated_data_3D);
+    if (window.custom_prop){
+        window.custom_prop.set(associated_data_name, associated_data_3D)
+    } else {
+        window.custom_prop = associated_prop_3D;
+    }
+    topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(associated_prop_2D,associated_prop_3D );
     //var custom_option = document.createElement("option");
     //custom_option.setAttribute("value", selectBoxEle.options.length);
     //custom_option.appendChild(document.createTextNode(custom_data_name));
