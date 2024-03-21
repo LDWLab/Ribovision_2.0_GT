@@ -349,7 +349,7 @@ var mapAssociatedData = function (associated_data_2D, associated_data_3D, associ
     //var selectBoxEle = viewerInstanceTop.pluginInstance.targetEle.querySelector('.menuSelectbox');
     //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.menuSelectbox');
     //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
-    console.log("mapAssociatedData 3D data 100:", associated_data_3D[100]);
+    // console.log("mapAssociatedData 3D data 100:", associated_data_3D[100]);
     let vals = associated_data_3D.map(function (v) { return v[1] });
     // let indexes = associated_data_3D.map(function (v) { return v[0] });
     //window.aaColorData.set(associated_data_name, [viridis]);
@@ -366,7 +366,7 @@ var mapAssociatedData = function (associated_data_2D, associated_data_3D, associ
     var associated_prop_3D = new Map();
 
     associated_prop_2D.set(associated_data_name, associated_data_2D);
-    console.log('associated_data_2D', JSON.stringify(associated_data_2D));
+    // console.log('associated_data_2D', JSON.stringify(associated_data_2D));
     if (window.custom_prop) {
         window.custom_prop.set(associated_data_name, associated_data_2D)
     } else {
@@ -374,7 +374,7 @@ var mapAssociatedData = function (associated_data_2D, associated_data_3D, associ
     }
 
     associated_prop_3D.set(associated_data_name, associated_data_3D);
-    console.log('associated_data_3D', JSON.stringify(associated_data_3D));
+    // console.log('associated_data_3D', JSON.stringify(associated_data_3D));
     // if (window.custom_prop) {
     //     window.custom_prop.set(associated_data_name, associated_data_3D)
     // } else {

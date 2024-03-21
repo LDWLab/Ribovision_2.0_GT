@@ -1,10 +1,6 @@
 const { map } = require("lodash");
 
-// function extractBonds(st) {
-//     let regex = /.*[ACGU]([0-9]+).*[ACGU]([0-9]+);/;
-//     let matches = st.match(regex);
-//     return matches ? [parseInt(matches[1]), parseInt(matches[2])] : null;
-// }
+
 function euclideanDistance(x1, y1, x2, y2) {
     return Math.sqrt(Math.pow(parseFloat(x2) - parseFloat(x1), 2) + Math.pow(parseFloat(y2) - parseFloat(y1), 2));
 }
@@ -13,23 +9,29 @@ function extractBonds(st) {
     let basePairRegex = /.*[ACGU]([0-9]+).*[ACGU]([0-9]+);/;
     let basePairMatch = st.match(basePairRegex);
     let basePair = basePairMatch ? basePairMatch : null;
-    
+
     let coordsRegex = /(\d+\.\d+)\s(\d+\.\d+)\s(\d+\.\d+)\s(\d+\.\d+)/g;
     let coordsMatches = st.matchAll(coordsRegex);
     let coords = [];
     for (const match of coordsMatches) {
         coords.push([match[1], match[2], match[3], match[4]]);
     }
-    
+
     let dist = 0;
     if (coords.length > 0) {
         dist = euclideanDistance(...coords[0]);
     }
-    
+
     return [basePair[1], basePair[2], dist];
 }
 
-function createGraph(seqLen, edgeMap=[]) {
+/**
+ * Create a simple graph {node: list of neghbouring nodes} graph
+ * @param {int} seqLen 
+ * @param {map} edgeMap 
+ * @returns 
+ */
+function createGraph(seqLen, edgeMap = []) {
     let G = {};
     for (let i = 2; i <= seqLen; i++) {
         G[i] = [i - 1, i + 1];
@@ -37,12 +39,10 @@ function createGraph(seqLen, edgeMap=[]) {
     G[1] = [2];
     G[seqLen] = [seqLen - 1];
 
-    // console.log(edgeMap);
     for (let [k, v] of Object.entries(edgeMap)) {
-        // console.log(k, v);
         G[k].push(v);
         G[v].push(k);
-        
+
     }
     return G;
 }
@@ -63,18 +63,14 @@ function findNeighbors(G, node, depth = 1) {
     return neighbors;
 }
 
-function getBasePair(G, node){
-    for (let n in G[node]){
-        if (n != node + 1 && n != node - 1){
-            return n;
-        }
-
-    }
-    return -1;
-}
-
-
-function findMisColoredPairs(edgeMap, predictedColors){
+/**
+ * based on colors, find miscolored base paired nodes, 
+ * and add both of them for recoloring
+ * @param {*} edgeMap 
+ * @param {*} predictedColors 
+ * @returns 
+ */
+function findMisColoredPairs(edgeMap, predictedColors) {
     let misColoredPairs = [];
     for (let [u, v] of Object.entries(edgeMap)) {
         u_color = predictedColors[u];
@@ -89,254 +85,198 @@ function findMisColoredPairs(edgeMap, predictedColors){
     return misColoredPairs;
 }
 
-function predictColors(G, colors, edgeMap, beacketSegement, depth=2, fix=false) {
+
+
+/**
+ * Given a list of values
+ * return the value with the maximum occurance 
+ * @param {*} colorsList 
+ * @returns 
+ */
+function getMaxColor(colorsList) {
     
-    let predictedColors = {};
-    
-    for (let [k, [node, color]] of Object.entries(colors)){
-        if (color != 'undefined'){
-            predictedColors[node] = color;
-        }
-
-    }
-    // console.log("Before: ", JSON.stringify(predictedColors));
-    if (fix == true){
-        predictedColors = colorSegments(G, predictedColors, edgeMap, beacketSegement, 4);
-    }
-    // console.log("After: ", JSON.stringify(predictedColors));
-
-    let nodesToColor = findMisColoredPairs(edgeMap, predictedColors);
-    // console.log("nodesToColor :", nodesToColor);
-    let coloredNodes = Object.entries(predictedColors).map(([k, v]) => parseInt(k)).filter(k => !nodesToColor.includes(k))
-
-    let nodeColorPair = [];
-
-    let colorStart = Math.min(...Object.keys(predictedColors));
-    let lastResidue = Math.max(...Object.keys(G));
-
-    // force remove 0 as we are using 1 index
-    let reverse = [...Array(colorStart).keys()].reverse()
-    let forward = [...Array(lastResidue - colorStart + 1).keys()].map(i => i + colorStart) 
-    let traversalOrder = reverse.concat(forward).filter(item => item !== 0)
-
-    // console.log("traversalOrder", traversalOrder);
-
-    for (let n of traversalOrder) {
-        // no need to change as already colored
-        if (coloredNodes.includes(n)){ 
-            nodeColorPair.push([n, predictedColors[n]])    
-            continue;
-        }
-        // console.log("n", n)
-        let neighbors = findNeighbors(G, n, depth);
-        // console.log("neighbors", neighbors);
-        
-        let neighborColors = neighbors.filter(node => (Object.keys(predictedColors).includes(node.toString()))).map(node => predictedColors[node]);
-        // console.log("neighborColors", neighborColors);
-
-        if (neighborColors.length === 0) continue;
-        
-        let nodeColor = neighborColors.reduce((acc, val) => (acc[val] = (acc[val] || 0) + 1, acc), {});
-        // console.log("nodeColor", nodeColor);
-        let maxColor = Object.keys(nodeColor).reduce((a, b) => nodeColor[a] > nodeColor[b] ? a : b);
-        // console.log("maxColor", maxColor);
-        predictedColors[n] = maxColor;
-        nodeColorPair.push([n, maxColor]);
-        
-    }
-    // console.log(JSON.stringify(nodeColorPair));
-    return nodeColorPair;
-}
-
-function getMaxColor(colorsList){
     let colorFreq = colorsList.reduce((acc, val) => (acc[val] = (acc[val] || 0) + 1, acc), {});
     let maxColor = Object.keys(colorFreq).reduce((a, b) => colorFreq[a] > colorFreq[b] ? a : b);
-
+    
+    
+    
     return maxColor;
 
 }
 
+/**
+ * NOT IN USE / REPLACED BY segmentBracketElements
+ * Extracts segments from the given edge list representing base pairs.
+ * @param {Object} edgeList - The edge list representing base pairs.
+ * @returns {Array} An array containing segments of base pairs.
+ */
 function getBPSegments(edgeList) {
-    // let sortedEdgeList = edgeList.slice().sort((a, b) => a[0] - b[0]);
+    // Initialize an array to store segments
     let segments = [];
+    // Initialize a stack to track consecutive base pairs forming segments
     let stack = [];
+    // Set tolerance for considering base pairs as part of the same segment
     let tolerance = 3;
 
-    for (let [u, v] of Object.entries(edgeList)){
-        edge = [parseInt(u), parseInt(v)]
-        // console.log(edge, stack, segments);
+    // Iterate through each entry in the edge list
+    for (let [u, v] of Object.entries(edgeList)) {
+        // Convert edge indices to integers
+        edge = [parseInt(u), parseInt(v)];
+
+        // Check if the stack is not empty
         if (stack.length > 0) {
+            // Get the last element in the stack
             let last = stack[stack.length - 1];
+            // Check if the difference between current edge and last edge is within tolerance
             if (Math.max(Math.abs(last[0] - edge[0]), Math.abs(last[1] - edge[1])) < tolerance) {
+                // If within tolerance, push current edge to the stack and continue
                 stack.push(edge);
                 continue;
             } else {
+                // If outside tolerance, form a segment from the stack elements
                 let first = stack[0];
                 let last = stack[stack.length - 1];
-                // console.log("Range", first, last);
-                let tempSeg = [ ...Array(last[0]+1).keys()].filter(x => x >= first[0]);
-                tempSeg.push( ...[ ...Array(first[1]+1).keys()].filter(x => x >= last[1]));
+                let tempSeg = [...Array(last[0] + 1).keys()].filter(x => x >= first[0]);
+                tempSeg.push(...[...Array(first[1] + 1).keys()].filter(x => x >= last[1]));
                 segments.push(tempSeg);
-                stack = [];
+                stack = []; // Clear the stack for the next segment
             }
         }
-        stack.push(edge);
+        stack.push(edge); // Push current edge to the stack
     }
 
+    // If there are remaining edges in the stack, form a segment from them
     if (stack.length > 0) {
         let first = stack[0];
         let last = stack[stack.length - 1];
-        let tempSeg = [ ...Array(last[0]+1).keys()].filter(x => x >= first[0]);
-        tempSeg.push( ...[ ...Array(first[1]+1).keys()].filter(x => x >= last[1]));
-
+        let tempSeg = [...Array(last[0] + 1).keys()].filter(x => x >= first[0]);
+        tempSeg.push(...[...Array(first[1] + 1).keys()].filter(x => x >= last[1]));
         segments.push(tempSeg);
     }
-    // console.log('BP segments :', JSON.stringify(segments));
+
+    // Return the extracted segments of base pairs
     return segments;
 }
 
-function generateFinalSegmentation(allSegments, bpSegments) {
-    function createSegmentMapping(allSegments, bpSegments) {
-        let segmentMapping = {};
 
-        for (let i = 0; i < bpSegments.length; i++) {
-            let bpSegment = bpSegments[i];
-            let bpKey = `bp${i}`;
-
-            for (let j = 0; j < allSegments.length; j++) {
-                let segment = allSegments[j];
-                let segmentKey = `st${j}`;
-
-                // Check if there is an intersection or subset
-                if (segment.every(elem => bpSegment.includes(elem))) {
-                    if (!segmentMapping[bpKey]) {
-                        segmentMapping[bpKey] = [];
-                    }
-                    segmentMapping[bpKey].push(segmentKey);
-                }
-            }
-        }
-
-        return segmentMapping;
-    }
-
-    function createFinalSegmentation(allSegments, bpSegments, mapping) {
-        let finalSegments = [];
-
-        // Assign segments for base pair segments
-        Object.entries(mapping).forEach(([bpKey, segments]) => {
-            let mergedSegment = [];
-            segments.forEach(segmentKey => {
-                let segmentIndex = parseInt(segmentKey.substring(2));
-                mergedSegment.push(...allSegments[segmentIndex]);
-            });
-            finalSegments.push(mergedSegment);
-        });
-
-        // Add segments for non-mapped segments
-        allSegments.forEach((segment, index) => {
-            let isMapped = Object.values(mapping).some(segments => segments.includes(`st${index}`));
-            if (!isMapped) {
-                finalSegments.push(segment);
-            }
-        });
-
-        return finalSegments;
-    }
-
-    let mapping = createSegmentMapping(allSegments, bpSegments);
-    let finalSegmentation = createFinalSegmentation(allSegments, bpSegments, mapping);
-    
-    return finalSegmentation;
-}
-
-function segmentElements(dotBracket) {
+/**
+ * Segments elements enclosed within parentheses in the given dot-bracket notation.
+ * @param {string} dotBracket - The dot-bracket notation representing RNA secondary structure.
+ * @returns {Array} An array containing segments of elements enclosed within parentheses.
+ */
+function segmentBracketElements(dotBracket) {
+    // Initialize a stack to track opening parentheses indices
     let stack = [];
+    // Initialize an array to store segments of elements enclosed within parentheses
     let segments = [];
 
+    // Iterate through each character in the dot-bracket notation
     for (let i = 0; i < dotBracket.length; i++) {
+        // If the character is an opening parenthesis, push its index to the stack
         if (dotBracket[i] === "(") {
             stack.push(i);
-        } else if (dotBracket[i] === ")") {
+        } 
+        // If the character is a closing parenthesis
+        else if (dotBracket[i] === ")") {
+            // Pop the index of the corresponding opening parenthesis from the stack
             let boundaries = [stack.pop() + 1, i + 1];
+            // Check if there are existing segments
             if (segments.length !== 0) {
                 let last = segments[segments.length - 1];
-
+                // Check if the new segment is close enough to the last segment
                 if (Math.abs(last[0] - boundaries[0]) < 3 && Math.abs(last[1] - boundaries[1]) < 3) {
+                    // If close enough, remove the last segment
                     segments.pop();
                 }
             }
+            // Push the boundaries of the current segment to the segments array
             segments.push(boundaries);
         }
     }
 
+    // Initialize an array to store the segments of elements enclosed within parentheses
     let elementsSegments = [];
 
+    // Iterate through each segment of parentheses
     for (let s of segments) {
+        // Create a set containing indices of elements within the segment
         let values = new Set([...Array(s[1] - s[0] + 1).keys()].map(x => x + s[0]));
+
+        // Iterate through existing segments
         for (let i of elementsSegments) {
-            values = new Set([...values].filter(x => !i.has(x)));
+            // Filter out indices already present in the existing segments
+            values = new Set([...values].filter(x => !i.includes(x)));
         }
+
+        // Convert the set to an array
+        values = [...values];
+
+        // Find the locations where there are jumps in indices
+        let jumpLocations = [];
+        for (let i = 0; i < values.length - 1; i++) {
+            if (values[i + 1] - values[i] !== 1) {
+                jumpLocations.push(i);
+            }
+        }
+
+        // If there are multiple jumps, remove the corresponding elements
+        if (jumpLocations.length > 1) {
+            let start = jumpLocations[0] + 1;
+            let end = jumpLocations[jumpLocations.length - 1] + 1;
+            values.splice(start, end - start);
+        }
+
+        // Push the final segments of elements enclosed within parentheses to the elementsSegments array
         elementsSegments.push(values);
     }
 
+    // Return the segments of elements enclosed within parentheses
     return elementsSegments;
 }
 
-function calculateDotBracket(basePairsList, sequenceLength) {
-    let dotBracket = Array(sequenceLength).fill(".");
-    for (let basePair of basePairsList) {
-        dotBracket[basePair[0] - 1] = "(";
-        dotBracket[basePair[1] - 1] = ")";
+/**
+ * Segments stacked elements in the given graph based on a minimum length threshold.
+ * @param {Object} graph - The graph representing nodes and their neighbors.
+ * @param {number} minLength - The minimum length of a segment to be considered.
+ * @returns {Array} An array containing segments of stacked elements.
+ */
+function segmentStackedElements(graph, minLength = 4) {
+    // Initialize an array to store segmented stacked elements
+    let stackedSegments = [];
+    // Initialize a stack to track consecutive elements forming segments
+    let stack = [];
+    // Initialize a variable to track the state of neighbors' length
+    let state = 0;
+
+    // Iterate through each node and its neighbors in the graph
+    for (let [node, neighbours] of Object.entries(graph)) {
+        // Check if the number of neighbors has changed and the stack length is greater than or equal to the minimum length
+        if (neighbours.length !== state && stack.length >= minLength) {
+            // Push the current stack (segment) to the stackedSegments array
+            stackedSegments.push(stack);
+            // Reset the stack for the next segment
+            stack = [];
+        }
+        // Push the current node to the stack
+        stack.push(parseInt(node));
+        // Update the state to the current number of neighbors
+        state = neighbours.length;
     }
-    
-    return dotBracket;
+
+    // If there are remaining elements in the stack, push them as the last segment
+    if (stack.length >= 1) {
+        stackedSegments.push(stack);
+    }
+
+    // Return the segmented stacked elements
+    return stackedSegments;
 }
 
-function colorSegments(graph, colors, edgeMap, beacketSegement, minLength = 4) {
-    let stack = [];
-    let state = 0;
-    let nodeColorPair = [];
-    let allSegments = [];
-    let bpSegments = getBPSegments(edgeMap);
-    let predColors = colors;
-    
-    for (let [node, neighbours] of Object.entries(graph)) {
-        if (neighbours.length !== state && stack.length >= minLength) {
-            // console.log("Current segment:", stack);
-            allSegments.push(stack);
-            // let segColors = [];
-            // for (let n of stack){
-            //     segColors.push(colors[n]);
-            // }
-            // let maxColor = getMaxColor(segColors);
-            // for (let n of stack){
-            //     nodeColorPair.push([parseInt(n), maxColor]);
-            // }
-            stack = [];
-        } 
-        stack.push(parseInt(node));
-        state = neighbours.length;
-        
-    }
-    if (stack.length >= 1) {
-        // console.log("Current segment:", stack);
-        allSegments.push(stack);
-        // let segColors = [];
-        // for (let n of stack) {
-        //     segColors.push(colors[n]);
-        // }
-        // let maxColor = getMaxColor(segColors);
-        // for (let n of stack){
-        //     nodeColorPair.push([parseInt(n), maxColor]);
-        // }
-    }
-    
-    // let finalSegments = generateFinalSegmentation(allSegments, bpSegments);
-    // let finalSegments = bpSegments;
-    // console.log("Stacked Segments: ", JSON.stringify(finalSegments));
 
-    for (let finalSegments of [beacketSegement]){ // bpSegments, beacketSegement, allSegments
+function colorSegments(colors, listOfSegements) {
+    let predColors = colors;
+
+    for (let finalSegments of listOfSegements) { // bpSegments, beacketSegement, allSegments
         for (let i = 0; i < finalSegments.length; i++) {
             let segment = finalSegments[i];
 
@@ -346,10 +286,11 @@ function colorSegments(graph, colors, edgeMap, beacketSegement, minLength = 4) {
 
             let segColors = [];
             for (let n of segment) {
-                segColors.push(predColors[n]); 
+                segColors.push(predColors[n]);
             }
+            
             let maxColor = getMaxColor(segColors);
-            if (maxColor == "undefined"){
+            if (maxColor == "undefined") {
                 continue;
             }
             for (let n of segment) {
@@ -363,65 +304,54 @@ function colorSegments(graph, colors, edgeMap, beacketSegement, minLength = 4) {
     return predColors;
 }
 
-function segmentBracketElements(dotBracket) {
-    let stack = [];
-    let segments = [];
-    
-    for (let i = 0; i < dotBracket.length; i++) {
-        if (dotBracket[i] === "(") {
-            stack.push(i);
-        } else if (dotBracket[i] === ")") {
-            let boundaries = [stack.pop() + 1, i + 1];
-            if (segments.length !== 0) {
-                let last = segments[segments.length - 1];
-                if (Math.abs(last[0] - boundaries[0]) < 3 && Math.abs(last[1] - boundaries[1]) < 3) {
-                    segments.pop();
-                }
-            }
-            segments.push(boundaries);
-        }
+
+function predictColors(G, predictedColors, edgeMap, depth=2, isHelix=false) {
+    let nodeColorPair = [];
+    let coloredNodes = [];
+    if (isHelix == true){
+        let nodesToColor = findMisColoredPairs(edgeMap, predictedColors);
+        coloredNodes = Object.entries(predictedColors).map(([k, v]) => parseInt(k)).filter(k => !nodesToColor.includes(k))
     }
-    
-    let elementsSegments = [];
-    
-    for (let s of segments) {
-        let values = new Set([...Array(s[1] - s[0] + 1).keys()].map(x => x + s[0]));
+    let colorStart = Math.min(...Object.keys(predictedColors));
+    let lastResidue = Math.max(...Object.keys(G));
+
+    // force remove 0 as we are using 1 index
+    let reverse = [...Array(colorStart).keys()].reverse()
+    let forward = [...Array(lastResidue - colorStart + 1).keys()].map(i => i + colorStart) 
+    let traversalOrder = reverse.concat(forward).filter(item => item !== 0)
+
+
+    for (let n of traversalOrder) {
+        // no need to change as already colored
         
-        for (let i of elementsSegments) {
-            values = new Set([...values].filter(x => !i.includes(x)));
+        if (coloredNodes.includes(n)){ 
+            nodeColorPair.push([n, predictedColors[n]])    
+            continue;
         }
         
-        values = [...values];
-        let jumpLocations = [];
+        let neighbors = findNeighbors(G, n, depth);
+        // 
         
-        for (let i = 0; i < values.length - 1; i++) {
-            if (values[i + 1] - values[i] !== 1) {
-                jumpLocations.push(i);
-            }
-        }
+        let neighborColors = neighbors.filter(node => (Object.keys(predictedColors).includes(node.toString()))).map(node => predictedColors[node]);
         
-        if (jumpLocations.length > 1) {
-            let start = jumpLocations[0] + 1;
-            let end = jumpLocations[jumpLocations.length - 1] + 1;
-            values.splice(start, end - start);
-        }
+        if (neighborColors.length === 0) continue;
+
+        let maxColor = getMaxColor(neighborColors);
         
-        elementsSegments.push(values);
+        predictedColors[n] = maxColor;
+        nodeColorPair.push([n, maxColor]);
+        
     }
-    
-    return elementsSegments;
+    return nodeColorPair;
 }
-
-
 
 function fix_colors(sequence, basePairsList, dataMapJson) {
     let result = {};
     let allEdges = {};
-    console.log("Starting to fill and fix colors");
+    
     let dotBracket_array = Array(sequence.length).fill(".");
     for (let bond of basePairsList) {
         let extracted = extractBonds(bond);
-        // console.log("Bond length", extracted);
         if (extracted) {
             let [u, v, dist] = extracted;
             if (dist < 10) {
@@ -431,34 +361,44 @@ function fix_colors(sequence, basePairsList, dataMapJson) {
             }
         }
     }
-    let dotBracket = dotBracket_array.join('');
-    console.log("DotBracket", JSON.stringify(dotBracket));
+
     let G = createGraph(sequence.length, allEdges);
-    console.log("Graph Created");
-
-    let beacketSegement = segmentBracketElements(dotBracket);
     
+    let dotBracket = dotBracket_array.join('');
+    let beacketSegment = segmentBracketElements(dotBracket);
 
-    let edgeMap = allEdges;
-    // console.log("Graph :", JSON.stringify(G));
+    let stackedSegment = segmentStackedElements(G, minLength = 4);
+
+    // remove undefined colors 
+    let predictedColors = {};
+    
+    let tempColors;
+    let isHelix = false;
     for (let [k, colors] of Object.entries(dataMapJson)) {
-        let fix = false;
+        
+        // remove undefined colors from map
+        for (let [_, [node, color]] of Object.entries(colors)){
+            if (color != 'undefined'){
+                predictedColors[node] = color;
+                
+            }
+    
+        }
+
         if (['helix', "Helix"].includes(k)) {
-            fix = true;
-            edgeMap = allEdges;
+            tempColors = colorSegments(predictedColors, [beacketSegment]);
+            isHelix = true;
         }
         else {
-            fix = false;
-            // continue;
-            // edgeMap = [];
+            // tempColors = colorSegments(predictedColors, [stackedSegment]);
+            tempColors = predictedColors;
+            isHelix = false;
         }
-        // console.log(k);
-        // let predColors = predictColors(graphStackedOnly, Object.assign({}, colors), allEdges, 4, fix);
-        let predColors = predictColors(G, Object.assign({}, colors), edgeMap, beacketSegement, 4, fix);
+        
+        let predColors = predictColors(G, tempColors, allEdges, 4, isHelix);
         result[k] = predColors.sort((a, b) => a[0] - b[0]);
     }
-    // console.log("Missing colors filled and fixed")
-    
+
     return result;
 }
 
