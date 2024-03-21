@@ -24,7 +24,7 @@ urlpatterns = [
     path('mapSeqAlnOrig/', views.make_map_from_alnix_to_sequenceix, name='mapping_aln_to_seq'),
     path('twc-api/<str:align_name>/<int:tax_group1>/<int:tax_group2>', views.api_twc, name='api_twc_no_struc'),
     path('resi-api/<int:resi_id>', views.resi_info),
-    path('aln-api/<int:aln_id>/<int:aln_length>', views.aln_info),  
+    path('aln-api/<int:aln_id>/<str:tax_group>', views.aln_info),  
     path('struc-api/<int:struc_id>', views.struc_info),
     path('fold-api/<int:fold_id>', views.fold_info),
     path('paralog-aln-api/<int:aln_id>', alignment_query_and_build.para_aln),
