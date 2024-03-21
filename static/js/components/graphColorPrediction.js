@@ -100,7 +100,9 @@ function predictColors(G, colors, edgeMap, beacketSegement, depth=2, fix=false) 
 
     }
     // console.log("Before: ", JSON.stringify(predictedColors));
-    predictedColors = colorSegments(G, predictedColors, edgeMap, beacketSegement, 4);
+    if (fix == true){
+        predictedColors = colorSegments(G, predictedColors, edgeMap, beacketSegement, 4);
+    }
     // console.log("After: ", JSON.stringify(predictedColors));
 
     let nodesToColor = findMisColoredPairs(edgeMap, predictedColors);
@@ -121,7 +123,7 @@ function predictColors(G, colors, edgeMap, beacketSegement, depth=2, fix=false) 
 
     for (let n of traversalOrder) {
         // no need to change as already colored
-        if (coloredNodes.includes(n)){
+        if (coloredNodes.includes(n)){ 
             nodeColorPair.push([n, predictedColors[n]])    
             continue;
         }
@@ -142,7 +144,7 @@ function predictColors(G, colors, edgeMap, beacketSegement, depth=2, fix=false) 
         nodeColorPair.push([n, maxColor]);
         
     }
-    console.log(JSON.stringify(nodeColorPair));
+    // console.log(JSON.stringify(nodeColorPair));
     return nodeColorPair;
 }
 
@@ -189,7 +191,7 @@ function getBPSegments(edgeList) {
 
         segments.push(tempSeg);
     }
-    console.log('BP segments :', JSON.stringify(segments));
+    // console.log('BP segments :', JSON.stringify(segments));
     return segments;
 }
 
@@ -334,7 +336,7 @@ function colorSegments(graph, colors, edgeMap, beacketSegement, minLength = 4) {
     // let finalSegments = bpSegments;
     // console.log("Stacked Segments: ", JSON.stringify(finalSegments));
 
-    for (let finalSegments of [allSegments]){ // bpSegments, beacketSegement
+    for (let finalSegments of [beacketSegement]){ // bpSegments, beacketSegement, allSegments
         for (let i = 0; i < finalSegments.length; i++) {
             let segment = finalSegments[i];
 
@@ -361,12 +363,62 @@ function colorSegments(graph, colors, edgeMap, beacketSegement, minLength = 4) {
     return predColors;
 }
 
+function segmentBracketElements(dotBracket) {
+    let stack = [];
+    let segments = [];
+    
+    for (let i = 0; i < dotBracket.length; i++) {
+        if (dotBracket[i] === "(") {
+            stack.push(i);
+        } else if (dotBracket[i] === ")") {
+            let boundaries = [stack.pop() + 1, i + 1];
+            if (segments.length !== 0) {
+                let last = segments[segments.length - 1];
+                if (Math.abs(last[0] - boundaries[0]) < 3 && Math.abs(last[1] - boundaries[1]) < 3) {
+                    segments.pop();
+                }
+            }
+            segments.push(boundaries);
+        }
+    }
+    
+    let elementsSegments = [];
+    
+    for (let s of segments) {
+        let values = new Set([...Array(s[1] - s[0] + 1).keys()].map(x => x + s[0]));
+        
+        for (let i of elementsSegments) {
+            values = new Set([...values].filter(x => !i.includes(x)));
+        }
+        
+        values = [...values];
+        let jumpLocations = [];
+        
+        for (let i = 0; i < values.length - 1; i++) {
+            if (values[i + 1] - values[i] !== 1) {
+                jumpLocations.push(i);
+            }
+        }
+        
+        if (jumpLocations.length > 1) {
+            let start = jumpLocations[0] + 1;
+            let end = jumpLocations[jumpLocations.length - 1] + 1;
+            values.splice(start, end - start);
+        }
+        
+        elementsSegments.push(values);
+    }
+    
+    return elementsSegments;
+}
+
 
 
 function fix_colors(sequence, basePairsList, dataMapJson) {
     let result = {};
     let allEdges = {};
-    // console.log("Starting to fill and fix colors");
+    console.log("Starting to fill and fix colors");
+    let dotBracket_array = Array(sequence.length).fill(".");
     for (let bond of basePairsList) {
         let extracted = extractBonds(bond);
         // console.log("Bond length", extracted);
@@ -374,31 +426,31 @@ function fix_colors(sequence, basePairsList, dataMapJson) {
             let [u, v, dist] = extracted;
             if (dist < 10) {
                 allEdges[u] = v;
+                dotBracket_array[parseInt(u) - 1] = "(";
+                dotBracket_array[parseInt(v) - 1] = ")";
             }
         }
     }
-
+    let dotBracket = dotBracket_array.join('');
+    console.log("DotBracket", JSON.stringify(dotBracket));
     let G = createGraph(sequence.length, allEdges);
-    
-    // new addition, breaks things
-    // let dotBracket = calculateDotBracket(allEdges, sequence.length);
-    // console.log('dotBracket', dotBracket);
-    let beacketSegement = [];
-    // let beacketSegement = findActualSegments(dotBracket);
-    // console.log('beacketSegement', beacketSegement);
-    // remove above and `beacketSegement` from everywhere 
+    console.log("Graph Created");
 
+    let beacketSegement = segmentBracketElements(dotBracket);
+    
 
     let edgeMap = allEdges;
     // console.log("Graph :", JSON.stringify(G));
     for (let [k, colors] of Object.entries(dataMapJson)) {
         let fix = false;
         if (['helix', "Helix"].includes(k)) {
+            fix = true;
             edgeMap = allEdges;
         }
         else {
-            continue;
-            edgeMap = [];
+            fix = false;
+            // continue;
+            // edgeMap = [];
         }
         // console.log(k);
         // let predColors = predictColors(graphStackedOnly, Object.assign({}, colors), allEdges, 4, fix);
