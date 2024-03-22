@@ -15,8 +15,6 @@ def request_post_data(post_data):
 def get_FullSeq(request):
     global full_sequence
     full_sequence = request.POST["sequence"]
-    print('full_seq_in_get_request')
-    print(full_sequence)
     return JsonResponse(full_sequence, safe=False)
 
 def make_map_from_alnix_to_sequenceix_new(request):
@@ -38,13 +36,10 @@ def make_map_from_alnix_to_sequenceix_new(request):
 
     
 
-    print(f"cif_mode_flag: {cif_mode_flag}")
     if not (cif_mode_flag is None):
         if not cif_mode_flag:
             hardcoded_structure = request.POST["hardcoded_structure"]
             full_seq = SeqRecord(Seq(hardcoded_structure))
-            print('full_seq_after_request')
-            print(full_seq)
             mapping = create_aln_true_seq_mapping_with_mafft(fasta, full_seq, seq_ix_mapping)
             mapping = create_aln_struc_mapping_with_mafft(mapping["amendedAln"], struc_seq, seq_ix_mapping)
         else:
@@ -63,7 +58,6 @@ def constructStrucSeqMap(structure):
     print (structure.id)
     RNA_chain=structure.id.rsplit('-', 1)[1]
     for chain in structure.get_chains():
-        print(chain.id, RNA_chain)
         
         if chain.id ==RNA_chain:
             residues = list(chain.get_residues())
@@ -120,10 +114,8 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
     fh.write(">Structure sequence\n")
     fh.write(str(struc_seq.seq))
     fh.close()
-    print("Mafft", str(struc_seq.seq))
     pipe = Popen(f"mafft --anysymbol --preservecase --quiet --addfull {pdb_seq_path} --mapout {aln_group_path}; cat {mappingFileName}", stdout=PIPE, shell=True)
     output = pipe.communicate()[0]
-    print("Mafft_done")
 
     if len(output.decode("ascii")) <= 0:
         for removeFile in tempfiles:
@@ -188,12 +180,9 @@ def create_aln_true_seq_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
     fh = open(pdb_seq_path, "w")
     fh.write(">True sequence\n")
     fh.write(str(struc_seq.seq))
-    print('True sequence in mafft')
-    print(str(struc_seq.seq))
     fh.close()
-    print("Mafft")
     #pipe = Popen(f"/usr/local/bin/mafft --anysymbol --preservecase --quiet --addfull {pdb_seq_path} {aln_group_path}", stdout=PIPE, shell=True)
-    pipe = Popen(f"/usr/local/bin/mafft --preservecase --anysymbol --addfull {pdb_seq_path}  --keeplength {aln_group_path}", stdout=PIPE, shell=True)
+    pipe = Popen(f"mafft --preservecase --anysymbol --addfull {pdb_seq_path}  --keeplength {aln_group_path}", stdout=PIPE, shell=True)
     output = pipe.communicate()[0]
     
     #print(seq_ix_mapping[int(row[1])])
@@ -201,7 +190,6 @@ def create_aln_true_seq_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
         for removeFile in tempfiles:
             remove(removeFile)
         return HttpResponseServerError("Failed mapping the polymer sequence to the alignment!\nTry a different structure.")
-    print("Mafft_full_seq_done")
     #mapping_file = output.decode("ascii").split('\n#')[1]
     amendedAln = re.sub('>True sequence$','',output.decode("ascii").split('\n#')[0])
     groupName = output.decode('ascii').split('>')[1].split('_')[0]

@@ -645,6 +645,8 @@ var getHelicalAnnotations = function (separatedData, lowVal, highVal, chainid) {
         annotationArrayHD.push({"annotation":i,"ids":[]})
     }
     separatedData.forEach(function (item, index) {
+        console.log(item)
+        console.log(index)
         let parsedItem = item[0];
         let itemValue = item[1];
         let newValue = itemValue - lowVal;
@@ -652,6 +654,7 @@ var getHelicalAnnotations = function (separatedData, lowVal, highVal, chainid) {
         if (highVal != lowVal) {
             normalizedVal = Math.round(newValue/(highVal - lowVal) * 99);
         }
+        console.log(normalizedVal)
         annotationArrayHD[normalizedVal].ids.push(chainid + " " + parsedItem)
     })
     return annotationArrayHD;
@@ -1463,6 +1466,7 @@ var recolorTopStar = function (name){
             viewerInstance.visual.clearSelection();
             viewerInstance.visual.reset({ theme: true })
         } else {
+        vm.checked_filter = false
         vm.selectAllProteinsChecked = false
         vm.selectAllModifiedChecked = false
         vm.selectAllModifiedCustomChecked = false

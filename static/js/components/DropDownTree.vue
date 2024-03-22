@@ -756,6 +756,7 @@
     },methods: {
        
     submitProteins() {
+      vm.checked_filter = false
       this.pchainid = this.selectedProteins
       this.showContacts()
     },
@@ -767,6 +768,7 @@
       }
     },
     submitModifications() {
+      vm.checked_filter = false
       this.modifications = this.selectedResidues
       this.showModifications()
     },
@@ -1045,7 +1047,6 @@
             }
         },
         showAlignment(aln_id, taxid, type_tree) {
-            console.log('taxid', taxid);
             cleanupOnNewAlignment(this, "Loading alignment...");
             this.chainid = [];
             if (type_tree == "orth"){

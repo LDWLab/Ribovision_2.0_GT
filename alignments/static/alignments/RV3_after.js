@@ -85,11 +85,25 @@ var registerHoverResiData = function (e, tooltipObj) {
       return isCorrect;
     };
   
-  function initializeMaskedArray() {
-      var topviewer = document.getElementById("PdbeTopViewer");
+    function initializeMaskedArray() {
+        var topviewer = document.getElementById("PdbeTopViewer")
+        domainTypes = topviewer.viewInstance.uiTemplateService.domainTypes
+        let longest = null;
+        for (const domainType of domainTypes) {
+            if (domainType.data && domainType.data.length > (longest ? longest.data.length : 0)) {
+                longest = domainType;
+            }
+        }
+        const allIndices = new Set();
+        longest.data.forEach((val) => {
+            if (val != undefined && val.start != undefined) {
+                allIndices.add(val.start);
+            }
+        });
+    
+        
       var masked_array = [];
-      var j = 0;
-      while(j < mapped_aa_properties.get("Shannon entropy").length) {
+      for (const j of allIndices) {
           masked_array[j] = false;
           var i = 0;
           while(i < window.masking_range_array.length && !masked_array[j]) {
@@ -98,7 +112,6 @@ var registerHoverResiData = function (e, tooltipObj) {
               }
               i = i+2;
           }
-          j = j+1;
       }
       return masked_array;
   };
@@ -109,9 +122,9 @@ var registerHoverResiData = function (e, tooltipObj) {
     if (isCorrectMask(mask_range)) {
         var topviewer = document.getElementById("PdbeTopViewer");
         var selectedIndex = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox').selectedIndex;
-        topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties);   
+        topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties, window.mapped_aa_properties_3D);   
         if(window.custom_prop) {
-            topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(window.custom_prop); 
+            topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(window.custom_prop, window.custom_prop_3D); 
         }
         window.masked_array = initializeMaskedArray();
         var index = 1;
@@ -254,13 +267,13 @@ var registerHoverResiData = function (e, tooltipObj) {
   function colorResidue(index, masked_array) {
       viewerInstanceTop.viewInstance.uiTemplateService.domainTypes[index].data.forEach(function(resiEntry){
           if (!masked_array[resiEntry.start]){
-              resiEntry.color = "rgb(255,255,255)";
+              resiEntry.color = "rgb(232,232,232)";
               resiEntry.tooltipMsg = "NaN";
           } 
       })
       selectSections_RV1.get(viewerInstanceTop.viewInstance.uiTemplateService.domainTypes[index].label).forEach(function(resiEntry){
           if (!masked_array[resiEntry.residue_number]){
-              resiEntry.color = {r: 255, g: 255, b: 255};
+              resiEntry.color = {r: 232, g: 232, b: 232};
           }
       })
   };
@@ -404,7 +417,11 @@ var mapAssociatedData = function (associated_data_2D, associated_data_3D, associ
     } else {
         window.custom_prop = associated_prop_2D;
     }
-
+    if (window.custom_prop_3D) {
+        window.custom_prop_3D.set(associated_data_name, associated_data_3D)
+    } else {
+        window.custom_prop_3D = associated_prop_3D;
+    }
     associated_prop_3D.set(associated_data_name, associated_data_3D);
     // console.log('associated_data_3D', JSON.stringify(associated_data_3D));
     // if (window.custom_prop) {
@@ -486,9 +503,9 @@ function cleanFilter(checked_filter, masking_range) {
     vm.masking_range = null;
     vm.correct_mask = null;
     var topviewer = document.getElementById("PdbeTopViewer");
-    topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties);
+    topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties, window.mapped_aa_properties_3D);
     if(window.custom_prop) {
-        topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(window.custom_prop);
+        topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(window.custom_prop, window.custom_prop_3D);
     }
     domainTypes = topviewer.viewInstance.uiTemplateService.domainTypes;
     var indexToRemove = domainTypes.findIndex(obj => obj.label === 'highlight');
