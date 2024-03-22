@@ -449,7 +449,7 @@ def simple_fasta(request, aln_id, tax_group, internal=False):
 
     return JsonResponse(response_dict, safe = False)
 
-def calculateFastaProps(fastastring, frequency_list):
+def calculateFastaProps(fastastring, frequency_list=[]):
     concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
     alignment_obj = AlignIO.read(StringIO(concat_fasta), 'fasta')
     twc = False
@@ -471,19 +471,12 @@ def calculateFastaProps(fastastring, frequency_list):
         pos += 1
     # print(mapped_dict)
     
-    for gap in removed_gaps[::-1]:
-        alignment_obj = alignment_obj[:, :gap] + alignment_obj[:, gap+1:]
-        gap_only_cols.remove(gap)
-        frequency_list.pop(gap)
-        
-    # for i in range(max(gap_only_cols)+1)[::-1]:
-    #     if i in gap_only_cols:
-    #         alignment_obj = alignment_obj[:, :i] + alignment_obj[:, i+1:]
-    #         gap_only_cols.remove(i)
-    #         frequency_list.pop(i)
-    #         deleted_gaps += 1
-        # mapped_dict[i] = (i-deleted_gaps)
-    
+    if frequency_list:
+        for gap in removed_gaps[::-1]:
+            alignment_obj = alignment_obj[:, :gap] + alignment_obj[:, gap+1:]
+            gap_only_cols.remove(gap)
+            frequency_list.pop(gap)
+            
     
     file_path = "../data_mapping.json"
     # Removing the file if it exists
@@ -859,7 +852,7 @@ def r2dt(request, entity_id):
     keys = json.loads(sequence_file_lines[0])
     sequence = "\n".join(sequence_file_lines[1:])
     
-    RIBODIR=os.environ['RIBODIR']
+    RIBODIR = os.environ['RIBODIR']
     os.chdir('/home/sumon/repos/Ribovision_2.0_GT/rna/R2DT-master')
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     if request.method == "POST":
