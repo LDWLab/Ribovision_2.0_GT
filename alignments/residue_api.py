@@ -22,7 +22,9 @@ def extract_gap_only_cols(fastastring):
     #print("res gap_only_cols", gap_only_cols)
     return gap_only_cols
 
+
 def calculateFastaProps(fastastring, frequency_list=[]):
+    
     concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
     alignment_obj = AlignIO.read(StringIO(concat_fasta), 'fasta')
     twc = False
