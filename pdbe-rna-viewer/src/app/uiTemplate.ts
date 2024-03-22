@@ -155,24 +155,39 @@ export class UiTemplateService {
         circle.style.display = "block";
     }
     colorMap=() => {
-        const tempDomain =  this.domainTypes.find(item => item.label === 'Shannon entropy');
-        if (tempDomain) {
-            tempDomain.data.forEach((val:any, i:number) => {
-                if(val != undefined && val.start != undefined) {
-                    UiActionsService.colorNucleotide(this.pluginOptions.pdbId, val.start, 'rgb(0,0,0)', undefined, this.mappingValue);
-                    let cPath = `circle_${this.pluginOptions.pdbId}_${val.start}`;
-                    let nPath = `rnaviewEle rnaviewEle_${this.pluginOptions.pdbId} rnaview_${this.pluginOptions.pdbId}_${val.start}`;
-                    if(document.getElementsByClassName(nPath).length > 0) {
-                        (<HTMLElement>document.getElementsByClassName(nPath)[0]).setAttribute('onmouseover', document.getElementsByClassName(nPath)[0].getAttribute('onmouseover')!.split(';')[0]);
-                        (<HTMLElement>document.getElementsByClassName(nPath)[0]).setAttribute('onmouseout', document.getElementsByClassName(nPath)[0].getAttribute('onmouseout')!.split(';')[0]);
-                    }
-                    if(document.getElementsByClassName(cPath).length > 0) {
-                        (<HTMLElement>document.getElementsByClassName(cPath)[0]).setAttribute('onmouseover', document.getElementsByClassName(cPath)[0].getAttribute('onmouseover')!.split(';')[0]);
-                        (<HTMLElement>document.getElementsByClassName(cPath)[0]).setAttribute('onmouseout', document.getElementsByClassName(cPath)[0].getAttribute('onmouseout')!.split(';')[0]);
-                    }
-                }
-            });
+        // const tempDomain = this.domainTypes.find(item => item.label === 'Shannon entropy');
+
+        let longest = null;
+        for (const domainType of this.domainTypes) {
+            if (domainType.data && domainType.data.length > (longest ? longest.data.length : 0)) {
+                longest = domainType;
+            }
         }
+        const allIndices = new Set();
+        longest.data.forEach((val: any) => {
+            if (val != undefined && val.start != undefined) {
+                allIndices.add(val.start);
+            }
+        });
+        
+        // if (tempDomain) {
+        // }
+        // tempDomain.data.forEach((val:any, i:number) => {
+        allIndices.forEach((index: any) => {
+            // if(val != undefined && val.start != undefined) {
+                UiActionsService.colorNucleotide(this.pluginOptions.pdbId, index, 'rgb(0,0,0)', undefined, this.mappingValue);
+                let cPath = `circle_${this.pluginOptions.pdbId}_${index}`;
+                let nPath = `rnaviewEle rnaviewEle_${this.pluginOptions.pdbId} rnaview_${this.pluginOptions.pdbId}_${index}`;
+                if(document.getElementsByClassName(nPath).length > 0) {
+                    (<HTMLElement>document.getElementsByClassName(nPath)[0]).setAttribute('onmouseover', document.getElementsByClassName(nPath)[0].getAttribute('onmouseover')!.split(';')[0]);
+                    (<HTMLElement>document.getElementsByClassName(nPath)[0]).setAttribute('onmouseout', document.getElementsByClassName(nPath)[0].getAttribute('onmouseout')!.split(';')[0]);
+                }
+                if(document.getElementsByClassName(cPath).length > 0) {
+                    (<HTMLElement>document.getElementsByClassName(cPath)[0]).setAttribute('onmouseover', document.getElementsByClassName(cPath)[0].getAttribute('onmouseover')!.split(';')[0]);
+                    (<HTMLElement>document.getElementsByClassName(cPath)[0]).setAttribute('onmouseout', document.getElementsByClassName(cPath)[0].getAttribute('onmouseout')!.split(';')[0]);
+                }
+            // }
+        });
         const selectBoxEle:any = this.containerElement.querySelector<HTMLElement>('.mappingSelectbox');
         const selectedValue = parseInt(selectBoxEle.value);
         if(selectedValue) {
@@ -477,7 +492,7 @@ export class UiTemplateService {
         }*/
         return residueDetails;
     }
-    getAnnotationFromRibovision(mapped_aa_properties: Map<string, Array<Array<number>>>) {
+    getAnnotationFromRibovision(mapped_aa_properties: Map<string, Array<Array<number>>>, mapped_3D_properties?: Map<string, Array<Array<number>>>) {
         const _this = this;
         const start = this.apiData?this.apiData.label_seq_ids[1]:0
         //const end = this.apiData?this.apiData.label_seq_ids[this.apiData.label_seq_ids.length - 2]:0
@@ -512,40 +527,46 @@ export class UiTemplateService {
 
                 let min = Math.min(...this.aaPropertyConstants.get(name));
                 let max = Math.max(...this.aaPropertyConstants.get(name));
-                let colormapArray = this.aaColorData.get(name); 
+                let colormapArray = this.aaColorData.get(name);
+                let data3D;
+                data3D = separatedData;
+                if(mapped_3D_properties) {
+                    if(mapped_3D_properties.get(name)) {
+                        data3D = mapped_3D_properties.get(name);
+                    }
+                }
                 if  (name == "Shannon entropy"){
-
-                    this.getEntropyAnnotations(separatedData, min, max, this.pluginOptions.chainId);
+                    this.getEntropyAnnotations(data3D, min, max, this.pluginOptions.chainId);
                     //console.log('name_SE', name,  this.getEntropyAnnotations(separatedData, min, max, this.pluginOptions.chainId));
                 };    
                 if  (name == "TwinCons"){
-                    this.getTWCAnnotations(separatedData, min, max, this.pluginOptions.chainId);
+                    this.getTWCAnnotations(data3D, min, max, this.pluginOptions.chainId);
                     //console.log('name_TWC', name, this.getTWCAnnotations(separatedData, min, max, this.pluginOptions.chainId));
                 };
 
                 if  (name == "Custom Data"){
                     
-                    this.getCustomAnnotations(separatedData, min, max, this.pluginOptions.chainId);
+                    this.getCustomAnnotations(data3D, min, max, this.pluginOptions.chainId);
                     //console.log('name_CD', name,  this.getEntropyAnnotations(separatedData, min, max, this.pluginOptions.chainId));
                 };
                 if  (name == "Associated Data1"){
                     
-                    this.getAssociatedAnnotations(separatedData, min, max, this.pluginOptions.chainId);
+                    this.getAssociatedAnnotations(data3D, min, max, this.pluginOptions.chainId);
                     
                 }; 
                 if  (name == "Helix" || name == "helix"){
-                    this.getHelicalAnnotations(separatedData, min, max, this.pluginOptions.chainId);
+                    this.getHelicalAnnotations(data3D, min, max, this.pluginOptions.chainId);
                     
                 };
                 
                 if  (name == "Phase" || name == 'phase'){
                     
-                    this.getPhaseAnnotations(separatedData, min, max, this.pluginOptions.chainId);
+                    this.getPhaseAnnotations(data3D, min, max, this.pluginOptions.chainId);
                     
                 };
                 if  (name == "AES" || name == 'aes'){
                     //console.log('name_AES', name, this.getExpansionAnnotations(separatedData, min, max, this.pluginOptions.chainId))
-                    this.getExpansionAnnotations(separatedData, min, max, this.pluginOptions.chainId);
+                    this.getExpansionAnnotations(data3D, min, max, this.pluginOptions.chainId);
                     
                 };
                 const [TWCrgbMap, TWCData] = this.parsePVData(separatedData, min, max, colormapArray);

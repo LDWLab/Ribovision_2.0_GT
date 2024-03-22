@@ -372,11 +372,17 @@
                 <b>Warning, your alignment sequences were clustered by cdhit! See dropdown menu above the alignment for options.<br/>
                 Original alignment had {{this.cdHITnums[0]}} sequences, which were clustered in {{this.cdHITnums[1]}} groups using threshold of 90% identity.</b>
             </div>
-            <div id="warningPoorStructureAln" v-if="poor_structure_map" >
-                <b>Warning, poor alignment between the structure and sequences!!!<br/>
+            <!-- <div id="warningPoorStructureAln" v-if="poor_structure_map&&poor_structure_map<60" >
+                <b>No Warning, probably "good alignment" between the structure and sequences!!!<br/>
                 Found {{poor_structure_map}} poorly aligned residues.
                 Proceed with caution or try a different structure.</b>
+            </div> -->
+            <div id="warningPoorStructureAln" v-if="poor_structure_map&&poor_structure_map>=60" >
+                <b>Warning, poor alignment between selected MSA and structure!!!
+                    Found {{poor_structure_map}} poorly aligned residues. Consider selecting a new MSA/structure pair.
+                </b>
             </div>
+
         </div>
         <div class="topology_section">
             <span id="topif" v-if="chainid.length>0||customPDBsuccess">
@@ -749,6 +755,7 @@
     },methods: {
        
     submitProteins() {
+      vm.checked_filter = false
       this.pchainid = this.selectedProteins
       this.showContacts()
     },
@@ -760,6 +767,7 @@
       }
     },
     submitModifications() {
+      vm.checked_filter = false
       this.modifications = this.selectedResidues
       this.showModifications()
     },
@@ -1069,7 +1077,7 @@
                 this.associatedDataCache = associatedDataCache;
 
                 if(!(vm.alnobj == "custom")) {
-                const url = `/aln-api/${vm.alnobj.id}/${alignmentLength}`;
+                const url = `/aln-api/${vm.alnobj.id}/${taxid}`;
                 ajax(url).then(aln_data => {
                     vm.associatedDataCache = aln_data;
                     // console.log("aln_data", aln_data);

@@ -1,66 +1,66 @@
-var registerHoverResiData = function (e, tooltipObj){
-    if (vm.type_tree == 'upload'){
+var registerHoverResiData = function (e, tooltipObj) {
+    if (vm.type_tree == 'upload') {
         //Figure out how to do the hover in this case;
         return;
     }
     const strainQuery = '&res__poldata__strain__strain=';
     var url = `/desire-api/residue-alignment/?format=json&aln_pos=${String(Number(e.position) + 1)}&aln=${vm.alnobj.id}${strainQuery}${vm.fastaSeqNames[Number(e.i)]}`
-    let index=url.indexOf('|');
-    if (index !== -1){
-      url=url.substring(0, index)
+    let index = url.indexOf('|');
+    if (index !== -1) {
+        url = url.substring(0, index)
     }
     //console.log('url', url);
     ajax(url).then(alnpos_data => {
-      var alnViewCanvasEle = document.querySelector("#alnDiv canvas:nth-of-type(1)");
-      var alnViewLabelsEle = document.querySelector("#alnViewerLabels");
-      let boundLabelBox = alnViewLabelsEle.getBoundingClientRect();
-      let boundingBox = absolutePosition(alnViewCanvasEle);
-      let relativeBox = alnViewCanvasEle.getBoundingClientRect();
-      //console.log('alnpos_data', alnpos_data.count );
-      if (alnpos_data.count != 0){
-          ajax('/resi-api/' + alnpos_data["results"][0]["res"].split("/")[5]).then(resiData => {
-            /*
-              if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right){
-                let tooltipPosition = {
-                  top: mousePos.y-boundingBox.top+15 +"px",
-                  left: mousePos.x-relativeBox.left+boundLabelBox.right-boundLabelBox.left+8 +"px",
-                };
-                //console.log('AD1',resiData["Associated data"]);
-                if (resiData["Associated data"][0] !== undefined){
-                    tooltipObj.setState({
-                    
-                    phase: resiData["Associated data"][0][1],
-                    tooltipPosition,
-                  });
-                }else{
-                    tooltipObj.setState({
-                    //fold: 'NA',
+        var alnViewCanvasEle = document.querySelector("#alnDiv canvas:nth-of-type(1)");
+        var alnViewLabelsEle = document.querySelector("#alnViewerLabels");
+        let boundLabelBox = alnViewLabelsEle.getBoundingClientRect();
+        let boundingBox = absolutePosition(alnViewCanvasEle);
+        let relativeBox = alnViewCanvasEle.getBoundingClientRect();
+        //console.log('alnpos_data', alnpos_data.count );
+        if (alnpos_data.count != 0) {
+            ajax('/resi-api/' + alnpos_data["results"][0]["res"].split("/")[5]).then(resiData => {
+                /*
+                  if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right){
+                    let tooltipPosition = {
+                      top: mousePos.y-boundingBox.top+15 +"px",
+                      left: mousePos.x-relativeBox.left+boundLabelBox.right-boundLabelBox.left+8 +"px",
+                    };
+                    //console.log('AD1',resiData["Associated data"]);
+                    if (resiData["Associated data"][0] !== undefined){
+                        tooltipObj.setState({
+                        
+                        phase: resiData["Associated data"][0][1],
+                        tooltipPosition,
+                      });
+                    }else{
+                        tooltipObj.setState({
+                        //fold: 'NA',
+                        phase: 'NA',
+                        tooltipPosition,
+                      });
+                    }
+                  }
+                  */
+                window.ajaxRun = false;
+            });
+        } else {
+            if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right) {
+                /* let tooltipPosition = {
+                     top: mousePos.y-boundingBox.top+15 +"px",
+                     left: mousePos.x-relativeBox.left+boundLabelBox.right-boundLabelBox.left+5 +"px",
+                 };*/
+                window.ajaxRun = false;
+                /*
+                tooltipObj.setState({
+                    fold: 'NA',
                     phase: 'NA',
                     tooltipPosition,
-                  });
-                }
-              }
-              */
-              window.ajaxRun = false;
-          });
-      }else{
-          if (boundingBox.top < mousePos.y && mousePos.y < boundingBox.bottom && boundingBox.left < mousePos.x && mousePos.x < boundingBox.right){ 
-             /* let tooltipPosition = {
-                  top: mousePos.y-boundingBox.top+15 +"px",
-                  left: mousePos.x-relativeBox.left+boundLabelBox.right-boundLabelBox.left+5 +"px",
-              };*/
-              window.ajaxRun = false;
-              /*
-              tooltipObj.setState({
-                  fold: 'NA',
-                  phase: 'NA',
-                  tooltipPosition,
-              });*/
-          }
-      }
+                });*/
+            }
+        }
     }).catch(error => {
-      window.ajaxRun = false;
-      console.log(error);
+        window.ajaxRun = false;
+        console.log(error);
     })
     return true;
   };
@@ -85,11 +85,25 @@ var registerHoverResiData = function (e, tooltipObj){
       return isCorrect;
     };
   
-  function initializeMaskedArray() {
-      var topviewer = document.getElementById("PdbeTopViewer");
+    function initializeMaskedArray() {
+        var topviewer = document.getElementById("PdbeTopViewer")
+        domainTypes = topviewer.viewInstance.uiTemplateService.domainTypes
+        let longest = null;
+        for (const domainType of domainTypes) {
+            if (domainType.data && domainType.data.length > (longest ? longest.data.length : 0)) {
+                longest = domainType;
+            }
+        }
+        const allIndices = new Set();
+        longest.data.forEach((val) => {
+            if (val != undefined && val.start != undefined) {
+                allIndices.add(val.start);
+            }
+        });
+    
+        
       var masked_array = [];
-      var j = 0;
-      while(j < mapped_aa_properties.get("Shannon entropy").length) {
+      for (const j of allIndices) {
           masked_array[j] = false;
           var i = 0;
           while(i < window.masking_range_array.length && !masked_array[j]) {
@@ -98,7 +112,6 @@ var registerHoverResiData = function (e, tooltipObj){
               }
               i = i+2;
           }
-          j = j+1;
       }
       return masked_array;
   };
@@ -106,12 +119,12 @@ var registerHoverResiData = function (e, tooltipObj){
   function handleMaskingRanges(mask_range){
     vm.masking_range = mask_range;
     window.masking_range_array = null;
-    if (isCorrectMask(mask_range)) {   
+    if (isCorrectMask(mask_range)) {
         var topviewer = document.getElementById("PdbeTopViewer");
         var selectedIndex = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox').selectedIndex;
-        topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties);   
+        topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties, window.mapped_aa_properties3D);   
         if(window.custom_prop) {
-            topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(window.custom_prop); 
+            topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(window.custom_prop, window.custom_prop_3D); 
         }
         window.masked_array = initializeMaskedArray();
         var index = 1;
@@ -254,13 +267,13 @@ var registerHoverResiData = function (e, tooltipObj){
   function colorResidue(index, masked_array) {
       viewerInstanceTop.viewInstance.uiTemplateService.domainTypes[index].data.forEach(function(resiEntry){
           if (!masked_array[resiEntry.start]){
-              resiEntry.color = "rgb(255,255,255)";
+              resiEntry.color = "rgb(232,232,232)";
               resiEntry.tooltipMsg = "NaN";
           } 
       })
       selectSections_RV1.get(viewerInstanceTop.viewInstance.uiTemplateService.domainTypes[index].label).forEach(function(resiEntry){
           if (!masked_array[resiEntry.residue_number]){
-              resiEntry.color = {r: 255, g: 255, b: 255};
+              resiEntry.color = {r: 232, g: 232, b: 232};
           }
       })
   };
@@ -327,66 +340,120 @@ var registerHoverResiData = function (e, tooltipObj){
         reader.readAsBinaryString(fileInput);
     };
     readFile(vm.$refs.custom_csv_file.files[0]);
-  };
-  
-  var displayMappingDataByIndex = function(topviewer, selectedIndex){
-      //var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
-      var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
-      //topviewer.pluginInstance.resetTheme();
-      //topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data);
-      window.viewerInstance.visual.select({
-          data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label), 
-          nonSelectedColor: {r:255,g:255,b:255}
-      });
-      selectBoxEle.selectedIndex = selectedIndex;
-      vm.selected_property = topviewer.pluginInstance.domainTypes[selectedIndex].label;
-  }
-  
-  var mapCustomMappingData = function(custom_data, custom_data_name, topviewer){
-      
-      //var selectBoxEle = viewerInstanceTop.pluginInstance.targetEle.querySelector('.menuSelectbox');
-      //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.menuSelectbox');
-      //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
-      
-      let vals = custom_data.map(function(v){ return v[1] });
-      let indexes = custom_data.map(function(v){ return v[0] });
-      window.aaColorData.set(custom_data_name, [viridis]);
-      window.aaPropertyConstants.set(custom_data_name, [Math.min(...vals), Math.max(...vals)]);
-      //let coilsOutOfCustom = vm.coil_residues.filter(value => !indexes.includes(value));
-      //window.coilsOutOfCustom = coilsOutOfCustom;
-      //console.log('CD1', custom_data_name, custom_data );
-      var custom_prop = new Map();
-      custom_prop.set(custom_data_name, custom_data);
-      if (window.custom_prop){
-          window.custom_prop.set(custom_data_name, custom_data)
-      } else {
-          window.custom_prop = custom_prop;
-      }
-      topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(custom_prop);
-      //var custom_option = document.createElement("option");
-      //custom_option.setAttribute("value", selectBoxEle.options.length);
-      //custom_option.appendChild(document.createTextNode(custom_data_name));
-      //selectBoxEle.appendChild(custom_option);
-      if (!vm.available_properties.some(prop => prop.Name === custom_data_name)){
-          vm.available_properties.push({Name:custom_data_name, url:"static/alignments/svg/Custom.svg"})
-      }
-      if(vm.correct_mask) {
-          var j = topviewer.viewInstance.uiTemplateService.domainTypes.length-1;
-          colorResidue(j, window.masked_array);
-      }
-  }
-  
-  var mapAssociatedData = function(associated_data, associated_data_name, topviewer){
-      
+};
+
+var displayMappingDataByIndex = function (topviewer, selectedIndex) {
+    //var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
+    var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
+    //topviewer.pluginInstance.resetTheme();
+    //topviewer.pluginInstance.updateTheme(topviewer.pluginInstance.domainTypes[selectedIndex].data);
+    window.viewerInstance.visual.select({
+        data: selectSections_RV1.get(topviewer.pluginInstance.domainTypes[selectedIndex].label),
+        nonSelectedColor: { r: 255, g: 255, b: 255 }
+    });
+    selectBoxEle.selectedIndex = selectedIndex;
+    vm.selected_property = topviewer.pluginInstance.domainTypes[selectedIndex].label;
+}
+
+var mapCustomMappingData = function (custom_data, custom_data_name, topviewer) { //custom_data3D, 
+
     //var selectBoxEle = viewerInstanceTop.pluginInstance.targetEle.querySelector('.menuSelectbox');
     //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.menuSelectbox');
     //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
-    
-    let vals = associated_data.map(function(v){ return v[1] });
-    let indexes =  associated_data.map(function(v){ return v[0] });
+    if(vm.cifPdbMode == null) {
+        let mapping2D_3D = {};
+
+        for (let [k,v] of Object.entries(vm.st_mapping2D)){
+            if (Object.keys(vm.st_mapping2D).includes(k)){
+                mapping2D_3D[v] = vm.st_mapping3D[k];
+            }
+        }
+
+        let custom_data3D = [];
+        for (let [k, [u, v]] of Object.entries(custom_data)){
+            custom_data3D.push([mapping2D_3D[u], v]);
+            
+        }
+
+        let vals = custom_data.map(function (v) { return v[1] });
+        let indexes = custom_data.map(function (v) { return v[0] });
+        window.aaColorData.set(custom_data_name, [viridis]);
+        window.aaPropertyConstants.set(custom_data_name, [Math.min(...vals), Math.max(...vals)]);
+        //let coilsOutOfCustom = vm.coil_residues.filter(value => !indexes.includes(value));
+        //window.coilsOutOfCustom = coilsOutOfCustom;
+        //console.log('CD1', custom_data_name, custom_data );
+        let custom_prop = new Map();
+        let custom_prop3D = new Map();
+        
+        custom_prop.set(custom_data_name, custom_data);
+        custom_prop3D.set(custom_data_name, custom_data3D);
+        if (window.custom_prop) {
+            window.custom_prop.set(custom_data_name, custom_data)
+        } else {
+            window.custom_prop = custom_prop;
+        }
+        if (window.custom_prop_3D) {
+            window.custom_prop.set(custom_data_name, custom_data3D)
+        } else {
+            window.custom_prop_3D = custom_prop3D;
+        }
+        topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(custom_prop, custom_prop3D);
+        //var custom_option = document.createElement("option");
+        //custom_option.setAttribute("value", selectBoxEle.options.length);
+        //custom_option.appendChild(document.createTextNode(custom_data_name));
+        //selectBoxEle.appendChild(custom_option);
+        if (!vm.available_properties.some(prop => prop.Name === custom_data_name)) {
+            vm.available_properties.push({ Name: custom_data_name, url: "static/alignments/svg/Custom.svg" })
+        }
+        if (vm.correct_mask) {
+            var j = topviewer.viewInstance.uiTemplateService.domainTypes.length - 1;
+            colorResidue(j, window.masked_array);
+        }
+    } else {
+            //var selectBoxEle = viewerInstanceTop.pluginInstance.targetEle.querySelector('.menuSelectbox');
+            //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.menuSelectbox');
+            //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
+        
+            let vals = custom_data.map(function (v) { return v[1] });
+            let indexes = custom_data.map(function (v) { return v[0] });
+            window.aaColorData.set(custom_data_name, [viridis]);
+            window.aaPropertyConstants.set(custom_data_name, [Math.min(...vals), Math.max(...vals)]);
+            //let coilsOutOfCustom = vm.coil_residues.filter(value => !indexes.includes(value));
+            //window.coilsOutOfCustom = coilsOutOfCustom;
+            //console.log('CD1', custom_data_name, custom_data );
+            var custom_prop = new Map();
+            custom_prop.set(custom_data_name, custom_data);
+            if (window.custom_prop) {
+                window.custom_prop.set(custom_data_name, custom_data)
+            } else {
+                window.custom_prop = custom_prop;
+            }
+            topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(custom_prop);
+            //var custom_option = document.createElement("option");
+            //custom_option.setAttribute("value", selectBoxEle.options.length);
+            //custom_option.appendChild(document.createTextNode(custom_data_name));
+            //selectBoxEle.appendChild(custom_option);
+            if (!vm.available_properties.some(prop => prop.Name === custom_data_name)) {
+                vm.available_properties.push({ Name: custom_data_name, url: "static/alignments/svg/Custom.svg" })
+            }
+            if (vm.correct_mask) {
+                var j = topviewer.viewInstance.uiTemplateService.domainTypes.length - 1;
+                colorResidue(j, window.masked_array);
+            }
+    }
+}
+
+var mapAssociatedData = function (associated_data_2D, associated_data_3D, associated_data_name, topviewer) {
+
+    //var selectBoxEle = viewerInstanceTop.pluginInstance.targetEle.querySelector('.menuSelectbox');
+    //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.menuSelectbox');
+    //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
+    // console.log("mapAssociatedData 3D data 100:", associated_data_3D[100]);
+    let vals = associated_data_3D.map(function (v) { return v[1] });
+    // let indexes = associated_data_3D.map(function (v) { return v[0] });
     //window.aaColorData.set(associated_data_name, [viridis]);
     window.aaColorData.set(associated_data_name, [rainbow]);
-    window.aaPropertyConstants.set( associated_data_name, [Math.min(...vals), Math.max(...vals)]);
+    window.aaPropertyConstants.set(associated_data_name, [Math.min(...vals), Math.max(...vals)]);
     //let coilsOutOfCustom = vm.coil_residues.filter(value => !indexes.includes(value));
     //window.coilsOutOfCustom = coilsOutOfCustom;
     // console.log('AD1', associated_data_name, associated_data);
@@ -394,14 +461,29 @@ var registerHoverResiData = function (e, tooltipObj){
     //     window.associated_prop = new Map();
     // }
     // var associated_prop = window.associated_prop;
-    var associated_prop = new Map();
-    associated_prop.set(associated_data_name, associated_data);
-    if (window.custom_prop){
-        window.custom_prop.set(associated_data_name, associated_data)
+    var associated_prop_2D = new Map();
+    var associated_prop_3D = new Map();
+
+    associated_prop_2D.set(associated_data_name, associated_data_2D);
+    associated_prop_3D.set(associated_data_name, associated_data_3D);
+    // console.log('associated_data_2D', JSON.stringify(associated_data_2D));
+    if (window.custom_prop) {
+        window.custom_prop.set(associated_data_name, associated_data_2D)
     } else {
-        window.custom_prop = associated_prop;
+        window.custom_prop = associated_prop_2D;
     }
-    topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(associated_prop);
+    if (window.custom_prop_3D) {
+        window.custom_prop_3D.set(associated_data_name, associated_data_3D)
+    } else {
+        window.custom_prop_3D = associated_prop_3D;
+    }
+    // console.log('associated_data_3D', JSON.stringify(associated_data_3D));
+    // if (window.custom_prop) {
+    //     window.custom_prop.set(associated_data_name, associated_data_3D)
+    // } else {
+    //     window.custom_prop = associated_prop_3D;
+    // }
+    topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(associated_prop_2D, associated_prop_3D);
     //var custom_option = document.createElement("option");
     //custom_option.setAttribute("value", selectBoxEle.options.length);
     //custom_option.appendChild(document.createTextNode(custom_data_name));
@@ -409,23 +491,23 @@ var registerHoverResiData = function (e, tooltipObj){
     //if (!vm.available_properties.some(prop => prop.Name === associated_data_name)){
     //    vm.available_properties.push({Name:associated_data_name, url:"static/alignments/svg/Custom.svg"})
     //}
-    if(vm.correct_mask) {
-        var j = topviewer.viewInstance.uiTemplateService.domainTypes.length-1;
+    if (vm.correct_mask) {
+        var j = topviewer.viewInstance.uiTemplateService.domainTypes.length - 1;
         colorResidue(j, window.masked_array);
     }
 }
 
 
-var mapHelixData = function(helix_data, helix_data_name, topviewer){
-      
+var mapHelixData = function (helix_data, helix_data_name, topviewer) {
+
     //var selectBoxEle = viewerInstanceTop.pluginInstance.targetEle.querySelector('.menuSelectbox');
     //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.menuSelectbox');
     //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
-    
-    let vals = helix_data.map(function(v){ return v[1] });
-    let indexes =  helix_data.map(function(v){ return v[0] });
+
+    let vals = helix_data.map(function (v) { return v[1] });
+    let indexes = helix_data.map(function (v) { return v[0] });
     window.aaColorData.set(helix_data_name, [viridis]);
-    window.aaPropertyConstants.set( helix_data_name, [Math.min(...vals), Math.max(...vals)]);
+    window.aaPropertyConstants.set(helix_data_name, [Math.min(...vals), Math.max(...vals)]);
     //let coilsOutOfCustom = vm.coil_residues.filter(value => !indexes.includes(value));
     //window.coilsOutOfCustom = coilsOutOfCustom;
     // console.log('AD1', associated_data_name, associated_data);
@@ -435,7 +517,7 @@ var mapHelixData = function(helix_data, helix_data_name, topviewer){
     // var associated_prop = window.associated_prop;
     var helix_prop = new Map();
     helix_prop.set(helix_data_name, helix_data);
-    if (window.helix_prop){
+    if (window.helix_prop) {
         window.helix_prop.set(helix_data_name, helix_data)
     } else {
         window.helix_prop = helix_prop;
@@ -445,39 +527,39 @@ var mapHelixData = function(helix_data, helix_data_name, topviewer){
     //custom_option.setAttribute("value", selectBoxEle.options.length);
     //custom_option.appendChild(document.createTextNode(custom_data_name));
     //selectBoxEle.appendChild(custom_option);
-    if (!vm.available_properties.some(prop => prop.Name === helix_data_name)){
-        vm.available_properties.push({Name:helix_data_name, url:"static/alignments/svg/Custom.svg"})
+    if (!vm.available_properties.some(prop => prop.Name === helix_data_name)) {
+        vm.available_properties.push({ Name: helix_data_name, url: "static/alignments/svg/Custom.svg" })
     }
-    if(vm.correct_mask) {
-        var j = topviewer.viewInstance.uiTemplateService.domainTypes.length-1;
+    if (vm.correct_mask) {
+        var j = topviewer.viewInstance.uiTemplateService.domainTypes.length - 1;
         colorResidue(j, window.masked_array);
     }
 }
-  var getExampleFile = function(url, name){
-      $.ajax({
-          url: url,
-          type: 'GET',
-          dataType: "text",
-          success: function(data) {
-              let anchor = document.createElement('a');
-              anchor.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(data);
-              anchor.target = '_blank';
-              anchor.download = name;
-              anchor.click();
-          },
-      })
-  };
-  
-  function cleanFilter(checked_filter, masking_range){
-    if (checked_filter){return;}
-    if (masking_range == null){return;}
+var getExampleFile = function (url, name) {
+    $.ajax({
+        url: url,
+        type: 'GET',
+        dataType: "text",
+        success: function (data) {
+            let anchor = document.createElement('a');
+            anchor.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(data);
+            anchor.target = '_blank';
+            anchor.download = name;
+            anchor.click();
+        },
+    })
+};
+
+function cleanFilter(checked_filter, masking_range) {
+    if (checked_filter) { return; }
+    if (masking_range == null) { return; }
     window.masked_array = [];
     vm.masking_range = null;
     vm.correct_mask = null;
     var topviewer = document.getElementById("PdbeTopViewer");
-    topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties);
+    topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties, window.mapped_aa_properties3D);
     if(window.custom_prop) {
-        topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(window.custom_prop);
+        topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(window.custom_prop, window.custom_prop_3D);
     }
     domainTypes = topviewer.viewInstance.uiTemplateService.domainTypes;
     var indexToRemove = domainTypes.findIndex(obj => obj.label === 'highlight');
@@ -510,7 +592,8 @@ var mapHelixData = function(helix_data, helix_data_name, topviewer){
         customData: {
             url: coordURL,
             format: 'cif',
-            binary:true },
+            binary: true
+        },
         assemblyId: '1',
         subscribeEvents: true,
         bgColor: {r:255,g:255,b:255},

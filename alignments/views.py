@@ -72,7 +72,7 @@ def api_twc_with_upload(request, anchor_structure):
     anchor_taxid = pdbid_to_strainid(anchor_structure)
 
     fastastring = request.session.get('fasta')
-    #print('fastastring:\n' + fastastring)
+    ##print('fastastring:\n' + fastastring)
 
     concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
     #### _____________Trim down the alignment______________ ####
@@ -104,7 +104,7 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
     if startIndex > 1:
         shiftIndexBy = startIndex - 1
 
-    print("Mafft")
+    #print("Mafft")
     pipe = Popen("mafft --preservecase --quiet --addfull " + ebiFileName + " --mapout " + alignmentFileName + "; cat " + mappingFileName, stdout=PIPE, shell=True)
     output = pipe.communicate()[0]
     decoded_text = output.decode("ascii")
@@ -186,7 +186,7 @@ def api_twc(request, align_name, tax_group1, tax_group2, anchor_structure=''):
         fastastring, frequency_list = aqab.build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_alnposition)
     
     concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
-    #print(concat_fasta)
+    ##print(concat_fasta)
     
     #### ______________Trim down the alignment______________ ####
     if anchor_structure != '':
@@ -243,7 +243,7 @@ def entropy(request, align_name, tax_group, anchor_structure):
     fastastring, frequency_list = aqab.build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_aln_length)
     #fastastring,max_aln_length = aqab.sql_filtered_aln_query(align_id,tax_group)
     aln_shannon_list = Shannon.main(['-a',fastastring,'-f','fastastring','--return_within','-s',filter_strain])
-    #print(aln_shannon_list)
+    ##print(aln_shannon_list)
     context = {
         'pdbid': anchor_structure, 
         'chainid': chainid, 
@@ -281,6 +281,7 @@ def index_test(request):
 
 def proteinTypes(request):
     if request.method == 'POST' and 'taxIDs' in request.POST:
+        #print("request.POST['taxIDs']", request.POST['taxIDs'])
         taxIDs = request.POST['taxIDs']
         return proteinTypesDirect(request, taxIDs)
     else:
@@ -304,6 +305,8 @@ def proteinTypesDirect(request, concatenatedTaxIds):
         if concatenatedTaxIds.endswith(','):
             concatenatedTaxIds = concatenatedTaxIds[:-1]
         for taxID in concatenatedTaxIds.split(','):
+            if not taxID:
+                continue
             taxID = int(taxID)
             proteinTypesList = []
             sql = "use DESIRE;"
@@ -379,14 +382,18 @@ def extract_species_list(fastastring):
 
 def extract_gap_only_cols(fastastring):
     '''Extracts positions in the fastastring that are only gaps'''
+    #print("fastastring views", fastastring)
     unf_seq_list = [x.split('\\n')[1] for x in fastastring.split('>')[1:]]
     list_for_intersect = list()
     for sequence in unf_seq_list:
         iterator = re.finditer('-', sequence)
         gap_positions = [m.start(0) for m in iterator]
         list_for_intersect.append(gap_positions)
-    gap_only_cols = list(set(list_for_intersect[0]).intersection(*list_for_intersect))
+    #print('list_for_intersect', list_for_intersect)
+    gap_only_cols = sorted(list(set(list_for_intersect[0]).intersection(*list_for_intersect)))
+    # #print("views gap_only_cols", gap_only_cols)
     return gap_only_cols
+
 
 def construct_dict_for_json_response(response_data):
     '''Takes list of datas for Json response.
@@ -413,6 +420,7 @@ def construct_dict_for_json_response(response_data):
     return response_dict
 
 def simple_fasta(request, aln_id, tax_group, internal=False):
+    #print("Simple Fasta tax_group", tax_group)
     rawsqls = []
     if type(tax_group) == int:
         tax_group = str(tax_group)
@@ -426,26 +434,63 @@ def simple_fasta(request, aln_id, tax_group, internal=False):
         nogap_tupaln, max_alnposition= aqab.query_to_dict_structure(rawsql, parent, nogap_tupaln, max_alnposition)
     
     fastastring, frequency_list = aqab.build_alignment_from_multiple_alignment_queries(nogap_tupaln, max_alnposition)
+    # #print('fastastring', fastastring)
     
     if internal:
         return fastastring
     
-    concat_fasta, twc, gap_only_cols, filtered_spec_list, alignment_obj = calculateFastaProps(fastastring)
-    response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc])
+    # concat_fasta, twc, gap_only_cols, filtered_spec_list, alignment_obj = calculateFastaProps(fastastring)
+    # #print('gap_only_cols', gap_only_cols)
+    # # #print('alignment_obj', alignment_obj)
+    # response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list,twc])
+    
+    concat_fasta, twc, gap_only_cols, filtered_spec_list, alignment_obj, fr_list = calculateFastaProps(fastastring, frequency_list)
+    # #print('GOC', gap_only_cols)
+    response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,fr_list,twc])
 
     return JsonResponse(response_dict, safe = False)
 
-def calculateFastaProps(fastastring):
-    concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
+def calculateFastaProps(fastastring, frequency_list=None):
+    
+    concat_fasta = re.sub(r'\\n', '\n', fastastring, flags=re.M)
     alignment_obj = AlignIO.read(StringIO(concat_fasta), 'fasta')
+    
     twc = False
     if (len(alignment_obj) < 1000):
         sliced_alns = slice_by_name(alignment_obj)
         if len(sliced_alns.keys()) == 2:
             twc = True
     gap_only_cols = extract_gap_only_cols(fastastring)
+    
+    removed_gaps = gap_only_cols[:] 
+    #print(gap_only_cols)
+    mapped_dict = {}
+    pos = 0
+    
+    for i in range(len(alignment_obj[0])):
+        if i in gap_only_cols:
+            continue
+        mapped_dict[i] = pos
+        pos += 1
+
+    
+    if frequency_list:
+        for gap in removed_gaps[::-1]:
+            alignment_obj = alignment_obj[:, :gap] + alignment_obj[:, gap+1:]
+            gap_only_cols.remove(gap)
+            frequency_list.pop(gap)
+             
+    string_writer = StringIO()
+    # AlignmentWriter(string_writer).write_alignment(alignment_obj)
+
+    AlignIO.write(alignment_obj, string_writer, "fasta")
+    alignment_string = string_writer.getvalue()
+    
+    # #print('alignment_obj', alignment_string)
+    
     filtered_spec_list = extract_species_list(fastastring)
-    return concat_fasta, twc, gap_only_cols, filtered_spec_list, alignment_obj
+    # return concat_fasta, twc, gap_only_cols, filtered_spec_list, alignment_obj
+    return alignment_string, twc, gap_only_cols, filtered_spec_list, alignment_obj, frequency_list
 
 def rProtein(request, align_name, tax_group):
     #if tax_group == 0 - no filter
@@ -757,13 +802,13 @@ def full_RNA_seq(request, pdbid, chain_id):
     import alignments.config
     
     RNA_full_sequence={}
-    print('cid',chain_id)
+    #print('cid',chain_id)
     cif_fileNameSuffix=alignments.config.cif_fileNameSuffix_share
-    print(alignments.config.cif_fileNameSuffix_share)
+    #print(alignments.config.cif_fileNameSuffix_share)
     import Bio.PDB.MMCIF2Dict
     #mmcdata = Bio.PDB.MMCIF2Dict.MMCIF2Dict('/tmp/cust2{cif_fileNameSuffix}.cif')
     mmcdata = Bio.PDB.MMCIF2Dict.MMCIF2Dict("/tmp/cust2"+str(cif_fileNameSuffix)+".cif")
-    #print(mmcdata)
+    ##print(mmcdata)
     index = 0
     try:
         index = mmcdata['_entity_poly.pdbx_strand_id'].index(chain_id)
@@ -826,14 +871,14 @@ def r2dt(request, entity_id):
     os.system(cmd)
     
     filename = '' 
-    print('output_dir', output)
+    #print('output_dir', output)
     
     files = os.listdir(os.path.join(output, "results/json"))
     
-    print('json_file',  files)
+    #print('json_file',  files)
     
     if len(files) == 0:
-        print('reached here')
+        #print('reached here')
         # clean up
         shutil.rmtree(output)
         
