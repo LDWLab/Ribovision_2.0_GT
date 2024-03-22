@@ -379,11 +379,9 @@
                 Proceed with caution or try a different structure.</b>
             </div> -->
             <div id="warningPoorStructureAln" v-if="poor_structure_map&&poor_structure_map>=60" >
-                <b>Warning, poor alignment between selected MSA and structure!!!<br/>
-                Found {{poor_structure_map}} poorly aligned residues.
-                <br/>i) select a new MSA/structure pair; 
-                <br/>ii) select a structure that is more closely related to the selected MSA; or
-                <br/>iii) proceed with caution. </b>
+                <b>Warning, poor alignment between selected MSA and structure!!!
+                    Found {{poor_structure_map}} poorly aligned residues. Consider selecting a new MSA/structure pair.
+                </b>
             </div>
 
         </div>
