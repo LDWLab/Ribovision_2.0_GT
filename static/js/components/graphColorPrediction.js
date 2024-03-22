@@ -200,6 +200,7 @@ function segmentBracketElements(dotBracket) {
     // Iterate through each segment of parentheses
     for (let s of segments) {
         // Create a set containing indices of elements within the segment
+        s[0] = isNaN(s[0]) ? 1 : s[0];
         let values = new Set([...Array(s[1] - s[0] + 1).keys()].map(x => x + s[0]));
 
         // Iterate through existing segments
