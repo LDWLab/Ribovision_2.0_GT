@@ -1,6 +1,12 @@
+
 var annotationArraySE = [];
 var annotationArrayTWC = [];
 var annotationArrayCD = [];
+var annotationArrayAD = [];
+var annotationArrayHD = [];
+var annotationArrayPD = [];
+var annotationArrayAESD = [];
+
 var absolutePosition = function (el) {
   var
       found,
@@ -286,9 +292,11 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
         if (vueObj.frequency_data) {vueObj.frequency_data = null;}
         if (aln_item) {aln_item.remove(); create_deleted_element("alnif", "alnDiv", aln_text, true)}
     }
+
     window.mapped_aa_properties = null;
     vueObj.checkedRNA = false,
     vueObj.customPDBid = null,
+    vueObj.customFullSequence = null,
     vueObj.pdbStart = null,
     vueObj.pdbEnd = null,
     vueObj.pdbSeq = null,
@@ -309,8 +317,19 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     vueObj.structure_mapping = null;
     vueObj.poor_structure_map = null;
     vueObj.freqCSV = null;
+    vueObj.selectAllProteinsChecked = false
+    vueObj.selectAllModifiedChecked = false
+    vueObj.selectAllModifiedCustomChecked = false
+    vueObj.selectedProteins = []
+    vueObj.selectedResidues = []
+    vueObj.selectedResiduesCustom = []
+    vueObj.pchainid = []
+    vueObj.modifications = []
+    vueObj.protein_contacts = null
+    vueObj.modified = null
     window.ajaxRun = false;
     window.custom_prop = null;
+
     if (vueObj.fasta_data) {vueObj.fasta_data = vueObj.fasta_data.replace(/^>Structure sequence\n(.+\n)+?>/i, ">");}
     if (vueObj.topology_loaded) {vueObj.topology_loaded = false;}
     if (vueObj.raiseCustomCSVWarn) {vueObj.raiseCustomCSVWarn = null;}
@@ -433,7 +452,7 @@ var loadParaAlns = function (value, vm) {
 
 var setGlobalProperties = function(){
     let aaPropertiesData = new Map([
-        ["Shannon entropy",[0.000000000000001,2.0]],
+        ["Shannon entropy",[0.000000000000001,2.000]],
         ["TwinCons",[-2.25,6.75]]
     ]);
     let aaColorData = new Map([
@@ -441,6 +460,7 @@ var setGlobalProperties = function(){
         ["Protein contacts",[rainbow]],
         //["TwinCons",[Reds, Greens]],
         ["TwinCons",[Reds, Blues]],
+        ["Helix",[rainbow]],
         //["TwinCons",[RdPu, YlGn]],
     ]);
     window.aaColorData = aaColorData;
@@ -573,7 +593,10 @@ var getEntropyAnnotations = function (separatedData, lowVal, highVal, chainid) {
         let parsedItem = item[0];
         let itemValue = item[1];
         let newValue = itemValue - lowVal;
-        let normalizedVal = Math.round(newValue/(highVal - lowVal) * 99)
+        let normalizedVal = 0
+        if (highVal != lowVal) {
+            normalizedVal = Math.round(newValue/(highVal - lowVal) * 99);
+        }
         annotationArraySE[normalizedVal].ids.push(chainid + " " + parsedItem)
     })
     return annotationArraySE;
@@ -588,11 +611,90 @@ var getCustomAnnotations = function (separatedData, lowVal, highVal, chainid) {
         let parsedItem = item[0];
         let itemValue = item[1];
         let newValue = itemValue - lowVal;
-        let normalizedVal = Math.round(newValue/(highVal - lowVal) * 99)
+        let normalizedVal = 0
+        if (highVal != lowVal) {
+            normalizedVal = Math.round(newValue/(highVal - lowVal) * 99);
+        }
         annotationArrayCD[normalizedVal].ids.push(chainid + " " + parsedItem)
     })
     return annotationArrayCD;
 };
+
+var getAssociatedAnnotations = function (separatedData, lowVal, highVal, chainid) {
+    annotationArrayAD.length=0;
+    for (var i = 1; i < 101; i++) {
+        annotationArrayAD.push({"annotation":i,"ids":[]})
+    }
+    separatedData.forEach(function (item, index) {
+        let parsedItem = item[0];
+        let itemValue = item[1];
+        let newValue = itemValue - lowVal;
+        let normalizedVal = 0
+        if (highVal != lowVal) {
+            normalizedVal = Math.round(newValue/(highVal - lowVal) * 99);
+        }
+        annotationArrayAD[normalizedVal].ids.push(chainid + " " + parsedItem)
+    })
+    return annotationArrayAD;
+};
+
+
+var getHelicalAnnotations = function (separatedData, lowVal, highVal, chainid) {
+    annotationArrayHD.length=0;
+    for (var i = 1; i < 101; i++) {
+        annotationArrayHD.push({"annotation":i,"ids":[]})
+    }
+    separatedData.forEach(function (item, index) {
+        let parsedItem = item[0];
+        let itemValue = item[1];
+        let newValue = itemValue - lowVal;
+        let normalizedVal = 0
+        if (highVal != lowVal) {
+            normalizedVal = Math.round(newValue/(highVal - lowVal) * 99);
+        }
+        annotationArrayHD[normalizedVal].ids.push(chainid + " " + parsedItem)
+    })
+    return annotationArrayHD;
+};
+
+
+
+var getPhaseAnnotations = function (separatedData, lowVal, highVal, chainid) {
+    annotationArrayPD.length=0;
+    for (var i = 1; i < 101; i++) {
+        annotationArrayPD.push({"annotation":i,"ids":[]})
+    }
+    separatedData.forEach(function (item, index) {
+        let parsedItem = item[0];
+        let itemValue = item[1];
+        let newValue = itemValue - lowVal;
+        let normalizedVal = 0
+        if (highVal != lowVal) {
+            normalizedVal = Math.round(newValue/(highVal - lowVal) * 99);
+        }
+        annotationArrayPD[normalizedVal].ids.push(chainid + " " + parsedItem)
+    })
+    return annotationArrayPD;
+};
+
+var getExpansionAnnotations = function (separatedData, lowVal, highVal, chainid) {
+    annotationArrayAESD.length=0;
+    for (var i = 1; i < 101; i++) {
+        annotationArrayAESD.push({"annotation":i,"ids":[]})
+    }
+    separatedData.forEach(function (item, index) {
+        let parsedItem = item[0];
+        let itemValue = item[1];
+        let newValue = itemValue - lowVal;
+        let normalizedVal = 0
+        if (highVal != lowVal) {
+            normalizedVal = Math.round(newValue/(highVal - lowVal) * 99);
+        }
+        annotationArrayAESD[normalizedVal].ids.push(chainid + " " + parsedItem)
+    })
+    return annotationArrayAESD;
+};
+
 
 var getTWCAnnotations = function (separatedData, lowVal, highVal, chainid) {
     annotationArrayTWC.length=0;
@@ -604,7 +706,10 @@ var getTWCAnnotations = function (separatedData, lowVal, highVal, chainid) {
         let itemValue = item[1];
         
         let newValue = itemValue - lowVal;
-        let normalizedVal = Math.round(newValue/(highVal - lowVal) * 99)
+        let normalizedVal = 0
+        if (highVal != lowVal) {
+            normalizedVal = Math.round(newValue/(highVal - lowVal) * 99);
+        }
 
         /*if (itemValue < 0){
             console.log('IV_neg', itemValue);
@@ -618,14 +723,16 @@ var getTWCAnnotations = function (separatedData, lowVal, highVal, chainid) {
     return annotationArrayTWC;
 }
 var getAnnotationArray = function() {
-    return {'SE':annotationArraySE,'TWC':annotationArrayTWC,'CD':annotationArrayCD};
+    return {'SE':annotationArraySE,'TWC':annotationArrayTWC,'CD':annotationArrayCD, 'AD':annotationArrayAD, 'HD':annotationArrayHD, 'PD':annotationArrayPD, 'AESD':annotationArrayAESD};
 }   
 var parsePVData = function (separatedData, lowVal, highVal, colormapArray, masking=null) {
-    /*var s = ""
+    /*console.log(separatedData)
+    var s = ""
     for(var i = 0; i < 100; i++) {
         s = s + '['+(interpolateLinearly(i/100, colormapArray[0])[0])+']' + ', ';
     }
     console.log(s)*/
+    
         let TWCData = new Map();
         let TWCrgbMap = new Map(); 
         let TWCrgbMapPalette = new Map(); 
@@ -708,20 +815,33 @@ var build_mapped_props = function(mapped_props, twcDataUnmapped, structure_mappi
     return mapped_props;
 }
 
-var mapTWCdata = function (structMap, twcDataUnmapped, mapped_aa_properties){
+var mapTWCdata = function (structMap, structMap3D, twcDataUnmapped, mapped_aa_properties, mapped_aa_properties3D){
     var topviewer = document.getElementById("PdbeTopViewer");
+    
     mapped_aa_properties = build_mapped_props(mapped_aa_properties, twcDataUnmapped, structMap);
+    mapped_aa_properties3D = build_mapped_props(mapped_aa_properties3D, twcDataUnmapped, structMap3D);
+    
+    
     window.mapped_aa_properties = mapped_aa_properties;
-    if (topviewer != null && topviewer.viewInstance.uiTemplateService.domainTypes != undefined){
+    window.mapped_aa_properties3D = mapped_aa_properties3D;
+    
+    /*if (topviewer != null && topviewer.viewInstance.uiTemplateService.domainTypes != undefined){
         var empty_props = new Map();
+        var empty_props3D = new Map();
+        
         let twc_props = build_mapped_props(empty_props, twcDataUnmapped, structMap);
-        topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(twc_props);
+        let twc_props3D = build_mapped_props(empty_props3D, twcDataUnmapped, structMap3D);
+        
+        //topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(twc_props, twc_props3D);
+        // topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(twc_props3D);
+        
         //var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
         //var twc_option = document.createElement("option");
         //twc_option.setAttribute("value", selectBoxEle.options.length);
         //twc_option.appendChild(document.createTextNode("TwinCons"));
         //selectBoxEle.appendChild(twc_option);
-    }
+    }*/
+    topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties, mapped_aa_properties3D);
 }
 var showPDBHelper = function(pdbid, chainid, entityid) {
     const molstar_item = document.getElementById("pdbeMolstarView");
@@ -818,10 +938,9 @@ var drawCircle = function (pdbId, i, color){
 }
 
 var calculateModifiedCustom = function(entityid, filepath) {
-    console.log("calculating")
-    var url = `custom-modified-residues/${entityid}/${filepath}`
+    var url = `custom-modified-residues/${entityid}/${filepath.split('/')[2]}`
     ajax(url).then(data => {
-        console.log(data)
+        //console.log(data)
         let offset = 0
         let modifiedData = new Map()
         let modifications = []
@@ -939,38 +1058,92 @@ var showContactsHelper = function(entityid) {
         })
 }
 const sleep = (delay) => new Promise (( resolve) => setTimeout (resolve, delay))
-var showProteins3D = function() {
+var showProteins3D = async function() {
     
     /*var viewerContainer = document.getElementById('pdbeMolstarView');
     viewerInstance.render(viewerContainer, vm.viewer_options);
     window.viewerInstance = viewerInstance;*/
     
     //viewerInstance.visual.update({customData: vm.viewer_options.customData}, true)
-    showPDBHelper(vm.pdbid, vm.chainid, vm.entityID)
-    
-    const showProteins = async () => {
-        await sleep (5000)
+    //await showPDBHelper(vm.pdbid, vm.chainid, vm.entityID)
+    //const showProteins = async () => {
+    const showProteins = async() => {
         colorData = []
         for (let val in vm.pchainid) {
             auth_id = vm.pchainid[val]
             chain = vm.protein_chains.filter(e => e.value == auth_id)[0]
             eID = chain.entityID
             data = {url: `https://www.ebi.ac.uk/pdbe/model-server/v1/${vm.pdbid}/atoms?label_entity_id=${eID}&auth_asym_id=${auth_id}&encoding=bcif`, format: 'cif', binary:true, bgColor: {r: 255, g: 255, b: 255}}
-            viewerInstance.visual.update({customData: data, bgColor: {r: 255, g: 255, b: 255}}, false)
+            await viewerInstance.visual.update({customData: data, bgColor: {r: 255, g: 255, b: 255}}, false)
+            await sleep (2000)
             color = vm.proteinColorMap.get(auth_id)
             split_color = color.split('(')[1].split(')')[0].split(',')
             formatted_color = {r: split_color[0], g: split_color[1], b: split_color[2]}
             colorData.push(formatted_color)
         }
-        await sleep (10000)
-        viewerInstance.visual.colorByChain(colorData)
+        //await sleep(10000);
+        async function tryColor() {
+        //console.log(colorData)
+        let waitTime = 1000;
+        let attempts = 0
+        try {
+            attempts += 1
+            await sleep(waitTime);
+            await viewerInstance.visual.colorByChain(colorData)
+        } catch (error) {
+            console.log(error)
+            waitTime += 1000;
+            if (colorData.length == vm.pchainid.length) {
+                if (attempts < 3) {
+                    tryColor()
+                }
+            }
+        }
+        }
+        if(vm.pchainid.length == colorData.length) {
+            tryColor()
+        }
     }
-    showProteins()
+        //viewerInstance.visual.colorByChain(colorData)
+    await showProteins()
 }
-var showModificationsAndContactsHelper = function(entityid) {
-    if (vm.pchainid.length > 0){
-        showProteins3D()
+var showModificationsHelper = function(entityid) {
+    vm.selected_property = "Select data"
+    var modified_data = new Map();
+    modified_data.set("mods", [])
+    modified_data.get("mods").push({entity_id: entityid, focus: true})
+    for (let val of vm.modifications) {
+        for (let entry of vm.selectSections_modified.get(val)) {
+            modified_data.get("mods").push(entry)
+        }
     }
+    /*window.viewerInstance.visual.select({
+        data: [],
+        nonSelectedColor: {r:255,g:255,b:255}
+    })*/
+    const mapSort1 = modified_data.get("mods").sort((a, b) => a.residue_number - b.residue_number);
+    const selectColors = async() => {
+        viewerInstance.visual.select({
+            data: mapSort1, 
+            nonSelectedColor: {r:255,g:255,b:255}
+            }).catch(err => {
+                console.log(err);
+                vm.$nextTick(function(){
+                    viewerInstance.visual.select({
+                        data: mapSort1,
+                        nonSelectedColor: {r:255,g:255,b:255}
+                    })
+                })
+            })
+    }
+    selectColors()
+}
+var showModificationsAndContactsHelper = async function(entityid) {
+    //if (vm.pchainid.length > 0){
+    //    showProteins3D()
+    //} else {
+    showPDBHelper(vm.pdbid, vm.chainid, vm.entityID)
+   // }
     var modified_data = new Map();
     modified_data.set("mods", [])
     modified_data.get("mods").push({entity_id: entityid, focus: true})
@@ -990,10 +1163,10 @@ var showModificationsAndContactsHelper = function(entityid) {
         nonSelectedColor: {r:255,g:255,b:255}
     })*/
     const mapSort1 = modified_data.get("mods").sort((a, b) => a.residue_number - b.residue_number);
+    //console.log(mapSort1)
+    /*
     const selectColors = async() => {
-        if(vm.pchainid.length > 0) {
-            await sleep(5000)
-        }
+        await sleep(5000)
         viewerInstance.visual.select({
             data: mapSort1, 
             nonSelectedColor: {r:255,g:255,b:255}
@@ -1006,9 +1179,31 @@ var showModificationsAndContactsHelper = function(entityid) {
                     })
                 })
             })
+        await sleep(2000)
     }
-    selectColors()
-        
+    await selectColors()*/
+
+    selectColors = async () => {
+        let success = false;   
+        while (!success) {
+          try {
+            await sleep(2000)
+            await sleep(3 * vm.aa_properties.get("Shannon entropy").length)
+            await viewerInstance.visual.select({
+              data: mapSort1,
+              nonSelectedColor: { r: 255, g: 255, b: 255 },
+            });
+            await sleep(5000);
+            success = true;
+          } catch (err) {
+            console.log(err);
+          }
+        }
+    };
+    await selectColors();
+    if (vm.pchainid.length > 0){
+        showProteins3D()
+    }
 }
 var recolorTopStar = function (name){
     var selectBox = viewerInstanceTop.viewInstance.targetEle.querySelector('.mappingSelectbox');
@@ -1031,25 +1226,273 @@ var recolorTopStar = function (name){
         }) 
         */
     //}
+
     if(name == "Shannon entropy") {
-        viewerInstance.visual.clearSelection();
-        viewerInstance.coloring.shannonEntropy({ sequence: true, het: false, keepStyle: true });
+        //viewerInstance.visual.clearSelection();
+        if(vm.customPDBsuccess) {
+            viewerInstance.visual.clearSelection();
+            viewerInstance.visual.reset({ theme: true })
+            viewerInstance.coloring.shannonEntropy({ sequence: true, het: false, keepStyle: true });
+        } /*else {
+        let wait = async () => {
+            vm.pchainid = []
+            vm.modifications = []
+            showPDBHelper(vm.pdbid, vm.chainid, vm.entityID)
+            await sleep (5000)
+            viewerInstance.coloring.shannonEntropy({ sequence: true, het: false, keepStyle: true });
+        }
+        wait()*/
+            else {let wait = async () => {
+                //vm.pchainid = [];
+                //vm.modifications = [];
+                vm.selectAllProteinsChecked = false
+                vm.selectAllModifiedChecked = false
+                vm.selectedProteins = []
+                vm.selectedResidues = []
+                vm.pchainid = []
+                vm.modifications = []
+                async function tryColoring() {
+                    try {
+                        await viewerInstance.coloring.shannonEntropy({ sequence: true, het: false, keepStyle: true });
+                    } catch (error) {
+                        console.error("Structure not yet loaded, waiting to color");
+                        await sleep(6000);
+                        await tryColoring();
+                    }
+                }
+                await showPDBHelper(vm.pdbid, vm.chainid, vm.entityID);
+                await sleep(6000);
+                await tryColoring();
+            };
+            wait();
+        }
     }   else if(name == "TwinCons") {
-        viewerInstance.visual.clearSelection();
-        viewerInstance.coloring.twinCons({ sequence: true, het: false, keepStyle: true });
-    }    else if(name == "Custom Data") {
-        viewerInstance.visual.clearSelection();
-        console.log("custom",viewerInstance.coloring);
-        viewerInstance.coloring.customData({ sequence: true, het: false, keepStyle: true });
-    }    else if(name == "Associated Data1") {
-        viewerInstance.visual.clearSelection();
-        console.log("Associated",viewerInstance.coloring);
-        viewerInstance.coloring.associatedData({ sequence: true, het: false, keepStyle: true });
-    }    else if(name == "Select data") {
-        viewerInstance.visual.reset({ theme: true })
+        if(vm.customPDBsuccess) {
+            viewerInstance.visual.clearSelection();
+            viewerInstance.visual.reset({ theme: true })
+            viewerInstance.coloring.twinCons({ sequence: true, het: false, keepStyle: true });
+        } else {let wait = async () => {
+            vm.selectAllProteinsChecked = false
+            vm.selectAllModifiedChecked = false
+            vm.selectedProteins = []
+            vm.selectedResidues = []
+            vm.pchainid = []
+            vm.modifications = []
+            async function tryColoring() {
+                try {
+                    await viewerInstance.coloring.twinCons({ sequence: true, het: false, keepStyle: true });
+                } catch (error) {
+                    console.error("Structure not yet loaded, waiting to color");
+                    await sleep(6000);
+                    await tryColoring();
+                }
+            }
+            await showPDBHelper(vm.pdbid, vm.chainid, vm.entityID);
+            await sleep(6000);
+            await tryColoring();
+        };
+        wait();
     }
+    }    else if(name == "Custom Data") {
+            if(vm.customPDBsuccess) {
+                viewerInstance.visual.clearSelection();
+                viewerInstance.visual.reset({ theme: true })
+                viewerInstance.coloring.customData({ sequence: true, het: false, keepStyle: true });
+            } else {let wait = async () => {
+                vm.selectAllProteinsChecked = false
+                vm.selectAllModifiedChecked = false
+                vm.selectedProteins = []
+                vm.selectedResidues = []
+                vm.pchainid = []
+                vm.modifications = []
+                async function tryColoring() {
+                    try {
+                        await viewerInstance.coloring.customData({ sequence: true, het: false, keepStyle: true });
+                    } catch (error) {
+                        console.error("Structure not yet loaded, waiting to color");
+                        await sleep(6000);
+                        await tryColoring();
+                    }
+                }
+                await showPDBHelper(vm.pdbid, vm.chainid, vm.entityID);
+                await sleep(6000);
+                await tryColoring();
+            };
+            wait();
+        }
+    }  
+    else if(name == "Associated Data1") {
+        if(vm.customPDBsuccess) {
+            viewerInstance.visual.clearSelection();
+            viewerInstance.visual.reset({ theme: true })
+            viewerInstance.coloring.associatedData({ sequence: true, het: false, keepStyle: true });
+        } else {let wait = async () => {
+            vm.selectAllProteinsChecked = false
+            vm.selectAllModifiedChecked = false
+            vm.selectedProteins = []
+            vm.selectedResidues = []
+            vm.pchainid = []
+            vm.modifications = []
+            async function tryColoring() {
+                try {
+                    await viewerInstance.coloring.associatedData({ sequence: true, het: false, keepStyle: true });
+                } catch (error) {
+                    console.error("Structure not yet loaded, waiting to color");
+                    await sleep(6000);
+                    await tryColoring();
+                }
+            }
+            await showPDBHelper(vm.pdbid, vm.chainid, vm.entityID);
+            await sleep(6000);
+            await tryColoring();
+        };
+        wait();
+    }
+    } 
+
+
+    else if(name == "Phase" || name == "phase") {
+       
+        if(vm.customPDBsuccess) {
+            viewerInstance.visual.clearSelection();
+            viewerInstance.visual.reset({ theme: true })
+            viewerInstance.coloring.phaseData({ sequence: true, het: false, keepStyle: true });
+        } else {let wait = async () => {
+            vm.selectAllProteinsChecked = false
+            vm.selectAllModifiedChecked = false
+            vm.selectedProteins = []
+            vm.selectedResidues = []
+            vm.pchainid = []
+            vm.modifications = []
+            async function tryColoring() {
+                try {
+                    await viewerInstance.coloring.phaseData({ sequence: true, het: false, keepStyle: true });
+                } catch (error) {
+                    console.error("Structure not yet loaded, waiting to color");
+                    await sleep(6000);
+                    await tryColoring();
+                }
+            }
+            await showPDBHelper(vm.pdbid, vm.chainid, vm.entityID);
+            await sleep(6000);
+            await tryColoring();
+        };
+        wait();
+    }
+    } 
+    else if(name == "Helix" || name == "helix") {
+        
+        if(vm.customPDBsuccess) {
+            viewerInstance.visual.clearSelection();
+            viewerInstance.visual.reset({ theme: true })
+            viewerInstance.coloring.helixData({ sequence: true, het: false, keepStyle: true });
+        } else {let wait = async () => {
+            vm.selectAllProteinsChecked = false
+            vm.selectAllModifiedChecked = false
+            vm.selectedProteins = []
+            vm.selectedResidues = []
+            vm.pchainid = []
+            vm.modifications = []
+            async function tryColoring() {
+                try {
+                    await viewerInstance.coloring.helixData({ sequence: true, het: false, keepStyle: true });
+                } catch (error) {
+                    console.error("Structure not yet loaded, waiting to color");
+                    await sleep(6000);
+                    await tryColoring();
+                }
+            }
+            await showPDBHelper(vm.pdbid, vm.chainid, vm.entityID);
+            await sleep(6000);
+            await tryColoring();
+        };
+        wait();
+    }
+    } 
+    else if(name == "AES" || name == "aes") {
+        
+        if(vm.customPDBsuccess) {
+            viewerInstance.visual.clearSelection();
+            viewerInstance.visual.reset({ theme: true })
+            viewerInstance.coloring.aesData({ sequence: true, het: false, keepStyle: true });
+        } else {let wait = async () => {
+            vm.selectAllProteinsChecked = false
+            vm.selectAllModifiedChecked = false
+            vm.selectedProteins = []
+            vm.selectedResidues = []
+            vm.pchainid = []
+            vm.modifications = []
+            async function tryColoring() {
+                try {
+                    await viewerInstance.coloring.aesData({ sequence: true, het: false, keepStyle: true });
+                } catch (error) {
+                    console.error("Structure not yet loaded, waiting to color");
+                    await sleep(6000);
+                    await tryColoring();
+                }
+            }
+            await showPDBHelper(vm.pdbid, vm.chainid, vm.entityID);
+            await sleep(6000);
+            await tryColoring();
+        };
+        wait();
+    }
+    } 
+    else if(name == "highlight") {
+        if(vm.customPDBsuccess) {
+            viewerInstance.visual.clearSelection();
+            viewerInstance.visual.reset({ theme: true })
+            viewerInstance.coloring.highlighting({ sequence: true, het: false, keepStyle: true });
+        } else {let wait = async () => {
+            vm.selectAllProteinsChecked = false
+            vm.selectAllModifiedChecked = false
+            vm.selectedProteins = []
+            vm.selectedResidues = []
+            vm.pchainid = []
+            vm.modifications = []
+            async function tryColoring() {
+                try {
+                    await viewerInstance.coloring.highlighting({ sequence: true, het: false, keepStyle: true });
+                } catch (error) {
+                    console.error("Structure not yet loaded, waiting to color");
+                    await sleep(6000);
+                    await tryColoring();
+                }
+            }
+            await showPDBHelper(vm.pdbid, vm.chainid, vm.entityID);
+            await sleep(6000);
+            await tryColoring();
+        };
+        wait();
+    }
+    } 
     
+    
+    else if(name == "Select data") {
+        viewerInstance.visual.reset({ theme: true })
+    }   
+    else if(name == "Clear data") {
+        if(vm.customPDBsuccess) {
+            viewerInstance.visual.clearSelection();
+            viewerInstance.visual.reset({ theme: true })
+        } else {
+        vm.checked_filter = false
+        vm.selectAllProteinsChecked = false
+        vm.selectAllModifiedChecked = false
+        vm.selectAllModifiedCustomChecked = false
+        vm.selectedProteins = []
+        vm.selectedResidues = []
+        vm.selectedResiduesCustom = []
+        vm.pchainid = []
+        vm.modifications = []
+        showPDBHelper(vm.pdbid, vm.chainid, vm.entityID)
+        }
+    }   
     viewerInstanceTop.viewInstance.uiTemplateService.colorMap(); 
+    if(name == "Select data") {
+        viewerInstanceTop.viewInstance.uiTemplateService.colorMapContacts(); 
+        viewerInstanceTop.viewInstance.uiTemplateService.colorMapModifications();
+    }   
 }
 
 var masked_array = [];

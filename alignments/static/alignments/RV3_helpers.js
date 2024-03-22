@@ -645,8 +645,6 @@ var getHelicalAnnotations = function (separatedData, lowVal, highVal, chainid) {
         annotationArrayHD.push({"annotation":i,"ids":[]})
     }
     separatedData.forEach(function (item, index) {
-        console.log(item)
-        console.log(index)
         let parsedItem = item[0];
         let itemValue = item[1];
         let newValue = itemValue - lowVal;
@@ -654,7 +652,6 @@ var getHelicalAnnotations = function (separatedData, lowVal, highVal, chainid) {
         if (highVal != lowVal) {
             normalizedVal = Math.round(newValue/(highVal - lowVal) * 99);
         }
-        console.log(normalizedVal)
         annotationArrayHD[normalizedVal].ids.push(chainid + " " + parsedItem)
     })
     return annotationArrayHD;
@@ -824,17 +821,18 @@ var mapTWCdata = function (structMap, structMap3D, twcDataUnmapped, mapped_aa_pr
     mapped_aa_properties = build_mapped_props(mapped_aa_properties, twcDataUnmapped, structMap);
     mapped_aa_properties3D = build_mapped_props(mapped_aa_properties3D, twcDataUnmapped, structMap3D);
     
+    
     window.mapped_aa_properties = mapped_aa_properties;
     window.mapped_aa_properties3D = mapped_aa_properties3D;
     
-    if (topviewer != null && topviewer.viewInstance.uiTemplateService.domainTypes != undefined){
+    /*if (topviewer != null && topviewer.viewInstance.uiTemplateService.domainTypes != undefined){
         var empty_props = new Map();
         var empty_props3D = new Map();
         
         let twc_props = build_mapped_props(empty_props, twcDataUnmapped, structMap);
         let twc_props3D = build_mapped_props(empty_props3D, twcDataUnmapped, structMap3D);
         
-        topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(twc_props, twc_props3D);
+        //topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(twc_props, twc_props3D);
         // topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(twc_props3D);
         
         //var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
@@ -842,7 +840,8 @@ var mapTWCdata = function (structMap, structMap3D, twcDataUnmapped, mapped_aa_pr
         //twc_option.setAttribute("value", selectBoxEle.options.length);
         //twc_option.appendChild(document.createTextNode("TwinCons"));
         //selectBoxEle.appendChild(twc_option);
-    }
+    }*/
+    topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties, mapped_aa_properties3D);
 }
 var showPDBHelper = function(pdbid, chainid, entityid) {
     const molstar_item = document.getElementById("pdbeMolstarView");

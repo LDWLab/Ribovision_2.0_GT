@@ -179,25 +179,33 @@ var assignColorsAndStrucMappings = function (vueObj, struct_mapping, struct_mapp
   vueObj.fasta_data = struct_mapping["amendedAln"];
   vueObj.structure_mapping = struct_mapping["structureMapping"];
 
-  vueObj.poor_structure_map3D = struct_mapping3D['BadMappingPositions'];
-  vueObj.fasta_data3D = struct_mapping3D["amendedAln"];
-  vueObj.structure_mapping3D = struct_mapping3D["structureMapping"];
+  //vueObj.poor_structure_map3D = struct_mapping3D['BadMappingPositions'];
+  //vueObj.fasta_data3D = struct_mapping3D["amendedAln"];
+  if(struct_mapping3D) {
+    vueObj.structure_mapping3D = struct_mapping3D["structureMapping"];
+  }
 
   loadAlignmentViewer(vueObj.fasta_data);
-  loadAlignmentViewer(vueObj.fasta_data3D);
+  //loadAlignmentViewer(vueObj.fasta_data3D);
 
   let mapped_aa_properties = mapAAProps(vueObj.aa_properties, vueObj.structure_mapping);
-  let mapped_aa_properties3D = mapAAProps(vueObj.aa_properties, vueObj.structure_mapping3D);
-
+  let mapped_aa_properties3D = null
+  if(struct_mapping3D) {
+    mapped_aa_properties3D = mapAAProps(vueObj.aa_properties, vueObj.structure_mapping3D);
+}
   
   if (((vueObj.tax_id != null && vueObj.tax_id.length == 2) || (vueObj.custom_aln_twc_flag != null && vueObj.custom_aln_twc_flag == true) || (vueObj.type_tree == 'para'))) {
     if (vueObj.unmappedTWCdata) {
       mapTWCdata(vueObj.structure_mapping, vueObj.structure_mapping3D, vueObj.unmappedTWCdata, mapped_aa_properties, mapped_aa_properties3D);
       // mapTWCdata(vueObj.structure_mapping3D, vueObj.unmappedTWCdata, mapped_aa_properties3D);
+    } else {
+      window.mapped_aa_properties = mapped_aa_properties;
+      window.mapped_aa_properties3D = mapped_aa_properties3D;
     }
+  } else {
+      window.mapped_aa_properties = mapped_aa_properties;
+      window.mapped_aa_properties3D = mapped_aa_properties3D;
   }
-  window.mapped_aa_properties = mapped_aa_properties;
-  window.mapped_aa_properties3D = mapped_aa_properties3D;
   //console.log(vueObj.fasta_data);
   vm.sequence = vueObj.fasta_data.split(' ')[vm.user_uploaded_cif_flag === null || vm.user_uploaded_cif_flag ? 1 : 2];
   let sequence2 = vm.sequence.replaceAll(/-|\n/g, "");

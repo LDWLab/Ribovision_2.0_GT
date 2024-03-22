@@ -63,7 +63,7 @@ export namespace CustomEvents {
             if(typeof e.eventData !== 'undefined' && typeof e.eventData.residueNumber !== 'undefined' && e.eventData.auth_asym_id === pluginCtx.options.chainId){
                 //pluginCtx.clearHighlight();
                 //pluginCtx.highlightResidue(e.eventData.residueNumber);
-                pluginCtx.selectResidue(e.eventData.auth_seq_id)
+                pluginCtx.selectResidue(e.eventData.seq_id)
             } else{
                pluginCtx.clearSelection(undefined)
             }

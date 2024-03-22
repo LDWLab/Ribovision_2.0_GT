@@ -6,16 +6,16 @@
             </div>
             
             <div class="headerOptions" style="margin-left: auto;padding-top:10px;">
-                
-                <span title="Start an interactive guide">
-                    <button class="btn btn-outline-dark" v-on:click="startTour();" style="float: right;">RiboVision Tour</button>
-                    <button class="btn btn-outline-dark" v-on:click="startUploadTour();" style="float: right;">User Upload Tour</button>
-                </span>
-                
                 <p style="padding:2px;float: right;"></p>
                 <span title="Go to RiboVision 2.0 documentation">
                     <button class="btn btn-outline-dark" id="aboutButton" v-on:click="goToAboutPage();" style="float: right;">About</button>
                 </span>
+                <span title="Start an interactive guide">
+                    <button class="btn btn-outline-dark" v-on:click="startUploadTour();" style="float: right;">User Upload Tour</button>
+                    <button class="btn btn-outline-dark" v-on:click="startTour();" style="float: right;">RiboVision Tour</button>
+                </span>
+                
+                
                 <!--
                 <p style="padding:2px;float: right;"></p>
                 <span title="Go to DESIRE api">

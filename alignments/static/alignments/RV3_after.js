@@ -122,7 +122,7 @@ var registerHoverResiData = function (e, tooltipObj) {
     if (isCorrectMask(mask_range)) {
         var topviewer = document.getElementById("PdbeTopViewer");
         var selectedIndex = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox').selectedIndex;
-        topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties, window.mapped_aa_properties_3D);   
+        topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties, window.mapped_aa_properties3D);   
         if(window.custom_prop) {
             topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(window.custom_prop, window.custom_prop_3D); 
         }
@@ -360,48 +360,86 @@ var mapCustomMappingData = function (custom_data, custom_data_name, topviewer) {
     //var selectBoxEle = viewerInstanceTop.pluginInstance.targetEle.querySelector('.menuSelectbox');
     //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.menuSelectbox');
     //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
-    let mapping2D_3D = {};
+    if(vm.cifPdbMode == null) {
+        let mapping2D_3D = {};
 
-    for (let [k,v] of Object.entries(vm.st_mapping2D)){
-        if (Object.keys(vm.st_mapping2D).includes(k)){
-            mapping2D_3D[v] = vm.st_mapping3D[k];
+        for (let [k,v] of Object.entries(vm.st_mapping2D)){
+            if (Object.keys(vm.st_mapping2D).includes(k)){
+                mapping2D_3D[v] = vm.st_mapping3D[k];
+            }
         }
-    }
 
-    let custom_data3D = [];
-    for (let [k, [u, v]] of Object.entries(custom_data)){
-        custom_data3D.push([mapping2D_3D[u], v]);
+        let custom_data3D = [];
+        for (let [k, [u, v]] of Object.entries(custom_data)){
+            custom_data3D.push([mapping2D_3D[u], v]);
+            
+        }
+
+        let vals = custom_data.map(function (v) { return v[1] });
+        let indexes = custom_data.map(function (v) { return v[0] });
+        window.aaColorData.set(custom_data_name, [viridis]);
+        window.aaPropertyConstants.set(custom_data_name, [Math.min(...vals), Math.max(...vals)]);
+        //let coilsOutOfCustom = vm.coil_residues.filter(value => !indexes.includes(value));
+        //window.coilsOutOfCustom = coilsOutOfCustom;
+        //console.log('CD1', custom_data_name, custom_data );
+        let custom_prop = new Map();
+        let custom_prop3D = new Map();
         
-    }
-
-    let vals = custom_data.map(function (v) { return v[1] });
-    let indexes = custom_data.map(function (v) { return v[0] });
-    window.aaColorData.set(custom_data_name, [viridis]);
-    window.aaPropertyConstants.set(custom_data_name, [Math.min(...vals), Math.max(...vals)]);
-    //let coilsOutOfCustom = vm.coil_residues.filter(value => !indexes.includes(value));
-    //window.coilsOutOfCustom = coilsOutOfCustom;
-    //console.log('CD1', custom_data_name, custom_data );
-    let custom_prop = new Map();
-    let custom_prop3D = new Map();
-    
-    custom_prop.set(custom_data_name, custom_data);
-    custom_prop3D.set(custom_data_name, custom_data3D);
-    if (window.custom_prop) {
-        window.custom_prop.set(custom_data_name, custom_data)
+        custom_prop.set(custom_data_name, custom_data);
+        custom_prop3D.set(custom_data_name, custom_data3D);
+        if (window.custom_prop) {
+            window.custom_prop.set(custom_data_name, custom_data)
+        } else {
+            window.custom_prop = custom_prop;
+        }
+        if (window.custom_prop_3D) {
+            window.custom_prop.set(custom_data_name, custom_data3D)
+        } else {
+            window.custom_prop_3D = custom_prop3D;
+        }
+        topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(custom_prop, custom_prop3D);
+        //var custom_option = document.createElement("option");
+        //custom_option.setAttribute("value", selectBoxEle.options.length);
+        //custom_option.appendChild(document.createTextNode(custom_data_name));
+        //selectBoxEle.appendChild(custom_option);
+        if (!vm.available_properties.some(prop => prop.Name === custom_data_name)) {
+            vm.available_properties.push({ Name: custom_data_name, url: "static/alignments/svg/Custom.svg" })
+        }
+        if (vm.correct_mask) {
+            var j = topviewer.viewInstance.uiTemplateService.domainTypes.length - 1;
+            colorResidue(j, window.masked_array);
+        }
     } else {
-        window.custom_prop = custom_prop;
-    }
-    topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(custom_prop, custom_prop3D);
-    //var custom_option = document.createElement("option");
-    //custom_option.setAttribute("value", selectBoxEle.options.length);
-    //custom_option.appendChild(document.createTextNode(custom_data_name));
-    //selectBoxEle.appendChild(custom_option);
-    if (!vm.available_properties.some(prop => prop.Name === custom_data_name)) {
-        vm.available_properties.push({ Name: custom_data_name, url: "static/alignments/svg/Custom.svg" })
-    }
-    if (vm.correct_mask) {
-        var j = topviewer.viewInstance.uiTemplateService.domainTypes.length - 1;
-        colorResidue(j, window.masked_array);
+            //var selectBoxEle = viewerInstanceTop.pluginInstance.targetEle.querySelector('.menuSelectbox');
+            //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.menuSelectbox');
+            //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
+        
+            let vals = custom_data.map(function (v) { return v[1] });
+            let indexes = custom_data.map(function (v) { return v[0] });
+            window.aaColorData.set(custom_data_name, [viridis]);
+            window.aaPropertyConstants.set(custom_data_name, [Math.min(...vals), Math.max(...vals)]);
+            //let coilsOutOfCustom = vm.coil_residues.filter(value => !indexes.includes(value));
+            //window.coilsOutOfCustom = coilsOutOfCustom;
+            //console.log('CD1', custom_data_name, custom_data );
+            var custom_prop = new Map();
+            custom_prop.set(custom_data_name, custom_data);
+            if (window.custom_prop) {
+                window.custom_prop.set(custom_data_name, custom_data)
+            } else {
+                window.custom_prop = custom_prop;
+            }
+            topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(custom_prop);
+            //var custom_option = document.createElement("option");
+            //custom_option.setAttribute("value", selectBoxEle.options.length);
+            //custom_option.appendChild(document.createTextNode(custom_data_name));
+            //selectBoxEle.appendChild(custom_option);
+            if (!vm.available_properties.some(prop => prop.Name === custom_data_name)) {
+                vm.available_properties.push({ Name: custom_data_name, url: "static/alignments/svg/Custom.svg" })
+            }
+            if (vm.correct_mask) {
+                var j = topviewer.viewInstance.uiTemplateService.domainTypes.length - 1;
+                colorResidue(j, window.masked_array);
+            }
     }
 }
 
@@ -427,6 +465,7 @@ var mapAssociatedData = function (associated_data_2D, associated_data_3D, associ
     var associated_prop_3D = new Map();
 
     associated_prop_2D.set(associated_data_name, associated_data_2D);
+    associated_prop_3D.set(associated_data_name, associated_data_3D);
     // console.log('associated_data_2D', JSON.stringify(associated_data_2D));
     if (window.custom_prop) {
         window.custom_prop.set(associated_data_name, associated_data_2D)
@@ -438,7 +477,6 @@ var mapAssociatedData = function (associated_data_2D, associated_data_3D, associ
     } else {
         window.custom_prop_3D = associated_prop_3D;
     }
-    associated_prop_3D.set(associated_data_name, associated_data_3D);
     // console.log('associated_data_3D', JSON.stringify(associated_data_3D));
     // if (window.custom_prop) {
     //     window.custom_prop.set(associated_data_name, associated_data_3D)
@@ -519,7 +557,7 @@ function cleanFilter(checked_filter, masking_range) {
     vm.masking_range = null;
     vm.correct_mask = null;
     var topviewer = document.getElementById("PdbeTopViewer");
-    topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties, window.mapped_aa_properties_3D);
+    topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties, window.mapped_aa_properties3D);
     if(window.custom_prop) {
         topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(window.custom_prop, window.custom_prop_3D);
     }
