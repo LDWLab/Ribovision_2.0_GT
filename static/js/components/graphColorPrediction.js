@@ -281,10 +281,6 @@ function colorSegments(colors, listOfSegements) {
         for (let i = 0; i < finalSegments.length; i++) {
             let segment = finalSegments[i];
 
-            if (segment.length < minLength) {
-                continue;
-            }
-
             let segColors = [];
             for (let n of segment) {
                 segColors.push(predColors[n]);
@@ -367,8 +363,7 @@ function fix_colors(sequence, basePairsList, dataMapJson) {
     
     let dotBracket = dotBracket_array.join('');
     let beacketSegment = segmentBracketElements(dotBracket);
-
-    let stackedSegment = segmentStackedElements(G, minLength = 4);
+    // let stackedSegment = segmentStackedElements(G, minLength = 4);
 
     // remove undefined colors 
     let predictedColors = {};

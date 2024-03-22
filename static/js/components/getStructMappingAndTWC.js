@@ -18,6 +18,131 @@ async function getBanName(pdbId, PchainId) {
   };
 }
 
+function sleeper(ms) {
+  return function (x) {
+    return new Promise(resolve => setTimeout(() => resolve(x), ms));
+  };
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function colorStructure(fasta, struc_id, startIndex, stopIndex, ebi_sequence, vueObj, structMappingAndData, full_sequence_from_pdb) {
+  const fix_colors = require('./graphColorPrediction.js');
+// ajax('/mapSeqAlnOrig/', { fasta, ebi_sequence, startIndex: 1 }).then(structMappingAndData => {
+  var struct_mapping = structMappingAndData["structureMapping"];
+  vm.struct_to_alignment_mapping = Object.fromEntries(Object.entries(struct_mapping).map(([key, value]) => [value, key]));
+  let associatedDataMappedPerType3D = {};
+  console.log(Object.keys(vm.associatedDataCache).length);
+  while(Object.keys(vm.associatedDataCache).length == 0 ){
+    await sleep(3000);
+    console.log("waiting on associatedDataCache");
+  }
+  let associatedDataCache = vm.associatedDataCache;  
+  for (let [alignmentIndexAsString, structureIndex] of Object.entries(struct_mapping)) {
+    let alignmentIndex = Number.parseInt(alignmentIndexAsString);
+    // todo fix this else block, it goes there and we can't see the helix
+    if (alignmentIndex in associatedDataCache) {
+      for (let { type, value } of associatedDataCache[alignmentIndex]) {
+        if (!(type in associatedDataMappedPerType3D)) {
+          associatedDataMappedPerType3D[type] = [];
+        }
+
+        if (type in typeMappings) {
+          let selectedDataDict = typeMappings[type] || {};
+          value = selectedDataDict[value] || 0;
+        } else {
+          if (value.length === 0) {
+            value = "0";
+          }
+          value = Number.parseInt(value);
+        }
+        let associatedDataI = [
+          structureIndex,
+          value
+        ];
+        associatedDataMappedPerType3D[type].push(associatedDataI);
+      }
+    }
+  }
+  
+  vm.AD_headers = [];
+  console.log(associatedDataMappedPerType3D);
+  vm.associatedDataMappedPerType_3D = associatedDataMappedPerType3D;
+  // vm.associatedDataMappedPerType_3D = fix_colors(
+  //   viewerInstanceTop.viewInstance.uiTemplateService.apiData.sequence,
+  //   viewerInstanceTop.viewInstance.uiTemplateService.baseStrs.get('cWW')[1],
+  //   associatedDataMappedPerType3D
+  // );
+  
+  var largestKey = Math.max(...Object.values(struct_mapping).filter(a => typeof (a) == "number"))
+  var smallestKey = Math.min(...Object.values(struct_mapping).filter(a => typeof (a) == "number"))
+  if ((largestKey != stopIndex || smallestKey != startIndex) && ebi_sequence) {
+    ajax('/mapSeqAlnOrig/', { fasta, ebi_sequence, startIndex: 1 }).then(origStructMappingAndData => {
+      var orig_struct_mapping = origStructMappingAndData["structureMapping"];
+      
+      vm.struct_to_alignment_mapping = Object.fromEntries(Object.entries(orig_struct_mapping).map(([key, value]) => [value, key]));
+      let associatedDataMappedPerType2D = {};
+      
+      for (let [alignmentIndexAsString, structureIndex] of Object.entries(orig_struct_mapping)) {
+        let alignmentIndex = Number.parseInt(alignmentIndexAsString);
+        // associatedDataCache has correct boundaries
+        let associatedDataCache = vm.associatedDataCache;
+        if (alignmentIndex in associatedDataCache) {
+          for (let { type, value } of associatedDataCache[alignmentIndex]) {
+            if (!(type in associatedDataMappedPerType2D)) {
+              associatedDataMappedPerType2D[type] = [];
+            }
+
+            if (type in typeMappings) {
+              let selectedDataDict = typeMappings[type] || {};
+              value = selectedDataDict[value] || 0;
+            } else {
+              if (value.length === 0) {
+                value = "0";
+              }
+              value = Number.parseInt(value);
+            }
+            let associatedDataI = [
+              structureIndex,
+              value
+            ];
+            associatedDataMappedPerType2D[type].push(associatedDataI);
+          }
+        }
+      }
+      // todo: insert color patching function here.  
+      // associatedDataMappedPerType.helix[0]=[6, '1']
+      
+      vm.AD_headers = [];
+      // console.log(associatedDataMappedPerType);
+      // vm.associatedDataMappedPerType = associatedDataMappedPerType;
+      vm.associatedDataMappedPerType_2D = fix_colors(
+        viewerInstanceTop.viewInstance.uiTemplateService.apiData.sequence,
+        viewerInstanceTop.viewInstance.uiTemplateService.baseStrs.get('cWW')[1],
+        associatedDataMappedPerType2D
+      );
+      
+      if (structMappingAndData["gapsInStruc"] && structMappingAndData["gapsInStruc"].length > 0) {
+        structMappingAndData["gapsInStruc"].forEach(function (gapTup) {
+          let lowMiss = Number(_.invert(struct_mapping)[gapTup[0]]);
+          let topMiss = Number(_.invert(struct_mapping)[gapTup[1]]);
+          if (topMiss - lowMiss > 1) {
+            for (let i = lowMiss + 1; i < topMiss; i++) {
+              delete orig_struct_mapping[i];
+            }
+          }
+        })
+      }
+      assignColorsAndStrucMappings(vueObj, origStructMappingAndData);
+    })
+  } else {
+    assignColorsAndStrucMappings(vueObj, structMappingAndData);
+
+  }
+}
+
 export function getStructMappingAndTWC(fasta, struc_id, startIndex, stopIndex, ebi_sequence, vueObj, full_sequence_from_pdb = "") {
   vm.structFailed = false
   vm.sequence = ebi_sequence;
@@ -33,120 +158,7 @@ export function getStructMappingAndTWC(fasta, struc_id, startIndex, stopIndex, e
     hardcoded_structure: vm.customFullSequence
   };
   
-  ajax('/mapSeqAln/', postData).then(structMappingAndData=>{
-    const fix_colors = require('./graphColorPrediction.js');
-  // ajax('/mapSeqAlnOrig/', { fasta, ebi_sequence, startIndex: 1 }).then(structMappingAndData => {
-    var struct_mapping = structMappingAndData["structureMapping"];
-
-    vm.struct_to_alignment_mapping = Object.fromEntries(Object.entries(struct_mapping).map(([key, value]) => [value, key]));
-    let associatedDataMappedPerType3D = {};
-    
-    for (let [alignmentIndexAsString, structureIndex] of Object.entries(struct_mapping)) {
-      let alignmentIndex = Number.parseInt(alignmentIndexAsString);
-      // associatedDataCache has correct boundaries
-      let associatedDataCache = vm.associatedDataCache;
-      //todo:  wrong below 
-      if (alignmentIndex in associatedDataCache) {
-        for (let { type, value } of associatedDataCache[alignmentIndex]) {
-          if (!(type in associatedDataMappedPerType3D)) {
-            associatedDataMappedPerType3D[type] = [];
-          }
-
-          if (type in typeMappings) {
-            let selectedDataDict = typeMappings[type] || {};
-            value = selectedDataDict[value] || 0;
-          } else {
-            if (value.length === 0) {
-              value = "0";
-            }
-            value = Number.parseInt(value);
-          }
-          let associatedDataI = [
-            structureIndex,
-            value
-          ];
-          associatedDataMappedPerType3D[type].push(associatedDataI);
-        }
-      }
-    }
-    // todo: insert color patching function here.  
-    // associatedDataMappedPerType.helix[0]=[6, '1']
-    
-    vm.AD_headers = [];
-    // console.log(associatedDataMappedPerType);
-    vm.associatedDataMappedPerType_3D = associatedDataMappedPerType3D;
-    // vm.associatedDataMappedPerType_3D = fix_colors(
-    //   viewerInstanceTop.viewInstance.uiTemplateService.apiData.sequence,
-    //   viewerInstanceTop.viewInstance.uiTemplateService.baseStrs.get('cWW')[1],
-    //   associatedDataMappedPerType3D
-    // );
-    
-    var largestKey = Math.max(...Object.values(struct_mapping).filter(a => typeof (a) == "number"))
-    var smallestKey = Math.min(...Object.values(struct_mapping).filter(a => typeof (a) == "number"))
-    if ((largestKey != stopIndex || smallestKey != startIndex) && ebi_sequence) {
-      ajax('/mapSeqAlnOrig/', { fasta, ebi_sequence, startIndex: 1 }).then(origStructMappingAndData => {
-        var orig_struct_mapping = origStructMappingAndData["structureMapping"];
-        
-        vm.struct_to_alignment_mapping = Object.fromEntries(Object.entries(orig_struct_mapping).map(([key, value]) => [value, key]));
-        let associatedDataMappedPerType2D = {};
-        
-        for (let [alignmentIndexAsString, structureIndex] of Object.entries(orig_struct_mapping)) {
-          let alignmentIndex = Number.parseInt(alignmentIndexAsString);
-          // associatedDataCache has correct boundaries
-          let associatedDataCache = vm.associatedDataCache;
-          if (alignmentIndex in associatedDataCache) {
-            for (let { type, value } of associatedDataCache[alignmentIndex]) {
-              if (!(type in associatedDataMappedPerType2D)) {
-                associatedDataMappedPerType2D[type] = [];
-              }
-
-              if (type in typeMappings) {
-                let selectedDataDict = typeMappings[type] || {};
-                value = selectedDataDict[value] || 0;
-              } else {
-                if (value.length === 0) {
-                  value = "0";
-                }
-                value = Number.parseInt(value);
-              }
-              let associatedDataI = [
-                structureIndex,
-                value
-              ];
-              associatedDataMappedPerType2D[type].push(associatedDataI);
-            }
-          }
-        }
-        // todo: insert color patching function here.  
-        // associatedDataMappedPerType.helix[0]=[6, '1']
-        
-        vm.AD_headers = [];
-        // console.log(associatedDataMappedPerType);
-        // vm.associatedDataMappedPerType = associatedDataMappedPerType;
-        vm.associatedDataMappedPerType_2D = fix_colors(
-          viewerInstanceTop.viewInstance.uiTemplateService.apiData.sequence,
-          viewerInstanceTop.viewInstance.uiTemplateService.baseStrs.get('cWW')[1],
-          associatedDataMappedPerType2D
-        );
-        
-        if (structMappingAndData["gapsInStruc"] && structMappingAndData["gapsInStruc"].length > 0) {
-          structMappingAndData["gapsInStruc"].forEach(function (gapTup) {
-            let lowMiss = Number(_.invert(struct_mapping)[gapTup[0]]);
-            let topMiss = Number(_.invert(struct_mapping)[gapTup[1]]);
-            if (topMiss - lowMiss > 1) {
-              for (let i = lowMiss + 1; i < topMiss; i++) {
-                delete orig_struct_mapping[i];
-              }
-            }
-          })
-        }
-        assignColorsAndStrucMappings(vueObj, origStructMappingAndData);
-      })
-    } else {
-      assignColorsAndStrucMappings(vueObj, structMappingAndData);
-
-    }
-  }).catch(error => {
+  ajax('/mapSeqAln/', postData).then(x => {colorStructure(fasta, struc_id, startIndex, stopIndex, ebi_sequence, vueObj, x, full_sequence_from_pdb)} ).catch(error => {
     vueObj.topology_loaded = 'error';
     console.log(error);
     var topview = document.querySelector('#topview');
@@ -388,8 +400,3 @@ export function call_r2dt(request_method, success = function () {/* Do nothing. 
 //});
 //}
 
-function sleeper(ms) {
-  return function (x) {
-    return new Promise(resolve => setTimeout(() => resolve(x), ms));
-  };
-}
