@@ -87,8 +87,8 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     ### BE CAREFUL WHEN MERGING THE FOLLOWING LINES TO PUBLIC; PATHS ARE HARDCODED FOR THE APACHE SERVER ###
-    alignmentFileName = "/home/sumon/repos/Ribovision_2.0_GT/static/alignment" + fileNameSuffix + ".txt"
-    ebiFileName = "/home/sumon/repos/Ribovision_2.0_GT/static/ebi_sequence" + fileNameSuffix + ".txt"
+    alignmentFileName = "/home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/static/alignment" + fileNameSuffix + ".txt"
+    ebiFileName = "/home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/static/ebi_sequence" + fileNameSuffix + ".txt"
     #alignmentFileName = "./static/alignment" + fileNameSuffix + ".txt"
     #ebiFileName = "./static/ebi_sequence" + fileNameSuffix + ".txt"
     mappingFileName = ebiFileName + ".map"
@@ -834,7 +834,7 @@ def r2dt(request, entity_id):
     sequence = "\n".join(sequence_file_lines[1:])
     
     RIBODIR = os.environ['RIBODIR']
-    os.chdir('/home/sumon/repos/Ribovision_2.0_GT/rna/R2DT-master')
+    os.chdir('/home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/rna/R2DT-master')
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     if request.method == "POST":
         
@@ -855,7 +855,7 @@ def r2dt(request, entity_id):
         f.write('>Sequence\n')
         f.write(sequence)
         f.close()       
-    output = f"/home/sumon/repos/Ribovision_2.0_GT/rna/R2DT-master/R2DT-test20{fileNameSuffix}"    
+    output = f"/home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/rna/R2DT-master/R2DT-test20{fileNameSuffix}"    
      
     
     cmd = f'python3 r2dt.py draw  {newcwd}/sequence10{fileNameSuffix}.fasta {output}' # --skip_ribovore_filters 
@@ -884,14 +884,14 @@ def r2dt(request, entity_id):
     if (cif_mode_flag is None) or (not cif_mode_flag):
         #FOR NONE OR PDB modes
         #cmd = f'/usr/bin/python3 {newcwd}/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
-        cmd = f'/usr/bin/python3 /home/sumon/repos/Ribovision_2.0_GT/rna/R2DT-master/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
+        cmd = f'/usr/bin/python3 /home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/rna/R2DT-master/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
     else:
         #FOR CIF MODE
         cif_file_path = keys["cif_file_path"]#request.POST["cif_file_path"]
         #files_to_remove.append(cif_file_path)
         #print('r2dt results parsing cif')
         #print('cif_file_path')
-        cmd = f'python3 /home/sumon/repos/Ribovision_2.0_GT/rna/R2DT-master/parse_cif4.py -ij {filename} -ic {cif_file_path} -ie {entity_id} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
+        cmd = f'python3 /home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/rna/R2DT-master/parse_cif4.py -ij {filename} -ic {cif_file_path} -ie {entity_id} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
         #print('r2dt cif parsed')
     os.system(cmd)
 
