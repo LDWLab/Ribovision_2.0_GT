@@ -818,14 +818,25 @@ var build_mapped_props = function(mapped_props, twcDataUnmapped, structure_mappi
     return mapped_props;
 }
 
-var mapTWCdata = function (structMap, twcDataUnmapped, mapped_aa_properties){
+var mapTWCdata = function (structMap, structMap3D, twcDataUnmapped, mapped_aa_properties, mapped_aa_properties3D){
     var topviewer = document.getElementById("PdbeTopViewer");
+    
     mapped_aa_properties = build_mapped_props(mapped_aa_properties, twcDataUnmapped, structMap);
+    mapped_aa_properties3D = build_mapped_props(mapped_aa_properties3D, twcDataUnmapped, structMap3D);
+    
     window.mapped_aa_properties = mapped_aa_properties;
+    window.mapped_aa_properties3D = mapped_aa_properties3D;
+    
     if (topviewer != null && topviewer.viewInstance.uiTemplateService.domainTypes != undefined){
         var empty_props = new Map();
+        var empty_props3D = new Map();
+        
         let twc_props = build_mapped_props(empty_props, twcDataUnmapped, structMap);
-        topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(twc_props);
+        let twc_props3D = build_mapped_props(empty_props3D, twcDataUnmapped, structMap3D);
+        
+        topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(twc_props, twc_props3D);
+        // topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(twc_props3D);
+        
         //var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
         //var twc_option = document.createElement("option");
         //twc_option.setAttribute("value", selectBoxEle.options.length);

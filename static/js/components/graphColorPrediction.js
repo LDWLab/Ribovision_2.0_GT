@@ -375,8 +375,9 @@ function fix_colors(sequence, basePairsList, dataMapJson) {
         // remove undefined colors from map
         for (let [_, [node, color]] of Object.entries(colors)){
             if (color != 'undefined'){
-                predictedColors[node] = color;
-                
+                if (parseInt(color) < 5){
+                    predictedColors[node] = color;
+                }
             }
     
         }
