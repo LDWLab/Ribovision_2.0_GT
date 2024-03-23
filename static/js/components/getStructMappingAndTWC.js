@@ -30,9 +30,8 @@ function sleep(ms) {
 
 async function colorStructure(fasta, struc_id, startIndex, stopIndex, ebi_sequence, vueObj, structMappingAndData, full_sequence_from_pdb) {
   const fix_colors = require('./graphColorPrediction.js');
-
   
-  var struct_mapping = structMappingAndData["structureMapping"];
+  let struct_mapping = structMappingAndData["structureMapping"];
 
   vm.struct_to_alignment_mapping = Object.fromEntries(Object.entries(struct_mapping).map(([key, value]) => [value, key]));
   let associatedDataMappedPerType3D = {};
@@ -42,6 +41,7 @@ async function colorStructure(fasta, struc_id, startIndex, stopIndex, ebi_sequen
     console.log("waiting on associatedDataCache");
   }
   let associatedDataCache = vm.associatedDataCache;  
+
   for (let [alignmentIndexAsString, structureIndex] of Object.entries(struct_mapping)) {
     let alignmentIndex = Number.parseInt(alignmentIndexAsString);
     // todo fix this else block, it goes there and we can't see the helix
@@ -83,6 +83,9 @@ async function colorStructure(fasta, struc_id, startIndex, stopIndex, ebi_sequen
     ajax('/mapSeqAlnOrig/', { fasta, ebi_sequence, startIndex: 1 }).then(origStructMappingAndData => {
       var orig_struct_mapping = origStructMappingAndData["structureMapping"];
       
+      vm.st_mapping2D = orig_struct_mapping;
+      vm.st_mapping3D = struct_mapping;
+
       vm.struct_to_alignment_mapping = Object.fromEntries(Object.entries(orig_struct_mapping).map(([key, value]) => [value, key]));
       let associatedDataMappedPerType2D = {};
       
@@ -148,10 +151,12 @@ export function getStructMappingAndTWC(fasta, struc_id, startIndex, stopIndex, e
   
   vm.structFailed = false
   vm.sequence = ebi_sequence;
+
   if (vm.fasta_data) {
     let cleanFasta = vm.fasta_data.replace(/^>Structure sequence\n(.+\n)+?>/i, ">");
     vm.fasta_data = cleanFasta;
   };
+
   const postData = {
     fasta,
     struc_id,
@@ -160,7 +165,7 @@ export function getStructMappingAndTWC(fasta, struc_id, startIndex, stopIndex, e
     hardcoded_structure: vm.customFullSequence
   };
   
-  ajax('/mapSeqAln/', postData).then(x => {colorStructure(fasta, struc_id, startIndex, stopIndex, ebi_sequence, vueObj, x, full_sequence_from_pdb)} ).catch(error => {
+  ajax('/mapSeqAln/', postData).then(x => {colorStructure(fasta, struc_id, startIndex, stopIndex, ebi_sequence, vueObj, x, full_sequence_from_pdb)}).catch(error => {
     vueObj.topology_loaded = 'error';
     console.log(error);
     var topview = document.querySelector('#topview');
