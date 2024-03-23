@@ -30,13 +30,15 @@ function sleep(ms) {
 
 async function colorStructure(fasta, struc_id, startIndex, stopIndex, ebi_sequence, vueObj, structMappingAndData, full_sequence_from_pdb) {
   const fix_colors = require('./graphColorPrediction.js');
-// ajax('/mapSeqAlnOrig/', { fasta, ebi_sequence, startIndex: 1 }).then(structMappingAndData => {
+
+  
   var struct_mapping = structMappingAndData["structureMapping"];
+
   vm.struct_to_alignment_mapping = Object.fromEntries(Object.entries(struct_mapping).map(([key, value]) => [value, key]));
   let associatedDataMappedPerType3D = {};
-  console.log(Object.keys(vm.associatedDataCache).length);
-  while(Object.keys(vm.associatedDataCache).length == 0 ){
-    await sleep(3000);
+
+  while((Object.keys(vm.associatedDataCache).length == 0) && (vm.cifPdbMode == null)){
+    await sleep(5000);
     console.log("waiting on associatedDataCache");
   }
   let associatedDataCache = vm.associatedDataCache;  
@@ -68,7 +70,6 @@ async function colorStructure(fasta, struc_id, startIndex, stopIndex, ebi_sequen
   }
   
   vm.AD_headers = [];
-  console.log(associatedDataMappedPerType3D);
   vm.associatedDataMappedPerType_3D = associatedDataMappedPerType3D;
   // vm.associatedDataMappedPerType_3D = fix_colors(
   //   viewerInstanceTop.viewInstance.uiTemplateService.apiData.sequence,
@@ -135,15 +136,16 @@ async function colorStructure(fasta, struc_id, startIndex, stopIndex, ebi_sequen
           }
         })
       }
-      assignColorsAndStrucMappings(vueObj, origStructMappingAndData);
+      assignColorsAndStrucMappings(vueObj, origStructMappingAndData, structMappingAndData);
     })
   } else {
-    assignColorsAndStrucMappings(vueObj, structMappingAndData);
+    assignColorsAndStrucMappings(vueObj, structMappingAndData,null);
 
   }
 }
 
 export function getStructMappingAndTWC(fasta, struc_id, startIndex, stopIndex, ebi_sequence, vueObj, full_sequence_from_pdb = "") {
+  
   vm.structFailed = false
   vm.sequence = ebi_sequence;
   if (vm.fasta_data) {
@@ -167,18 +169,30 @@ export function getStructMappingAndTWC(fasta, struc_id, startIndex, stopIndex, e
   
 }
 
-var assignColorsAndStrucMappings = function (vueObj, struct_mapping) {
+var assignColorsAndStrucMappings = function (vueObj, struct_mapping, struct_mapping3D) {
   vueObj.poor_structure_map = struct_mapping['BadMappingPositions'];
   vueObj.fasta_data = struct_mapping["amendedAln"];
   vueObj.structure_mapping = struct_mapping["structureMapping"];
+
+  vueObj.poor_structure_map3D = struct_mapping3D['BadMappingPositions'];
+  vueObj.fasta_data3D = struct_mapping3D["amendedAln"];
+  vueObj.structure_mapping3D = struct_mapping3D["structureMapping"];
+
   loadAlignmentViewer(vueObj.fasta_data);
-  var mapped_aa_properties = mapAAProps(vueObj.aa_properties, vueObj.structure_mapping);
+  loadAlignmentViewer(vueObj.fasta_data3D);
+
+  let mapped_aa_properties = mapAAProps(vueObj.aa_properties, vueObj.structure_mapping);
+  let mapped_aa_properties3D = mapAAProps(vueObj.aa_properties, vueObj.structure_mapping3D);
+
+  
   if (((vueObj.tax_id != null && vueObj.tax_id.length == 2) || (vueObj.custom_aln_twc_flag != null && vueObj.custom_aln_twc_flag == true) || (vueObj.type_tree == 'para'))) {
     if (vueObj.unmappedTWCdata) {
-      mapTWCdata(vueObj.structure_mapping, vueObj.unmappedTWCdata, mapped_aa_properties);
+      mapTWCdata(vueObj.structure_mapping, vueObj.structure_mapping3D, vueObj.unmappedTWCdata, mapped_aa_properties, mapped_aa_properties3D);
+      // mapTWCdata(vueObj.structure_mapping3D, vueObj.unmappedTWCdata, mapped_aa_properties3D);
     }
   }
   window.mapped_aa_properties = mapped_aa_properties;
+  window.mapped_aa_properties3D = mapped_aa_properties3D;
   //console.log(vueObj.fasta_data);
   vm.sequence = vueObj.fasta_data.split(' ')[vm.user_uploaded_cif_flag === null || vm.user_uploaded_cif_flag ? 1 : 2];
   let sequence2 = vm.sequence.replaceAll(/-|\n/g, "");
@@ -222,7 +236,9 @@ var delayedMapping = function () {
       //viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties);  
 
       else {
-        viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties);
+        // console.log('mapped_aa_properties', mapped_aa_properties);
+        viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties, mapped_aa_properties3D);
+        // viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties3D);
         setTimeout(delayedMapping, 500);
       }
     }
