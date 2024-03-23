@@ -1045,7 +1045,6 @@
             }
         },
         showAlignment(aln_id, taxid, type_tree) {
-            console.log('taxid', taxid);
             cleanupOnNewAlignment(this, "Loading alignment...");
             this.chainid = [];
             if (type_tree == "orth"){
