@@ -851,7 +851,7 @@ var showPDBHelper = function(pdbid, chainid, entityid) {
         customData: { url: coordURL,
                         format: structFormat, 
                         binary: binaryCif },
-        hideCanvasControls: ["expand", "selection", " animation"],
+        hideCanvasControls: ["selection", " animation"],
         assemblyId: '1',
         hideControls: true,
         subscribeEvents: true,

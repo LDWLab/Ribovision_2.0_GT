@@ -196,6 +196,7 @@
     height: 500px;
     float:left;
     position:relative;
+    z-index: 0;
   }
 
   #topview:fullscreen {
