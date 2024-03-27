@@ -3,7 +3,7 @@
         <div class="left-sidebar">
             <div id="tree_type" class="btn-group btn-group-toggle" data-toggle="buttons">
                 
-                <label class="btn btn-outline-dark" style="margin: 0 1% 0 0;width:100%;" for="orthologs" >
+                <label class="btn btn-outline-dark" style="margin: 0 1% 0 0;width:100%; z-index: 0;" for="orthologs" >
                     <input type="radio" id="orthologs" value="orth" v-model="type_tree" v-on:input="cleanTreeOpts()" checked>
                     RiboVision
                 </label>
