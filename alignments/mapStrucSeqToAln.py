@@ -8,6 +8,7 @@ import re
 from alignments.views import parse_string_structure
 
 def request_post_data(post_data):
+    print(post_data)
     fasta = post_data["fasta"]
     struc_id = post_data["struc_id"]
     return fasta, struc_id
@@ -101,8 +102,12 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     ### BE CAREFUL WHEN MERGING THE FOLLOWING LINES TO PUBLIC; PATHS ARE HARDCODED FOR THE APACHE SERVER ###
-    aln_group_path = "/home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/static/alignment" + fileNameSuffix + ".txt"
-    pdb_seq_path = "/home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/static/ebi_sequence" + fileNameSuffix + ".txt"
+    #aln_group_path = "/home/anton/RiboVision2/Ribovision_3.0_GT/static/alignment" + fileNameSuffix + ".txt"
+    #pdb_seq_path = "/home/anton/RiboVision2/Ribovision_3.0_GT/static/ebi_sequence" + fileNameSuffix + ".txt"
+    #aln_group_path = "/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/alignment" + fileNameSuffix + ".txt"
+    aln_group_path = "/home/RiboVision3/static/alignment" + fileNameSuffix + ".txt"
+    #pdb_seq_path = "/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/ebi_sequence" + fileNameSuffix + ".txt"
+    pdb_seq_path = "/home/RiboVision3/static/ebi_sequence" + fileNameSuffix + ".txt"
     mappingFileName = pdb_seq_path + ".map"
     tempfiles = [aln_group_path, pdb_seq_path, mappingFileName]
     for tempf in tempfiles:
@@ -120,11 +125,10 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
     fh.write(">Structure sequence\n")
     fh.write(str(struc_seq.seq))
     fh.close()
-    print("Mafft", str(struc_seq.seq))
-    pipe = Popen(f"mafft --anysymbol --preservecase --quiet --addfull {pdb_seq_path} --mapout {aln_group_path}; cat {mappingFileName}", stdout=PIPE, shell=True)
+    print("Mafft")
+    pipe = Popen(f"/usr/local/bin/mafft --anysymbol --preservecase --quiet --addfull {pdb_seq_path} --mapout {aln_group_path}; /usr/bin/cat {mappingFileName}", stdout=PIPE, shell=True)
     output = pipe.communicate()[0]
-    print("Mafft_done")
-
+    print("Mafft done")
     if len(output.decode("ascii")) <= 0:
         for removeFile in tempfiles:
             remove(removeFile)
@@ -167,12 +171,12 @@ def create_aln_true_seq_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     ### BE CAREFUL WHEN MERGING THE FOLLOWING LINES TO PUBLIC; PATHS ARE HARDCODED FOR THE APACHE SERVER ###
-    aln_group_path = "/home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/static/alignment" + fileNameSuffix + ".txt"
-    pdb_seq_path = "/home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/ebi_sequence" + fileNameSuffix + ".txt"
+    #aln_group_path = "/home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/static/alignment" + fileNameSuffix + ".txt"
+    #pdb_seq_path = "/home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/ebi_sequence" + fileNameSuffix + ".txt"
     #aln_group_path = "/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/alignment" + fileNameSuffix + ".txt"
-    #aln_group_path = "/home/RiboVision3/static/alignment" + fileNameSuffix + ".txt"
+    aln_group_path = "/home/RiboVision3/static/alignment" + fileNameSuffix + ".txt"
     #pdb_seq_path = "/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/ebi_sequence" + fileNameSuffix + ".txt"
-    #pdb_seq_path = "/home/RiboVision3/static/ebi_sequence" + fileNameSuffix + ".txt"
+    pdb_seq_path = "/home/RiboVision3/static/ebi_sequence" + fileNameSuffix + ".txt"
     #mappingFileName = pdb_seq_path + ".map"
     tempfiles = [aln_group_path, pdb_seq_path]
     for tempf in tempfiles:

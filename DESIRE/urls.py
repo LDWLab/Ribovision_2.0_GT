@@ -20,8 +20,6 @@ from django.urls import path, include
 urlpatterns = [
     path('', include('alignments.urls')),
     path('alignments/', include('alignments.urls')),
-    path('ribovision/', include('ribovision.urls')),
-    path('upload/', include('ribovision.urls')),
     path('desire-api/', include('desire_api.urls')),
     path('admin/', admin.site.urls),
 ]

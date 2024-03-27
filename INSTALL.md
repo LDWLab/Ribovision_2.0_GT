@@ -35,15 +35,15 @@
 	
 	>export DJANGO_PASSWORD='' (MySQL password provided by admin)
 
-	g. Set up GaTech VPN with the Cisco AnyConnect Secure Mobility Client. Follow <a href="https://faq.oit.gatech.edu/content/how-do-i-get-started-campus-vpn">these</a> instructions.
+	g. Set up the Georgia Tech GlobalProtect VPN. Follow <a href="https://vpn.gatech.edu/https/gatech.service-now.com/home/?id=kb_article_view&sysparm_article=KB0026837">these</a> instructions.
 
-2. Clone the <a href="https://github.com/LDWLab/DESIRE.git">project repository</a> in a new folder. Get on the latest development branch.
+2. Clone the <a href="https://github.com/hmccann3/Ribovision_2.0_GT.git">project repository</a> in a new folder. Switch to the local branch for development.
 
 3. Using the command line from the root directory of the project run the following commands:
 
 	a. Activate the virtual environment
 
-	>source ./env/bin/activate
+	>source .venv/bin/activate
 
 	b. Install python requirements
 
@@ -56,18 +56,6 @@
 	d. Initial set up of nodejs scripts
 
 	>./node_modules/.bin/webpack --config webpack.config.js
-
-	e. Install Pro-origami following instructions from [here](http://munk.cis.unimelb.edu.au/pro-origami/about.shtml). At the desired folder for Pro-Origami:
-
-	```bash
-	wget http://munk.cis.unimelb.edu.au/pro-origami/proorigami-cde-package.tar.gz
-
-	tar zxf proorigami-cde-package.tar.gz
-	```
-
-	The path to this folder should be updated in project_root/alignments/handleStructureRequests.py around line 146!
-	
-	Unfortunately ProOrigami seems to be broken in WSL.
 
 	f. (Optional) If developing/updating the nodejs scripts
 
@@ -87,9 +75,9 @@
 	exit()
 	```
 
-4. Installing PDB topology viewer for development
+4. Installing PDB RNA viewer for development
 
-	a. cd into the pdb-topology-viewer directory and execute the following (might need sudo)
+	a. cd into the pdbe-rna-viewer directory and execute the following (might need sudo)
 
 	> npm install
 	
@@ -97,13 +85,13 @@
 
 	b. cd into the root of the project directory (one up from the previous location) and run:
 
-	> npm link pdb-topology-viewer
+	> npm link pdb-rna-viewer
 
-	c. Go back to the **pdb-topology directory** and update babel
+	c. Go back to the **pdbe-rna directory** and update babel
 
 	> npm update --depth 5 @babel/compat-data
 	
-	d. After editing the typescript of the Topology viewer run the following command **from the pdb-topology directory!**
+	d. After editing the typescript of the Topology viewer run the following command **from the pdbe-rna directory!**
 
 	> npm run build
 
@@ -131,7 +119,7 @@
 
 # Serving a public branch
 
-Public set-up does not differ significantly from local installations. There are several things to keep in mind when setting-up DESIRE/ProteoVision web-server on a Linux machine. The web-server should have it's own home folder within the Linux server (in our first implementation this was located in /home/Desire-Server). The steps are following the numbering from INSTALLATION up above:
+Public set-up does not differ significantly from local installations. There are several things to keep in mind when setting-up the RiboVision 2 web-server on a Linux machine. The web-server should have its own home folder within the Linux server (in our first implementation this was located in /home/RiboVision3). The steps are following the numbering from INSTALLATION up above:
 
 1. Initial set up and prerequisites:
 
@@ -153,9 +141,9 @@ Public set-up does not differ significantly from local installations. There are 
 
 3. All steps are the same, except:
 
-	e. Execute the commands from the home directory of the server. The folder called proorigami-cde-package should be located within the web-server home folder (NOT the web-server root directory).
-
-4. Steps are not necessary since all development of PDB-toplogy viewer and MSA viewer should be done locally and after compiling, the .js files should be synced with git. 
+	e. Execute the commands from the home directory of the server.
+	
+4. Steps are not necessary since all development of PDB rna viewer and MSA viewer should be done locally and after compiling, the .js files should be synced with git. 
 
 5. Same as previous.
 
@@ -182,9 +170,9 @@ Public set-up does not differ significantly from local installations. There are 
 
 	>git fetch
 
-	Merge the origin/dev branch onto public (you should be on public)
+	Merge the origin/develop branch onto public (you should be on public)
 
-	>git merge origin/dev
+	>git merge origin/develop
 
 	Rebuild Node.js scripts
 	
@@ -200,17 +188,10 @@ Public set-up does not differ significantly from local installations. There are 
 
 	Touch this so that Apache knows things have changed
 	
-	> touch /home/Desire-Server/DESIRE/DESIRE/wsgi.py
+	> touch /home/RiboVision3/Ribovision_2.0_GT/DESIRE/wsgi.py
 
 	After this command the public online web-server will be updated.
 
-	If everything works fine push your changes to the origin/public:
+	If everything works fine push your changes to the origin/master:
 
-	> git push origin public
-
-	To build documentation in the correct directory:
-
-	```bash
-	cd mkdocs
-	mkdocs build -d /home/Desire-Server/proteovision_docs/
-	```
+	> git push origin master

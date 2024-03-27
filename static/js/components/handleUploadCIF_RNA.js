@@ -70,6 +70,11 @@ function submitCustomCIF(file, entity_id = -1){
                     return;
                 } else{
                     vm.customPDBid = `cust-${entity_id}-${vm.customChain}`;
+                    vm.chains = [{value: vm.customChain, text: vm.customChain}];
+                    vm.cifdata = fr.result;
+                    //console.log(fr.result);
+                    
+                    vm.cifcust=true;
                     postPDBdata("cust", { entityID: `${entity_id}`, chainID: vm.customChain, stringData: fr.result });
                     vm.chains = [{value: vm.customChain, text: vm.customChain}];
                     vm.cifdata = fr.result;

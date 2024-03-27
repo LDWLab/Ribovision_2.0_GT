@@ -86,7 +86,7 @@
             resetRV3State(){
                 Object.assign(vm.$data, initialState());
                 window.tempCSVdata = null;
-                clearInputFile(document.getElementById('inputRV3State'));
+                //clearInputFile(document.getElementById('inputRV3State'));
                 vm.flushDjangoSession();
             },
             saveRV3State(){

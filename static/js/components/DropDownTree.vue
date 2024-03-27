@@ -86,7 +86,7 @@
                 </div>
                 <!--
                 <span v-if="alnobj">Select/type PDB entry:</span>
-                <select class="btn btn-outline-dark dropdown-toggle" id="pdb_input" v-if="alnobj&&alnobj!='custom'" v-model="pdbid">
+                <!--<select class="btn btn-outline-dark dropdown-toggle" id="pdb_input" v-if="alnobj&&alnobj!='custom'" v-model="pdbid">
                     <option :value="null" selected disabled hidden>Select PDB entry</option>
                     <option v-for="pdb in pdbs" v-bind:value="pdb.id">{{pdb.name}}</option>
                 </select>

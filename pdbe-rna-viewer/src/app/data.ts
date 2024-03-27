@@ -37,7 +37,7 @@ export class DataService {
             this.handleError(e)
             return void 0;
         };
-    }
+    }       
     async getFR3DData(pdbId: string, chainId: string): Promise<JSON | undefined> {
         try {
             const csvUrl = `https://rnacentral.org/api/internal/proxy?url=http://rna.bgsu.edu/rna3dhub/rest/getChainSequenceBasePairs?pdb_id=${pdbId.toLowerCase()}&chain=${chainId}&only_nested=False`
