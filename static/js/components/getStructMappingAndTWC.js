@@ -42,35 +42,35 @@ async function colorStructure(fasta, struc_id, startIndex, stopIndex, ebi_sequen
   }
   let associatedDataCache = vm.associatedDataCache;  
 
-  for (let [alignmentIndexAsString, structureIndex] of Object.entries(struct_mapping)) {
-    let alignmentIndex = Number.parseInt(alignmentIndexAsString);
-    // todo fix this else block, it goes there and we can't see the helix
-    if (alignmentIndex in associatedDataCache) {
-      for (let { type, value } of associatedDataCache[alignmentIndex]) {
-        if (!(type in associatedDataMappedPerType3D)) {
-          associatedDataMappedPerType3D[type] = [];
-        }
+  // for (let [alignmentIndexAsString, structureIndex] of Object.entries(struct_mapping)) {
+  //   let alignmentIndex = Number.parseInt(alignmentIndexAsString);
+  //   // todo fix this else block, it goes there and we can't see the helix
+  //   if (alignmentIndex in associatedDataCache) {
+  //     for (let { type, value } of associatedDataCache[alignmentIndex]) {
+  //       if (!(type in associatedDataMappedPerType3D)) {
+  //         associatedDataMappedPerType3D[type] = [];
+  //       }
 
-        if (type in typeMappings) {
-          let selectedDataDict = typeMappings[type] || {};
-          value = selectedDataDict[value] || 0;
-        } else {
-          if (value.length === 0) {
-            value = "0";
-          }
-          value = Number.parseInt(value);
-        }
-        let associatedDataI = [
-          structureIndex,
-          value
-        ];
-        associatedDataMappedPerType3D[type].push(associatedDataI);
-      }
-    }
-  }
+  //       if (type in typeMappings) {
+  //         let selectedDataDict = typeMappings[type] || {};
+  //         value = selectedDataDict[value] || 0;
+  //       } else {
+  //         if (value.length === 0) {
+  //           value = "0";
+  //         }
+  //         value = Number.parseInt(value);
+  //       }
+  //       let associatedDataI = [
+  //         structureIndex,
+  //         value
+  //       ];
+  //       associatedDataMappedPerType3D[type].push(associatedDataI);
+  //     }
+  //   }
+  // }
   
-  vm.AD_headers = [];
-  vm.associatedDataMappedPerType_3D = associatedDataMappedPerType3D;
+  // vm.AD_headers = [];
+  // vm.associatedDataMappedPerType_3D = associatedDataMappedPerType3D;
   // vm.associatedDataMappedPerType_3D = fix_colors(
   //   viewerInstanceTop.viewInstance.uiTemplateService.apiData.sequence,
   //   viewerInstanceTop.viewInstance.uiTemplateService.baseStrs.get('cWW')[1],
@@ -92,7 +92,7 @@ async function colorStructure(fasta, struc_id, startIndex, stopIndex, ebi_sequen
       for (let [alignmentIndexAsString, structureIndex] of Object.entries(orig_struct_mapping)) {
         let alignmentIndex = Number.parseInt(alignmentIndexAsString);
         // associatedDataCache has correct boundaries
-        let associatedDataCache = vm.associatedDataCache;
+        // let associatedDataCache = vm.associatedDataCache;
         if (alignmentIndex in associatedDataCache) {
           for (let { type, value } of associatedDataCache[alignmentIndex]) {
             if (!(type in associatedDataMappedPerType2D)) {
@@ -122,12 +122,57 @@ async function colorStructure(fasta, struc_id, startIndex, stopIndex, ebi_sequen
       vm.AD_headers = [];
       // console.log(associatedDataMappedPerType);
       // vm.associatedDataMappedPerType = associatedDataMappedPerType;
+      // console.log('associatedDataMappedPerType2D', associatedDataMappedPerType2D);
       vm.associatedDataMappedPerType_2D = fix_colors(
         viewerInstanceTop.viewInstance.uiTemplateService.apiData.sequence,
         viewerInstanceTop.viewInstance.uiTemplateService.baseStrs.get('cWW')[1],
         associatedDataMappedPerType2D
       );
+
+      // map 3d and 2d to be the same 
+      vm.mapping3D_2D = {};
+
+      for (let [k,v] of Object.entries(vm.st_mapping3D)){
+          if (Object.keys(vm.st_mapping2D).includes(k)){
+            vm.mapping3D_2D[v] = vm.st_mapping2D[k];
+          }
+      }
+
+      vm.colorsMap2D = {};
+      for(let [type, list] of Object.entries(vm.associatedDataMappedPerType_2D)){
+        let colorMap = {};
+        
+        for(let [k, v] of Object.values(list)){ 
+          colorMap[k] = v;
+        }
+        vm.colorsMap2D[type] = colorMap;
       
+      }
+
+      vm.associatedDataMappedPerType_3D = {};
+      for(let [type, list] of Object.entries(vm.associatedDataMappedPerType_2D)){
+        let colorMap = vm.colorsMap2D[type];
+        let newColors = [];
+        
+        console.log("Doing: ", type);
+
+        for(let k of Object.values(vm.st_mapping3D)){
+          newColors.push([k, colorMap[vm.mapping3D_2D[k]]])
+        }
+
+        vm.associatedDataMappedPerType_3D[type] = newColors;
+
+      }
+
+      // vm.associatedDataMappedPerType_3D = fix_colors(
+      //   viewerInstanceTop.viewInstance.uiTemplateService.apiData.sequence,
+      //   viewerInstanceTop.viewInstance.uiTemplateService.baseStrs.get('cWW')[1],
+      //   vm.associatedDataMappedPerType_3D
+      // );
+
+
+      
+
       if (structMappingAndData["gapsInStruc"] && structMappingAndData["gapsInStruc"].length > 0) {
         structMappingAndData["gapsInStruc"].forEach(function (gapTup) {
           let lowMiss = Number(_.invert(struct_mapping)[gapTup[0]]);
