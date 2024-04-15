@@ -625,6 +625,8 @@ var getAssociatedAnnotations = function (separatedData, lowVal, highVal, chainid
     for (var i = 1; i < 101; i++) {
         annotationArrayAD.push({"annotation":i,"ids":[]})
     }
+
+
     separatedData.forEach(function (item, index) {
         let parsedItem = item[0];
         let itemValue = item[1];
@@ -654,6 +656,7 @@ var getHelicalAnnotations = function (separatedData, lowVal, highVal, chainid) {
         }
         annotationArrayHD[normalizedVal].ids.push(chainid + " " + parsedItem)
     })
+    
     return annotationArrayHD;
 };
 
@@ -725,7 +728,7 @@ var getTWCAnnotations = function (separatedData, lowVal, highVal, chainid) {
 var getAnnotationArray = function() {
     return {'SE':annotationArraySE,'TWC':annotationArrayTWC,'CD':annotationArrayCD, 'AD':annotationArrayAD, 'HD':annotationArrayHD, 'PD':annotationArrayPD, 'AESD':annotationArrayAESD};
 }   
-var parsePVData = function (separatedData, lowVal, highVal, colormapArray, masking=null) {
+var parsePVData = function (separatedData, lowVal, highVal, colormapArray, masking=null, separatedData3D=null) {
     /*console.log(separatedData)
     var s = ""
     for(var i = 0; i < 100; i++) {
@@ -735,10 +738,13 @@ var parsePVData = function (separatedData, lowVal, highVal, colormapArray, maski
     
         let TWCData = new Map();
         let TWCrgbMap = new Map(); 
+        let TWCData3D = new Map();
+        let TWCrgbMap3D = new Map(); 
         let TWCrgbMapPalette = new Map(); 
         let TWCrgbPalette=[];
         let IL=[];
         let ILN=[];
+        let returns = [];
         for (var i = 0; i < 75; i++) {
             //console.log('Map_0', i, interpolateLinearly(i/100, colormapArray[0]));
             TWCrgbMapPalette.set(i, interpolateLinearly((75-i)/75, colormapArray[1]));
@@ -776,7 +782,36 @@ var parsePVData = function (separatedData, lowVal, highVal, colormapArray, maski
                 TWCData.set(parsedItem, null);
             }*/
         });
-        return [TWCrgbMap, TWCData];
+        
+        returns.push(TWCrgbMap);
+        returns.push(TWCData);
+
+        if (separatedData3D != null){
+            separatedData3D.forEach(function (item, index) {
+                let parsedItem = item[0];
+                //if(!masking || masking[index]) {
+                    let itemValue = item[1];
+                    TWCData3D.set(parsedItem, itemValue);
+                    if (colormapArray.length === 1) {
+                        let newValue = itemValue - lowVal;
+                        TWCrgbMap3D.set(parsedItem, interpolateLinearly(newValue/(highVal - lowVal), colormapArray[0]));
+                    }
+                    else {
+                        if (itemValue === 'NA'){
+                            TWCrgbMap3D.set(parsedItem, [[192, 192, 192], {r:192, g:192, b:192}]);
+                        } else if (itemValue < 0){
+                            TWCrgbMap3D.set(parsedItem, interpolateLinearly(itemValue/lowVal, colormapArray[0]));
+                        } else {
+                            TWCrgbMap3D.set(parsedItem, interpolateLinearly(itemValue/highVal, colormapArray[1]));
+                        }
+                    }
+                
+            });
+            returns.push(TWCrgbMap3D);
+            returns.push(TWCData3D);
+        }
+
+        return returns;
     }
 
 var indexMatchingText = function(ele, text) {
@@ -864,7 +899,7 @@ var showPDBHelper = function(pdbid, chainid, entityid) {
         customData: { url: coordURL,
                         format: structFormat, 
                         binary: binaryCif },
-        hideCanvasControls: ["expand", "selection", " animation"],
+        hideCanvasControls: ["selection", " animation"],
         assemblyId: '1',
         hideControls: true,
         subscribeEvents: true,

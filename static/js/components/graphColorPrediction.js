@@ -94,12 +94,14 @@ function findMisColoredPairs(edgeMap, predictedColors) {
  * @returns 
  */
 function getMaxColor(colorsList) {
+    colorsList = colorsList.filter(value => value != undefined);
+    let maxColor = '0';
     
-    let colorFreq = colorsList.reduce((acc, val) => (acc[val] = (acc[val] || 0) + 1, acc), {});
-    let maxColor = Object.keys(colorFreq).reduce((a, b) => colorFreq[a] > colorFreq[b] ? a : b);
-    
-    
-    
+    if(colorsList.length > 0){
+        let colorFreq = colorsList.reduce((acc, val) => (acc[val] = (acc[val] || 0) + 1, acc), {});
+        maxColor = Object.keys(colorFreq).reduce((a, b) => colorFreq[a] > colorFreq[b] ? a : b);
+    }
+
     return maxColor;
 
 }
@@ -287,8 +289,10 @@ function colorSegments(colors, listOfSegements) {
             }
             
             let maxColor = getMaxColor(segColors);
+            // console.log("Segments", segment, segColors, maxColor);
             if (maxColor == "undefined") {
-                continue;
+                // continue;
+                maxColor = '-1';
             }
             for (let n of segment) {
                 // nodeColorPair.push([parseInt(n), maxColor]);
@@ -365,23 +369,25 @@ function fix_colors(sequence, basePairsList, dataMapJson) {
     let beacketSegment = segmentBracketElements(dotBracket);
     // let stackedSegment = segmentStackedElements(G, minLength = 4);
 
-    // remove undefined colors 
-    let predictedColors = {};
     
     let tempColors;
     let isHelix = false;
     for (let [k, colors] of Object.entries(dataMapJson)) {
-        
+        // remove undefined colors 
+        let predictedColors = {};
+    
         // remove undefined colors from map
         for (let [_, [node, color]] of Object.entries(colors)){
             if (color != 'undefined'){
-                if (parseInt(color) < 5){
+                
+                // if (parseInt(color) < 5){
                     predictedColors[node] = color;
-                }
+                // }
             }
     
         }
-
+        // console.log("predictedColors", predictedColors);
+        
         if (['helix', "Helix"].includes(k)) {
             tempColors = colorSegments(predictedColors, [beacketSegment]);
             isHelix = true;
@@ -391,7 +397,7 @@ function fix_colors(sequence, basePairsList, dataMapJson) {
             tempColors = predictedColors;
             isHelix = false;
         }
-        
+        // console.log(k, tempColors);
         let predColors = predictColors(G, tempColors, allEdges, 4, isHelix);
         result[k] = predColors.sort((a, b) => a[0] - b[0]);
     }

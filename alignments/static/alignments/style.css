@@ -1,376 +1,361 @@
 #phylo_tree_dropdown {
-    display: grid;
-    height: 100vh;
-    background: #FFEFE7; 
-    grid-template: auto 2fr 0.1fr 1fr 1fr auto / auto 1fr 0.05fr 1fr 
-  }
-
-  header {
-    border-bottom: 1px solid black;
-    background: #d7ebf9;
-    padding: 2rem;
-    grid-column: 1 / 5;
-    grid-row: 1 ;
-    color: #174060;
-  }
-  
-  .title {
-    font-size: 1.7rem;
-    font-weight: bold;
-  }
-
-  .left-sidebar {
-    background: #ffa87c;
-    border-right: 1px solid black;
-    grid-column: 1 / 2;
-    grid-row: 2 / 6 ;
-    width: 300px;
-    color: #174060;
-  }
-
-  .alignment_section{
-    padding-bottom:20;
-    display: grid;
-    place-items: center;
-    background: #FFEFE7;
-    grid-column: 2 / 5;
-    grid-row: 2 ;
-    color: #174060;
-  }
-
-  .warningSection{
-    display: grid;
-    place-items: center;
-    background: #FFEFE7;
-    grid-column: 2 / 5;
-    grid-row: 3 ;
-    color: #174060;
-  }
-
-  .topology_section{
-    display: grid;
-    place-items: center;
-    background: #FFEFE7;
-    grid-column: 2 ;
-    grid-row: 4 ;
-    text-align: center;
-  }
-
-  .gradient_section{
-    display: grid;
-    place-items: center;
-    background: #FFEFE7;
-    grid-column: 3 ;
-    grid-row: 4 ;
-    text-align: center;
-  }
-
-  .molstar_section{
-    display: grid;
-    place-items: center;
-    background: #FFEFE7;
-    grid-column: 4;
-    grid-row: 4 ;
-    text-align: center;
-  }
-
-  .propensity_section{
-    display: grid;
-    place-items: center;
-    background: #FFEFE7;
-    grid-column: 2 / 5 ;
-    grid-row: 5 ;
-    text-align: center;
-  }
-
-  footer {
-    border-top: 1px solid black;
-    background: #d7ebf9;
-    padding: 2rem;
-    text-align: center;
-    grid-column: 1 / 5 ;
-    grid-row: 6 ;
-    color: #FFEFE7;
-  }
-
-  .white-box {
-    background-color: #ffffffab;
-    border-radius: 5px;
-    border: 1.5px solid black;
-    color: black;
+  display: grid;
+  height: 100vh;
+  background: #FFEFE7; 
+  grid-template: auto 2fr 0.1fr 1fr 1fr auto / auto 1fr 0.05fr 1fr 
 }
 
-  body {
-    font-family: system-ui, sans-serif;
-    overflow-x: hidden !important;
-  }
+header {
+  border-bottom: 1px solid black;
+  background: #d7ebf9;
+  padding: 2rem;
+  grid-column: 1 / 5;
+  grid-row: 1 ;
+  color: #174060;
+}
 
-  .left-sidebar,
-  .topology_section,
-  .molstar_section {
-    padding: 1rem;
-  }
+.title {
+  font-size: 1.7rem;
+  font-weight: bold;
+}
+
+.left-sidebar {
+  background: #ffa87c;
+  border-right: 1px solid black;
+  grid-column: 1 / 2;
+  grid-row: 2 / 6 ;
+  width: 310px;
+  color: #174060;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.alignment_section{
+  padding-bottom:20;
+  display: grid;
+  place-items: center;
+  background: #FFEFE7;
+  grid-column: 2 / 5;
+  grid-row: 2 ;
+  color: #174060;
+}
+
+.warningSection{
+  display: grid;
+  place-items: center;
+  background: #FFEFE7;
+  grid-column: 2 / 5;
+  grid-row: 3 ;
+  color: #174060;
+}
+
+.topology_section{
+  display: grid;
+  place-items: center;
+  background: #FFEFE7;
+  grid-column: 2 ;
+  grid-row: 4 ;
+  text-align: center;
+}
+
+.gradient_section{
+  display: grid;
+  place-items: center;
+  background: #FFEFE7;
+  grid-column: 3 ;
+  grid-row: 4 ;
+  text-align: center;
+}
+
+.molstar_section{
+  display: grid;
+  place-items: center;
+  background: #FFEFE7;
+  grid-column: 4;
+  grid-row: 4 ;
+  text-align: center;
+}
+
+.propensity_section{
+  display: grid;
+  place-items: center;
+  background: #FFEFE7;
+  grid-column: 2 / 5 ;
+  grid-row: 5 ;
+  text-align: center;
+}
+
+footer {
+  border-top: 1px solid black;
+  background: #d7ebf9;
+  padding: 2rem;
+  text-align: center;
+  grid-column: 1 / 5 ;
+  grid-row: 6 ;
+  color: #FFEFE7;
+}
+
+.white-box {
+  background-color: #ffffffab;
+  border-radius: 5px;
+  border: 1.5px solid black;
+  color: black;
+}
+
+body {
+  font-family: system-ui, sans-serif;
+  overflow-x: hidden !important;
+}
+
+.left-sidebar,
+.topology_section,
+.molstar_section {
+  padding: 1rem;
+}
 
 
-  .vue-treeselect__menu {
-    width: 100%;
-    overflow-x: auto;
-    text-overflow: clip;
-  }
+.vue-treeselect__menu {
+  width: 100%;
+  overflow-x: auto;
+  text-overflow: clip;
+}
 
-  .vue-treeselect__placeholder,
-  .vue-treeselect__multi-valu{
-    color:black;
-  }
+.vue-treeselect__placeholder,
+.vue-treeselect__multi-valu{
+  color:black;
+}
 
-  .vue-treeselect__control{
-    border-color: black;
-    background-color: transparent;
-  }
+.vue-treeselect__control{
+  border-color: black;
+  background-color: transparent;
+}
 
-  .vue-treeselect__multi-value-item,
-  .vue-treeselect__limit-tip-text,
-  .input-group-text{
-    background: transparent;
-    color: black;
-  }
+.vue-treeselect__multi-value-item,
+.vue-treeselect__limit-tip-text,
+.input-group-text{
+  background: transparent;
+  color: black;
+}
 
-  .input-group-text{
+.input-group-text{
+  border: 1px solid black;
+}
+
+.vue-treeselect__label:hover{
+  color: black;
+}
+
+.vue-treeselect__label:hover{
+  color: white;
+}
+
+.vue-treeselect__option:hover, 
+.vue-treeselect__option:hover{
+  color: white;
+  background-color: DodgerBlue;
+}
+.vue-treeselect__control:hover, 
+.vue-treeselect__placeholder:hover,
+.vue-treeselect__menu:hover,
+.vue-treeselect__value-container:hover,
+.vue-treeselect__multi-value-item:hover,
+.vue-treeselect__limit-tip-text:hover,
+.input-group-text:hover,
+#polymerSelect:hover,
+#domainSelect:hover,
+#pdb_input_custom:hover{
+  color: white;
+  background-color: #343a40;
+}
+
+.vue-treeselect__placeholder,
+.vue-treeselect__single-value,
+.vue-treeselect__label,
+.vue-treeselect__tip-text {
+  text-overflow: clip;
+}
+
+#alnif{
+  padding: 1%;
+}
+
+#warningPoorStructureAln,
+#warningCDHITtruncation{
+  padding-top: 1%;
+  color:#DE3163; 
+  text-align: center;
+}
+
+#alnMenu{
+  padding-top: 1%;
+  padding-bottom: 1%;
+}
+
+#topview{
+  width: 500px;
+  height: 500px;
+  float:left;
+  position:relative;
+  z-index: 0;
+}
+
+#topview:fullscreen {
+  width: 100vw;
+  height: 100vh;
+}
+
+@-moz-document url-prefix() {
+  .topoSvg{
+    background-color: white;
     border: 1px solid black;
   }
+}
 
-  .vue-treeselect__label:hover{
-    color: black;
-  }
+#pdbeMolstarView {
+  width: 500px;
+  height: 500px;
+  float:left;
+  position:relative;
+}
+.svgSection{
+  background-color: white;
+}
 
-  .vue-treeselect__label:hover{
-    color: white;
-  }
-  .vue-treeselect__option {
-    color: black;
-    background-color: white;
-  }
-  .vue-treeselect__option:hover, 
-  .vue-treeselect__option:hover{
-    color: white;
-    background-color: #767676;
-  }
-  .vue-treeselect__control:hover, 
-  .vue-treeselect__placeholder:hover,
-  .vue-treeselect__value-container:hover,
-  .vue-treeselect__multi-value-item:hover,
-  .vue-treeselect__limit-tip-text:hover,
-  .input-group-text:hover,
-  #domainSelect:hover,
-  #pdb_input_custom:hover{
-    color: white;
-    background-color: #343a40;
-  }
+#propif{
+  padding: 20px;
+}
 
-  .vue-treeselect__placeholder,
-  .vue-treeselect__single-value,
-  .vue-treeselect__label,
-  .vue-treeselect__tip-text {
-    text-overflow: clip;
-  }
+.slider {
+  -webkit-appearance: none;
+  width: 70%;
+  height: 10px;
+  background:#666;
+  outline: none;
+  border: 4.5px solid #FFEFE7;
+  opacity: 0.8;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+.slider:hover {
+  opacity: 1;
+}
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 10px;
+  background: #174060;
+  border-radius:3px;
+}
 
-  #alnif{
-    padding: 1%;
-  }
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 10px;
+  background: #174060;
+}
 
-  #warningPoorStructureAln,
-  #warningCDHITtruncation{
-    padding-top: 1%;
-    color:#DE3163; 
-    text-align: center;
-  }
+#yPosSlider {
+  position: relative;
+  top: 37px;
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+  transform: rotate(90deg);
+  -webkit-transform-origin: 4% 10%;
+  -moz-transform-origin: 4% 10%;
+  -ms-transform-origin: 4% 10%;
+  -o-transform-origin: 4% 10%;
+  transform-origin: 4% 10%;
+}
 
-  #alnMenu{
-    padding-top: 1%;
-    padding-bottom: 1%;
-  }
+#treeselect{
+  padding-bottom: 5%
+}
 
-  #topview{
-    width: 500px;
-    height: 500px;
-    float:left;
-    position:relative;
-  }
-  
-  @-moz-document url-prefix() {
-    .topoSvg{
-      background-color: white;
-      border: 1px solid black;
-    }
-  }
+#tree_type {
+  display:flex; 
+  padding-bottom:15px;
+  text-align: center;
+  width: 267px;
+}
 
-  #pdbeMolstarView {
-    width: 500px;
-    height: 500px;
-    float:left;
-    position:relative;
-  }
-  .svgSection{
-    background-color: white;
-  }
+#selectaln, #pdb_input, #polymerSelect, #domainSelect, #downloadDataBtn, #downloadExampleFasta,
+#propensitiesSubstructure, #downloadExampleCSV, #uploadShowFasta, #pdb_input_custom, #pdb-upload,
+#maskingSection, .input-group-text, #filterSection, #disableCutTruncation, #disableDomainTruncation,
+#downloadFreqsBtn {
+  width: 267px;
+}
 
-  #propif{
-    padding: 20px;
-  }
+#pdb_input{
+  max-height: 75px;
+}
 
-  .slider {
-    -webkit-appearance: none;
-    width: 70%;
-    height: 10px;
-    background:#666;
-    outline: none;
-    border: 4.5px solid #FFEFE7;
-    opacity: 0.8;
-    -webkit-transition: .2s;
-    transition: opacity .2s;
-  }
-  .slider:hover {
-    opacity: 1;
-  }
-  .slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 20px;
-    height: 10px;
-    background: #174060;
-    border-radius:3px;
-  }
+#polymerSelect, #domainSelect{
+  max-width: 267px;
+  background:none;
+  overflow-x:hidden;
+  overflow-y: auto;
+}
 
-  .slider::-moz-range-thumb {
-    width: 20px;
-    height: 10px;
-    background: #174060;
-  }
+#inputUploadFasta,#inputUploadCSV{
+  max-width: 267px;
+  margin-right: auto;
+  word-wrap: break-word;
+  overflow: auto;
+  white-space: normal;
+}
 
-  #yPosSlider {
-    position: relative;
-    top: 37px;
-    -webkit-transform: rotate(90deg);
-    -moz-transform: rotate(90deg);
-    -ms-transform: rotate(90deg);
-    -o-transform: rotate(90deg);
-    transform: rotate(90deg);
-    -webkit-transform-origin: 4% 10%;
-    -moz-transform-origin: 4% 10%;
-    -ms-transform-origin: 4% 10%;
-    -o-transform-origin: 4% 10%;
-    transform-origin: 4% 10%;
-  }
-
-  #treeselect{
-    padding-bottom: 5%
-  }
-
-  #tree_type {
-    display:flex; 
-    padding-bottom:15px;
-    text-align: center;
-    width: 267px;
-  }
-
-  #selectaln, #pdb_input, #polymerSelect, #domainSelect, #downloadDataBtn, #downloadExampleFasta,
-  #propensitiesSubstructure, #downloadExampleCSV, #uploadShowFasta, #pdb_input_custom, #pdb-upload,
-  #maskingSection, .input-group-text, #filterSection, #disableCutTruncation, #disableDomainTruncation,
-  #downloadFreqsBtn {
-    width: 267px;
-  }
-
-  #pdb_input{
-    max-height: 75px;
-  }
-  #polymerSelect {
-    padding-left: 0;
-    padding-right: 0;
-  }
-  #polymerSelect option {
-    color: black; 
-    max-width: 267px;
-    text-align: left;
-    padding-left: 15px;
-    margin: 0;
-  }
-  #polymerSelect option:hover {
-    background-color: #767676;
-    color: white;
-  }
-  #polymerSelect, #domainSelect{
-    max-width: 267px;
-    background:none;
-    overflow-x:hidden;
-    overflow-y: auto;
-  }
-
-  #inputUploadFasta,#inputUploadCSV{
-    max-width: 267px;
-    margin-right: auto;
-    word-wrap: break-word;
-    overflow: auto;
-    white-space: normal;
-  }
-
-  #inputRV3State,
-  #uploadCustomPDB,
-  #uploadCustomCIF,
-  #uploadCustomFullSequence,
-  #Counter{
-    display: none;
-  }
+#inputRV3State,
+#uploadCustomPDB,
+#uploadCustomCIF,
+#uploadCustomFullSequence,
+#Counter{
+  display: none;
+}
 
 #pdb-upload{
+cursor: pointer;
+}
+
+#rv3-state-upload{
+  float: right;
   cursor: pointer;
 }
 
-  #rv3-state-upload{
-    float: right;
-    cursor: pointer;
-  }
+#tooltip{
+  -webkit-touch-callout: none; 
+  -webkit-user-select: none; 
+   -khtml-user-select: none; 
+     -moz-user-select: none; 
+      -ms-user-select: none; 
+          user-select: none;
+}
 
-  #tooltip{
-    -webkit-touch-callout: none; 
-    -webkit-user-select: none; 
-     -khtml-user-select: none; 
-       -moz-user-select: none; 
-        -ms-user-select: none; 
-            user-select: none;
-  }
+.autocomplete-results {
+  position:absolute;
+  max-height: 200px;
+  padding: 0;
+  margin: 0;
+  border: 1px solid black;
+  overflow: auto;
+  width: 267px;
+  background-color: white;
+  cursor: default;
+}
 
-  .autocomplete-results {
-    position: absolute;
-    max-height: 200px;
-    padding: 0;
-    margin: 0;
-    border: 1px solid black;
-    overflow: auto;
-    width: 267px;
-    background-color: white;
-    cursor: default;
-  }
-  
-  .autocomplete-result {
-    list-style: none;
-    text-align: left;
-    padding-left: 15px;
-  }
-  
-  .autocomplete-result:hover {
-    color: white;
-    background-color: #767676;
-  }
+.autocomplete-result {
+  list-style: none;
+  text-align: left;
+  margin-left: 15px;
+}
 
-  #alnViewerLabels{
-    cursor: ew-resize;
-  }
+.autocomplete-results:hover,
+.autocomplete-result:hover {
+  color: white;
+  background-color: #343a40;
+}
 
-  #select_protein_type option{
-    color: black;
-    background-color: white;
-  }
-  #selectaln option{
-    color: black;
-    background-color: white;
-  }
+#alnViewerLabels{
+  cursor: ew-resize;
+}
