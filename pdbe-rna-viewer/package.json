@@ -41,7 +41,7 @@
     "@babel/preset-env": "^7.15.8",
     "@babel/runtime": "^7.15.4",
     "babel-loader": "^8.2.2",
-    "concurrently": "^6.3.0",
+    "concurrently": "^6.5.1",
     "cpx2": "^4.0.0",
     "css-loader": "^6.4.0",
     "del": "^6.0.0",

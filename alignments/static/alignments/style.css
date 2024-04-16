@@ -1,8 +1,105 @@
 #phylo_tree_dropdown {
-  display: grid;
-  height: 100vh;
-  background: #FFEFE7; 
-  grid-template: auto 2fr 0.1fr 1fr 1fr auto / auto 1fr 0.05fr 1fr 
+    display: grid;
+    height: 100vh;
+    background: #FFEFE7; 
+    grid-template: auto 2fr 0.1fr 1fr 1fr auto / auto 1fr 0.05fr 1fr 
+  }
+
+  header {
+    border-bottom: 1px solid black;
+    background: #d7ebf9;
+    padding: 2rem;
+    grid-column: 1 / 5;
+    grid-row: 1 ;
+    color: #174060;
+  }
+  
+  .title {
+    font-size: 1.7rem;
+    font-weight: bold;
+  }
+
+  .left-sidebar {
+    background: #ffa87c;
+    border-right: 1px solid black;
+    grid-column: 1 / 2;
+    grid-row: 2 / 6 ;
+    width: 310px;
+    color: #174060;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .alignment_section{
+    padding-bottom:20;
+    display: grid;
+    place-items: center;
+    background: #FFEFE7;
+    grid-column: 2 / 5;
+    grid-row: 2 ;
+    color: #174060;
+  }
+
+  .warningSection{
+    display: grid;
+    place-items: center;
+    background: #FFEFE7;
+    grid-column: 2 / 5;
+    grid-row: 3 ;
+    color: #174060;
+  }
+
+  .topology_section{
+    display: grid;
+    place-items: center;
+    background: #FFEFE7;
+    grid-column: 2 ;
+    grid-row: 4 ;
+    text-align: center;
+  }
+
+  .gradient_section{
+    display: grid;
+    place-items: center;
+    background: #FFEFE7;
+    grid-column: 3 ;
+    grid-row: 4 ;
+    text-align: center;
+  }
+
+  .molstar_section{
+    display: grid;
+    place-items: center;
+    background: #FFEFE7;
+    grid-column: 4;
+    grid-row: 4 ;
+    text-align: center;
+  }
+
+  .propensity_section{
+    display: grid;
+    place-items: center;
+    background: #FFEFE7;
+    grid-column: 2 / 5 ;
+    grid-row: 5 ;
+    text-align: center;
+  }
+
+  footer {
+    border-top: 1px solid black;
+    background: #d7ebf9;
+    padding: 2rem;
+    text-align: center;
+    grid-column: 1 / 5 ;
+    grid-row: 6 ;
+    color: #FFEFE7;
+  }
+
+  .white-box {
+    background-color: #ffffffab;
+    border-radius: 5px;
+    border: 1.5px solid black;
+    color: black;
 }
 
 header {
@@ -273,12 +370,24 @@ body {
   padding-bottom: 5%
 }
 
-#tree_type {
-  display:flex; 
-  padding-bottom:15px;
-  text-align: center;
-  width: 267px;
-}
+  #topview{
+    width: 500px;
+    height: 500px;
+    float:left;
+    position:relative;
+  }
+
+  #topview:fullscreen {
+    width: 100vw;
+    height: 100vh;
+  }
+  
+  @-moz-document url-prefix() {
+    .topoSvg{
+      background-color: white;
+      border: 1px solid black;
+    }
+  }
 
 #selectaln, #pdb_input, #polymerSelect, #domainSelect, #downloadDataBtn, #downloadExampleFasta,
 #propensitiesSubstructure, #downloadExampleCSV, #uploadShowFasta, #pdb_input_custom, #pdb-upload,

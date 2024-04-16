@@ -1,7 +1,7 @@
 import React from "react";
 export function YSlider (props){
   const {alnViewerAdjHeight, maxYpos, MSAVObject} = props;
-  if (alnViewerAdjHeight < MSAVObject.state.tileHeight*vm.fastaSeqNames.length) {
+  if(vm.fastaSeqNames && alnViewerAdjHeight < MSAVObject.state.tileHeight*vm.fastaSeqNames.length) {
     return(
       <div style={{width: "30px"}}>
       <input
@@ -9,7 +9,7 @@ export function YSlider (props){
             width: alnViewerAdjHeight+"px",
         }}
         type="range"
-        min="1"
+        min="-1"
         max={maxYpos}
         value={MSAVObject.state.seqPos}
         onChange={(evt) => MSAVObject.setState({ seqPos: evt.target.value })}
@@ -18,7 +18,8 @@ export function YSlider (props){
       />
       </div>
     );
-  }else{
+  }
+  else{
     return (null);
   }
 }
@@ -35,7 +36,7 @@ export function XSlider (props){
               left: ((window.innerWidth - 300) * 0.2)+3+"px"
               }}
           type="range"
-          min="1"
+          min="-1"
           max={maxXpos}
           value={MSAVObject.state.aaPos}
           onChange={(evt) => MSAVObject.setState({ aaPos: evt.target.value })}

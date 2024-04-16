@@ -5,7 +5,6 @@ from Bio.PDB.mmcifio import MMCIFIO
 from pdbecif.mmcif_io import CifFileReader
 import datetime
 from alignments.views import parse_string_structure
-from alignments.topologyAPIgenerators import generateTopologyJSONfromSVG, generateEntityJSON, generatePolCoverageJSON
 from alignments.mapStrucSeqToAln import constructStrucSeqMap
 import alignments.config
 import ssl
@@ -445,3 +444,4 @@ def int_to_chain(i,base=62):
         return letter
     else:
         return int_to_chain(quot-1,base) + letter
+

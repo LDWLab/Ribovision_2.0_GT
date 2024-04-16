@@ -1,3 +1,5 @@
+#Script for use with database uploads
+
 from django.http import JsonResponse, Http404
 from Bio.SeqUtils import IUPACData
 from alignments.models import *

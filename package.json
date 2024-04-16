@@ -1,7 +1,7 @@
 {
-  "name": "ribovision",
+  "name": "desire",
   "version": "1.0.0",
-  "description": "RiboVision 2.0",
+  "description": "DatabasE for Study and Imaging of Ribosomal Evolution",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/LDWLab/Ribovision_2.0_GT.git"
+    "url": "git+https://github.com/LDWLab/DESIRE.git"
   },
   "author": "Petar Penev",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/LDWLab/Ribovision_2.0_GT/issues"
+    "url": "https://github.com/LDWLab/DESIRE/issues"
   },
-  "homepage": "https://github.com/LDWLab/Ribovision_2.0_GT#readme",
+  "homepage": "https://github.com/LDWLab/DESIRE#readme",
   "devDependencies": {
     "@babel/core": "^7.10.5",
     "@babel/preset-env": "^7.10.4",

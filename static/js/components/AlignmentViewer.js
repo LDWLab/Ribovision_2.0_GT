@@ -95,21 +95,6 @@ var AlnViewer = class RV3AlnViewer extends Component {
                 });
             }
         }
-        //if (prop_loaded){
-        //    let seqIx = vm.fastaSeqNames.indexOf(e.sequence.name.split(' ').slice(1,).join(' '))
-        //    Plotly.Fx.hover('total',[
-        //        {curveNumber:5, pointNumber:5},
-        //        {curveNumber:6, pointNumber:6}
-        //    ]);
-        //}
-        if (!window.ajaxRun){
-            if (e.position !== undefined){
-                window.ajaxRun = true;
-                registerHoverResiData(e, this, vm);
-            }
-        } else {
-            this.setState({ fold: undefined, phase: undefined });
-        }
     };
     onResidueMouseLeave = e => {
         if (vm.topology_loaded){
@@ -132,7 +117,11 @@ var AlnViewer = class RV3AlnViewer extends Component {
         const xPos = this.state.tileWidth * (this.state.aaPos);
         const yPos = this.state.tileHeight * (this.state.seqPos);
         var maxXpos = window.aaFreqs.length - Math.round((((window.innerWidth - 300) * 0.7)/this.state.tileWidth))+2;
-        var maxYpos = vm.fastaSeqNames.length - Math.round(((((window.innerHeight - 171)/2) * 0.8)/this.state.tileHeight))+2;
+        if (vm.fastaSeqNames) {
+            var maxYpos = vm.fastaSeqNames.length - Math.round(((((window.innerHeight - 171)/2) * 0.8)/this.state.tileHeight));
+        } else {
+            maxYpos = 0
+        }
         var alnViewerAdjHeight = ((window.innerHeight - 171)/2) * 0.8;
         var alnViewerAdjWidth = (window.innerWidth - 300) * 0.7;
         if (maxYpos < 0){ maxYpos = 0 };
@@ -188,10 +177,10 @@ var AlnViewer = class RV3AlnViewer extends Component {
                               ...this.state.tooltipPosition,
                             }}
                           >
-                            {<Tooltip>
+                            {/*<Tooltip>
                               Fold: {this.state.fold} <br></br>
                               Phase: {this.state.phase}
-                        </Tooltip>}
+                        </Tooltip>*/}
                           </div>
                         )}
                     </div>
