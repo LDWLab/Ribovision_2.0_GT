@@ -5,6 +5,7 @@ export class UiTemplateService {
     selectSections_RV1 = (window as any).selectSections_RV1;
     aaPropertyConstants = (window as any).aaPropertyConstants;
     mapped_aa_properties = (window as any).mapped_aa_properties;
+    mapped_aa_properties3D = (window as any).mapped_aa_properties3D;
     aaColorData = (window as any).aaColorData;
     parsePVData = (window as any).parsePVData;
     getEntropyAnnotations = (window as any).getEntropyAnnotations;
@@ -97,7 +98,7 @@ export class UiTemplateService {
         this.uiActionsService.applyButtonActions();
         this.addEvents(apiData, BanName);
         <any>document.querySelector(".saveSVG")!.addEventListener("click", this.saveSVG.bind(this));
-        this.getAnnotationFromRibovision(this.mapped_aa_properties);
+        this.getAnnotationFromRibovision(this.mapped_aa_properties, this.mapped_aa_properties3D);
 
         var el = document.getElementById("topview");
         document.getElementById("TopologyFSCR")?.addEventListener("click", (event) => {
@@ -523,7 +524,7 @@ export class UiTemplateService {
                 }];
                 let name = index;
                 let separatedData = value;
-                this.selectSections_RV1.set(name, [])
+                this.selectSections_RV1.set(name, []);
 
                 let min = Math.min(...this.aaPropertyConstants.get(name));
                 let max = Math.max(...this.aaPropertyConstants.get(name));
@@ -569,9 +570,12 @@ export class UiTemplateService {
                     this.getExpansionAnnotations(data3D, min, max, this.pluginOptions.chainId);
                     
                 };
-                const [TWCrgbMap, TWCData] = this.parsePVData(separatedData, min, max, colormapArray);
-                const TWCData_keys =TWCData.keys();
+                const [TWCrgbMap, TWCData, TWCrgbMap3D, TWCData3D] = this.parsePVData(separatedData, min, max, colormapArray, null, data3D);
+                // const [TWCrgbMap3D, TWCData3D] = this.parsePVData(data3D, min, max, colormapArray);
+                const TWCData_keys = TWCData.keys();
                 
+                // just to get rid of build error
+                // TWCrgbMap;
                 //const last_item  = 0;
                 let mapLastValue;
                 let i;
@@ -584,6 +588,22 @@ export class UiTemplateService {
                 this.selectSections_RV1.get(name).push({entity_id: _this.pluginOptions.entityId, focus: true});
                 //const end = TWCData.size;
                 const end = mapLastValue;
+                if (void 0 !== TWCData3D){
+                    residueDetails = _this.create2D3DAnnotations(name, residueDetails, 
+                                                                TWCrgbMap3D, TWCData3D, mapped_aa_properties,
+                                                                start, end);                                                                                     
+                    if(0 < residueDetails.length){
+                        var current = _this.domainTypes.filter(order => (order.label === name))[0]; 
+                        if(current && current != null) {
+                            current.data = residueDetails;
+                        } else {
+                             _this.domainTypes.push({
+                            label: name,
+                            data: residueDetails
+                            })
+                        }
+                    }
+                }
                 if (void 0 !== TWCData){
                     residueDetails = _this.create2D3DAnnotations(name, residueDetails, 
                                                                 TWCrgbMap, TWCData, mapped_aa_properties,

@@ -73,8 +73,8 @@ def constructStrucSeqMap(structure):
             old_resi = resi_id[1]
         if (resi_id[1] - old_resi > 1):
             gapsInStruc.append((old_resi,resi_id[1]))
-        if not re.match(r' ', resi_id[2]):
-            continue
+        # if not re.match(r' ', resi_id[2]):
+        #     continue
         if re.match(r'^H_', resi_id[0]):
             continue
         sequence += resi.get_resname().replace(' ','')

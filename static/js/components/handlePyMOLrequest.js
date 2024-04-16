@@ -28,13 +28,83 @@ var buildPyMOLscriptASstring = function () {
         var objName = `${key}_${chainText}`.replace(/ /g,'_')
         pmlString += `create ${objName}, ${vm.pdbid} and chain ${vm.chainid[0]}\n`;
         val.shift();
+        let colorMap = {};
         val.forEach(function(resiProps){
             let hexColor = rgbToHex(resiProps.color.r,resiProps.color.g,resiProps.color.b);
             //coloringString += `color ${hexColor}, ${objName} and resi ${resiProps.start_residue_number}\n`
-            coloringString += `color ${hexColor}, ${objName} and resi ${resiProps.residue_number}\n`
-        })
+            if (colorMap.hasOwnProperty(hexColor)) {
+                
+                colorMap[hexColor].push(resiProps.residue_number);
+            }
+            else{
+                colorMap[hexColor] = [resiProps.residue_number]
+
+            }
+            // coloringString += `color ${hexColor}, ${objName} and resi ${resiProps.residue_number}\n`
+        });
+
+        for(let [hexColor, values] of Object.entries(colorMap)){
+            // let stringDef = `color ${hexColor}, ${objName}`;
+            let auxString = `color ${hexColor}, ${objName} and (`;
+            // coloringString += 
+
+            // Find the locations where there are jumps in indices
+            let continous = [];
+            let uniqueValues = [...new Set(values)];
+
+            if (uniqueValues.length == 0){
+                continue;
+            }
+
+            // 43, 265, 701
+            for (let i = 0; i < uniqueValues.length; i++) {
+                if(continous.length == 0){
+                    continous.push(uniqueValues[i]);
+                }
+                else if(uniqueValues[i] - 1 == continous[continous.length-1]){
+                    continous.push(uniqueValues[i]);
+                }
+                else{
+                    if(auxString.slice(-2) != " ("){
+                        auxString += ' or '; 
+                    }
+
+                    if(continous.length == 1){
+                        // coloringString += `${stringDef} and resi ${continous[0]}\n`;
+                        auxString += `resi ${continous[0]}`;
+                    }
+                    else{
+                        auxString += `resi ${continous[0]}-${continous[continous.length-1]}`;
+                    }
+
+                    continous = [uniqueValues[i]];
+                }
+            }
+
+            if(continous.length != 0){
+                if(auxString.slice(-2) != " ("){
+                    auxString += ' or '; 
+                }
+            
+                if(continous.length == 1){
+                    // coloringString += `${stringDef} and resi ${continous[0]}\n`;
+                    auxString += `resi ${continous[0]}`;
+                }
+                else{
+                    auxString += `resi ${continous[0]}-${continous[continous.length-1]}`;
+                }
+                
+            }
+            coloringString += (auxString + ")\n");
+
+        }
+
+        console.log(key, JSON.stringify(colorMap));
     })
+
+
     pmlString += coloringString;
+    
     return pmlString;
 }
 
