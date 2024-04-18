@@ -147,11 +147,11 @@ def request_post_data(post_data):
     return fasta, ebi_sequence, startIndex
 
 def make_map_from_alnix_to_sequenceix(request):
-    print(request)
+    #print(request)
     fasta, ebi_sequence, startIndex = request_post_data(request.POST)
-    print("hi")
+    #print("hi")
     mapping = constructEbiAlignmentString(fasta, ebi_sequence, startIndex)
-    print(mapping)
+    #print(mapping)
     if type(mapping) != dict:
         return mapping
     return JsonResponse(mapping, safe = False)
@@ -842,7 +842,7 @@ def r2dt(request, entity_id):
     keys = json.loads(sequence_file_lines[0])
     sequence = "\n".join(sequence_file_lines[1:])
     
-    os.chdir('/home/RiboVision3/R2DT/rna/R2DT')
+    os.chdir('/home/RiboVision3/R2DT1_4/R2DT1_4/R2DT')
     #os.chdir('/home/anton/RiboVision2/rna/R2DT-master')
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     if request.method == "POST":
@@ -864,7 +864,7 @@ def r2dt(request, entity_id):
         f.write('>Sequence\n')
         f.write(sequence)
         f.close()       
-    output = f"/home//RiboVision3/R2DT/rna/R2DT/R2DT-test20{fileNameSuffix}"    
+    output = f"/home/RiboVision3/R2DT1_4/R2DT1_4/R2DT/R2DT-test20{fileNameSuffix}"    
      
     
     cmd = f'python3 r2dt.py draw  {newcwd}/sequence10{fileNameSuffix}.fasta {output}' # --skip_ribovore_filters 
