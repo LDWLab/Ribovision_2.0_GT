@@ -1,7 +1,7 @@
 import { loadAlignmentViewer } from './loadAlignmentViewer.js'
 import { ajaxProper } from './ajaxProper.js'
 
-
+const fix_colors = require('./graphColorPrediction.js');
 const typeMappings = {
   'aes': { '1a': '1', '2': '1', '10': '1', '13': '1', '7': '1', '17': '1', '22': '1', '0': '2', '7b': '2', '9': '2', '11': '2', '16': '2', '20': '2', '18': '2', '3a': '2', '3b': '3', '5a': '3', '4': '3', '15': '3', '24': '3', '6': '3', '23': '3', '27': '3', '1': '4', '4a': '4', '7a': '4', '8': '4', '14a': '4', '25': '4', '26': '4', '21': '4', '1b': '5', '3': '5', '5': '5', '12': '5', '14': '5', '19': '5', '20a': '5' },
   'AES': { '1': '1', '12': '1', '19': '1', '22': '1', '7': '1', '34': '1', '35': '1', '49': '1', '28': '1', '20': '1', '52': '1', '58': '1', '37': '1', '53': '2', '47': '3', '8': '2', '54': '2', '10': '2', '16': '2', '32': '2', '5': '2', '12a': '2', '18': '2', '50': '2', '4a': '3', '21': '3', '4': '3', '26': '3', '14': '3', '25': '3', '33': '3', '38': '3', '11': '3', '51': '3', '39': '3', '40': '3', '6': '4', '6a': '4', '55': '4', '45': '4', '10a': '4', '23': '4', '31': '4', '56': '4', '15': '4', '2': '4', '43': '4', '46': '4', '30': '4', '59': '4', '41': '5', '24': '5', '17': '5', '48': '5', '9': '5', '32a': '5', '57': '5', '15a': '5', '29': '5', '44': '5', '36': '5', '3': '5' },
@@ -32,7 +32,7 @@ function sleep(ms) {
 }
 
 async function colorStructure(fasta, struc_id, startIndex, stopIndex, ebi_sequence, vueObj, structMappingAndData, full_sequence_from_pdb) {
-  const fix_colors = require('./graphColorPrediction.js');
+  
   
   let struct_mapping = structMappingAndData["structureMapping"];
 
@@ -131,11 +131,52 @@ async function colorStructure(fasta, struc_id, startIndex, stopIndex, ebi_sequen
       // console.log(associatedDataMappedPerType);
       // vm.associatedDataMappedPerType_2D = associatedDataMappedPerType2D;
       // console.log('associatedDataMappedPerType2D', JSON.stringify(associatedDataMappedPerType2D));
-      vm.associatedDataMappedPerType_2D = fix_colors(
-        viewerInstanceTop.viewInstance.uiTemplateService.apiData.sequence,
-        viewerInstanceTop.viewInstance.uiTemplateService.baseStrs.get('cWW')[1],
-        associatedDataMappedPerType2D
-      );
+      if (viewerInstanceTop.viewInstance.uiTemplateService.apiData == undefined || viewerInstanceTop.viewInstance.uiTemplateService.baseStrs.size == 0){
+      
+        vm.sequence_for_r2dt = vm.sequence;
+        vm.user_uploaded_cif_flag = true;
+        vm.cif_file_path = `/tmp/PDB/${vm.pdbid}.cif`;
+        vm.getR2DT(vm.sequence);
+
+        function handle_error2(){
+          console.log("Errored at r2dt");
+        }
+        // call_r2dt("POST", success, handle_error2);
+        //call_r2dt("POST", success, handle_error2).then(
+          //() => console.log("Success at r2dt.")).catch(error => console.error("Error at r2dt:", error));
+        
+
+        // async function secondFunction(success, handle_error){
+          
+          //  now wait for firstFunction to finish...
+          //  vm.associatedDataMappedPerType_2D = fix_colors(
+          //    viewerInstanceTop.viewInstance.uiTemplateService.apiData.sequence,
+          //    viewerInstanceTop.viewInstance.uiTemplateService.baseStrs.get('cWW')[1],
+          //    associatedDataMappedPerType2D
+          //  );
+        
+        //  };
+         
+        // secondFunction(success, handle_error2);
+        // let params = call_r2dt1("POST");
+        // ajax(`/r2dt/${vm.entityID}`, params).then(response => {console.log(JSON.stringify(response))});
+
+        vm.associatedDataMappedPerType_2D = associatedDataMappedPerType2D;
+        vm.fix_cust_colors = true;
+        //vm.associatedDataMappedPerType_2D = fix_colors(
+          //viewerInstanceTop.viewInstance.uiTemplateService.apiData.sequence,
+          //viewerInstanceTop.viewInstance.uiTemplateService.baseStrs.get('cWW')[1],
+          //associatedDataMappedPerType2D
+        //);
+        
+      }
+      else{
+        vm.associatedDataMappedPerType_2D = fix_colors(
+          viewerInstanceTop.viewInstance.uiTemplateService.apiData.sequence,
+          viewerInstanceTop.viewInstance.uiTemplateService.baseStrs.get('cWW')[1],
+          associatedDataMappedPerType2D
+        );
+      }
 
       // offset
       // let hName;
@@ -185,15 +226,24 @@ async function colorStructure(fasta, struc_id, startIndex, stopIndex, ebi_sequen
         vm.associatedDataMappedPerType_3D[type] = newColors;
 
       }
-      // create window.selectSections_RV1_3D
 
-      // vm.associatedDataMappedPerType_3D = fix_colors(
-      //   viewerInstanceTop.viewInstance.uiTemplateService.apiData.sequence,
-      //   viewerInstanceTop.viewInstance.uiTemplateService.baseStrs.get('cWW')[1],
-      //   vm.associatedDataMappedPerType_3D
-      // );
+      // add zero for the last resedue
+      let helix = ''
+      if (Object.keys(vm.associatedDataMappedPerType_2D).includes('helix')){
+        helix = 'helix';
+      }
+      else{
+        helix = 'Helix';
+      }
 
+      let len_3d = vm.associatedDataMappedPerType_3D[helix].length;
+      let len_2d = vm.associatedDataMappedPerType_2D[helix].length;
 
+      let last_3d = vm.associatedDataMappedPerType_3D[helix][len_3d-1][0];
+      let last_2d = vm.associatedDataMappedPerType_2D[helix][len_2d-1][0];
+
+      vm.associatedDataMappedPerType_3D[helix].push([last_3d+1, '0']);
+      vm.associatedDataMappedPerType_2D[helix].push([last_2d+1, '0']);
       
 
       if (structMappingAndData["gapsInStruc"] && structMappingAndData["gapsInStruc"].length > 0) {
@@ -216,7 +266,7 @@ async function colorStructure(fasta, struc_id, startIndex, stopIndex, ebi_sequen
       ajax('/mapSeqAlnOrig/', { fasta, ebi_sequence, startIndex: 1 }).then(origStructMappingAndData => {
         vm.st_mapping2D = structMappingAndData["structureMapping"];
         vm.st_mapping3D = origStructMappingAndData["structureMapping"];
-        
+
 
         assignColorsAndStrucMappings(vueObj, origStructMappingAndData, structMappingAndData);
       });
@@ -367,20 +417,72 @@ async function getRNAChain(pdbid, chainid) {
 
 
 async function RNAseqCall(pdbid, chainid) {
-  if (vm.user_uploaded_cif_flag == true) {
-    const RNA_full_sequence = await getRNAChain(pdbid, chainid);
+  let RNA_full_sequence;
+  if (vm.user_uploaded_cif_flag == true ) {
+    RNA_full_sequence = await getRNAChain(pdbid, chainid);
     //console.log('RNA_full_sequence2c', RNA_full_sequence);
-    return RNA_full_sequence;
+    
   }
   //console.log('cf',vm.user_uploaded_cif_flag)
-  if (vm.user_uploaded_cif_flag == false) {
-    const RNA_full_sequence = vm.customFullSequence;
-    //console.log('RNA_full_sequence2p', vm.customFullSequence, RNA_full_sequence);
-    return RNA_full_sequence;
+  else if (vm.user_uploaded_cif_flag == false) {
+    RNA_full_sequence = vm.customFullSequence;
   }
 
-  //return RNA_full_sequence;
+  else if (vm.user_uploaded_cif_flag == null){
+    RNA_full_sequence = vm.sequence;
+  }
+  
+
+  return RNA_full_sequence;
   //return vm.customFullSequence;
+}
+
+function success(parsedResponse) {
+  if (parsedResponse == "Topology Success!") {
+    //console.log("Topology Success!");          
+  }
+  // const banName = getBanName(pdbid, 'H')
+  vm.json_structures_from_r2dt = parsedResponse;
+  window.viewerInstanceTop.viewInstance.uiTemplateService.render(parsedResponse.RNA_2D_json, parsedResponse.RNA_BP_json, parsedResponse.RNA_BP_json, undefined, window.viewerInstanceTop.viewInstance);
+  if (vm.fix_cust_colors) {
+    vm.associatedDataMappedPerType_2D = fix_colors(
+      parsedResponse.RNA_2D_json['sequence'],
+      viewerInstanceTop.viewInstance.uiTemplateService.baseStrs.get('cWW')[1],
+      vm.associatedDataMappedPerType_2D
+    );
+  }
+  // fix colors here with a flag
+  if (vm.structFailed) {
+    vm.AD_headers = [];
+    var topviewer = document.getElementById("PdbeTopViewer");
+    try {
+      
+      for (const [type, _] of Object.entries(vm.associatedDataMappedPerType_2D)) {
+        let associatedDataMappedPerTypeI_2D = vm.associatedDataMappedPerType_2D[type];
+        let associatedDataMappedPerTypeI_3D = vm.associatedDataMappedPerType_3D[type];
+
+        associatedDataMappedPerTypeI_2D.sort(function (entry0, entry1) {
+          return entry0[0] - entry1[0];
+        });
+        associatedDataMappedPerTypeI_3D.sort(function (entry0, entry1) {
+          return entry0[0] - entry1[0];
+        });
+        const AD_header = type;
+        // const ADDataArray = associatedDataMappedPerTypeI;
+        vm.AD_headers.push(AD_header);
+        mapAssociatedData(associatedDataMappedPerTypeI_2D, associatedDataMappedPerTypeI_3D, AD_header, topviewer);
+      }
+    } catch (error) {
+      console.log("Mapping associated data failed")
+    }
+  }
+}
+
+function handle_error(error) {
+  var topview = document.querySelector('#topview');
+  vm.topology_loaded = 'error';
+  topview.innerHTML = "Failed to generate topology from the structure file!<br>Try different PDB."
+  console.log(error.responseText);
 }
 
 var tryCustomTopology = function (pdbid, entityid, chainid) {
@@ -411,44 +513,6 @@ var tryCustomTopology = function (pdbid, entityid, chainid) {
     document.getElementById('topview').innerHTML = topology_viewer;
     window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
 
-    function success(parsedResponse) {
-      if (parsedResponse == "Topology Success!") {
-        //console.log("Topology Success!");          
-      }
-      // const banName = getBanName(pdbid, 'H')
-      vm.json_structures_from_r2dt = parsedResponse;
-      window.viewerInstanceTop.viewInstance.uiTemplateService.render(parsedResponse.RNA_2D_json, parsedResponse.RNA_BP_json, parsedResponse.RNA_BP_json, undefined, window.viewerInstanceTop.viewInstance);
-      if (vm.structFailed) {
-        vm.AD_headers = [];
-        var topviewer = document.getElementById("PdbeTopViewer");
-        try {
-          
-          for (const [type, _] of Object.entries(vm.associatedDataMappedPerType_2D)) {
-            let associatedDataMappedPerTypeI_2D = vm.associatedDataMappedPerType_2D[type];
-            let associatedDataMappedPerTypeI_3D = vm.associatedDataMappedPerType_3D[type];
-
-            associatedDataMappedPerTypeI_2D.sort(function (entry0, entry1) {
-              return entry0[0] - entry1[0];
-            });
-            associatedDataMappedPerTypeI_3D.sort(function (entry0, entry1) {
-              return entry0[0] - entry1[0];
-            });
-            const AD_header = type;
-            // const ADDataArray = associatedDataMappedPerTypeI;
-            vm.AD_headers.push(AD_header);
-            mapAssociatedData(associatedDataMappedPerTypeI_2D, associatedDataMappedPerTypeI_3D, AD_header, topviewer);
-          }
-        } catch (error) {
-          console.log("Mapping associated data failed")
-        }
-      }
-    }
-    function handle_error(error) {
-      var topview = document.querySelector('#topview');
-      vm.topology_loaded = 'error';
-      topview.innerHTML = "Failed to generate topology from the structure file!<br>Try different PDB."
-      console.log(error.responseText);
-    }
     call_r2dt("POST", success, handle_error);
   }).catch(error => {
     console.error(error);
@@ -458,7 +522,7 @@ var tryCustomTopology = function (pdbid, entityid, chainid) {
 export function call_r2dt(request_method, success = function () {/* Do nothing. */ }, handle_error = function () {/* Do nothing. */ }) {
   let keys_as_string = JSON.stringify({
     cif_mode_flag: vm.user_uploaded_cif_flag,
-    cif_file_path: vm.cif_file_path
+    cif_file_path: vm.cif_file_path,
   });
   let all_lines = [
     keys_as_string,
@@ -471,7 +535,7 @@ export function call_r2dt(request_method, success = function () {/* Do nothing. 
   const formData = new FormData();
   formData.append("custom_seq_file", sequence_file);
   $.ajax({
-    url: vm.URL,
+    url: `r2dt/${vm.entityID}`,
     data: formData,
     cache: false,
     contentType: false,
@@ -483,28 +547,31 @@ export function call_r2dt(request_method, success = function () {/* Do nothing. 
     handle_error
   });
 }
-//vm.getR2DT(vm.pdbSeq);
-//vm.URL = `r2dt/${vm.pdbSeq}/`
-//vm.getR2DT(seq1);
-//vm.URL = `r2dt/${seq1}/`
 
-//var topology_viewer = `<pdb-rna-viewer id="PdbeTopViewer" pdb-id="${pdbid}" entity-id="${entityid}" chain-id="${chainid}" rv-api="true" ></pdb-rna-viewer>` 
-//document.getElementById('topview').innerHTML = topology_viewer; 
-//window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
-// ajaxProper({
-//url: postTopologyURL,
-//url: vm.URL,
-//type: 'POST',
-//dataType: 'json'
-//}).then (parsedResponse => {
-//if (parsedResponse == "Topology Success!"){
-//console.log("Topology Success!");          
-//}
-//}).catch(error => {
-//var topview = document.querySelector('#topview');
-//vm.topology_loaded = 'error';
-//topview.innerHTML = "Failed to generate topology from the structure file!<br>Try different PDB."
-//console.log(error.responseText);
-//});
-//}
+function call_r2dt1(request_method, on_success = function (response) {console.log(JSON.stringify(response)); }, handle_error = function () {/* Do nothing. */ }) {
+  let keys_as_string = JSON.stringify({
+    cif_mode_flag: vm.user_uploaded_cif_flag,
+    cif_file_path: vm.cif_file_path,
+  });
+  let all_lines = [
+    keys_as_string,
+    "\n",
+    ...vm.sequence_for_r2dt.split("\n")
+  ];
+  let sequence_file = new File(all_lines, "my_sequence.txt", {
+    type: "text/plain"
+  });
+  const formData = new FormData();
+  formData.append("custom_seq_file", sequence_file);
 
+  let params = {
+    data: formData,
+    cache: false,
+    contentType: false,
+    processData: false,
+    method: request_method,
+    dataType: 'json',
+    type: request_method, // For jQuery < 1.9
+  }
+  return params;
+}
