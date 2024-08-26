@@ -13,8 +13,8 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 import os
 import json
 
-with open('/etc/ribovision_config.json') as config_file:
-    config = json.load(config_file)
+# with open('/etc/ribovision_config.json') as config_file:
+    #config = json.load(config_file)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -24,7 +24,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config['SECRET_KEY']
+SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -98,8 +98,8 @@ DATABASES = {
     'default': {
         'NAME': 'DESIRE',
         'ENGINE': 'mysql.connector.django',
-        'USER': config['DB_USER_NAME'],             #Write username here
-	'PASSWORD': config['DB_PASSWORD'],         #And password here
+        'USER': "website",             #Write username here
+	'PASSWORD': "desire_RiboVision3",         #And password here
 	'HOST': '130.207.36.76',
         'PORT': '3306',
         'OPTIONS': {
@@ -190,7 +190,9 @@ COMPRESS_ENABLED = True
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'pdbe-rna-viewer/build')
 ]
-STATIC_ROOT = '/home/RiboVision3/static/'
+
+    
+STATIC_ROOT = os.path.join(os.getcwd(), 'static')
 STATIC_URL = '/static/'
 COMPRESS_ROOT = 'static/'
 DATA_UPLOAD_MAX_MEMORY_SIZE = 80*1024**2

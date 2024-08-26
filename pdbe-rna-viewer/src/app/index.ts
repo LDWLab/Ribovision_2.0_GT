@@ -45,7 +45,6 @@ class PdbRnaViewerPlugin {
             // draw topology
             this.uiTemplateService.render(this.apiData, this.FR3DData, this.FR3DNestedData, this.BanName);
             CustomEvents.subscribeToComponentEvents(this);
-
         } else {
 
             if(options.rvAPI == true) this.rvAPI = true;
@@ -68,11 +67,19 @@ class PdbRnaViewerPlugin {
                 //     apiDataJ : r2dtjson.RNA_2D_json as ApiData,
                 //     FR3DDataJ : r2dtjson.RNA_BP_json as any, 
                 //     FR3DNestedDataJ : r2dtjson.RNA_BP_json as any,
+
                 // }));
                 const r2dtjson = vm.json_structures_from_r2dt;
+                
                 this.apiData = r2dtjson.RNA_2D_json as ApiData;
                 this.FR3DData = r2dtjson.RNA_BP_json as any;
                 this.FR3DNestedData = r2dtjson.RNA_BP_json as any;
+
+                this.FR3DNestedData.annotations = this.FR3DNestedData.annotations.filter((annotation:any) => Number(annotation.crossing) == 0);
+                // console.log(JSON.stringify(this.FR3DNestedData));
+                vm.FR3DData = this.FR3DData;
+                vm.FR3DNestedData = this.FR3DNestedData;
+
 
                 // console.log('dataUrls', this.apiData);
                 // console.log('dataUrls', this.FR3DData);

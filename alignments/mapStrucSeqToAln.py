@@ -4,6 +4,10 @@ from Bio.Seq import Seq
 from Bio.SeqUtils import seq1
 from Bio.SeqRecord import SeqRecord
 import re
+from subprocess import Popen, PIPE
+import os
+from warnings import warn
+import datetime
 
 from alignments.views import parse_string_structure
 
@@ -87,28 +91,22 @@ def constructStrucSeqMap(structure):
     return seq_ix_mapping, SeqRecord(Seq(sequence)), gapsInStruc
 
 def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
-    from subprocess import Popen, PIPE
-    from os import remove, path
-    from warnings import warn
-    import datetime
     
     fasta = re.sub('>Structure sequence[\s\S]*?>','>',fasta)
     now = datetime.datetime.now()
+    
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     ### BE CAREFUL WHEN MERGING THE FOLLOWING LINES TO PUBLIC; PATHS ARE HARDCODED FOR THE APACHE SERVER ###
-    #aln_group_path = "/home/anton/RiboVision2/Ribovision_3.0_GT/static/alignment" + fileNameSuffix + ".txt"
-    #pdb_seq_path = "/home/anton/RiboVision2/Ribovision_3.0_GT/static/ebi_sequence" + fileNameSuffix + ".txt"
-    #aln_group_path = "/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/alignment" + fileNameSuffix + ".txt"
-    aln_group_path = "/home/RiboVision3/static/alignment" + fileNameSuffix + ".txt"
-    #pdb_seq_path = "/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/ebi_sequence" + fileNameSuffix + ".txt"
-    pdb_seq_path = "/home/RiboVision3/static/ebi_sequence" + fileNameSuffix + ".txt"
+    aln_group_path = os.path.join(os.getcwd(), f"static/alignment{fileNameSuffix}.txt")
+    pdb_seq_path = os.path.join(os.getcwd(), f"static/ebi_sequence{fileNameSuffix}.txt")
+    
     mappingFileName = pdb_seq_path + ".map"
     tempfiles = [aln_group_path, pdb_seq_path, mappingFileName]
     for tempf in tempfiles:
-        if path.isfile(tempf):
+        if os.path.isfile(tempf):
             warn(f"When using mafft to make structural mapping the working directory must be free of file {tempf}. Trying to delete the file.")
-            remove(tempf)
-            if path.isfile(tempf):
+            os.remove(tempf)
+            if os.path.isfile(tempf):
                 raise IOError(f"Couldn't delete the file {tempf} please remove it manually!")
     
     fh = open(aln_group_path, "w")
@@ -125,7 +123,7 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
     print("Mafft done")
     if len(output.decode("ascii")) <= 0:
         for removeFile in tempfiles:
-            remove(removeFile)
+            os.remove(removeFile)
         return HttpResponseServerError("Failed mapping the polymer sequence to the alignment!\nTry a different structure.")
     mapping_file = output.decode("ascii").split('\n#')[1]
     amendedAln = re.sub('>Structure sequence$','',output.decode("ascii").split('\n#')[0])
@@ -146,7 +144,7 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
             fail_map = True
         mapping[int(row[2])] = seq_ix_mapping[int(row[1])]
     for tempf in tempfiles:
-        remove(tempf)
+        os.remove(tempf)
     if fail_map:
         return HttpResponseServerError("Failed mapping the polymer sequence to the alignment!\nTry a different structure.")
     if bad_map_positions > 0:
@@ -156,28 +154,20 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
     return outputDict
 
 def create_aln_true_seq_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
-    from subprocess import Popen, PIPE
-    from os import remove, path
-    from warnings import warn
-    import datetime
+    
     
     fasta = re.sub('>True sequence[\s\S]*?>','>',fasta)
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     ### BE CAREFUL WHEN MERGING THE FOLLOWING LINES TO PUBLIC; PATHS ARE HARDCODED FOR THE APACHE SERVER ###
-    #aln_group_path = "/home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/static/alignment" + fileNameSuffix + ".txt"
-    #pdb_seq_path = "/home/anton/RiboVision2/Ribovision_3.0_GT_master/Ribovision_2.0_GT/ebi_sequence" + fileNameSuffix + ".txt"
-    #aln_group_path = "/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/alignment" + fileNameSuffix + ".txt"
-    aln_group_path = "/home/RiboVision3/static/alignment" + fileNameSuffix + ".txt"
-    #pdb_seq_path = "/home/hmccann3/Ribovision_3/Ribovision_3.0_GT/static/ebi_sequence" + fileNameSuffix + ".txt"
-    pdb_seq_path = "/home/RiboVision3/static/ebi_sequence" + fileNameSuffix + ".txt"
-    #mappingFileName = pdb_seq_path + ".map"
+    aln_group_path = os.path.join(os.getcwd(), f"static/alignment{fileNameSuffix}.txt") 
+    pdb_seq_path = os.path.join(os.getcwd(), f"static/ebi_sequence{fileNameSuffix}.txt") 
     tempfiles = [aln_group_path, pdb_seq_path]
     for tempf in tempfiles:
-        if path.isfile(tempf):
+        if os.path.isfile(tempf):
             warn(f"When using mafft to make structural mapping the working directory must be free of file {tempf}. Trying to delete the file.")
-            remove(tempf)
-            if path.isfile(tempf):
+            os.remove(tempf)
+            if os.path.isfile(tempf):
                 raise IOError(f"Couldn't delete the file {tempf} please remove it manually!")
     
     fh = open(aln_group_path, "w")
@@ -194,7 +184,7 @@ def create_aln_true_seq_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
     #print(seq_ix_mapping[int(row[1])])
     if len(output.decode("ascii")) <= 0:
         for removeFile in tempfiles:
-            remove(removeFile)
+            os.remove(removeFile)
         return HttpResponseServerError("Failed mapping the polymer sequence to the alignment!\nTry a different structure.")
     #mapping_file = output.decode("ascii").split('\n#')[1]
     amendedAln = re.sub('>True sequence$','',output.decode("ascii").split('\n#')[0])
