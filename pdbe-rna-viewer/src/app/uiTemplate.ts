@@ -1255,6 +1255,15 @@ export class UiTemplateService {
                 this.displayNestedBaseStrs += this.nestedBaseStrs.get(key)![1].join('');
             }
         });
+        
+        // for (let key in tokens) {
+        //     if (tokens.hasOwnProperty(key)) {
+        //         let tokenArray = tokens[key];
+        //         let startPos = this.nucleotideStrs.indexOf(tokenArray[0]);
+        //         let endPos   = this.nucleotideStrs.lastIndexOf(tokenArray[1]) + tokenArray[1].length;
+        //         this.nucleotideStrs = this.nucleotideStrs.slice(0, startPos) + `<g class="rnaTopoSvg_${this.pluginOptions.pdbId}" id="${key}">` + this.nucleotideStrs.slice(startPos, endPos) + `</g>` + this.nucleotideStrs.slice(endPos)
+        //     }
+        // }
 
         return `
         <div style="width:100%;height:100%;z-index:0;position:absolute;">
@@ -1281,6 +1290,8 @@ export class UiTemplateService {
             </div>`
             ;
     }
+
+
 
     private title(): string {
         return  `<span class="pdb-rna-view-title">${this.pluginOptions.pdbId.toUpperCase()} Chain ${this.pluginOptions.chainId}</span>`;
@@ -1345,9 +1356,65 @@ export class UiTemplateService {
       svgData_forsave = this.removeEventHandlers(svgData_forsave)
       var svg = getNode("svg");
       svg.appendChild(svgData_forsave);
-     function saveSvg1(svgEl: any, name: any) {
+
+    //   function groupSVG(svg: any){
+    //     svg = svg.replace(`</g>`, ``);
+    //     svg = svg.replace(/<g\s+class="rnaTopoSvg_[^"]*"\s*>/g, '');
+
+    //     console.log('svg', JSON.stringify(svg));
+        
+    //     // process the neucliotides
+    //     let tokens: { [key: string]: string[] } = {
+    //         'Text': ['<text', '</text>'],
+    //         'Colors': ['<circle', '</circle>'],
+    //         'Bonds': ['<path', '</path>']
+    //     };
+
+        
+    //     for (let key in tokens) {
+
+    //         if (Object.prototype.hasOwnProperty.call(tokens, key)) {
+    //             let tokenArray = tokens[key];
+    //             let startPos = svg.indexOf(tokenArray[0]);
+    //             let endPos = svg.lastIndexOf(tokenArray[1]) + tokenArray[1].length;
+    //             svg = svg.slice(0, startPos) + `<g class="${key}" id="${key}">` + svg.slice(startPos, endPos) + `</g>` + svg.slice(endPos);
+    //         }
+    //     }
+    //     return svg;
+
+    //   }
+    function groupSVG(svg: string) {
+        // Remove existing </g> tags
+        svg = svg.replace(/<\/g>/g, '');
+    
+        // Remove existing <g> tags with class attribute containing "rnaTopoSvg_"
+        svg = svg.replace(/<g\s+class="rnaTopoSvg_[^"]*"\s*>/g, '');
+    
+        let tokens: { [key: string]: RegExp } = {
+            'Text': /<text[\s\S]*<\/text>/g,
+            'Colors': /<circle[\s\S]*<\/circle>/g,
+            'Bonds': /<path[\s\S]*<\/path>/g
+        };
+
+    
+        for (let key in tokens) {
+            if (Object.prototype.hasOwnProperty.call(tokens, key)) {
+                let tokenRegExp = tokens[key];
+                let match;
+                while ((match = tokenRegExp.exec(svg)) !== null) {
+                    let startPos = match.index;
+                    let endPos = match.index + match[0].length;
+                    svg = svg.slice(0, startPos) + `<g class="${key}" id="${key}">` + svg.slice(startPos, endPos) + `</g>` + svg.slice(endPos);
+                }
+            }
+        }
+        return svg;
+    }
+    
+      function saveSvg1(svgEl: any, name: any) {
           svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-          var svgData = svgEl.outerHTML;
+          var svgData = groupSVG(svgEl.outerHTML);
+        //   var svgData = svgEl.outerHTML;
           var preface = '<?xml version="1.0" standalone="no"?>\r\n';
           var svgBlob = new Blob([preface, svgData], {type:"image/svg+xml;charset=utf-8"});
           var svgUrl = URL.createObjectURL(svgBlob);
@@ -1358,6 +1425,8 @@ export class UiTemplateService {
           downloadLink.click();
           document.body.removeChild(downloadLink);
       }
+        
+        
         saveSvg1(svg, 'rv3Topology.svg')
   }
 

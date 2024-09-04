@@ -147,11 +147,11 @@ def request_post_data(post_data):
     return fasta, ebi_sequence, startIndex
 
 def make_map_from_alnix_to_sequenceix(request):
-    print(request)
+    #print(request)
     fasta, ebi_sequence, startIndex = request_post_data(request.POST)
-    print("hi")
+    #print("hi")
     mapping = constructEbiAlignmentString(fasta, ebi_sequence, startIndex)
-    print(mapping)
+    #print(mapping)
     if type(mapping) != dict:
         return mapping
     return JsonResponse(mapping, safe = False)
