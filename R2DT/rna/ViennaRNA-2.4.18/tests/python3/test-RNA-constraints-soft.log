@@ -1,0 +1,14 @@
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.168s
+
+OK
+test_sc_mfe_window_bp
+test_sc_mfe_window_up
+test_sc_set_bp
+((.....)). [  -4.90 ]
+test_sc_set_up
+(((....))) [  -2.50 ]
+.((....)). [  -5.70 ]
+test_sc_shift
+PASS python3/test-RNA-constraints-soft.py3 (exit status: 0)

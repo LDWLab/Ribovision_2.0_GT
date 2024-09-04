@@ -1,0 +1,66 @@
+params/default.lo: params/default.c /usr/include/stdc-predef.h \
+ ../../config.h ../../src/ViennaRNA/params/default.h \
+ ../../src/ViennaRNA/params/constants.h \
+ /usr/lib/gcc/x86_64-redhat-linux/8/include/limits.h \
+ /usr/lib/gcc/x86_64-redhat-linux/8/include/syslimits.h \
+ /usr/include/limits.h /usr/include/bits/libc-header-start.h \
+ /usr/include/features.h /usr/include/sys/cdefs.h \
+ /usr/include/bits/wordsize.h /usr/include/bits/long-double.h \
+ /usr/include/gnu/stubs.h /usr/include/gnu/stubs-64.h \
+ /usr/include/bits/posix1_lim.h /usr/include/bits/local_lim.h \
+ /usr/include/linux/limits.h /usr/include/bits/posix2_lim.h \
+ /usr/include/bits/xopen_lim.h /usr/include/bits/uio_lim.h \
+ params/intl11.h params/intl11dH.h params/intl21.h params/intl21dH.h \
+ params/intl22.h params/intl22dH.h
+
+/usr/include/stdc-predef.h:
+
+../../config.h:
+
+../../src/ViennaRNA/params/default.h:
+
+../../src/ViennaRNA/params/constants.h:
+
+/usr/lib/gcc/x86_64-redhat-linux/8/include/limits.h:
+
+/usr/lib/gcc/x86_64-redhat-linux/8/include/syslimits.h:
+
+/usr/include/limits.h:
+
+/usr/include/bits/libc-header-start.h:
+
+/usr/include/features.h:
+
+/usr/include/sys/cdefs.h:
+
+/usr/include/bits/wordsize.h:
+
+/usr/include/bits/long-double.h:
+
+/usr/include/gnu/stubs.h:
+
+/usr/include/gnu/stubs-64.h:
+
+/usr/include/bits/posix1_lim.h:
+
+/usr/include/bits/local_lim.h:
+
+/usr/include/linux/limits.h:
+
+/usr/include/bits/posix2_lim.h:
+
+/usr/include/bits/xopen_lim.h:
+
+/usr/include/bits/uio_lim.h:
+
+params/intl11.h:
+
+params/intl11dH.h:
+
+params/intl21.h:
+
+params/intl21dH.h:
+
+params/intl22.h:
+
+params/intl22dH.h:

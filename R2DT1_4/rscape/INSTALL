@@ -1,0 +1,43 @@
+Brief installation instructions.
+
+R-scape v2.0.2.d	   Sep 2023
+http://eddylab.org/R-scape
+
+----------------------------------------------------------------------------
+Starting from a source distribution, R-scape_v2.0.2.d/:
+
+ move into new directory:   cd R-scape_v2.0.2.d
+ configure:                 ./configure
+ build:                     make
+ install:		    make install
+
+The newly compiled binary "R-scape" is in the R-scape_v2.0.0.c/bin directory.
+You can run it from there.
+
+For complete documentation, see the R-scape User's Guide 
+(R-scape_v2.0.2.d/documentation/R-scape_userguide.pdf).
+
+The default installation produces executable: R-scape_v2.0.2.d/bin/R-scape
+
+----------------------------------------------------------------------------
+Starting from a Git Repo: 
+
+If you have cloned the R-scape Git repository, there's
+some additional stuff you need to do one-time-only in your new working
+directory.
+
+First you need to clone easel and hmmer too:
+  cd lib
+  git clone https://github.com/EddyRivasLab/hmmer.git
+  cd hmmer/
+  git clone https://github.com/EddyRivasLab/easel.git
+
+And finally:
+   cd lib/R2R
+   ln -s R2R-1.0.6 R2R-current
+   cd ../../
+
+-------------------------------------------------------------
+The R-scape development team
+Elena Rivas
+elenarivas@fas.harvard.edu

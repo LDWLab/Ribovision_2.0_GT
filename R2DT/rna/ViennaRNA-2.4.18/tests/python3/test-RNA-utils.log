@@ -1,0 +1,13 @@
+......
+----------------------------------------------------------------------
+Ran 6 tests in 0.001s
+
+OK
+test_basePairDistance
+test_filename_sanitize_long_names
+test_filename_sanitize_simple
+test_filename_sanitize_special_names
+test_pairtable
+test_plists
+(RNA.ep(i=1, j=16, p=0.6, t=0), RNA.ep(i=2, j=15, p=0.6, t=0), RNA.ep(i=3, j=14, p=0.6, t=0), RNA.ep(i=5, j=13, p=0.6, t=0), RNA.ep(i=6, j=12, p=0.6, t=0), RNA.ep(i=7, j=11, p=0.6, t=0))
+PASS python3/test-RNA-utils.py3 (exit status: 0)

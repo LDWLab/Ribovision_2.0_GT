@@ -1,0 +1,8 @@
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+OK
+test_enumerate_necklaces (4 sequences, 1 strand per sequences)
+test_enumerate_necklaces (3 sequences, different number of strands per sequence)
+PASS python3/test-RNA-combinatorics.py3 (exit status: 0)

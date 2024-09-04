@@ -1,0 +1,13 @@
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.002s
+
+OK
+test_Lfold_cb
+test_aliLfold_cb
+test_mfe_window
+[  -5.60 ]
+test_mfe_window_cb (comparative)
+.((....)). ( -0.80)    5
+(((.(((...)))))) ( -5.60)    1
+ PASS python3/test-RNA-mfe_window.py3 (exit status: 0)

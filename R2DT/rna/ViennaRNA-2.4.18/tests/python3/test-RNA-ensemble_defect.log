@@ -1,0 +1,7 @@
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.003s
+
+OK
+test_ensemble_defect
+PASS python3/test-RNA-ensemble_defect.py3 (exit status: 0)

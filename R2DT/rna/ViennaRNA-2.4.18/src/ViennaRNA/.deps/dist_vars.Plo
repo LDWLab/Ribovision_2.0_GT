@@ -1,0 +1,3 @@
+dist_vars.lo: dist_vars.c /usr/include/stdc-predef.h
+
+/usr/include/stdc-predef.h:

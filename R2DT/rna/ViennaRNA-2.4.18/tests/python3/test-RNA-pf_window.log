@@ -1,0 +1,30 @@
+.........
+----------------------------------------------------------------------
+Ran 9 tests in 5.467s
+
+OK
+test_pfl_SHAPE
+test_pfl_fold
+test_pfl_fold_up
+test_pfl_sc
+test_probs_window_full
+test_probs_window_up
+Testing whether unpaired probabilities for u = 1 are identical to what we get using regular partition function method
+Testing whether unpaired probabilties for short RNAs are identical to what we get from exhaustive enumeration
+	Trial 0 - Difference between pflfold unpaired probs and exhaustive enumeration
+	Exterior loop    (avg, var)	2.32712e-09	6.66299e-17
+	Hairpin loop     (avg, var)	1.05228e-11	5.34298e-22
+	Interior loop    (avg, var)	2.86517e-10	8.45517e-18
+	Multibranch loop (avg, var)	3.94022e-20	3.43182e-38
+	Trial 1 - Difference between pflfold unpaired probs and exhaustive enumeration
+	Exterior loop    (avg, var)	2.9374e-09	5.60038e-18
+	Hairpin loop     (avg, var)	1.23431e-09	7.56747e-18
+	Interior loop    (avg, var)	2.48361e-10	2.94214e-18
+	Multibranch loop (avg, var)	1.26364e-17	2.34278e-33
+	Trial 2 - Difference between pflfold unpaired probs and exhaustive enumeration
+	Exterior loop    (avg, var)	2.4566e-09	3.58515e-18
+	Hairpin loop     (avg, var)	1.09064e-09	2.43479e-18
+	Interior loop    (avg, var)	1.59737e-11	5.6647e-21
+	Multibranch loop (avg, var)	8.25344e-19	3.23778e-36
+Testing whether individual loop context unpaired probabilities sum up properly
+PASS python3/test-RNA-pf_window.py3 (exit status: 0)

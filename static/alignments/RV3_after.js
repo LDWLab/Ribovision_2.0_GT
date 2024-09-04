@@ -413,6 +413,20 @@ var mapCustomMappingData = function (custom_data, custom_data_name, topviewer) {
             //var selectBoxEle = viewerInstanceTop.pluginInstance.targetEle.querySelector('.menuSelectbox');
             //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.menuSelectbox');
             //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
+
+            let mapping2D_3D = {};
+
+            for (let [k,v] of Object.entries(vm.st_mapping2D)){
+                if (Object.keys(vm.st_mapping2D).includes(k)){
+                    mapping2D_3D[v] = vm.st_mapping3D[k];
+                }
+            }
+
+            let custom_data3D = [];
+            for (let [k, [u, v]] of Object.entries(custom_data)){
+                custom_data3D.push([mapping2D_3D[u], v]);
+                
+            }
         
             let vals = custom_data.map(function (v) { return v[1] });
             let indexes = custom_data.map(function (v) { return v[0] });
@@ -421,14 +435,24 @@ var mapCustomMappingData = function (custom_data, custom_data_name, topviewer) {
             //let coilsOutOfCustom = vm.coil_residues.filter(value => !indexes.includes(value));
             //window.coilsOutOfCustom = coilsOutOfCustom;
             //console.log('CD1', custom_data_name, custom_data );
-            var custom_prop = new Map();
+            let custom_prop = new Map();
+            let custom_prop3D = new Map();
+            
+            custom_prop.set(custom_data_name, custom_data);
+            custom_prop3D.set(custom_data_name, custom_data3D);
+            
             custom_prop.set(custom_data_name, custom_data);
             if (window.custom_prop) {
                 window.custom_prop.set(custom_data_name, custom_data)
             } else {
                 window.custom_prop = custom_prop;
             }
-            topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(custom_prop);
+            if (window.custom_prop_3D) {
+                window.custom_prop.set(custom_data_name, custom_data3D)
+            } else {
+                window.custom_prop_3D = custom_prop3D;
+            }
+            topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(custom_prop, custom_prop3D);
             //var custom_option = document.createElement("option");
             //custom_option.setAttribute("value", selectBoxEle.options.length);
             //custom_option.appendChild(document.createTextNode(custom_data_name));
@@ -614,6 +638,37 @@ function cleanFilter(checked_filter, masking_range) {
             handlePropensities(vm.checked_propensities);
       });
   };
+
+  async function fetchRiboXYZData(url) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+  
+      let pdb_entries = [];
+      
+      data.forEach(function(poly) {
+        let pdb_text = `${poly['parent_rcsb_id']} ${poly['src_organism_names'].length > 0 ? poly.src_organism_names[0].slice(0, 39) : ""}`;
+        pdb_entries.push({ id: poly.parent_rcsb_id.toLowerCase(), name: pdb_text });
+      });
+  
+      if (pdb_entries.length === 0) {
+        return;
+      }
+  
+      vm.pdbs.push(...pdb_entries.sort((a, b) => (a.id > b.id ? 1 : -1)));
+  
+      const pdbSet = new Set();
+      vm.pdbs = vm.pdbs.filter(entry => !pdbSet.has(entry.id) && pdbSet.add(entry.id));
+      
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+  
+
   
   var populatePDBs = function (alndata){
       if (alndata != null){
@@ -641,34 +696,45 @@ function cleanFilter(checked_filter, masking_range) {
                     //Should we include 25S for this?
                     rna_class = ['25S', '28S']
                   } else if(vm.alnobj.text == 'SSU') {
-                    rna_class = ['16S']
+                    rna_class = ['16S', '18S']
                   }
                   rna_class.forEach(rnaClass => {
-                  let riboXYZurl = `https://api.ribosome.xyz/neo4j/get_rna_class/?rna_class=${rnaClass}rRNA&format=json`
+                  //let riboXYZurl = `https://api.ribosome.xyz/neo4j/get_rna_class/?rna_class=${rnaClass}rRNA&format=json`
+                  //let riboXYZurl = `https://r8-kdd.math.ubc.ca/polymer_class/polynucleotide?rna_class=${rnaClass}rRNA&format=json`
+                  let riboXYZurl = `https://api.ribosome.xyz/polymers/polynucleotide?rna_class=${rnaClass}rRNA&format=json`
+                  
+                  fetchRiboXYZData(riboXYZurl);  
+                  //ajax(riboXYZurl).then(data => {
+                      //var pdb_entries = []
                  
-                  ajax(riboXYZurl).then(data => {
-                      var pdb_entries = []
-                 
-                      data.forEach(function(entry){
-                          let pdb_text = `${entry.parent_rcsb_id} ${entry.src_organism_names[0].slice(0,39)}`
+                      //data.forEach(function(entry){
+                          //let pdb_text = `${entry.parent_rcsb_id} ${entry.src_organism_names[0].slice(0,39)}`
                           
                           //let pdbxDescription = entry.protein.rcsb_pdbx_description.trim().replace(/-[\w]{1}$/,'').replace(/ubiquitin/ig,'')
                           //if (polNames.includes(pdbxDescription)){
                           //pdb_entries.push({id: entry.parent_rcsb_id, name: `${entry.parent_rcsb_id} ${entry.src_organism_names[0].slice(0,39)}`});
-                          pdb_entries.push({id: entry.parent_rcsb_id.toLowerCase(), name: pdb_text});
+                         // pdb_entries.push({id: entry.parent_rcsb_id.toLowerCase(), name: pdb_text});
                               //pdb_entries.push({id: entry.parent_rcsb_id})
                               
   
                           //}
-                      });
+                      //});
+
+
                       
-                      if (pdb_entries.length == 0){return;}
-                      vm.pdbs.push(...pdb_entries.sort((a, b) => (a.id > b.id) ? 1 : -1));
-                      const pdbSet = new Set();
-                      vm.pdbs = vm.pdbs.filter(entry => !pdbSet.has(entry.id) && pdbSet.add(entry.id));
-                  }).catch(error => {
-                      console.log(error);
-                  })
+                        //data.forEach(function(poly){
+                            //let pdb_text = `${poly['parent_rcsb_id']} ${poly['src_organism_names'].length > 0  ?poly.src_organism_names[0].slice(0,39):""}`
+                            //pdb_entries.push({id: poly.parent_rcsb_id.toLowerCase(), name: pdb_text});
+
+                        //}) 
+                      
+                      //if (pdb_entries.length == 0){return;}
+                     // vm.pdbs.push(...pdb_entries.sort((a, b) => (a.id > b.id) ? 1 : -1));
+                      //const pdbSet = new Set();
+                      //vm.pdbs = vm.pdbs.filter(entry => !pdbSet.has(entry.id) && pdbSet.add(entry.id));
+                  //}).catch(error => {
+                      //console.log(error);
+                 // })
               })}).catch(error => {
                   console.log(error);
               })

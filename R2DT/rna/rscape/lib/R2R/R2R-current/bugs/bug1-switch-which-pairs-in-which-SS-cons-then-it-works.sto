@@ -1,0 +1,24 @@
+# STOCKHOLM 1.0
+seq            AGCGCCUGGACUUAAAGCCUUAAGGCUUUAAGUUGACGAGGGCAGGGUUUAUCGAGACAUCGGCGGGUGCCCUGCGGUCUUCCUGCGACCGUUAGAGGACUGGUAAAACCACAGGCGACUGUGGCAUAGAGCAGUCCGGGCAGGAAA
+#=GC SS_cons   ::::::::<<<<<<<<<<<____>>>>>>>>>>>,,,,,,,,<<<<<<---...<....>....---->>>>>><<<<<.......>>>>>,,,,.<<<<<<------<<<<<<____>>>>>>------->>>>>>::::::::::
+#=GC SS_cons_1 ..<<<<.<....................................................>>>>>..................................................................................
+#=GC SS_cons_2 ....................................<<<............>>>.............................................................................................
+#=GC SS_cons_3 ................................................................................<<<<<<.....................................................>>>>>>..
+#=GC R2R_LABEL .Cg..c..a.........................b....e..f.....l.....d..........h........i.....j.....k...........................................................X
+#=GF R2R delcols X
+#=GF qR2R place_explicit a a-- 0 3 0 0 0 0
+#=GF qR2R place_explicit a-- c 0 1 0 0 0 0
+#=GF qR2R place_explicit b c -90 3 0 0 0 -90
+#=GF qR2R place_explicit d d-- 0 2 0 0 0 0
+#=GF qR2R place_explicit e e-- -45 1 0 0 0 0
+#=GF qR2R place_explicit f g -180 9 0 0 0 0
+#=GF qR2R bulge c++
+#=GF qR2R bulge h
+#=GF qR2R bulge l
+#=GF qR2R place_explicit i i-- 0 2 0 0 0 0
+#=GF qR2R place_explicit j j-- +45 1 0 0 0 +90
+#=GF qR2R place_explicit k k-- 0 1 0 0 0 0 f
+#=GF R2R tick_label C cleave-is-5'
+#=GF R2R tick_label_disable_default_numbering
+#=GF Makefile oneseq seq
+//

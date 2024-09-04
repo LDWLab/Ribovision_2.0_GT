@@ -1,0 +1,66 @@
+<html>
+<head>
+    {% csrf_token %}
+	{% load static %}
+	{% load render_bundle from webpack_loader %}
+	
+	<!-- Favicon -->
+	<link rel="shortcut icon" href="{% static 'img/faviconR.png' %}"/>
+
+	<script src={% static 'alignments/external/prop-types.min.js' %}></script>
+	<!-- include Ajax -->
+	<script src={% static 'alignments/external/jquery.min.js' %}></script>
+	<!-- include styles -->
+	<link rel="stylesheet" href={% static 'alignments/external/bootstrap.min.css' %}>
+	<link rel="stylesheet" href={% static 'alignments/external/vue-treeselect.min.css' %}>
+	<link rel="stylesheet" type="text/css" href={% static 'alignments/style.css' %}>
+	<link rel="stylesheet" type="text/css" href={% static 'alignments/external/pdbe-molstar-3.1.0.css' %}>
+	<link rel="stylesheet" href={% static 'alignments/external/vue-tour.css' %}>
+    <link rel="stylesheet" type="text/css" href="/static/pdb-rna-viewer-0.1.0.css">
+	<style data="rv3_style" type="text/css"></style>
+	<!-- Lodash script -->
+	<script type="text/javascript" src={% static 'alignments/external/lodash.min.js' %}></script>
+	<!-- Complied & minified d3 and math libraries -->
+	<script src={% static 'alignments/external/d3@5.9.2' %}></script>
+	<script src={% static 'alignments/external/math.min.js' %}></script>
+	<script src={% static 'alignments/external/html2canvas.min.js' %}></script>
+	<script src={% static 'alignments/external/bootstrap.bundle.min.js' %}></script>
+	
+	<!-- Plotly scripts -->
+	<script src={% static 'alignments/external/plotly-latest.min.js' %} charset="utf-8"></script>
+
+	<!-- Support scripts for the topology viewer -->
+	<script type="text/javascript" src={% static 'alignments/colormaps.js' %} defer></script>
+
+	<!-- Topology and Mol* viewers -->
+	<!-- <script type="text/javascript" src={% static 'pdb-topology-viewer-plugin-2.0.0.js' %} defer></script> -->
+	<script type="text/javascript" src={% static 'alignments/external/pdbe-molstar-plugin-3.1.0_24.js' %}></script>
+	
+	<!-- Support scripts for RV3 -->
+	<script type="text/javascript" src={% static 'alignments/RV3_before.js' %}></script>
+
+	<title>RiboVision 2</title>
+</head>
+<body>
+	
+	<!-- include our custom Vue scripts -->
+	
+	<div id="app"></div>
+	{% render_bundle 'main' %}
+
+	<!-- Histats.com  START  (aync)-->
+	<script type="text/javascript">var _Hasync= _Hasync|| [];
+	_Hasync.push(['Histats.start', '1,4492223,4,0,0,0,00010000']);
+	_Hasync.push(['Histats.fasi', '1']);
+	_Hasync.push(['Histats.track_hits', '']);
+	(function() {
+	var hs = document.createElement('script'); hs.type = 'text/javascript'; hs.async = true;
+	hs.src = ('//s10.histats.com/js15_as.js');
+	(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(hs);
+	})();</script>
+	<noscript><a href="/" target="_blank"><img  src="//sstatic1.histats.com/0.gif?4492223&101" alt="free html hit counter" border="0"></a></noscript>
+	<!-- Histats.com  END  -->
+	
+</body>
+
+</html>

@@ -1,0 +1,48 @@
+.......External loop                           :     0
+Interior loop (  1, 16) CG; (  2, 15) GC:  -240
+Interior loop (  2, 15) GC; (  3, 14) CG:  -340
+Interior loop (  3, 14) CG; (  5, 13) GC:   140
+Interior loop (  5, 13) GC; (  6, 12) GC:  -330
+Interior loop (  6, 12) GC; (  7, 11) GC:  -330
+Hairpin  loop (  7, 11) GC              :   540
+.External loop                           :     0
+Interior loop (  1, 16) CG; (  2, 15) GC:  -240
+Interior loop (  2, 15) GC; (  3, 14) CG:  -340
+Interior loop (  3, 14) CG; (  5, 13) GC:   140
+Interior loop (  5, 13) GC; (  6, 12) GC:  -330
+Interior loop (  6, 12) GC; (  7, 11) GC:  -330
+Hairpin  loop (  7, 11) GC              :   540
+...
+----------------------------------------------------------------------
+Ran 11 tests in 0.005s
+
+OK
+test_eval_covar_structure
+((((....)))) [ -33.33 ]
+test_eval_loop_pt
+[  -3.30 ]
+test_eval_move_del
+
+ (((.(((...))))))  moveset (-7,-11) --> [   2.10 ]
+test_eval_move_ins
+
+ (((.((.....)))))  moveset (7,11) --> [  -2.10 ]
+test_eval_move_pt_del
+
+ (((.(((...))))))  moveset (-7,-11) --> [   2.10 ]
+test_eval_structure
+
+ (((.(((...)))))) [  -5.60 ]
+test_eval_structure_pt
+(((.(((...)))))) [  -5.60 ]
+test_eval_structure_pt_verbose
+test-RNA-mfe_eval.py3.out  is opened for writing
+(((.(((...)))))) [  -5.60 ]
+test_eval_structure_verbose
+test-RNA-mfe_eval.py3.out  is opened for writing
+(((.(((...)))))) [  -5.60 ]
+test_mfe
+(((.(((...)))))) [  -5.60 ]
+test_mfe_Dimer
+(((.(((..)))))) [  -8.00 ]
+PASS python3/test-RNA-mfe_eval.py3 (exit status: 0)

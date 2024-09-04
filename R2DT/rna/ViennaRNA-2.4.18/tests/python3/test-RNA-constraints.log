@@ -1,0 +1,19 @@
+......
+----------------------------------------------------------------------
+Ran 6 tests in 0.032s
+
+OK
+test_constraints_add
+..........(((....))) [  -2.70 ]
+(((....)))(((....))) [  -5.60 ]
+(((....)))(((....))) [ -10.60 ]
+test_hc_add_bp
+(((..............))) [  -1.20 ]
+test_hc_add_bp_nonspecific
+(((..............))) [  -0.40 ]
+test_hc_add_from_db
+..........(((....))) [  -2.70 ]
+test_hc_add_up
+.((....)).(((....))) [  -3.40 ]
+test test_hc_mfe_window_bp
+PASS python3/test-RNA-constraints.py3 (exit status: 0)

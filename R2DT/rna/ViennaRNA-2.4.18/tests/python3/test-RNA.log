@@ -1,0 +1,72 @@
+...............  start of MS:
+  (..............) 540
+
+  start of MS:
+  ................ 0
+
+  start of MS:
+  (..............) 540
+
+  start of MS:
+  ((............)) 320
+
+  start of MS:
+  (((..........))) -80
+
+  start of MS:
+  (((.(......).))) -140
+
+  start of MS:
+  (((.((....)).))) -550
+
+.......
+----------------------------------------------------------------------
+Ran 22 tests in 0.059s
+
+OK
+test_centroid
+((((((...))).))) 	Distance of :    0.66
+test_create_fold_compound_2D
+test_create_fold_compound_Align
+test_create_fold_compound_Single
+test_pf
+(((.(({...))}))) [  -6.13 ]
+CGCAGGGAUACCCGCG 	 meanBPDistance :  2.8248213773635693
+testing pf_dimer() method
+testing alifold()
+test_cofold
+test_bp_prop
+test_constrained_folding
+test_different_symbol_set
+testing duplexfold()
+test_eos_dimer
+test_foldASequence
+test_hammingDistance 	 calculate a hamming distance
+test_model_details_parameter_structure
+test_moveSets
+energy =  0  s =  ................
+test_parse_structure
+test_rna_plots
+please check the two postscript files test_ss.ps and test_dp.ps
+test_simplexycoordinates
+100.0 , 100.0
+115.0 , 100.0
+130.0 , 100.0
+144.26585388183594 , 95.36474609375
+153.08262634277344 , 107.5
+165.21788024902344 , 116.31678009033203
+177.35313415527344 , 125.13356018066406
+191.61898803710938 , 129.76881408691406
+191.61898803710938 , 144.76881408691406
+177.35313415527344 , 149.40406799316406
+168.53634643554688 , 137.26881408691406
+156.40109252929688 , 128.45204162597656
+144.26583862304688 , 119.63526153564453
+129.99998474121094 , 115.00000762939453
+114.99998474121094 , 115.00000762939453
+99.99998474121094 , 115.00000762939453
+85.73413848876953 , 119.63526153564453
+test_temperature
+test_tree_distance
+test version number
+PASS python3/test-RNA.py3 (exit status: 0)

@@ -1,0 +1,3 @@
+special_const.lo: special_const.c /usr/include/stdc-predef.h
+
+/usr/include/stdc-predef.h:

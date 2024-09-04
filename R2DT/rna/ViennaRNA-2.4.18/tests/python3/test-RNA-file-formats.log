@@ -1,0 +1,24 @@
+........5 sequences; length of alignment 42.
+5 sequences; length of alignment 6.
+4 sequences; length of alignment 13.
+.712 sequences; length of alignment 230.
+61 sequences; length of alignment 207.
+100 sequences; length of alignment 203.
+208 sequences; length of alignment 278.
+..
+----------------------------------------------------------------------
+Ran 11 tests in 0.009s
+
+OK
+test_file_msa_detect_CLUSTAL_format
+test_file_msa_detect_FASTA_format
+test_file_msa_detect_MAF_format
+test_file_msa_detect_STOCKHOLM_format
+test_file_msa_detect_non_MSA_format
+test_file_msa_read_clustal
+test_file_msa_read_fasta
+test_file_msa_read_maf
+test_file_msa_read_multi_maf
+test_file_msa_read_multi_stk
+test_file_msa_read_stk
+PASS python3/test-RNA-file-formats.py3 (exit status: 0)

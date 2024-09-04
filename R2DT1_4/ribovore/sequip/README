@@ -1,0 +1,13 @@
+# sequip
+# version 0.10
+# Sep 2023
+# Eric Nawrocki
+# https://github.com/nawrockie/sequip
+#
+# The Sequip library has the following modules:
+# sqp_opts.pm:    command line option processing
+# sqp_ofile.pm:   output file support
+# sqp_seq.pm:     biological sequence-related subroutines
+# sqp_seqfile.pm: sequence file-related subroutines
+# sqp_utils.pm:   general utilities and data structure handling
+# 

@@ -1,0 +1,17 @@
+....
+----------------------------------------------------------------------
+Ran 4 tests in 0.067s
+
+OK
+Hairpin backtracking (basepair)
+(((((..)))))  -5.40
+Hairpin backtracking (Dictionary)
+(((((..)))))  -5.40
+Hairpin backtracking (Tuples)
+(((((..)))))  -5.40
+Revert MFE to MaximumMatching
+AUUUCCACUAGAGAAGGUCUAGAGUGUUUGUCGUUUGUCAGAAGUCCCUAUUCC
+.(((..((.((((((((((....).)))).)).))))).)))(((....))).. (max BPs: 18)
+GGGGAAAACCCC
+((((....)))) (max BPs: 4)
+PASS python3/test-RNA-sc-callbacks.py3 (exit status: 0)

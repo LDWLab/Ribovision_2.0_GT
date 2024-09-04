@@ -1,0 +1,16 @@
+# STOCKHOLM 1.0
+seq                                         AAUCGUUCUUACUGUGAGAAUCAGUGACAAACAUGUGGGGCUUAUAUCUAAUCAUUUUAGAGGGCAGUAUUACUGUCGUCUGAAGGUAGGUGGAGGAGAUUAGUAUUAGUGCAGACGUUAAAACCAUGU
+#=GC SS_cons                                ........<<<<<<.______>>>>>>---<<<<<----<<<-....<<<<<<............................................>>>>>>...->>>-------------->>>>>
+#=GC R2R_LABEL                              ........C..........................a...f.............XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.............b..c......d..e.....
+#=GF R2R bulge a
+#=GF R2R bulge c++
+#=GF R2R place_explicit b b-- -100 1 0 0 0 -100
+#=GF R2R place_explicit e++ e 0 1 0 0 0 +100
+#=GF R2R place_explicit f a-- 0 3 0 0 0 0
+#=GF R2R place_explicit c b 0 3 0 0 0 0
+#=GF R2R place_explicit e d 0 3 0 0 0 0
+#=GF R2R delcols X
+#=GF R2R tick_label C cleave-is-5'
+#=GF R2R tick_label_disable_default_numbering
+#=GF Makefile oneseq seq
+//

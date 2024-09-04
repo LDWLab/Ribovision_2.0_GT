@@ -1,0 +1,14 @@
+# README for sqp_ofile.pm
+# sequip version 0.10
+# Sep 2023
+#
+# This file explains some aspects of the sqp_ofile.pm module.
+# 
+# The comments in sqp_ofile.pm are currently the only documentation
+# for this module. For an example of usage, see vadr and ribovore
+# which, as of this writing, are the only two packages that use
+# sqp_ofile.pm:
+#
+# https://github.com/ncbi/vadr.git
+# https://github.com/ncbi/ribovore.git
+# 

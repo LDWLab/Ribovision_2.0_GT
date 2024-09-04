@@ -1,0 +1,58 @@
+v2.0.11
+- Fixed reverse complement of IUPAC codes
+
+v2.0.10
+- Added new covariance model to detect vertebrate mt-tRNA-Cys without D-arm in
+armadillos and some reptiles
+- Added MitoHighConfidenceFilter, a post-filtering tool, for annotating 
+possible mitochondrial tRNA pseudogenes or extra genes due to duplication events
+
+v2.0.9
+- Added option -j or --gff for generating GFF3 output file
+- Checked Infernal version compatibilty
+- Fixed bug on parsing tRNAscan output in legacy mode
+
+v2.0.8
+- Fixed temporary file cleanup process
+- Added function declarations for eufind and trnascan to eliminate errors
+when building with Xcode 12
+
+v2.0.7
+- Fixed positioning when multiple noncanonical introns exist in some 
+archaeal tRNAs that may cause incorrect isotype and anticodon annotation
+- Handled mt-tRNAs in vertebrates other than mt-tRNA-Ser-GCU that are missing
+D-arm
+- Added new genetic code file to handle mt-tRNA-Asp in marsupials that have GCC
+anticodon
+
+v2.0.6
+- Fixed anticodon coordinates when archaeal non-canonical intron locates next 
+to anticodon
+- Fixed tRNA coordinates when prediction is located at the edge of truncated 
+input sequence
+- Update archaeal isotype-specific covariance models with more optimal scoring 
+for consistent isotype
+
+v2.0.5
+- Fixed code for missing tRNA predictions that only occurred when predictions were 
+located within 200bp of long stretch of Ns used to connect contigs into scaffolds 
+of incomplete genome assemblies
+
+v2.0.4
+- Bug fixing for incorrect position of truncated tRNA-fMet in bacterial mode
+- Changed isotype and anticodon to Undet/NNN when the prediction matched with   
+the tRNA-SeC convariance model but the predicted anticodon was not TCA
+- Added code to allow the use of --max option for mitochondrial search mode
+
+v2.0.3
+- Added code to adjust anticodon positions for bacterial tRNA-fMet and archaeal 
+tRNA-His when the sequences were misaligned with the models
+
+v2.0.2
+- Updated code to make thread option consistent with Infernal
+
+v2.0.1
+- Updated EukHighConfidenceFilter to flag tRNA-Sup as unexpected anticodon
+
+v2.0
+- Major update of tRNAscan-SE

@@ -1,0 +1,16 @@
+..........
+----------------------------------------------------------------------
+Ran 10 tests in 0.489s
+
+OK
+test_pbacktrack     (single structure, a.k.a. pbacktrack)
+test_pbacktrack5    (single sub-structure, a.k.a. pbacktrack5)
+test_pbacktrack5_cb (multiple sub-structures, a.k.a. pbacktrack5_cb)
+test_pbacktrack5    (multiple sub-structures, a.k.a. pbacktrack5_num)
+test_pbacktrack_cb  (multiple structures, a.k.a. pbacktrack_cb)
+test_pbacktrack     (multiple structures, a.k.a. pbacktrack_num)
+test_pbacktrack_nr
+test_pbacktrack_nr_cb
+test_pbacktrack_nr_resume
+test_pbacktrack_nr_resume_cb
+PASS python3/test-RNA-boltzmann-sampling.py3 (exit status: 0)

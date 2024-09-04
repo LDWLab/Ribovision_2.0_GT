@@ -1,0 +1,121 @@
+# README for sqp_opts.pm
+# sequip version 0.10
+# Sep 2021
+#
+# This file explains some aspects of the sqp_opts.pm module.
+# 
+# Take a look at the code in opts-example.pl, and read the comments, 
+# and possibly also the code and comments in sqp_opts.pm,
+# to get an idea of the how module works.
+#
+# opts-example.pl may be a useful starting template for you when
+# writing scripts that use sqp_opts.pm
+# Preliminary step. Make a copy of opts-example.pl that you will modify:
+> cp opts-example.pl my-opts-example.pl
+#
+# Additionally, look at the opts-example-required.pl script to see an
+# example of how to use a required option. opts-example-required.pl is
+# identical to opts-example.pl except that the --step option is required.
+#
+###########################################################################
+#
+# 1. Option naming convention.
+# 
+# Option names be a single character (letter or number)
+# preceded by a single '-', e.g. '-h', or a multi-character
+# (combinations of letters and numbers with no commas (',') or dashes
+# ("-")) preceded by two consecutive dashes, e.g. '--step'.
+# 
+# To demonstrate this, make a copy of opts-example.pl: 
+> cp opts-example.pl my-opts-example.pl
+# 
+# And in my-opts-example.pl change the 'opt_Add("-h"' call to
+#'opt_Add("--h'", and run the script:
+> perl my-opts-example.pl
+ERROR, opt_Add() option --h violates naming convention:
+	Options must be of the form of:
+		-a   (single dash followed by single char) or
+		--aa (double dash followed by > 1 char)
+	And no internal dashes or commas allowed.
+#
+# Revert that change and then change the 'opt_Add("--step"' call to be
+# 'opt_Add("-step"), and run:
+#
+> perl my-opts-example.pl
+ERROR, opt_Add() option -step violates naming convention:
+	Options must be of the form of:
+		-a   (single dash followed by single char) or
+		--aa (double dash followed by > 1 char)
+	And no internal dashes or commas allowed.
+#
+#
+###########################################################################
+#
+# 2. Enforcing and disallowing option combinations: 'requires' and
+# 'incompatible'
+# 
+# The 'requires' column of an 'opt_Add()' function call (the 5th
+# column) specifies what other options must be in set in combination
+# with the current option for the script to work. There can be >= 1
+# options listed here, separated by a single ','. For example look at
+# the opt_Add() call for --mult in opts-example.pl:
+#
+##     option            type       default               group   requires incompat         preamble-output                      help-output                
+# opt_Add("--mult",       "boolean", 0,                        2, "--step", "--realstep",    "multiplicative mode",               "multiplicative mode, number n+1 is a multiple of number n",  \%opt_HH, \@opt_order_A);
+
+# This specifies that the --mult option must be used in combination
+# with the --step option. Try running the script with only --mult
+# but not --step:
+> perl opts-example.pl --mult 10 
+ERROR, opt_ValidateSet() option --step is required in combination with --mult, but is not set.
+
+# This is a one-directional relationship. That is, the --step option
+# does *not* require the --mult option be set. We can tell this by
+# looking at it's opt_Add() call.
+##     option            type       default               group   requires incompat         preamble-output                      help-output                opt_Add("--step",       "integer", 1,                        2,    undef, "--realstep",    "integer step size between numbers", "set integer step size between numbers to <n>",               \%opt_HH, \@opt_order_A);
+
+# Note that the 'requires' column is 'undef', meaning that --step does
+# not require any other options be set for it to work.
+#
+# As a special case, if the 'requires' and 'incompatible' columns are 
+# '*' then this option is required whenever the program is run. 
+# An example of this is the "--step" option in the opts-example-required.pl
+# script:
+##     option            type       default               group   requires incompat   preamble-output                                help-output                
+#opt_Add("--step",       "integer", undef,                    1,    "*",   "*",       "REQUIRED: integer step size between numbers", "REQUIRED: set integer step size between numbers to <n>", \%opt_HH, \@opt_order_A);
+#
+# The 'incompatible' column of an 'opt_Add()' function call (the
+# 6th column) is like 'requires' but it specifies what other 
+# options can *not* be set in combination with the current option.
+# For example, "--step" and "--mult" are incompatible with
+# "--realstep":
+#       option          type       default               group   requires incompat         preamble-output                      help-output                 opt_Add("--realstep",   "real",    undef,                    2,    undef, "--step,--mult", "step size between numbers (real)",  "set (real value) step size between numbers to <x>",          \%opt_HH, \@opt_order_A);
+# 
+> perl opts-example.pl --realstep 1.5 --step 3 10
+ERROR, opt_ValidateSet() option --step and --realstep are incompatible, choose one or the other.
+#
+###########################################################################
+#
+# 3. Advanced option handling is not currently implemented by
+#    sqp_opts.pm. In some situations, such as these listed below,
+#    you'll be forced to add code that doesn't use sqp_opts.pm
+#    to do what you want. 
+#
+# A. enforcing the range of an option value, e.g. enforcing an integer
+#    is positive. 
+#
+#    From opts-example.pl:
+if(opt_IsUsed("--step", \%opt_HH) && (opt_Get("--step", \%opt_HH) < 1)) { 
+  die sprintf("ERROR, with --step <n> <n> must be >= 1, you used <n> of %d\n", opt_Get("--step", \%opt_HH));
+}
+#
+# B. enforcing an option has to be set, or the program will not run
+#    For example, to require the option --vital is used (not in opts-example.pl)
+#
+if(! opt_IsUsed("--vital", \%opt_HH)) { 
+   die "ERROR --vital, a required option, is not set on the commandline."
+}
+#
+###########################################################################
+
+
