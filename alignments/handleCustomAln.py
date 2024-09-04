@@ -1,3 +1,4 @@
+import os
 from django.http import JsonResponse, HttpResponseServerError, HttpResponse
 from io import StringIO
 from Bio import AlignIO
@@ -69,19 +70,19 @@ def prepareCDHit (alnObj):
 
 def executeCDHit(fasta):
     from subprocess import Popen, PIPE
-    from os import remove, path
+    # from os import remove, path
     import datetime
+
 
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
-    fastaName = f"/home/RiboVision3/static/cleanFastaCD{fileNameSuffix}.fa"
-    cdHitOut = f"/home/RiboVision3/static/cleanFastaCD{fileNameSuffix}"
-    cdHitClusters = f"/home/RiboVision3/static/cleanFastaCD{fileNameSuffix}.clstr"
+    fastaName = os.path.join(os.getcwd(), f"static/cleanFastaCD{fileNameSuffix}.fa")
+    cdHitOut = os.path.join(os.getcwd(), f"static/cleanFastaCD{fileNameSuffix}") 
+    cdHitClusters = os.path.join(os.getcwd(), f"static/cleanFastaCD{fileNameSuffix}.clstr")
     tempfiles = [fastaName, cdHitOut, cdHitClusters]
     for tempf in tempfiles:
-        if path.isfile(tempf):
-            remove(tempf)
-    import os
+        if os.path.isfile(tempf):
+            os.remove(tempf)
 
     curpath = os.path.abspath(os.curdir)
     fh = open(fastaName, "w")
@@ -93,13 +94,13 @@ def executeCDHit(fasta):
 
     if len(output.decode("ascii")) <= 0:
         for removeFile in tempfiles:
-            remove(removeFile)
+            os.remove(removeFile)
         return HttpResponseServerError("CDHIT failed!\nLikely a problem with the sequence alignment.")
 
     cdHitClusterOut = output.decode("ascii")
     
     for tempf in tempfiles:
-        remove(tempf)
+        os.remove(tempf)
     
     clusters = parseCDHitClusters(cdHitClusterOut)
     

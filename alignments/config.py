@@ -1,1 +1,3 @@
-cif_fileNameSuffix_share=''
+cif_path_share = ""
+pdb_path_share = ""
+chainid = ""

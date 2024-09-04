@@ -87,8 +87,8 @@ def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     ### BE CAREFUL WHEN MERGING THE FOLLOWING LINES TO PUBLIC; PATHS ARE HARDCODED FOR THE APACHE SERVER ###
-    alignmentFileName = "/home/RiboVision3/static/alignment" + fileNameSuffix + ".txt"
-    ebiFileName = "/home/RiboVision3/static/ebi_sequence" + fileNameSuffix + ".txt"
+    alignmentFileName = os.path.join(os.getcwd(), f"static/alignment{fileNameSuffix}.txt")
+    ebiFileName = os.path.join(os.getcwd(), f"static/ebi_sequence{fileNameSuffix}.txt") 
     mappingFileName = ebiFileName + ".map"
     fasta = re.sub('>Structure sequence[\s\S]*?>','>',fasta)
     fh = open(alignmentFileName, "w")
@@ -759,10 +759,6 @@ def modified_residues(request, pdbid, chain_id):
     cwd = os.getcwd()
     now = datetime.datetime.now()
     
-
-    os.chdir('/home/RiboVision3/R2DT/rna/R2DT')
-
-    
     context = {
         'Modified' : modified_residues
     }
@@ -798,16 +794,20 @@ def protein_contacts(request, pdbid, chain_id):
                 neighbors[chain.id] = list(neighbors_L2_all)
     
     return JsonResponse(neighbors)
+
 def full_RNA_seq(request, pdbid, chain_id):
     import alignments.config
     
     RNA_full_sequence={}
     #print('cid',chain_id)
-    cif_fileNameSuffix=alignments.config.cif_fileNameSuffix_share
+    # cif_fileNameSuffix = alignments.config.cif_fileNameSuffix_share
+    
+    cif_file_path = alignments.config.cif_path_share
+    
     #print(alignments.config.cif_fileNameSuffix_share)
     import Bio.PDB.MMCIF2Dict
     #mmcdata = Bio.PDB.MMCIF2Dict.MMCIF2Dict('/tmp/cust2{cif_fileNameSuffix}.cif')
-    mmcdata = Bio.PDB.MMCIF2Dict.MMCIF2Dict("/tmp/cust2"+str(cif_fileNameSuffix)+".cif")
+    mmcdata = Bio.PDB.MMCIF2Dict.MMCIF2Dict(cif_file_path)
     ##print(mmcdata)
     index = 0
     try:
@@ -842,8 +842,7 @@ def r2dt(request, entity_id):
     keys = json.loads(sequence_file_lines[0])
     sequence = "\n".join(sequence_file_lines[1:])
     
-    os.chdir('/home/RiboVision3/R2DT1_4/R2DT1_4/R2DT')
-    #os.chdir('/home/anton/RiboVision2/rna/R2DT-master')
+    
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     if request.method == "POST":
         
@@ -859,15 +858,17 @@ def r2dt(request, entity_id):
     else:
         cif_mode_flag = None
 
-    newcwd = os.getcwd()
-    with open('sequence10'+str(fileNameSuffix)+'.fasta', 'w') as f:
+    r2dt_path = "../rna/R2DT-master"
+    seq_path  = os.path.join(r2dt_path, f'sequence10{fileNameSuffix}.fasta')
+    with open(seq_path, 'w') as f:
         f.write('>Sequence\n')
         f.write(sequence)
-        f.close()       
-    output = f"/home/RiboVision3/R2DT1_4/R2DT1_4/R2DT/R2DT-test20{fileNameSuffix}"    
+        f.close()
+        
+    output = os.path.join(os.getcwd(), r2dt_path, f"R2DT-test20{fileNameSuffix}")
      
     
-    cmd = f'python3 r2dt.py draw  {newcwd}/sequence10{fileNameSuffix}.fasta {output}' # --skip_ribovore_filters 
+    cmd = f'python3 {r2dt_path}/r2dt.py draw  {seq_path} {output}' # --skip_ribovore_filters 
     os.system(cmd)
     
     filename = '' 
@@ -882,38 +883,59 @@ def r2dt(request, entity_id):
         # clean up
         shutil.rmtree(output)
         
-        cmd = f'python3 r2dt.py draw --skip_ribovore_filters {newcwd}/sequence10{fileNameSuffix}.fasta {output}' 
+        cmd = f'python3 r2dt.py draw --skip_ribovore_filters {seq_path} {output}' 
         os.system(cmd)
         
     files = os.listdir(os.path.join(output, "results/json"))
     filename = os.path.join(output, "results/json", files[0])
     
     files_to_remove = []
+    
+    import os
+    print(os.getcwd())
+    
+    fr3d_path = "../fr3d-python/fr3d/classifiers"
 
+    chainid = alignments.config.chainid
+    
     if (cif_mode_flag is None) or (not cif_mode_flag):
+        
         #FOR NONE OR PDB modes
-        #cmd = f'/usr/bin/python3 {newcwd}/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
-        cmd = f'/usr/bin/python3 {newcwd}/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
+        # TODO: remove the below script 
+        cmd = f'/usr/bin/python3 {r2dt_path}/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
+        # cmd = f'/usr/bin/python3 {newcwd}/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
+        pdb_path = alignments.config.pdb_path_share
+        base_name = os.path.basename(pdb_path)
+        filepath = os.path.dirname(pdb_path)
+        cmd2 = f"python {fr3d_path}/NA_pairwise_interactions.py --input {filepath} {base_name} -o {output}/results/json -f ebi_json --chain {chainid}"
+        os.system(cmd2)
+        rna2d_path = os.path.join(output, "results/json", base_name.replace(".pdb", f"_{chainid}_basepair.json"))
+        
     else:
+        print(keys)
         #FOR CIF MODE
         cif_file_path = keys["cif_file_path"]#request.POST["cif_file_path"]
-        #files_to_remove.append(cif_file_path)
-        #print('r2dt results parsing cif')
-        #print('cif_file_path')
-        cmd = f'/usr/bin/python3 {newcwd}/parse_cif4.py -ij {filename} -ic {cif_file_path} -ie {entity_id} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
-        #print('r2dt cif parsed')
+        # TODO: remove the below script 
+        cmd = f'/usr/bin/python3 {r2dt_path}/parse_cif4.py -ij {filename} -ic {cif_file_path} -ie {entity_id} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
+        base_name = os.path.basename(cif_file_path)
+        filepath = os.path.dirname(cif_file_path)
+        cmd2 = f"python {fr3d_path}/NA_pairwise_interactions.py --input {filepath} {base_name} -o {output}/results/json -f ebi_json --chain {chainid}"
+        os.system(cmd2)
+        rna2d_path = os.path.join(output, "results/json", base_name.replace(".cif", f"_{chainid}_basepair.json"))
+        
     os.system(cmd)
-
+    
+    rna2d_bp_path = os.path.join(output, "results/json", "BP_json.json")
+    os.rename(rna2d_path, rna2d_bp_path)
+    
+    
+    
     with open(f'{output}/results/json/RNA_2D_json.json', 'r') as f:
-
         data = json.loads(f.read())
-
-        f.close()
         
     with open(f'{output}/results/json/BP_json.json', 'r') as f:
         BP = json.loads(f.read())
 
-        f.close()   
 
     r2dt_json = {
         'RNA_2D_json' : data, 
@@ -925,21 +947,22 @@ def r2dt(request, entity_id):
         if os.path.isfile(file_path):
             os.remove(file_path)
 
-    if os.path.isfile('./sequence10'+str(fileNameSuffix)+'.fasta'):
-        os.remove('./sequence10'+str(fileNameSuffix)+'.fasta')
+    if os.path.isfile(seq_path):
+        os.remove(seq_path)
     else:
         # If it fails, inform the user.
-        print("Error: %s file not found" % './sequence10'+str(fileNameSuffix)+'.fasta')
+        print(f"Error: {seq_path} file not found")
         
-    if os.path.isfile('./sequence10'+str(fileNameSuffix)+'.fasta.ssi'):
-        os.remove('./sequence10'+str(fileNameSuffix)+'.fasta.ssi')
+    if os.path.isfile(seq_path + '.ssi'):
+        os.remove(seq_path + '.ssi')
     else:
         # If it fails, inform the user.
-        print("Error: %s file not found" % './sequence10'+str(fileNameSuffix)+'.fasta.ssi') 
+        print(f"Error: {seq_path + '.ssi'} file not found") 
     
     if cif_mode_flag is True:
-        cif_fileNameSuffix=alignments.config.cif_fileNameSuffix_share
-        cif_file_name="/tmp/cust2"+str(cif_fileNameSuffix)+".cif"
+        
+        cif_file_name = alignments.config.cif_path_share
+        
         if not cif_file_name in file_r2dt_counter_dict:
             file_r2dt_counter_dict[cif_file_name] = 0
         file_r2dt_counter_dict[cif_file_name] += 1

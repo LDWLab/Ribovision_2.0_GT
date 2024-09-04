@@ -98,6 +98,7 @@ def handleCustomUploadStructure_CIF (request, strucID):
         except:
             return HttpResponseServerError("POST was sent without entities to parse!")
         deStrEnt = json.loads(entities)
+        alignments.config.chainid = deStrEnt["chainID"]
         print('json')
         if strucID == "cust":
             #### This is not dependent on topology and should return success
@@ -176,10 +177,13 @@ def handleCustomUploadStructure_PDB (request, strucID):
         except:
             return HttpResponseServerError("POST was sent without entities to parse!")
         deStrEnt = json.loads(entities)
+        
+        alignments.config.chainid = deStrEnt["chainID"]
+        
         print('json')
         if strucID == "cust":
             #### This is not dependent on topology and should return success
-            strucObj = parseCustomPDB(deStrEnt["stringData"], "CUST")
+            strucObj, pdb_filepath = parseCustomPDB(deStrEnt["stringData"], "CUST")
 
             strucString = strucToString(strucObj)
            
@@ -190,7 +194,10 @@ def handleCustomUploadStructure_PDB (request, strucID):
             request.session[f'{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = outStruc
             request.session[f'PDB-{strucID}-{deStrEnt["entityID"]}-{deStrEnt["chainID"]}'] = deStrEnt["stringData"]
     
-            return JsonResponse("Success!", safe=False)
+            return JsonResponse({
+                "successFlag" : True,
+                "pdb_file_path" : pdb_filepath
+            }, safe=False)
         for entry in deStrEnt:
             if request.session.get(f'{strucID}-{entry["entityID"]}-{entry["chainID"]}'):
                 continue
@@ -346,11 +353,33 @@ def combineChainsInSingleStruc(structureList):
         structureList[0][0].add(chain[0])
     return structureList
 
+def store_file(data, suffix):
+    from random import choice
+    now = str(datetime.datetime.now().timestamp())
+    
+    digit = chr(choice(range(ord('a'), ord('z')))) # to make sure the dir is unique
+    file_path = os.path.join("/tmp", f"{digit}_{now}", f'cust.{suffix}')
+    # file_path = f'/tmp/cust2_{digit}.{suffix}'
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    
+    with open(file_path, 'w') as f:
+            f.write(data.read())
+            f.close()
+            
+    print(f"File stored: {file_path}")
+    return file_path
+    
+
 def parseCustomPDB(stringData, id = "CUST"):
     parser = PDBParser()
     strucFile = io.StringIO(stringData)
+    strucFile1 = io.StringIO(stringData)
     structureObj = parser.get_structure(id, strucFile)
-    return structureObj
+    
+    pdb_filepath = store_file(strucFile1, "pdb")
+    # Store pdb file
+    alignments.config.pdb_path_share = pdb_filepath
+    return structureObj, pdb_filepath
 
 def parseCustomCIF(stringData, pdbid):
     #import config
@@ -358,17 +387,23 @@ def parseCustomCIF(stringData, pdbid):
     strucFile = io.StringIO(stringData)
     strucFile1 = io.StringIO(stringData)
     ###NEED time here
-    now = datetime.datetime.now()
-    cif_fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
-    alignments.config.cif_fileNameSuffix_share=cif_fileNameSuffix
-    cif_file_path = f'/tmp/cust2{cif_fileNameSuffix}.cif'
-    with open(cif_file_path, 'w') as f:
-            f.write(strucFile1.read())
-            f.close()
-    structureObj = parser.get_structure(pdbid,strucFile)
+    # now = datetime.datetime.now()
+    # cif_fileNameSuffix = now.strftime("%x_%X").replace("/", "_").replace(":", "_")
+    # # cif_fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
+    
+    # alignments.config.cif_fileNameSuffix_share = cif_fileNameSuffix
+    # cif_file_path = f'/tmp/cust2-{cif_fileNameSuffix}.cif'
+    # with open(cif_file_path, 'w') as f:
+    #         f.write(strucFile1.read())
+    #         f.close()
+    
+    cif_file_path = store_file(strucFile1, "cif")
+    
+    alignments.config.cif_path_share = cif_file_path
+    structureObj = parser.get_structure(pdbid, strucFile)
     print('MMCIF parsed')
    
-    print(cif_file_path)
+    # print(cif_file_path)
     return structureObj, cif_file_path
 
 def postTopology(request, strucID):
