@@ -85,10 +85,11 @@ def api_twc_with_upload(request, anchor_structure):
 
 def constructEbiAlignmentString(fasta, ebi_sequence, startIndex):
     now = datetime.datetime.now()
+    BASE_DIR = os.environ.get("BASE_DIR", os.getcwd())
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     ### BE CAREFUL WHEN MERGING THE FOLLOWING LINES TO PUBLIC; PATHS ARE HARDCODED FOR THE APACHE SERVER ###
-    alignmentFileName = os.path.join(os.getcwd(), f"static/alignment{fileNameSuffix}.txt")
-    ebiFileName = os.path.join(os.getcwd(), f"static/ebi_sequence{fileNameSuffix}.txt") 
+    alignmentFileName = os.path.join(BASE_DIR, f"static/alignment{fileNameSuffix}.txt")
+    ebiFileName = os.path.join(BASE_DIR, f"static/ebi_sequence{fileNameSuffix}.txt") 
     mappingFileName = ebiFileName + ".map"
     fasta = re.sub('>Structure sequence[\s\S]*?>','>',fasta)
     fh = open(alignmentFileName, "w")
@@ -756,7 +757,8 @@ def modified_residues(request, pdbid, chain_id):
     #indices = [m.start(0) for m in iter]
     import os
     import datetime
-    cwd = os.getcwd()
+    BASE_DIR = os.environ.get("BASE_DIR", os.getcwd())
+    # cwd = os.getcwd()
     now = datetime.datetime.now()
     
     context = {
@@ -833,7 +835,8 @@ def r2dt(request, entity_id):
     import os
     import datetime
     import alignments.config
-    cwd = os.getcwd()
+    BASE_DIR = os.environ.get("BASE_DIR", os.getcwd())
+    
     now = datetime.datetime.now()
     sequence_file = request.FILES["custom_seq_file"]
     as_bytes = sequence_file.read()
@@ -858,14 +861,14 @@ def r2dt(request, entity_id):
     else:
         cif_mode_flag = None
 
-    r2dt_path = "../rna/R2DT-master"
+    r2dt_path = "/home/RiboVision3/R2DT1_4/R2DT1_4/R2DT"
     seq_path  = os.path.join(r2dt_path, f'sequence10{fileNameSuffix}.fasta')
     with open(seq_path, 'w') as f:
         f.write('>Sequence\n')
         f.write(sequence)
         f.close()
         
-    output = os.path.join(os.getcwd(), r2dt_path, f"R2DT-test20{fileNameSuffix}")
+    output = os.path.join(r2dt_path, f"R2DT-test20{fileNameSuffix}")
      
     
     cmd = f'python3 {r2dt_path}/r2dt.py draw  {seq_path} {output}' # --skip_ribovore_filters 
@@ -892,9 +895,9 @@ def r2dt(request, entity_id):
     files_to_remove = []
     
     import os
-    print(os.getcwd())
+    # print(os.getcwd())
     
-    fr3d_path = "../fr3d-python/fr3d/classifiers"
+    fr3d_path = "/home/RiboVision3/fr3d-python/fr3d/classifiers"
 
     chainid = alignments.config.chainid
     
@@ -907,7 +910,8 @@ def r2dt(request, entity_id):
         pdb_path = alignments.config.pdb_path_share
         base_name = os.path.basename(pdb_path)
         filepath = os.path.dirname(pdb_path)
-        cmd2 = f"python {fr3d_path}/NA_pairwise_interactions.py --input {filepath} {base_name} -o {output}/results/json -f ebi_json --chain {chainid}"
+        cmd2 = f"/usr/bin/python3 {fr3d_path}/NA_pairwise_interactions.py --input {filepath} {base_name} -o {output}/results/json -f ebi_json --chain {chainid}"
+        # raise Exception(cmd, cmd2)
         os.system(cmd2)
         rna2d_path = os.path.join(output, "results/json", base_name.replace(".pdb", f"_{chainid}_basepair.json"))
         
@@ -919,7 +923,7 @@ def r2dt(request, entity_id):
         cmd = f'/usr/bin/python3 {r2dt_path}/parse_cif4.py -ij {filename} -ic {cif_file_path} -ie {entity_id} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
         base_name = os.path.basename(cif_file_path)
         filepath = os.path.dirname(cif_file_path)
-        cmd2 = f"python {fr3d_path}/NA_pairwise_interactions.py --input {filepath} {base_name} -o {output}/results/json -f ebi_json --chain {chainid}"
+        cmd2 = f"/usr/bin/python3 {fr3d_path}/NA_pairwise_interactions.py --input {filepath} {base_name} -o {output}/results/json -f ebi_json --chain {chainid}"
         os.system(cmd2)
         rna2d_path = os.path.join(output, "results/json", base_name.replace(".cif", f"_{chainid}_basepair.json"))
         

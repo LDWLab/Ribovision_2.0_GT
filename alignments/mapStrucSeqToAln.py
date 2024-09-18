@@ -40,12 +40,16 @@ def make_map_from_alnix_to_sequenceix_new(request):
     seq_ix_mapping, struc_seq, gapsInStruc = constructStrucSeqMap(strucObj)
 
     
+    
 
     if not (cif_mode_flag is None):
         if not cif_mode_flag:
             hardcoded_structure = request.POST["hardcoded_structure"]
             full_seq = SeqRecord(Seq(hardcoded_structure))
             mapping = create_aln_true_seq_mapping_with_mafft(fasta, full_seq, seq_ix_mapping)
+            print(full_seq)
+            print(mapping)
+            # raise Exception(f"{full_seq}, {mapping}, {cif_mode_flag}")
             mapping = create_aln_struc_mapping_with_mafft(mapping["amendedAln"], struc_seq, seq_ix_mapping)
         else:
             mapping = create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping)
@@ -91,14 +95,14 @@ def constructStrucSeqMap(structure):
     return seq_ix_mapping, SeqRecord(Seq(sequence)), gapsInStruc
 
 def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
-    
+    BASE_DIR = os.environ.get("BASE_DIR", os.getcwd())
     fasta = re.sub('>Structure sequence[\s\S]*?>','>',fasta)
     now = datetime.datetime.now()
     
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     ### BE CAREFUL WHEN MERGING THE FOLLOWING LINES TO PUBLIC; PATHS ARE HARDCODED FOR THE APACHE SERVER ###
-    aln_group_path = os.path.join(os.getcwd(), f"static/alignment{fileNameSuffix}.txt")
-    pdb_seq_path = os.path.join(os.getcwd(), f"static/ebi_sequence{fileNameSuffix}.txt")
+    aln_group_path = os.path.join(BASE_DIR, f"static/alignment{fileNameSuffix}.txt")
+    pdb_seq_path = os.path.join(BASE_DIR, f"static/ebi_sequence{fileNameSuffix}.txt")
     
     mappingFileName = pdb_seq_path + ".map"
     tempfiles = [aln_group_path, pdb_seq_path, mappingFileName]
@@ -154,14 +158,14 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
     return outputDict
 
 def create_aln_true_seq_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
-    
+    BASE_DIR = os.environ.get("BASE_DIR", os.getcwd())
     
     fasta = re.sub('>True sequence[\s\S]*?>','>',fasta)
     now = datetime.datetime.now()
     fileNameSuffix = "_" + str(now.year) + "_" + str(now.month) + "_" + str(now.day) + "_" + str(now.hour) + "_" + str(now.minute) + "_" + str(now.second) + "_" + str(now.microsecond)
     ### BE CAREFUL WHEN MERGING THE FOLLOWING LINES TO PUBLIC; PATHS ARE HARDCODED FOR THE APACHE SERVER ###
-    aln_group_path = os.path.join(os.getcwd(), f"static/alignment{fileNameSuffix}.txt") 
-    pdb_seq_path = os.path.join(os.getcwd(), f"static/ebi_sequence{fileNameSuffix}.txt") 
+    aln_group_path = os.path.join(BASE_DIR, f"static/alignment{fileNameSuffix}.txt") 
+    pdb_seq_path = os.path.join(BASE_DIR, f"static/ebi_sequence{fileNameSuffix}.txt") 
     tempfiles = [aln_group_path, pdb_seq_path]
     for tempf in tempfiles:
         if os.path.isfile(tempf):
@@ -178,9 +182,10 @@ def create_aln_true_seq_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
     fh.write(str(struc_seq.seq))
     fh.close()
     #pipe = Popen(f"/usr/local/bin/mafft --anysymbol --preservecase --quiet --addfull {pdb_seq_path} {aln_group_path}", stdout=PIPE, shell=True)
-    pipe = Popen(f"mafft --preservecase --anysymbol --addfull {pdb_seq_path}  --keeplength {aln_group_path}", stdout=PIPE, shell=True)
-    output = pipe.communicate()[0]
     
+    pipe = Popen(f"mafft --preservecase --anysymbol --addfull {pdb_seq_path}  --keeplength {aln_group_path} 2> /home/github_repos/Ribovision_2.0_GT/mafft_error_log.txt", stdout=PIPE, shell=True)
+    output = pipe.communicate()[0]
+    # raise Exception(f"/usr/local/bin/mafft --preservecase --anysymbol --addfull {pdb_seq_path}  --keeplength {aln_group_path}", "MAFFT PATH:", os.system("which mafft"), output.decode("ascii"))
     #print(seq_ix_mapping[int(row[1])])
     if len(output.decode("ascii")) <= 0:
         for removeFile in tempfiles:

@@ -938,7 +938,7 @@ var drawCircle = function (pdbId, i, color){
 }
 
 var calculateModifiedCustom = function(entityid, filepath) {
-    var url = `custom-modified-residues/${entityid}/${filepath.split('/')[2]}`
+    var url = `custom-modified-residues/${entityid}/${filepath}`
     ajax(url).then(data => {
         //console.log(data)
         let offset = 0
