@@ -443,7 +443,11 @@ function success(parsedResponse) {
   }
   // const banName = getBanName(pdbid, 'H')
   vm.json_structures_from_r2dt = parsedResponse;
-  window.viewerInstanceTop.viewInstance.uiTemplateService.render(parsedResponse.RNA_2D_json, parsedResponse.RNA_BP_json, parsedResponse.RNA_BP_json, undefined, window.viewerInstanceTop.viewInstance);
+  let parsedResponseNested = parsedResponse;
+  let nestedBPs = parsedResponse.RNA_BP_json.annotations.filter((annotation) => Number(annotation.crossing) == 0);
+  parsedResponseNested.annotations = nestedBPs;
+  window.viewerInstanceTop.viewInstance.uiTemplateService.render(parsedResponse.RNA_2D_json, parsedResponse.RNA_BP_json, parsedResponseNested, undefined, window.viewerInstanceTop.viewInstance);
+
   if (vm.fix_cust_colors) {
     vm.associatedDataMappedPerType_2D = fix_colors(
       parsedResponse.RNA_2D_json['sequence'],

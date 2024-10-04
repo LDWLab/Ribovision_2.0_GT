@@ -358,15 +358,14 @@ def store_file(data, suffix):
     now = str(datetime.datetime.now().timestamp())
     
     digit = chr(choice(range(ord('a'), ord('z')))) # to make sure the dir is unique
-    file_path = os.path.join("/tmp", f"{digit}_{now}", f'cust.{suffix}')
+    file_path = os.path.join("/home/github_repos/Ribovision_2.0_GT/tmp", f"{digit}_{now}", f'cust.{suffix}')
     # file_path = f'/tmp/cust2_{digit}.{suffix}'
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
-    
+    # raise Exception(f"File stored: {filepath}")
     with open(file_path, 'w') as f:
             f.write(data.read())
             f.close()
             
-    print(f"File stored: {file_path}")
     return file_path
     
 
@@ -379,6 +378,7 @@ def parseCustomPDB(stringData, id = "CUST"):
     pdb_filepath = store_file(strucFile1, "pdb")
     # Store pdb file
     alignments.config.pdb_path_share = pdb_filepath
+    
     return structureObj, pdb_filepath
 
 def parseCustomCIF(stringData, pdbid):
