@@ -1,6 +1,7 @@
 ./.vscode/
 *.pyc
 *~
+.logs/*
 nohup.out
 inspected_models.txt
 DESIRE.access.log
