@@ -6,7 +6,8 @@ function euclideanDistance(x1, y1, x2, y2) {
 }
 
 function extractBonds(st) {
-    let basePairRegex = /.*[ACGU]([0-9]+).*[ACGU]([0-9]+);/;
+    let basePairRegex = /cWW_(\d+)_(\d+)/;
+    
     let basePairMatch = st.match(basePairRegex);
     let basePair = basePairMatch ? basePairMatch : null;
 
@@ -21,7 +22,6 @@ function extractBonds(st) {
     if (coords.length > 0) {
         dist = euclideanDistance(...coords[0]);
     }
-
     return [basePair[1], basePair[2], dist];
 }
 
