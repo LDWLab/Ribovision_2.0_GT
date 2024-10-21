@@ -37,13 +37,13 @@ import alignments.alignment_query_and_build as aqab
 from alignments import Shannon
 from alignments.log import LoggerSetup
 import alignments.config
-from alignments.paths import R2DT_PATH
+from alignments.paths import R2DT_PATH, LOGS_PATH
 from twincons.TwinCons import slice_by_name
 from alignments.fred import get_fred_base_pairs
 
 # Logging setup
 import logging
-LoggerSetup("./.logs")
+LoggerSetup(LOGS_PATH)
 logger = logging.getLogger("ribovision3-logger")
 
 # Global variables
