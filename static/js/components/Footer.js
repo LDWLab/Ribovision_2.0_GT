@@ -44,9 +44,9 @@ export function addFooterImages (divID){
         <a href="http://cool.gatech.edu/" target="_blank">
             <img 
                 style="height:75px; padding:10px;padding-top:2px;"
-                src="static/alignments/png/cool_logo.png" 
-                title="Center for the Origin Of Life (COOL)" 
-                alt="COOL Logo">
+                src="static/alignments/png/icool_logo.png" 
+                title="Center for Integration of the Origins Of Life (iCOOL)" 
+                alt="iCOOL Logo">
         </a>
     </div>
     <p style="padding:5px;"></p>
