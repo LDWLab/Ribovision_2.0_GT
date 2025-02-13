@@ -413,6 +413,20 @@ var mapCustomMappingData = function (custom_data, custom_data_name, topviewer) {
             //var selectBoxEle = viewerInstanceTop.pluginInstance.targetEle.querySelector('.menuSelectbox');
             //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.menuSelectbox');
             //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
+
+            let mapping2D_3D = {};
+
+            for (let [k,v] of Object.entries(vm.st_mapping2D)){
+                if (Object.keys(vm.st_mapping2D).includes(k)){
+                    mapping2D_3D[v] = vm.st_mapping3D[k];
+                }
+            }
+
+            let custom_data3D = [];
+            for (let [k, [u, v]] of Object.entries(custom_data)){
+                custom_data3D.push([mapping2D_3D[u], v]);
+                
+            }
         
             let vals = custom_data.map(function (v) { return v[1] });
             let indexes = custom_data.map(function (v) { return v[0] });
@@ -421,14 +435,24 @@ var mapCustomMappingData = function (custom_data, custom_data_name, topviewer) {
             //let coilsOutOfCustom = vm.coil_residues.filter(value => !indexes.includes(value));
             //window.coilsOutOfCustom = coilsOutOfCustom;
             //console.log('CD1', custom_data_name, custom_data );
-            var custom_prop = new Map();
+            let custom_prop = new Map();
+            let custom_prop3D = new Map();
+            
+            custom_prop.set(custom_data_name, custom_data);
+            custom_prop3D.set(custom_data_name, custom_data3D);
+            
             custom_prop.set(custom_data_name, custom_data);
             if (window.custom_prop) {
                 window.custom_prop.set(custom_data_name, custom_data)
             } else {
                 window.custom_prop = custom_prop;
             }
-            topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(custom_prop);
+            if (window.custom_prop_3D) {
+                window.custom_prop.set(custom_data_name, custom_data3D)
+            } else {
+                window.custom_prop_3D = custom_prop3D;
+            }
+            topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(custom_prop, custom_prop3D);
             //var custom_option = document.createElement("option");
             //custom_option.setAttribute("value", selectBoxEle.options.length);
             //custom_option.appendChild(document.createTextNode(custom_data_name));
@@ -644,7 +668,8 @@ function cleanFilter(checked_filter, masking_range) {
                     rna_class = ['16S']
                   }
                   rna_class.forEach(rnaClass => {
-                  let riboXYZurl = `https://api.ribosome.xyz/neo4j/get_rna_class/?rna_class=${rnaClass}rRNA&format=json`
+                //   let riboXYZurl = `https://api.ribosome.xyz/neo4j/get_rna_class/?rna_class=${rnaClass}rRNA&format=json`
+                  let riboXYZurl = `https://api.ribosome.xyz/polymers/polynucleotide?rna_class=${rnaClass}rRNA&format=json`
                  
                   ajax(riboXYZurl).then(data => {
                       var pdb_entries = []

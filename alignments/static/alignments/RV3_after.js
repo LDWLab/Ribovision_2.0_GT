@@ -668,7 +668,8 @@ function cleanFilter(checked_filter, masking_range) {
                     rna_class = ['16S']
                   }
                   rna_class.forEach(rnaClass => {
-                  let riboXYZurl = `https://api.ribosome.xyz/neo4j/get_rna_class/?rna_class=${rnaClass}rRNA&format=json`
+                //   let riboXYZurl = `https://api.ribosome.xyz/neo4j/get_rna_class/?rna_class=${rnaClass}rRNA&format=json`
+                  let riboXYZurl = `https://api.ribosome.xyz/polymers/polynucleotide?rna_class=${rnaClass}rRNA&format=json`
                  
                   ajax(riboXYZurl).then(data => {
                       var pdb_entries = []

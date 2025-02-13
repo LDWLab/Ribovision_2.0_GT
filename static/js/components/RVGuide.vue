@@ -845,6 +845,15 @@
               placement: 'left'
             },
         },{
+            target: '.saveJSON',
+            header: {
+                title: 'Save a JSON of the secondary structure.',
+            },
+            content: `Saves the current view of the topology viewer in json format`,
+            params: {
+              placement: 'left'
+            },
+        },{
             target: '#rnaTopologyReset-7k00',
             header: {
                 title: 'Reset the view.',

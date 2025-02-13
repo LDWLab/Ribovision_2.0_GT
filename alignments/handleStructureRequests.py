@@ -43,8 +43,9 @@ def handleCustomUploadStructure (request, strucID):
         for entry in deStrEnt:
             if request.session.get(f'{strucID}-{entry["entityID"]}-{entry["chainID"]}'):
                 continue
-            ebiURL = f'https://coords.litemol.org/{strucID.lower()}/chains?entityId={entry["entityID"]}&authAsymId={entry["chainID"]}&atomSitesOnly=1'
+            #ebiURL = f'https://coords.litemol.org/{strucID.lower()}/chains?entityId={entry["entityID"]}&authAsymId={entry["chainID"]}&atomSitesOnly=1'
             #ebiURL = f'https://www.ebi.ac.uk/pdbe/coordinates/{strucID.lower()}/chains?entityId={entityId}&atomSitesOnly=1'
+            ebiURL = f'https://models.rcsb.org/v1/{strucID.lower()}/atoms?label_entity_id={entry["entityID"]}&encoding=cif'
             try:
                 ssl_context = ssl._create_unverified_context()
                 data = urlopen(ebiURL, context=ssl_context)
@@ -201,8 +202,9 @@ def handleCustomUploadStructure_PDB (request, strucID):
         for entry in deStrEnt:
             if request.session.get(f'{strucID}-{entry["entityID"]}-{entry["chainID"]}'):
                 continue
-            ebiURL = f'https://coords.litemol.org/{strucID.lower()}/chains?entityId={entry["entityID"]}&authAsymId={entry["chainID"]}&atomSitesOnly=1'
+            #ebiURL = f'https://coords.litemol.org/{strucID.lower()}/chains?entityId={entry["entityID"]}&authAsymId={entry["chainID"]}&atomSitesOnly=1'
             #ebiURL = f'https://www.ebi.ac.uk/pdbe/coordinates/{strucID.lower()}/chains?entityId={entityId}&atomSitesOnly=1'
+            ebiURL = f'https://models.rcsb.org/v1/{strucID.lower()}/atoms?label_entity_id={entry["entityID"]}&encoding=cif'
             try:
                 ssl_context = ssl._create_unverified_context()
                 data = urlopen(ebiURL, context=ssl_context)

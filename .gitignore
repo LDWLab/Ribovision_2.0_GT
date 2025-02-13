@@ -2,6 +2,8 @@
 *.pyc
 *~
 .logs/*
+*.gz
+*.txt
 nohup.out
 inspected_models.txt
 DESIRE.access.log
@@ -10,6 +12,9 @@ env/*
 DESIRE/env/*
 .venv/*
 venv/*
+R2DT/*
+R2DT1_4/*
+dev/*
 jalview-js/*
 alignments/static/alignments/swingjs/*
 populate_db/Struc_Folds/*.txt
@@ -26,7 +31,7 @@ DESIRE/settings.py
 *z_arx*
 react-msa-viewer/dist/statistics.html
 documentation/node_modules/*
-mkdocs/site/*
+mkdocs/site/*                                                                              
 .venv/bin/activate
 .venv/bin/activate.csh
 .venv/bin/activate.fish
@@ -10026,3 +10031,4 @@ mkdocs/site/*
 .venv/lib/python3.8/site-packages/plotly-5.9.0.dist-info/RECORD
 .venv/lib/python3.8/site-packages/plotly-5.9.0.dist-info/top_level.txt
 .venv/lib/python3.8/site-packages/plotly-5.9.0.dist-info/WHEEL
+node_modules
