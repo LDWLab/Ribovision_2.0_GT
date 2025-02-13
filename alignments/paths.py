@@ -1,2 +1,2 @@
-FR3D_PATH = "/home/RiboVision3/fr3d-python/fr3d/classifiers"
-R2DT_PATH = "/home/RiboVision3/R2DT1_4/R2DT1_4/R2DT"
+FR3D_PATH = "/home/sumon/repos/fr3d-python/fr3d/classifiers"
+R2DT_PATH = "/home/sumon/repos/rna/R2DT"
