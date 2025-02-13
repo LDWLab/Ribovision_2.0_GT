@@ -37,13 +37,13 @@ import alignments.alignment_query_and_build as aqab
 from alignments import Shannon
 from alignments.log import LoggerSetup
 import alignments.config
-from alignments.paths import R2DT_PATH
+from alignments.paths import R2DT_PATH, LOGS_PATH
 from twincons.TwinCons import slice_by_name
 from alignments.fred import get_fred_base_pairs
 
 # Logging setup
 import logging
-LoggerSetup("./.logs")
+LoggerSetup(LOGS_PATH)
 logger = logging.getLogger("ribovision3-logger")
 
 # Global variables
@@ -1059,7 +1059,7 @@ def protein_contacts(request, pdbid, chain_id):
     logger.info(f"protein_contacts called for pdbid: {pdbid}, chain_id: {chain_id}")
     
     try:
-        pdbl = PDB.PDBList(pdb='/tmp/PDB')
+        pdbl = PDB.PDBList(server="https://files.wwpdb.org/", pdb='/tmp/PDB')
         pdbl.retrieve_pdb_file(pdbid, pdir='/tmp/PDB')
         parser = PDB.MMCIFParser()
         structure = parser.get_structure(pdbid, f"/tmp/PDB/{pdbid}.cif")
