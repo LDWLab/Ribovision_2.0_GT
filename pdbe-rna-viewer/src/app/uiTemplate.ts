@@ -1,6 +1,8 @@
 import { UiActionsService } from './uiActions';
 import { PluginOptions, ApiData, BanNameHelper } from './data';
 import { CustomEvents } from './customEvents';
+
+
 export class UiTemplateService {
     selectSections_RV1 = (window as any).selectSections_RV1;
     aaPropertyConstants = (window as any).aaPropertyConstants;
@@ -71,30 +73,30 @@ export class UiTemplateService {
             ${this.actionButtons()}
         </div>
         <div style="${this.menuStyle}">
-                <div class="menuOptions" style="width:95%;float:center;display:inline-block;">
-                    <form>
-                    <input type="checkbox" id="nestedBP" name="nestedBP" style="width:5%; display: inline-block; float: left;>
-                    <label for="nestedBP" style="width:20%; display: inline-block; float: left;"> Only nested BPs</label>
-                    <select class="menuSelectbox" style="width:20%; display: inline-block;"><option value="">Nucleotides</option></select>
-                    <select class="mappingSelectbox" style="width:20%; display: inline-block;"><option value="">Mapping</option></select>
-                    <div class="multiselect">
-                        <div class="selectBox" onclick="UiActionsService.showCheckboxes()" style="display:inline-block;float:right;width:25%">
-                            <select id="basePairingSelectElement">
-                                <option>Base Pairings</option>
-                            </select>
-                            <div class="overSelect"></div>
-                        </div>
-                        <div id="checkboxes">
-                        </div>
+            <div class="menuOptions" style="width:95%;float:center;display:inline-block;">
+                <form>
+                <input type="checkbox" id="nestedBP" name="nestedBP" style="width:5%; display: inline-block; float: left;>
+                <label for="nestedBP" style="width:20%; display: inline-block; float: left;"> Only nested BPs</label>
+                <select class="menuSelectbox" style="width:20%; display: inline-block;"><option value="">Nucleotides</option></select>
+                <select class="mappingSelectbox" style="width:20%; display: inline-block;"><option value="">Mapping</option></select>
+                <div class="multiselect">
+                    <div class="selectBox" onclick="UiActionsService.showCheckboxes()" style="display:inline-block;float:right;width:25%">
+                        <select id="basePairingSelectElement">
+                            <option>Base Pairings</option>
+                        </select>
+                        <div class="overSelect"></div>
                     </div>
-                    </form>
+                    <div id="checkboxes">
+                    </div>
                 </div>
-        </div>
-        `;
+                </form>
+            </div>
+        </div>`;
         //this.getJSON(apiData)
         //this.fixOverlaps(apiData)
-        this.createModeDropdown()
-        this.createBPDropdown()
+        this.createModeDropdown();
+        this.createBPDropdown();
+        this.addAnnotationHandlers();
         this.uiActionsService.applyButtonActions();
         this.addEvents(apiData, BanName);
 
@@ -835,27 +837,128 @@ export class UiTemplateService {
             }
         }
     }
-    /*
-    private getJSON(apiData: ApiData){
-        let JSON = 
-        `{
-        "pdbId": ${this.pluginOptions.pdbId},
-        "entityId": ${this.pluginOptions.entityId},
-        "chainId": ${this.pluginOptions.chainId},
-        "nucleotides":[
-        `
-        const lastPathIndex = apiData.svg_paths.length - 1;
-        apiData.svg_paths.forEach((pathStr: string, recordIndex: number) => {
-        if(recordIndex === 0 || recordIndex === lastPathIndex) return;
-            JSON += 
-        `   {"position": ${apiData.label_seq_ids[recordIndex]}, "value": ${apiData.sequence[recordIndex - 1]}, "x": ${this.locations[recordIndex - 1][0]}, "y": ${this.locations[recordIndex - 1][1]}},
-        `
+
+    private addAnnotationHandlers() {
+        
+        const annotateButton = document.getElementById(`rnaTopologyAnnotate-${this.pluginOptions.pdbId}`);
+        const modal = document.getElementById(`annotationModal-${this.pluginOptions.pdbId}`);
+        const addButton = document.getElementById(`addAnnotations-${this.pluginOptions.pdbId}`);
+    
+        if (annotateButton) {
+            annotateButton.addEventListener('click', () => {
+                if (modal) {
+                    modal.style.display = 'block';
+                }
+            });
+        }
+    
+        if (addButton) {
+            addButton.addEventListener('click', () => {
+                const startInput = document.getElementById(`startIndex-${this.pluginOptions.pdbId}`) as HTMLInputElement;
+                const intervalInput = document.getElementById(`interval-${this.pluginOptions.pdbId}`) as HTMLInputElement;
+                
+                const startIndex = parseInt(startInput.value);
+                const interval = parseInt(intervalInput.value);
+    
+                if (startIndex && interval) {
+                    this.createAnnotations(startIndex, interval);
+                    if (modal) {
+                        modal.style.display = 'none';
+                    }
+                }
+            });
+        }
+    }
+    
+    private createAnnotations(startIndex: number, interval: number) {
+        const svg = document.querySelector(`svg.rnaTopoSvg`);
+        if (!svg) return;
+    
+        // Remove any existing annotations
+        const existingAnnotations = svg.querySelectorAll('.nucleotide-annotation');
+        existingAnnotations.forEach(el => el.remove());
+    
+        // Get all nucleotides
+        const nucleotides = Array.from(svg.querySelectorAll(`.rnaviewEle_${this.pluginOptions.pdbId}`));
+        var font_size = this.apiData ? this.calculateFontSize(this.apiData) : 12;
+        font_size += 4;
+    
+        // Step 1: Build a map of occupied regions (bounding boxes)
+        const occupiedRegions: { x: number, y: number, width: number, height: number }[] = [];
+        nucleotides.forEach((nucleotide) => {
+            if (nucleotide instanceof SVGGraphicsElement) {
+                occupiedRegions.push(nucleotide.getBBox());
+            }
         });
-        JSON += 
-            `]
-        }`
-        this.download(JSON, "Test", "JSON")
-    }*/
+    
+        // Step 2: Create annotations at non-colliding positions
+        for (let i = startIndex - 1; i < nucleotides.length; i += interval) {
+            const nucleotide = nucleotides[i];
+            if (nucleotide && nucleotide instanceof SVGGraphicsElement) {
+                const bbox = nucleotide.getBBox();
+                let x = bbox.x + bbox.width / 2;
+                let y = bbox.y;
+    
+                // Step 3: Find a non-colliding position for annotation
+                let offsetX = 0, offsetY = font_size + 5;
+                let foundSpot = false;
+    
+                for (let attempt = 0; attempt < 3; attempt++) { // Try a few positions
+                    let newX = x + offsetX;
+                    let newY = y - offsetY;
+    
+                    const collides = occupiedRegions.some(region => 
+                        newX >= region.x && newX <= region.x + region.width &&
+                        newY >= region.y && newY <= region.y + region.height
+                    );
+    
+                    if (!collides) {
+                        foundSpot = true;
+                        x = newX;
+                        y = newY;
+                        break;
+                    }
+    
+                    // Try moving text sideways
+                    offsetX = attempt % 2 === 0 ? font_size * 2 : -font_size * 2;
+                    offsetY += font_size * 1.5;
+                }
+    
+                if (!foundSpot) continue; // Skip annotation if no spot is found
+    
+                // Step 4: Create annotation line
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', String(bbox.x + bbox.width / 2));
+                line.setAttribute('y1', String(bbox.y));
+                line.setAttribute('x2', String(x));
+                line.setAttribute('y2', String(y));
+                line.setAttribute('stroke', '#666');
+                line.setAttribute('stroke-width', '1');
+                line.setAttribute('class', 'nucleotide-annotation');
+    
+                // Step 5: Create annotation text
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', String(x));
+                text.setAttribute('y', String(y - 2));
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('fill', '#666');
+                text.setAttribute('font-size', String(font_size * 0.8));
+                text.setAttribute('class', 'nucleotide-annotation');
+                text.textContent = String(i + 1);
+    
+                // Step 6: Add annotation to SVG
+                const svgGroup = svg.querySelector(`.rnaTopoSvg_${this.pluginOptions.pdbId}`);
+                if (svgGroup) {
+                    svgGroup.appendChild(line);
+                    svgGroup.appendChild(text);
+                }
+    
+                // Step 7: Update occupied regions
+                occupiedRegions.push({ x: x - font_size, y: y - font_size, width: font_size * 2, height: font_size });
+            }
+        }
+    }
+    
     public static linearlyInterpolate(v0: number, v1: number, interpolationFactor: number): number {
         // See https://en.wikipedia.org/wiki/Linear_interpolation
         return (1 - interpolationFactor) * v0 + interpolationFactor * v1;
@@ -1322,7 +1425,13 @@ export class UiTemplateService {
     }
 
     private actionButtons(): string {
-        return `<div class="pdb-rna-view-btn-group">
+        return `
+        <div class="pdb-rna-view-btn-group">
+            <span class="pdb-rna-view-btn" title="Add Annotations" id="rnaTopologyAnnotate-${this.pluginOptions.pdbId}">
+                <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M20,2H4A2,2 0 0,0 2,4V22L6,18H20A2,2 0 0,0 22,16V4A2,2 0 0,0 20,2M8,14H6V12H8V14M8,11H6V9H8V11M8,8H6V6H8V8M15,14H10V12H15V14M18,11H10V9H18V11M18,8H10V6H18V8Z" />
+                </svg>
+            </span>
             <span class="pdb-rna-view-btn" title="Save as SVG" id="rnaTopologySaveSVG-${this.pluginOptions.pdbId}">
                 <svg style="width:24px;height:24px" viewBox="0 0 24 24">
                     <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -1360,6 +1469,22 @@ export class UiTemplateService {
                     <path fill="currentColor" d="M5,5H10V7H7V10H5V5M14,5H19V10H17V7H14V5M17,14H19V19H14V17H17V14M10,17V19H5V14H7V17H10Z" />
                 </svg>
             </span>
+        </div>
+        <!-- Add modal dialog -->
+        <div id="annotationModal-${this.pluginOptions.pdbId}" class="annotation-modal" style="display:none;position:absolute;background:white;border:1px solid #ccc;padding:15px;z-index:1000;top:50%;left:50%;transform:translate(-50%,-50%);box-shadow:0 2px 10px rgba(0,0,0,0.1);border-radius:4px;">
+                <h3 style="margin:0 0 10px">Add Annotations</h3>
+                <div style="margin-bottom:10px">
+                    <label>Starting Index:</label>
+                    <input type="number" id="startIndex-${this.pluginOptions.pdbId}" min="1" style="width:100px;margin-left:5px">
+                </div>
+                <div style="margin-bottom:10px">
+                    <label>Interval:</label>
+                    <input type="number" id="interval-${this.pluginOptions.pdbId}" min="1" style="width:100px;margin-left:5px">
+                </div>
+                <div style="text-align:right">
+                    <button onclick="document.getElementById('annotationModal-${this.pluginOptions.pdbId}').style.display='none'" style="margin-right:5px">Cancel</button>
+                    <button id="addAnnotations-${this.pluginOptions.pdbId}">Add</button>
+                </div>
         </div>`;
     }
 
@@ -1395,22 +1520,22 @@ export class UiTemplateService {
             y: number;
             classes: string[];
         }
-        
+
         // Define edge types for better type safety
         type EdgeType = 'W' | 'H' | 'S';
         type OrientationType = 'c' | 't';
 
         const getEdgeName = (edge: string): string => {
-            switch(edge.toUpperCase()) {
+            switch (edge.toUpperCase()) {
                 case 'W': return 'watson_crick';
                 case 'H': return 'hoogsteen';
                 case 'S': return 'sugar_edge';
                 default: return '';
             }
         };
-        
+
         const getOrientationName = (orientation: string): string => {
-            switch(orientation.toLowerCase()) {
+            switch (orientation.toLowerCase()) {
                 case 'c': return 'cis';
                 case 't': return 'trans';
                 default: return '';
@@ -1430,37 +1555,37 @@ export class UiTemplateService {
             // Convert indices to numbers
             const idx1 = parseInt(index1.toString());
             const idx2 = parseInt(index2.toString());
-            
+
             // Extract orientation and edges
             const orientation = interactionType[0] as OrientationType;
             const edge1 = interactionType[1] as EdgeType;
             const edge2 = interactionType[2] as EdgeType;
-            
+
             // Check if we need to flip based on edge priority
             const shouldFlip = needsFlipping(edge1, edge2);
-            
+
             // Determine final indices and edges based on flip status
             const [finalIndex1, finalIndex2] = shouldFlip ? [idx2, idx1] : [idx1, idx2];
             const [finalEdge1, finalEdge2] = shouldFlip ? [edge2, edge1] : [edge1, edge2];
-            
+
             // Build the base pair type string
             const basePairType = [
                 getOrientationName(orientation),
                 getEdgeName(finalEdge1),
                 getEdgeName(finalEdge2)
             ].join('_');
-            
+
             return {
                 residueIndex1: finalIndex1,
                 residueIndex2: finalIndex2,
                 basePairType
             };
         };
-        
+
         interface BasePair {
             residueIndex1: number;
             residueIndex2: number;
-            basePairType: string; 
+            basePairType: string;
         }
 
         interface RNAMolecule {
@@ -1506,13 +1631,13 @@ export class UiTemplateService {
             self.baseStrs.forEach((value: [boolean, string[]], key: string) => {
                 if (value[0]) {
                     value[1].forEach((baseStr: string) => {
-                        
+
                         const tooltipMatch = baseStr.match(/showTooltip\(evt,\s*'([AUGC])(\d+)\s*-\s*([AUGC])(\d+);\s*([ctw][WHS]{2})'/i);
                         if (tooltipMatch) {
                             // const [basePairType, , index1, , index2] = tooltipMatch;
                             const [, , index1, , index2, interactionType] = tooltipMatch;
 
-                            
+
                             const processedBP = processBasePairInteraction(parseInt(index1), parseInt(index2), interactionType);
                             basePairs.push(processedBP);
 
@@ -1653,8 +1778,8 @@ export class UiTemplateService {
             downloadLink.click();
             document.body.removeChild(downloadLink);
         }
-        
-        downloadSVG(svg, `${name}.svg`); 
+
+        downloadSVG(svg, `${name}.svg`);
 
     }
 
