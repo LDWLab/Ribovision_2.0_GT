@@ -2,7 +2,6 @@ import { UiActionsService } from './uiActions';
 import { PluginOptions, ApiData, BanNameHelper } from './data';
 import { CustomEvents } from './customEvents';
 
-
 export class UiTemplateService {
     selectSections_RV1 = (window as any).selectSections_RV1;
     aaPropertyConstants = (window as any).aaPropertyConstants;
@@ -65,6 +64,11 @@ export class UiTemplateService {
     }
 
     render(apiData: ApiData, FR3DData: any, FR3DNestedData: any, BanName: any, instance?: any) {
+
+        // default annotation value
+        const defaultStart = 20;
+        const defaultInterval = 10;
+
         this.containerElement.innerHTML =
             `<div class="pdb-rna-view-container pdb-rna-view-container-${this.pluginOptions.pdbId}">
             ${this.svgTemplate(apiData, FR3DData, FR3DNestedData)}
@@ -129,6 +133,17 @@ export class UiTemplateService {
             CustomEvents.subscribeToComponentEvents(instance)
         }
         //this.rv3VUEcomponent.topology_loaded=true;
+        // Create annotations by default
+        // Get existing values if they exist, otherwise use defaults
+        const startInput = document.getElementById(`startIndex-${this.pluginOptions.pdbId}`) as HTMLInputElement;
+        const intervalInput = document.getElementById(`interval-${this.pluginOptions.pdbId}`) as HTMLInputElement;
+
+        const startValue = startInput && startInput.value ? parseInt(startInput.value) : defaultStart;
+        const intervalValue = intervalInput && intervalInput.value ? parseInt(intervalInput.value) : defaultInterval;
+
+        // Create annotations with either existing or default values
+        this.createAnnotations(startValue, intervalValue);
+
     }
 
     fixOverlaps(apiData: ApiData) {
@@ -839,10 +854,26 @@ export class UiTemplateService {
     }
 
     private addAnnotationHandlers() {
-        
         const annotateButton = document.getElementById(`rnaTopologyAnnotate-${this.pluginOptions.pdbId}`);
         const modal = document.getElementById(`annotationModal-${this.pluginOptions.pdbId}`);
         const addButton = document.getElementById(`addAnnotations-${this.pluginOptions.pdbId}`);
+        const startInput = document.getElementById(`startIndex-${this.pluginOptions.pdbId}`) as HTMLInputElement;
+        const intervalInput = document.getElementById(`interval-${this.pluginOptions.pdbId}`) as HTMLInputElement;
+    
+        // Default values
+        const defaultStart = 20;
+        const defaultInterval = 10;
+    
+        // Set default values as soon as the elements are found
+        if (startInput) {
+            startInput.value = defaultStart.toString();
+            startInput.placeholder = defaultStart.toString();
+        }
+        
+        if (intervalInput) {
+            intervalInput.value = defaultInterval.toString();
+            intervalInput.placeholder = defaultInterval.toString();
+        }
     
         if (annotateButton) {
             annotateButton.addEventListener('click', () => {
@@ -854,111 +885,155 @@ export class UiTemplateService {
     
         if (addButton) {
             addButton.addEventListener('click', () => {
-                const startInput = document.getElementById(`startIndex-${this.pluginOptions.pdbId}`) as HTMLInputElement;
-                const intervalInput = document.getElementById(`interval-${this.pluginOptions.pdbId}`) as HTMLInputElement;
-                
-                const startIndex = parseInt(startInput.value);
-                const interval = parseInt(intervalInput.value);
+                // Parse values and handle invalid or empty inputs
+                let startIndex = startInput && startInput.value ? parseInt(startInput.value) : defaultStart;
+                let interval = intervalInput && intervalInput.value ? parseInt(intervalInput.value) : defaultInterval;
     
-                if (startIndex && interval) {
-                    this.createAnnotations(startIndex, interval);
-                    if (modal) {
-                        modal.style.display = 'none';
-                    }
+                // Handle NaN cases (in case parseInt fails)
+                if (isNaN(startIndex)) startIndex = defaultStart;
+                if (isNaN(interval)) interval = defaultInterval;
+    
+                // Update inputs if they were invalid
+                if (startInput) startInput.value = startIndex.toString();
+                if (intervalInput) intervalInput.value = interval.toString();
+    
+                this.createAnnotations(startIndex, interval);
+                if (modal) {
+                    modal.style.display = 'none';
                 }
             });
         }
     }
-    
+
+
     private createAnnotations(startIndex: number, interval: number) {
         const svg = document.querySelector(`svg.rnaTopoSvg`);
         if (!svg) return;
     
-        // Remove any existing annotations
+        // Remove existing annotations
         const existingAnnotations = svg.querySelectorAll('.nucleotide-annotation');
         existingAnnotations.forEach(el => el.remove());
     
         // Get all nucleotides
         const nucleotides = Array.from(svg.querySelectorAll(`.rnaviewEle_${this.pluginOptions.pdbId}`));
-        var font_size = this.apiData ? this.calculateFontSize(this.apiData) : 12;
-        font_size += 4;
+        const font_size = (this.apiData ? this.calculateFontSize(this.apiData) : 12) + 1;
     
-        // Step 1: Build a map of occupied regions (bounding boxes)
-        const occupiedRegions: { x: number, y: number, width: number, height: number }[] = [];
-        nucleotides.forEach((nucleotide) => {
-            if (nucleotide instanceof SVGGraphicsElement) {
-                occupiedRegions.push(nucleotide.getBBox());
+        // Helper function to calculate normal vector
+        const calculateNormal = (prev: DOMPoint, curr: DOMPoint, next: DOMPoint): {nx: number, ny: number} => {
+            // Get vectors between points
+            const v1x = curr.x - prev.x;
+            const v1y = curr.y - prev.y;
+            const v2x = next.x - curr.x;
+            const v2y = next.y - curr.y;
+    
+            // Average the two tangent vectors
+            const tx = (v1x + v2x) / 2;
+            const ty = (v1y + v2y) / 2;
+    
+            // Calculate normal vector (perpendicular to tangent)
+            const length = Math.sqrt(tx * tx + ty * ty);
+            const nx = -ty / length;
+            const ny = tx / length;
+    
+            return {nx, ny};
+        };
+    
+        // Get nucleotide positions and determine curve direction
+        const positions: DOMPoint[] = nucleotides.map(nuc => {
+            if (nuc instanceof SVGGraphicsElement) {
+                const bbox = nuc.getBBox();
+                return new DOMPoint(bbox.x + bbox.width/2, bbox.y + bbox.height/2);
             }
+            return new DOMPoint(0, 0);
         });
     
-        // Step 2: Create annotations at non-colliding positions
+        // Calculate curve orientation
+        let totalCurvature = 0;
+        for (let i = 1; i < positions.length - 1; i++) {
+            const prev = positions[i-1];
+            const curr = positions[i];
+            const next = positions[i+1];
+            
+            const v1x = curr.x - prev.x;
+            const v1y = curr.y - prev.y;
+            const v2x = next.x - curr.x;
+            const v2y = next.y - curr.y;
+            totalCurvature += (v1x * v2y - v1y * v2x);
+        }
+        const clockwise = totalCurvature > 0;
+    
+        // Create annotations
         for (let i = startIndex - 1; i < nucleotides.length; i += interval) {
             const nucleotide = nucleotides[i];
-            if (nucleotide && nucleotide instanceof SVGGraphicsElement) {
-                const bbox = nucleotide.getBBox();
-                let x = bbox.x + bbox.width / 2;
-                let y = bbox.y;
+            if (!(nucleotide instanceof SVGGraphicsElement)) continue;
     
-                // Step 3: Find a non-colliding position for annotation
-                let offsetX = 0, offsetY = font_size + 5;
-                let foundSpot = false;
+            const bbox = nucleotide.getBBox();
+            const center = new DOMPoint(bbox.x + bbox.width/2, bbox.y + bbox.height/2);
     
-                for (let attempt = 0; attempt < 3; attempt++) { // Try a few positions
-                    let newX = x + offsetX;
-                    let newY = y - offsetY;
+            // Get adjacent points for normal calculation
+            const prev = positions[Math.max(0, i-1)];
+            const next = positions[Math.min(positions.length-1, i+1)];
     
-                    const collides = occupiedRegions.some(region => 
-                        newX >= region.x && newX <= region.x + region.width &&
-                        newY >= region.y && newY <= region.y + region.height
-                    );
+            // Calculate normal vector
+            const {nx, ny} = calculateNormal(prev, center, next);
     
-                    if (!collides) {
-                        foundSpot = true;
-                        x = newX;
-                        y = newY;
-                        break;
-                    }
+            // Adjust normal direction based on curve orientation
+            const directionMultiplier = clockwise ? -1 : 1;
+            
+            // Total distance to annotation text
+            const totalDistance = font_size * 2.3;
+            
+            // Calculate positions with 30% margins
+            const margin = 0.3;  
+            
+            // Line start point (30% from nucleotide)
+            const lineStartX = center.x + nx * margin * directionMultiplier * totalDistance;
+            const lineStartY = center.y + ny * margin * directionMultiplier * totalDistance;
+            
+            // Line end point (90% from nucleotide / 10% from text)
+            const lineEndX = center.x + nx * (totalDistance - margin) * directionMultiplier;
+            const lineEndY = center.y + ny * (totalDistance - margin) * directionMultiplier;
+            
+            // Determine text alignment based on normal vector
+            // If nx is positive, text should go right (start alignment)
+            // If nx is negative, text should go left (end alignment)
+            const isRightSide = (nx * directionMultiplier) > 0;
+            const textAnchor = isRightSide ? 'start' : 'end';
+            
+            // Base text position
+            const baseTextX = center.x + nx * totalDistance * directionMultiplier * (1 + margin);
+            const baseTextY = center.y + ny * totalDistance * directionMultiplier * (1 + margin);
     
-                    // Try moving text sideways
-                    offsetX = attempt % 2 === 0 ? font_size * 2 : -font_size * 2;
-                    offsetY += font_size * 1.5;
-                }
+            // Create annotation line
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', String(lineStartX));
+            line.setAttribute('y1', String(lineStartY));
+            line.setAttribute('x2', String(lineEndX));
+            line.setAttribute('y2', String(lineEndY));
+            line.setAttribute('stroke', '#666');
+            line.setAttribute('stroke-width', String(font_size * 0.07));
+            line.setAttribute('class', 'nucleotide-annotation');
     
-                if (!foundSpot) continue; // Skip annotation if no spot is found
+            // Create annotation text
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', String(baseTextX));
+            text.setAttribute('y', String(baseTextY));
+            text.setAttribute('text-anchor', textAnchor);
+            text.setAttribute('fill', '#521E2E');
+            text.setAttribute('font-size', String(font_size));
+            text.setAttribute('class', 'nucleotide-annotation');
+            text.setAttribute('dominant-baseline', 'middle');
+            text.textContent = String(i + 1);
     
-                // Step 4: Create annotation line
-                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                line.setAttribute('x1', String(bbox.x + bbox.width / 2));
-                line.setAttribute('y1', String(bbox.y));
-                line.setAttribute('x2', String(x));
-                line.setAttribute('y2', String(y));
-                line.setAttribute('stroke', '#666');
-                line.setAttribute('stroke-width', '1');
-                line.setAttribute('class', 'nucleotide-annotation');
-    
-                // Step 5: Create annotation text
-                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                text.setAttribute('x', String(x));
-                text.setAttribute('y', String(y - 2));
-                text.setAttribute('text-anchor', 'middle');
-                text.setAttribute('fill', '#666');
-                text.setAttribute('font-size', String(font_size * 0.8));
-                text.setAttribute('class', 'nucleotide-annotation');
-                text.textContent = String(i + 1);
-    
-                // Step 6: Add annotation to SVG
-                const svgGroup = svg.querySelector(`.rnaTopoSvg_${this.pluginOptions.pdbId}`);
-                if (svgGroup) {
-                    svgGroup.appendChild(line);
-                    svgGroup.appendChild(text);
-                }
-    
-                // Step 7: Update occupied regions
-                occupiedRegions.push({ x: x - font_size, y: y - font_size, width: font_size * 2, height: font_size });
+            // Add to SVG
+            const svgGroup = svg.querySelector(`.rnaTopoSvg_${this.pluginOptions.pdbId}`);
+            if (svgGroup) {
+                svgGroup.appendChild(line);
+                svgGroup.appendChild(text);
             }
         }
     }
-    
+
     public static linearlyInterpolate(v0: number, v1: number, interpolationFactor: number): number {
         // See https://en.wikipedia.org/wiki/Linear_interpolation
         return (1 - interpolationFactor) * v0 + interpolationFactor * v1;

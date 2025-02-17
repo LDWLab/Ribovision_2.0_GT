@@ -58,6 +58,13 @@ export class UiActionsService {
         .on("click", () => {
             d3.event.stopPropagation();
             svgEle.transition().duration(300).call(zoom1.transform, d3.zoomIdentity);
+            const svg = document.querySelector(`svg.rnaTopoSvg`);
+            
+            if (svg){
+                // Remove any existing annotations
+                const existingAnnotations = svg.querySelectorAll('.nucleotide-annotation');
+                existingAnnotations.forEach(el => el.remove());
+            }
         });
 
         // selection and highlight reset on canvas click
