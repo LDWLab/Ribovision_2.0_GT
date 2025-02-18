@@ -27,7 +27,7 @@ os.environ["BASE_DIR"] = BASE_DIR
 config_file = '/etc/ribovision_config.json' 
 
 if os.path.exists(config_file):
-    with open() as config_file:
+    with open(config_file) as config_file:
         config = json.load(config_file)
         SECRET_KEY = config['SECRET_KEY']
 else:
