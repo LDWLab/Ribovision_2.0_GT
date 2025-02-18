@@ -66,44 +66,8 @@ async function colorStructure(fasta, struc_id, startIndex, stopIndex, ebi_sequen
 
   while((Object.keys(vm.associatedDataCache).length == 0) && (vm.cifPdbMode == null)){
     await sleep(5000);
-    // console.log("waiting on associatedDataCache");
   }
   let associatedDataCache = vm.associatedDataCache;  
-
-  // for (let [alignmentIndexAsString, structureIndex] of Object.entries(struct_mapping)) {
-  //   let alignmentIndex = Number.parseInt(alignmentIndexAsString);
-  //   // todo fix this else block, it goes there and we can't see the helix
-  //   if (alignmentIndex in associatedDataCache) {
-  //     for (let { type, value } of associatedDataCache[alignmentIndex]) {
-  //       if (!(type in associatedDataMappedPerType3D)) {
-  //         associatedDataMappedPerType3D[type] = [];
-  //       }
-
-  //       if (type in typeMappings) {
-  //         let selectedDataDict = typeMappings[type] || {};
-  //         value = selectedDataDict[value] || 0;
-  //       } else {
-  //         if (value.length === 0) {
-  //           value = "0";
-  //         }
-  //         value = Number.parseInt(value);
-  //       }
-  //       let associatedDataI = [
-  //         structureIndex,
-  //         value
-  //       ];
-  //       associatedDataMappedPerType3D[type].push(associatedDataI);
-  //     }
-  //   }
-  // }
-  
-  // vm.AD_headers = [];
-  // vm.associatedDataMappedPerType_3D = associatedDataMappedPerType3D;
-  // vm.associatedDataMappedPerType_3D = fix_colors(
-  //   viewerInstanceTop.viewInstance.uiTemplateService.apiData.sequence,
-  //   viewerInstanceTop.viewInstance.uiTemplateService.baseStrs.get('cWW')[1],
-  //   associatedDataMappedPerType3D
-  // );
   
   let largestKey = Math.max(...Object.values(struct_mapping).filter(a => typeof (a) == "number"))
   let smallestKey = Math.min(...Object.values(struct_mapping).filter(a => typeof (a) == "number"))

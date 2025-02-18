@@ -65,10 +65,6 @@ export class UiTemplateService {
 
     render(apiData: ApiData, FR3DData: any, FR3DNestedData: any, BanName: any, instance?: any) {
 
-        // default annotation value
-        const defaultStart = 20;
-        const defaultInterval = 10;
-
         this.containerElement.innerHTML =
             `<div class="pdb-rna-view-container pdb-rna-view-container-${this.pluginOptions.pdbId}">
             ${this.svgTemplate(apiData, FR3DData, FR3DNestedData)}
@@ -138,8 +134,8 @@ export class UiTemplateService {
         const startInput = document.getElementById(`startIndex-${this.pluginOptions.pdbId}`) as HTMLInputElement;
         const intervalInput = document.getElementById(`interval-${this.pluginOptions.pdbId}`) as HTMLInputElement;
 
-        const startValue = startInput && startInput.value ? parseInt(startInput.value) : defaultStart;
-        const intervalValue = intervalInput && intervalInput.value ? parseInt(intervalInput.value) : defaultInterval;
+        const startValue = startInput && startInput.value ? parseInt(startInput.value) : 20;
+        const intervalValue = intervalInput && intervalInput.value ? parseInt(intervalInput.value) : 10;
 
         // Create annotations with either existing or default values
         this.createAnnotations(startValue, intervalValue);
@@ -861,7 +857,7 @@ export class UiTemplateService {
         const intervalInput = document.getElementById(`interval-${this.pluginOptions.pdbId}`) as HTMLInputElement;
     
         // Default values
-        const defaultStart = 20;
+        const defaultStart = 10;
         const defaultInterval = 10;
     
         // Set default values as soon as the elements are found
@@ -981,7 +977,7 @@ export class UiTemplateService {
             const directionMultiplier = clockwise ? -1 : 1;
             
             // Total distance to annotation text
-            const totalDistance = font_size * 2.3;
+            const totalDistance = font_size * 1.8;
             
             // Calculate positions with 30% margins
             const margin = 0.3;  
