@@ -10,31 +10,34 @@ const typeMappings = {
   'Helix': { '5S1': '1', '5S2': '3', '5S3': '2', '5S5': '2', '5S4': '4', '5': '1', '9': '1', '13': '1', '18': '1', '21': '1', '23': '1', '25': '1', '25_7b': '1', '27': '1', '30': '1', '35a': '1', '36': '1', '38a': '1', '41': '1', '43a': '1', '47': '1', '49': '1', '51': '1', '55': '1', '58': '1', '64': '1', '78': '1', '79': '1', '74': '1', '82': '1', '86': '1', '90': '1', '94': '1', '98_39b': '1', '63_27': '1', '79_31a': '1', '2': '2', '6': '2', '10': '2', '14': '2', '19': '2', '25_7a': '2', '28': '2', '33': '2', '38': '2', '40': '2', '25a': '2', '42': '2', '52': '2', '49a': '2', '54_20a': '2', '59': '2', '63': '2', '61': '2', '67': '2', '75': '2', '79_31': '2', '83': '2', '88': '2', '92': '2', '97': '2', '99': '2', '31_9': '2', '3': '3', '7': '3', '11': '3', '15': '3', '19a': '3', '22': '3', '25_7d': '3', '26': '3', '32': '3', '34': '3', '39': '3', '44': '3', '45': '3', '48': '3', '49b': '3', '53': '3', '56': '3', '63a': '3', '63_27b': '4', '66': '3', '69': '3', '70??': '3', '76': '3', '79_31c': '3', '80': '3', '84': '3', '91': '3', '93': '3', '95': '3', '98': '3', '101': '3', '9_3': '3', '4': '4', '8': '4', '10_4': '4', '12': '4', '16': '4', '20': '4', '24': '4', '25_7c': '4', '31': '4', '35': '4', '37': '4', '38_12': '4', '43': '4', '46': '4', '50': '4', '52_19': '4', '54': '4', '57': '4', '60': '4', '62': '4', '68': '4', '73': '4', '77': '4', '79_31b': '4', '81': '4', '85': '4', '87': '4', '89': '4', '96': '4', '100': '4', '98_39a': '4', '1':'1', '29':'3', '71':'3', '72':'3', '26a':'4', '65':'4', '70': '1', '55a': '1' }
 }
 
-const waitForApiData = async (viewerInstanceTop, maxAttempts = 5, interval = 100) => {
-  return new Promise((resolve, reject) => {
-    let attempts = 0;
-    
-    const checkData = () => {
-      // Check if data is available
-      if (viewerInstanceTop.viewInstance.uiTemplateService.apiData !== undefined && 
-          viewerInstanceTop.viewInstance.uiTemplateService.baseStrs.size > 0) {
-        resolve();
-        return;
+function waitForApiData(viewerInstanceTop, maxAttempts, interval) {
+  maxAttempts = maxAttempts || 5;
+  interval = interval || 100;
+  
+  return new Promise(function(resolve, reject) {
+      var attempts = 0;
+      
+      function checkData() {
+          // Check if data is available
+          if (viewerInstanceTop.viewInstance.uiTemplateService.apiData !== undefined && 
+              viewerInstanceTop.viewInstance.uiTemplateService.baseStrs.size > 0) {
+              resolve();
+              return;
+          }
+          
+          attempts++;
+          if (attempts >= maxAttempts) {
+              reject(new Error('Timeout waiting for apiData'));
+              return;
+          }
+          
+          // Try again after interval
+          setTimeout(checkData, interval);
       }
       
-      attempts++;
-      if (attempts >= maxAttempts) {
-        reject(new Error('Timeout waiting for apiData'));
-        return;
-      }
-      
-      // Try again after interval
-      setTimeout(checkData, interval);
-    };
-    
-    checkData();
+      checkData();
   });
-};
+}
 
 async function getBanName(pdbId, PchainId) {
   try {
