@@ -13,8 +13,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 import os
 import json
 
-# with open('/etc/ribovision_config.json') as config_file:
-#     config = json.load(config_file)
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -24,7 +23,15 @@ os.environ["BASE_DIR"] = BASE_DIR
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
+
+config_file = '/etc/ribovision_config.json' 
+
+if os.path.exists(config_file):
+    with open() as config_file:
+        config = json.load(config_file)
+        SECRET_KEY = config['SECRET_KEY']
+else:
+    SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
