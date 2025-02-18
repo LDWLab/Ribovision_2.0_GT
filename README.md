@@ -9,11 +9,10 @@ developed at the University of British Columbia by the group of Prof. Khanh Dao-
 
 RiboVision 2 is aided by an interactive Guide, which is automatically invoked during the first use of the web server, or upon a request by clicking “Help” button of located at the server’s Main page. The detailed user manual conatining the verbal explanation of the web-server usage, information regarding the data and external resources as well as several examples (with supplied files) can be invoked by clicking “About” button and is available at https://apollo2.chemistry.gatech.edu/AboutRiboVision2/about/. The manual also contains several examples that the users might find useful to become familar with RivoVision 2 functionality.
 
-## Want to enjoy a good music?
-https://open.spotify.com/album/65tCrBCMjaRuUS7tKb4YZh?si=S5sLsp5lTG-SUEeanpHJWQ
 
 ## Contributors
 Petar I Penev, Caeden M. Meade, Artem Kushner.
+Please cite RiboVision 2.0 publication https://doi.org/10.1016/j.jmb.2024.168556
 
 
 ## Licensing 
