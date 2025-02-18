@@ -855,22 +855,22 @@ export class UiTemplateService {
         const addButton = document.getElementById(`addAnnotations-${this.pluginOptions.pdbId}`);
         const startInput = document.getElementById(`startIndex-${this.pluginOptions.pdbId}`) as HTMLInputElement;
         const intervalInput = document.getElementById(`interval-${this.pluginOptions.pdbId}`) as HTMLInputElement;
-    
+
         // Default values
         const defaultStart = 10;
         const defaultInterval = 10;
-    
+
         // Set default values as soon as the elements are found
         if (startInput) {
             startInput.value = defaultStart.toString();
             startInput.placeholder = defaultStart.toString();
         }
-        
+
         if (intervalInput) {
             intervalInput.value = defaultInterval.toString();
             intervalInput.placeholder = defaultInterval.toString();
         }
-    
+
         if (annotateButton) {
             annotateButton.addEventListener('click', () => {
                 if (modal) {
@@ -878,21 +878,21 @@ export class UiTemplateService {
                 }
             });
         }
-    
+
         if (addButton) {
             addButton.addEventListener('click', () => {
                 // Parse values and handle invalid or empty inputs
                 let startIndex = startInput && startInput.value ? parseInt(startInput.value) : defaultStart;
                 let interval = intervalInput && intervalInput.value ? parseInt(intervalInput.value) : defaultInterval;
-    
+
                 // Handle NaN cases (in case parseInt fails)
                 if (isNaN(startIndex)) startIndex = defaultStart;
                 if (isNaN(interval)) interval = defaultInterval;
-    
+
                 // Update inputs if they were invalid
                 if (startInput) startInput.value = startIndex.toString();
                 if (intervalInput) intervalInput.value = interval.toString();
-    
+
                 this.createAnnotations(startIndex, interval);
                 if (modal) {
                     modal.style.display = 'none';
@@ -905,51 +905,51 @@ export class UiTemplateService {
     private createAnnotations(startIndex: number, interval: number) {
         const svg = document.querySelector(`svg.rnaTopoSvg`);
         if (!svg) return;
-    
+
         // Remove existing annotations
         const existingAnnotations = svg.querySelectorAll('.nucleotide-annotation');
         existingAnnotations.forEach(el => el.remove());
-    
+
         // Get all nucleotides
         const nucleotides = Array.from(svg.querySelectorAll(`.rnaviewEle_${this.pluginOptions.pdbId}`));
         const font_size = (this.apiData ? this.calculateFontSize(this.apiData) : 12) + 1;
-    
+
         // Helper function to calculate normal vector
-        const calculateNormal = (prev: DOMPoint, curr: DOMPoint, next: DOMPoint): {nx: number, ny: number} => {
+        const calculateNormal = (prev: DOMPoint, curr: DOMPoint, next: DOMPoint): { nx: number, ny: number } => {
             // Get vectors between points
             const v1x = curr.x - prev.x;
             const v1y = curr.y - prev.y;
             const v2x = next.x - curr.x;
             const v2y = next.y - curr.y;
-    
+
             // Average the two tangent vectors
             const tx = (v1x + v2x) / 2;
             const ty = (v1y + v2y) / 2;
-    
+
             // Calculate normal vector (perpendicular to tangent)
             const length = Math.sqrt(tx * tx + ty * ty);
             const nx = -ty / length;
             const ny = tx / length;
-    
-            return {nx, ny};
+
+            return { nx, ny };
         };
-    
+
         // Get nucleotide positions and determine curve direction
         const positions: DOMPoint[] = nucleotides.map(nuc => {
             if (nuc instanceof SVGGraphicsElement) {
                 const bbox = nuc.getBBox();
-                return new DOMPoint(bbox.x + bbox.width/2, bbox.y + bbox.height/2);
+                return new DOMPoint(bbox.x + bbox.width / 2, bbox.y + bbox.height / 2);
             }
             return new DOMPoint(0, 0);
         });
-    
+
         // Calculate curve orientation
         let totalCurvature = 0;
         for (let i = 1; i < positions.length - 1; i++) {
-            const prev = positions[i-1];
+            const prev = positions[i - 1];
             const curr = positions[i];
-            const next = positions[i+1];
-            
+            const next = positions[i + 1];
+
             const v1x = curr.x - prev.x;
             const v1y = curr.y - prev.y;
             const v2x = next.x - curr.x;
@@ -957,49 +957,49 @@ export class UiTemplateService {
             totalCurvature += (v1x * v2y - v1y * v2x);
         }
         const clockwise = totalCurvature > 0;
-    
+
         // Create annotations
         for (let i = startIndex - 1; i < nucleotides.length; i += interval) {
             const nucleotide = nucleotides[i];
             if (!(nucleotide instanceof SVGGraphicsElement)) continue;
-    
+
             const bbox = nucleotide.getBBox();
-            const center = new DOMPoint(bbox.x + bbox.width/2, bbox.y + bbox.height/2);
-    
+            const center = new DOMPoint(bbox.x + bbox.width / 2, bbox.y + bbox.height / 2);
+
             // Get adjacent points for normal calculation
-            const prev = positions[Math.max(0, i-1)];
-            const next = positions[Math.min(positions.length-1, i+1)];
-    
+            const prev = positions[Math.max(0, i - 1)];
+            const next = positions[Math.min(positions.length - 1, i + 1)];
+
             // Calculate normal vector
-            const {nx, ny} = calculateNormal(prev, center, next);
-    
+            const { nx, ny } = calculateNormal(prev, center, next);
+
             // Adjust normal direction based on curve orientation
             const directionMultiplier = clockwise ? -1 : 1;
-            
+
             // Total distance to annotation text
             const totalDistance = font_size * 1.8;
-            
+
             // Calculate positions with 30% margins
-            const margin = 0.3;  
-            
+            const margin = 0.3;
+
             // Line start point (30% from nucleotide)
             const lineStartX = center.x + nx * margin * directionMultiplier * totalDistance;
             const lineStartY = center.y + ny * margin * directionMultiplier * totalDistance;
-            
+
             // Line end point (90% from nucleotide / 10% from text)
             const lineEndX = center.x + nx * (totalDistance - margin) * directionMultiplier;
             const lineEndY = center.y + ny * (totalDistance - margin) * directionMultiplier;
-            
+
             // Determine text alignment based on normal vector
             // If nx is positive, text should go right (start alignment)
             // If nx is negative, text should go left (end alignment)
             const isRightSide = (nx * directionMultiplier) > 0;
             const textAnchor = isRightSide ? 'start' : 'end';
-            
+
             // Base text position
             const baseTextX = center.x + nx * totalDistance * directionMultiplier * (1 + margin);
             const baseTextY = center.y + ny * totalDistance * directionMultiplier * (1 + margin);
-    
+
             // Create annotation line
             const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             line.setAttribute('x1', String(lineStartX));
@@ -1009,7 +1009,7 @@ export class UiTemplateService {
             line.setAttribute('stroke', '#666');
             line.setAttribute('stroke-width', String(font_size * 0.07));
             line.setAttribute('class', 'nucleotide-annotation');
-    
+
             // Create annotation text
             const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             text.setAttribute('x', String(baseTextX));
@@ -1020,7 +1020,7 @@ export class UiTemplateService {
             text.setAttribute('class', 'nucleotide-annotation');
             text.setAttribute('dominant-baseline', 'middle');
             text.textContent = String(i + 1);
-    
+
             // Add to SVG
             const svgGroup = svg.querySelector(`.rnaTopoSvg_${this.pluginOptions.pdbId}`);
             if (svgGroup) {
@@ -1279,23 +1279,6 @@ export class UiTemplateService {
         });
     }
 
-    private removeEventHandlers(svgData: any) {
-        var nodeList = svgData.childNodes[1].childNodes
-        for (let i in nodeList) {
-            var el = nodeList[i];
-            if (el.attributes) {
-                var attributes = [].slice.call(el!.attributes);
-
-                for (let i = 0; i < attributes.length; i++) {
-                    var att = attributes[i].name;
-                    if (att.indexOf("on") === 0) {
-                        el!.attributes.removeNamedItem(att);
-                    }
-                }
-            }
-        }
-        return svgData
-    }
 
     private svgTemplate(apiData: ApiData, FR3DData: any, FR3DNestedData: any): string {
         const font_size: number = this.calculateFontSize(apiData)
@@ -1764,94 +1747,128 @@ export class UiTemplateService {
 
 
     }
-    saveSVG() {
-        const self = this;
-        (window as any).debugRNA = self;
-        const name = `${self.pluginOptions.pdbId}_${self.pluginOptions.entityId}_${self.pluginOptions.chainId}`;
 
-        function getNode(n: any, v?: any) {
-            n = document.createElementNS("http://www.w3.org/2000/svg", n);
-            for (var p in v)
-                n.setAttributeNS(null, p.replace(/[0-9]/g, 'o').replace(/\$/g, 'd').replace(/\[/g, 'b').replace(/[A-Z]/g, function (m, p, o, s) { return "-" + m.toLowerCase(); }), v[p]);
-            return n
+    private cleanSVGForDownload(svgElement: SVGElement): SVGElement {
+        // Create a deep clone of the SVG
+        const cleanedSvg = svgElement.cloneNode(true) as SVGElement;
+
+        // Remove all event handlers and on* attributes
+        this.removeEventHandlersRecursive(cleanedSvg);
+
+        // Ensure all necessary attributes are present
+        cleanedSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+        cleanedSvg.setAttribute('version', '1.1');
+
+        // Keep the viewBox but make the width and height explicit
+        const viewBox = cleanedSvg.getAttribute('viewBox');
+        if (viewBox) {
+            const [, , width, height] = viewBox.split(' ').map(Number);
+            cleanedSvg.setAttribute('width', `${width}px`);
+            cleanedSvg.setAttribute('height', `${height}px`);
         }
 
-        var svgData1 = <SVGSVGElement>document.querySelector(`svg.rnaTopoSvg`)
-        let svgData_forsave = svgData1!.cloneNode(true);
-        svgData_forsave = this.removeEventHandlers(svgData_forsave)
-        var svg = getNode("svg");
-        svg.appendChild(svgData_forsave);
+        // Ensure proper grouping of elements
+        this.organizeGroups(cleanedSvg);
 
-        //   function groupSVG(svg: any){
-        //     svg = svg.replace(`</g>`, ``);
-        //     svg = svg.replace(/<g\s+class="rnaTopoSvg_[^"]*"\s*>/g, '');
+        return cleanedSvg;
+    }
 
-        //     console.log('svg', JSON.stringify(svg));
+    private removeEventHandlersRecursive(element: Element): void {
+        // Remove all on* attributes
+        const attributes = element.attributes;
+        const attributesToRemove: string[] = [];
 
-        //     // process the neucliotides
-        //     let tokens: { [key: string]: string[] } = {
-        //         'Text': ['<text', '</text>'],
-        //         'Colors': ['<circle', '</circle>'],
-        //         'Bonds': ['<path', '</path>']
-        //     };
-
-
-        //     for (let key in tokens) {
-
-        //         if (Object.prototype.hasOwnProperty.call(tokens, key)) {
-        //             let tokenArray = tokens[key];
-        //             let startPos = svg.indexOf(tokenArray[0]);
-        //             let endPos = svg.lastIndexOf(tokenArray[1]) + tokenArray[1].length;
-        //             svg = svg.slice(0, startPos) + `<g class="${key}" id="${key}">` + svg.slice(startPos, endPos) + `</g>` + svg.slice(endPos);
-        //         }
-        //     }
-        //     return svg;
-
-        //   }
-        function groupSVG(svg: string) {
-            // Remove existing </g> tags
-            svg = svg.replace(/<\/g>/g, '');
-
-            // Remove existing <g> tags with class attribute containing "rnaTopoSvg_"
-            svg = svg.replace(/<g\s+class="rnaTopoSvg_[^"]*"\s*>/g, '');
-
-            let tokens: { [key: string]: RegExp } = {
-                'Text': /<text[\s\S]*<\/text>/g,
-                'Colors': /<circle[\s\S]*<\/circle>/g,
-                'Bonds': /<path[\s\S]*<\/path>/g
-            };
-
-
-            for (let key in tokens) {
-                if (Object.prototype.hasOwnProperty.call(tokens, key)) {
-                    let tokenRegExp = tokens[key];
-                    let match;
-                    while ((match = tokenRegExp.exec(svg)) !== null) {
-                        let startPos = match.index;
-                        let endPos = match.index + match[0].length;
-                        svg = svg.slice(0, startPos) + `<g class="${key}" id="${key}">` + svg.slice(startPos, endPos) + `</g>` + svg.slice(endPos);
-                    }
-                }
+        for (let i = 0; i < attributes.length; i++) {
+            const attr = attributes[i];
+            if (attr.name.startsWith('on') || attr.name === 'href') {
+                attributesToRemove.push(attr.name);
             }
-            return svg;
         }
 
-        function downloadSVG(svgEl: any, name: any) {
-            svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-            var svgData = groupSVG(svgEl.outerHTML);
-            var preface = '<?xml version="1.0" standalone="no"?>\r\n';
-            var svgBlob = new Blob([preface, svgData], { type: "image/svg+xml;charset=utf-8" });
-            var svgUrl = URL.createObjectURL(svgBlob);
-            var downloadLink = document.createElement("a");
-            downloadLink.href = svgUrl;
-            downloadLink.download = name;
+        attributesToRemove.forEach(attr => element.removeAttribute(attr));
+
+        // Process child elements recursively
+        Array.from(element.children).forEach(child => {
+            this.removeEventHandlersRecursive(child);
+        });
+    }
+
+    private organizeGroups(svg: SVGElement): void {
+        // const svgRoot = svg as unknown as SVGSVGElement;
+
+        const groups = {
+            text: document.createElementNS('http://www.w3.org/2000/svg', 'g'),
+            circles: document.createElementNS('http://www.w3.org/2000/svg', 'g'),
+            paths: document.createElementNS('http://www.w3.org/2000/svg', 'g'),
+            annotations: document.createElementNS('http://www.w3.org/2000/svg', 'g')
+        };
+
+        groups.text.setAttribute('class', 'nucleotides');
+        groups.circles.setAttribute('class', 'markers');
+        groups.paths.setAttribute('class', 'bonds');
+        groups.annotations.setAttribute('class', 'annotations');
+
+        const elements = Array.from(svg.getElementsByTagName('*'));
+        elements.forEach(el => {
+            const clone = el.cloneNode(true) as Element;
+            if (el.classList.contains('nucleotide-annotation')) {
+                // Handle annotation elements (both lines and text)
+                groups.annotations.appendChild(clone);
+            } else if (el.tagName.toLowerCase() === 'text') {
+                groups.text.appendChild(clone);
+            } else if (el.tagName.toLowerCase() === 'circle') {
+                groups.circles.appendChild(clone);
+            } else if (el.tagName.toLowerCase() === 'path') {
+                groups.paths.appendChild(clone);
+            }
+        });
+
+        // Clear the SVG
+        while (svg.firstChild) {
+            svg.removeChild(svg.firstChild);
+        }
+
+        // Add groups in the correct order
+        svg.appendChild(groups.paths);
+        svg.appendChild(groups.circles);
+        svg.appendChild(groups.text);
+        svg.appendChild(groups.annotations); // Add annotations last so they appear on top
+    }
+
+    public saveSVG(): void {
+        try {
+            const svgElement = document.querySelector('svg.rnaTopoSvg') as SVGElement;
+            if (!svgElement) {
+                console.error('SVG element not found');
+                return;
+            }
+
+            // Clean and prepare SVG for download
+            const cleanedSvg = this.cleanSVGForDownload(svgElement);
+
+            // Add XML declaration and create SVG string
+            const svgString = '<?xml version="1.0" standalone="no"?>\n' +
+                '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' +
+                cleanedSvg.outerHTML;
+
+            // Create download link
+            const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const downloadLink = document.createElement('a');
+            downloadLink.href = url;
+            downloadLink.download = `${this.pluginOptions.pdbId}_${this.pluginOptions.chainId}_topology.svg`;
+
+            // Trigger download
             document.body.appendChild(downloadLink);
             downloadLink.click();
             document.body.removeChild(downloadLink);
+
+            // Cleanup
+            setTimeout(() => URL.revokeObjectURL(url), 100);
+
+        } catch (error) {
+            console.error('Error saving SVG:', error);
         }
-
-        downloadSVG(svg, `${name}.svg`);
-
     }
 
 }
