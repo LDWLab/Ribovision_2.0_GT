@@ -100,6 +100,14 @@ export class UiTemplateService {
         this.uiActionsService.applyButtonActions();
         this.addEvents(apiData, BanName);
 
+
+        // this.mappingValue = 'circle';
+        // const selectBoxEle = this.containerElement.querySelector<HTMLSelectElement>('.menuSelectbox');
+        // if (selectBoxEle) {
+        //     selectBoxEle.value = "2"; // Set to circle mode
+        //     this.PathOrNucleotide(); // Trigger the view update
+        // }
+
         // Save button event listeners
         const svgSaveButton = document.getElementById(`rnaTopologySaveSVG-${this.pluginOptions.pdbId}`);
         const jsonSaveButton = document.getElementById(`rnaTopologySaveJSON-${this.pluginOptions.pdbId}`);
@@ -128,18 +136,8 @@ export class UiTemplateService {
         if (instance) {
             CustomEvents.subscribeToComponentEvents(instance)
         }
-        //this.rv3VUEcomponent.topology_loaded=true;
-        // Create annotations by default
-        // Get existing values if they exist, otherwise use defaults
-        const startInput = document.getElementById(`startIndex-${this.pluginOptions.pdbId}`) as HTMLInputElement;
-        const intervalInput = document.getElementById(`interval-${this.pluginOptions.pdbId}`) as HTMLInputElement;
 
-        const startValue = startInput && startInput.value ? parseInt(startInput.value) : 20;
-        const intervalValue = intervalInput && intervalInput.value ? parseInt(intervalInput.value) : 10;
-
-        // Create annotations with either existing or default values
-        this.createAnnotations(startValue, intervalValue);
-
+        this.initializeAnnotations();
     }
 
     fixOverlaps(apiData: ApiData) {
@@ -436,7 +434,8 @@ export class UiTemplateService {
         }
     }
     createModeDropdown() {
-        let optionList = `<option value="0">Nucleotides</option><option value="1">Path</option><option value="2">Circle</option>`;
+        // Change default selected value to 2 (circle mode)
+        let optionList = `<option value="0">Nucleotides</option><option value="1">Path</option><option value="2" selected>Circle</option>`;
         const selectBoxEle = this.containerElement.querySelector<HTMLElement>('.menuSelectbox');
         selectBoxEle!.innerHTML = optionList;
         selectBoxEle!.addEventListener("change", this.PathOrNucleotide.bind(this));
@@ -853,6 +852,7 @@ export class UiTemplateService {
         const annotateButton = document.getElementById(`rnaTopologyAnnotate-${this.pluginOptions.pdbId}`);
         const modal = document.getElementById(`annotationModal-${this.pluginOptions.pdbId}`);
         const addButton = document.getElementById(`addAnnotations-${this.pluginOptions.pdbId}`);
+        const clearButton = document.getElementById(`clearAnnotations-${this.pluginOptions.pdbId}`);
         const startInput = document.getElementById(`startIndex-${this.pluginOptions.pdbId}`) as HTMLInputElement;
         const intervalInput = document.getElementById(`interval-${this.pluginOptions.pdbId}`) as HTMLInputElement;
 
@@ -899,41 +899,56 @@ export class UiTemplateService {
                 }
             });
         }
+
+        if (clearButton) {
+            clearButton.addEventListener('click', () => {
+                // Remove any existing annotations
+                const svg = document.querySelector(`svg.rnaTopoSvg`);
+                if (svg) {
+                    // Remove any existing annotations
+                    const existingAnnotations = svg.querySelectorAll('.nucleotide-annotation');
+                    existingAnnotations.forEach(el => el.remove());
+                }
+            });
+        }
     }
 
 
     private createAnnotations(startIndex: number, interval: number) {
+        // validate
+        const sequenceLength = this.apiData ? this.apiData.sequence.length : 0;
+        if (startIndex < 1) startIndex = 1;
+        if (interval < 1) interval = 1;
+        if (startIndex > sequenceLength) startIndex = sequenceLength;
+    
         const svg = document.querySelector(`svg.rnaTopoSvg`);
         if (!svg) return;
-
+    
         // Remove existing annotations
         const existingAnnotations = svg.querySelectorAll('.nucleotide-annotation');
         existingAnnotations.forEach(el => el.remove());
-
+    
         // Get all nucleotides
         const nucleotides = Array.from(svg.querySelectorAll(`.rnaviewEle_${this.pluginOptions.pdbId}`));
         const font_size = (this.apiData ? this.calculateFontSize(this.apiData) : 12) + 1;
-
+    
         // Helper function to calculate normal vector
         const calculateNormal = (prev: DOMPoint, curr: DOMPoint, next: DOMPoint): { nx: number, ny: number } => {
-            // Get vectors between points
             const v1x = curr.x - prev.x;
             const v1y = curr.y - prev.y;
             const v2x = next.x - curr.x;
             const v2y = next.y - curr.y;
-
-            // Average the two tangent vectors
+    
             const tx = (v1x + v2x) / 2;
             const ty = (v1y + v2y) / 2;
-
-            // Calculate normal vector (perpendicular to tangent)
+    
             const length = Math.sqrt(tx * tx + ty * ty);
             const nx = -ty / length;
             const ny = tx / length;
-
+    
             return { nx, ny };
         };
-
+    
         // Get nucleotide positions and determine curve direction
         const positions: DOMPoint[] = nucleotides.map(nuc => {
             if (nuc instanceof SVGGraphicsElement) {
@@ -942,65 +957,38 @@ export class UiTemplateService {
             }
             return new DOMPoint(0, 0);
         });
-
-        // Calculate curve orientation
-        let totalCurvature = 0;
-        for (let i = 1; i < positions.length - 1; i++) {
-            const prev = positions[i - 1];
-            const curr = positions[i];
-            const next = positions[i + 1];
-
-            const v1x = curr.x - prev.x;
-            const v1y = curr.y - prev.y;
-            const v2x = next.x - curr.x;
-            const v2y = next.y - curr.y;
-            totalCurvature += (v1x * v2y - v1y * v2x);
-        }
-        const clockwise = totalCurvature > 0;
-
+    
         // Create annotations
         for (let i = startIndex - 1; i < nucleotides.length; i += interval) {
             const nucleotide = nucleotides[i];
             if (!(nucleotide instanceof SVGGraphicsElement)) continue;
-
+    
             const bbox = nucleotide.getBBox();
             const center = new DOMPoint(bbox.x + bbox.width / 2, bbox.y + bbox.height / 2);
-
-            // Get adjacent points for normal calculation
+    
             const prev = positions[Math.max(0, i - 1)];
             const next = positions[Math.min(positions.length - 1, i + 1)];
-
-            // Calculate normal vector
+    
             const { nx, ny } = calculateNormal(prev, center, next);
-
-            // Adjust normal direction based on curve orientation
-            const directionMultiplier = clockwise ? -1 : 1;
-
-            // Total distance to annotation text
+    
+            const directionMultiplier = -1; // -1 for clockwise and 1 for counter clockwise
+    
             const totalDistance = font_size * 1.8;
-
-            // Calculate positions with 30% margins
+    
             const margin = 0.3;
-
-            // Line start point (30% from nucleotide)
+    
             const lineStartX = center.x + nx * margin * directionMultiplier * totalDistance;
             const lineStartY = center.y + ny * margin * directionMultiplier * totalDistance;
-
-            // Line end point (90% from nucleotide / 10% from text)
+    
             const lineEndX = center.x + nx * (totalDistance - margin) * directionMultiplier;
             const lineEndY = center.y + ny * (totalDistance - margin) * directionMultiplier;
-
-            // Determine text alignment based on normal vector
-            // If nx is positive, text should go right (start alignment)
-            // If nx is negative, text should go left (end alignment)
+    
             const isRightSide = (nx * directionMultiplier) > 0;
             const textAnchor = isRightSide ? 'start' : 'end';
-
-            // Base text position
+    
             const baseTextX = center.x + nx * totalDistance * directionMultiplier * (1 + margin);
             const baseTextY = center.y + ny * totalDistance * directionMultiplier * (1 + margin);
-
-            // Create annotation line
+    
             const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             line.setAttribute('x1', String(lineStartX));
             line.setAttribute('y1', String(lineStartY));
@@ -1009,8 +997,7 @@ export class UiTemplateService {
             line.setAttribute('stroke', '#666');
             line.setAttribute('stroke-width', String(font_size * 0.07));
             line.setAttribute('class', 'nucleotide-annotation');
-
-            // Create annotation text
+    
             const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             text.setAttribute('x', String(baseTextX));
             text.setAttribute('y', String(baseTextY));
@@ -1020,14 +1007,56 @@ export class UiTemplateService {
             text.setAttribute('class', 'nucleotide-annotation');
             text.setAttribute('dominant-baseline', 'middle');
             text.textContent = String(i + 1);
-
-            // Add to SVG
+    
             const svgGroup = svg.querySelector(`.rnaTopoSvg_${this.pluginOptions.pdbId}`);
             if (svgGroup) {
                 svgGroup.appendChild(line);
                 svgGroup.appendChild(text);
             }
         }
+    }
+
+    private calculateDefaultAnnotationParams(sequenceLength: number, targetAnnotationCount: number = 7): { startIndex: number, interval: number } {
+        // Ensure we have valid input
+        if (sequenceLength <= 0 || targetAnnotationCount <= 0) {
+            return { startIndex: 1, interval: 1 };
+        }
+
+        // Calculate interval to achieve target number of annotations
+        // We subtract 1 from targetAnnotationCount because the first annotation is at startIndex
+        let interval = Math.ceil(sequenceLength / (targetAnnotationCount - 1));
+
+        // Calculate start index to center the annotations
+        const totalSpan = (targetAnnotationCount - 1) * interval;
+        const startIndex = Math.max(1, Math.floor((sequenceLength - totalSpan) / 2));
+
+        return {
+            startIndex,
+            interval
+        };
+    }
+
+    private initializeAnnotations(): void {
+        // Get the sequence length from apiData
+        const sequenceLength = this.apiData ? this.apiData.sequence.length : 0;
+
+        // Get inputs if they exist
+        const startInput = document.getElementById(`startIndex-${this.pluginOptions.pdbId}`) as HTMLInputElement;
+        const intervalInput = document.getElementById(`interval-${this.pluginOptions.pdbId}`) as HTMLInputElement;
+
+        // Calculate default values
+        const defaultParams = this.calculateDefaultAnnotationParams(sequenceLength);
+
+        // Use existing values if present, otherwise use calculated defaults
+        const startValue = startInput && startInput.value ? parseInt(startInput.value) : defaultParams.startIndex;
+        const intervalValue = intervalInput && intervalInput.value ? parseInt(intervalInput.value) : defaultParams.interval;
+
+        // Update input fields with current values
+        if (startInput) startInput.value = startValue.toString();
+        if (intervalInput) intervalInput.value = intervalValue.toString();
+
+        // Create annotations
+        this.createAnnotations(startValue, intervalValue);
     }
 
     public static linearlyInterpolate(v0: number, v1: number, interpolationFactor: number): number {
@@ -1039,6 +1068,7 @@ export class UiTemplateService {
         const selectedValue = parseInt(selectBoxEle.value);
         this.mappingValue = ''
         const nestedBP = this.containerElement.querySelector<HTMLInputElement>('#nestedBP')
+
         if (nestedBP!.checked) {
             var displayBP = this.displayNestedBaseStrs
         } else {
@@ -1051,16 +1081,18 @@ export class UiTemplateService {
         } else if (selectedValue == 2) {
             (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(`rnaTopoSvg_${this.pluginOptions.pdbId}`)[0].innerHTML = this.nucleotideStrs.join('') + this.circleStrs.join('') + displayBP;
             this.mappingValue = 'circle';
-            (<any>document.querySelector(`svg.rnaTopoSvg`))!.getElementsByClassName(`rnaTopoSvg_${this.pluginOptions.pdbId}`)[0].innerHTML = this.nucleotideStrs.join('') + this.circleStrs.join('') + displayBP;
-            //this.circleStrs.join('') + displayBP;
+
+            // Show all circle texts when in circle mode
+            const circleTexts = document.getElementsByClassName('nucleotide-text');
+            for (let i = 0; i < circleTexts.length; i++) {
+                (circleTexts[i] as HTMLElement).style.display = "block";
+            }
         }
-        //if(e) {
-        //this.containerElement.querySelector<HTMLInputElement>('.mappingSelectbox')!.value="0";
-        this.colorMap()
-        //}
-        //console.log("Path or nucleotide!")
-        this.colorMapContacts()
-        this.colorMapModifications()
+
+        this.colorMap();
+        this.colorMapContacts();
+        this.colorMapModifications();
+        this.initializeAnnotations();
     }
 
 
@@ -1377,9 +1409,33 @@ export class UiTemplateService {
                     onmouseout="UiActionsService.unSelectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, ${isUnobserved}, event, '${strokeColor}')">
                 </path>`)
             this.circleStrs.push(
-                `<circle class="circle_${this.pluginOptions.pdbId}_${apiData.label_seq_ids[recordIndex - 1]}" cx="${xVal + deltaX}" cy="${yVal - deltaY}" r="${2 * font_size / 3}" display="none" alignment-baseline="middle" stroke-width="${font_size / 6}" onclick="UiActionsService.selectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, 'click', ${isUnobserved}, '${apiData.sequence[recordIndex - 2]}', event, ${this.pluginOptions.theme?.highlightColor ? "'" + this.pluginOptions.theme.highlightColor + "'" : undefined})" 
-                onmouseover="UiActionsService.selectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, 'mouseover', ${isUnobserved}, '${apiData.sequence[recordIndex - 2]}', event, ${this.pluginOptions.theme?.highlightColor ? "'" + this.pluginOptions.theme.highlightColor + "'" : undefined})" 
-                onmouseout="UiActionsService.unSelectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, ${isUnobserved}, event, '${strokeColor}')"/>`)
+                `<g class="nucleotide-circle">
+                    <circle 
+                        class="circle_${this.pluginOptions.pdbId}_${apiData.label_seq_ids[recordIndex - 1]}" 
+                        cx="${xVal + deltaX}" 
+                        cy="${yVal - deltaY}" 
+                        r="${2 * font_size / 3}" 
+                        display="none" 
+                        alignment-baseline="middle" 
+                        stroke-width="${font_size / 6}" 
+                        onclick="UiActionsService.selectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, 'click', ${isUnobserved}, '${apiData.sequence[recordIndex - 2]}', event, ${this.pluginOptions.theme?.highlightColor ? "'" + this.pluginOptions.theme.highlightColor + "'" : undefined})" 
+                        onmouseover="UiActionsService.selectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, 'mouseover', ${isUnobserved}, '${apiData.sequence[recordIndex - 2]}', event, ${this.pluginOptions.theme?.highlightColor ? "'" + this.pluginOptions.theme.highlightColor + "'" : undefined})" 
+                        onmouseout="UiActionsService.unSelectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, ${isUnobserved}, event, '${strokeColor}')"
+                    />
+                    <text
+                        class="nucleotide-text circle-text_${this.pluginOptions.pdbId}_${apiData.label_seq_ids[recordIndex - 1]}"
+                        x="${xVal + deltaX}"
+                        y="${yVal - deltaY}"
+                        font-size="${font_size * 0.8}px"
+                        fill="white"
+                        font-weight="bold"
+                        text-anchor="middle"
+                        dominant-baseline="middle"
+                        pointer-events="none"
+                        display="none"
+                    >${apiData.sequence[recordIndex - 2]}</text>
+                </g>`
+            )
             this.nucleotideStrs.push(
                 `<text href="#${pathEleClass}" class="${pathEleClass}" x="${xVal}" y="${yVal}" font-size = "${font_size}px" onclick="UiActionsService.selectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, 'click', ${isUnobserved}, '${apiData.sequence[recordIndex - 2]}', event, ${this.pluginOptions.theme?.highlightColor ? "'" + this.pluginOptions.theme.highlightColor + "'" : undefined})" 
                 onmouseover="UiActionsService.selectNucleotide('${this.pluginOptions.pdbId}', '${this.pluginOptions.entityId}', ${apiData.label_seq_ids[recordIndex - 1]}, 'mouseover', ${isUnobserved}, '${apiData.sequence[recordIndex - 2]}', event, ${this.pluginOptions.theme?.highlightColor ? "'" + this.pluginOptions.theme.highlightColor + "'" : undefined})" 
@@ -1525,20 +1581,28 @@ export class UiTemplateService {
             </span>
         </div>
         <!-- Add modal dialog -->
-        <div id="annotationModal-${this.pluginOptions.pdbId}" class="annotation-modal" style="display:none;position:absolute;background:white;border:1px solid #ccc;padding:15px;z-index:1000;top:50%;left:50%;transform:translate(-50%,-50%);box-shadow:0 2px 10px rgba(0,0,0,0.1);border-radius:4px;">
-                <h3 style="margin:0 0 10px">Add Annotations</h3>
-                <div style="margin-bottom:10px">
-                    <label>Starting Index:</label>
-                    <input type="number" id="startIndex-${this.pluginOptions.pdbId}" min="1" style="width:100px;margin-left:5px">
+        <div id="annotationModal-${this.pluginOptions.pdbId}" class="annotation-modal" style="display:none; position:absolute; z-index:1000; top:50%; left:50%; transform:translate(-50%, -50%);">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Add Annotations</h3>
+                    <button type="button" class="modal-close-btn" onclick="document.getElementById('annotationModal-${this.pluginOptions.pdbId}').style.display='none'" title="Close">&times;</button>
                 </div>
-                <div style="margin-bottom:10px">
-                    <label>Interval:</label>
-                    <input type="number" id="interval-${this.pluginOptions.pdbId}" min="1" style="width:100px;margin-left:5px">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="startIndex-${this.pluginOptions.pdbId}">Starting Index:</label>
+                        <input type="number" id="startIndex-${this.pluginOptions.pdbId}" class="form-control" min="1" placeholder="e.g., 1">
+                    </div>
+                    <div class="form-group">
+                        <label for="interval-${this.pluginOptions.pdbId}">Interval:</label>
+                        <input type="number" id="interval-${this.pluginOptions.pdbId}" class="form-control" min="1" placeholder="e.g., 10">
+                    </div>
                 </div>
-                <div style="text-align:right">
-                    <button onclick="document.getElementById('annotationModal-${this.pluginOptions.pdbId}').style.display='none'" style="margin-right:5px">Cancel</button>
-                    <button id="addAnnotations-${this.pluginOptions.pdbId}">Add</button>
+                <div class="modal-footer">
+                    <button type="button" id="addAnnotations-${this.pluginOptions.pdbId}">Add</button>
+                    <button type="button" onclick="document.getElementById('annotationModal-${this.pluginOptions.pdbId}').style.display='none'">Cancel</button>
+                    <button type="button" id="clearAnnotations-${this.pluginOptions.pdbId}">Clear</button>
                 </div>
+            </div>
         </div>`;
     }
 
