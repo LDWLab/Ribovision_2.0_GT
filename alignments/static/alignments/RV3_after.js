@@ -355,7 +355,89 @@ var displayMappingDataByIndex = function (topviewer, selectedIndex) {
     vm.selected_property = topviewer.pluginInstance.domainTypes[selectedIndex].label;
 }
 
-var mapCustomMappingData = function (custom_data, custom_data_name, topviewer) { //custom_data3D, 
+// Function to generate dynamic SVG color scale with improved annotations
+function generateColorScaleSVG(colormap, minVal, maxVal, dataName) {
+    const width = 200; 
+    const height = 500;
+    const margin = 20; 
+    const scaleHeight = height - 2 * margin;
+    const barWidth = 30; // Width of the color bar itself
+    const offset = 5; // Offset for the text label
+    const barCenterX = width / 2; // Center the bar horizontally
+    const barLeftX = barCenterX - barWidth / 2; // Left edge of centered bar
+    const fontSize = 12; // Font size for annotations
+
+    // Generate color stops for the gradient
+    let colorStops = '';
+    if (colormap && colormap.length > 0) {
+        colormap.forEach((stop, index) => {
+            const offset = (index / (colormap.length - 1)) * 100;
+            const color = stop[1];
+            const r = Math.round(color[0] * 255);
+            const g = Math.round(color[1] * 255);
+            const b = Math.round(color[2] * 255);
+            colorStops += `<stop offset="${offset}%" style="stop-color:rgb(${r},${g},${b});stop-opacity:1" />`;
+        });
+    }
+
+    // Calculate annotation values
+    const range = maxVal - minVal;
+    const zeroPercent = minVal;
+    const fiftyPercent = minVal + (range * 0.5);
+    const hundredPercent = maxVal;
+
+    // Create SVG with vertical gradient and external annotations
+    const svg = `
+        <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="gradient-${dataName.replace(/[^a-zA-Z0-9]/g, '')}" x1="0%" y1="100%" x2="0%" y2="0%">
+                    ${colorStops}
+                </linearGradient>
+            </defs>
+
+            <!-- Color bar -->
+            <rect x="${barLeftX}" y="${margin}" width="${barWidth}" height="${scaleHeight}"
+                  fill="url(#gradient-${dataName.replace(/[^a-zA-Z0-9]/g, '')})"
+                  stroke="#333" stroke-width="1"/>
+
+            <!-- Data name label -->
+            <text x="${width/2}" y="${margin + scaleHeight + 15}" text-anchor="middle" font-family="Arial" font-size="${fontSize}" fill="#333" font-weight="bold">
+                ${dataName}
+            </text>
+
+            <!-- External annotations -->
+            <!-- 100% (Top) - Right side -->
+            <line x1="${barLeftX + barWidth + 3}" y1="${margin + offset}" x2="${barLeftX + barWidth + 8}" y2="${margin + offset}"
+                  stroke="#333" stroke-width="1"/>
+            <text x="${barLeftX + barWidth + 12}" y="${margin + 4 + offset}" font-family="Arial" font-size="${fontSize}" fill="#333">
+                <tspan x="${barLeftX + barWidth + 12}" dy="0">100%</tspan>
+                <tspan x="${barLeftX + barWidth + 12}" dy="1.2em">(${Math.round(hundredPercent)})</tspan>
+            </text>
+
+            <!-- 50% (Middle) - Left side -->
+            <line x1="${barLeftX - 3}" y1="${margin + scaleHeight/2}" x2="${barLeftX - 8}" y2="${margin + scaleHeight/2}"
+                  stroke="#333" stroke-width="1"/>
+            <text x="${barLeftX - 12}" y="${margin + scaleHeight/2 + 4}" text-anchor="end" font-family="Arial" font-size="${fontSize}" fill="#333">
+                <tspan x="${barLeftX - 12}" dy="0">50%</tspan>
+                <tspan x="${barLeftX - 12}" dy="1.2em">(${Math.round(fiftyPercent)})</tspan>
+            </text>
+
+            <!-- 0% (Bottom) - Right side -->
+            <line x1="${barLeftX + barWidth + 3}" y1="${margin + scaleHeight - offset}" x2="${barLeftX + barWidth + 8}" y2="${margin + scaleHeight - offset}"
+                  stroke="#333" stroke-width="1"/>
+            <text x="${barLeftX + barWidth + 12}" y="${margin + scaleHeight - offset - 10}" font-family="Arial" font-size="${fontSize}" fill="#333">
+                <tspan x="${barLeftX + barWidth + 12}" dy="0">(${Math.round(zeroPercent)})</tspan>
+                <tspan x="${barLeftX + barWidth + 12}" dy="1.2em">0%</tspan>
+            </text>
+        </svg>
+    `;
+
+    // Convert SVG to data URL
+    const svgBlob = new Blob([svg], {type: 'image/svg+xml'});
+    return URL.createObjectURL(svgBlob);
+}
+
+var mapCustomMappingData = function (custom_data, custom_data_name, topviewer, selectedColormap) { //custom_data3D, 
 
     //var selectBoxEle = viewerInstanceTop.pluginInstance.targetEle.querySelector('.menuSelectbox');
     //var selectBoxEle = topviewer.viewInstance.targetEle.querySelector('.menuSelectbox');
@@ -377,7 +459,7 @@ var mapCustomMappingData = function (custom_data, custom_data_name, topviewer) {
 
         let vals = custom_data.map(function (v) { return v[1] });
         let indexes = custom_data.map(function (v) { return v[0] });
-        window.aaColorData.set(custom_data_name, [viridis]);
+        window.aaColorData.set(custom_data_name, [selectedColormap || viridis]);
         window.aaPropertyConstants.set(custom_data_name, [Math.min(...vals), Math.max(...vals)]);
         //let coilsOutOfCustom = vm.coil_residues.filter(value => !indexes.includes(value));
         //window.coilsOutOfCustom = coilsOutOfCustom;
@@ -403,7 +485,10 @@ var mapCustomMappingData = function (custom_data, custom_data_name, topviewer) {
         //custom_option.appendChild(document.createTextNode(custom_data_name));
         //selectBoxEle.appendChild(custom_option);
         if (!vm.available_properties.some(prop => prop.Name === custom_data_name)) {
-            vm.available_properties.push({ Name: custom_data_name, url: "static/alignments/svg/Custom.svg" })
+            const minVal = Math.min(...vals);
+            const maxVal = Math.max(...vals);
+            const colorScaleURL = generateColorScaleSVG(selectedColormap || viridis, minVal, maxVal, custom_data_name);
+            vm.available_properties.push({ Name: custom_data_name, url: colorScaleURL })
         }
         if (vm.correct_mask) {
             var j = topviewer.viewInstance.uiTemplateService.domainTypes.length - 1;
@@ -430,7 +515,7 @@ var mapCustomMappingData = function (custom_data, custom_data_name, topviewer) {
         
             let vals = custom_data.map(function (v) { return v[1] });
             let indexes = custom_data.map(function (v) { return v[0] });
-            window.aaColorData.set(custom_data_name, [viridis]);
+            window.aaColorData.set(custom_data_name, [selectedColormap || viridis]);
             window.aaPropertyConstants.set(custom_data_name, [Math.min(...vals), Math.max(...vals)]);
             //let coilsOutOfCustom = vm.coil_residues.filter(value => !indexes.includes(value));
             //window.coilsOutOfCustom = coilsOutOfCustom;
@@ -458,7 +543,10 @@ var mapCustomMappingData = function (custom_data, custom_data_name, topviewer) {
             //custom_option.appendChild(document.createTextNode(custom_data_name));
             //selectBoxEle.appendChild(custom_option);
             if (!vm.available_properties.some(prop => prop.Name === custom_data_name)) {
-                vm.available_properties.push({ Name: custom_data_name, url: "static/alignments/svg/Custom.svg" })
+                const minVal = Math.min(...vals);
+                const maxVal = Math.max(...vals);
+                const colorScaleURL = generateColorScaleSVG(selectedColormap || viridis, minVal, maxVal, custom_data_name);
+                vm.available_properties.push({ Name: custom_data_name, url: colorScaleURL })
             }
             if (vm.correct_mask) {
                 var j = topviewer.viewInstance.uiTemplateService.domainTypes.length - 1;
