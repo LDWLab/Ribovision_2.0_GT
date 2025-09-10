@@ -12,6 +12,7 @@ export class UiTemplateService {
     getEntropyAnnotations = (window as any).getEntropyAnnotations;
     getTWCAnnotations = (window as any).getTWCAnnotations;
     getCustomAnnotations = (window as any).getCustomAnnotations;
+    getCustomAnnotations2 = (window as any).getCustomAnnotations2;
     getAssociatedAnnotations = (window as any).getAssociatedAnnotations;
     getHelicalAnnotations = (window as any).getHelicalAnnotations;
     getPhaseAnnotations = (window as any).getPhaseAnnotations;
@@ -580,16 +581,17 @@ export class UiTemplateService {
                 if (name == "Custom Data") {
 
                     this.getCustomAnnotations(data3D, min, max, this.pluginOptions.chainId);
-                    //console.log('name_CD', name,  this.getEntropyAnnotations(separatedData, min, max, this.pluginOptions.chainId));
+                };
+                if (name == "Custom Data 2") {
+                    this.getCustomAnnotations2(data3D, min, max, this.pluginOptions.chainId);
+
                 };
                 if (name == "Associated Data1") {
-
                     this.getAssociatedAnnotations(data3D, min, max, this.pluginOptions.chainId);
 
                 };
                 if (name == "Helix" || name == "helix") {
                     this.getHelicalAnnotations(data3D, min, max, this.pluginOptions.chainId);
-
                 };
 
                 if (name == "Phase" || name == 'phase') {
@@ -598,7 +600,6 @@ export class UiTemplateService {
 
                 };
                 if (name == "AES" || name == 'aes') {
-                    //console.log('name_AES', name, this.getExpansionAnnotations(separatedData, min, max, this.pluginOptions.chainId))
                     this.getExpansionAnnotations(data3D, min, max, this.pluginOptions.chainId);
 
                 };

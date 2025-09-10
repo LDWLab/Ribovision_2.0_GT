@@ -1,3 +1,11 @@
+const jet_palette = [
+    [0, 0, 143], [0, 0, 148], [0, 0, 153], [0, 0, 158], [0, 0, 163], [0, 0, 168], [0, 0, 173], [0, 0, 178], [0, 0, 183], [0, 0, 188], [0, 0, 193], [0, 0, 198], [0, 0, 203], [0, 0, 208], [0, 0, 213], [0, 0, 218], [0, 0, 223], [0, 0, 228], [0, 0, 233], [0, 0, 238], [0, 0, 243], [0, 0, 248], [0, 0, 255], [0, 10, 255], [0, 20, 255], [0, 30, 255], [0, 41, 255], [0, 51, 255], [0, 61, 255], [0, 71, 255], [0, 82, 255], [0, 92, 255], [0, 102, 255], [0, 112, 255], [0, 122, 255], [0, 133, 255], [0, 143, 255], [0, 153, 255], [0, 163, 255], [0, 173, 255], [0, 184, 255], [0, 194, 255], [0, 204, 255], [0, 214, 255], [0, 224, 255], [0, 235, 255], [0, 245, 255], [0, 255, 255], [10, 255, 245], [20, 255, 235], [30, 255, 224], [41, 255, 214], [51, 255, 204], [61, 255, 194], [71, 255, 184], [82, 255, 173], [92, 255, 163], [102, 255, 153], [112, 255, 143], [122, 255, 133], [133, 255, 122], [143, 255, 112], [153, 255, 102], [163, 255, 92], [173, 255, 82], [184, 255, 71], [194, 255, 61], [204, 255, 51], [214, 255, 41], [224, 255, 30], [235, 255, 20], [245, 255, 10], [255, 255, 0], [255, 245, 0], [255, 235, 0], [255, 224, 0], [255, 214, 0], [255, 204, 0], [255, 194, 0], [255, 184, 0], [255, 173, 0], [255, 163, 0], [255, 153, 0], [255, 143, 0], [255, 133, 0], [255, 122, 0], [255, 112, 0], [255, 102, 0], [255, 92, 0], [255, 82, 0], [255, 71, 0], [255, 61, 0], [255, 51, 0], [255, 41, 0], [255, 30, 0], [255, 20, 0], [255, 10, 0], [255, 0, 0], [242, 0, 0], [229, 0, 0], [217, 0, 0], [204, 0, 0], [191, 0, 0], [179, 0, 0], [166, 0, 0], [153, 0, 0], [140, 0, 0], [128, 0, 0]
+ ]
+
+const coolwarm_palette = [
+    [59, 76, 192] , [61, 81, 195] , [64, 86, 198] , [67, 91, 201] , [70, 96, 204] , [73, 101, 207] , [76, 106, 209] , [79, 111, 212] , [82, 116, 215] , [85, 121, 217] , [89, 126, 220] , [92, 131, 222] , [95, 136, 225] , [99, 141, 227] , [102, 146, 229] , [106, 151, 231] , [109, 155, 233] , [113, 160, 235] , [117, 165, 237] , [121, 169, 239] , [125, 174, 241] , [129, 178, 243] , [133, 183, 245] , [137, 187, 246] , [141, 192, 248] , [145, 196, 250] , [150, 200, 251] , [154, 204, 253] , [158, 208, 254] , [162, 212, 255] , [167, 216, 255] , [171, 220, 255] , [175, 224, 255] , [180, 228, 255] , [184, 231, 255] , [188, 235, 255] , [193, 238, 255] , [197, 242, 255] , [201, 245, 255] , [206, 248, 255] , [210, 251, 255] , [214, 253, 255] , [218, 255, 255] , [222, 255, 252] , [226, 255, 249] , [229, 255, 246] , [233, 255, 243] , [236, 255, 240] , [240, 255, 237] , [243, 255, 234] , [246, 255, 231] , [250, 255, 228] , [253, 255, 225] , [255, 252, 222] , [255, 248, 218] , [255, 244, 214] , [255, 240, 210] , [255, 236, 206] , [255, 232, 202] , [255, 228, 197] , [255, 224, 193] , [255, 220, 189] , [255, 216, 185] , [255, 212, 180] , [255, 208, 176] , [255, 203, 172] , [255, 199, 167] , [255, 195, 163] , [255, 190, 158] , [255, 186, 154] , [255, 181, 149] , [255, 177, 144] , [255, 172, 139] , [255, 167, 134] , [255, 162, 130] , [255, 157, 125] , [255, 152, 120] , [255, 147, 115] , [255, 142, 110] , [255, 137, 104] , [255, 132, 99] , [255, 126, 94] , [255, 121, 89] , [255, 115, 84] , [255, 110, 78] , [255, 104, 73] , [255, 98, 67] , [255, 92, 62] , [255, 86, 56] , [255, 80, 50] , [255, 74, 44] , [255, 68, 38] , [255, 62, 32] , [255, 55, 26] , [255, 48, 20] , [255, 41, 13] , [255, 33, 7] , [255, 25, 0] , [247, 21, 0] , [239, 18, 0] , [231, 15, 0] , [223, 12, 0] , [215, 8, 0] , [207, 5, 0] , [199, 2, 0] , [191, 0, 0] , [183, 0, 0] , [175, 0, 0] , [167, 0, 0] , [159, 0, 0] , [151, 0, 0] , [143, 0, 0] , [135, 0, 0] , [128, 0, 0] , [120, 0, 0] , [112, 0, 0] , [104, 0, 0]
+ ]
+
 
 // Configuration constants
 const CONFIG = {
@@ -25,7 +33,7 @@ const AppState = {
         const types = ['SE', 'TWC', 'CD', 'CD2', 'AD', 'HD', 'PD', 'AESD'];
         types.forEach(type => {
             this.annotationArrays.set(type, Array.from({ length: CONFIG.ANNOTATION_BINS },
-                (_, i) => ({ annotation: i + 1, ids: [] })));
+                (_, i) => ({ annotation: i + 1, ids: [], colors: [] })));
         });
     },
 
@@ -40,15 +48,21 @@ AppState.initAnnotationArrays();
 // Utility functions
 const Utils = {
     // Generic annotation generator
-    generateAnnotations(separatedData, lowVal, highVal, chainid, arrayType) {
+    generateAnnotations(separatedData, lowVal, highVal, chainid, arrayType, colormapArray = null) {
         const annotationArray = AppState.getAnnotationArray(arrayType);
-        annotationArray.forEach(item => item.ids.length = 0);
+        annotationArray.forEach(item => {
+            item.ids.length = 0;
+            item.colors.length = 0;
+        });
 
         separatedData.forEach(([parsedItem, itemValue]) => {
             const newValue = itemValue - lowVal;
             const normalizedVal = highVal !== lowVal ? Math.round(newValue / (highVal - lowVal) * 99) : 0;
             if (normalizedVal >= 0 && normalizedVal < CONFIG.ANNOTATION_BINS) {
                 annotationArray[normalizedVal].ids.push(`${chainid} ${parsedItem}`);
+            }
+            if (colormapArray && annotationArray[normalizedVal].colors.length === 0) {
+                annotationArray[normalizedVal].colors.push(colormapArray[normalizedVal]);
             }
         });
 
@@ -142,36 +156,36 @@ const Utils = {
 };
 
 var absolutePosition = function (el) {
-  var
-      found,
-      left = 0,
-      top = 0,
-      width = 0,
-      height = 0,
-      offsetBase = absolutePosition.offsetBase;
-  if (!offsetBase && document.body) {
-      offsetBase = absolutePosition.offsetBase = document.createElement('div');
-      offsetBase.style.cssText = 'position:absolute;left:0;top:0';
-      document.body.appendChild(offsetBase);
-  }
-  if (el && el.ownerDocument === document && 'getBoundingClientRect' in el && offsetBase) {
-      var boundingRect = el.getBoundingClientRect();
-      var baseRect = offsetBase.getBoundingClientRect();
-      found = true;
-      left = boundingRect.left - baseRect.left;
-      top = boundingRect.top - baseRect.top;
-      width = boundingRect.right - boundingRect.left;
-      height = boundingRect.bottom - boundingRect.top;
-  }
-  return {
-      found: found,
-      left: left,
-      top: top,
-      width: width,
-      height: height,
-      right: left + width,
-      bottom: top + height
-  };
+    var
+        found,
+        left = 0,
+        top = 0,
+        width = 0,
+        height = 0,
+        offsetBase = absolutePosition.offsetBase;
+    if (!offsetBase && document.body) {
+        offsetBase = absolutePosition.offsetBase = document.createElement('div');
+        offsetBase.style.cssText = 'position:absolute;left:0;top:0';
+        document.body.appendChild(offsetBase);
+    }
+    if (el && el.ownerDocument === document && 'getBoundingClientRect' in el && offsetBase) {
+        var boundingRect = el.getBoundingClientRect();
+        var baseRect = offsetBase.getBoundingClientRect();
+        found = true;
+        left = boundingRect.left - baseRect.left;
+        top = boundingRect.top - baseRect.top;
+        width = boundingRect.right - boundingRect.left;
+        height = boundingRect.bottom - boundingRect.top;
+    }
+    return {
+        found: found,
+        left: left,
+        top: top,
+        width: width,
+        height: height,
+        right: left + width,
+        bottom: top + height
+    };
 };
 
 
@@ -190,12 +204,12 @@ var parseFastaString = function (fastaString) {
 
 var validateFasta = function (fasta) {
     //From here https://www.blopig.com/blog/2013/03/a-javascript-function-to-validate-fasta-sequences/
-    
+
     if (!fasta) { // check there is something first of all
         alert("Empty file was uploaded!");
         return false;
     }
-    
+
     fastaArr = parseFastaString(fasta);
     var fastaSeqs = '';
     var nameSeqs = '';
@@ -258,31 +272,31 @@ var parseFastaSeqForMSAViewer = function (fasta) {
 };
 
 (function () {
-  var mousePos;
-  document.onmousemove = handleMouseMove;
-  function handleMouseMove(event) {
-      var eventDoc, doc, body;
-      event = event || window.event; // IE-ism
-      // If pageX/Y aren't available and clientX/Y are,
-      // calculate pageX/Y - logic taken from jQuery.
-      // (This is to support old IE)
-      if (event.pageX == null && event.clientX != null) {
-          eventDoc = (event.target && event.target.ownerDocument) || document;
-          doc = eventDoc.documentElement;
-          body = eventDoc.body;
-          event.pageX = event.clientX +
-            (doc && doc.scrollLeft || body && body.scrollLeft || 0) -
-            (doc && doc.clientLeft || body && body.clientLeft || 0);
-          event.pageY = event.clientY +
+    var mousePos;
+    document.onmousemove = handleMouseMove;
+    function handleMouseMove(event) {
+        var eventDoc, doc, body;
+        event = event || window.event; // IE-ism
+        // If pageX/Y aren't available and clientX/Y are,
+        // calculate pageX/Y - logic taken from jQuery.
+        // (This is to support old IE)
+        if (event.pageX == null && event.clientX != null) {
+            eventDoc = (event.target && event.target.ownerDocument) || document;
+            doc = eventDoc.documentElement;
+            body = eventDoc.body;
+            event.pageX = event.clientX +
+                (doc && doc.scrollLeft || body && body.scrollLeft || 0) -
+                (doc && doc.clientLeft || body && body.clientLeft || 0);
+            event.pageY = event.clientY +
                 (doc && doc.scrollTop || body && body.scrollTop || 0) -
                 (doc && doc.clientTop || body && body.clientTop || 0);
-      }
-      mousePos = {
-        x: event.pageX,
-        y: event.pageY
-    };
-    window.mousePos = mousePos;
-  }
+        }
+        mousePos = {
+            x: event.pageX,
+            y: event.pageY
+        };
+        window.mousePos = mousePos;
+    }
 })();
 
 // Download functions using utilities
@@ -332,7 +346,7 @@ var downloadFullAlignmentImage = function () {
     labelsDiv.firstElementChild.firstElementChild.children.forEach(function (labelNode) {
         if (labelNode.textContent.length > longestName.length) {
             longestName = labelNode.textContent;
-          }
+        }
     });
 
     const initialLabelsWidth = labelsDiv.style.width;
@@ -407,17 +421,17 @@ var cleanupOnNewAlignment = function (vueObj, aln_text = '') {
 
     window.mapped_aa_properties = null;
     vueObj.checkedRNA = false,
-    vueObj.customPDBid = null,
-    vueObj.customFullSequence = null,
-    vueObj.pdbStart = null,
-    vueObj.pdbEnd = null,
-    vueObj.pdbSeq = null,
-    vueObj.customPDBsuccess = null,
-    vueObj.PDBparsing = false;
+        vueObj.customPDBid = null,
+        vueObj.customFullSequence = null,
+        vueObj.pdbStart = null,
+        vueObj.pdbEnd = null,
+        vueObj.pdbSeq = null,
+        vueObj.customPDBsuccess = null,
+        vueObj.PDBparsing = false;
     vueObj.entityID = null,
-    vueObj.unfilteredChains = null,
-    vueObj.hide_chains = null,
-    vueObj.all_residues = null;
+        vueObj.unfilteredChains = null,
+        vueObj.hide_chains = null,
+        vueObj.all_residues = null;
     vueObj.coil_residues = null;
     vueObj.helix_residues = null;
     vueObj.strand_residues = null;
@@ -458,28 +472,28 @@ var cleanupOnNewAlignment = function (vueObj, aln_text = '') {
 var loadParaOptions = function (action, callback, vm) {
     if (action === "LOAD_ROOT_OPTIONS") {
         ajax('/alignments/showStrucTaxonomy').then(data => {
-          data.isDisabled = true,
-          vm.options = [data];
-          callback();
-      }).catch(error => {
-          console.log(error)
-      })
-  }
+            data.isDisabled = true,
+                vm.options = [data];
+            callback();
+        }).catch(error => {
+            console.log(error)
+        })
+    }
 };
 
 var pushChainData = function (temp_arr, chain_listI) {
     try {
-      temp_arr.push({
-          text: chain_listI["molecule_name"][0],
-          value: chain_listI["in_chains"][0],
-          sequence: chain_listI["sequence"],
-          entityID: chain_listI["entity_id"],
-          startIndex: chain_listI.source[0].mappings[0].start.residue_number,
-          endIndex: chain_listI.source[0].mappings[0].end.residue_number
-      })
+        temp_arr.push({
+            text: chain_listI["molecule_name"][0],
+            value: chain_listI["in_chains"][0],
+            sequence: chain_listI["sequence"],
+            entityID: chain_listI["entity_id"],
+            startIndex: chain_listI.source[0].mappings[0].start.residue_number,
+            endIndex: chain_listI.source[0].mappings[0].end.residue_number
+        })
     } catch (err) { console.log(err); }
     return temp_arr;
-  };
+};
 
 var intersection = function () {
     var result = [];
@@ -496,8 +510,8 @@ var intersection = function () {
             if (result.indexOf(currentValue) === -1) {
                 if (lists.filter(function (obj) { return obj.indexOf(currentValue) == -1 }).length == 0) {
                     result.push(currentValue);
+                }
             }
-          }
         }
     }
     return result;
@@ -505,8 +519,8 @@ var intersection = function () {
 
 var objectify = function (array) {
     return array.reduce(function (p, c) {
-         p[c[0]] = [c[1], c[2]];
-         return p;
+        p[c[0]] = [c[1], c[2]];
+        return p;
     }, {});
 }
 
@@ -542,24 +556,24 @@ var loadOrthAlns = function (data, vm) {
 }
 
 var loadParaAlns = function (value, vm) {
-  vm.alignments = null;
+    vm.alignments = null;
     ajax('/alignments/fold-api/' + value).then(data => {
-      var fpa = data["Folds to polymers to alignments"]
-      var fpa_viz = [];
-      Object.keys(fpa).forEach(fkey => {
-          Object.keys(fpa[fkey]).forEach(pkey => {
+        var fpa = data["Folds to polymers to alignments"]
+        var fpa_viz = [];
+        Object.keys(fpa).forEach(fkey => {
+            Object.keys(fpa[fkey]).forEach(pkey => {
                 fpa[fkey][pkey].forEach(function (akey) {
-                  fpa_viz.push({
+                    fpa_viz.push({
                         text: 'Alignment '.concat(akey[1], '; fold ', fkey),
                         value: fkey.concat(',', akey)
-                  });
-              });
-          });
-      });
-      var temp_arr = fpa_viz
-      fpa_viz = Array.from(new Set(temp_arr.map(JSON.stringify))).map(JSON.parse);
-      vm.alignments = fpa_viz
-  });
+                    });
+                });
+            });
+        });
+        var temp_arr = fpa_viz
+        fpa_viz = Array.from(new Set(temp_arr.map(JSON.stringify))).map(JSON.parse);
+        vm.alignments = fpa_viz
+    });
 };
 
 var setGlobalProperties = function () {
@@ -584,100 +598,100 @@ var setGlobalProperties = function () {
 var calculateFrequencyData = function (frequencies) {
     const multiplyvector = function (a, b) {
         return a.map((e, i) => e * b[i]);
-  }
-  aaPropertiesData = setGlobalProperties();
-  let outPropertyPosition = new Map();
+    }
+    aaPropertiesData = setGlobalProperties();
+    let outPropertyPosition = new Map();
     aaPropertiesData.forEach(function (data, property_name) {
         if (property_name == "TwinCons") { return; }
-      let const_data = data
-      outPropertyPosition.set(property_name, [])
-      frequencies.forEach(function (col_frequency) {
+        let const_data = data
+        outPropertyPosition.set(property_name, [])
+        frequencies.forEach(function (col_frequency) {
             if (property_name == "Shannon entropy") {
-              const_data = new Array;
+                const_data = new Array;
                 col_frequency.forEach(function (single_freq) {
                     if (single_freq == 0) {
-                      const_data.push(0)
+                        const_data.push(0)
                     } else {
                         const_data.push(Math.log2(single_freq) * -1)
-                  }
-              });
-          }
-          outPropertyPosition.get(property_name).push(multiplyvector(const_data, col_frequency));
-      });
-  });
-  return outPropertyPosition;
+                    }
+                });
+            }
+            outPropertyPosition.get(property_name).push(multiplyvector(const_data, col_frequency));
+        });
+    });
+    return outPropertyPosition;
 };
 
 var mapAAProps = function (aa_properties, mapping) {
-  let outPropertyMappedPosition = new Map();
+    let outPropertyMappedPosition = new Map();
     aa_properties.forEach(function (data, property_name) {
-      outPropertyMappedPosition.set(property_name, [])
-      data.forEach(function (data, aln_ix) {
+        outPropertyMappedPosition.set(property_name, [])
+        data.forEach(function (data, aln_ix) {
             let mappedI0 = mapping[aln_ix + 1];
-          if (mappedI0) {
-              outPropertyMappedPosition.get(property_name).push([mappedI0, Number(math.sum(data).toFixed(2))]);
-          }
-      });
-  });
-  return outPropertyMappedPosition;
+            if (mappedI0) {
+                outPropertyMappedPosition.get(property_name).push([mappedI0, Number(math.sum(data).toFixed(2))]);
+            }
+        });
+    });
+    return outPropertyMappedPosition;
 };
 
 var filterCoilResidues = function (coil_data) {
     const range = (start, stop, step) => Array.from({ length: (stop - start) / step + 1 }, (_, i) => start + (i * step));
-  let coilResidues = [];
+    let coilResidues = [];
     coil_data.forEach(function (coilRange) {
         if (coilRange.start < coilRange.stop) {
-          coilResidues.push(range(coilRange.start, coilRange.stop, 1))
-      }
-  })
-  return coilResidues.flat()
+            coilResidues.push(range(coilRange.start, coilRange.stop, 1))
+        }
+    })
+    return coilResidues.flat()
 };
 
 var generateCSVstring = function (mapped_data) {
-  let properties = Array.from(mapped_data.keys());
-  let csv = 'Index,Alignment index,'
-  csv += properties.join(',');
-  csv += '\n';
-  let csv_ix = [];
-  let csv_map = new Map()
+    let properties = Array.from(mapped_data.keys());
+    let csv = 'Index,Alignment index,'
+    csv += properties.join(',');
+    csv += '\n';
+    let csv_ix = [];
+    let csv_map = new Map()
     mapped_data.get(properties[0]).forEach((datapoint) => {
-      let alnIx = _.invert(vm.structure_mapping)[datapoint[0]];
-      //csv_ix.push([datapoint[0], alnIx]);
-      csv_map.set(datapoint[0], [alnIx])
-  })
-  i = 1
-  properties.forEach((prop) => {
-      //let ix = 0;
+        let alnIx = _.invert(vm.structure_mapping)[datapoint[0]];
+        //csv_ix.push([datapoint[0], alnIx]);
+        csv_map.set(datapoint[0], [alnIx])
+    })
+    i = 1
+    properties.forEach((prop) => {
+        //let ix = 0;
         mapped_data.get(prop).forEach((datapoint) => {
-          if (csv_map.has(datapoint[0])) {
-            if (prop != "Protein Contacts" && prop != "Modified Residues") {
-                csv_map.get(datapoint[0]).push(datapoint[1])
-            } else if (prop == "Protein Contacts" || prop == "Modified Residues") {
-                    if (csv_map.get(datapoint[0]).length == i + 1) {
-                    csv_map.get(datapoint[0])[i] = csv_map.get(datapoint[0])[i] + " " + datapoint[1]
-                }                
-                else {
-                    while (csv_map.get(datapoint[0]).length < i) {
-                        csv_map.get(datapoint[0]).push(" ")
-                    }
+            if (csv_map.has(datapoint[0])) {
+                if (prop != "Protein Contacts" && prop != "Modified Residues") {
                     csv_map.get(datapoint[0]).push(datapoint[1])
+                } else if (prop == "Protein Contacts" || prop == "Modified Residues") {
+                    if (csv_map.get(datapoint[0]).length == i + 1) {
+                        csv_map.get(datapoint[0])[i] = csv_map.get(datapoint[0])[i] + " " + datapoint[1]
+                    }
+                    else {
+                        while (csv_map.get(datapoint[0]).length < i) {
+                            csv_map.get(datapoint[0]).push(" ")
+                        }
+                        csv_map.get(datapoint[0]).push(datapoint[1])
+                    }
                 }
             }
-        }
-          //ix += 1;
+            //ix += 1;
+        })
+        i += 1
     })
-      i += 1
-  })
 
-  /*csv_ix.forEach((row) => {
-      csv += row.join(',');
-      csv += '\n';
-  })*/
-  csv_map.forEach((value, row) => {
-    csv += row + ',' + value.join(',');
-    csv += '\n';
-})
-  return csv;
+    /*csv_ix.forEach((row) => {
+        csv += row.join(',');
+        csv += '\n';
+    })*/
+    csv_map.forEach((value, row) => {
+        csv += row + ',' + value.join(',');
+        csv += '\n';
+    })
+    return csv;
 };
 var unSelectNucleotide = function (event, pdbId, label_seq_id, isUnobserved) {
     event.stopImmediatePropagation();
@@ -694,7 +708,7 @@ var unSelectNucleotide = function (event, pdbId, label_seq_id, isUnobserved) {
 var clearHighlight = function (pdbId) {
     var selected = 5;
     document.querySelector(`svg.rnaTopoSvg`).getElementsByClassName(`rnaviewEle rnaviewEle_${pdbId} rnaview_${pdbId}_${selected}`)[0].setAttribute("fill", "323232");
-//document.querySelector(`.rnaTopoSvgHighlight_${pdbId}`)!.innerHTML = "";
+    //document.querySelector(`.rnaTopoSvgHighlight_${pdbId}`)!.innerHTML = "";
 };
 // Annotation generation functions using the generic utility
 const Annotations = {
@@ -756,80 +770,79 @@ var getTWCAnnotations = Annotations.getTWCAnnotations.bind(Annotations);
 var getAnnotationArray = Annotations.getAnnotationArray.bind(Annotations);
 var parsePVData = function (separatedData, lowVal, highVal, colormapArray, masking = null, separatedData3D = null) {
 
-    
-        let TWCData = new Map();
-        let TWCrgbMap = new Map(); 
-        let TWCData3D = new Map();
-        let TWCrgbMap3D = new Map(); 
-        let TWCrgbMapPalette = new Map(); 
+    let TWCData = new Map();
+    let TWCrgbMap = new Map();
+    let TWCData3D = new Map();
+    let TWCrgbMap3D = new Map();
+    let TWCrgbMapPalette = new Map();
     let TWCrgbPalette = [];
     let IL = [];
     let ILN = [];
-        let returns = [];
-        for (var i = 0; i < 75; i++) {
-            //console.log('Map_0', i, interpolateLinearly(i/100, colormapArray[0]));
+    let returns = [];
+    for (var i = 0; i < 75; i++) {
+        //console.log('Map_0', i, interpolateLinearly(i/100, colormapArray[0]));
         TWCrgbMapPalette.set(i, interpolateLinearly((75 - i) / 75, colormapArray[1]));
         IL = interpolateLinearly((75 - i) / 75, colormapArray[1]);
-            TWCrgbPalette.push(IL[0]);
-        };
-        for (var i = 0; i < 25; i++) {
-            //console.log('Map_0', i, interpolateLinearly(i/100, colormapArray[0]));
+        TWCrgbPalette.push(IL[0]);
+    };
+    for (var i = 0; i < 25; i++) {
+        //console.log('Map_0', i, interpolateLinearly(i/100, colormapArray[0]));
         TWCrgbMapPalette.set(i, interpolateLinearly(i / 25, colormapArray[0]));
         ILN = interpolateLinearly(i / 25, colormapArray[0]);
-            TWCrgbPalette.push(ILN[0]);
-        };
-        //console.log('Palette_01', TWCrgbPalette);
-        separatedData.forEach(function (item, index) {
-            let parsedItem = item[0];
-            //if(!masking || masking[index]) {
-                let itemValue = item[1];
-                TWCData.set(parsedItem, itemValue);
-                if (colormapArray.length === 1) {
-                    let newValue = itemValue - lowVal;
+        TWCrgbPalette.push(ILN[0]);
+    };
+    //console.log('Palette_01', TWCrgbPalette);
+    separatedData.forEach(function (item, index) {
+        let parsedItem = item[0];
+        //if(!masking || masking[index]) {
+        let itemValue = item[1];
+        TWCData.set(parsedItem, itemValue);
+        if (colormapArray.length === 1) {
+            let newValue = itemValue - lowVal;
             TWCrgbMap.set(parsedItem, interpolateLinearly(newValue / (highVal - lowVal), colormapArray[0]));
-                }
-                else {
+        }
+        else {
             if (itemValue === 'NA') {
                 TWCrgbMap.set(parsedItem, [[192, 192, 192], { r: 192, g: 192, b: 192 }]);
             } else if (itemValue < 0) {
                 TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue / lowVal, colormapArray[0]));
-                    } else {
+            } else {
                 TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue / highVal, colormapArray[1]));
             }
         }
 
-        });
-        
-        returns.push(TWCrgbMap);
-        returns.push(TWCData);
+    });
+
+    returns.push(TWCrgbMap);
+    returns.push(TWCData);
 
     if (separatedData3D != null) {
-            separatedData3D.forEach(function (item, index) {
-                let parsedItem = item[0];
-                //if(!masking || masking[index]) {
-                    let itemValue = item[1];
-                    TWCData3D.set(parsedItem, itemValue);
-                    if (colormapArray.length === 1) {
-                        let newValue = itemValue - lowVal;
+        separatedData3D.forEach(function (item, index) {
+            let parsedItem = item[0];
+            //if(!masking || masking[index]) {
+            let itemValue = item[1];
+            TWCData3D.set(parsedItem, itemValue);
+            if (colormapArray.length === 1) {
+                let newValue = itemValue - lowVal;
                 TWCrgbMap3D.set(parsedItem, interpolateLinearly(newValue / (highVal - lowVal), colormapArray[0]));
-                    }
-                    else {
+            }
+            else {
                 if (itemValue === 'NA') {
                     TWCrgbMap3D.set(parsedItem, [[192, 192, 192], { r: 192, g: 192, b: 192 }]);
                 } else if (itemValue < 0) {
                     TWCrgbMap3D.set(parsedItem, interpolateLinearly(itemValue / lowVal, colormapArray[0]));
-                        } else {
+                } else {
                     TWCrgbMap3D.set(parsedItem, interpolateLinearly(itemValue / highVal, colormapArray[1]));
-                        }
-                    }
-                
-            });
-            returns.push(TWCrgbMap3D);
-            returns.push(TWCData3D);
-        }
+                }
+            }
 
-        return returns;
+        });
+        returns.push(TWCrgbMap3D);
+        returns.push(TWCData3D);
     }
+
+    return returns;
+}
 
 var indexMatchingText = function (ele, text) {
     for (var i = 0; i < ele.length; i++) {
@@ -843,7 +856,7 @@ var indexMatchingText = function (ele, text) {
 // Color conversion functions using utilities
 function componentToHex(c) {
     return Utils.componentToHex(c);
-  }
+}
 var rgbToHex = function (r, g, b) {
     return Utils.rgbToHex(r, g, b);
 }
@@ -864,30 +877,14 @@ var build_mapped_props = function (mapped_props, twcDataUnmapped, structure_mapp
 
 var mapTWCdata = function (structMap, structMap3D, twcDataUnmapped, mapped_aa_properties, mapped_aa_properties3D) {
     var topviewer = document.getElementById("PdbeTopViewer");
-    
+
     mapped_aa_properties = build_mapped_props(mapped_aa_properties, twcDataUnmapped, structMap);
     mapped_aa_properties3D = build_mapped_props(mapped_aa_properties3D, twcDataUnmapped, structMap3D);
-    
-    
+
+
     window.mapped_aa_properties = mapped_aa_properties;
     window.mapped_aa_properties3D = mapped_aa_properties3D;
-    
-    /*if (topviewer != null && topviewer.viewInstance.uiTemplateService.domainTypes != undefined){
-        var empty_props = new Map();
-        var empty_props3D = new Map();
-        
-        let twc_props = build_mapped_props(empty_props, twcDataUnmapped, structMap);
-        let twc_props3D = build_mapped_props(empty_props3D, twcDataUnmapped, structMap3D);
-        
-        //topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(twc_props, twc_props3D);
-        // topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(twc_props3D);
-        
-        //var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
-        //var twc_option = document.createElement("option");
-        //twc_option.setAttribute("value", selectBoxEle.options.length);
-        //twc_option.appendChild(document.createTextNode("TwinCons"));
-        //selectBoxEle.appendChild(twc_option);
-    }*/
+
     topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties, mapped_aa_properties3D);
 }
 var showPDBHelper = function (pdbid, chainid, entityid) {
@@ -910,7 +907,7 @@ var showPDBHelper = function (pdbid, chainid, entityid) {
     vm.viewer_options = {
         customData: {
             url: coordURL,
-                        format: structFormat, 
+            format: structFormat,
             binary: binaryCif
         },
         hideCanvasControls: ["selection", " animation"],
@@ -922,7 +919,7 @@ var showPDBHelper = function (pdbid, chainid, entityid) {
     var viewerContainer = document.getElementById('pdbeMolstarView');
     viewerInstance.render(viewerContainer, vm.viewer_options);
     window.viewerInstance = viewerInstance;
-    
+
     document.addEventListener('PDB.topologyViewer.click', (e) => {
         var molstar = viewerInstance;
         var chainId = e.eventData.chainId;
@@ -946,7 +943,7 @@ var showPDBHelper = function (pdbid, chainid, entityid) {
         var entityId = e.eventData.entityId;
         var residueNumber = e.eventData.residueNumber;
         var types = e.eventData.type;
-        
+
         molstar.visual.highlight({
             data: [
                 {
@@ -1018,13 +1015,13 @@ var calculateModifiedCustom = function (entityid, filepath) {
             for (var j of vm.modified_residues.get(val)) {
                 vm.selectSections_modified.get(val).push({
                     entity_id: "" + entityid,
-                    residue_number: j, 
+                    residue_number: j,
                     color: color[1],
                     sideChain: false,
                 });
                 vm.mapped_aa_contacts_mods.get("Modified Residues").push([j, val])
             }
-        }                 
+        }
         vm.modifiedColorMap = colorMap;
         if (data.Modified.length > 0) {
             vm.modified = true
@@ -1064,13 +1061,13 @@ var calculateModifiedResidues = function (pdbid, chainid, entityid) {
             for (var j of vm.modified_residues.get(val)) {
                 vm.selectSections_modified.get(val).push({
                     entity_id: "" + entityid,
-                    residue_number: j, 
+                    residue_number: j,
                     color: color[1],
                     sideChain: false,
                 });
                 vm.mapped_aa_contacts_mods.get("Modified Residues").push([j, val])
             }
-        }                 
+        }
         vm.modifiedColorMap = colorMap;
         if (data.Modified.length > 0) {
             vm.modified = true
@@ -1094,17 +1091,17 @@ var showContactsHelper = function (entityid) {
     })*/
     const mapSort1 = protein_data.get("contacts").sort((a, b) => a.residue_number - b.residue_number);
     viewerInstance.visual.select({
-        data: mapSort1, 
+        data: mapSort1,
         nonSelectedColor: { r: 255, g: 255, b: 255 }
-        }).catch(err => {
-            console.log(err);
+    }).catch(err => {
+        console.log(err);
         vm.$nextTick(function () {
-                viewerInstance.visual.select({
-                    data: mapSort1,
+            viewerInstance.visual.select({
+                data: mapSort1,
                 nonSelectedColor: { r: 255, g: 255, b: 255 }
-                })
             })
         })
+    })
 }
 // Sleep function using utility
 const sleep = Utils.sleep;
@@ -1126,28 +1123,28 @@ var showProteins3D = async function () {
         }
         //await sleep(10000);
         async function tryColor() {
-        //console.log(colorData)
-        let waitTime = 1000;
-        let attempts = 0
-        try {
-            attempts += 1
-            await sleep(waitTime);
-            await viewerInstance.visual.colorByChain(colorData)
-        } catch (error) {
-            console.log(error)
-            waitTime += 1000;
-            if (colorData.length == vm.pchainid.length) {
-                if (attempts < 3) {
-                    tryColor()
+            //console.log(colorData)
+            let waitTime = 1000;
+            let attempts = 0
+            try {
+                attempts += 1
+                await sleep(waitTime);
+                await viewerInstance.visual.colorByChain(colorData)
+            } catch (error) {
+                console.log(error)
+                waitTime += 1000;
+                if (colorData.length == vm.pchainid.length) {
+                    if (attempts < 3) {
+                        tryColor()
+                    }
                 }
             }
-        }
         }
         if (vm.pchainid.length == colorData.length) {
             tryColor()
         }
     }
-        //viewerInstance.visual.colorByChain(colorData)
+    //viewerInstance.visual.colorByChain(colorData)
     await showProteins()
 }
 var showModificationsHelper = function (entityid) {
@@ -1167,17 +1164,17 @@ var showModificationsHelper = function (entityid) {
     const mapSort1 = modified_data.get("mods").sort((a, b) => a.residue_number - b.residue_number);
     const selectColors = async () => {
         viewerInstance.visual.select({
-            data: mapSort1, 
+            data: mapSort1,
             nonSelectedColor: { r: 255, g: 255, b: 255 }
-            }).catch(err => {
-                console.log(err);
+        }).catch(err => {
+            console.log(err);
             vm.$nextTick(function () {
-                    viewerInstance.visual.select({
-                        data: mapSort1,
+                viewerInstance.visual.select({
+                    data: mapSort1,
                     nonSelectedColor: { r: 255, g: 255, b: 255 }
-                    })
                 })
             })
+        })
     }
     selectColors()
 }
@@ -1186,7 +1183,7 @@ var showModificationsAndContactsHelper = async function (entityid) {
     //    showProteins3D()
     //} else {
     showPDBHelper(vm.pdbid, vm.chainid, vm.entityID)
-   // }
+    // }
     var modified_data = new Map();
     modified_data.set("mods", [])
     modified_data.get("mods").push({ entity_id: entityid, focus: true })
@@ -1227,20 +1224,20 @@ var showModificationsAndContactsHelper = async function (entityid) {
     await selectColors()*/
 
     selectColors = async () => {
-        let success = false;   
+        let success = false;
         while (!success) {
-          try {
-            await sleep(2000)
-            await sleep(3 * vm.aa_properties.get("Shannon entropy").length)
-            await viewerInstance.visual.select({
-              data: mapSort1,
-              nonSelectedColor: { r: 255, g: 255, b: 255 },
-            });
-            await sleep(5000);
-            success = true;
-          } catch (err) {
-            console.log(err);
-          }
+            try {
+                await sleep(2000)
+                await sleep(3 * vm.aa_properties.get("Shannon entropy").length)
+                await viewerInstance.visual.select({
+                    data: mapSort1,
+                    nonSelectedColor: { r: 255, g: 255, b: 255 },
+                });
+                await sleep(5000);
+                success = true;
+            } catch (err) {
+                console.log(err);
+            }
         }
     };
     await selectColors();
@@ -1253,6 +1250,7 @@ const ColoringOperations = {
     'Shannon entropy': 'shannonEntropy',
     'TwinCons': 'twinCons',
     'Custom Data': 'customData',
+    'Custom Data 2': 'customData2',
     'Associated Data1': 'associatedData',
     'Phase': 'phaseData',
     'phase': 'phaseData',
@@ -1326,11 +1324,11 @@ var recolorTopStar = async function (name) {
     }
 
     // Update UI template service
-    viewerInstanceTop.viewInstance.uiTemplateService.colorMap(); 
+    viewerInstanceTop.viewInstance.uiTemplateService.colorMap();
     if (name === "Select data") {
-        viewerInstanceTop.viewInstance.uiTemplateService.colorMapContacts(); 
+        viewerInstanceTop.viewInstance.uiTemplateService.colorMapContacts();
         viewerInstanceTop.viewInstance.uiTemplateService.colorMapModifications();
-    }   
+    }
 }
 
 var masked_array = [];
