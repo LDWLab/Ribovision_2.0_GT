@@ -1059,7 +1059,7 @@ def protein_contacts(request, pdbid, chain_id):
     logger.info(f"protein_contacts called for pdbid: {pdbid}, chain_id: {chain_id}")
     
     try:
-        pdbl = PDB.PDBList(server="https://files.wwpdb.org/", pdb='/tmp/PDB')
+        pdbl = PDB.PDBList(server="https://files.wwpdb.org", pdb='/tmp/PDB')
         pdbl.retrieve_pdb_file(pdbid, pdir='/tmp/PDB')
         parser = PDB.MMCIFParser()
         structure = parser.get_structure(pdbid, f"/tmp/PDB/{pdbid}.cif")

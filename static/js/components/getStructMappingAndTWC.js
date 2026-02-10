@@ -18,8 +18,20 @@ function waitForApiData(viewerInstanceTop, maxAttempts, interval) {
       var attempts = 0;
       
       function checkData() {
+          // Check if viewerInstanceTop and its nested properties exist
+          if (!viewerInstanceTop || !viewerInstanceTop.viewInstance || !viewerInstanceTop.viewInstance.uiTemplateService) {
+              attempts++;
+              if (attempts >= maxAttempts) {
+                  reject(new Error('Timeout waiting for viewerInstanceTop to initialize'));
+                  return;
+              }
+              setTimeout(checkData, interval);
+              return;
+          }
+          
           // Check if data is available
           if (viewerInstanceTop.viewInstance.uiTemplateService.apiData !== undefined && 
+              viewerInstanceTop.viewInstance.uiTemplateService.baseStrs && 
               viewerInstanceTop.viewInstance.uiTemplateService.baseStrs.size > 0) {
               resolve();
               return;
@@ -121,9 +133,13 @@ async function colorStructure(fasta, struc_id, startIndex, stopIndex, ebi_sequen
       
       vm.AD_headers = [];
       
-      waitForApiData(viewerInstanceTop);
+      waitForApiData(viewerInstanceTop).catch(function(err) {
+        console.warn('waitForApiData warning:', err.message);
+      });
 
-      if (viewerInstanceTop.viewInstance.uiTemplateService.apiData == undefined || viewerInstanceTop.viewInstance.uiTemplateService.baseStrs.size == 0){
+      // Safe check for viewerInstanceTop initialization
+      var uiTemplateService = viewerInstanceTop && viewerInstanceTop.viewInstance && viewerInstanceTop.viewInstance.uiTemplateService;
+      if (!uiTemplateService || uiTemplateService.apiData == undefined || !uiTemplateService.baseStrs || uiTemplateService.baseStrs.size == 0){
       
         vm.sequence_for_r2dt = vm.sequence;
         vm.user_uploaded_cif_flag = true;
@@ -296,7 +312,10 @@ var assignColorsAndStrucMappings = function (vueObj, struct_mapping, struct_mapp
 
 var delayedMapping = function () {
   //console.log("delayed mapping")
-  if (typeof viewerInstanceTop === 'undefined' || viewerInstanceTop === null || vm.structFailed) {
+  // Check for viewerInstanceTop and its nested properties
+  var viewerNotReady = typeof viewerInstanceTop === 'undefined' || viewerInstanceTop === null || 
+                       !viewerInstanceTop.viewInstance || !viewerInstanceTop.viewInstance.uiTemplateService;
+  if (viewerNotReady || vm.structFailed) {
     tryCustomTopology(vm.pdbid, vm.entityID, vm.chainid[0]);
   } else {
     if (vm.type_tree != "upload") {
@@ -396,14 +415,25 @@ function success(parsedResponse) {
   let parsedResponseNested = parsedResponse;
   let nestedBPs = parsedResponse.RNA_BP_json.annotations.filter((annotation) => Number(annotation.crossing) == 0);
   parsedResponseNested.annotations = nestedBPs;
-  window.viewerInstanceTop.viewInstance.uiTemplateService.render(parsedResponse.RNA_2D_json, parsedResponse.RNA_BP_json, parsedResponseNested, undefined, window.viewerInstanceTop.viewInstance);
+  
+  // Safe check for viewerInstanceTop initialization before render
+  if (window.viewerInstanceTop && window.viewerInstanceTop.viewInstance && window.viewerInstanceTop.viewInstance.uiTemplateService) {
+    window.viewerInstanceTop.viewInstance.uiTemplateService.render(parsedResponse.RNA_2D_json, parsedResponse.RNA_BP_json, parsedResponseNested, undefined, window.viewerInstanceTop.viewInstance);
+  } else {
+    console.warn('viewerInstanceTop not ready for render, will retry');
+    setTimeout(function() { success(parsedResponse); }, 500);
+    return;
+  }
 
   if (vm.fix_cust_colors) {
-    vm.associatedDataMappedPerType_2D = fix_colors(
-      parsedResponse.RNA_2D_json['sequence'],
-      viewerInstanceTop.viewInstance.uiTemplateService.baseStrs.get('cWW')[1],
-      vm.associatedDataMappedPerType_2D
-    );
+    var uiTemplateService = viewerInstanceTop && viewerInstanceTop.viewInstance && viewerInstanceTop.viewInstance.uiTemplateService;
+    if (uiTemplateService && uiTemplateService.baseStrs && uiTemplateService.baseStrs.get('cWW')) {
+      vm.associatedDataMappedPerType_2D = fix_colors(
+        parsedResponse.RNA_2D_json['sequence'],
+        uiTemplateService.baseStrs.get('cWW')[1],
+        vm.associatedDataMappedPerType_2D
+      );
+    }
   }
   // fix colors here with a flag
   if (vm.structFailed) {

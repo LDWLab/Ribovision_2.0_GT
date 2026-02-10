@@ -85,6 +85,7 @@ export class DataService {
 
     export class BanNameHelper {
         private static banNameMap: Map<string, JSON | undefined> = new Map();
+        private static hasWarnedAboutVm: boolean = false;
       
         public static async getBanName(pdbId: string, PchainId: string): Promise<JSON | undefined> {
           const cacheKey = `${pdbId}_${PchainId}`;
@@ -97,32 +98,46 @@ export class DataService {
           const vm = (window as any).vm;
 
           if (!vm || !vm.unfilteredChains_orig) {
-            console.error("vm or vm.unfilteredChains_orig is not defined");
-            return void 0; // or handle the error appropriately
+            // Only warn once to avoid spamming console during initialization
+            if (!BanNameHelper.hasWarnedAboutVm) {
+              console.warn("vm.unfilteredChains_orig not yet available, will retry when ready");
+              BanNameHelper.hasWarnedAboutVm = true;
+            }
+            return void 0; // Return undefined, caller will handle gracefully
           }
+          
+          // Reset warning flag since data is now available
+          BanNameHelper.hasWarnedAboutVm = false;
       
           try {
            
             var matches = vm.unfilteredChains_orig.filter(function(entry:any) {
-            return entry.in_chains.includes(PchainId);
+            return entry.in_chains && entry.in_chains.includes(PchainId);
             });
 
-            for (let chain of vm.protein_chains){
-                chain.banname_2D=matches[0].molecule_name[0].replace('Large ribosomal subunit', 'LSU').replace('Small ribosomal subunit', 'SSU');
-            
+            if (!matches || matches.length === 0 || !matches[0] || !matches[0].molecule_name) {
+              return void 0;
+            }
+
+            if (vm.protein_chains) {
+              for (let chain of vm.protein_chains){
+                  if (matches[0] && matches[0].molecule_name) {
+                    chain.banname_2D=matches[0].molecule_name[0].replace('Large ribosomal subunit', 'LSU').replace('Small ribosomal subunit', 'SSU');
+                  }
+              }
             }
             return matches.map(function(entry : any) {
                 if(entry.molecule_name) {
                     return entry.molecule_name[0].replace('Large ribosomal subunit protein ', '').replace('Small ribosomal subunit protein ', '');
-                } else {
+                } else if (entry[0] && entry[0].molecule_name) {
                     return entry[0].molecule_name[0].replace('Large ribosomal subunit protein ', '').replace('Small ribosomal subunit protein ', '');
                 }
-            
+                return void 0;
             });       
             
 
           } catch (e) {
-            console.error(`Error fetching ban name for ${cacheKey}`, e);
+            // Silently handle errors during initialization
             return void 0;
           }
         }
