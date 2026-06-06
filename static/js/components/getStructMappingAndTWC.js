@@ -290,8 +290,11 @@ var assignColorsAndStrucMappings = function (vueObj, struct_mapping, struct_mapp
   
   if (((vueObj.tax_id != null && vueObj.tax_id.length == 2) || (vueObj.custom_aln_twc_flag != null && vueObj.custom_aln_twc_flag == true) || (vueObj.type_tree == 'para'))) {
     if (vueObj.unmappedTWCdata) {
-      mapTWCdata(vueObj.structure_mapping, vueObj.structure_mapping3D, vueObj.unmappedTWCdata, mapped_aa_properties, mapped_aa_properties3D);
-      // mapTWCdata(vueObj.structure_mapping3D, vueObj.unmappedTWCdata, mapped_aa_properties3D);
+      retry(() => {
+          mapTWCdata(vueObj.structure_mapping, vueObj.structure_mapping3D, vueObj.unmappedTWCdata, mapped_aa_properties, mapped_aa_properties3D);
+      }, 10, 500).catch(err => {
+          console.error("Failed to map TWC data after retries:", err);
+      });
     } else {
       window.mapped_aa_properties = mapped_aa_properties;
       window.mapped_aa_properties3D = mapped_aa_properties3D;
@@ -347,7 +350,11 @@ var delayedMapping = function () {
 
       else {
         // console.log('mapped_aa_properties', mapped_aa_properties);
-        viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties, mapped_aa_properties3D);
+        try {
+          viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties, mapped_aa_properties3D);
+        } catch (e) {
+          console.warn('getAnnotationFromRibovision not ready yet:', e.message);
+        }
         // viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties3D);
         setTimeout(delayedMapping, 500);
       }

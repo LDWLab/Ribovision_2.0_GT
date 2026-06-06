@@ -10,6 +10,7 @@ import datetime
 import urllib.request
 import shutil
 import time
+import sys
 from subprocess import Popen, PIPE
 from xml.dom import minidom
 
@@ -1174,7 +1175,7 @@ def r2dt(request, entity_id):
         # if (cif_mode_flag is None) or (not cif_mode_flag):
         if alignments.config.pdb_path_share:
             logger.info("Processing in PDB mode")
-            cmd = f'/usr/bin/python3 {R2DT_PATH}/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
+            cmd = f'{sys.executable} {R2DT_PATH}/json2json_split2.py -i {filename} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
             pdb_path = alignments.config.pdb_path_share
             
             logger.debug(f"Executing commands:\n{cmd}")
@@ -1185,7 +1186,7 @@ def r2dt(request, entity_id):
             logger.info("Processing in CIF mode")
             cif_file_path = keys["cif_file_path"]
             
-            cmd = f'/usr/bin/python3 {R2DT_PATH}/parse_cif4.py -ij {filename} -ic {cif_file_path} -ie {entity_id} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
+            cmd = f'{sys.executable} {R2DT_PATH}/parse_cif4.py -ij {filename} -ic {cif_file_path} -ie {entity_id} -o1 {output}/results/json/RNA_2D_json.json -o2 {output}/results/json/BP_json.json'
             logging.debug(f"CIF file for parse cif: {cif_file_path}")
             logger.debug(f"Executing commands:\n{cmd}")
             os.system(cmd)

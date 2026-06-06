@@ -3,6 +3,7 @@ import subprocess
 import os
 from datetime import datetime
 import logging
+import sys
 from alignments.paths import FR3D_PATH
 
 
@@ -34,7 +35,7 @@ def run_fred(filepath, base_name, output, chain_id):
     logger = logging.getLogger("ribovision3-logger")
     
     commands = [
-        "/usr/bin/python3", f"{FR3D_PATH}/NA_pairwise_interactions.py", 
+        sys.executable, f"{FR3D_PATH}/NA_pairwise_interactions.py", 
         "--input", filepath, base_name, "-o", f"{output}/results/json",
         "-f", "ebi_json", "--chain", chain_id
     ]
