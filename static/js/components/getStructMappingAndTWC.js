@@ -3,566 +3,584 @@ import { ajaxProper } from './ajaxProper.js'
 
 const fix_colors = require('./graphColorPrediction.js');
 const typeMappings = {
-  'aes': { '1a': '1', '2': '1', '10': '1', '13': '1', '7': '1', '17': '1', '22': '1', '0': '2', '7b': '2', '9': '2', '11': '2', '16': '2', '20': '2', '18': '2', '3a': '2', '3b': '3', '5a': '3', '4': '3', '15': '3', '24': '3', '6': '3', '23': '3', '27': '3', '1': '4', '4a': '4', '7a': '4', '8': '4', '14a': '4', '25': '4', '26': '4', '21': '4', '1b': '5', '3': '5', '5': '5', '12': '5', '14': '5', '19': '5', '20a': '5' },
-  'AES': { '1': '1', '12': '1', '19': '1', '22': '1', '7': '1', '34': '1', '35': '1', '49': '1', '28': '1', '20': '1', '52': '1', '58': '1', '37': '1', '53': '2', '47': '3', '8': '2', '54': '2', '10': '2', '16': '2', '32': '2', '5': '2', '12a': '2', '18': '2', '50': '2', '4a': '3', '21': '3', '4': '3', '26': '3', '14': '3', '25': '3', '33': '3', '38': '3', '11': '3', '51': '3', '39': '3', '40': '3', '6': '4', '6a': '4', '55': '4', '45': '4', '10a': '4', '23': '4', '31': '4', '56': '4', '15': '4', '2': '4', '43': '4', '46': '4', '30': '4', '59': '4', '41': '5', '24': '5', '17': '5', '48': '5', '9': '5', '32a': '5', '57': '5', '15a': '5', '29': '5', '44': '5', '36': '5', '3': '5' },
-  // 'helix': { '2': '1', '6': '1', '9_3a': '1', '9_3b': '2', '9_3c': '4', '13': '1', '17': '1', '21_6c': '1', '21_6d': '1', '24': '1', '26a': '1', '33': '1', '36': '1', '40': '1', '42': '1', '44': '1', '41_10': '1', '3': '2', '6a': '2', '10': '2', '11': '2', '14': '2', '15': '2', '21_6b': '2', '22': '2', '27': '2', '28': '2', '31': '2', '31a': '2', '32': '2', '37': '2', '38': '2', '41': '2', '45': '2', '4': '3', '7': '3', '9': '3', '19': '3', '21': '3', '21_3c': '3', '23': '3', '26': '3', '29': '3', '34': '3', '39_9': '3', '44_12': '3', '1': '4', '5': '4', '8': '4', '12': '4', '16': '4', '18': '4', '20': '4', '21_6a': '4', '23a': '4', '25': '4', '26_7': '4', '30': '4', '30a': '4', '35': '4', '39': '4', '43': '4' },
-  'helix': { '2': '1', '6': '1', '9_3a': '1', '9_3b': '2', '9_3c': '4', '13': '1', '17': '1', '21_6c': '1', '21_6d': '1', '24': '1', '26a': '1', '33': '1', '36': '1', '40': '1', '42': '1', '44': '1', '41_10': '1', '3': '2', '6a': '2', '10': '2', '11': '2', '14': '2', '15': '2', '21_6b': '2', '22': '2', '27': '2', '28': '2', '31': '2', '31a': '2', '32': '2', '37': '2', '38': '2', '41': '2', '45': '2', '4': '3', '7': '3', '9': '3', '19': '3', '21': '3', '21_3c': '3', '23': '3', '26': '3', '29': '3', '34': '3', '39_9': '3', '44_12': '3', '1': '4', '5': '4', '8': '4', '12': '4', '16': '4', '18': '4', '20': '4', '21_6a': '4', '23a': '4', '25': '4', '26_7': '4', '30': '4', '30a': '4', '35': '4', '39': '4', '43': '4' },
-  'Helix': { '5S1': '1', '5S2': '3', '5S3': '2', '5S5': '2', '5S4': '4', '5': '1', '9': '1', '13': '1', '18': '1', '21': '1', '23': '1', '25': '1', '25_7b': '1', '27': '1', '30': '1', '35a': '1', '36': '1', '38a': '1', '41': '1', '43a': '1', '47': '1', '49': '1', '51': '1', '55': '1', '58': '1', '64': '1', '78': '1', '79': '1', '74': '1', '82': '1', '86': '1', '90': '1', '94': '1', '98_39b': '1', '63_27': '1', '79_31a': '1', '2': '2', '6': '2', '10': '2', '14': '2', '19': '2', '25_7a': '2', '28': '2', '33': '2', '38': '2', '40': '2', '25a': '2', '42': '2', '52': '2', '49a': '2', '54_20a': '2', '59': '2', '63': '2', '61': '2', '67': '2', '75': '2', '79_31': '2', '83': '2', '88': '2', '92': '2', '97': '2', '99': '2', '31_9': '2', '3': '3', '7': '3', '11': '3', '15': '3', '19a': '3', '22': '3', '25_7d': '3', '26': '3', '32': '3', '34': '3', '39': '3', '44': '3', '45': '3', '48': '3', '49b': '3', '53': '3', '56': '3', '63a': '3', '63_27b': '4', '66': '3', '69': '3', '70??': '3', '76': '3', '79_31c': '3', '80': '3', '84': '3', '91': '3', '93': '3', '95': '3', '98': '3', '101': '3', '9_3': '3', '4': '4', '8': '4', '10_4': '4', '12': '4', '16': '4', '20': '4', '24': '4', '25_7c': '4', '31': '4', '35': '4', '37': '4', '38_12': '4', '43': '4', '46': '4', '50': '4', '52_19': '4', '54': '4', '57': '4', '60': '4', '62': '4', '68': '4', '73': '4', '77': '4', '79_31b': '4', '81': '4', '85': '4', '87': '4', '89': '4', '96': '4', '100': '4', '98_39a': '4', '1':'1', '29':'3', '71':'3', '72':'3', '26a':'4', '65':'4', '70': '1', '55a': '1' }
+    'aes': { '1a': '1', '2': '1', '10': '1', '13': '1', '7': '1', '17': '1', '22': '1', '0': '2', '7b': '2', '9': '2', '11': '2', '16': '2', '20': '2', '18': '2', '3a': '2', '3b': '3', '5a': '3', '4': '3', '15': '3', '24': '3', '6': '3', '23': '3', '27': '3', '1': '4', '4a': '4', '7a': '4', '8': '4', '14a': '4', '25': '4', '26': '4', '21': '4', '1b': '5', '3': '5', '5': '5', '12': '5', '14': '5', '19': '5', '20a': '5' },
+    'AES': { '1': '1', '12': '1', '19': '1', '22': '1', '7': '1', '34': '1', '35': '1', '49': '1', '28': '1', '20': '1', '52': '1', '58': '1', '37': '1', '53': '2', '47': '3', '8': '2', '54': '2', '10': '2', '16': '2', '32': '2', '5': '2', '12a': '2', '18': '2', '50': '2', '4a': '3', '21': '3', '4': '3', '26': '3', '14': '3', '25': '3', '33': '3', '38': '3', '11': '3', '51': '3', '39': '3', '40': '3', '6': '4', '6a': '4', '55': '4', '45': '4', '10a': '4', '23': '4', '31': '4', '56': '4', '15': '4', '2': '4', '43': '4', '46': '4', '30': '4', '59': '4', '41': '5', '24': '5', '17': '5', '48': '5', '9': '5', '32a': '5', '57': '5', '15a': '5', '29': '5', '44': '5', '36': '5', '3': '5' },
+    // 'helix': { '2': '1', '6': '1', '9_3a': '1', '9_3b': '2', '9_3c': '4', '13': '1', '17': '1', '21_6c': '1', '21_6d': '1', '24': '1', '26a': '1', '33': '1', '36': '1', '40': '1', '42': '1', '44': '1', '41_10': '1', '3': '2', '6a': '2', '10': '2', '11': '2', '14': '2', '15': '2', '21_6b': '2', '22': '2', '27': '2', '28': '2', '31': '2', '31a': '2', '32': '2', '37': '2', '38': '2', '41': '2', '45': '2', '4': '3', '7': '3', '9': '3', '19': '3', '21': '3', '21_3c': '3', '23': '3', '26': '3', '29': '3', '34': '3', '39_9': '3', '44_12': '3', '1': '4', '5': '4', '8': '4', '12': '4', '16': '4', '18': '4', '20': '4', '21_6a': '4', '23a': '4', '25': '4', '26_7': '4', '30': '4', '30a': '4', '35': '4', '39': '4', '43': '4' },
+    'helix': { '2': '1', '6': '1', '9_3a': '1', '9_3b': '2', '9_3c': '4', '13': '1', '17': '1', '21_6c': '1', '21_6d': '1', '24': '1', '26a': '1', '33': '1', '36': '1', '40': '1', '42': '1', '44': '1', '41_10': '1', '3': '2', '6a': '2', '10': '2', '11': '2', '14': '2', '15': '2', '21_6b': '2', '22': '2', '27': '2', '28': '2', '31': '2', '31a': '2', '32': '2', '37': '2', '38': '2', '41': '2', '45': '2', '4': '3', '7': '3', '9': '3', '19': '3', '21': '3', '21_3c': '3', '23': '3', '26': '3', '29': '3', '34': '3', '39_9': '3', '44_12': '3', '1': '4', '5': '4', '8': '4', '12': '4', '16': '4', '18': '4', '20': '4', '21_6a': '4', '23a': '4', '25': '4', '26_7': '4', '30': '4', '30a': '4', '35': '4', '39': '4', '43': '4' },
+    'Helix': { '5S1': '1', '5S2': '3', '5S3': '2', '5S5': '2', '5S4': '4', '5': '1', '9': '1', '13': '1', '18': '1', '21': '1', '23': '1', '25': '1', '25_7b': '1', '27': '1', '30': '1', '35a': '1', '36': '1', '38a': '1', '41': '1', '43a': '1', '47': '1', '49': '1', '51': '1', '55': '1', '58': '1', '64': '1', '78': '1', '79': '1', '74': '1', '82': '1', '86': '1', '90': '1', '94': '1', '98_39b': '1', '63_27': '1', '79_31a': '1', '2': '2', '6': '2', '10': '2', '14': '2', '19': '2', '25_7a': '2', '28': '2', '33': '2', '38': '2', '40': '2', '25a': '2', '42': '2', '52': '2', '49a': '2', '54_20a': '2', '59': '2', '63': '2', '61': '2', '67': '2', '75': '2', '79_31': '2', '83': '2', '88': '2', '92': '2', '97': '2', '99': '2', '31_9': '2', '3': '3', '7': '3', '11': '3', '15': '3', '19a': '3', '22': '3', '25_7d': '3', '26': '3', '32': '3', '34': '3', '39': '3', '44': '3', '45': '3', '48': '3', '49b': '3', '53': '3', '56': '3', '63a': '3', '63_27b': '4', '66': '3', '69': '3', '70??': '3', '76': '3', '79_31c': '3', '80': '3', '84': '3', '91': '3', '93': '3', '95': '3', '98': '3', '101': '3', '9_3': '3', '4': '4', '8': '4', '10_4': '4', '12': '4', '16': '4', '20': '4', '24': '4', '25_7c': '4', '31': '4', '35': '4', '37': '4', '38_12': '4', '43': '4', '46': '4', '50': '4', '52_19': '4', '54': '4', '57': '4', '60': '4', '62': '4', '68': '4', '73': '4', '77': '4', '79_31b': '4', '81': '4', '85': '4', '87': '4', '89': '4', '96': '4', '100': '4', '98_39a': '4', '1': '1', '29': '3', '71': '3', '72': '3', '26a': '4', '65': '4', '70': '1', '55a': '1' }
 }
 
 function waitForApiData(viewerInstanceTop, maxAttempts, interval) {
-  maxAttempts = maxAttempts || 5;
-  interval = interval || 100;
-  
-  return new Promise(function(resolve, reject) {
-      var attempts = 0;
-      
-      function checkData() {
-          // Check if viewerInstanceTop and its nested properties exist
-          if (!viewerInstanceTop || !viewerInstanceTop.viewInstance || !viewerInstanceTop.viewInstance.uiTemplateService) {
-              attempts++;
-              if (attempts >= maxAttempts) {
-                  reject(new Error('Timeout waiting for viewerInstanceTop to initialize'));
-                  return;
-              }
-              setTimeout(checkData, interval);
-              return;
-          }
-          
-          // Check if data is available
-          if (viewerInstanceTop.viewInstance.uiTemplateService.apiData !== undefined && 
-              viewerInstanceTop.viewInstance.uiTemplateService.baseStrs && 
-              viewerInstanceTop.viewInstance.uiTemplateService.baseStrs.size > 0) {
-              resolve();
-              return;
-          }
-          
-          attempts++;
-          if (attempts >= maxAttempts) {
-              reject(new Error('Timeout waiting for apiData'));
-              return;
-          }
-          
-          // Try again after interval
-          setTimeout(checkData, interval);
-      }
-      
-      checkData();
-  });
+    maxAttempts = maxAttempts || 5;
+    interval = interval || 100;
+
+    return new Promise(function (resolve, reject) {
+        var attempts = 0;
+
+        function checkData() {
+            // Check if viewerInstanceTop and its nested properties exist
+            if (!viewerInstanceTop || !viewerInstanceTop.viewInstance || !viewerInstanceTop.viewInstance.uiTemplateService) {
+                attempts++;
+                if (attempts >= maxAttempts) {
+                    reject(new Error('Timeout waiting for viewerInstanceTop to initialize'));
+                    return;
+                }
+                setTimeout(checkData, interval);
+                return;
+            }
+
+            // Check if data is available
+            if (viewerInstanceTop.viewInstance.uiTemplateService.apiData !== undefined &&
+                viewerInstanceTop.viewInstance.uiTemplateService.baseStrs &&
+                viewerInstanceTop.viewInstance.uiTemplateService.baseStrs.size > 0) {
+                resolve();
+                return;
+            }
+
+            attempts++;
+            if (attempts >= maxAttempts) {
+                reject(new Error('Timeout waiting for apiData'));
+                return;
+            }
+
+            // Try again after interval
+            setTimeout(checkData, interval);
+        }
+
+        checkData();
+    });
 }
 
 async function getBanName(pdbId, PchainId) {
-  try {
-    const apiUrl = `https://api.ribosome.xyz/neo4j/get_banclass_for_chain/?pdbid=${pdbId}&auth_asym_id=${PchainId}&format=json`
-    return await (await fetch(apiUrl)).json();
-  } catch (e) {
-    //console.log(`Ban naming is not available!`, e);
-    return void 0;
-  };
+    try {
+        const apiUrl = `https://api.ribosome.xyz/neo4j/get_banclass_for_chain/?pdbid=${pdbId}&auth_asym_id=${PchainId}&format=json`
+        return await (await fetch(apiUrl)).json();
+    } catch (e) {
+        //console.log(`Ban naming is not available!`, e);
+        return void 0;
+    };
 }
 
 function sleeper(ms) {
-  return function (x) {
-    return new Promise(resolve => setTimeout(() => resolve(x), ms));
-  };
+    return function (x) {
+        return new Promise(resolve => setTimeout(() => resolve(x), ms));
+    };
 }
 
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 async function colorStructure(fasta, struc_id, startIndex, stopIndex, ebi_sequence, vueObj, structMappingAndData, full_sequence_from_pdb) {
-  
-  
-  let struct_mapping = structMappingAndData["structureMapping"];
 
-  vm.struct_to_alignment_mapping = Object.fromEntries(Object.entries(struct_mapping).map(([key, value]) => [value, key]));
-  let associatedDataMappedPerType3D = {};
 
-  while((Object.keys(vm.associatedDataCache).length == 0) && (vm.cifPdbMode == null)){
-    await sleep(5000);
-  }
-  let associatedDataCache = vm.associatedDataCache;  
-  
-  let largestKey = Math.max(...Object.values(struct_mapping).filter(a => typeof (a) == "number"))
-  let smallestKey = Math.min(...Object.values(struct_mapping).filter(a => typeof (a) == "number"))
- 
-  if ((largestKey != stopIndex || smallestKey != startIndex) && ebi_sequence) {
-    ajax('/mapSeqAlnOrig/', { fasta, ebi_sequence, startIndex: 1 }).then(origStructMappingAndData => {
-      let orig_struct_mapping = origStructMappingAndData["structureMapping"];
-      
-      vm.st_mapping2D = orig_struct_mapping;
-      vm.st_mapping3D = struct_mapping;
+    let struct_mapping = structMappingAndData["structureMapping"];
 
-      vm.struct_to_alignment_mapping = Object.fromEntries(Object.entries(orig_struct_mapping).map(([key, value]) => [value, key]));
-      let associatedDataMappedPerType2D = {};
-      
-      for (let [alignmentIndexAsString, structureIndex] of Object.entries(orig_struct_mapping)) {
-        let alignmentIndex = Number.parseInt(alignmentIndexAsString);
-        // associatedDataCache has correct boundaries
-        // let associatedDataCache = vm.associatedDataCache;
-        if (alignmentIndex in associatedDataCache) {
-          for (let { type, value } of associatedDataCache[alignmentIndex]) {
-            
-            if (!(type in associatedDataMappedPerType2D)) {
-              associatedDataMappedPerType2D[type] = [];
+    vm.struct_to_alignment_mapping = Object.fromEntries(Object.entries(struct_mapping).map(([key, value]) => [value, key]));
+    let associatedDataMappedPerType3D = {};
+
+    while ((Object.keys(vm.associatedDataCache).length == 0) && (vm.cifPdbMode == null)) {
+        await sleep(5000);
+    }
+    let associatedDataCache = vm.associatedDataCache;
+
+    let largestKey = Math.max(...Object.values(struct_mapping).filter(a => typeof (a) == "number"))
+    let smallestKey = Math.min(...Object.values(struct_mapping).filter(a => typeof (a) == "number"))
+
+    if ((largestKey != stopIndex || smallestKey != startIndex) && ebi_sequence) {
+        ajax('/mapSeqAlnOrig/', { fasta, ebi_sequence, startIndex: 1 }).then(origStructMappingAndData => {
+            let orig_struct_mapping = origStructMappingAndData["structureMapping"];
+
+            vm.st_mapping2D = orig_struct_mapping;
+            vm.st_mapping3D = struct_mapping;
+
+            vm.struct_to_alignment_mapping = Object.fromEntries(Object.entries(orig_struct_mapping).map(([key, value]) => [value, key]));
+            let associatedDataMappedPerType2D = {};
+
+            for (let [alignmentIndexAsString, structureIndex] of Object.entries(orig_struct_mapping)) {
+                let alignmentIndex = Number.parseInt(alignmentIndexAsString);
+                // associatedDataCache has correct boundaries
+                // let associatedDataCache = vm.associatedDataCache;
+                if (alignmentIndex in associatedDataCache) {
+                    for (let { type, value } of associatedDataCache[alignmentIndex]) {
+
+                        if (!(type in associatedDataMappedPerType2D)) {
+                            associatedDataMappedPerType2D[type] = [];
+                        }
+
+                        if (type in typeMappings) {
+                            let selectedDataDict = typeMappings[type] || {};
+                            // console.log(alignmentIndex, structureIndex, type, value, selectedDataDict[value] || 0);
+                            // value = value.replace("_", "-");
+                            value = selectedDataDict[value] || '0';
+
+                        } else {
+                            if (value.length === 0) {
+                                value = "0";
+                            }
+                            value = Number.parseInt(value);
+                        }
+                        let associatedDataI = [
+                            structureIndex,
+                            value
+                        ];
+                        associatedDataMappedPerType2D[type].push(associatedDataI);
+                    }
+                }
+            }
+            // todo: insert color patching function here.  
+            // associatedDataMappedPerType.helix[0]=[6, '1']
+
+            vm.AD_headers = [];
+
+            waitForApiData(viewerInstanceTop).catch(function (err) {
+                console.warn('waitForApiData warning:', err.message);
+            });
+
+            // Safe check for viewerInstanceTop initialization
+            var uiTemplateService = viewerInstanceTop && viewerInstanceTop.viewInstance && viewerInstanceTop.viewInstance.uiTemplateService;
+            if (!uiTemplateService || uiTemplateService.apiData == undefined || !uiTemplateService.baseStrs || uiTemplateService.baseStrs.size == 0) {
+
+                vm.sequence_for_r2dt = vm.sequence;
+                vm.user_uploaded_cif_flag = true;
+                vm.cif_file_path = `/tmp/PDB/${vm.pdbid}.cif`;
+                vm.getR2DT(vm.sequence);
+
+                vm.associatedDataMappedPerType_2D = associatedDataMappedPerType2D;
+                vm.fix_cust_colors = true;
+            }
+            else {
+                vm.associatedDataMappedPerType_2D = fix_colors(
+                    viewerInstanceTop.viewInstance.uiTemplateService.apiData.sequence,
+                    viewerInstanceTop.viewInstance.uiTemplateService.baseStrs.get('cWW')[1],
+                    associatedDataMappedPerType2D
+                );
             }
 
-            if (type in typeMappings) {
-              let selectedDataDict = typeMappings[type] || {};
-              // console.log(alignmentIndex, structureIndex, type, value, selectedDataDict[value] || 0);
-              // value = value.replace("_", "-");
-              value = selectedDataDict[value] || '0';
-              
-            } else {
-              if (value.length === 0) {
-                value = "0";
-              }
-              value = Number.parseInt(value);
+            // map 3d and 2d to be the same 
+            vm.mapping3D_2D = {};
+
+            for (let [k, v] of Object.entries(vm.st_mapping3D)) {
+                if (Object.keys(vm.st_mapping2D).includes(k)) {
+                    vm.mapping3D_2D[v] = vm.st_mapping2D[k];
+                }
             }
-            let associatedDataI = [
-              structureIndex,
-              value
-            ];
-            associatedDataMappedPerType2D[type].push(associatedDataI);
-          }
-        }
-      }
-      // todo: insert color patching function here.  
-      // associatedDataMappedPerType.helix[0]=[6, '1']
-      
-      vm.AD_headers = [];
-      
-      waitForApiData(viewerInstanceTop).catch(function(err) {
-        console.warn('waitForApiData warning:', err.message);
-      });
 
-      // Safe check for viewerInstanceTop initialization
-      var uiTemplateService = viewerInstanceTop && viewerInstanceTop.viewInstance && viewerInstanceTop.viewInstance.uiTemplateService;
-      if (!uiTemplateService || uiTemplateService.apiData == undefined || !uiTemplateService.baseStrs || uiTemplateService.baseStrs.size == 0){
-      
-        vm.sequence_for_r2dt = vm.sequence;
-        vm.user_uploaded_cif_flag = true;
-        vm.cif_file_path = `/tmp/PDB/${vm.pdbid}.cif`;
-        vm.getR2DT(vm.sequence);
-        
-        vm.associatedDataMappedPerType_2D = associatedDataMappedPerType2D;
-        vm.fix_cust_colors = true;
-      }
-      else{
-        vm.associatedDataMappedPerType_2D = fix_colors(
-          viewerInstanceTop.viewInstance.uiTemplateService.apiData.sequence,
-          viewerInstanceTop.viewInstance.uiTemplateService.baseStrs.get('cWW')[1],
-          associatedDataMappedPerType2D
-        );
-      }
+            vm.colorsMap2D = {};
+            for (let [type, list] of Object.entries(vm.associatedDataMappedPerType_2D)) {
+                let colorMap = {};
 
-      // map 3d and 2d to be the same 
-      vm.mapping3D_2D = {};
+                for (let [k, v] of Object.values(list)) {
+                    colorMap[k] = v;
+                }
+                vm.colorsMap2D[type] = colorMap;
 
-      for (let [k,v] of Object.entries(vm.st_mapping3D)){
-          if (Object.keys(vm.st_mapping2D).includes(k)){
-            vm.mapping3D_2D[v] = vm.st_mapping2D[k];
-          }
-      }
-
-      vm.colorsMap2D = {};
-      for(let [type, list] of Object.entries(vm.associatedDataMappedPerType_2D)){
-        let colorMap = {};
-        
-        for(let [k, v] of Object.values(list)){ 
-          colorMap[k] = v;
-        }
-        vm.colorsMap2D[type] = colorMap;
-      
-      }
-
-      vm.associatedDataMappedPerType_3D = {};
-      for(let [type, list] of Object.entries(vm.associatedDataMappedPerType_2D)){
-        let colorMap = vm.colorsMap2D[type];
-        let newColors = [];
-        
-        // console.log("Doing: ", type);
-
-        for(let k of Object.values(vm.st_mapping3D)){
-          let mappedColor = colorMap[vm.mapping3D_2D[k]] != undefined ? colorMap[vm.mapping3D_2D[k]] : 0;
-          newColors.push([k, mappedColor]);
-        }
-
-        vm.associatedDataMappedPerType_3D[type] = newColors;
-
-      }
-
-      // add zero for the last resedue
-      let helix = ''
-      if (Object.keys(vm.associatedDataMappedPerType_2D).includes('helix')){
-        helix = 'helix';
-      }
-      else{
-        helix = 'Helix';
-      }
-
-      let len_3d = vm.associatedDataMappedPerType_3D[helix].length;
-      let len_2d = vm.associatedDataMappedPerType_2D[helix].length;
-
-      let last_3d = vm.associatedDataMappedPerType_3D[helix][len_3d-1][0];
-      let last_2d = vm.associatedDataMappedPerType_2D[helix][len_2d-1][0];
-
-      vm.associatedDataMappedPerType_3D[helix].push([last_3d+1, '0']);
-      vm.associatedDataMappedPerType_2D[helix].push([last_2d+1, '0']);
-      
-
-      if (structMappingAndData["gapsInStruc"] && structMappingAndData["gapsInStruc"].length > 0) {
-        structMappingAndData["gapsInStruc"].forEach(function (gapTup) {
-          let lowMiss = Number(_.invert(struct_mapping)[gapTup[0]]);
-          let topMiss = Number(_.invert(struct_mapping)[gapTup[1]]);
-          if (topMiss - lowMiss > 1) {
-            for (let i = lowMiss + 1; i < topMiss; i++) {
-              delete orig_struct_mapping[i];
             }
-          }
+
+            vm.associatedDataMappedPerType_3D = {};
+            for (let [type, list] of Object.entries(vm.associatedDataMappedPerType_2D)) {
+                let colorMap = vm.colorsMap2D[type];
+                let newColors = [];
+
+                // console.log("Doing: ", type);
+
+                for (let k of Object.values(vm.st_mapping3D)) {
+                    let mappedColor = colorMap[vm.mapping3D_2D[k]] != undefined ? colorMap[vm.mapping3D_2D[k]] : 0;
+                    newColors.push([k, mappedColor]);
+                }
+
+                vm.associatedDataMappedPerType_3D[type] = newColors;
+
+            }
+
+            // add zero for the last resedue
+            let helix = ''
+            if (Object.keys(vm.associatedDataMappedPerType_2D).includes('helix')) {
+                helix = 'helix';
+            }
+            else {
+                helix = 'Helix';
+            }
+
+            let len_3d = vm.associatedDataMappedPerType_3D[helix].length;
+            let len_2d = vm.associatedDataMappedPerType_2D[helix].length;
+
+            let last_3d = vm.associatedDataMappedPerType_3D[helix][len_3d - 1][0];
+            let last_2d = vm.associatedDataMappedPerType_2D[helix][len_2d - 1][0];
+
+            vm.associatedDataMappedPerType_3D[helix].push([last_3d + 1, '0']);
+            vm.associatedDataMappedPerType_2D[helix].push([last_2d + 1, '0']);
+
+
+            if (structMappingAndData["gapsInStruc"] && structMappingAndData["gapsInStruc"].length > 0) {
+                structMappingAndData["gapsInStruc"].forEach(function (gapTup) {
+                    let lowMiss = Number(_.invert(struct_mapping)[gapTup[0]]);
+                    let topMiss = Number(_.invert(struct_mapping)[gapTup[1]]);
+                    if (topMiss - lowMiss > 1) {
+                        for (let i = lowMiss + 1; i < topMiss; i++) {
+                            delete orig_struct_mapping[i];
+                        }
+                    }
+                })
+            }
+            assignColorsAndStrucMappings(vueObj, origStructMappingAndData, structMappingAndData);
         })
-      }
-      assignColorsAndStrucMappings(vueObj, origStructMappingAndData, structMappingAndData);
-    })
-  } else {
-    
-    // RNAseqCall("cust", vm.chainid[0]).then(r2dt_sequence => {
-    RNAseqCall("cust", vm.chainid[0]).then(ebi_sequence => {
-      ajax('/mapSeqAlnOrig/', { fasta, ebi_sequence, startIndex: 1 }).then(origStructMappingAndData => {
-        vm.st_mapping2D = structMappingAndData["structureMapping"];
-        vm.st_mapping3D = origStructMappingAndData["structureMapping"];
+    } else {
+
+        // RNAseqCall("cust", vm.chainid[0]).then(r2dt_sequence => {
+        RNAseqCall("cust", vm.chainid[0]).then(ebi_sequence => {
+            ajax('/mapSeqAlnOrig/', { fasta, ebi_sequence, startIndex: 1 }).then(origStructMappingAndData => {
+                vm.st_mapping2D = structMappingAndData["structureMapping"];
+                vm.st_mapping3D = origStructMappingAndData["structureMapping"];
 
 
-        assignColorsAndStrucMappings(vueObj, origStructMappingAndData, structMappingAndData);
-      });
-  });
+                assignColorsAndStrucMappings(vueObj, origStructMappingAndData, structMappingAndData);
+            });
+        });
 
-  }
+    }
 }
 
 export function getStructMappingAndTWC(fasta, struc_id, startIndex, stopIndex, ebi_sequence, vueObj, full_sequence_from_pdb = "") {
-  
-  vm.structFailed = false
-  vm.sequence = ebi_sequence;
 
-  if (vm.fasta_data) {
-    let cleanFasta = vm.fasta_data.replace(/^>Structure sequence\n(.+\n)+?>/i, ">");
-    vm.fasta_data = cleanFasta;
-  };
+    vm.structFailed = false
+    vm.sequence = ebi_sequence;
 
-  const postData = {
-    fasta,
-    struc_id,
-    "cif_mode_flag": vm.user_uploaded_cif_flag,
-    //hardcoded_structure: full_sequence_from_pdb
-    hardcoded_structure: vm.customFullSequence
-  };
-  
-  ajax('/mapSeqAln/', postData).then(x => {colorStructure(fasta, struc_id, startIndex, stopIndex, ebi_sequence, vueObj, x, full_sequence_from_pdb)}).catch(error => {
-    vueObj.topology_loaded = 'error';
-    console.log(error);
-    var topview = document.querySelector('#topview');
-    topview.innerHTML = "Failed to load the alignment-structure mapping!<br>Try another structure."
-  });
-  
+    if (vm.fasta_data) {
+        let cleanFasta = vm.fasta_data.replace(/^>Structure sequence\n(.+\n)+?>/i, ">");
+        vm.fasta_data = cleanFasta;
+    };
+
+    const postData = {
+        fasta,
+        struc_id,
+        "cif_mode_flag": vm.user_uploaded_cif_flag,
+        //hardcoded_structure: full_sequence_from_pdb
+        hardcoded_structure: vm.customFullSequence
+    };
+
+    ajax('/mapSeqAln/', postData).then(x => { colorStructure(fasta, struc_id, startIndex, stopIndex, ebi_sequence, vueObj, x, full_sequence_from_pdb) }).catch(error => {
+        vueObj.topology_loaded = 'error';
+        console.log(error);
+        var topview = document.querySelector('#topview');
+        topview.innerHTML = "Failed to load the alignment-structure mapping!<br>Try another structure."
+    });
+
 }
 
-var assignColorsAndStrucMappings = function (vueObj, struct_mapping, struct_mapping3D) {
-  vueObj.poor_structure_map = struct_mapping['BadMappingPositions'];
-  vueObj.fasta_data = struct_mapping["amendedAln"];
-  vueObj.structure_mapping = struct_mapping["structureMapping"];
+var assignColorsAndStrucMappings = function (vueObj, structMapping, structMapping3D) {
+    // 1. Assign Data
+    vueObj.poor_structure_map = structMapping?.BadMappingPositions;
+    vueObj.fasta_data = structMapping?.amendedAln;
+    vueObj.structure_mapping = structMapping?.structureMapping;
 
-  //vueObj.poor_structure_map3D = struct_mapping3D['BadMappingPositions'];
-  //vueObj.fasta_data3D = struct_mapping3D["amendedAln"];
-  if(struct_mapping3D) {
-    vueObj.structure_mapping3D = struct_mapping3D["structureMapping"];
-  }
-
-  loadAlignmentViewer(vueObj.fasta_data);
-  //loadAlignmentViewer(vueObj.fasta_data3D);
-
-  let mapped_aa_properties = mapAAProps(vueObj.aa_properties, vueObj.structure_mapping);
-  let mapped_aa_properties3D = null
-  if(struct_mapping3D) {
-    mapped_aa_properties3D = mapAAProps(vueObj.aa_properties, vueObj.structure_mapping3D);
-  }
-  
-  if (((vueObj.tax_id != null && vueObj.tax_id.length == 2) || (vueObj.custom_aln_twc_flag != null && vueObj.custom_aln_twc_flag == true) || (vueObj.type_tree == 'para'))) {
-    if (vueObj.unmappedTWCdata) {
-      retry(() => {
-          mapTWCdata(vueObj.structure_mapping, vueObj.structure_mapping3D, vueObj.unmappedTWCdata, mapped_aa_properties, mapped_aa_properties3D);
-      }, 10, 500).catch(err => {
-          console.error("Failed to map TWC data after retries:", err);
-      });
-    } else {
-      window.mapped_aa_properties = mapped_aa_properties;
-      window.mapped_aa_properties3D = mapped_aa_properties3D;
+    if (structMapping3D) {
+        vueObj.structure_mapping3D = structMapping3D.structureMapping;
     }
-  } else {
-      window.mapped_aa_properties = mapped_aa_properties;
-      window.mapped_aa_properties3D = mapped_aa_properties3D;
-  }
-  //console.log(vueObj.fasta_data);
-  vm.sequence = vueObj.fasta_data.split(' ')[vm.user_uploaded_cif_flag === null || vm.user_uploaded_cif_flag ? 1 : 2];
-  let sequence2 = vm.sequence.replaceAll(/-|\n/g, "");
-  vm.sequence3 = sequence2.substring("sequence".length, sequence2.indexOf(">"));
-  vm.sequence4 = vm.sequence3;
-  //tryCustomTopology(vm.pdbid, vm.entityID, vm.chainid[0]);
-  delayedMapping();
-  //retry(delayedMapping, 10, 1000);
+
+    loadAlignmentViewer(vueObj.fasta_data);
+
+    // 2. Base property mapping
+    let mappedProps = mapAAProps(vueObj.aa_properties, vueObj.structure_mapping);
+    let mappedProps3D = structMapping3D ? mapAAProps(vueObj.aa_properties, vueObj.structure_mapping3D) : null;
+
+    // 3. TWC Mapping logic
+    const requiresTWC = (vueObj.tax_id?.length === 2) || vueObj.custom_aln_twc_flag || (vueObj.type_tree === 'para');
+
+    if (requiresTWC && vueObj.unmappedTWCdata) {
+        mappedProps = build_mapped_props(mappedProps, vueObj.unmappedTWCdata, vueObj.structure_mapping);
+        mappedProps3D = structMapping3D ? build_mapped_props(mappedProps3D, vueObj.unmappedTWCdata, vueObj.structure_mapping3D) : null;
+    }
+
+    // Assign to window
+    window.mapped_aa_properties = mappedProps;
+    window.mapped_aa_properties3D = mappedProps3D;
+
+    // 4. Parse Sequence String
+    const sequenceIndex = (vm.user_uploaded_cif_flag === null || vm.user_uploaded_cif_flag) ? 1 : 2;
+    vm.sequence = vueObj.fasta_data.split(' ')[sequenceIndex];
+
+    const cleanSequence = vm.sequence.replaceAll(/-|\n/g, "");
+    vm.sequence3 = cleanSequence.substring("sequence".length, cleanSequence.indexOf(">"));
+    vm.sequence4 = vm.sequence3;
+
+    // 5. Kick off the asynchronous DOM mapping
+    applyMappingsAsync(mappedProps, mappedProps3D);
 }
 
-var delayedMapping = function () {
-  //console.log("delayed mapping")
-  // Check for viewerInstanceTop and its nested properties
-  var viewerNotReady = typeof viewerInstanceTop === 'undefined' || viewerInstanceTop === null || 
-                       !viewerInstanceTop.viewInstance || !viewerInstanceTop.viewInstance.uiTemplateService;
-  if (viewerNotReady || vm.structFailed) {
+const applyMappingsAsync = async (mappedProps, mappedProps3D, maxAttempts = 15, delayMs = 500) => {
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+
+        // Bailout condition 1: Structure specifically failed
+        if (vm.structFailed) {
+            tryCustomTopology(vm.pdbid, vm.entityID, vm.chainid[0]);
+            return;
+        }
+
+        // Check if the viewer and its required services exist
+        const uiService = typeof viewerInstanceTop !== 'undefined'
+            ? viewerInstanceTop?.viewInstance?.uiTemplateService
+            : null;
+
+        if (uiService && vm.type_tree !== "upload") {
+            try {
+                if (vm.topology_loaded === true) {
+                    mapAssociatedDataStructures();
+                } else {
+                    // Send annotations to the viewer
+                    uiService.getAnnotationFromRibovision(mappedProps, mappedProps3D);
+
+                    // CRITICAL FIX: Mark topology as loaded to break the cycle
+                    vm.topology_loaded = true;
+                }
+
+                // Also map to PdbeTopViewer if it exists (Replaces mapTWCdata)
+                const topViewer = document.getElementById("PdbeTopViewer");
+                topViewer?.viewInstance?.uiTemplateService?.getAnnotationFromRibovision?.(mappedProps, mappedProps3D);
+
+                return; // Success! Exit the function completely.
+
+            } catch (error) {
+                console.warn(`Mapping attempt ${attempt} failed:`, error.message);
+            }
+        }
+
+        // Wait before the next loop iteration
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+    }
+
+    // If we exhaust all attempts, handle the failure (Replaces the catch block in your old retry fn)
+    console.error("EBI topology diagram is taking too long! Falling back to custom mode.");
+    vm.topology_loaded = 'error';
+    const topviewEle = document.querySelector('#topview');
+    if (topviewEle) {
+        topviewEle.innerHTML = "EBI topology diagram is taking too long!<br>Trying to generate topology from custom mode...";
+    }
     tryCustomTopology(vm.pdbid, vm.entityID, vm.chainid[0]);
-  } else {
-    if (vm.type_tree != "upload") {
-      if (vm.topology_loaded) {
-        try {
-          var topviewer = document.getElementById("PdbeTopViewer");
-          
-          for (const [type, _] of Object.entries(vm.associatedDataMappedPerType_2D)) {
-            let associatedDataMappedPerTypeI_2D = vm.associatedDataMappedPerType_2D[type];
-            let associatedDataMappedPerTypeI_3D = vm.associatedDataMappedPerType_3D[type];
+};
 
-            associatedDataMappedPerTypeI_2D.sort(function (entry0, entry1) {
-              return entry0[0] - entry1[0];
-            });
-            associatedDataMappedPerTypeI_3D.sort(function (entry0, entry1) {
-              return entry0[0] - entry1[0];
-            });
-            const AD_header = type;
-            // const ADDataArray = associatedDataMappedPerTypeI;
-            vm.AD_headers.push(AD_header);
-            mapAssociatedData(associatedDataMappedPerTypeI_2D, associatedDataMappedPerTypeI_3D, AD_header, topviewer);
-          }
-        } catch (error) {
-          console.log(error)
-          console.log("Mapping associated data failed")
-        }
-      }
-      //viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties);  
+const mapAssociatedDataStructures = () => {
+    try {
+        const topviewer = document.getElementById("PdbeTopViewer");
 
-      else {
-        // console.log('mapped_aa_properties', mapped_aa_properties);
-        try {
-          viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties, mapped_aa_properties3D);
-        } catch (e) {
-          console.warn('getAnnotationFromRibovision not ready yet:', e.message);
+        for (const [type, _] of Object.entries(vm.associatedDataMappedPerType_2D)) {
+            const data2D = vm.associatedDataMappedPerType_2D[type];
+            const data3D = vm.associatedDataMappedPerType_3D[type];
+
+            // Sort entries numerically
+            const sortByEntry = (entry0, entry1) => entry0[0] - entry1[0];
+            data2D.sort(sortByEntry);
+            data3D.sort(sortByEntry);
+
+            vm.AD_headers.push(type);
+            mapAssociatedData(data2D, data3D, type, topviewer);
         }
-        // viewerInstanceTop.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties3D);
-        setTimeout(delayedMapping, 500);
-      }
+    } catch (error) {
+        console.error("Mapping associated data failed:", error);
     }
-  }
-}
+};
 
 function retry(fn, maxAttempts = 1, delay = 0, attempts = 0) {
-  return Promise.resolve()
-    .then(sleeper(delay)).then(fn)
-    .catch(err => {
-      if (attempts < maxAttempts) {
-        return retry(fn, maxAttempts, delay, attempts + 1)
-      }
-      var topview = document.querySelector('#topview');
-      vm.topology_loaded = 'error';
-      topview.innerHTML = "EBI topology diagram is taking too long!<br>Trying to generate topology from custom mode..."
-      tryCustomTopology(vm.pdbid, vm.entityID, vm.chainid[0]);
-      throw err
-    })
+    return Promise.resolve()
+        .then(sleeper(delay)).then(fn)
+        .catch(err => {
+            if (attempts < maxAttempts) {
+                return retry(fn, maxAttempts, delay, attempts + 1)
+            }
+            var topview = document.querySelector('#topview');
+            vm.topology_loaded = 'error';
+            topview.innerHTML = "EBI topology diagram is taking too long!<br>Trying to generate topology from custom mode..."
+            tryCustomTopology(vm.pdbid, vm.entityID, vm.chainid[0]);
+            throw err
+        })
 }
 
 async function getRNAChain(pdbid, chainid) {
-  try {
-    const returnedObject = await ajax(`full-RNA-seq/${pdbid}/${chainid}`);
-    //console.log('RNA_full_sequence_cif', pdbid);
-    const result = returnedObject["RNAseq"];
+    try {
+        const returnedObject = await ajax(`full-RNA-seq/${pdbid}/${chainid}`);
+        //console.log('RNA_full_sequence_cif', pdbid);
+        const result = returnedObject["RNAseq"];
 
-    //console.log('RNA_full_sequence', result);
-    return result;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
+        //console.log('RNA_full_sequence', result);
+        return result;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
 }
 
 
 async function RNAseqCall(pdbid, chainid) {
-  let RNA_full_sequence;
-  if (vm.user_uploaded_cif_flag == true ) {
-    RNA_full_sequence = await getRNAChain(pdbid, chainid);
-    //console.log('RNA_full_sequence2c', RNA_full_sequence);
-    
-  }
-  //console.log('cf',vm.user_uploaded_cif_flag)
-  else if (vm.user_uploaded_cif_flag == false) {
-    RNA_full_sequence = vm.customFullSequence;
-  }
+    let RNA_full_sequence;
+    if (vm.user_uploaded_cif_flag == true) {
+        RNA_full_sequence = await getRNAChain(pdbid, chainid);
+        //console.log('RNA_full_sequence2c', RNA_full_sequence);
 
-  else if (vm.user_uploaded_cif_flag == null){
-    RNA_full_sequence = vm.sequence;
-  }
-  
+    }
+    //console.log('cf',vm.user_uploaded_cif_flag)
+    else if (vm.user_uploaded_cif_flag == false) {
+        RNA_full_sequence = vm.customFullSequence;
+    }
 
-  return RNA_full_sequence;
-  //return vm.customFullSequence;
+    else if (vm.user_uploaded_cif_flag == null) {
+        RNA_full_sequence = vm.sequence;
+    }
+
+
+    return RNA_full_sequence;
+    //return vm.customFullSequence;
 }
 
 function success(parsedResponse) {
-  if (parsedResponse == "Topology Success!") {
-    //console.log("Topology Success!");          
-  }
-  // const banName = getBanName(pdbid, 'H')
-  vm.json_structures_from_r2dt = parsedResponse;
-  let parsedResponseNested = parsedResponse;
-  let nestedBPs = parsedResponse.RNA_BP_json.annotations.filter((annotation) => Number(annotation.crossing) == 0);
-  parsedResponseNested.annotations = nestedBPs;
-  
-  // Safe check for viewerInstanceTop initialization before render
-  if (window.viewerInstanceTop && window.viewerInstanceTop.viewInstance && window.viewerInstanceTop.viewInstance.uiTemplateService) {
-    window.viewerInstanceTop.viewInstance.uiTemplateService.render(parsedResponse.RNA_2D_json, parsedResponse.RNA_BP_json, parsedResponseNested, undefined, window.viewerInstanceTop.viewInstance);
-  } else {
-    console.warn('viewerInstanceTop not ready for render, will retry');
-    setTimeout(function() { success(parsedResponse); }, 500);
-    return;
-  }
-
-  if (vm.fix_cust_colors) {
-    var uiTemplateService = viewerInstanceTop && viewerInstanceTop.viewInstance && viewerInstanceTop.viewInstance.uiTemplateService;
-    if (uiTemplateService && uiTemplateService.baseStrs && uiTemplateService.baseStrs.get('cWW')) {
-      vm.associatedDataMappedPerType_2D = fix_colors(
-        parsedResponse.RNA_2D_json['sequence'],
-        uiTemplateService.baseStrs.get('cWW')[1],
-        vm.associatedDataMappedPerType_2D
-      );
+    if (parsedResponse == "Topology Success!") {
+        //console.log("Topology Success!");          
     }
-  }
-  // fix colors here with a flag
-  if (vm.structFailed) {
-    vm.AD_headers = [];
-    var topviewer = document.getElementById("PdbeTopViewer");
-    try {
-      
-      for (const [type, _] of Object.entries(vm.associatedDataMappedPerType_2D)) {
-        let associatedDataMappedPerTypeI_2D = vm.associatedDataMappedPerType_2D[type];
-        let associatedDataMappedPerTypeI_3D = vm.associatedDataMappedPerType_3D[type];
+    // const banName = getBanName(pdbid, 'H')
+    vm.json_structures_from_r2dt = parsedResponse;
+    let parsedResponseNested = parsedResponse;
+    let nestedBPs = parsedResponse.RNA_BP_json.annotations.filter((annotation) => Number(annotation.crossing) == 0);
+    parsedResponseNested.annotations = nestedBPs;
 
-        associatedDataMappedPerTypeI_2D.sort(function (entry0, entry1) {
-          return entry0[0] - entry1[0];
-        });
-        associatedDataMappedPerTypeI_3D.sort(function (entry0, entry1) {
-          return entry0[0] - entry1[0];
-        });
-        const AD_header = type;
-        // const ADDataArray = associatedDataMappedPerTypeI;
-        vm.AD_headers.push(AD_header);
-        mapAssociatedData(associatedDataMappedPerTypeI_2D, associatedDataMappedPerTypeI_3D, AD_header, topviewer);
-      }
-    } catch (error) {
-      console.log("Mapping associated data failed")
+    // Safe check for viewerInstanceTop initialization before render
+    if (window.viewerInstanceTop && window.viewerInstanceTop.viewInstance && window.viewerInstanceTop.viewInstance.uiTemplateService) {
+        window.viewerInstanceTop.viewInstance.uiTemplateService.render(parsedResponse.RNA_2D_json, parsedResponse.RNA_BP_json, parsedResponseNested, undefined, window.viewerInstanceTop.viewInstance);
+    } else {
+        console.warn('viewerInstanceTop not ready for render, will retry');
+        setTimeout(function () { success(parsedResponse); }, 500);
+        return;
     }
-  }
+
+    if (vm.fix_cust_colors) {
+        var uiTemplateService = viewerInstanceTop && viewerInstanceTop.viewInstance && viewerInstanceTop.viewInstance.uiTemplateService;
+        if (uiTemplateService && uiTemplateService.baseStrs && uiTemplateService.baseStrs.get('cWW')) {
+            vm.associatedDataMappedPerType_2D = fix_colors(
+                parsedResponse.RNA_2D_json['sequence'],
+                uiTemplateService.baseStrs.get('cWW')[1],
+                vm.associatedDataMappedPerType_2D
+            );
+        }
+    }
+    // fix colors here with a flag
+    if (vm.structFailed) {
+        vm.AD_headers = [];
+        var topviewer = document.getElementById("PdbeTopViewer");
+        try {
+
+            for (const [type, _] of Object.entries(vm.associatedDataMappedPerType_2D)) {
+                let associatedDataMappedPerTypeI_2D = vm.associatedDataMappedPerType_2D[type];
+                let associatedDataMappedPerTypeI_3D = vm.associatedDataMappedPerType_3D[type];
+
+                associatedDataMappedPerTypeI_2D.sort(function (entry0, entry1) {
+                    return entry0[0] - entry1[0];
+                });
+                associatedDataMappedPerTypeI_3D.sort(function (entry0, entry1) {
+                    return entry0[0] - entry1[0];
+                });
+                const AD_header = type;
+                // const ADDataArray = associatedDataMappedPerTypeI;
+                vm.AD_headers.push(AD_header);
+                mapAssociatedData(associatedDataMappedPerTypeI_2D, associatedDataMappedPerTypeI_3D, AD_header, topviewer);
+            }
+        } catch (error) {
+            console.log("Mapping associated data failed")
+        }
+    }
 }
 
 function handle_error(error) {
-  var topview = document.querySelector('#topview');
-  vm.topology_loaded = 'error';
-  topview.innerHTML = "Failed to generate topology from the structure file!<br>Try different PDB."
-  console.log(error.responseText);
+    var topview = document.querySelector('#topview');
+    vm.topology_loaded = 'error';
+    topview.innerHTML = "Failed to generate topology from the structure file!<br>Try different PDB."
+    console.log(error.responseText);
 }
 
 var tryCustomTopology = function (pdbid, entityid, chainid) {
-  vm.topology_loaded = false;
-  //console.log("TCT_2", pdbid, vm.sequence4); 
-  //vm.getR2DT(vm.sequence4);
-  //vm.URL = `r2dt/${vm.sequence3}`
-  //var postTopologyURL = `r2dt/${vm.sequence3}/`
-  //console.log('eid1',entityid);
+    vm.topology_loaded = false;
+    //console.log("TCT_2", pdbid, vm.sequence4); 
+    //vm.getR2DT(vm.sequence4);
+    //vm.URL = `r2dt/${vm.sequence3}`
+    //var postTopologyURL = `r2dt/${vm.sequence3}/`
+    //console.log('eid1',entityid);
 
-  //pdbid='cust';
-  if (pdbid == '' || pdbid == 'cust' || pdbid == null) {
-    pdbid = 'cust'
-  }
-
-  
-  RNAseqCall(pdbid, chainid).then(seq1 => {
-    //
-    if (pdbid == "cust") {
-      vm.sequence_for_r2dt = seq1
+    //pdbid='cust';
+    if (pdbid == '' || pdbid == 'cust' || pdbid == null) {
+        pdbid = 'cust'
     }
-    else
-      vm.sequence_for_r2dt = vm.sequence3;
-    //console.log('RNA_full_sequence3', seq1);
-    vm.getR2DT(seq1);
-    vm.URL = `r2dt/${entityid}`
-    var topology_viewer = `<pdb-rna-viewer id="PdbeTopViewer" pdb-id="${pdbid}" entity-id="${entityid}" chain-id="${chainid}" rv-api="true"></pdb-rna-viewer>`
-    document.getElementById('topview').innerHTML = topology_viewer;
-    window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
 
-    call_r2dt("POST", success, handle_error);
-  }).catch(error => {
-    console.error(error);
-  });
+
+    RNAseqCall(pdbid, chainid).then(seq1 => {
+        //
+        if (pdbid == "cust") {
+            vm.sequence_for_r2dt = seq1
+        }
+        else
+            vm.sequence_for_r2dt = vm.sequence3;
+        //console.log('RNA_full_sequence3', seq1);
+        vm.getR2DT(seq1);
+        vm.URL = `r2dt/${entityid}`
+        var topology_viewer = `<pdb-rna-viewer id="PdbeTopViewer" pdb-id="${pdbid}" entity-id="${entityid}" chain-id="${chainid}" rv-api="true"></pdb-rna-viewer>`
+        document.getElementById('topview').innerHTML = topology_viewer;
+        window.viewerInstanceTop = document.getElementById("PdbeTopViewer");
+
+        call_r2dt("POST", success, handle_error);
+    }).catch(error => {
+        console.error(error);
+    });
 }
 
 export function call_r2dt(request_method, success = function () {/* Do nothing. */ }, handle_error = function () {/* Do nothing. */ }) {
-  let keys_as_string = JSON.stringify({
-    cif_mode_flag: vm.user_uploaded_cif_flag,
-    cif_file_path: vm.cif_file_path,
-  });
-  let all_lines = [
-    keys_as_string,
-    "\n",
-    ...vm.sequence_for_r2dt.split("\n")
-  ];
-  let sequence_file = new File(all_lines, "my_sequence.txt", {
-    type: "text/plain"
-  });
-  const formData = new FormData();
-  formData.append("custom_seq_file", sequence_file);
-  $.ajax({
-    url: `r2dt/${vm.entityID}`,
-    data: formData,
-    cache: false,
-    contentType: false,
-    processData: false,
-    method: request_method,
-    dataType: 'json',
-    type: request_method, // For jQuery < 1.9
-    success,
-    handle_error
-  });
+    let keys_as_string = JSON.stringify({
+        cif_mode_flag: vm.user_uploaded_cif_flag,
+        cif_file_path: vm.cif_file_path,
+    });
+    let all_lines = [
+        keys_as_string,
+        "\n",
+        ...vm.sequence_for_r2dt.split("\n")
+    ];
+    let sequence_file = new File(all_lines, "my_sequence.txt", {
+        type: "text/plain"
+    });
+    const formData = new FormData();
+    formData.append("custom_seq_file", sequence_file);
+    $.ajax({
+        url: `r2dt/${vm.entityID}`,
+        data: formData,
+        cache: false,
+        contentType: false,
+        processData: false,
+        method: request_method,
+        dataType: 'json',
+        type: request_method, // For jQuery < 1.9
+        success,
+        handle_error
+    });
 }
 
-function call_r2dt1(request_method, on_success = function (response) {console.log(JSON.stringify(response)); }, handle_error = function () {/* Do nothing. */ }) {
-  let keys_as_string = JSON.stringify({
-    cif_mode_flag: vm.user_uploaded_cif_flag,
-    cif_file_path: vm.cif_file_path,
-  });
-  let all_lines = [
-    keys_as_string,
-    "\n",
-    ...vm.sequence_for_r2dt.split("\n")
-  ];
-  let sequence_file = new File(all_lines, "my_sequence.txt", {
-    type: "text/plain"
-  });
-  const formData = new FormData();
-  formData.append("custom_seq_file", sequence_file);
+function call_r2dt1(request_method, on_success = function (response) { console.log(JSON.stringify(response)); }, handle_error = function () {/* Do nothing. */ }) {
+    let keys_as_string = JSON.stringify({
+        cif_mode_flag: vm.user_uploaded_cif_flag,
+        cif_file_path: vm.cif_file_path,
+    });
+    let all_lines = [
+        keys_as_string,
+        "\n",
+        ...vm.sequence_for_r2dt.split("\n")
+    ];
+    let sequence_file = new File(all_lines, "my_sequence.txt", {
+        type: "text/plain"
+    });
+    const formData = new FormData();
+    formData.append("custom_seq_file", sequence_file);
 
-  let params = {
-    data: formData,
-    cache: false,
-    contentType: false,
-    processData: false,
-    method: request_method,
-    dataType: 'json',
-    type: request_method, // For jQuery < 1.9
-  }
-  return params;
+    let params = {
+        data: formData,
+        cache: false,
+        contentType: false,
+        processData: false,
+        method: request_method,
+        dataType: 'json',
+        type: request_method, // For jQuery < 1.9
+    }
+    return params;
 }
