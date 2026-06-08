@@ -81,4 +81,4 @@ automain-*.js
 # =========================
 tmp/
 inspected_models.txt
-alignments/paths.py
+*alignments/paths.py

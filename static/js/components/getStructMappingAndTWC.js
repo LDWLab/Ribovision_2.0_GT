@@ -308,55 +308,89 @@ var assignColorsAndStrucMappings = function (vueObj, structMapping, structMappin
     applyMappingsAsync(mappedProps, mappedProps3D);
 }
 
-const applyMappingsAsync = async (mappedProps, mappedProps3D, maxAttempts = 15, delayMs = 500) => {
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+const applyMappingsAsync = (vueObj, baseProps, baseProps3D, maxAttempts = 15, delayMs = 500) => {
+    let attempt = 1;
 
+    const checkViewerLoop = () => {
         // Bailout condition 1: Structure specifically failed
         if (vm.structFailed) {
             tryCustomTopology(vm.pdbid, vm.entityID, vm.chainid[0]);
             return;
         }
 
-        // Check if the viewer and its required services exist
-        const uiService = typeof viewerInstanceTop !== 'undefined'
-            ? viewerInstanceTop?.viewInstance?.uiTemplateService
-            : null;
+        // Check if the viewer service is in the DOM yet
+        const isViewerReady = typeof viewerInstanceTop !== 'undefined' && viewerInstanceTop?.viewInstance?.uiTemplateService;
 
-        if (uiService && vm.type_tree !== "upload") {
-            try {
-                if (vm.topology_loaded === true) {
-                    mapAssociatedDataStructures();
-                } else {
-                    // Send annotations to the viewer
-                    uiService.getAnnotationFromRibovision(mappedProps, mappedProps3D);
-
-                    // CRITICAL FIX: Mark topology as loaded to break the cycle
-                    vm.topology_loaded = true;
-                }
-
-                // Also map to PdbeTopViewer if it exists (Replaces mapTWCdata)
-                const topViewer = document.getElementById("PdbeTopViewer");
-                topViewer?.viewInstance?.uiTemplateService?.getAnnotationFromRibovision?.(mappedProps, mappedProps3D);
-
-                return; // Success! Exit the function completely.
-
-            } catch (error) {
-                console.warn(`Mapping attempt ${attempt} failed:`, error.message);
-            }
+        // If ready, pass execution to the controller and exit the loop
+        if (isViewerReady && vm.type_tree !== "upload") {
+            executeViewerMappings(vueObj, baseProps, baseProps3D);
+            return;
         }
 
-        // Wait before the next loop iteration
-        await new Promise(resolve => setTimeout(resolve, delayMs));
-    }
+        // If we haven't hit the max attempts, wait and try again
+        if (attempt < maxAttempts) {
+            attempt++;
+            setTimeout(checkViewerLoop, delayMs);
+            return;
+        }
 
-    // If we exhaust all attempts, handle the failure (Replaces the catch block in your old retry fn)
-    console.error("EBI topology diagram is taking too long! Falling back to custom mode.");
-    vm.topology_loaded = 'error';
-    const topviewEle = document.querySelector('#topview');
-    if (topviewEle) {
-        topviewEle.innerHTML = "EBI topology diagram is taking too long!<br>Trying to generate topology from custom mode...";
+        // Bailout condition 2: Timeout reached
+        console.error("EBI topology diagram is taking too long! Falling back to custom mode.");
+        vm.topology_loaded = 'error';
+        const topviewEle = document.querySelector('#topview');
+        if (topviewEle) topviewEle.innerHTML = "EBI topology diagram is taking too long!<br>Trying to generate topology from custom mode...";
+
+        tryCustomTopology(vm.pdbid, vm.entityID, vm.chainid[0]);
+    };
+
+    // Start the loop
+    checkViewerLoop();
+};
+
+const executeViewerMappings = (vueObj, baseProps, baseProps3D) => {
+  // Grab the UI service now that we know it exists
+  const mainUiService = viewerInstanceTop.viewInstance.uiTemplateService;
+  
+  let finalProps = baseProps;
+  let finalProps3D = baseProps3D;
+
+  // 1. Check if TWC mapping is required based on Vue state
+  const requiresTWC = (vueObj.tax_id?.length === 2) || vueObj.custom_aln_twc_flag || (vueObj.type_tree === 'para');
+  
+  if (requiresTWC && vueObj.unmappedTWCdata) {
+    // Pass data to our isolated mapTWCdata module
+    const twcResult = mapTWCdata(
+        vueObj.structure_mapping, 
+        vueObj.structure_mapping3D, 
+        vueObj.unmappedTWCdata, 
+        baseProps, 
+        baseProps3D
+    );
+    
+    // Update our working props with the newly merged TWC data
+    finalProps = twcResult.mappedTWCProps;
+    finalProps3D = twcResult.mappedTWCProps3D;
+  } else {
+    // Legacy fallback: assign to window if TWC isn't needed
+    window.mapped_aa_properties = finalProps;
+    window.mapped_aa_properties3D = finalProps3D;
+  }
+
+  // 2. Decide what to render on the main viewer
+  if (vm.topology_loaded === true) {
+    // If the base topology is already there, just map the extra associated data
+    mapAssociatedDataStructures(); 
+  } else {
+    // Otherwise, push the main annotations to the viewer
+    try {
+      mainUiService.getAnnotationFromRibovision(finalProps, finalProps3D);
+      
+      // CRITICAL: Set this to true so we don't try to initialize it again
+      vm.topology_loaded = true; 
+    } catch (error) {
+      console.warn("Main viewer annotation failed:", error.message);
     }
-    tryCustomTopology(vm.pdbid, vm.entityID, vm.chainid[0]);
+  }
 };
 
 const mapAssociatedDataStructures = () => {
