@@ -798,9 +798,9 @@ var rgbToHex = function(r, g, b) {
 var hexToRgb = function (hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
-      r: parseInt(result[1], 16),
-      g: parseInt(result[2], 16),
-      b: parseInt(result[3], 16)
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
     } : null;
 }
 
@@ -815,15 +815,25 @@ var build_mapped_props = function(mapped_props, twcDataUnmapped, structure_mappi
     return mapped_props;
 }
 
-var mapTWCdata = function (structMap, structMap3D, twcDataUnmapped, mapped_aa_properties, mapped_aa_properties3D){
-    var topviewer = document.getElementById("PdbeTopViewer");
+var mapTWCdata = function (structMap, structMap3D, twcDataUnmapped, baseProps, baseProps3D){
+    // 1. Build the new TWC-specific properties
+    const mappedTWCProps = build_mapped_props(baseProps, twcDataUnmapped, structMap);
+    const mappedTWCProps3D = structMap3D 
+        ? build_mapped_props(baseProps3D, twcDataUnmapped, structMap3D) 
+        : null;
     
-    mapped_aa_properties = build_mapped_props(mapped_aa_properties, twcDataUnmapped, structMap);
-    mapped_aa_properties3D = build_mapped_props(mapped_aa_properties3D, twcDataUnmapped, structMap3D);
-    
-    
-    window.mapped_aa_properties = mapped_aa_properties;
-    window.mapped_aa_properties3D = mapped_aa_properties3D;
+    // 2. Assign to window
+    window.mapped_aa_properties = mappedTWCProps;
+    window.mapped_aa_properties3D = mappedTWCProps3D;
+
+    const topViewer = document.getElementById("PdbeTopViewer");
+    if (topViewer?.viewInstance?.uiTemplateService) {
+        topViewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mappedTWCProps, mappedTWCProps3D);
+    } else {
+        console.warn("PdbeTopViewer not found or not ready. TWC annotations skipped.");
+    }
+
+    topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties, mapped_aa_properties3D);
     
     /*if (topviewer != null && topviewer.viewInstance.uiTemplateService.domainTypes != undefined){
         var empty_props = new Map();
@@ -841,8 +851,8 @@ var mapTWCdata = function (structMap, structMap3D, twcDataUnmapped, mapped_aa_pr
         //twc_option.appendChild(document.createTextNode("TwinCons"));
         //selectBoxEle.appendChild(twc_option);
     }*/
-    topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties, mapped_aa_properties3D);
-}
+};
+
 var showPDBHelper = function(pdbid, chainid, entityid) {
     const molstar_item = document.getElementById("pdbeMolstarView");
     if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Loading Molstar Component ", true)}
