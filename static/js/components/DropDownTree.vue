@@ -375,7 +375,9 @@ export default {
                 this.getPDBchains(pdbid, vm.alnobj.id);
             }
         }, cif_file_path: function (cif_file_path) {
-            this.calculateModifiedCustom(vm.customEntity, cif_file_path);
+            if (vm.customEntity) {
+                this.calculateModifiedCustom(vm.customEntity, cif_file_path);
+            }
         },
 
         unfilteredChains: function (chain_list) {

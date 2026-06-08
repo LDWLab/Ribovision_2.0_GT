@@ -123,3 +123,23 @@ function interpolateLinearly(x, values) {
 	b255 = Math.round(255*enforceBounds(b));
 	return [[r255, g255, b255], {r:r255, g:g255, b:b255}];
 }
+
+// Make colormaps available globally
+window.BrBG = BrBG;
+window.PRGn = PRGn;
+window.PiYG = PiYG;
+window.PuOr = PuOr;
+window.RdBu = RdBu;
+window.RdGy = RdGy;
+window.RdYlBu = RdYlBu;
+window.coolwarm = coolwarm;
+window.jet = jet;
+window.viridis = viridis;
+window.Blues = Blues;
+window.BuGn = BuGn;
+window.BuPu = BuPu;
+window.GnBu = GnBu;
+window.Greens = Greens;
+window.Greys = Greys;
+window.OrRd = OrRd;
+// export { jet, coolwarm, viridis, plasma, rainbow, Reds, Blues };

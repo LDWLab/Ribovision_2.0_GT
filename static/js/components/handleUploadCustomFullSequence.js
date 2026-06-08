@@ -5,7 +5,7 @@ export function uploadCustomFullSequence(){
     var fr = new FileReader();
     fr.onload = function() {
         let fasta_content = fr.result;
-        vm.customFullSequence = fasta_content.split("\n").filter((line) => !/^>/.test(line)).join("");
+        vm.customFullSequence = fasta_content.split("\n").filter((line) => !/^>/.test(line)).map((line) => line.trim()).join("");
         uploadCustomPDB();
     }
     fr.readAsText(vm.$refs.customFullSequence.files[0]);

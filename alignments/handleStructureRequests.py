@@ -268,41 +268,25 @@ def fixEntityFieldofParsedPDB(stringStruc, chainToEntity):
         outStruc.append(' '.join(rowList))
     return '\n'.join(outStruc) 
    
-def delResiofParsedPDB(stringStruc):
+_THREE_TO_ONE = {'URA': 'U', 'GUA': 'G', 'CYT': 'C', 'ADE': 'A'}
+_CANONICAL_RNA = {'U', 'A', 'G', 'C'}
+
+def _filter_canonical_rna_rows(stringStruc):
     listStruc = stringStruc.split('\n')
     outStruc = listStruc[:21]
     for row in listStruc[21:]:
         rowList = row.split()
-        if len(rowList) >6:
-            if str(rowList[5])=='URA':
-               rowList[5]=='U'
-            if str(rowList[5])=='GUA':
-               rowList[5]=='G'
-            if str(rowList[5])=='CYT':
-               rowList[5]=='C'
-            if str(rowList[5])=='ADE':
-               rowList[5]=='A'          
-            if str(rowList[5])=='U' or str(rowList[5])=='A' or str(rowList[5])=='G' or str(rowList[5])=='C':
+        if len(rowList) > 6:
+            rowList[5] = _THREE_TO_ONE.get(rowList[5], rowList[5])
+            if rowList[5] in _CANONICAL_RNA:
                 outStruc.append(' '.join(rowList))
-    return '\n'.join(outStruc)   
+    return '\n'.join(outStruc)
+
+def delResiofParsedPDB(stringStruc):
+    return _filter_canonical_rna_rows(stringStruc)
 
 def delResiofParsedCIF(stringStruc):
-    listStruc = stringStruc.split('\n')
-    outStruc = listStruc[:21]
-    for row in listStruc[21:]:
-        rowList = row.split()
-        if len(rowList) >6:
-            if str(rowList[5])=='URA':
-               rowList[5]=='U'
-            if str(rowList[5])=='GUA':
-               rowList[5]=='G'
-            if str(rowList[5])=='CYT':
-               rowList[5]=='C'
-            if str(rowList[5])=='ADE':
-               rowList[5]=='A'          
-            if str(rowList[5])=='U' or str(rowList[5])=='A' or str(rowList[5])=='G' or str(rowList[5])=='C':
-                outStruc.append(' '.join(rowList))
-    return '\n'.join(outStruc)   
+    return _filter_canonical_rna_rows(stringStruc)   
 
 def fixResiFieldsofParsedCIF(stringStruc):
     listStruc = stringStruc.split('\n')

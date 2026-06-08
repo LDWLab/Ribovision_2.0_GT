@@ -4,7 +4,7 @@ from Bio.Seq import Seq
 from Bio.SeqUtils import seq1
 from Bio.SeqRecord import SeqRecord
 import re
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, TimeoutExpired
 import os
 from warnings import warn
 import datetime
@@ -47,9 +47,8 @@ def make_map_from_alnix_to_sequenceix_new(request):
             hardcoded_structure = request.POST["hardcoded_structure"]
             full_seq = SeqRecord(Seq(hardcoded_structure))
             mapping = create_aln_true_seq_mapping_with_mafft(fasta, full_seq, seq_ix_mapping)
-            print(full_seq)
-            print(mapping)
-            # raise Exception(f"{full_seq}, {mapping}, {cif_mode_flag}")
+            if type(mapping) != dict:
+                return mapping
             mapping = create_aln_struc_mapping_with_mafft(mapping["amendedAln"], struc_seq, seq_ix_mapping)
         else:
             mapping = create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping)
@@ -84,12 +83,14 @@ def constructStrucSeqMap(structure):
         # if not re.match(r' ', resi_id[2]):
         #     continue
         if re.match(r'^H_', resi_id[0]):
+            old_resi = resi_id[1]
             continue
         sequence += resi.get_resname().replace(' ','')
         seq_ix_mapping[untrue_seq_ix] = int(resi_id[1])
         untrue_seq_ix += 1
         old_resi = resi_id[1]
-    if len(seq1(residues[0].get_resname().replace(' ',''))) != 0:
+    first_resname = residues[0].get_resname().replace(' ','')
+    if len(first_resname) > 1 and seq1(first_resname) != 'X':
         sequence = seq1(sequence)
   
     return seq_ix_mapping, SeqRecord(Seq(sequence)), gapsInStruc
@@ -122,8 +123,15 @@ def create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
     fh.write(str(struc_seq.seq))
     fh.close()
     print("Mafft")
-    pipe = Popen(f"/usr/local/bin/mafft --anysymbol --preservecase --quiet --addfull {pdb_seq_path} --mapout {aln_group_path}; /usr/bin/cat {mappingFileName}", stdout=PIPE, shell=True)
-    output = pipe.communicate()[0]
+    pipe = Popen(f"/usr/local/bin/mafft --anysymbol --preservecase --quiet --addfull {pdb_seq_path} --mapout {aln_group_path}; /usr/bin/cat {mappingFileName}", stdout=PIPE, stderr=PIPE, shell=True)
+    try:
+        output = pipe.communicate(timeout=300)[0]
+    except TimeoutExpired:
+        pipe.kill()
+        for removeFile in tempfiles:
+            if os.path.isfile(removeFile):
+                os.remove(removeFile)
+        return HttpResponseServerError("Sequence alignment timed out! Try a smaller alignment file or contact support.")
     print("Mafft done")
     if len(output.decode("ascii")) <= 0:
         for removeFile in tempfiles:
@@ -183,10 +191,15 @@ def create_aln_true_seq_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping):
     fh.close()
     #pipe = Popen(f"/usr/local/bin/mafft --anysymbol --preservecase --quiet --addfull {pdb_seq_path} {aln_group_path}", stdout=PIPE, shell=True)
     
-    pipe = Popen(f"mafft --preservecase --anysymbol --addfull {pdb_seq_path}  --keeplength {aln_group_path} 2> /home/github_repos/Ribovision_2.0_GT/mafft_error_log.txt", stdout=PIPE, shell=True)
-    output = pipe.communicate()[0]
-    # raise Exception(f"/usr/local/bin/mafft --preservecase --anysymbol --addfull {pdb_seq_path}  --keeplength {aln_group_path}", "MAFFT PATH:", os.system("which mafft"), output.decode("ascii"))
-    #print(seq_ix_mapping[int(row[1])])
+    pipe = Popen(f"/usr/local/bin/mafft --preservecase --anysymbol --quiet --addfull {pdb_seq_path} --keeplength {aln_group_path}", stdout=PIPE, stderr=PIPE, shell=True)
+    try:
+        output = pipe.communicate(timeout=300)[0]
+    except TimeoutExpired:
+        pipe.kill()
+        for removeFile in tempfiles:
+            if os.path.isfile(removeFile):
+                os.remove(removeFile)
+        return HttpResponseServerError("Sequence alignment timed out! Try a smaller alignment file or contact support.")
     if len(output.decode("ascii")) <= 0:
         for removeFile in tempfiles:
             os.remove(removeFile)
