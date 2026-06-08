@@ -1091,6 +1091,8 @@ def full_RNA_seq(request, pdbid, chain_id):
     logger.info(f"full_RNA_seq called for pdbid: {pdbid}, chain_id: {chain_id}")
     try:
         cif_file_path = alignments.config.cif_path_share
+        if not cif_file_path:
+            cif_file_path = f"/tmp/PDB/{pdbid}.cif"
         alignments.config.chainid = chain_id
         mmcdata = Bio.PDB.MMCIF2Dict.MMCIF2Dict(cif_file_path)
         
