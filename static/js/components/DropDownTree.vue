@@ -1031,6 +1031,10 @@ export default {
             })
         }, showTopologyViewer(pdbid, chainid, fasta) {
             this.topology_loaded = false;
+            // Invalidate any previous viewer so the colouring chain
+            // (waitForApiData) waits for THIS structure's freshly-created viewer
+            // instead of resolving against a stale/detached one.
+            window.viewerInstanceTop = null;
             window.filterRange = "-10000,10000";
             if (chainid.length > 1) { this.chainid = chainid[0]; }
             const topview_item = document.getElementById("topview");
