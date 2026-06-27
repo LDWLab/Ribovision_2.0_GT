@@ -1,6 +1,7 @@
 import requests 
 import subprocess 
 import os
+import glob
 from datetime import datetime
 import logging
 import sys
@@ -43,9 +44,26 @@ def run_fred(filepath, base_name, output, chain_id):
     subprocess.run(commands)
     
 def replace_r2dt_base_pairs_with_fred(output, base_name, chain_id, ext):
-    rna2d_path = os.path.join(output, "results/json", base_name.replace(ext, f"_{chain_id}_basepair.json"))
-    rna2d_bp_path = os.path.join(output, "results/json", "BP_json.json")
-    os.rename(rna2d_path, rna2d_bp_path)
+    logger = logging.getLogger("ribovision3-logger")
+    json_dir = os.path.join(output, "results/json")
+    rna2d_path = os.path.join(json_dir, base_name.replace(ext, f"_{chain_id}_basepair.json"))
+    rna2d_bp_path = os.path.join(json_dir, "BP_json.json")
+
+    if not os.path.isfile(rna2d_path):
+        # FR3D did not produce a base-pair file for this chain (e.g. it could not
+        # parse the CIF, or the requested chain was not found). Fall back to any
+        # base-pair file FR3D did write; otherwise keep the BP_json.json already
+        # produced by parse_cif4/json2json so R2DT still renders instead of 500ing.
+        alt = glob.glob(os.path.join(json_dir, base_name.replace(ext, "_*_basepair.json")))
+        if alt:
+            rna2d_path = alt[0]
+        else:
+            logger.warning(
+                f"FR3D produced no base-pair JSON ({rna2d_path}); "
+                f"keeping existing BP_json.json"
+            )
+            return
+    os.replace(rna2d_path, rna2d_bp_path)
     
 def get_fred_base_pairs(struct_id, entity_id, chain_id, output, file_path=""):
     logger = logging.getLogger("ribovision3-logger")

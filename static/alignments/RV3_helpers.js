@@ -875,10 +875,16 @@ var showPDBHelper = function(pdbid, chainid, entityid) {
                         format: structFormat, 
                         binary: binaryCif },
         hideCanvasControls: ["selection", " animation"],
-        assemblyId: '1',
         hideControls: true,
         subscribeEvents: true,
         bgColor: {r:255,g:255,b:255},
+    }
+    // For user-uploaded structures (pdbid == "cust") there is no PDBe entry, so
+    // setting an assemblyId makes pdbe-molstar call getPreferredAssembly ->
+    // /pdbe/api/pdb/entry/summary/cust which 404s. Load the deposited
+    // coordinates directly (asymmetric unit, no assembly resolution) instead.
+    if (pdbid != "cust") {
+        vm.viewer_options.assemblyId = '1';
     }
     var viewerContainer = document.getElementById('pdbeMolstarView');
     viewerInstance.render(viewerContainer, vm.viewer_options);
