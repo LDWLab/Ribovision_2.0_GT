@@ -1,0 +1,16 @@
+{
+  "_comment": "Copy this file to DESIRE/local_config.json and fill in values for YOUR environment. DESIRE/local_config.json is gitignored and must never be committed. On the production server, SECRET_KEY is also provided via /etc/ribovision_config.json (values there are overridden by this file, which is overridden by environment variables).",
+
+  "SECRET_KEY": "replace-with-a-50+-char-random-string",
+
+  "DB_NAME": "DESIRE",
+  "DB_ENGINE": "mysql.connector.django",
+  "DB_USER": "your_db_user",
+  "DB_PASSWORD": "your_db_password",
+  "DB_HOST": "127.0.0.1",
+  "DB_PORT": "3306",
+
+  "FR3D_PATH": "/path/to/fr3d-python/fr3d/classifiers",
+  "R2DT_PATH": "/path/to/R2DT",
+  "LOGS_PATH": "/path/to/.logs"
+}
