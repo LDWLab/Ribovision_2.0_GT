@@ -3,10 +3,24 @@ from django.urls import include, path
 from django.views.generic.base import RedirectView
 from django.contrib.staticfiles.storage import staticfiles_storage
 from . import views
+from . import extapi
 
 app_name = 'alignments'
 
 urlpatterns = [
+    # External API proxy (browser -> Django -> KrakenD -> external). See extapi.py.
+    path('extapi/pdbe/molecules/<str:pdb>', extapi.pdbe_molecules, name='extapi_pdbe_molecules'),
+    path('extapi/pdbe/polymer-coverage/<str:pdb>/<str:chain>', extapi.pdbe_polymer_coverage, name='extapi_pdbe_polymer_coverage'),
+    path('extapi/pdbe/static-entry/<str:pdb>/<str:entity>/<str:chain>', extapi.pdbe_static_entry, name='extapi_pdbe_static_entry'),
+    path('extapi/pdbe/model-server/<str:pdb>', extapi.pdbe_model_server, name='extapi_pdbe_model_server'),
+    path('extapi/rcsb/model/<str:pdb>', extapi.rcsb_model, name='extapi_rcsb_model'),
+    path('extapi/rcsb/graphql', extapi.rcsb_graphql, name='extapi_rcsb_graphql'),
+    path('extapi/ribosome/banclass/<str:pdb>/<str:chain>', extapi.ribosome_banclass, name='extapi_ribosome_banclass'),
+    path('extapi/bgsu/basepairs/<str:pdb>/<str:chain>', extapi.bgsu_basepairs, name='extapi_bgsu_basepairs'),
+    path('extapi/bgsu/basepairs-nested/<str:pdb>/<str:chain>', extapi.bgsu_basepairs_nested, name='extapi_bgsu_basepairs_nested'),
+    path('extapi/blast/run', extapi.blast_run, name='extapi_blast_run'),
+    path('extapi/blast/status/<str:jobid>', extapi.blast_status, name='extapi_blast_status'),
+    path('extapi/blast/result/<str:jobid>', extapi.blast_result, name='extapi_blast_result'),
     path('', views.index, name='index'),
     path('favicon.ico', RedirectView.as_view(url=staticfiles_storage.url('img/faviconR.png'))),
     path('showTaxonomy', views.buildTaxonomy, name='showTaxonomy'),

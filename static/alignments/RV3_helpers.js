@@ -864,7 +864,7 @@ var showPDBHelper = function(pdbid, chainid, entityid) {
     }else{
         //var coordURL = `https://www.ebi.ac.uk/pdbe/coordinates/${pdblower}/chains?entityId=${entityid}&encoding=bcif`
         //var coordURL = `https://coords.litemol.org/${pdblower}/chains?entityId=${entityid}&authAsymId=${chainid}&encoding=bcif`;
-        var coordURL = `https://models.rcsb.org/v1/${pdblower}/atoms?label_entity_id=${entityid}&encoding=bcif`
+        var coordURL = `/extapi/rcsb/model/${pdblower}?label_entity_id=${entityid}&encoding=bcif`
         var binaryCif = true;
         var structFormat = "bcif";
     }
@@ -1083,7 +1083,7 @@ var showProteins3D = async function() {
             auth_id = vm.pchainid[val]
             chain = vm.protein_chains.filter(e => e.value == auth_id)[0]
             eID = chain.entityID
-            data = {url: `https://www.ebi.ac.uk/pdbe/model-server/v1/${vm.pdbid}/atoms?label_entity_id=${eID}&auth_asym_id=${auth_id}&encoding=bcif`, format: 'cif', binary:true, bgColor: {r: 255, g: 255, b: 255}}
+            data = {url: `/extapi/pdbe/model-server/${vm.pdbid}?label_entity_id=${eID}&auth_asym_id=${auth_id}&encoding=bcif`, format: 'cif', binary:true, bgColor: {r: 255, g: 255, b: 255}}
             await viewerInstance.visual.update({customData: data, bgColor: {r: 255, g: 255, b: 255}}, false)
             await sleep (2000)
             color = vm.proteinColorMap.get(auth_id)

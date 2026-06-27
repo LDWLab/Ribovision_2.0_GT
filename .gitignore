@@ -82,3 +82,6 @@ automain-*.js
 tmp/
 inspected_models.txt
 *alignments/paths.py
+
+# Compiled KrakenD cache plugin (rebuild with krakend/plugins/cache/build.sh)
+krakend/plugins/cache/cache.so

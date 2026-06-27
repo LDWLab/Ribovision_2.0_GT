@@ -2,7 +2,10 @@
 
 set -e
 
-PROJECT_DIR="/home/RiboVision3"
+# Must match the directory Apache/mod_wsgi actually serves. The enabled vhost
+# /etc/httpd/sites-available/ribovision3-ssl.conf points its python-path and
+# WSGIScriptAlias at /home/github_repos/Ribovision_2.0_GT, so deploy here.
+PROJECT_DIR="/home/github_repos/Ribovision_2.0_GT"
 OWNER="apache:apache"
 
 cd "$PROJECT_DIR"
@@ -38,12 +41,23 @@ echo "[5/7] Collecting static files..."
 python manage.py collectstatic --noinput
 
 # 6. Fix ownership and permissions (BEFORE reloading the server)
+# Apache runs as `apache`; every served file (incl. newly added Python modules)
+# must be owned/readable by it, or imports fail silently and routes 404.
 echo "[6/7] Fixing permissions..."
 sudo chown -R "$OWNER" "$PROJECT_DIR"
 sudo chmod -R o+r "$PROJECT_DIR"/static/
+# Ensure all Python sources are group/owner readable for the apache worker.
+sudo find "$PROJECT_DIR" -name '*.py' -exec chmod u+r,g+r {} +
 
 # 7. Reload the server
 echo "[7/7] Reloading WSGI..."
 sudo touch DESIRE/wsgi.py
+
+# NOTE: The external-API gateway is a SHARED, GLOBAL KrakenD instance (systemd
+# unit `krakend`, config /etc/krakend/krakend.json) used by multiple services.
+# It is intentionally NOT managed by this app deploy. To (re)install or update
+# RiboVision's /rv/* endpoints + cache plugin on the global gateway, run:
+#   bash krakend/install-ribovision-gateway.sh
+echo "Note: global KrakenD gateway is managed separately (krakend/install-ribovision-gateway.sh)."
 
 echo "=== Deployment Complete ==="

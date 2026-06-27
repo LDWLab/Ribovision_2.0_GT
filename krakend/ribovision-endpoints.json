@@ -1,0 +1,195 @@
+[
+  {
+    "endpoint": "/rv/pdbe/molecules/{pdb}",
+    "method": "GET",
+    "output_encoding": "no-op",
+    "backend": [
+      {
+        "host": ["https://www.ebi.ac.uk"],
+        "url_pattern": "/pdbe/api/pdb/entry/molecules/{pdb}",
+        "encoding": "no-op",
+        "extra_config": {
+          "plugin/http-client": { "name": "krakend-cache-client", "ttl": 172800 },
+          "qos/ratelimit/proxy": { "max_rate": 10, "capacity": 20 }
+        }
+      }
+    ]
+  },
+  {
+    "endpoint": "/rv/pdbe/polymer-coverage/{pdb}/{chain}",
+    "method": "GET",
+    "output_encoding": "no-op",
+    "backend": [
+      {
+        "host": ["https://www.ebi.ac.uk"],
+        "url_pattern": "/pdbe/api/pdb/entry/polymer_coverage/{pdb}/chain/{chain}",
+        "encoding": "no-op",
+        "extra_config": {
+          "plugin/http-client": { "name": "krakend-cache-client", "ttl": 172800 },
+          "qos/ratelimit/proxy": { "max_rate": 10, "capacity": 20 }
+        }
+      }
+    ]
+  },
+  {
+    "endpoint": "/rv/pdbe/static-entry/{pdb}/{entity}/{chain}",
+    "method": "GET",
+    "output_encoding": "no-op",
+    "backend": [
+      {
+        "host": ["https://www.ebi.ac.uk"],
+        "url_pattern": "/pdbe/static/entry/{pdb}_{entity}_{chain}.json",
+        "encoding": "no-op",
+        "extra_config": {
+          "plugin/http-client": { "name": "krakend-cache-client", "ttl": 172800 },
+          "qos/ratelimit/proxy": { "max_rate": 10, "capacity": 20 }
+        }
+      }
+    ]
+  },
+  {
+    "endpoint": "/rv/rcsb/model/{pdb}",
+    "method": "GET",
+    "output_encoding": "no-op",
+    "input_query_strings": ["label_entity_id", "encoding"],
+    "backend": [
+      {
+        "host": ["https://models.rcsb.org"],
+        "url_pattern": "/v1/{pdb}/atoms",
+        "encoding": "no-op",
+        "extra_config": {
+          "plugin/http-client": { "name": "krakend-cache-client", "ttl": 172800 },
+          "qos/ratelimit/proxy": { "max_rate": 10, "capacity": 20 }
+        }
+      }
+    ]
+  },
+  {
+    "endpoint": "/rv/pdbe/model-server/{pdb}",
+    "method": "GET",
+    "output_encoding": "no-op",
+    "input_query_strings": ["label_entity_id", "auth_asym_id", "encoding"],
+    "backend": [
+      {
+        "host": ["https://www.ebi.ac.uk"],
+        "url_pattern": "/pdbe/model-server/v1/{pdb}/atoms",
+        "encoding": "no-op",
+        "extra_config": {
+          "plugin/http-client": { "name": "krakend-cache-client", "ttl": 172800 },
+          "qos/ratelimit/proxy": { "max_rate": 10, "capacity": 20 }
+        }
+      }
+    ]
+  },
+  {
+    "endpoint": "/rv/ribosome/banclass",
+    "method": "GET",
+    "output_encoding": "no-op",
+    "input_query_strings": ["pdbid", "auth_asym_id", "format"],
+    "backend": [
+      {
+        "host": ["https://api.ribosome.xyz"],
+        "url_pattern": "/neo4j/get_banclass_for_chain/",
+        "encoding": "no-op",
+        "extra_config": {
+          "plugin/http-client": { "name": "krakend-cache-client", "ttl": 172800 },
+          "qos/ratelimit/proxy": { "max_rate": 10, "capacity": 20 }
+        }
+      }
+    ]
+  },
+  {
+    "endpoint": "/rv/rcsb/graphql",
+    "method": "GET",
+    "output_encoding": "no-op",
+    "input_query_strings": ["query"],
+    "backend": [
+      {
+        "host": ["https://data.rcsb.org"],
+        "url_pattern": "/graphql",
+        "encoding": "no-op",
+        "extra_config": {
+          "plugin/http-client": { "name": "krakend-cache-client", "ttl": 172800 },
+          "qos/ratelimit/proxy": { "max_rate": 10, "capacity": 20 }
+        }
+      }
+    ]
+  },
+  {
+    "endpoint": "/rv/bgsu/basepairs/{pdb}/{chain}",
+    "method": "GET",
+    "output_encoding": "no-op",
+    "backend": [
+      {
+        "host": ["https://rna.bgsu.edu"],
+        "url_pattern": "/rna3dhub/rest/getSequenceBasePairs?pdb_id={pdb}&chain={chain}",
+        "encoding": "no-op",
+        "extra_config": {
+          "plugin/http-client": { "name": "krakend-cache-client", "ttl": 172800 },
+          "qos/ratelimit/proxy": { "max_rate": 10, "capacity": 20 }
+        }
+      }
+    ]
+  },
+  {
+    "endpoint": "/rv/bgsu/basepairs-nested/{pdb}/{chain}",
+    "method": "GET",
+    "output_encoding": "no-op",
+    "backend": [
+      {
+        "host": ["https://rna.bgsu.edu"],
+        "url_pattern": "/rna3dhub/rest/getChainSequenceBasePairs?pdb_id={pdb}&chain={chain}&only_nested=True",
+        "encoding": "no-op",
+        "extra_config": {
+          "plugin/http-client": { "name": "krakend-cache-client", "ttl": 172800 },
+          "qos/ratelimit/proxy": { "max_rate": 10, "capacity": 20 }
+        }
+      }
+    ]
+  },
+  {
+    "endpoint": "/rv/blast/run",
+    "method": "POST",
+    "output_encoding": "no-op",
+    "backend": [
+      {
+        "host": ["https://www.ebi.ac.uk"],
+        "url_pattern": "/Tools/services/rest/ncbiblast/run",
+        "encoding": "no-op",
+        "extra_config": {
+          "qos/ratelimit/proxy": { "max_rate": 5, "capacity": 10 }
+        }
+      }
+    ]
+  },
+  {
+    "endpoint": "/rv/blast/status/{jobid}",
+    "method": "GET",
+    "output_encoding": "no-op",
+    "backend": [
+      {
+        "host": ["https://www.ebi.ac.uk"],
+        "url_pattern": "/Tools/services/rest/ncbiblast/status/{jobid}",
+        "encoding": "no-op",
+        "extra_config": {
+          "qos/ratelimit/proxy": { "max_rate": 20, "capacity": 40 }
+        }
+      }
+    ]
+  },
+  {
+    "endpoint": "/rv/blast/result/{jobid}",
+    "method": "GET",
+    "output_encoding": "no-op",
+    "backend": [
+      {
+        "host": ["https://www.ebi.ac.uk"],
+        "url_pattern": "/Tools/services/rest/ncbiblast/result/{jobid}/out?format=10",
+        "encoding": "no-op",
+        "extra_config": {
+          "qos/ratelimit/proxy": { "max_rate": 10, "capacity": 20 }
+        }
+      }
+    ]
+  }
+]

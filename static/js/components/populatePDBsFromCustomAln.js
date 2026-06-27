@@ -1,7 +1,7 @@
 export function populatePDBsFromCustomAln (firstSeq) {
 	vm.fetchingPDBwithCustomAln = true;
 	$.ajax({
-		url: "https://www.ebi.ac.uk/Tools/services/rest/ncbiblast/run",
+		url: "/extapi/blast/run",
 		beforeSend: function(xhr) { 
 		  xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded'); 
 		  xhr.setRequestHeader('Accept','text/plain'); 
@@ -20,7 +20,7 @@ export function populatePDBsFromCustomAln (firstSeq) {
 };
 
 var repeatingFunc = function(jobid, qLength) {
-	ebiAjax(`https://www.ebi.ac.uk/Tools/services/rest/ncbiblast/status/${jobid}`).then(jobStatus=>{
+	ebiAjax(`/extapi/blast/status/${jobid}`).then(jobStatus=>{
 		if (jobStatus == 'RUNNING'){
 			setTimeout(repeatingFunc(jobid, qLength), 1000);
 		} else if (jobStatus == 'FINISHED'){
@@ -36,7 +36,7 @@ var repeatingFunc = function(jobid, qLength) {
 }
 
 var fetchBLASTresult = function (jobID, qLength){
-	ebiAjax(`https://www.ebi.ac.uk/Tools/services/rest/ncbiblast/result/${jobID}/out?format=10`).then(csvResult=>{
+	ebiAjax(`/extapi/blast/result/${jobID}`).then(csvResult=>{
 		let csvArr = csvResult.split(/\n/g);
 		var filteredPDBs = new Map();
 		var tempPDB = new Array();
@@ -98,7 +98,7 @@ var constructRCSBGraphQuery = function (pdblist){
 
 var fetchAndParsePDBnames = function(query, tempPDB){
 	$.ajax({
-		url: `https://data.rcsb.org/graphql?query=${query}`,
+		url: `/extapi/rcsb/graphql?query=${query}`,
 		type: 'GET',
 		contentType: 'json',
 		success: function (data){

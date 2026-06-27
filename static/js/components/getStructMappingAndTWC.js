@@ -53,7 +53,7 @@ function waitForApiData(viewerInstanceTop, maxAttempts, interval) {
 
 async function getBanName(pdbId, PchainId) {
   try {
-    const apiUrl = `https://api.ribosome.xyz/neo4j/get_banclass_for_chain/?pdbid=${pdbId}&auth_asym_id=${PchainId}&format=json`
+    const apiUrl = `/extapi/ribosome/banclass/${pdbId}/${PchainId}`
     return await (await fetch(apiUrl)).json();
   } catch (e) {
     //console.log(`Ban naming is not available!`, e);

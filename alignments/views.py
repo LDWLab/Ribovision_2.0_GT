@@ -41,6 +41,7 @@ import alignments.config
 from alignments.paths import R2DT_PATH, LOGS_PATH
 from twincons.TwinCons import slice_by_name
 from alignments.fred import get_fred_base_pairs
+from alignments import r2dt_cache
 
 # Logging setup
 import logging
@@ -1146,31 +1147,79 @@ def r2dt(request, entity_id):
         
         logger.info(f"CIF mode flag: {cif_mode_flag}")
         
+        # --- R2DT result cache lookup (deterministic per sequence + structure) ---
+        cache_chainid = alignments.config.chainid
+        cache_pdb_path = alignments.config.pdb_path_share
+        struct_identity = None
+        try:
+            if cache_pdb_path:
+                struct_identity = "pdb:" + r2dt_cache.sha_file(cache_pdb_path)
+            else:
+                cache_cif_path = keys.get("cif_file_path", "")
+                if cache_cif_path.endswith("cust.cif"):
+                    struct_identity = "cif:" + r2dt_cache.sha_file(cache_cif_path)
+                elif cache_cif_path:
+                    struct_identity = "pdbid:" + os.path.split(cache_cif_path)[1][:4]
+        except OSError as cache_exc:
+            logger.warning(f"R2DT struct identity hashing failed: {cache_exc}")
+            struct_identity = None
+
+        if struct_identity is not None:
+            cached_result = r2dt_cache.get_result(sequence, entity_id, cache_chainid, struct_identity)
+            if cached_result is not None:
+                logger.info("R2DT result cache HIT; returning cached mapping")
+                # Preserve the shared-state side effects a normal run would have.
+                if cache_pdb_path:
+                    alignments.config.pdb_path_share = ""
+                if cif_mode_flag is True:
+                    cif_file_name = alignments.config.cif_path_share
+                    if cif_file_name not in file_r2dt_counter_dict:
+                        file_r2dt_counter_dict[cif_file_name] = 0
+                    file_r2dt_counter_dict[cif_file_name] += 1
+                    if file_r2dt_counter_dict[cif_file_name] == 2:
+                        if os.path.isfile(cif_file_name):
+                            os.remove(cif_file_name)
+                            file_r2dt_counter_dict[cif_file_name] = 0
+                return JsonResponse(cached_result)
         
         seq_path = os.path.join(R2DT_PATH, f'sequence10{fileNameSuffix}.fasta')
-        with open(seq_path, 'w') as f:
-            f.write('>Sequence\n')
-            f.write(sequence)
-        
-        logger.debug(f"Sequence file written to {seq_path}")
-        
         output = os.path.join(R2DT_PATH, f"R2DT-output{fileNameSuffix}")
-        cmd = f'python3 {R2DT_PATH}/r2dt.py draw {seq_path} {output}'
-        logger.debug(f"Executing command: {cmd}")
-        os.system(cmd)
-        
-        files = os.listdir(os.path.join(output, "results/json"))
-        
-        if len(files) == 0:
-            logger.warning("No output files generated, retrying with --skip_ribovore_filters")
-            shutil.rmtree(output)
-            cmd = f'python3 {R2DT_PATH}/r2dt.py draw --skip_ribovore_filters {seq_path} {output}'
+
+        cached_layout = r2dt_cache.get_layout_bytes(sequence)
+        if cached_layout is not None:
+            logger.info("R2DT layout cache HIT; skipping r2dt.py draw")
+            os.makedirs(os.path.join(output, "results/json"), exist_ok=True)
+            filename = os.path.join(output, "results/json", "cached_layout.json")
+            with open(filename, 'wb') as f:
+                f.write(cached_layout)
+        else:
+            with open(seq_path, 'w') as f:
+                f.write('>Sequence\n')
+                f.write(sequence)
+
+            logger.debug(f"Sequence file written to {seq_path}")
+
+            cmd = f'python3 {R2DT_PATH}/r2dt.py draw {seq_path} {output}'
             logger.debug(f"Executing command: {cmd}")
             os.system(cmd)
+
             files = os.listdir(os.path.join(output, "results/json"))
-        
-        filename = os.path.join(output, "results/json", files[0])
-        logger.info(f"R2DT output file: {filename}")
+
+            if len(files) == 0:
+                logger.warning("No output files generated, retrying with --skip_ribovore_filters")
+                shutil.rmtree(output)
+                cmd = f'python3 {R2DT_PATH}/r2dt.py draw --skip_ribovore_filters {seq_path} {output}'
+                logger.debug(f"Executing command: {cmd}")
+                os.system(cmd)
+                files = os.listdir(os.path.join(output, "results/json"))
+
+            filename = os.path.join(output, "results/json", files[0])
+            logger.info(f"R2DT output file: {filename}")
+            try:
+                with open(filename, 'rb') as f:
+                    r2dt_cache.set_layout_bytes(sequence, f.read())
+            except OSError as cache_exc:
+                logger.warning(f"R2DT layout cache write failed: {cache_exc}")
         
         chainid = alignments.config.chainid
 
@@ -1217,6 +1266,13 @@ def r2dt(request, entity_id):
         }
         
         logger.info("R2DT JSON data prepared successfully")
+
+        if struct_identity is not None:
+            try:
+                r2dt_cache.set_result(sequence, entity_id, cache_chainid, struct_identity, r2dt_json)
+                logger.info("R2DT result cached")
+            except OSError as cache_exc:
+                logger.warning(f"R2DT result cache write failed: {cache_exc}")
         
         # Clean up files
         if os.path.isfile(seq_path):
