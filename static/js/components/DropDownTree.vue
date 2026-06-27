@@ -909,9 +909,8 @@ export default {
                 this.chains = null;
                 this.chainid = [];
                 this.hide_chains = true;
-                // generateChainsFromLiteMol(`https://coords.litemol.org/${pdbid.toLowerCase()}/assembly?id=1&lowPrecisionCoords=1&encoding=BCIF`, "unfilteredChains");
-                generateChainsFromLiteMol(`https://models.rcsb.org/v1/${pdbid.toLowerCase()}/atoms?encoding=bcif`, "unfilteredChains");
-                ajax(`https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/${pdbid.toLowerCase()}`).then(struc_data => {
+                generateChainsFromLiteMol(`/api-proxy/rcsb/model-server/?pdbid=${pdbid.toLowerCase()}&encoding=bcif`, "unfilteredChains");
+                ajax(`/api-proxy/pdbe/molecules/?pdbid=${pdbid.toLowerCase()}`).then(struc_data => {
                     if (vm.unfilteredChains) { return; }
                     vm.unfilteredChains = struc_data[pdbid.toLowerCase()];
                     vm.unfilteredChains_orig = struc_data[pdbid.toLowerCase()];
@@ -1050,7 +1049,7 @@ export default {
                 getStructMappingAndTWC(fasta, struc_id, startIndex, stopIndex, ebi_sequence, this);
             }
             loadAlignmentViewer(vm.fasta_data);
-            var rna_url = `https://www.ebi.ac.uk/pdbe/api/pdb/entry/polymer_coverage/${pdbid}/chain/${chainid}`
+            var rna_url = `/api-proxy/pdbe/polymer-coverage/?pdbid=${pdbid}&chain_id=${chainid}`
             ajax(rna_url).then(data => {
                 if (vm.topology_loaded) { return; }
                 var entityid = data[pdblower]["molecules"][0].entity_id;

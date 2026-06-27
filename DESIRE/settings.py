@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'desire_api.apps.DesireApiConfig',
     'webpack_loader',
     'corsheaders',
+    'api_proxies.apps.ApiProxiesConfig',
 ]
 
 MIDDLEWARE = [
