@@ -1,10 +1,10 @@
 export function populatePDBsFromCustomAln (firstSeq) {
 	vm.fetchingPDBwithCustomAln = true;
 	$.ajax({
-		url: "/api-proxy/ncbi-blast/",
-		beforeSend: function(xhr) {
-		  xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
-		  xhr.setRequestHeader('Accept','text/plain');
+		url: "https://www.ebi.ac.uk/Tools/services/rest/ncbiblast/run",
+		beforeSend: function(xhr) { 
+		  xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded'); 
+		  xhr.setRequestHeader('Accept','text/plain'); 
 		},
 		type: 'POST',
 		contentType: 'application/json',
@@ -20,9 +20,9 @@ export function populatePDBsFromCustomAln (firstSeq) {
 };
 
 var repeatingFunc = function(jobid, qLength) {
-	ebiAjax(`/api-proxy/ncbi-blast/status/?job_id=${jobid}`).then(jobStatus=>{
+	ebiAjax(`https://www.ebi.ac.uk/Tools/services/rest/ncbiblast/status/${jobid}`).then(jobStatus=>{
 		if (jobStatus == 'RUNNING'){
-			setTimeout(() => repeatingFunc(jobid, qLength), 1000);
+			setTimeout(repeatingFunc(jobid, qLength), 1000);
 		} else if (jobStatus == 'FINISHED'){
 			fetchBLASTresult(jobid, qLength);
 		} else {
@@ -36,7 +36,7 @@ var repeatingFunc = function(jobid, qLength) {
 }
 
 var fetchBLASTresult = function (jobID, qLength){
-	ebiAjax(`/api-proxy/ncbi-blast/result/?job_id=${jobID}&type=out&format=10`).then(csvResult=>{
+	ebiAjax(`https://www.ebi.ac.uk/Tools/services/rest/ncbiblast/result/${jobID}/out?format=10`).then(csvResult=>{
 		let csvArr = csvResult.split(/\n/g);
 		var filteredPDBs = new Map();
 		var tempPDB = new Array();
@@ -98,7 +98,7 @@ var constructRCSBGraphQuery = function (pdblist){
 
 var fetchAndParsePDBnames = function(query, tempPDB){
 	$.ajax({
-		url: `/api-proxy/rcsb-graphql/?query=${query}`,
+		url: `https://data.rcsb.org/graphql?query=${query}`,
 		type: 'GET',
 		contentType: 'json',
 		success: function (data){

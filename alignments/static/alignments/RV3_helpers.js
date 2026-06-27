@@ -16,8 +16,8 @@ const CONFIG = {
     SLEEP_DELAY: 2000,
     COLOR_RETRY_ATTEMPTS: 3,
     STRUCTURE_LOAD_DELAY: 6000,
-    PDB_COORDINATE_URL: '/api-proxy/pdbe/model-server/',
-    COORDS_LITE_URL: '/api-proxy/litemol/coords',
+    PDB_COORDINATE_URL: 'https://www.ebi.ac.uk/pdbe/model-server/v1',
+    COORDS_LITE_URL: 'https://coords.litemol.org',
     CUSTOM_STRUC_URL: '/custom-struc-data',
     LOADING_IMG_SRC: 'static/img/loading.gif'
 };
@@ -898,7 +898,7 @@ var showPDBHelper = function (pdbid, chainid, entityid) {
     } else {
         //var coordURL = `https://www.ebi.ac.uk/pdbe/coordinates/${pdblower}/chains?entityId=${entityid}&encoding=bcif`
         //var coordURL = `https://coords.litemol.org/${pdblower}/chains?entityId=${entityid}&authAsymId=${chainid}&encoding=bcif`;
-        var coordURL = `/api-proxy/pdbe/model-server/?pdbid=${pdblower}&entity_id=${entityid}&encoding=bcif`
+        var coordURL = `https://www.ebi.ac.uk/pdbe/model-server/v1/${pdblower}/atoms?label_entity_id=${entityid}&encoding=bcif`
         var binaryCif = true;
         var structFormat = "bcif";
     }
@@ -1113,7 +1113,7 @@ var showProteins3D = async function () {
             auth_id = vm.pchainid[val]
             chain = vm.protein_chains.filter(e => e.value == auth_id)[0]
             eID = chain.entityID
-            data = { url: `/api-proxy/pdbe/model-server/?pdbid=${vm.pdbid}&entity_id=${eID}&auth_asym_id=${auth_id}&encoding=bcif`, format: 'cif', binary: true, bgColor: { r: 255, g: 255, b: 255 } }
+            data = { url: `https://www.ebi.ac.uk/pdbe/model-server/v1/${vm.pdbid}/atoms?label_entity_id=${eID}&auth_asym_id=${auth_id}&encoding=bcif`, format: 'cif', binary: true, bgColor: { r: 255, g: 255, b: 255 } }
             await viewerInstance.visual.update({ customData: data, bgColor: { r: 255, g: 255, b: 255 } }, false)
             await sleep(2000)
             color = vm.proteinColorMap.get(auth_id)
@@ -1263,11 +1263,6 @@ const ColoringOperations = {
 
 // Refactored recolorTopStar function
 var recolorTopStar = async function (name) {
-    // Guard: wait for Molstar viewer to be ready before operating
-    if (!viewerInstance || !viewerInstance.visual) {
-        console.warn('recolorTopStar: viewerInstance not ready yet, skipping');
-        return;
-    }
     const selectBox = viewerInstanceTop.viewInstance.targetEle.querySelector('.mappingSelectbox');
     const newIndex = indexMatchingText(selectBox.options, name);
     selectBox.selectedIndex = newIndex;
@@ -1285,10 +1280,8 @@ var recolorTopStar = async function (name) {
     // Generic coloring function with retry logic
     const performColoring = async (coloringMethod, useCustomPDB = vm.customPDBsuccess) => {
         if (useCustomPDB) {
-            try {
-                viewerInstance.visual.clearSelection();
-                viewerInstance.visual.reset({ theme: true });
-            } catch(e) { console.warn('performColoring clear/reset skipped:', e.message); }
+            viewerInstance.visual.clearSelection();
+            viewerInstance.visual.reset({ theme: true });
             await viewerInstance.coloring[coloringMethod]({ sequence: true, het: false, keepStyle: true });
         } else {
             resetVmState();
@@ -1302,14 +1295,14 @@ var recolorTopStar = async function (name) {
     };
 
     // Handle special cases
+
+    // Handle special cases
     if (name === "Select data") {
-        try { viewerInstance.visual.reset({ theme: true }); } catch(e) { console.warn('reset skipped:', e.message); }
+        viewerInstance.visual.reset({ theme: true });
     } else if (name === "Clear data") {
         if (vm.customPDBsuccess) {
-            try {
-                viewerInstance.visual.clearSelection();
-                viewerInstance.visual.reset({ theme: true });
-            } catch(e) { console.warn('clear/reset skipped:', e.message); }
+            viewerInstance.visual.clearSelection();
+            viewerInstance.visual.reset({ theme: true });
         } else {
             vm.checked_filter = false;
             vm.selectAllProteinsChecked = false;
@@ -1331,13 +1324,11 @@ var recolorTopStar = async function (name) {
     }
 
     // Update UI template service
-    try {
-        viewerInstanceTop.viewInstance.uiTemplateService.colorMap();
-        if (name === "Select data") {
-            viewerInstanceTop.viewInstance.uiTemplateService.colorMapContacts();
-            viewerInstanceTop.viewInstance.uiTemplateService.colorMapModifications();
-        }
-    } catch(e) { console.warn('colorMap update skipped:', e.message); }
+    viewerInstanceTop.viewInstance.uiTemplateService.colorMap();
+    if (name === "Select data") {
+        viewerInstanceTop.viewInstance.uiTemplateService.colorMapContacts();
+        viewerInstanceTop.viewInstance.uiTemplateService.colorMapModifications();
+    }
 }
 
 var masked_array = [];

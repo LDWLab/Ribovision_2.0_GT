@@ -21,7 +21,6 @@ urlpatterns = [
     path('', include('alignments.urls')),
     path('alignments/', include('alignments.urls')),
     path('desire-api/', include('desire_api.urls')),
-    path('api-proxy/', include('api_proxies.urls')),
     path('admin/', admin.site.urls),
 ]
 

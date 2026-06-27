@@ -31,7 +31,7 @@ export type ApiData = {
 export class DataService {
     async getApiData(entityId: string, chainId: string, pdbId: string): Promise<ApiData | undefined> {
         try {
-            const apiUrl = `/api-proxy/pdbe/static-entry/?pdbid=${pdbId.toLowerCase()}&entity_id=${entityId}&chain_id=${chainId}`;
+            const apiUrl = `https://www.ebi.ac.uk/pdbe/static/entry/${pdbId.toLowerCase()}_${entityId}_${chainId}.json`;
             return await (await fetch(apiUrl)).json() as ApiData;
         } catch (e) { 
             this.handleError(e)
@@ -39,28 +39,42 @@ export class DataService {
         };
     }       
     async getFR3DData(pdbId: string, chainId: string): Promise<JSON | undefined> {
-        const apiUrl = `/api-proxy/fr3d/data/?pdb_id=${pdbId.toLowerCase()}&chain=${chainId}&only_nested=False`;
+        const bgsu = `http://rna.bgsu.edu/rna3dhub/rest/getSequenceBasePairs?pdb_id=${pdbId.toLowerCase()}&chain=${chainId}`;
+        const urls = [
+            // `https://rnacentral.org/api/internal/proxy?url=${bgsu}`,
+            // `https://api.allorigins.win/raw?url=${encodeURIComponent(bgsu)}`,
+            `https://corsproxy.io/?${encodeURIComponent(bgsu)}`,
+        ];
+        for (const url of urls) {
         try {
-            const resp = await fetch(apiUrl);
-            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-            return await resp.json() as JSON;
-        } catch (e) {
-            console.warn(`getFR3DData failed`, e);
-            this.handleFR3DError(e);
-            return void 0;
+                const resp = await fetch(url);
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                return await resp.json() as JSON;
+            } catch (e) {
+                console.warn(`getFR3DData failed for ${url}`, e);
+            }
         }
+        this.handleFR3DError(new Error('All proxy URLs failed for getFR3DData'));
+        return void 0;
     }
     async getFR3DNestedData(pdbId: string, chainId: string): Promise<JSON | undefined> {
-        const apiUrl = `/api-proxy/fr3d/data/?pdb_id=${pdbId.toLowerCase()}&chain=${chainId}&only_nested=True`;
-        try {
-            const resp = await fetch(apiUrl);
-            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-            return await resp.json() as JSON;
-        } catch (e) {
-            console.warn(`getFR3DNestedData failed`, e);
-            this.handleFR3DError(e);
-            return void 0;
+        const bgsu = `http://rna.bgsu.edu/rna3dhub/rest/getChainSequenceBasePairs?pdb_id=${pdbId.toLowerCase()}&chain=${chainId}&only_nested=True`;
+        const urls = [
+            //`https://rnacentral.org/api/internal/proxy?url=${bgsu}`,
+            // `https://api.allorigins.win/raw?url=${encodeURIComponent(bgsu)}`,
+            `https://corsproxy.io/?${encodeURIComponent(bgsu)}`,
+        ];
+        for (const url of urls) {
+            try {
+                const resp = await fetch(url);
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                return await resp.json() as JSON;
+            } catch (e) {
+                console.warn(`getFR3DNestedData failed for ${url}`, e);
+            }
         }
+        this.handleFR3DError(new Error('All proxy URLs failed for getFR3DNestedData'));
+        return void 0;
     }
 
     private handleError(e: any): void {
@@ -72,6 +86,18 @@ export class DataService {
     }
 
 }
+/*export class BanNameHelper {
+    public static async getBanName(pdbId : string, PchainId : string): Promise<JSON | undefined> {   
+           try {
+               const apiUrl = `https://api.ribosome.xyz/neo4j/get_banclass_for_chain/?pdbid=${pdbId}&auth_asym_id=${PchainId}&format=json`  
+               return await (await fetch(apiUrl)).json() as JSON;  
+           } catch (e) {
+               //console.log(`Ban naming is not available!`, e);
+               return void 0;
+           };
+       }
+    }*/
+
     export class BanNameHelper {
         private static banNameMap: Map<string, JSON | undefined> = new Map();
         private static hasWarnedAboutVm: boolean = false;
