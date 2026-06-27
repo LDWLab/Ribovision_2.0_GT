@@ -63,6 +63,17 @@ jalview-js/
 # Build artifacts
 # =========================
 automain-*.js
+pdbe-rna-viewer/build/
+static/js/components/MSAV.umd.js*
+static/pdb-rna-viewer-*.js*
+tsconfig.tsbuildinfo
+static/alignments/external/pdbe-molstar-plugin-*.js
+
+# =========================
+# External dependencies
+# =========================
+fr3d-python/
+molStar/
 
 # =========================
 # Cleanup patterns
