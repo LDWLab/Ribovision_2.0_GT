@@ -999,7 +999,18 @@ def string_fasta(request, protein_type, aln_name, tax_group, internal=False):
 def custom_modified_residues(request, entity_id, cif_file_path):
     logger.info(f"custom_modified_residues called for entity_id: {entity_id}, cif_file_path: {cif_file_path}")
     try:
-        mmcdata = Bio.PDB.MMCIF2Dict.MMCIF2Dict("/tmp/" + cif_file_path)
+        # store_file() returns an absolute path, but Apache's MergeSlashes (on by
+        # default) collapses the leading "//" of the request URL, so <path:> can
+        # arrive WITHOUT the leading slash. Also support legacy /tmp-relative
+        # names. Try the sensible candidates and use the first that exists.
+        candidates = []
+        if os.path.isabs(cif_file_path):
+            candidates.append(cif_file_path)
+        else:
+            candidates.append("/" + cif_file_path)                  # leading slash stripped by Apache
+            candidates.append(os.path.join("/tmp", cif_file_path))  # legacy /tmp-relative
+        mmcif_path = next((p for p in candidates if os.path.exists(p)), candidates[0])
+        mmcdata = Bio.PDB.MMCIF2Dict.MMCIF2Dict(mmcif_path)
         
         index = 0
         try:

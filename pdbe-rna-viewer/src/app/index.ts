@@ -70,23 +70,30 @@ class PdbRnaViewerPlugin {
 
                 // }));
                 const r2dtjson = vm.json_structures_from_r2dt;
-                
-                this.apiData = r2dtjson.RNA_2D_json as ApiData;
-                this.FR3DData = r2dtjson.RNA_BP_json as any;
-                this.FR3DNestedData = r2dtjson.RNA_BP_json as any;
 
-                this.FR3DNestedData.annotations = this.FR3DNestedData.annotations.filter((annotation:any) => Number(annotation.crossing) == 0);
-                // console.log(JSON.stringify(this.FR3DNestedData));
-                vm.FR3DData = this.FR3DData;
-                vm.FR3DNestedData = this.FR3DNestedData;
+                // The R2DT result (vm.json_structures_from_r2dt) is produced by an
+                // async POST (call_r2dt) that usually completes AFTER this component
+                // is created. If it isn't ready yet, leave the freshly-created
+                // uiTemplateService in place and let call_r2dt's success() callback
+                // perform the render once the data arrives. Reading it
+                // unconditionally crashed with "Cannot read properties of null
+                // (reading 'RNA_2D_json')".
+                if (r2dtjson && r2dtjson.RNA_2D_json && r2dtjson.RNA_BP_json) {
+                    this.apiData = r2dtjson.RNA_2D_json as ApiData;
+                    this.FR3DData = r2dtjson.RNA_BP_json as any;
+                    this.FR3DNestedData = r2dtjson.RNA_BP_json as any;
 
+                    this.FR3DNestedData.annotations = this.FR3DNestedData.annotations.filter((annotation:any) => Number(annotation.crossing) == 0);
+                    // console.log(JSON.stringify(this.FR3DNestedData));
+                    vm.FR3DData = this.FR3DData;
+                    vm.FR3DNestedData = this.FR3DNestedData;
 
-                // console.log('dataUrls', this.apiData);
-                // console.log('dataUrls', this.FR3DData);
-                // draw topology
-                this.uiTemplateService.render(this.apiData, this.FR3DData, this.FR3DNestedData, this.BanName);
-    
-        
+                    // draw topology
+                    this.uiTemplateService.render(this.apiData, this.FR3DData, this.FR3DNestedData, this.BanName);
+                } else {
+                    console.warn('R2DT data not yet available; topology will render via the call_r2dt success callback.');
+                }
+
             };
     
         }
