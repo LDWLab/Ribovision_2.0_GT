@@ -22,7 +22,7 @@ export function populatePDBsFromCustomAln (firstSeq) {
 var repeatingFunc = function(jobid, qLength) {
 	ebiAjax(`/extapi/blast/status/${jobid}`).then(jobStatus=>{
 		if (jobStatus == 'RUNNING'){
-			setTimeout(repeatingFunc(jobid, qLength), 1000);
+			setTimeout(() => repeatingFunc(jobid, qLength), 1000);
 		} else if (jobStatus == 'FINISHED'){
 			fetchBLASTresult(jobid, qLength);
 		} else {

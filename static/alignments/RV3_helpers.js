@@ -829,11 +829,10 @@ var mapTWCdata = function (structMap, structMap3D, twcDataUnmapped, baseProps, b
     const topViewer = document.getElementById("PdbeTopViewer");
     if (topViewer?.viewInstance?.uiTemplateService) {
         topViewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mappedTWCProps, mappedTWCProps3D);
+        topViewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties, mapped_aa_properties3D);
     } else {
         console.warn("PdbeTopViewer not found or not ready. TWC annotations skipped.");
     }
-
-    topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties, mapped_aa_properties3D);
     
     /*if (topviewer != null && topviewer.viewInstance.uiTemplateService.domainTypes != undefined){
         var empty_props = new Map();
