@@ -22,16 +22,43 @@ os.environ["BASE_DIR"] = BASE_DIR
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
+# ---------------------------------------------------------------------------
+# Environment-specific configuration (secrets + per-machine paths)
+# ---------------------------------------------------------------------------
+# These values live OUTSIDE version control. They are read from the following
+# sources, where later sources override earlier ones:
+#   1. /etc/ribovision_config.json    (system-wide, e.g. the production server)
+#   2. DESIRE/local_config.json       (repo-local, gitignored)
+#   3. process environment variables
+# Copy DESIRE/local_config.json.example -> DESIRE/local_config.json and fill in
+# the values for your environment. See DEVELOPMENT.md for details.
+def _load_env_config():
+    merged = {}
+    for path in ('/etc/ribovision_config.json',
+                 os.path.join(BASE_DIR, 'DESIRE', 'local_config.json')):
+        try:
+            with open(path) as fh:
+                merged.update(json.load(fh))
+        except (IOError, OSError, ValueError):
+            pass
+    return merged
+
+CONFIG = _load_env_config()
+
+def _conf(key, default=None):
+    """Look up a config value: local_config/etc JSON first, then env var."""
+    if key in CONFIG:
+        return CONFIG[key]
+    return os.environ.get(key, default)
+
 # SECURITY WARNING: keep the secret key used in production secret!
-
-config_file = '/etc/ribovision_config.json' 
-
-if os.path.exists(config_file):
-    with open(config_file) as config_file:
-        config = json.load(config_file)
-        SECRET_KEY = config['SECRET_KEY']
-else:
-    SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
+SECRET_KEY = _conf('SECRET_KEY') or os.environ.get('DJANGO_SECRET_KEY')
+if not SECRET_KEY:
+    raise RuntimeError(
+        "SECRET_KEY is not configured. Set it in /etc/ribovision_config.json, "
+        "DESIRE/local_config.json, or the SECRET_KEY/DJANGO_SECRET_KEY "
+        "environment variable. See DEVELOPMENT.md."
+    )
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -103,12 +130,12 @@ WSGI_APPLICATION = 'DESIRE.wsgi.application'
 
 DATABASES = {
     'default': {
-        'NAME': 'DESIRE',
-        'ENGINE': 'mysql.connector.django',
-        'USER': "website",             #Write username here
-	'PASSWORD': "desire_RiboVision3",        #And password here
-	'HOST': '130.207.36.76',
-        'PORT': '3306',
+        'NAME': _conf('DB_NAME', 'DESIRE'),
+        'ENGINE': _conf('DB_ENGINE', 'mysql.connector.django'),
+        'USER': _conf('DB_USER', 'website'),
+        'PASSWORD': _conf('DB_PASSWORD', ''),
+        'HOST': _conf('DB_HOST', '127.0.0.1'),
+        'PORT': str(_conf('DB_PORT', '3306')),
         'OPTIONS': {
           'autocommit': True,
           'use_pure': True,

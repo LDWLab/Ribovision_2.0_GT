@@ -44,10 +44,14 @@ DESIRE.error.log
 *.txt
 
 # =========================
+# Environment-specific config / secrets (per environment, never committed)
+# Copy DESIRE/local_config.json.example -> DESIRE/local_config.json and fill in.
+# =========================
+DESIRE/local_config.json
+
+# =========================
 # Project-specific
 # =========================
-DESIRE/settings.py
-/alignments/paths.py
 alignments/static/alignments/swingjs/
 populate_db/Struc_Folds/*.txt
 populate_db/Alignments/missed_seqs/
@@ -81,7 +85,6 @@ automain-*.js
 # =========================
 tmp/
 inspected_models.txt
-*alignments/paths.py
 
 # Compiled KrakenD cache plugin (rebuild with krakend/plugins/cache/build.sh)
 krakend/plugins/cache/cache.so
