@@ -37,9 +37,10 @@ npm run build
 echo "[5/7] Collecting static files..."
 python manage.py collectstatic --noinput
 
-# 6. Fix ownership (BEFORE reloading the server)
+# 6. Fix ownership and permissions (BEFORE reloading the server)
 echo "[6/7] Fixing permissions..."
 sudo chown -R "$OWNER" "$PROJECT_DIR"
+sudo chmod -R o+r "$PROJECT_DIR"/static/
 
 # 7. Reload the server
 echo "[7/7] Reloading WSGI..."
