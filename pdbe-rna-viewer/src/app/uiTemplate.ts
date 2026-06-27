@@ -435,8 +435,8 @@ export class UiTemplateService {
         }
     }
     createModeDropdown() {
-        // Change default selected value to 2 (circle mode)
-        let optionList = `<option value="0">Nucleotides</option><option value="1">Path</option><option value="2" selected>Circle</option>`;
+        // Change default selected value to 0 (nucleotide mode)
+        let optionList = `<option value="0" selected>Nucleotides</option><option value="1">Path</option><option value="2">Circle</option>`;
         const selectBoxEle = this.containerElement.querySelector<HTMLElement>('.menuSelectbox');
         selectBoxEle!.innerHTML = optionList;
         selectBoxEle!.addEventListener("change", this.PathOrNucleotide.bind(this));

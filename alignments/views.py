@@ -42,6 +42,8 @@ from alignments.paths import R2DT_PATH, LOGS_PATH
 from twincons.TwinCons import slice_by_name
 from alignments.fred import get_fred_base_pairs
 from alignments import r2dt_cache
+from alignments.disk_cache import DiskCache
+import hashlib
 
 # Logging setup
 import logging
@@ -50,6 +52,29 @@ logger = logging.getLogger("ribovision3-logger")
 
 # Global variables
 file_r2dt_counter_dict = {}
+
+# Deterministic MAFFT mappings (/mapSeqAlnOrig/) never change for the same
+# inputs, so this cache never expires.
+_mapping_cache = DiskCache(
+    getattr(alignments.config, "MAPPING_CACHE_PATH", "/tmp/mapping_cache"),
+    ttl_seconds=None,
+)
+
+# DB-derived alignment builds (/ortholog-aln-api, /paralog-aln-api). TTL'd
+# because they depend on the DESIRE database; flush the dir on repopulation.
+_aln_cache = DiskCache(
+    getattr(alignments.config, "ALN_CACHE_PATH", "/tmp/aln_cache"),
+    ttl_seconds=getattr(alignments.config, "ALN_CACHE_TTL", 172800),
+)
+
+
+def _deterministic_key(*parts):
+    """Stable cache key from a set of deterministic inputs."""
+    digest = hashlib.sha256()
+    for part in parts:
+        digest.update(b"\x00")
+        digest.update(str(part).encode("utf-8", "replace"))
+    return digest.hexdigest()
 
 class c:
     structureObj = None
@@ -234,7 +259,14 @@ def make_map_from_alnix_to_sequenceix(request):
     try:
         fasta, ebi_sequence, startIndex = request_post_data(request.POST)
         logger.debug(f"Post data extracted. Fasta length: {len(fasta)}, EBI sequence length: {len(ebi_sequence)}, Start index: {startIndex}")
-        
+
+        # Deterministic MAFFT mapping -> serve from cache when available.
+        cache_key = _deterministic_key("mapSeqAlnOrig", fasta, ebi_sequence, startIndex)
+        cached = _mapping_cache.get_json(cache_key)
+        if cached is not None:
+            logger.info("Served alignment-index mapping from cache")
+            return JsonResponse(cached, safe=False)
+
         mapping = constructEbiAlignmentString(fasta, ebi_sequence, startIndex)
         
         if not isinstance(mapping, dict):
@@ -242,6 +274,10 @@ def make_map_from_alnix_to_sequenceix(request):
             return mapping
         
         logger.info("Successfully created map from alignment index to sequence index")
+        try:
+            _mapping_cache.set_json(cache_key, mapping)
+        except OSError:
+            pass
         return JsonResponse(mapping, safe=False)
     except Exception as e:
         logger.error(f"Error in make_map_from_alnix_to_sequenceix: {str(e)}")
@@ -625,9 +661,20 @@ def construct_dict_for_json_response(response_data):
 def simple_fasta(request, aln_id, tax_group, internal=False):
     logger.info(f"Simple fasta called for aln_id: {aln_id}, tax_group: {tax_group}, internal: {internal}")
     try:
-        rawsqls = []
         if isinstance(tax_group, int):
             tax_group = str(tax_group)
+
+        # DB-derived alignment build is deterministic for (aln_id, tax_group)
+        # for a given DESIRE database. Serve the JSON response from cache.
+        cache_key = None
+        if not internal:
+            cache_key = _deterministic_key("simple_fasta", aln_id, tax_group)
+            cached = _aln_cache.get_json(cache_key)
+            if cached is not None:
+                logger.info("Served simple_fasta alignment from cache")
+                return JsonResponse(cached, safe=False)
+
+        rawsqls = []
         for parent in tax_group.split(','):
             rawsqls.append((aqab.sql_filtered_aln_query(aln_id, parent), Taxgroups.objects.get(pk=parent).groupname))
 
@@ -646,6 +693,10 @@ def simple_fasta(request, aln_id, tax_group, internal=False):
         concat_fasta, twc, gap_only_cols, filtered_spec_list, alignment_obj, fr_list = calculateFastaProps(fastastring, frequency_list)
         response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,fr_list,twc])
 
+        try:
+            _aln_cache.set_json(cache_key, response_dict)
+        except OSError:
+            pass
         return JsonResponse(response_dict, safe=False)
     except Exception as e:
         logger.error(f"Error in simple_fasta: {str(e)}", exc_info=True)

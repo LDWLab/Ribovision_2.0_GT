@@ -160,6 +160,36 @@ def pdbe_molecules(request, pdb):
 
 
 @rate_limited
+def pdbe_summary(request, pdb):
+    return _proxy(request, "/pdbe/summary/%s" % quote(pdb.lower()))
+
+
+@rate_limited
+def pdbe_emdb_map(request, pdb):
+    return _proxy(request, "/pdbe/emdb-map/%s" % quote(pdb))
+
+
+@rate_limited
+def emdb_map(request, emdb):
+    return _proxy(request, "/emdb/map/%s" % quote(emdb))
+
+
+@rate_limited
+def alphafold_prediction(request, acc):
+    return _proxy(request, "/alphafold/prediction/%s" % quote(acc))
+
+
+@rate_limited
+def pdbe_mappings(request, pdb):
+    return _proxy(request, "/pdbe/mappings/%s" % quote(pdb))
+
+
+@rate_limited
+def pdbe_validation(request, pdb):
+    return _proxy(request, "/pdbe/validation/%s" % quote(pdb))
+
+
+@rate_limited
 def pdbe_polymer_coverage(request, pdb, chain):
     return _proxy(
         request,
@@ -192,6 +222,26 @@ def pdbe_model_server(request, pdb):
 def ribosome_banclass(request, pdb, chain):
     query = urlencode({"pdbid": pdb, "auth_asym_id": chain, "format": "json"})
     return _proxy(request, "/ribosome/banclass", query=query)
+
+
+@rate_limited
+def ribosome_polynucleotide(request):
+    query = request.META.get("QUERY_STRING", "")
+    return _proxy(request, "/ribosome/polynucleotide", query=query)
+
+
+@rate_limited
+def litemol_chains(request, pdb):
+    query = request.META.get("QUERY_STRING", "")
+    return _proxy(request, "/litemol/chains/%s" % quote(pdb.lower()), query=query)
+
+
+@rate_limited
+def litemol_residue_range(request, pdb):
+    query = request.META.get("QUERY_STRING", "")
+    return _proxy(
+        request, "/litemol/residue-range/%s" % quote(pdb.lower()), query=query
+    )
 
 
 @rate_limited

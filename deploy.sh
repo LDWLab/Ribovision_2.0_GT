@@ -5,7 +5,7 @@ set -e
 # Must match the directory Apache/mod_wsgi actually serves. The enabled vhost
 # /etc/httpd/sites-available/ribovision3-ssl.conf points its python-path and
 # WSGIScriptAlias at /home/github_repos/Ribovision_2.0_GT, so deploy here.
-PROJECT_DIR="/home/github_repos/Ribovision_2.0_GT"
+PROJECT_DIR=$PWD
 OWNER="apache:apache"
 
 cd "$PROJECT_DIR"

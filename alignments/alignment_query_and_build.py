@@ -1,9 +1,26 @@
 #Script for use with database uploads
 
+import hashlib
 from django.http import JsonResponse, Http404
 from Bio.SeqUtils import IUPACData
 from alignments.models import *
 from alignments.residue_api import *
+import alignments.config as _config
+from alignments.disk_cache import DiskCache
+
+# DB-derived paralog alignment build; TTL'd since it depends on the DESIRE DB.
+_aln_cache = DiskCache(
+	getattr(_config, "ALN_CACHE_PATH", "/tmp/aln_cache"),
+	ttl_seconds=getattr(_config, "ALN_CACHE_TTL", 172800),
+)
+
+
+def _aln_cache_key(*parts):
+	digest = hashlib.sha256()
+	for part in parts:
+		digest.update(b"\x00")
+		digest.update(str(part).encode("utf-8", "replace"))
+	return digest.hexdigest()
 
 def dictfetchall(cursor):
 	"Return all rows from a cursor as a dict"
@@ -62,6 +79,12 @@ def para_aln(request, aln_id):
 		raise Http404("Alignment id "+str(aln_id)+" is not present in the database!")
 	if alignment.method != 'structure_based':
 		raise Http404("Alignment id "+str(aln_id)+" is not paralogous!")
+
+	# Deterministic DB-derived build -> serve from cache when available.
+	cache_key = _aln_cache_key("para_aln", aln_id)
+	cached = _aln_cache.get_json(cache_key)
+	if cached is not None:
+		return JsonResponse(cached, safe=False)
 	
 	SQLStatement = 'SELECT CONCAT(Aln_Data.aln_id,"_",Aln_Data.res_id) AS id,resi_id,strain,unModResName,aln_pos,Species.strain_id,nomgd_id FROM Aln_Data\
 		INNER JOIN Alignment ON Aln_Data.aln_id = Alignment.Aln_id\
@@ -150,6 +173,10 @@ def para_aln(request, aln_id):
 	concat_fasta = re.sub(r'\\n','\n',fastastring,flags=re.M)
 
 	response_dict = construct_dict_for_json_response([concat_fasta,filtered_spec_list,gap_only_cols,frequency_list])
+	try:
+		_aln_cache.set_json(cache_key, response_dict)
+	except OSError:
+		pass
 	return JsonResponse(response_dict, safe = False)
 
 def query_to_dict_structure(rawMYSQLresult, filter_element, nogap_tupaln=dict(), max_alnposition=0):

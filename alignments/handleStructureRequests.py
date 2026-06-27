@@ -7,7 +7,38 @@ import datetime
 from alignments.views import parse_string_structure
 from alignments.mapStrucSeqToAln import constructStrucSeqMap
 import alignments.config
+from alignments.disk_cache import DiskCache
 import ssl
+
+# Raw structure coordinates from external model servers are immutable for a
+# given URL, so cache them on disk forever (TTL=None). This removes the
+# "Loading Structure Data" network wait for repeat visitors and survives both
+# Django session expiry and httpd restarts.
+_struct_coord_cache = DiskCache(
+    getattr(alignments.config, "STRUCT_CACHE_PATH", "/tmp/struct_cache"),
+    ttl_seconds=None,
+)
+
+
+def _fetch_structure_coords(url):
+    """Return raw structure coordinates for ``url``, using a persistent disk cache.
+
+    On a cache miss the coordinates are fetched once over the network and stored
+    so every later request (any session, after a restart) is served instantly.
+    """
+    cached = _struct_coord_cache.get(url)
+    if cached is not None:
+        _meta, body = cached
+        return body.decode("UTF-8")
+    from urllib.request import urlopen
+    ssl_context = ssl._create_unverified_context()
+    data = urlopen(url, context=ssl_context)
+    text = "".join(line.decode("UTF-8") for line in data)
+    try:
+        _struct_coord_cache.set(url, text.encode("UTF-8"))
+    except OSError:
+        pass
+    return text
 
 def handleCustomUploadStructure (request, strucID):
     '''We will POST all structure chains we need with uniqueIDs.
@@ -47,16 +78,9 @@ def handleCustomUploadStructure (request, strucID):
             #ebiURL = f'https://www.ebi.ac.uk/pdbe/coordinates/{strucID.lower()}/chains?entityId={entityId}&atomSitesOnly=1'
             ebiURL = f'https://models.rcsb.org/v1/{strucID.lower()}/atoms?label_entity_id={entry["entityID"]}&encoding=cif'
             try:
-                ssl_context = ssl._create_unverified_context()
-                data = urlopen(ebiURL, context=ssl_context)
+                tempStrucStr = _fetch_structure_coords(ebiURL)
             except:
                 return HttpResponseServerError(f'Failed to fetch coordinates from litemol for PDB {strucID} and entityID {entry["entityID"]} and chain id {entry["chainID"]}.')
-            try:
-                tempStrucStr = str()
-                for line in data:
-                    tempStrucStr+=line.decode('UTF-8')
-            except:
-                return HttpResponseServerError("Failed to parse the provided structure!")
             request.session[f'{strucID}-{entry["entityID"]}-{entry["chainID"]}'] = tempStrucStr
         return JsonResponse("Success!", safe=False)
     
@@ -125,17 +149,9 @@ def handleCustomUploadStructure_CIF (request, strucID):
             ebiURL = f'https://coords.litemol.org/{strucID.lower()}/chains?entityId={entry["entityID"]}&authAsymId={entry["chainID"]}&atomSitesOnly=1'
             #ebiURL = f'https://www.ebi.ac.uk/pdbe/coordinates/{strucID.lower()}/chains?entityId={entityId}&atomSitesOnly=1'
             try:
-                ssl_context = ssl._create_unverified_context()
-                data = urlopen(ebiURL, context=ssl_context)
-                #data = urlopen(ebiURL)
+                tempStrucStr = _fetch_structure_coords(ebiURL)
             except:
                 return HttpResponseServerError(f'Failed to fetch coordinates from litemol for PDB {strucID} and entityID {entry["entityID"]} and chain id {entry["chainID"]}.')
-            try:
-                tempStrucStr = str()
-                for line in data:
-                    tempStrucStr+=line.decode('UTF-8')
-            except:
-                return HttpResponseServerError("Failed to parse the provided structure!")
             request.session[f'{strucID}-{entry["entityID"]}-{entry["chainID"]}'] = tempStrucStr
         return JsonResponse("Success!", safe=False)
     
@@ -206,16 +222,9 @@ def handleCustomUploadStructure_PDB (request, strucID):
             #ebiURL = f'https://www.ebi.ac.uk/pdbe/coordinates/{strucID.lower()}/chains?entityId={entityId}&atomSitesOnly=1'
             ebiURL = f'https://models.rcsb.org/v1/{strucID.lower()}/atoms?label_entity_id={entry["entityID"]}&encoding=cif'
             try:
-                ssl_context = ssl._create_unverified_context()
-                data = urlopen(ebiURL, context=ssl_context)
+                tempStrucStr = _fetch_structure_coords(ebiURL)
             except:
                 return HttpResponseServerError(f'Failed to fetch coordinates from litemol for PDB {strucID} and entityID {entry["entityID"]} and chain id {entry["chainID"]}.')
-            try:
-                tempStrucStr = str()
-                for line in data:
-                    tempStrucStr+=line.decode('UTF-8')
-            except:
-                return HttpResponseServerError("Failed to parse the provided structure!")
             request.session[f'{strucID}-{entry["entityID"]}-{entry["chainID"]}'] = tempStrucStr
         return JsonResponse("Success!", safe=False)
     

@@ -2,6 +2,51 @@ import { loadAlignmentViewer } from './loadAlignmentViewer.js'
 import { ajaxProper } from './ajaxProper.js'
 
 const fix_colors = require('./graphColorPrediction.js');
+
+// Browser-side cache for the deterministic alignment<->structure mappings
+// (/mapSeqAln/ and /mapSeqAlnOrig/). The backend already caches these on disk,
+// but every selection still pays a full POST round-trip, which is the bulk of
+// the "Wait for alignment-structure mapping" delay. Memoizing the response in
+// the browser (in-memory + sessionStorage) makes re-selecting the same
+// structure/alignment, toggling properties, or navigating back instant.
+const _mappingCacheMem = new Map();
+
+function _mappingCacheKey(url, postData) {
+  return url + '|' + JSON.stringify(postData);
+}
+
+function _cloneMapping(obj) {
+  try {
+    return structuredClone(obj);
+  } catch (e) {
+    return JSON.parse(JSON.stringify(obj));
+  }
+}
+
+function ajaxMappingCached(url, postData) {
+  const key = _mappingCacheKey(url, postData);
+  if (_mappingCacheMem.has(key)) {
+    return Promise.resolve(_cloneMapping(_mappingCacheMem.get(key)));
+  }
+  let stored = null;
+  try {
+    stored = sessionStorage.getItem('mapcache:' + key);
+  } catch (e) { /* sessionStorage unavailable */ }
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored);
+      _mappingCacheMem.set(key, parsed);
+      return Promise.resolve(_cloneMapping(parsed));
+    } catch (e) { /* corrupt entry, fall through to network */ }
+  }
+  return ajax(url, postData).then(result => {
+    _mappingCacheMem.set(key, result);
+    try {
+      sessionStorage.setItem('mapcache:' + key, JSON.stringify(result));
+    } catch (e) { /* quota exceeded / unavailable: in-memory cache still applies */ }
+    return _cloneMapping(result);
+  });
+}
 const typeMappings = {
   'aes': { '1a': '1', '2': '1', '10': '1', '13': '1', '7': '1', '17': '1', '22': '1', '0': '2', '7b': '2', '9': '2', '11': '2', '16': '2', '20': '2', '18': '2', '3a': '2', '3b': '3', '5a': '3', '4': '3', '15': '3', '24': '3', '6': '3', '23': '3', '27': '3', '1': '4', '4a': '4', '7a': '4', '8': '4', '14a': '4', '25': '4', '26': '4', '21': '4', '1b': '5', '3': '5', '5': '5', '12': '5', '14': '5', '19': '5', '20a': '5' },
   'AES': { '1': '1', '12': '1', '19': '1', '22': '1', '7': '1', '34': '1', '35': '1', '49': '1', '28': '1', '20': '1', '52': '1', '58': '1', '37': '1', '53': '2', '47': '3', '8': '2', '54': '2', '10': '2', '16': '2', '32': '2', '5': '2', '12a': '2', '18': '2', '50': '2', '4a': '3', '21': '3', '4': '3', '26': '3', '14': '3', '25': '3', '33': '3', '38': '3', '11': '3', '51': '3', '39': '3', '40': '3', '6': '4', '6a': '4', '55': '4', '45': '4', '10a': '4', '23': '4', '31': '4', '56': '4', '15': '4', '2': '4', '43': '4', '46': '4', '30': '4', '59': '4', '41': '5', '24': '5', '17': '5', '48': '5', '9': '5', '32a': '5', '57': '5', '15a': '5', '29': '5', '44': '5', '36': '5', '3': '5' },
@@ -88,7 +133,7 @@ async function colorStructure(fasta, struc_id, startIndex, stopIndex, ebi_sequen
   let smallestKey = Math.min(...Object.values(struct_mapping).filter(a => typeof (a) == "number"))
  
   if ((largestKey != stopIndex || smallestKey != startIndex) && ebi_sequence) {
-    ajax('/mapSeqAlnOrig/', { fasta, ebi_sequence, startIndex: 1 }).then(origStructMappingAndData => {
+    ajaxMappingCached('/mapSeqAlnOrig/', { fasta, ebi_sequence, startIndex: 1 }).then(origStructMappingAndData => {
       let orig_struct_mapping = origStructMappingAndData["structureMapping"];
       
       vm.st_mapping2D = orig_struct_mapping;
@@ -229,7 +274,7 @@ async function colorStructure(fasta, struc_id, startIndex, stopIndex, ebi_sequen
     
     // RNAseqCall("cust", vm.chainid[0]).then(r2dt_sequence => {
     RNAseqCall("cust", vm.chainid[0]).then(ebi_sequence => {
-      ajax('/mapSeqAlnOrig/', { fasta, ebi_sequence, startIndex: 1 }).then(origStructMappingAndData => {
+      ajaxMappingCached('/mapSeqAlnOrig/', { fasta, ebi_sequence, startIndex: 1 }).then(origStructMappingAndData => {
         vm.st_mapping2D = structMappingAndData["structureMapping"];
         vm.st_mapping3D = origStructMappingAndData["structureMapping"];
 
@@ -259,7 +304,7 @@ export function getStructMappingAndTWC(fasta, struc_id, startIndex, stopIndex, e
     hardcoded_structure: vm.customFullSequence
   };
   
-  ajax('/mapSeqAln/', postData).then(x => {colorStructure(fasta, struc_id, startIndex, stopIndex, ebi_sequence, vueObj, x, full_sequence_from_pdb)}).catch(error => {
+  ajaxMappingCached('/mapSeqAln/', postData).then(x => {colorStructure(fasta, struc_id, startIndex, stopIndex, ebi_sequence, vueObj, x, full_sequence_from_pdb)}).catch(error => {
     vueObj.topology_loaded = 'error';
     console.log(error);
     var topview = document.querySelector('#topview');

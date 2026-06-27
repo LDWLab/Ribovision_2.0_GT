@@ -85,3 +85,6 @@ inspected_models.txt
 
 # Compiled KrakenD cache plugin (rebuild with krakend/plugins/cache/build.sh)
 krakend/plugins/cache/cache.so
+
+# Persistent on-disk caches (extapi/r2dt/mapping/aln) - per environment
+.cache/

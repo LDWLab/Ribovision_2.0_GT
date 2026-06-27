@@ -4,12 +4,29 @@ from Bio.Seq import Seq
 from Bio.SeqUtils import seq1
 from Bio.SeqRecord import SeqRecord
 import re
+import hashlib
 from subprocess import Popen, PIPE, TimeoutExpired
 import os
 from warnings import warn
 import datetime
 
 from alignments.views import parse_string_structure
+import alignments.config as config
+from alignments.disk_cache import DiskCache
+
+# Deterministic MAFFT mappings never change for the same inputs -> TTL = None.
+_mapping_cache = DiskCache(
+    getattr(config, "MAPPING_CACHE_PATH", "/tmp/mapping_cache"), ttl_seconds=None
+)
+
+
+def _mapping_cache_key(*parts):
+    """Stable cache key from the deterministic inputs of a MAFFT mapping."""
+    digest = hashlib.sha256()
+    for part in parts:
+        digest.update(b"\x00")
+        digest.update(str(part).encode("utf-8", "replace"))
+    return digest.hexdigest()
 
 def request_post_data(post_data):
     print(post_data)
@@ -36,15 +53,22 @@ def make_map_from_alnix_to_sequenceix_new(request):
         parsed_cif_mode_flag = None
     cif_mode_flag = parsed_cif_mode_flag
     serializeData = request.session[struc_id]
+    hardcoded_structure = request.POST.get("hardcoded_structure", "")
+
+    # The whole mapping (structure parsing + MAFFT) is deterministic given these
+    # inputs, so serve a cached JSON response when available.
+    cache_key = _mapping_cache_key(
+        "mapSeqAln", fasta, serializeData, cif_mode_flag, hardcoded_structure
+    )
+    cached = _mapping_cache.get_json(cache_key)
+    if cached is not None:
+        return JsonResponse(cached, safe=False)
+
     strucObj = parse_string_structure(request, serializeData, struc_id)
     seq_ix_mapping, struc_seq, gapsInStruc = constructStrucSeqMap(strucObj)
 
-    
-    
-
     if not (cif_mode_flag is None):
         if not cif_mode_flag:
-            hardcoded_structure = request.POST["hardcoded_structure"]
             full_seq = SeqRecord(Seq(hardcoded_structure))
             mapping = create_aln_true_seq_mapping_with_mafft(fasta, full_seq, seq_ix_mapping)
             if type(mapping) != dict:
@@ -54,11 +78,14 @@ def make_map_from_alnix_to_sequenceix_new(request):
             mapping = create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping)
     else:
         mapping = create_aln_struc_mapping_with_mafft(fasta, struc_seq, seq_ix_mapping)
-        
-        
-    mapping["gapsInStruc"] = gapsInStruc
+
     if type(mapping) != dict:
         return mapping
+    mapping["gapsInStruc"] = gapsInStruc
+    try:
+        _mapping_cache.set_json(cache_key, mapping)
+    except OSError:
+        pass
     return JsonResponse(mapping, safe = False)
 
 def constructStrucSeqMap(structure):

@@ -16,6 +16,102 @@
     ]
   },
   {
+    "endpoint": "/rv/pdbe/summary/{pdb}",
+    "method": "GET",
+    "output_encoding": "no-op",
+    "backend": [
+      {
+        "host": ["https://www.ebi.ac.uk"],
+        "url_pattern": "/pdbe/api/pdb/entry/summary/{pdb}",
+        "encoding": "no-op",
+        "extra_config": {
+          "plugin/http-client": { "name": "krakend-cache-client", "ttl": 172800 },
+          "qos/ratelimit/proxy": { "max_rate": 10, "capacity": 20 }
+        }
+      }
+    ]
+  },
+  {
+    "endpoint": "/rv/pdbe/emdb-map/{pdb}",
+    "method": "GET",
+    "output_encoding": "no-op",
+    "backend": [
+      {
+        "host": ["https://www.ebi.ac.uk"],
+        "url_pattern": "/pdbe/api/emdb/entry/map/{pdb}",
+        "encoding": "no-op",
+        "extra_config": {
+          "plugin/http-client": { "name": "krakend-cache-client", "ttl": 172800 },
+          "qos/ratelimit/proxy": { "max_rate": 10, "capacity": 20 }
+        }
+      }
+    ]
+  },
+  {
+    "endpoint": "/rv/emdb/map/{emdb}",
+    "method": "GET",
+    "output_encoding": "no-op",
+    "backend": [
+      {
+        "host": ["https://www.ebi.ac.uk"],
+        "url_pattern": "/emdb/api/entry/map/{emdb}",
+        "encoding": "no-op",
+        "extra_config": {
+          "plugin/http-client": { "name": "krakend-cache-client", "ttl": 172800 },
+          "qos/ratelimit/proxy": { "max_rate": 10, "capacity": 20 }
+        }
+      }
+    ]
+  },
+  {
+    "endpoint": "/rv/alphafold/prediction/{acc}",
+    "method": "GET",
+    "output_encoding": "no-op",
+    "backend": [
+      {
+        "host": ["https://alphafold.ebi.ac.uk"],
+        "url_pattern": "/api/prediction/{acc}",
+        "encoding": "no-op",
+        "extra_config": {
+          "plugin/http-client": { "name": "krakend-cache-client", "ttl": 172800 },
+          "qos/ratelimit/proxy": { "max_rate": 10, "capacity": 20 }
+        }
+      }
+    ]
+  },
+  {
+    "endpoint": "/rv/pdbe/mappings/{pdb}",
+    "method": "GET",
+    "output_encoding": "no-op",
+    "backend": [
+      {
+        "host": ["https://www.ebi.ac.uk"],
+        "url_pattern": "/pdbe/api/mappings/{pdb}",
+        "encoding": "no-op",
+        "extra_config": {
+          "plugin/http-client": { "name": "krakend-cache-client", "ttl": 172800 },
+          "qos/ratelimit/proxy": { "max_rate": 10, "capacity": 20 }
+        }
+      }
+    ]
+  },
+  {
+    "endpoint": "/rv/pdbe/validation/{pdb}",
+    "method": "GET",
+    "output_encoding": "no-op",
+    "backend": [
+      {
+        "host": ["https://www.ebi.ac.uk"],
+        "url_pattern": "/pdbe/api/validation/residuewise_outlier_summary/entry/{pdb}",
+        "encoding": "no-op",
+        "extra_config": {
+          "plugin/http-client": { "name": "krakend-cache-client", "ttl": 172800 },
+          "qos/ratelimit/proxy": { "max_rate": 10, "capacity": 20 }
+        }
+      }
+    ]
+  },
+  {
     "endpoint": "/rv/pdbe/polymer-coverage/{pdb}/{chain}",
     "method": "GET",
     "output_encoding": "no-op",
@@ -90,6 +186,57 @@
       {
         "host": ["https://api.ribosome.xyz"],
         "url_pattern": "/neo4j/get_banclass_for_chain/",
+        "encoding": "no-op",
+        "extra_config": {
+          "plugin/http-client": { "name": "krakend-cache-client", "ttl": 172800 },
+          "qos/ratelimit/proxy": { "max_rate": 10, "capacity": 20 }
+        }
+      }
+    ]
+  },
+  {
+    "endpoint": "/rv/ribosome/polynucleotide",
+    "method": "GET",
+    "output_encoding": "no-op",
+    "input_query_strings": ["rna_class", "format"],
+    "backend": [
+      {
+        "host": ["https://api.ribosome.xyz"],
+        "url_pattern": "/polymers/polynucleotide",
+        "encoding": "no-op",
+        "extra_config": {
+          "plugin/http-client": { "name": "krakend-cache-client", "ttl": 172800 },
+          "qos/ratelimit/proxy": { "max_rate": 10, "capacity": 20 }
+        }
+      }
+    ]
+  },
+  {
+    "endpoint": "/rv/litemol/chains/{pdb}",
+    "method": "GET",
+    "output_encoding": "no-op",
+    "input_query_strings": ["entityId", "authAsymId", "encoding"],
+    "backend": [
+      {
+        "host": ["https://coords.litemol.org"],
+        "url_pattern": "/{pdb}/chains",
+        "encoding": "no-op",
+        "extra_config": {
+          "plugin/http-client": { "name": "krakend-cache-client", "ttl": 172800 },
+          "qos/ratelimit/proxy": { "max_rate": 10, "capacity": 20 }
+        }
+      }
+    ]
+  },
+  {
+    "endpoint": "/rv/litemol/residue-range/{pdb}",
+    "method": "GET",
+    "output_encoding": "no-op",
+    "input_query_strings": ["entityId", "authAsymId", "range", "encoding"],
+    "backend": [
+      {
+        "host": ["https://coords.litemol.org"],
+        "url_pattern": "/{pdb}/residueRange",
         "encoding": "no-op",
         "extra_config": {
           "plugin/http-client": { "name": "krakend-cache-client", "ttl": 172800 },

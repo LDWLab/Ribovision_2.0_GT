@@ -208,7 +208,7 @@ var registerHoverResiData = function (e, tooltipObj) {
               var topviewer = document.getElementById("PdbeTopViewer");
               var selectBoxOut = viewerInstanceTop.pluginInstance.targetEle.querySelector('.menuSelectbox');
               var selectedIndexOut = indexMatchingText(selectBoxOut.options, vm.selected_property);
-              var coordURL = `https://coords.litemol.org/${vm.pdbid.toLowerCase()}/residueRange?entityId=${topviewer.entityId}&authAsymId=${topviewer.chainId}&range=${filter_range}&encoding=bcif`
+              var coordURL = `${window.location.origin}/extapi/litemol/residue-range/${vm.pdbid.toLowerCase()}?entityId=${topviewer.entityId}&authAsymId=${topviewer.chainId}&range=${filter_range}&encoding=bcif`
               //var coordURL = `https://www.ebi.ac.uk/pdbe/coordinates/${window.pdblower}/residueRange?entityId=${topviewer.entityId}&range=${filter_range}&encoding=bcif`
               topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);   
               viewerInstance.visual.update({
@@ -698,7 +698,7 @@ function cleanFilter(checked_filter, masking_range) {
     window.filterRange = "-10000,10000";
     viewerInstanceTop.pluginInstance.alreadyRan = false;
     viewerInstanceTop.pluginInstance.initPainting();
-    var coordURL = `https://coords.litemol.org/${vm.pdbid.toLowerCase()}/chains?entityId=${viewerInstanceTop.entityId}&authAsymId=${viewerInstanceTop.chainId}&encoding=bcif`;
+    var coordURL = `${window.location.origin}/extapi/litemol/chains/${vm.pdbid.toLowerCase()}?entityId=${viewerInstanceTop.entityId}&authAsymId=${viewerInstanceTop.chainId}&encoding=bcif`;
     //var coordURL = `https://www.ebi.ac.uk/pdbe/coordinates/${window.pdblower}/chains?entityId=${topviewer.entityId}&encoding=bcif`;
     viewerInstance.visual.update({
         customData: {
@@ -757,7 +757,7 @@ function cleanFilter(checked_filter, masking_range) {
                   }
                   rna_class.forEach(rnaClass => {
                 //   let riboXYZurl = `https://api.ribosome.xyz/neo4j/get_rna_class/?rna_class=${rnaClass}rRNA&format=json`
-                  let riboXYZurl = `https://api.ribosome.xyz/polymers/polynucleotide?rna_class=${rnaClass}rRNA&format=json`
+                  let riboXYZurl = `/extapi/ribosome/polynucleotide?rna_class=${rnaClass}rRNA&format=json`
                  
                   ajax(riboXYZurl).then(data => {
                       var pdb_entries = []
