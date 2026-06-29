@@ -453,8 +453,9 @@ export class UiTemplateService {
             });
 
             const selectBoxEle = this.containerElement.querySelector<HTMLElement>('.mappingSelectbox');
-            selectBoxEle!.innerHTML = optionList;
-            selectBoxEle!.addEventListener("change", this.colorMapHelper.bind(this));
+            if (!selectBoxEle) return;
+            selectBoxEle.innerHTML = optionList;
+            selectBoxEle.addEventListener("change", this.colorMapHelper.bind(this));
 
             //selectBoxEle!.addEventListener("change", this.updateProperty.bind(this));
 
@@ -1446,8 +1447,8 @@ export class UiTemplateService {
 
 
 
-        let baseArray = FR3DData.annotations;
-        let nestedBaseArray = FR3DNestedData.annotations;
+        let baseArray = (FR3DData && FR3DData.annotations) ? FR3DData.annotations : [];
+        let nestedBaseArray = (FR3DNestedData && FR3DNestedData.annotations) ? FR3DNestedData.annotations : [];
 
         this.baseStrs.set('cWW', [true, []]);
         this.baseStrs.set('tWW', [false, []]);

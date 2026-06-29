@@ -273,7 +273,7 @@
         "encoding": "no-op",
         "extra_config": {
           "plugin/http-client": { "name": "krakend-cache-client", "ttl": 172800 },
-          "qos/ratelimit/proxy": { "max_rate": 10, "capacity": 20 }
+          "qos/ratelimit/proxy": { "max_rate": 100, "capacity": 200 }
         }
       }
     ]
@@ -289,7 +289,7 @@
         "encoding": "no-op",
         "extra_config": {
           "plugin/http-client": { "name": "krakend-cache-client", "ttl": 172800 },
-          "qos/ratelimit/proxy": { "max_rate": 10, "capacity": 20 }
+          "qos/ratelimit/proxy": { "max_rate": 100, "capacity": 200 }
         }
       }
     ]

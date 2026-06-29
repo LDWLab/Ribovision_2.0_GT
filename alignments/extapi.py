@@ -13,6 +13,7 @@ An optional local filesystem cache (off by default) can be enabled with
 """
 
 import os
+import json
 import time
 import logging
 import threading
@@ -96,7 +97,27 @@ def _build_url(krakend_path, query=None):
     return url
 
 
-def _proxy(request, krakend_path, query=None, cacheable=True, timeout=DEFAULT_TIMEOUT):
+def _payload_is_valid(body, require_keys):
+    """Return True if ``body`` is JSON containing all ``require_keys``.
+
+    Flaky upstreams (e.g. rna.bgsu.edu) sometimes answer with HTTP 200 but a
+    CodeIgniter error body like ``{"code": 500, "message": "...Too many
+    connections"}`` that lacks the data the frontend expects. Treat those as
+    failures so the caller can serve a graceful fallback instead.
+    """
+    if not require_keys:
+        return True
+    try:
+        data = json.loads(body)
+    except (ValueError, TypeError):
+        return False
+    if not isinstance(data, dict):
+        return False
+    return all(key in data for key in require_keys)
+
+
+def _proxy(request, krakend_path, query=None, cacheable=True, timeout=DEFAULT_TIMEOUT,
+           fallback=None, require_keys=None):
     url = _build_url(krakend_path, query)
     cache_key = "%s %s" % (request.method, url)
 
@@ -128,6 +149,8 @@ def _proxy(request, krakend_path, query=None, cacheable=True, timeout=DEFAULT_TI
             )
     except requests.RequestException as exc:
         logger.error("extapi proxy failed for %s: %s", url, exc)
+        if fallback is not None:
+            return JsonResponse(fallback, status=200)
         return JsonResponse(
             {"error": "Upstream request failed", "detail": str(exc)},
             status=502,
@@ -135,6 +158,19 @@ def _proxy(request, krakend_path, query=None, cacheable=True, timeout=DEFAULT_TI
 
     content_type = r.headers.get("Content-Type", "application/octet-stream")
     body = r.content
+
+    # Graceful fallback for flaky upstreams: serve the empty-but-valid shape the
+    # frontend expects when the upstream errors (5xx) or returns a body missing
+    # the required keys. Never cache a fallback.
+    if fallback is not None and (
+        r.status_code >= 500 or not _payload_is_valid(body, require_keys)
+    ):
+        logger.warning(
+            "extapi serving fallback for %s (upstream status %s)",
+            url,
+            r.status_code,
+        )
+        return JsonResponse(fallback, status=200)
 
     if cacheable and is_get and r.status_code == 200 and LOCAL_CACHE_ENABLED:
         try:
@@ -255,6 +291,8 @@ def bgsu_basepairs(request, pdb, chain):
     return _proxy(
         request,
         "/bgsu/basepairs/%s/%s" % (quote(pdb.lower()), quote(chain)),
+        fallback={"annotations": []},
+        require_keys=["annotations"],
     )
 
 
@@ -263,6 +301,8 @@ def bgsu_basepairs_nested(request, pdb, chain):
     return _proxy(
         request,
         "/bgsu/basepairs-nested/%s/%s" % (quote(pdb.lower()), quote(chain)),
+        fallback={"annotations": []},
+        require_keys=["annotations"],
     )
 
 
