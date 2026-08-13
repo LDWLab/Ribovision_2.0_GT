@@ -18,8 +18,6 @@ _struct_coord_cache = DiskCache(
     getattr(alignments.config, "STRUCT_CACHE_PATH", "/tmp/struct_cache"),
     ttl_seconds=None,
 )
-
-
 def _fetch_structure_coords(url):
     """Return raw structure coordinates for ``url``, using a persistent disk cache.
 

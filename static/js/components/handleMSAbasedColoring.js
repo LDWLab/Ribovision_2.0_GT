@@ -1,7 +1,10 @@
 export function colorByMSAColorScheme(scheme, vm) {
+	if (!scheme || !vm.schemesMgr) { return; }
 	if (vm.selected_property){
 		vm.selected_property = null;
-		viewerInstanceTop.pluginInstance.resetDisplay();
+		if (window.viewerInstanceTop && viewerInstanceTop.pluginInstance && viewerInstanceTop.pluginInstance.resetDisplay) {
+			viewerInstanceTop.pluginInstance.resetDisplay();
+		}
 		//Reset the 3D colors?
 	}
 	if (vm.chains){
@@ -13,6 +16,7 @@ export function colorByMSAColorScheme(scheme, vm) {
 		var tempEntity = [{ entityID: vm.entityID, startIndex: vm.pdbStart, endIndex: vm.pdbEnd, sequence: vm.pdbSeq }]
 	}
 	var currScheme = vm.schemesMgr.getScheme(scheme);
+	if (!currScheme || !tempEntity || !tempEntity.length) { return; }
 	var colorData2D = [];
 	var colorData3D = [{entity_id: `${vm.entityID}`, focus: true}];
 	for (var i=1; i < tempEntity[0].sequence.length; i++) {
@@ -29,6 +33,10 @@ export function colorByMSAColorScheme(scheme, vm) {
 		}
 	}
 	vm.colorSchemeData = [colorData2D,colorData3D];
-	viewerInstanceTop.pluginInstance.updateTheme(colorData2D);
-	viewerInstance.visual.select({ data: colorData3D, nonSelectedColor: {r:180,g:180,b:180}})
+	if (window.viewerInstanceTop && viewerInstanceTop.pluginInstance) {
+		viewerInstanceTop.pluginInstance.updateTheme(colorData2D);
+	}
+	if (!window.mask3DUpdateInProgress && window.viewerInstance && viewerInstance.plugin && viewerInstance.visual) {
+		viewerInstance.visual.select({ data: colorData3D, nonSelectedColor: {r:180,g:180,b:180}}).catch(function() {});
+	}
 }

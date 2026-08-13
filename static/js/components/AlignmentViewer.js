@@ -21,6 +21,9 @@ var AlnViewer = class RV3AlnViewer extends Component {
         height: ((window.innerHeight - 171)/2) * 0.8,
         highlight: null,
         colorScheme: vm.colorScheme,
+        maskFeatures: [],
+        hideSequences: null,
+        hideColumnMap: null,
     };
     handleResize = () => {
         this.setState({
@@ -31,21 +34,24 @@ var AlnViewer = class RV3AlnViewer extends Component {
         style.innerHTML = ".slider::-webkit-slider-thumb { width: "+(window.innerWidth - 300)*0.05+"px}"
     };
     componentDidMount() {
+        this._isMounted = true;
         var style = document.querySelector('[data="rv3_style"]');
         style.innerHTML = ".slider::-webkit-slider-thumb { width: "+(window.innerWidth - 300)*0.05+"px}";
         window.ajaxRun = false;
         var handleMolStarTopViewHovers = function (alnViewerClass, residueNumber, eventEntityID){
             var alignmentNumber = Number(_.invert(vm.structure_mapping)[residueNumber]);
+            var renderedPosition = alnViewerClass.resolveRenderedPosition(alignmentNumber - 1);
+            var renderedAlignmentNumber = renderedPosition === undefined ? undefined : renderedPosition + 1;
             var numVisibleTiles = Math.round(alnViewerClass.state.width/alnViewerClass.state.tileWidth);
-            if (!isNaN(alignmentNumber)&&eventEntityID==vm.entityID){
-                if (alnViewerClass.state.aaPos > alignmentNumber || alignmentNumber > alnViewerClass.state.aaPos+numVisibleTiles){
-                    let visiblePos = alignmentNumber-Math.round(numVisibleTiles/2);
+            if (renderedAlignmentNumber !== undefined && !isNaN(renderedAlignmentNumber) && eventEntityID==vm.entityID){
+                if (alnViewerClass.state.aaPos > renderedAlignmentNumber || renderedAlignmentNumber > alnViewerClass.state.aaPos+numVisibleTiles){
+                    let visiblePos = renderedAlignmentNumber-Math.round(numVisibleTiles/2);
                     if (visiblePos < 0) {visiblePos = 0};
                     alnViewerClass.setState({ aaPos: visiblePos })
                 }
                 alnViewerClass.highlightRegion({
                     sequences: {from: 0, to: vm.fastaSeqNames.length},
-                    residues: {from: alignmentNumber, to: alignmentNumber}
+                    residues: {from: renderedAlignmentNumber, to: renderedAlignmentNumber}
                 });
             }
         }
@@ -74,15 +80,46 @@ var AlnViewer = class RV3AlnViewer extends Component {
         vm.msavWillMount = true;
     };
     componentWillUnmount() {
+        this._isMounted = false;
         window.removeEventListener("resize", this.handleResize);
+    };
+    // When hideSequences/hideColumnMap are set (masking Focus/Hide mode), the
+    // rendered sequence has had columns removed, so a rendered column index
+    // no longer equals the real alignment position. Translate it back here
+    // so tooltips/3D highlighting stay correctly aligned.
+    resolveAlnPosition = (renderedPosition) => {
+        if (this.state.hideColumnMap) {
+            return this.state.hideColumnMap[renderedPosition];
+        }
+        return renderedPosition;
+    };
+    resolveRenderedPosition = (alignmentPosition) => {
+        if (this.state.hideColumnMap) {
+            var renderedPosition = this.state.hideColumnMap.indexOf(alignmentPosition);
+            return renderedPosition === -1 ? undefined : renderedPosition;
+        }
+        return alignmentPosition;
+    };
+    renderPositionMarker = ({index}) => {
+        var originalPosition = this.state.hideColumnMap[index];
+        if (originalPosition === undefined) {
+            return <div style={{width: this.state.tileWidth, display: 'inline-block', textAlign: 'center'}}>.</div>;
+        }
+        var alignmentNumber = originalPosition + 1;
+        var previousAlignmentNumber = index > 0 ? this.state.hideColumnMap[index - 1] + 1 : undefined;
+        var startsFragment = previousAlignmentNumber === undefined || alignmentNumber !== previousAlignmentNumber + 1;
+        var label = startsFragment || alignmentNumber % 5 === 0 ? alignmentNumber : '.';
+        return <div style={{width: this.state.tileWidth, display: 'inline-block', textAlign: 'center'}}>{label}</div>;
     };
     onResidueMouseEnter = e => {
         this.highlightRegion({
             sequences: {from: 0, to: vm.fastaSeqNames.length},
             residues: {from: e.position+1, to: e.position+1}
         })
-        if (vm.topology_loaded){
-            let resiPos = vm.structure_mapping[e.position+1];
+        if (vm.topology_loaded && !window.mask3DUpdateInProgress && window.viewerInstance && viewerInstance.plugin){
+            let alnPosition = this.resolveAlnPosition(e.position);
+            if (alnPosition === undefined) { return; }
+            let resiPos = vm.structure_mapping[alnPosition+1];
             if (resiPos !== undefined){
                 viewerInstanceTop.viewInstance.selectResidue(resiPos);
                 viewerInstance.visual.highlighting({
@@ -97,26 +134,32 @@ var AlnViewer = class RV3AlnViewer extends Component {
         }
     };
     onResidueMouseLeave = e => {
-        if (vm.topology_loaded){
+        if (vm.topology_loaded && !window.mask3DUpdateInProgress && window.viewerInstance && viewerInstance.plugin){
             //window.clearHighlight());
-            let resiPos = vm.structure_mapping[e.position+1];
+            let alnPosition = this.resolveAlnPosition(e.position);
+            let resiPos = alnPosition !== undefined ? vm.structure_mapping[alnPosition+1] : undefined;
             if (resiPos !== undefined){
                 viewerInstanceTop.viewInstance.clearSelection(resiPos);
             }
             viewerInstance.visual.clearHighlighting();
         }
+        if (!this._isMounted) { return; }
         this.setState({ fold: undefined, phase: undefined });
     };
     highlightRegion = (highlight) => {
+        if (!this._isMounted) { return; }
         this.setState({ highlight });
     };
     removeHighlightRegion = () => {
+        if (!this._isMounted) { return; }
         this.setState({ highlight: null });
     };
     render() {
         const xPos = this.state.tileWidth * (this.state.aaPos);
         const yPos = this.state.tileHeight * (this.state.seqPos);
-        var maxXpos = window.aaFreqs.length - Math.round((((window.innerWidth - 300) * 0.7)/this.state.tileWidth))+2;
+        var renderedSequences = this.state.hideSequences || window.msaOptions.sequences;
+        var renderedLength = renderedSequences.length ? renderedSequences[0].sequence.length : 0;
+        var maxXpos = renderedLength - Math.round((((window.innerWidth - 300) * 0.7)/this.state.tileWidth))+2;
         if (vm.fastaSeqNames) {
             var maxYpos = vm.fastaSeqNames.length - Math.round(((((window.innerHeight - 171)/2) * 0.8)/this.state.tileHeight));
         } else {
@@ -136,6 +179,7 @@ var AlnViewer = class RV3AlnViewer extends Component {
                 />
                 <MSAViewer 
                   {...window.msaOptions}
+                  sequences={renderedSequences}
                   id = "MSAViewer"
                   ref={(ref) => (this.el = ref)}
                   highlight={this.state.highlight}
@@ -159,16 +203,24 @@ var AlnViewer = class RV3AlnViewer extends Component {
                         
                     </div>
                     <div>
-                        <PositionBar 
-                          markerSteps={5} 
-                          startIndex={1} 
+                        <PositionBar
+                          key={this.state.hideColumnMap ? this.state.hideColumnMap.join(',') : 'full'}
+                          markerSteps={5}
+                          startIndex={1}
+                          markerComponent={this.state.hideColumnMap ? this.renderPositionMarker : undefined}
                         />
                         <SequenceViewer
                           id="alnSequenceViewer"
                           onResidueMouseEnter={this.onResidueMouseEnter}
                           onResidueMouseLeave={this.onResidueMouseLeave}
+                          features={this.state.maskFeatures}
                         />
-                        <OverviewBar id="conservationBar" method='proteovision'/>
+                        <OverviewBar
+                          key={this.state.hideColumnMap ? this.state.hideColumnMap.join(',') + '-' + vm.selected_property : 'full-' + vm.selected_property}
+                          id="conservationBar"
+                          method='proteovision'
+                          columnMap={this.state.hideColumnMap}
+                        />
                         {this.state.fold && (
                           <div
                             style={{

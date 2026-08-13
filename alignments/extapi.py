@@ -197,6 +197,8 @@ def pdbe_molecules(request, pdb):
 
 @rate_limited
 def pdbe_summary(request, pdb):
+    if pdb.lower() == "cust":
+        return JsonResponse({}, status=200)
     return _proxy(request, "/pdbe/summary/%s" % quote(pdb.lower()))
 
 

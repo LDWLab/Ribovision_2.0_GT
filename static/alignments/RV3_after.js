@@ -67,11 +67,12 @@ var registerHoverResiData = function (e, tooltipObj) {
   
   function isCorrectMask(mask_range){
       window.masking_range_array = null;
-      if (mask_range.match(/^(\d+-\d+;)+$/)) {
+      var isCorrect = false;
+      if (mask_range && mask_range.match(/^(\d+-\d+;)+$/)) {
           var temp_array = mask_range.split(';').join('-').split('-');
           temp_array = temp_array.slice(0, -1)
           var i = 0;
-          var isCorrect = true;
+          isCorrect = true;
           while(i < temp_array.length) {
               if(i % 2 == 0) {
                   if(Number(temp_array[i]) > Number(temp_array[i + 1])) {
@@ -85,9 +86,12 @@ var registerHoverResiData = function (e, tooltipObj) {
       return isCorrect;
     };
   
-    function initializeMaskedArray() {
+    // masked_array[residueNumber] === true means "keep this residue coloured".
+    // Focus/Highlight keep the listed ranges; Hide keeps everything else, so it
+    // passes invert=true and reuses the exact same colouring path.
+    function initializeMaskedArray(mask_pairs, invert) {
         var topviewer = document.getElementById("PdbeTopViewer")
-        domainTypes = topviewer.viewInstance.uiTemplateService.domainTypes
+        var domainTypes = topviewer.viewInstance.uiTemplateService.domainTypes
         let longest = null;
         for (const domainType of domainTypes) {
             if (domainType.data && domainType.data.length > (longest ? longest.data.length : 0)) {
@@ -95,93 +99,516 @@ var registerHoverResiData = function (e, tooltipObj) {
             }
         }
         const allIndices = new Set();
-        longest.data.forEach((val) => {
-            if (val != undefined && val.start != undefined) {
-                allIndices.add(val.start);
-            }
-        });
-    
-        
+        if (longest) {
+            longest.data.forEach((val) => {
+                if (val != undefined && val.start != undefined) {
+                    allIndices.add(val.start);
+                }
+            });
+        }
+
       var masked_array = [];
       for (const j of allIndices) {
-          masked_array[j] = false;
-          var i = 0;
-          while(i < window.masking_range_array.length && !masked_array[j]) {
-              if(j >= window.masking_range_array[i] && j <= window.masking_range_array[i + 1]) {
-                  masked_array[j] = true;
-              }
-              i = i+2;
-          }
+          var inRange = isResidueInRanges(j, mask_pairs);
+          masked_array[j] = invert ? !inRange : inRange;
       }
       return masked_array;
   };
-  
+
+  // Converts the flat window.masking_range_array (e.g. [1,80,91,111])
+  // produced by isCorrectMask() into pairs of [start,end] structure
+  // residue numbers, e.g. [[1,80],[91,111]].
+  function maskRangeArrayToPairs(flatArr) {
+      var pairs = [];
+      if (!flatArr) { return pairs; }
+      for (var i = 0; i < flatArr.length; i = i + 2) {
+          pairs.push([Number(flatArr[i]), Number(flatArr[i + 1])]);
+      }
+      pairs.sort(function(a, b) { return a[0] - b[0]; });
+      return pairs.reduce(function(merged, range) {
+          var previous = merged[merged.length - 1];
+          if (previous && range[0] <= previous[1] + 1) {
+              previous[1] = Math.max(previous[1], range[1]);
+          } else {
+              merged.push(range);
+          }
+          return merged;
+      }, []);
+  };
+
+  function isMSAViewerReady() {
+      return !!(window.PVAlnViewer && window.PVAlnViewer._isMounted);
+  };
+
+  // The 3D view is never masked with viewerInstance.visual.select(): that call
+  // repaints every component with a single uniform colour and paints any entry
+  // without an explicit `color` white, so it cannot preserve the per-residue
+  // property colouring. All three modes instead go through applyMaskColoring(),
+  // which greys out the masked residues in the data that both viewers read
+  // (domainTypes/selectSections_RV1 for 2D, maskedAnnotationArray for the Mol*
+  // colour themes).
+
+  // Maps the kept structure-residue ranges to alignment column ranges
+  // (via vm.structure_mapping: alnPos -> structure residue number).
+  // Returns the mapped ranges as [start,end] pairs of 1-indexed
+  // alignment positions.
+  function collapsePositions(positions) {
+      var collapsed = [];
+      positions.sort(function(a, b) { return a - b; }).forEach(function(pos) {
+          var last = collapsed[collapsed.length - 1];
+          if (last && pos == last[1] + 1) {
+              last[1] = pos;
+          } else {
+              collapsed.push([pos, pos]);
+          }
+      });
+      return collapsed;
+  };
+
+  function isResidueInRanges(residueNumber, mask_pairs) {
+      return mask_pairs.some(function(range) {
+          return residueNumber >= range[0] && residueNumber <= range[1];
+      });
+  };
+
+  function getStructureResidueNumbers() {
+      var topviewer = document.getElementById("PdbeTopViewer");
+      var container = document.getElementById('topview');
+      var residueNumbers = [];
+      var seenResidues = {};
+      if (topviewer && topviewer.pdbId && container) {
+          container.querySelectorAll('[class*="rnaview_' + topviewer.pdbId + '_"]').forEach(function(el) {
+              var tokens = (el.getAttribute('class') || '').split(/\s+/);
+              var prefix = 'rnaview_' + topviewer.pdbId + '_';
+              var residueToken = tokens.find(function(token) { return token.indexOf(prefix) === 0; });
+              var residueNumber = residueToken ? Number(residueToken.slice(prefix.length)) : NaN;
+              if (!isNaN(residueNumber) && !seenResidues[residueNumber]) {
+                  seenResidues[residueNumber] = true;
+                  residueNumbers.push(residueNumber);
+              }
+          });
+      }
+      if (!residueNumbers.length && vm.structure_mapping) {
+          for (var alnPos in vm.structure_mapping) {
+              var residueNumber = Number(vm.structure_mapping[alnPos]);
+              if (!isNaN(residueNumber) && !seenResidues[residueNumber]) {
+                  seenResidues[residueNumber] = true;
+                  residueNumbers.push(residueNumber);
+              }
+          }
+      }
+      return residueNumbers;
+  };
+
+  function mapStructureRangesToAlignment(mask_pairs) {
+      if (!vm.structure_mapping || !mask_pairs || mask_pairs.length == 0) { return []; }
+      var positions = [];
+      for (var alnPos in vm.structure_mapping) {
+          if (isResidueInRanges(Number(vm.structure_mapping[alnPos]), mask_pairs)) {
+              positions.push(Number(alnPos));
+          }
+      }
+      return collapsePositions(positions);
+  };
+
+  // Grays out the alignment columns whose mapped structure residue falls
+  // outside of the kept ranges, using the MSAViewer `features` overlay.
+  function applyMaskToMSA(mask_pairs) {
+      if (!isMSAViewerReady() || !vm.fastaSeqNames) { return; }
+      var keepPositions = {};
+      mapStructureRangesToAlignment(mask_pairs).forEach(function(range) {
+          for (var p = range[0]; p <= range[1]; p++) { keepPositions[p] = true; }
+      });
+      var sequenceLength = window.msaOptions && window.msaOptions.sequences && window.msaOptions.sequences.length
+          ? window.msaOptions.sequences[0].sequence.length : 0;
+      var hiddenPositions = [];
+      for (var p = 1; p <= sequenceLength; p++) {
+          if (!keepPositions[p]) { hiddenPositions.push(p); }
+      }
+      var maskFeatures = collapsePositions(hiddenPositions).map(function(range) {
+          return {
+              residues: {from: range[0], to: range[1]},
+              sequences: {from: 0, to: vm.fastaSeqNames.length},
+              fillColor: "rgb(232,232,232)",
+              borderColor: "rgb(232,232,232)",
+          };
+      });
+      window.PVAlnViewer.setState({maskFeatures: maskFeatures});
+  };
+
+  function clearMaskFromMSA() {
+      if (!isMSAViewerReady()) { return; }
+      window.PVAlnViewer.setState({maskFeatures: []});
+  };
+
+  function applyHighlightLabelsTo2D(mask_pairs) {
+      var topviewer = document.getElementById("PdbeTopViewer");
+      var container = document.getElementById('topview');
+      if (!topviewer || !topviewer.pdbId || !container) { return; }
+      var pdbId = topviewer.pdbId;
+      container.querySelectorAll('.nucleotide-annotation').forEach(function(annotation) {
+          var tokens = (annotation.getAttribute('class') || '').split(/\s+/);
+          var prefix = 'rnaview_' + pdbId + '_';
+          var residueToken = tokens.find(function(token) { return token.indexOf(prefix) === 0; });
+          var residueNumber = residueToken ? Number(residueToken.slice(prefix.length)) : Number(annotation.textContent);
+          if (isNaN(residueNumber)) { return; }
+          var isHidden = !isResidueInRanges(residueNumber, mask_pairs);
+          annotation.classList.toggle('rv3-range-label-hidden', isHidden);
+          if (!residueToken && annotation.tagName.toLowerCase() === 'text') {
+              var tick = annotation.previousElementSibling;
+              if (tick && tick.classList.contains('nucleotide-annotation')) {
+                  tick.classList.toggle('rv3-range-label-hidden', isHidden);
+              }
+          }
+      });
+      var style = document.getElementById('rv3RangeVisibilityStyle');
+      if (!style) {
+          style = document.createElement('style');
+          style.id = 'rv3RangeVisibilityStyle';
+          document.head.appendChild(style);
+      }
+      style.textContent = '#topview .rv3-range-hidden, #topview .rv3-range-label-hidden { visibility: hidden !important; pointer-events: none !important; }';
+      window.currentHideMaskPairs = mask_pairs;
+      window.currentHideMaskMode = 'highlight';
+      startHideMaskObserver();
+  };
+
+  // ===================== FOCUS/HIDE MODES (crop alignment and structures) =====================
+
+  // pdb-rna-viewer keys its SVG classes by pdbId (+ chainId for base pairs)
+  // + structure residue number (see pdbe-rna-viewer/src/app/uiTemplate.ts:
+  // rnaview_<pdbId>_<resi> for the backbone dot + letter,
+  // circle_<pdbId>_<resi> / circle-text_<pdbId>_<resi> for the property
+  // circle, and rnaviewBP_<pdbId>_<chainId> with an extra "<bpType>_<start>_<end>"
+  // class for each base-pair interaction line). We hide/show these directly -
+  // no rebuild of that library is needed.
+  function applyHideTo2D(mask_pairs, mode) {
+      var topviewer = document.getElementById("PdbeTopViewer");
+      if (!topviewer || !topviewer.pdbId || !topviewer.viewInstance) { return; }
+      var container = document.getElementById('topview');
+      if (!container) { return; }
+      var pdbId = topviewer.pdbId;
+      var chainId = topviewer.chainId;
+      container.querySelectorAll('[class*="rnaview_' + pdbId + '_"]').forEach(function(el) {
+          var tokens = (el.getAttribute('class') || '').split(/\s+/);
+          var residueToken = tokens.find(function(token) { return token.indexOf('rnaview_' + pdbId + '_') === 0; });
+          if (!residueToken) { return; }
+          var residueNumber = Number(residueToken.slice(('rnaview_' + pdbId + '_').length));
+          if (isNaN(residueNumber)) { return; }
+          var isSelected = isResidueInRanges(residueNumber, mask_pairs);
+          var isHidden = mode === 'focus' ? !isSelected : isSelected;
+          el.classList.toggle('rv3-range-hidden', isHidden);
+          container.querySelectorAll('.circle_' + pdbId + '_' + residueNumber + ', .circle-text_' + pdbId + '_' + residueNumber).forEach(function(annotation) {
+              annotation.classList.toggle('rv3-range-hidden', isHidden);
+          });
+      });
+      container.querySelectorAll('text.nucleotide-annotation').forEach(function(annotation) {
+          var hasResidueClass = Array.from(annotation.classList).some(function(className) {
+              return className.indexOf('rnaview_' + pdbId + '_') === 0;
+          });
+          if (hasResidueClass) { return; }
+          var residueNumber = Number(annotation.textContent);
+          if (isNaN(residueNumber)) { return; }
+          var isSelected = isResidueInRanges(residueNumber, mask_pairs);
+          var isHidden = mode === 'focus' ? !isSelected : isSelected;
+          annotation.classList.toggle('rv3-range-hidden', isHidden);
+          var tick = annotation.previousElementSibling;
+          if (tick && tick.classList.contains('nucleotide-annotation')) {
+              tick.classList.toggle('rv3-range-hidden', isHidden);
+          }
+      });
+      // Hide any base-pair interaction line/label touching a hidden residue.
+      container.querySelectorAll('.rnaviewBP_' + pdbId + '_' + chainId).forEach(function(el) {
+          var tokens = (el.getAttribute('class') || '').split(/\s+/);
+          var bpToken = tokens.find(function(t) { return /^[A-Za-z]+_\d+_\d+$/.test(t); });
+          if (!bpToken) { return; }
+          var parts = bpToken.split('_');
+          var startSelected = isResidueInRanges(Number(parts[1]), mask_pairs);
+          var endSelected = isResidueInRanges(Number(parts[2]), mask_pairs);
+          var isHidden = mode === 'focus' ? !startSelected || !endSelected : startSelected || endSelected;
+          el.classList.toggle('rv3-range-hidden', isHidden);
+      });
+      var tooltip = document.getElementById(pdbId + '-rnaTopologyTooltip');
+      if (tooltip) { tooltip.style.display = 'none'; }
+      var style = document.getElementById('rv3RangeVisibilityStyle');
+      if (!style) {
+          style = document.createElement('style');
+          style.id = 'rv3RangeVisibilityStyle';
+          style.textContent = '#topview .rv3-range-hidden { visibility: hidden !important; pointer-events: none !important; }';
+          document.head.appendChild(style);
+      }
+      window.currentHideMaskPairs = mask_pairs;
+      window.currentHideMaskMode = mode;
+      window.mask2DHideActive = true;
+      startHideMaskObserver();
+  };
+
+  function clearHideFrom2D() {
+      window.mask2DHideActive = false;
+      window.currentHideMaskPairs = null;
+      window.currentHideMaskMode = null;
+      stopHideMaskObserver();
+      var container = document.getElementById('topview');
+      if (!container) { return; }
+      container.querySelectorAll('.rv3-range-hidden, .rv3-range-label-hidden').forEach(function(el) {
+          el.classList.remove('rv3-range-hidden');
+          el.classList.remove('rv3-range-label-hidden');
+      });
+  };
+
+  // The topology viewer fully re-renders its SVG whenever the layout/base-pair
+  // filters change (Nucleotide/Helix/Circle, "Only nested BPs", etc), which
+  // would otherwise silently undo our hide-mode visibility toggling. This
+  // observer re-applies it whenever the SVG's node tree changes structurally.
+  // It only watches childList/subtree (never `attributes`), so our own
+  // visibility-class changes never re-trigger it.
+  function startHideMaskObserver() {
+      stopHideMaskObserver();
+      var container = document.getElementById('topview');
+      if (!container || typeof MutationObserver === 'undefined') { return; }
+      window.hideMaskObserver = new MutationObserver(function() {
+          if (window.hideMaskObserverTimer) { clearTimeout(window.hideMaskObserverTimer); }
+          window.hideMaskObserverTimer = setTimeout(function() {
+              if (window.appliedMaskMode === 'highlight' && window.currentHideMaskPairs) {
+                  applyHighlightLabelsTo2D(window.currentHideMaskPairs);
+              } else if ((window.appliedMaskMode === 'focus' || window.appliedMaskMode === 'hide') && window.currentHideMaskPairs) {
+                  applyHideTo2D(window.currentHideMaskPairs, window.appliedMaskMode);
+              }
+          }, 150);
+      });
+      window.hideMaskObserver.observe(container, {childList: true, subtree: true});
+  };
+
+  function stopHideMaskObserver() {
+      if (window.hideMaskObserver) {
+          window.hideMaskObserver.disconnect();
+          window.hideMaskObserver = null;
+      }
+      if (window.hideMaskObserverTimer) {
+          clearTimeout(window.hideMaskObserverTimer);
+          window.hideMaskObserverTimer = null;
+      }
+  };
+
+  // Crops the MSA sequences down to only the alignment columns whose
+  // mapped structure residue falls inside the kept ranges, concatenated
+  // together (the removed columns are not just hidden - they are no
+  // longer part of the rendered sequence at all). hideColumnMap lets
+  // AlignmentViewer.js translate a rendered (cropped) column index back
+  // to its real alignment position for tooltips/3D highlighting.
+  function applySectionToMSA(mask_pairs, mode) {
+      if (!isMSAViewerReady() || !window.msaOptions || !window.msaOptions.sequences) { return; }
+      if (!window.msaOptions_fullSequences) {
+          window.msaOptions_fullSequences = window.msaOptions.sequences;
+      }
+      var selectedPositions = {};
+      mapStructureRangesToAlignment(mask_pairs).forEach(function(range) {
+          for (var p = range[0]; p <= range[1]; p++) { selectedPositions[p] = true; }
+      });
+      var sequenceLength = window.msaOptions_fullSequences.length
+          ? window.msaOptions_fullSequences[0].sequence.length : 0;
+      var columnMap = [];
+      for (var p = 1; p <= sequenceLength; p++) {
+          if ((mode === 'focus' && selectedPositions[p]) || (mode === 'hide' && !selectedPositions[p])) {
+              columnMap.push(p - 1);
+          }
+      }
+      var croppedSequences = window.msaOptions_fullSequences.map(function(seqObj) {
+          var cropped = columnMap.map(function(position) { return seqObj.sequence.charAt(position); }).join('');
+          return Object.assign({}, seqObj, {sequence: cropped});
+      });
+      window.PVAlnViewer.setState({
+          hideSequences: croppedSequences,
+          hideColumnMap: columnMap,
+          aaPos: 0,
+          seqPos: 0,
+      });
+  };
+
+  function clearHideFromMSA() {
+      window.msaOptions_fullSequences = null;
+      if (!isMSAViewerReady()) { return; }
+      window.PVAlnViewer.setState({hideSequences: null, hideColumnMap: null});
+  };
+
+  // The residue ids held by the annotation arrays are "<chainId> <residueNumber>"
+  // (see Utils.generateAnnotations). Chain ids may contain digits, so the number
+  // has to be taken from the last whitespace-separated token rather than by
+  // stripping every non-digit out of the whole id.
+  function residueNumberFromAnnotationId(id) {
+      var tokens = String(id).trim().split(/\s+/);
+      return Number(tokens[tokens.length - 1]);
+  };
+
+  // window.maskedAnnotationArray is the annotation data the Mol* colour themes
+  // read for as long as vm.checked_filter is true. It has to be rebuilt from
+  // window.masked_array whenever the underlying annotations are regenerated,
+  // otherwise the 3D view keeps colouring from a stale copy.
+  function rebuildMaskedAnnotationArray() {
+      var annotationArray = getAnnotationArray();
+      var masked = {};
+      for (var mapping in annotationArray) {
+          masked[mapping] = annotationArray[mapping].map(function(entry) {
+              return {
+                  annotation: entry.annotation,
+                  ids: entry.ids.filter(function(id) {
+                      return !!window.masked_array[residueNumberFromAnnotationId(id)];
+                  })
+              };
+          });
+      }
+      window.maskedAnnotationArray = masked;
+  };
+
+  // Greys out the masked-out residues everywhere the two viewers read their
+  // colours from. This is the path the Highlight mode has always used; Focus
+  // reuses it with the listed ranges and Hide with the inverted ranges.
+  // Returns the promise of the recolouring so callers can await it.
+  function applyMaskColoring(mask_pairs, mode) {
+      var topviewer = document.getElementById("PdbeTopViewer");
+      if (!topviewer || !topviewer.viewInstance) { return Promise.resolve(); }
+      var uiTemplateService = topviewer.viewInstance.uiTemplateService;
+      var selectBox = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
+      var selectedIndex = selectBox ? selectBox.selectedIndex : -1;
+
+      // Rebuild the annotations first: colorResidue() greys the domain data in
+      // place, so a second mask would otherwise compound onto the first one.
+      uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties, window.mapped_aa_properties3D);
+      if (window.custom_prop) {
+          uiTemplateService.getAnnotationFromRibovision(window.custom_prop, window.custom_prop_3D);
+      }
+
+      window.masked_array = initializeMaskedArray(mask_pairs, mode === 'hide');
+      for (var index = 1; index < uiTemplateService.domainTypes.length; index++) {
+          colorResidue(index, window.masked_array);
+      }
+      var selectedData = uiTemplateService.domainTypes[selectedIndex];
+      rebuildMaskedAnnotationArray();
+
+      if (mode === 'highlight') {
+          // Focus/Hide manage base-pair visibility per interaction in
+          // applyHideTo2D, so only Highlight blanks them wholesale.
+          var checkBoxAll = document.querySelector("#Checkbox_All");
+          if (checkBoxAll) {
+              checkBoxAll.checked = false;
+              uiTemplateService.changeBP("All", false);
+          }
+      }
+
+      const mapped_highlights = new Map()
+      mapped_highlights.set('highlight',[])
+      window.aaPropertyConstants.set('highlight', [0, 5]);
+      window.aaColorData.set('highlight', [custom_highlight])
+      for (let i = 0; i < window.masked_array.length; i++) {
+          mapped_highlights.get('highlight').push([i, window.masked_array[i] ? 5 : 0])
+      }
+      if (window.custom_prop) {
+          window.custom_prop.set("highlight", mapped_highlights.get("highlight"))
+      }
+      uiTemplateService.getAnnotationFromRibovision(mapped_highlights)
+
+      var keepsCurrentProperty = selectedData && selectedData.data
+          && vm.selected_property != "highlight" && vm.selected_property != 'Select data'
+          && vm.selected_property != 'Clear data' && vm.selected_property;
+      if (keepsCurrentProperty) {
+          return recolorTopStar(selectedData.label);
+      }
+      if (vm.selected_property != 'highlight') {
+          // The selected_property watcher recolours; assigning it here avoids
+          // running recolorTopStar twice for the same property.
+          vm.selected_property = 'highlight';
+          return Promise.resolve();
+      }
+      return recolorTopStar("highlight");
+  };
+
+  // ===================== FOCUS/HIDE 3D REMOVAL (Mol* transparency) =====================
+  // applyMaskColoring() only greys out masked residues - the Mol* representation
+  // still renders every atom, so Focus/Hide's "removed" context stayed visible
+  // as solid grey in 3D while the 2D view actually hid it (applyHideTo2D). This
+  // makes the masked-out residues fully transparent in place instead, using the
+  // setTransparency/clearTransparency API added to PDBeMolstarPlugin's `visual`
+  // object (mirrors the existing `select`/`highlight` param shape, see
+  // pdbe-molstar's src/app/index.ts). No structure reload is involved, so this
+  // does not race with applyMaskColoring the way an earlier reload-based
+  // implementation used to (see the comment on invalidateMolstarColorCache in
+  // RV3_helpers.js).
+
+  // Complements a sorted, merged list of [start,end] pairs (as produced by
+  // maskRangeArrayToPairs) within [1, maxBound]. maxBound only needs to be
+  // larger than the structure's largest residue number - anything past the
+  // real end of the chain simply matches no atoms.
+  function invertRanges(pairs, maxBound) {
+      var inverted = [];
+      var cursor = 1;
+      pairs.forEach(function(range) {
+          if (range[0] > cursor) { inverted.push([cursor, range[0] - 1]); }
+          cursor = Math.max(cursor, range[1] + 1);
+      });
+      if (cursor <= maxBound) { inverted.push([cursor, maxBound]); }
+      return inverted;
+  };
+
+  // Hide mode removes exactly the listed ranges; Focus removes everything
+  // outside of them, so it needs the complement instead.
+  function buildTransparencyRanges(mask_pairs, mode) {
+      return mode === 'hide' ? mask_pairs : invertRanges(mask_pairs, 100000);
+  };
+
+  function applyRangeTransparency(mask_pairs, mode) {
+      if (!window.viewerInstance || !viewerInstance.plugin || !viewerInstance.visual.setTransparency) { return Promise.resolve(); }
+      var topviewer = document.getElementById("PdbeTopViewer");
+      if (!topviewer) { return Promise.resolve(); }
+      var data = buildTransparencyRanges(mask_pairs, mode).map(function(range) {
+          return {
+              auth_asym_id: topviewer.chainId,
+              start_auth_residue_number: range[0],
+              end_auth_residue_number: range[1]
+          };
+      });
+      return viewerInstance.visual.setTransparency({ data: data, value: 1 }).catch(function(err) { console.log(err); });
+  };
+
+  function clearRangeTransparency() {
+      if (!window.viewerInstance || !viewerInstance.plugin || !viewerInstance.visual.clearTransparency) { return Promise.resolve(); }
+      return viewerInstance.visual.clearTransparency().catch(function(err) { console.log(err); });
+  };
+
   function handleMaskingRanges(mask_range){
     vm.masking_range = mask_range;
     window.masking_range_array = null;
-    if (isCorrectMask(mask_range)) {
-        var topviewer = document.getElementById("PdbeTopViewer");
-        var selectedIndex = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox').selectedIndex;
-        topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties, window.mapped_aa_properties3D);   
-        if(window.custom_prop) {
-            topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(window.custom_prop, window.custom_prop_3D); 
-        }
-        window.masked_array = initializeMaskedArray();
-        var index = 1;
-        while(index < topviewer.viewInstance.uiTemplateService.domainTypes.length) {
-            colorResidue(index, window.masked_array);
-            index++;
-        }
-        let selectedData = topviewer.viewInstance.uiTemplateService.domainTypes[selectedIndex]
-        maskedAnnotationArray = new Map()
-        for (let mapping in getAnnotationArray()) {
-            maskedAnnotationArray[mapping] = []
-            map_array = getAnnotationArray()[mapping]
-            for (let i = 0; i < map_array.length; i++) {
-                maskedAnnotationArray[mapping].push({annotation: map_array[i].annotation, ids:[]})
-                ids = map_array[i].ids
-                for (let id of ids) {
-                    if(window.masked_array[parseInt(id.replace(/\D/g, ""))]) {
-                        maskedAnnotationArray[mapping][i].ids.push(id)
-                    }
-                }
-            }
-        }
-        window.maskedAnnotationArray = maskedAnnotationArray
-        var checkBoxAll = document.querySelector("#Checkbox_All");
-        checkBoxAll.checked = false;
-        topviewer.viewInstance.uiTemplateService.changeBP("All", false);
-        const mapped_highlights = new Map()
-        mapped_highlights.set('highlight',[])
-        window.aaPropertyConstants.set('highlight', [0, 5]);
-        window.aaColorData.set('highlight', [custom_highlight])
-        for (let i = 0; i < masked_array.length; i++) {
-            if (masked_array[i]) {
-                mapped_highlights.get('highlight').push([i, 5])
-            } else {
-                mapped_highlights.get('highlight').push([i, 0])
-            }
-        }
-        window.custom_prop.set("highlight", mapped_highlights.get("highlight"))
-        topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_highlights)
-        if(vm.selected_property == "highlight" || vm.selected_property == 'Select data' || vm.selected_property == 'Clear data' || !vm.selected_property) {
-            vm.selected_property = 'Select data'
-            setTimeout(function() {
-                vm.selected_property = 'highlight';
-            }, 1000);
-            recolorTopStar("highlight")
-        }
-        else if (selectedData.data){
-            //topviewer.pluginInstance.updateTheme(selectedData.data); 
-            recolorTopStar(selectedData.label)
-            //window.viewerInstance.visual.select({data: selectSections_RV1.get(selectedData.label), nonSelectedColor: {r:255,g:255,b:255}});
-            }
-        
-        
-        vm.correct_mask = true;
-    } else {
+    if (!isCorrectMask(mask_range)) {
         vm.correct_mask = false;
+        return Promise.resolve();
     }
+    var mask_pairs = maskRangeArrayToPairs(window.masking_range_array);
+    var mode = vm.mask_mode === 'focus' || vm.mask_mode === 'hide' ? vm.mask_mode : 'highlight';
+    window.appliedMaskMode = mode;
+    window.appliedMaskPairs = mask_pairs;
+    window.appliedMaskRange = mask_range;
+    vm.correct_mask = true;
+
+    clearHideFrom2D();
+    clearHideFromMSA();
+    clearMaskFromMSA();
+
+    window.mask3DUpdateInProgress = true;
+    window.mask3DUpdatePromise = Promise.resolve(applyMaskColoring(mask_pairs, mode))
+        .catch(function(err) { console.log(err); })
+        .then(function() {
+            window.mask3DUpdateInProgress = false;
+            if (window.appliedMaskMode !== mode) { return; }
+            if (mode === 'highlight') {
+                applyHighlightLabelsTo2D(mask_pairs);
+                applyMaskToMSA(mask_pairs);
+                return clearRangeTransparency();
+            } else {
+                applyHideTo2D(mask_pairs, mode);
+                applySectionToMSA(mask_pairs, mode);
+                return applyRangeTransparency(mask_pairs, mode);
+            }
+        });
+    return window.mask3DUpdatePromise;
   };
   function handleDomainRange(domain_range) {
       //handleFilterRange(domain_range);
@@ -199,7 +626,38 @@ var registerHoverResiData = function (e, tooltipObj) {
           handleFilterRange(full_range);
       }
   }
-  function handleFilterRange(filter_range) {
+  // The old CoordinateServer (coords.litemol.org) accepted a residueRange query
+  // param, but its successor, the PDBe ModelServer (CONFIG.PDB_COORDINATE_URL),
+  // has no equivalent GET range query. Ranges have to be requested by POSTing an
+  // explicit list of atom_site selectors and turning the returned CIF/BCIF body
+  // into an object URL molstar can load.
+  var previousFilterRangeBlobURL = null;
+  async function fetchResidueRangeModelServer(pdbId, authAsymId, filterRange, encoding) {
+      encoding = encoding || 'bcif';
+      const [start, end] = filterRange.split('-').map(Number);
+      const atom_site = [];
+      for (let seqId = start; seqId <= end; seqId++) {
+          atom_site.push({ auth_asym_id: authAsymId, auth_seq_id: seqId });
+      }
+      const url = `${CONFIG.PDB_COORDINATE_URL}/${pdbId}/atoms?encoding=${encoding}`;
+      const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ atom_site: atom_site })
+      });
+      if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`ModelServer error ${response.status}: ${errorText}`);
+      }
+      const buffer = await response.arrayBuffer();
+      const blob = new Blob([buffer], { type: 'application/octet-stream' });
+      if (previousFilterRangeBlobURL) {
+          URL.revokeObjectURL(previousFilterRangeBlobURL);
+      }
+      previousFilterRangeBlobURL = URL.createObjectURL(blob);
+      return previousFilterRangeBlobURL;
+  }
+  async function handleFilterRange(filter_range) {
       if (filter_range.match(/^\d+-\d+;/)) {
           var filter_range = filter_range.slice(0, -1);
           const temp_array = filter_range.split('-');
@@ -208,9 +666,14 @@ var registerHoverResiData = function (e, tooltipObj) {
               var topviewer = document.getElementById("PdbeTopViewer");
               var selectBoxOut = viewerInstanceTop.pluginInstance.targetEle.querySelector('.menuSelectbox');
               var selectedIndexOut = indexMatchingText(selectBoxOut.options, vm.selected_property);
-              var coordURL = `${window.location.origin}/extapi/litemol/residue-range/${vm.pdbid.toLowerCase()}?entityId=${topviewer.entityId}&authAsymId=${topviewer.chainId}&range=${filter_range}&encoding=bcif`
-              //var coordURL = `https://www.ebi.ac.uk/pdbe/coordinates/${window.pdblower}/residueRange?entityId=${topviewer.entityId}&range=${filter_range}&encoding=bcif`
-              topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);   
+              topviewer.pluginInstance.getAnnotationFromRibovision(mapped_aa_properties);
+              var coordURL;
+              try {
+                  coordURL = await fetchResidueRangeModelServer(vm.pdbid.toLowerCase(), topviewer.chainId, filter_range);
+              } catch (err) {
+                  console.log(err);
+                  return;
+              }
               viewerInstance.visual.update({
                   customData: {
                       url: coordURL,
@@ -493,6 +956,7 @@ var mapCustomMappingData = function (custom_data, custom_data_name, topviewer, s
         if (vm.correct_mask) {
             var j = topviewer.viewInstance.uiTemplateService.domainTypes.length - 1;
             colorResidue(j, window.masked_array);
+            rebuildMaskedAnnotationArray();
         }
     } else {
             //var selectBoxEle = viewerInstanceTop.pluginInstance.targetEle.querySelector('.menuSelectbox');
@@ -551,6 +1015,7 @@ var mapCustomMappingData = function (custom_data, custom_data_name, topviewer, s
             if (vm.correct_mask) {
                 var j = topviewer.viewInstance.uiTemplateService.domainTypes.length - 1;
                 colorResidue(j, window.masked_array);
+                rebuildMaskedAnnotationArray();
             }
     }
 }
@@ -606,6 +1071,7 @@ var mapAssociatedData = function (associated_data_2D, associated_data_3D, associ
     if (vm.correct_mask) {
         var j = topviewer.viewInstance.uiTemplateService.domainTypes.length - 1;
         colorResidue(j, window.masked_array);
+        rebuildMaskedAnnotationArray();
     }
 }
 
@@ -645,6 +1111,7 @@ var mapHelixData = function (helix_data, helix_data_name, topviewer) {
     if (vm.correct_mask) {
         var j = topviewer.viewInstance.uiTemplateService.domainTypes.length - 1;
         colorResidue(j, window.masked_array);
+        rebuildMaskedAnnotationArray();
     }
 }
 var getExampleFile = function (url, name) {
@@ -663,28 +1130,45 @@ var getExampleFile = function (url, name) {
 };
 
 function cleanFilter(checked_filter, masking_range) {
-    if (checked_filter) { return; }
+    if (checked_filter) {
+        // The Mol* colour themes read window.maskedAnnotationArray for as long
+        // as vm.checked_filter is true, which is from the moment the box is
+        // ticked - before any range has been applied. Seed it with the
+        // unfiltered annotations so colouring keeps working until Apply.
+        window.maskedAnnotationArray = getAnnotationArray();
+        return;
+    }
     if (masking_range == null) { return; }
     window.masked_array = [];
+    window.maskedAnnotationArray = null;
     vm.masking_range = null;
     vm.correct_mask = null;
+    window.appliedMaskMode = null;
+    window.appliedMaskPairs = null;
+    window.appliedMaskRange = null;
+    clearMaskFromMSA();
+    clearHideFrom2D();
+    clearHideFromMSA();
+    clearRangeTransparency();
     var topviewer = document.getElementById("PdbeTopViewer");
     topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties, window.mapped_aa_properties3D);
     if(window.custom_prop) {
         topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(window.custom_prop, window.custom_prop_3D);
     }
-    domainTypes = topviewer.viewInstance.uiTemplateService.domainTypes;
+    var domainTypes = topviewer.viewInstance.uiTemplateService.domainTypes;
     var indexToRemove = domainTypes.findIndex(obj => obj.label === 'highlight');
     if (indexToRemove !== -1) {
         domainTypes.splice(indexToRemove, 1);
     }
-    var selectElement = document.querySelector('.mappingSelectBox');
+    var selectElement = topviewer.viewInstance.targetEle.querySelector('.mappingSelectbox');
     var optionToRemove;
-    Array.from(selectElement.options).forEach(function(option) {
-        if (option.label === 'highlight') {
-            optionToRemove = option;
-        }
-    });
+    if (selectElement) {
+        Array.from(selectElement.options).forEach(function(option) {
+            if (option.label === 'highlight') {
+                optionToRemove = option;
+            }
+        });
+    }
     if (optionToRemove) {
         selectElement.removeChild(optionToRemove);
     }
@@ -698,7 +1182,7 @@ function cleanFilter(checked_filter, masking_range) {
     window.filterRange = "-10000,10000";
     viewerInstanceTop.pluginInstance.alreadyRan = false;
     viewerInstanceTop.pluginInstance.initPainting();
-    var coordURL = `${window.location.origin}/extapi/litemol/chains/${vm.pdbid.toLowerCase()}?entityId=${viewerInstanceTop.entityId}&authAsymId=${viewerInstanceTop.chainId}&encoding=bcif`;
+    var coordURL = `https://coords.litemol.org/${vm.pdbid.toLowerCase()}/chains?entityId=${viewerInstanceTop.entityId}&authAsymId=${viewerInstanceTop.chainId}&encoding=bcif`;
     //var coordURL = `https://www.ebi.ac.uk/pdbe/coordinates/${window.pdblower}/chains?entityId=${topviewer.entityId}&encoding=bcif`;
     viewerInstance.visual.update({
         customData: {
@@ -757,7 +1241,7 @@ function cleanFilter(checked_filter, masking_range) {
                   }
                   rna_class.forEach(rnaClass => {
                 //   let riboXYZurl = `https://api.ribosome.xyz/neo4j/get_rna_class/?rna_class=${rnaClass}rRNA&format=json`
-                  let riboXYZurl = `/extapi/ribosome/polynucleotide?rna_class=${rnaClass}rRNA&format=json`
+                  let riboXYZurl = `https://api.ribosome.xyz/polymers/polynucleotide?rna_class=${rnaClass}rRNA&format=json`
                  
                   ajax(riboXYZurl).then(data => {
                       var pdb_entries = []

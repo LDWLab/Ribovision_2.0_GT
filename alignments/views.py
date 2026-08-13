@@ -1294,7 +1294,8 @@ def r2dt(request, entity_id):
             logger.debug(f"Executing commands:\n{cmd}")
             os.system(cmd)
             alignments.config.pdb_path_share = ""
-            get_fred_base_pairs("", entity_id, chainid, output, file_path=pdb_path)
+            if alignments.config.FR3D_REPLACE_BASE_PAIRS:
+                get_fred_base_pairs("", entity_id, chainid, output, file_path=pdb_path)
         else:
             logger.info("Processing in CIF mode")
             cif_file_path = keys["cif_file_path"]
@@ -1303,14 +1304,15 @@ def r2dt(request, entity_id):
             logging.debug(f"CIF file for parse cif: {cif_file_path}")
             logger.debug(f"Executing commands:\n{cmd}")
             os.system(cmd)
-            
-            if cif_file_path.endswith("cust.cif"):
-                # i.e user uploaded a cif file
-                get_fred_base_pairs("", entity_id, chainid, output, file_path=cif_file_path)
-            else:
-                # this is in ribovision mode for r2dt generated 2d layouts
-                pdbid = os.path.split(cif_file_path)[1][:4]
-                get_fred_base_pairs(pdbid, entity_id, chainid, output)
+
+            if alignments.config.FR3D_REPLACE_BASE_PAIRS:
+                if cif_file_path.endswith("cust.cif"):
+                    # i.e user uploaded a cif file
+                    get_fred_base_pairs("", entity_id, chainid, output, file_path=cif_file_path)
+                else:
+                    # this is in ribovision mode for r2dt generated 2d layouts
+                    pdbid = os.path.split(cif_file_path)[1][:4]
+                    get_fred_base_pairs(pdbid, entity_id, chainid, output)
         
         rna2d_path = f'{output}/results/json/RNA_2D_json.json'
         logger.debug(f"rna2d_path = {rna2d_path}")

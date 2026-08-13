@@ -23,7 +23,7 @@ R2DT_CACHE_PATH = os.environ.get(
     getattr(config, "R2DT_CACHE_PATH", "/tmp/r2dt_cache"),
 )
 _ttl_env = os.environ.get("R2DT_CACHE_TTL")
-R2DT_CACHE_TTL = int(_ttl_env) if _ttl_env else None  # None => never expire
+R2DT_CACHE_TTL = int(_ttl_env) if _ttl_env else getattr(config, "R2DT_CACHE_TTL", None)
 
 _cache = DiskCache(R2DT_CACHE_PATH, ttl_seconds=R2DT_CACHE_TTL)
 

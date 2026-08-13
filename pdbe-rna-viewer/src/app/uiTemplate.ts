@@ -27,16 +27,16 @@ export class UiTemplateService {
 
     private locations: Map<any, number[]> = new Map();
     menuStyle = 'position:relative;z-index:10;height:7%;line-height:7%;background-color:#696969;padding: 0 10px;font-size:16px; color: #efefef;display:block;';
-    domainTypes: any[];
-    selectedDomain: string;
+    domainTypes!: any[];
+    selectedDomain!: string;
     pathStrs: string[] = [];
     nucleotideStrs: string[] = [];
     circleStrs: string[] = [];
     banNameMap: Map<string, JSON | undefined> = new Map();
     baseStrs: Map<string, [boolean, string[]]> = new Map();
     nestedBaseStrs: Map<string, [boolean, string[]]> = new Map();
-    displayBaseStrs: string;
-    displayNestedBaseStrs: string;
+    displayBaseStrs: string = '';
+    displayNestedBaseStrs: string = '';
     basePairIDs: any[] = [];
     mappingValue: string = '';
     showAllNucleotides: boolean = false;
@@ -455,7 +455,11 @@ export class UiTemplateService {
             const selectBoxEle = this.containerElement.querySelector<HTMLElement>('.mappingSelectbox');
             if (!selectBoxEle) return;
             selectBoxEle.innerHTML = optionList;
-            selectBoxEle.addEventListener("change", this.colorMapHelper.bind(this));
+            // createDomainDropdown() runs again on every getAnnotationFromRibovision()
+            // call. colorMapHelper is a bound class property, so removing it first
+            // keeps a single listener instead of stacking one up per rebuild.
+            selectBoxEle.removeEventListener("change", this.colorMapHelper);
+            selectBoxEle.addEventListener("change", this.colorMapHelper);
 
             //selectBoxEle!.addEventListener("change", this.updateProperty.bind(this));
 
@@ -729,10 +733,13 @@ export class UiTemplateService {
                 n2 = temp2
                 type = type.charAt(0) + type.slice(-2).split('').reverse().join('')
             }
-            let x1 = this.locations.get(start)![0] + font_size / 2.5
-            let x2 = this.locations.get(end)![0] + font_size / 2.5
-            let y1 = this.locations.get(start)![1] - font_size / 2.5
-            let y2 = this.locations.get(end)![1] - font_size / 2.5
+            const loc1 = this.locations.get(start);
+            const loc2 = this.locations.get(end);
+            if (!loc1 || !loc2) return;
+            let x1 = loc1[0] + font_size / 2.5
+            let x2 = loc2[0] + font_size / 2.5
+            let y1 = loc1[1] - font_size / 2.5
+            let y2 = loc2[1] - font_size / 2.5
             let distance = Math.pow(Math.pow((x1 - x2), 2) + Math.pow((y1 - y2), 2), 0.5)
             let x1_prime = UiTemplateService.linearlyInterpolate(x1, x2, font_size / distance)
             let y1_prime = UiTemplateService.linearlyInterpolate(y1, y2, font_size / distance)
@@ -991,6 +998,8 @@ export class UiTemplateService {
             const baseTextX = center.x + nx * totalDistance * directionMultiplier * (1 + margin);
             const baseTextY = center.y + ny * totalDistance * directionMultiplier * (1 + margin);
     
+            const residueClass = Array.from(nucleotide.classList).find(className => className.startsWith(`rnaview_${this.pluginOptions.pdbId}_`));
+            const annotationClass = `nucleotide-annotation${residueClass ? ` ${residueClass}` : ''}`;
             const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             line.setAttribute('x1', String(lineStartX));
             line.setAttribute('y1', String(lineStartY));
@@ -998,7 +1007,7 @@ export class UiTemplateService {
             line.setAttribute('y2', String(lineEndY));
             line.setAttribute('stroke', '#666');
             line.setAttribute('stroke-width', String(font_size * 0.07));
-            line.setAttribute('class', 'nucleotide-annotation');
+            line.setAttribute('class', annotationClass);
     
             const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             text.setAttribute('x', String(baseTextX));
@@ -1006,7 +1015,7 @@ export class UiTemplateService {
             text.setAttribute('text-anchor', textAnchor);
             text.setAttribute('fill', '#521E2E');
             text.setAttribute('font-size', String(font_size));
-            text.setAttribute('class', 'nucleotide-annotation');
+            text.setAttribute('class', annotationClass);
             text.setAttribute('dominant-baseline', 'middle');
             text.textContent = String(i + 1);
     

@@ -2,6 +2,7 @@ import requests
 import subprocess 
 import os
 import glob
+import json
 from datetime import datetime
 import logging
 import sys
@@ -43,6 +44,33 @@ def run_fred(filepath, base_name, output, chain_id):
     logger.debug(" ".join(commands))
     subprocess.run(commands)
     
+def _log_fred_summary(fred_path, logger):
+    """Log how many base pairs of each Leontis-Westhof type FR3D produced.
+
+    All 18 types are kept: the 2D viewer exposes a per-type dropdown and
+    defaults to showing canonical (cWW) only, so filtering here would just
+    discard the non-canonical annotations FR3D exists to provide.
+    """
+    try:
+        with open(fred_path, 'r') as f:
+            fred_data = json.load(f)
+    except (OSError, ValueError) as exc:
+        logger.warning(f"Could not read FR3D output for summary: {exc}")
+        return
+
+    annotations = fred_data.get("annotations", [])
+    counts = {}
+    for annotation in annotations:
+        bp_type = annotation.get("bp", "?")
+        counts[bp_type] = counts.get(bp_type, 0) + 1
+
+    logger.info(
+        f"FR3D produced {len(annotations)} base pairs "
+        f"({counts.get('cWW', 0)} canonical); by type: "
+        f"{dict(sorted(counts.items(), key=lambda kv: -kv[1]))}"
+    )
+
+
 def replace_r2dt_base_pairs_with_fred(output, base_name, chain_id, ext):
     logger = logging.getLogger("ribovision3-logger")
     json_dir = os.path.join(output, "results/json")
@@ -63,6 +91,8 @@ def replace_r2dt_base_pairs_with_fred(output, base_name, chain_id, ext):
                 f"keeping existing BP_json.json"
             )
             return
+
+    _log_fred_summary(rna2d_path, logger)
     os.replace(rna2d_path, rna2d_bp_path)
     
 def get_fred_base_pairs(struct_id, entity_id, chain_id, output, file_path=""):

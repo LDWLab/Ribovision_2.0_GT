@@ -21,8 +21,23 @@ _CACHE_ROOT = _os.environ.get("RV_CACHE_ROOT", _os.path.join(_PROJECT_ROOT, ".ca
 # Filesystem cache for the external-API proxy (2-day TTL enforced in extapi.py).
 EXTAPI_CACHE_PATH = _os.path.join(_CACHE_ROOT, "extapi_cache")
 
-# Persistent cache for deterministic local R2DT runs (no TTL by default).
+# Persistent cache for deterministic local R2DT runs.
 R2DT_CACHE_PATH = _os.path.join(_CACHE_ROOT, "r2dt_cache")
+R2DT_CACHE_TTL = 604800  # 7 days
+
+# Replace R2DT's canonical base pairs with FR3D-derived ones in the 2D viewer.
+#
+# FR3D indexes its base pairs by CIF label_seq_id (verified: 100% of endpoint
+# nucleotide letters match _pdbx_poly_seq_scheme.mon_id at the same seq_id).
+# This requires parse_cif4 to emit RNA_2D_json's `label_seq_ids` aligned to the
+# R2DT drawing order, since the viewer keys nucleotide positions off
+# label_seq_ids[i - 1] for svg_paths[i]. parse_cif4 does that alignment now; it
+# previously zipped the drawing against _pdbx_poly_seq_scheme by ordinal
+# position, which drifted whenever R2DT drew only part of the entity and put
+# every base pair on the wrong nucleotide.
+#
+# Set FR3D_REPLACE_BASE_PAIRS=0 to fall back to R2DT's own canonical pairs.
+FR3D_REPLACE_BASE_PAIRS = _os.environ.get("FR3D_REPLACE_BASE_PAIRS", "1") == "1"
 
 # Persistent cache for deterministic MAFFT structure<->alignment mappings
 # (/mapSeqAln/ and /mapSeqAlnOrig/). These outputs depend only on their inputs,
