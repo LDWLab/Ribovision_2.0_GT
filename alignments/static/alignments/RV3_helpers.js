@@ -237,7 +237,7 @@ var validateFasta = function (fasta) {
         }
     });
 
-    if (!fastaSeqs) { // is it empty whatever we collected ? re-check not efficient 
+    if (!fastaSeqs) { // is it empty whatever we collected ? re-check not efficient
         alert("No sequences were found in the file!");
         return false;
     }
@@ -309,6 +309,16 @@ function downloadCSVData() {
 
 var downloadAlignmentData = function (fastaString) {
     const { month, date, year } = Utils.getFormattedDate();
+    const columnMap = window.PVAlnViewer && window.PVAlnViewer.state.hideColumnMap;
+    if (columnMap && (window.appliedMaskMode === 'focus' || window.appliedMaskMode === 'hide')) {
+        const fastaEntries = parseFastaString(fastaString);
+        let filteredFasta = '';
+        for (let i = 0; i < fastaEntries.length; i += 2) {
+            const sequence = fastaEntries[i + 1] || '';
+            filteredFasta += `>${fastaEntries[i]}\n${columnMap.map(position => sequence.charAt(position)).join('')}\n`;
+        }
+        fastaString = filteredFasta;
+    }
     Utils.downloadFile(fastaString, `PValignment-${month}-${date}-${year}.fas`);
 }
 
@@ -333,7 +343,9 @@ var downloadFullAlignmentImage = function () {
         console.log(err);
     };
 
-    const alnLength = vm.fasta_data.split('>')[1].split('\n')[1].length;
+    const filteredSequences = PVAlnViewer.state.hideSequences;
+    const alnLength = filteredSequences && (window.appliedMaskMode === 'focus' || window.appliedMaskMode === 'hide')
+        ? filteredSequences[0].sequence.length : vm.fasta_data.split('>')[1].split('\n')[1].length;
     PVAlnViewer.setState({
         aaPos: 0,
         seqPos: 0,
@@ -887,9 +899,66 @@ var mapTWCdata = function (structMap, structMap3D, twcDataUnmapped, mapped_aa_pr
 
     topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties, mapped_aa_properties3D);
 }
+// showPDBHelper() used to create a brand-new PDBeMolstarPlugin() (its own
+// WebGL context, structure data, GPU buffers) every time a structure was
+// (re)loaded without ever disposing the previous one, and re-registered 3
+// `document`-level listeners each closing over that instance on every call.
+// Neither the old plugin nor the old listeners were ever released, so every
+// reload leaked an entire Mol* instance - this is what balloons a tab to
+// 1GB+ after a handful of structure switches. The listeners are now bound
+// exactly once and read window.viewerInstance dynamically instead of
+// closing over a specific instance, and the previous plugin is disposed
+// before being replaced.
+function bindPDBMolstarEventsOnce() {
+    if (window.rv3PDBMolstarEventsBound) { return; }
+    window.rv3PDBMolstarEventsBound = true;
+    document.addEventListener('PDB.topologyViewer.click', (e) => {
+        var molstar = window.viewerInstance;
+        if (!molstar) { return; }
+        var entityId = e.eventData.entityId;
+        var residueNumber = e.eventData.residueNumber;
+        molstar.visual.select({
+            data: [
+                {
+                    entity_id: entityId,
+                    residue_number: residueNumber,
+                    color: { r: 20, y: 100, b: 200 },
+                    focus: false
+                },
+            ],
+        })
+    })
+    document.addEventListener('PDB.topologyViewer.mouseover', (e) => {
+        var molstar = window.viewerInstance;
+        if (!molstar) { return; }
+        var entityId = e.eventData.entityId;
+        var residueNumber = e.eventData.residueNumber;
+        molstar.visual.highlight({
+            data: [
+                {
+                    entity_id: entityId,
+                    residue_number: residueNumber,
+                },
+            ],
+        })
+    })
+    document.addEventListener('PDB.molstar.mouseover', (e) => {
+        var molstar = window.viewerInstance;
+        if (!molstar) { return; }
+        var eventData = e.eventData;
+        let resi_id = eventData.auth_seq_id;
+        if (masked_array && masked_array[resi_id] == false) {
+            molstar.plugin.behaviors.interaction.hover._value.current.loci.kind = "empty-loci"
+        }
+    });
+};
+
 var showPDBHelper = function (pdbid, chainid, entityid) {
     const molstar_item = document.getElementById("pdbeMolstarView");
     if (molstar_item) { molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Loading Molstar Component ", true) }
+    if (window.viewerInstance && window.viewerInstance.plugin && typeof window.viewerInstance.plugin.dispose === 'function') {
+        try { window.viewerInstance.plugin.dispose(); } catch (err) { console.log(err); }
+    }
     var pdblower = pdbid.toLocaleLowerCase();
     if (pdbid == "cust") {
         var coordURL = `/custom-struc-data/${pdblower}-${entityid}-${chainid}`;
@@ -917,49 +986,9 @@ var showPDBHelper = function (pdbid, chainid, entityid) {
         bgColor: { r: 255, g: 255, b: 255 },
     }
     var viewerContainer = document.getElementById('pdbeMolstarView');
-    viewerInstance.render(viewerContainer, vm.viewer_options);
     window.viewerInstance = viewerInstance;
-
-    document.addEventListener('PDB.topologyViewer.click', (e) => {
-        var molstar = viewerInstance;
-        var chainId = e.eventData.chainId;
-        var entityId = e.eventData.entityId;
-        var residueNumber = e.eventData.residueNumber;
-        var types = e.eventData.type;
-        molstar.visual.select({
-            data: [
-                {
-                    entity_id: entityId,
-                    residue_number: residueNumber,
-                    color: { r: 20, y: 100, b: 200 },
-                    focus: false
-                },
-            ],
-        })
-    })
-    document.addEventListener('PDB.topologyViewer.mouseover', (e) => {
-        var molstar = viewerInstance;
-        var chainId = e.eventData.chainId;
-        var entityId = e.eventData.entityId;
-        var residueNumber = e.eventData.residueNumber;
-        var types = e.eventData.type;
-
-        molstar.visual.highlight({
-            data: [
-                {
-                    entity_id: entityId,
-                    residue_number: residueNumber,
-                },
-            ],
-        })
-    })
-    document.addEventListener('PDB.molstar.mouseover', (e) => {
-        var eventData = e.eventData;
-        let resi_id = eventData.auth_seq_id;
-        if (masked_array && masked_array[resi_id] == false) {
-            viewerInstance.plugin.behaviors.interaction.hover._value.current.loci.kind = "empty-loci"
-        }
-    });
+    viewerInstance.render(viewerContainer, vm.viewer_options);
+    bindPDBMolstarEventsOnce();
 }
 var fetchTWCdata = function (fasta) {
     ajax('/twc-api/', { fasta }).then(twcDataUnmapped => {
@@ -1026,7 +1055,7 @@ var calculateModifiedCustom = function (entityid, filepath) {
         if (data.Modified.length > 0) {
             vm.modified = true
         }
-        //viewerInstanceTop.viewInstance.uiTemplateService.colorMap(); 
+        //viewerInstanceTop.viewInstance.uiTemplateService.colorMap();
     });
 }
 
@@ -1072,7 +1101,7 @@ var calculateModifiedResidues = function (pdbid, chainid, entityid) {
         if (data.Modified.length > 0) {
             vm.modified = true
         }
-        //viewerInstanceTop.viewInstance.uiTemplateService.colorMap(); 
+        //viewerInstanceTop.viewInstance.uiTemplateService.colorMap();
     });
 }
 var showContactsHelper = function (entityid) {
@@ -1208,7 +1237,7 @@ var showModificationsAndContactsHelper = async function (entityid) {
     const selectColors = async() => {
         await sleep(5000)
         viewerInstance.visual.select({
-            data: mapSort1, 
+            data: mapSort1,
             nonSelectedColor: {r:255,g:255,b:255}
             }).catch(err => {
                 console.log(err);
@@ -1261,11 +1290,78 @@ const ColoringOperations = {
     'highlight': 'highlighting'
 };
 
+// Every RiboVision colour theme (highlight-color-wrapper, shannon-entropy-wrapper,
+// helix-data-wrapper, ...) is registered as a `type: "static"` Mol* custom model
+// property, so Mol* runs its getData() once per model and caches the result on
+// model._staticPropertyData; later coloring calls reuse the cached value.
+// Those getData() implementations read window.maskedAnnotationArray, so a newly
+// applied mask would never reach the 3D view - which is why Focus and Hide
+// rendered identically, the first mask applied won. Reloading the structure used
+// to hide this by producing a fresh model; dropping the cached entries does the
+// same thing without a reload.
+var invalidateMolstarColorCache = function () {
+    if (!window.viewerInstance || !viewerInstance.plugin) { return; }
+    const hierarchy = viewerInstance.plugin.managers.structure.hierarchy.current;
+    if (!hierarchy || !hierarchy.structures) { return; }
+    hierarchy.structures.forEach(structureRef => {
+        const structure = structureRef.cell && structureRef.cell.obj ? structureRef.cell.obj.data : null;
+        if (!structure || !structure.models) { return; }
+        structure.models.forEach(model => {
+            const cache = model._staticPropertyData;
+            if (!cache) { return; }
+            Object.keys(cache).forEach(key => {
+                if (key.endsWith('-wrapper') || key.endsWith('-wrapper-2')) { delete cache[key]; }
+            });
+        });
+    });
+};
+
 // Refactored recolorTopStar function
 var recolorTopStar = async function (name) {
     const selectBox = viewerInstanceTop.viewInstance.targetEle.querySelector('.mappingSelectbox');
     const newIndex = indexMatchingText(selectBox.options, name);
     selectBox.selectedIndex = newIndex;
+    if (!window.viewerInstance || !viewerInstance.plugin) {
+        viewerInstanceTop.viewInstance.uiTemplateService.colorMap();
+        return;
+    }
+    // While any range mask is applied, recolour the existing structure in place.
+    // Reloading it (performColoring below) would race with the mask and force a
+    // second plugin instance to be built for every property change.
+    const rangeFilterActive = !!window.appliedMaskMode;
+    if (rangeFilterActive) {
+        if (window.mask3DUpdatePromise) {
+            await window.mask3DUpdatePromise.catch(() => {});
+        }
+        try {
+            if (name === 'Select data' || name === 'Clear data') {
+                await viewerInstance.visual.clearSelection();
+                await viewerInstance.visual.reset({theme: true});
+            } else {
+                const coloringMethod = ColoringOperations[name];
+                if (coloringMethod) {
+                    await viewerInstance.visual.clearSelection();
+                    invalidateMolstarColorCache();
+                    // Recolouring to the same theme is a no-op state update, which
+                    // would skip recomputing the property we just invalidated.
+                    // Going through the default theme forces a real change.
+                    await viewerInstance.visual.reset({theme: true});
+                    await viewerInstance.coloring[coloringMethod]({sequence: true, het: false, keepStyle: true});
+                }
+            }
+        } catch (err) {
+            // Keep the 2D view in sync even if the structure is not ready to be
+            // recoloured; this runs from a Vue watcher, so a rejection here
+            // would otherwise escape as an unhandled promise rejection.
+            console.log(err);
+        }
+        viewerInstanceTop.viewInstance.uiTemplateService.colorMap();
+        if (name === 'Select data') {
+            viewerInstanceTop.viewInstance.uiTemplateService.colorMapContacts();
+            viewerInstanceTop.viewInstance.uiTemplateService.colorMapModifications();
+        }
+        return;
+    }
 
     // Reset VM state for most operations
     const resetVmState = () => {

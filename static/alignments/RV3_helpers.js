@@ -1,52 +1,200 @@
+const jet_palette = [
+    [0, 0, 143], [0, 0, 148], [0, 0, 153], [0, 0, 158], [0, 0, 163], [0, 0, 168], [0, 0, 173], [0, 0, 178], [0, 0, 183], [0, 0, 188], [0, 0, 193], [0, 0, 198], [0, 0, 203], [0, 0, 208], [0, 0, 213], [0, 0, 218], [0, 0, 223], [0, 0, 228], [0, 0, 233], [0, 0, 238], [0, 0, 243], [0, 0, 248], [0, 0, 255], [0, 10, 255], [0, 20, 255], [0, 30, 255], [0, 41, 255], [0, 51, 255], [0, 61, 255], [0, 71, 255], [0, 82, 255], [0, 92, 255], [0, 102, 255], [0, 112, 255], [0, 122, 255], [0, 133, 255], [0, 143, 255], [0, 153, 255], [0, 163, 255], [0, 173, 255], [0, 184, 255], [0, 194, 255], [0, 204, 255], [0, 214, 255], [0, 224, 255], [0, 235, 255], [0, 245, 255], [0, 255, 255], [10, 255, 245], [20, 255, 235], [30, 255, 224], [41, 255, 214], [51, 255, 204], [61, 255, 194], [71, 255, 184], [82, 255, 173], [92, 255, 163], [102, 255, 153], [112, 255, 143], [122, 255, 133], [133, 255, 122], [143, 255, 112], [153, 255, 102], [163, 255, 92], [173, 255, 82], [184, 255, 71], [194, 255, 61], [204, 255, 51], [214, 255, 41], [224, 255, 30], [235, 255, 20], [245, 255, 10], [255, 255, 0], [255, 245, 0], [255, 235, 0], [255, 224, 0], [255, 214, 0], [255, 204, 0], [255, 194, 0], [255, 184, 0], [255, 173, 0], [255, 163, 0], [255, 153, 0], [255, 143, 0], [255, 133, 0], [255, 122, 0], [255, 112, 0], [255, 102, 0], [255, 92, 0], [255, 82, 0], [255, 71, 0], [255, 61, 0], [255, 51, 0], [255, 41, 0], [255, 30, 0], [255, 20, 0], [255, 10, 0], [255, 0, 0], [242, 0, 0], [229, 0, 0], [217, 0, 0], [204, 0, 0], [191, 0, 0], [179, 0, 0], [166, 0, 0], [153, 0, 0], [140, 0, 0], [128, 0, 0]
+ ]
 
-var annotationArraySE = [];
-var annotationArrayTWC = [];
-var annotationArrayCD = [];
-var annotationArrayAD = [];
-var annotationArrayHD = [];
-var annotationArrayPD = [];
-var annotationArrayAESD = [];
+const coolwarm_palette = [
+    [59, 76, 192] , [61, 81, 195] , [64, 86, 198] , [67, 91, 201] , [70, 96, 204] , [73, 101, 207] , [76, 106, 209] , [79, 111, 212] , [82, 116, 215] , [85, 121, 217] , [89, 126, 220] , [92, 131, 222] , [95, 136, 225] , [99, 141, 227] , [102, 146, 229] , [106, 151, 231] , [109, 155, 233] , [113, 160, 235] , [117, 165, 237] , [121, 169, 239] , [125, 174, 241] , [129, 178, 243] , [133, 183, 245] , [137, 187, 246] , [141, 192, 248] , [145, 196, 250] , [150, 200, 251] , [154, 204, 253] , [158, 208, 254] , [162, 212, 255] , [167, 216, 255] , [171, 220, 255] , [175, 224, 255] , [180, 228, 255] , [184, 231, 255] , [188, 235, 255] , [193, 238, 255] , [197, 242, 255] , [201, 245, 255] , [206, 248, 255] , [210, 251, 255] , [214, 253, 255] , [218, 255, 255] , [222, 255, 252] , [226, 255, 249] , [229, 255, 246] , [233, 255, 243] , [236, 255, 240] , [240, 255, 237] , [243, 255, 234] , [246, 255, 231] , [250, 255, 228] , [253, 255, 225] , [255, 252, 222] , [255, 248, 218] , [255, 244, 214] , [255, 240, 210] , [255, 236, 206] , [255, 232, 202] , [255, 228, 197] , [255, 224, 193] , [255, 220, 189] , [255, 216, 185] , [255, 212, 180] , [255, 208, 176] , [255, 203, 172] , [255, 199, 167] , [255, 195, 163] , [255, 190, 158] , [255, 186, 154] , [255, 181, 149] , [255, 177, 144] , [255, 172, 139] , [255, 167, 134] , [255, 162, 130] , [255, 157, 125] , [255, 152, 120] , [255, 147, 115] , [255, 142, 110] , [255, 137, 104] , [255, 132, 99] , [255, 126, 94] , [255, 121, 89] , [255, 115, 84] , [255, 110, 78] , [255, 104, 73] , [255, 98, 67] , [255, 92, 62] , [255, 86, 56] , [255, 80, 50] , [255, 74, 44] , [255, 68, 38] , [255, 62, 32] , [255, 55, 26] , [255, 48, 20] , [255, 41, 13] , [255, 33, 7] , [255, 25, 0] , [247, 21, 0] , [239, 18, 0] , [231, 15, 0] , [223, 12, 0] , [215, 8, 0] , [207, 5, 0] , [199, 2, 0] , [191, 0, 0] , [183, 0, 0] , [175, 0, 0] , [167, 0, 0] , [159, 0, 0] , [151, 0, 0] , [143, 0, 0] , [135, 0, 0] , [128, 0, 0] , [120, 0, 0] , [112, 0, 0] , [104, 0, 0]
+ ]
+
+
+// Configuration constants
+const CONFIG = {
+    ANNOTATION_BINS: 100,
+    MAX_SEQUENCE_LIMIT: 2000,
+    MAX_SEQUENCE_LENGTH: 2000000,
+    CANVAS_HEIGHT_OFFSET: 50,
+    SLEEP_DELAY: 2000,
+    COLOR_RETRY_ATTEMPTS: 3,
+    STRUCTURE_LOAD_DELAY: 6000,
+    PDB_COORDINATE_URL: 'https://www.ebi.ac.uk/pdbe/model-server/v1',
+    COORDS_LITE_URL: 'https://coords.litemol.org',
+    CUSTOM_STRUC_URL: '/custom-struc-data',
+    LOADING_IMG_SRC: 'static/img/loading.gif'
+};
+
+// Global state management
+const AppState = {
+    annotationArrays: new Map(),
+    mousePos: null,
+    masked_array: [],
+
+    // Initialize annotation arrays
+    initAnnotationArrays() {
+        const types = ['SE', 'TWC', 'CD', 'CD2', 'AD', 'HD', 'PD', 'AESD'];
+        types.forEach(type => {
+            this.annotationArrays.set(type, Array.from({ length: CONFIG.ANNOTATION_BINS },
+                (_, i) => ({ annotation: i + 1, ids: [], colors: [] })));
+        });
+    },
+
+    getAnnotationArray(type) {
+        return this.annotationArrays.get(type) || [];
+    }
+};
+
+// Initialize the state
+AppState.initAnnotationArrays();
+
+// Utility functions
+const Utils = {
+    // Generic annotation generator
+    generateAnnotations(separatedData, lowVal, highVal, chainid, arrayType, colormapArray = null) {
+        const annotationArray = AppState.getAnnotationArray(arrayType);
+        annotationArray.forEach(item => {
+            item.ids.length = 0;
+            item.colors.length = 0;
+        });
+
+        separatedData.forEach(([parsedItem, itemValue]) => {
+            const newValue = itemValue - lowVal;
+            const normalizedVal = highVal !== lowVal ? Math.round(newValue / (highVal - lowVal) * 99) : 0;
+            if (normalizedVal >= 0 && normalizedVal < CONFIG.ANNOTATION_BINS) {
+                annotationArray[normalizedVal].ids.push(`${chainid} ${parsedItem}`);
+            }
+            if (colormapArray && annotationArray[normalizedVal].colors.length === 0) {
+                annotationArray[normalizedVal].colors.push(colormapArray[normalizedVal]);
+            }
+        });
+
+        return annotationArray;
+    },
+
+    // Sleep utility
+    sleep(delay) {
+        return new Promise(resolve => setTimeout(resolve, delay));
+    },
+
+    // Retry utility for async operations
+    async retryAsync(asyncFn, maxAttempts = CONFIG.COLOR_RETRY_ATTEMPTS, delay = CONFIG.SLEEP_DELAY) {
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                return await asyncFn();
+            } catch (error) {
+                console.error(`Attempt ${attempt} failed:`, error);
+                if (attempt < maxAttempts) {
+                    await this.sleep(delay);
+                }
+            }
+        }
+        throw new Error(`Failed after ${maxAttempts} attempts`);
+    },
+
+    // DOM element creation utility
+    createElement(parentId, childId, childText, addLoadingImg = false) {
+        const parent = document.getElementById(parentId);
+        const child = document.createElement("div");
+        const textNode = document.createTextNode(childText);
+        child.setAttribute("id", childId);
+
+        child.appendChild(textNode);
+
+        if (addLoadingImg) {
+            const img = document.createElement("img");
+            img.setAttribute("src", CONFIG.LOADING_IMG_SRC);
+            img.setAttribute("alt", "Loading");
+            img.setAttribute("style", "height:25px;");
+            child.appendChild(img);
+        }
+
+        parent.appendChild(child);
+        return child;
+    },
+
+    // Date formatting utility
+    getFormattedDate() {
+        const [month, date, year] = new Date().toLocaleDateString("en-US").split("/");
+        return { month, date, year };
+    },
+
+    // Canvas to image download utility
+    downloadCanvasImage(canvas, filename) {
+        const imageData = canvas.toDataURL("image/png");
+        const anchor = document.createElement('a');
+        anchor.href = imageData.replace(/^data:image\/png/, "data:application/octet-stream");
+        anchor.target = '_blank';
+        anchor.download = filename;
+        anchor.click();
+    },
+
+    // Generic file download utility
+    downloadFile(content, filename, mimeType = 'text/plain') {
+        const anchor = document.createElement('a');
+        anchor.href = `data:${mimeType};charset=utf-8,${encodeURIComponent(content)}`;
+        anchor.target = '_blank';
+        anchor.download = filename;
+        anchor.click();
+    },
+
+    // Color conversion utilities
+    componentToHex(c) {
+        const hex = c.toString(16);
+        return hex.length === 1 ? "0" + hex : hex;
+    },
+
+    rgbToHex(r, g, b) {
+        return "#" + this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b);
+    },
+
+    hexToRgb(hex) {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
+    }
+};
 
 var absolutePosition = function (el) {
-  var
-      found,
-      left = 0,
-      top = 0,
-      width = 0,
-      height = 0,
-      offsetBase = absolutePosition.offsetBase;
-  if (!offsetBase && document.body) {
-      offsetBase = absolutePosition.offsetBase = document.createElement('div');
-      offsetBase.style.cssText = 'position:absolute;left:0;top:0';
-      document.body.appendChild(offsetBase);
-  }
-  if (el && el.ownerDocument === document && 'getBoundingClientRect' in el && offsetBase) {
-      var boundingRect = el.getBoundingClientRect();
-      var baseRect = offsetBase.getBoundingClientRect();
-      found = true;
-      left = boundingRect.left - baseRect.left;
-      top = boundingRect.top - baseRect.top;
-      width = boundingRect.right - boundingRect.left;
-      height = boundingRect.bottom - boundingRect.top;
-  }
-  return {
-      found: found,
-      left: left,
-      top: top,
-      width: width,
-      height: height,
-      right: left + width,
-      bottom: top + height
-  };
+    var
+        found,
+        left = 0,
+        top = 0,
+        width = 0,
+        height = 0,
+        offsetBase = absolutePosition.offsetBase;
+    if (!offsetBase && document.body) {
+        offsetBase = absolutePosition.offsetBase = document.createElement('div');
+        offsetBase.style.cssText = 'position:absolute;left:0;top:0';
+        document.body.appendChild(offsetBase);
+    }
+    if (el && el.ownerDocument === document && 'getBoundingClientRect' in el && offsetBase) {
+        var boundingRect = el.getBoundingClientRect();
+        var baseRect = offsetBase.getBoundingClientRect();
+        found = true;
+        left = boundingRect.left - baseRect.left;
+        top = boundingRect.top - baseRect.top;
+        width = boundingRect.right - boundingRect.left;
+        height = boundingRect.bottom - boundingRect.top;
+    }
+    return {
+        found: found,
+        left: left,
+        top: top,
+        width: width,
+        height: height,
+        right: left + width,
+        bottom: top + height
+    };
 };
 
 
-var parseFastaString = function(fastaString){
+var parseFastaString = function (fastaString) {
     let arrayFasta = [];
     let tempFasta = String(fastaString).split('\n>');
     tempFasta[0] = tempFasta[0].slice(1);
     tempFasta = tempFasta.filter(n => n);
-    tempFasta.forEach(seq =>{
+    tempFasta.forEach(seq => {
         let splitSeq = seq.split(/\n/);
         arrayFasta.push(splitSeq[0]);
         arrayFasta.push(splitSeq.slice(1).join(''))
@@ -56,53 +204,53 @@ var parseFastaString = function(fastaString){
 
 var validateFasta = function (fasta) {
     //From here https://www.blopig.com/blog/2013/03/a-javascript-function-to-validate-fasta-sequences/
-    
+
     if (!fasta) { // check there is something first of all
         alert("Empty file was uploaded!");
         return false;
     }
-    
+
     fastaArr = parseFastaString(fasta);
     var fastaSeqs = '';
     var nameSeqs = '';
     var badName = false
-    if (fastaArr.length > 4000){
+    if (fastaArr.length > 4000) {
         alert("Fasta file has over 2000 sequences! We currently do not support that many sequences.");
         return false;
     }
 
-    if (fastaArr[1].length*fastaArr.length > 2000000){
+    if (fastaArr[1].length * fastaArr.length > 2000000) {
         alert("Fasta file has over 1000000 letters! We currently do not support such big files.");
         return false;
     }
 
-    fastaArr.map(function(element, index) {
-        if (index % 2 == 1){
+    fastaArr.map(function (element, index) {
+        if (index % 2 == 1) {
             fastaSeqs += fastaArr[index];
         } else {
-            if (fastaArr[index].includes('>')){
+            if (fastaArr[index].includes('>')) {
                 badName = '>';
             }
-            if (fastaArr[index].includes('Structure sequence')){
+            if (fastaArr[index].includes('Structure sequence')) {
                 badName = 'struct';
             }
         }
     });
 
-    if (!fastaSeqs) { // is it empty whatever we collected ? re-check not efficient 
+    if (!fastaSeqs) { // is it empty whatever we collected ? re-check not efficient
         alert("No sequences were found in the file!");
         return false;
     }
 
-    if (badName == '>'){
+    if (badName == '>') {
         alert("The character > should appear only once in sequence headers!");
         return false;
-    } else if (badName == 'struct'){
+    } else if (badName == 'struct') {
         alert("Structure sequence is a protected sequence id! ProteoVision uses it to append the structure-derived sequence!");
         return false;
     }
 
-    if (!/^[-ACDEFGHIKLMNPQRSTUVWYX\s]+$/i.test(fastaSeqs)){
+    if (!/^[-ACDEFGHIKLMNPQRSTUVWYX\s]+$/i.test(fastaSeqs)) {
         alert("Found non-standard characters in the sequences!");
         return false;
     }
@@ -110,170 +258,160 @@ var validateFasta = function (fasta) {
     return true;
 }
 
-var parseFastaSeqForMSAViewer = function (fasta){
+var parseFastaSeqForMSAViewer = function (fasta) {
     let outSeqs = [];
     arrayFasta = parseFastaString(fasta);
-    arrayFasta.map(function(element, index) {
-        if (index % 2 == 0){
+    arrayFasta.map(function (element, index) {
+        if (index % 2 == 0) {
             let seqName = element.replaceAll('_', ' ').replaceAll('>', '');
-            let seqObj = {'name': seqName, 'sequence': arrayFasta[index+1]}
+            let seqObj = { 'name': seqName, 'sequence': arrayFasta[index + 1] }
             outSeqs.push(seqObj);
         }
     });
     return outSeqs;
 };
 
-(function() {
-  var mousePos;
-  document.onmousemove = handleMouseMove;
-  function handleMouseMove(event) {
-      var eventDoc, doc, body;
-      event = event || window.event; // IE-ism
-      // If pageX/Y aren't available and clientX/Y are,
-      // calculate pageX/Y - logic taken from jQuery.
-      // (This is to support old IE)
-      if (event.pageX == null && event.clientX != null) {
-          eventDoc = (event.target && event.target.ownerDocument) || document;
-          doc = eventDoc.documentElement;
-          body = eventDoc.body;
-          event.pageX = event.clientX +
-            (doc && doc.scrollLeft || body && body.scrollLeft || 0) -
-            (doc && doc.clientLeft || body && body.clientLeft || 0);
-          event.pageY = event.clientY +
-            (doc && doc.scrollTop  || body && body.scrollTop  || 0) -
-            (doc && doc.clientTop  || body && body.clientTop  || 0 );
-      }
-      mousePos = {
-        x: event.pageX,
-        y: event.pageY
-    };
-    window.mousePos = mousePos;
-  }
+(function () {
+    var mousePos;
+    document.onmousemove = handleMouseMove;
+    function handleMouseMove(event) {
+        var eventDoc, doc, body;
+        event = event || window.event; // IE-ism
+        // If pageX/Y aren't available and clientX/Y are,
+        // calculate pageX/Y - logic taken from jQuery.
+        // (This is to support old IE)
+        if (event.pageX == null && event.clientX != null) {
+            eventDoc = (event.target && event.target.ownerDocument) || document;
+            doc = eventDoc.documentElement;
+            body = eventDoc.body;
+            event.pageX = event.clientX +
+                (doc && doc.scrollLeft || body && body.scrollLeft || 0) -
+                (doc && doc.clientLeft || body && body.clientLeft || 0);
+            event.pageY = event.clientY +
+                (doc && doc.scrollTop || body && body.scrollTop || 0) -
+                (doc && doc.clientTop || body && body.clientTop || 0);
+        }
+        mousePos = {
+            x: event.pageX,
+            y: event.pageY
+        };
+        window.mousePos = mousePos;
+    }
 })();
 
+// Download functions using utilities
 function downloadCSVData() {
-  let [month, date, year] = new Date().toLocaleDateString("en-US").split("/");
-  combined_map = new Map([...mapped_aa_properties, ...vm.mapped_aa_contacts_mods]);
-  let csv = generateCSVstring(combined_map);
-  let anchor = document.createElement('a');
-  anchor.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
-  anchor.target = '_blank';
-  anchor.download = `PVData-${month}-${date}-${year}.csv`;
-  anchor.click();
-};
-
-var downloadAlignmentData = function(fastaString){
-    let [month, date, year] = new Date().toLocaleDateString("en-US").split("/");
-    let anchor = document.createElement('a');
-    anchor.href = 'data:text;charset=utf-8,' + encodeURIComponent(fastaString);
-    anchor.target = '_blank';
-    anchor.download = `PValignment-${month}-${date}-${year}.fas`;
-    anchor.click();
+    const { month, date, year } = Utils.getFormattedDate();
+    const combined_map = new Map([...mapped_aa_properties, ...vm.mapped_aa_contacts_mods]);
+    const csv = generateCSVstring(combined_map);
+    Utils.downloadFile(csv, `PVData-${month}-${date}-${year}.csv`, 'text/csv');
 }
 
-var downloadAlignmentImage = function(){
-    var [month, date, year] = new Date().toLocaleDateString("en-US").split("/");
-    var alnDiv = document.querySelector("#MSAViewer");
-    var styleHeight = Number(alnDiv.firstElementChild.style.height.replace("px",""))
-    alnDiv.firstElementChild.style.height = styleHeight + 50;
-    var anchor = document.createElement('a');
+var downloadAlignmentData = function (fastaString) {
+    const { month, date, year } = Utils.getFormattedDate();
+    const columnMap = window.PVAlnViewer && window.PVAlnViewer.state.hideColumnMap;
+    if (columnMap && (window.appliedMaskMode === 'focus' || window.appliedMaskMode === 'hide')) {
+        const fastaEntries = parseFastaString(fastaString);
+        let filteredFasta = '';
+        for (let i = 0; i < fastaEntries.length; i += 2) {
+            const sequence = fastaEntries[i + 1] || '';
+            filteredFasta += `>${fastaEntries[i]}\n${columnMap.map(position => sequence.charAt(position)).join('')}\n`;
+        }
+        fastaString = filteredFasta;
+    }
+    Utils.downloadFile(fastaString, `PValignment-${month}-${date}-${year}.fas`);
+}
+
+var downloadAlignmentImage = function () {
+    const { month, date, year } = Utils.getFormattedDate();
+    const alnDiv = document.querySelector("#MSAViewer");
+    const styleHeight = Number(alnDiv.firstElementChild.style.height.replace("px", ""));
+    alnDiv.firstElementChild.style.height = styleHeight + CONFIG.CANVAS_HEIGHT_OFFSET;
+
     html2canvas(alnDiv).then(canvas => {
-        var imageData = canvas.toDataURL("image/png");
-        anchor.href = imageData.replace(/^data:image\/png/, "data:application/octet-stream");
-        anchor.target = '_blank';
-        anchor.download = `PValignment-${month}-${date}-${year}.png`;
-        anchor.click();
-    })
+        Utils.downloadCanvasImage(canvas, `PValignment-${month}-${date}-${year}.png`);
+    });
 }
 
-var downloadFullAlignmentImage = function (){
-    var [month, date, year] = new Date().toLocaleDateString("en-US").split("/");
-    var handleCanvasErr = function (err, labelsDiv, initialLabelsWidth){
+var downloadFullAlignmentImage = function () {
+    const { month, date, year } = Utils.getFormattedDate();
+
+    const handleCanvasErr = function (err, labelsDiv, initialLabelsWidth) {
         labelsDiv.style.width = initialLabelsWidth;
         PVAlnViewer.handleResize();
-        alert("Couldn't parse the alignment. Check the console for error.")
-        console.log(err)
-    }
-    var alnLength = vm.fasta_data.split('>')[1].split('\n')[1].length;
+        alert("Couldn't parse the alignment. Check the console for error.");
+        console.log(err);
+    };
+
+    const filteredSequences = PVAlnViewer.state.hideSequences;
+    const alnLength = filteredSequences && (window.appliedMaskMode === 'focus' || window.appliedMaskMode === 'hide')
+        ? filteredSequences[0].sequence.length : vm.fasta_data.split('>')[1].split('\n')[1].length;
     PVAlnViewer.setState({
         aaPos: 0,
         seqPos: 0,
-        height: (vm.fastaSeqNames.length+2)*17, 
-        width: (alnLength+5)*17,
+        height: (vm.fastaSeqNames.length + 2) * 17,
+        width: (alnLength + 5) * 17,
     });
-    var labelsDiv = document.querySelector("#alnViewerLabels");
-    var longestName = '';
+
+    const labelsDiv = document.querySelector("#alnViewerLabels");
+    let longestName = '';
     labelsDiv.firstElementChild.firstElementChild.children.forEach(function (labelNode) {
         if (labelNode.textContent.length > longestName.length) {
             longestName = labelNode.textContent;
-          }
+        }
     });
-    var initialLabelsWidth = labelsDiv.style.width;
-    var maxLabelsWidth = getWidthOfText(longestName, 'Arial', '15px');
+
+    const initialLabelsWidth = labelsDiv.style.width;
+    const maxLabelsWidth = getWidthOfText(longestName, 'Arial', '15px');
     labelsDiv.style.width = maxLabelsWidth;
-    var anchor = document.createElement('a');
-    var alnDiv = document.querySelector("#MSAViewer");
-    //Have to do 2 nested html2canvas so that canvas gets rerendered at the 0,0 position.
+
+    const alnDiv = document.querySelector("#MSAViewer");
+
+    // Nested html2canvas calls for proper rendering
     html2canvas(alnDiv).then(() => {
-        var alnDivDownload = document.querySelector("#MSAViewer");
+        const alnDivDownload = document.querySelector("#MSAViewer");
         html2canvas(alnDivDownload).then(canvas => {
-            var imageData = canvas.toDataURL("image/png");
             labelsDiv.style.width = initialLabelsWidth;
             PVAlnViewer.handleResize();
-            anchor.href = imageData.replace(/^data:image\/png/, "data:application/octet-stream");
-            anchor.target = '_blank';
-            anchor.download = `PValignment-full-${month}-${date}-${year}.png`;
-            anchor.click();
+            Utils.downloadCanvasImage(canvas, `PValignment-full-${month}-${date}-${year}.png`);
         }).catch(err => {
             handleCanvasErr(err, labelsDiv, initialLabelsWidth);
-        })
+        });
     }).catch(err => {
         handleCanvasErr(err, labelsDiv, initialLabelsWidth);
     });
 }
 
-var getWidthOfText = function (txt, fontname, fontsize){
-    if(getWidthOfText.c === undefined){
-        getWidthOfText.c=document.createElement('canvas');
-        getWidthOfText.ctx=getWidthOfText.c.getContext('2d');
+var getWidthOfText = function (txt, fontname, fontsize) {
+    if (getWidthOfText.c === undefined) {
+        getWidthOfText.c = document.createElement('canvas');
+        getWidthOfText.ctx = getWidthOfText.c.getContext('2d');
     }
     var fontspec = fontsize + ' ' + fontname;
-    if(getWidthOfText.ctx.font !== fontspec)
+    if (getWidthOfText.ctx.font !== fontspec)
         getWidthOfText.ctx.font = fontspec;
     return getWidthOfText.ctx.measureText(txt).width;
 }
 
-var create_deleted_element = function (parent_id, child_id, child_text, optionalLoadIMG=null) {
-    const parent = document.getElementById(parent_id);
-    const child_elt = document.createElement("div");
-    const childText = document.createTextNode(child_text);
-    child_elt.setAttribute("id", child_id);
-    child_elt.setAttribute("id", child_id);
-    child_elt.appendChild(childText);
-    if (optionalLoadIMG){
-        let imgElt = document.createElement("img");
-        imgElt.setAttribute("src","static/img/loading.gif");
-        imgElt.setAttribute("alt","Loading");
-        imgElt.setAttribute("style","height:25px;");
-        child_elt.appendChild(imgElt);
-    }
-    parent.appendChild(child_elt);
+// DOM element creation using utility
+var create_deleted_element = function (parent_id, child_id, child_text, optionalLoadIMG = null) {
+    return Utils.createElement(parent_id, child_id, child_text, optionalLoadIMG);
 }
 
-var cleanupOnNewAlignment = function (vueObj, aln_text='') {
-    if (vm.uploadSession){return;}
+var cleanupOnNewAlignment = function (vueObj, aln_text = '') {
+    if (vm.uploadSession) { return; }
     const menu_item = document.querySelector(".smenubar");
     const aln_item = document.getElementById("alnDiv");
     const topview_item = document.getElementById("topview");
     const molstar_item = document.getElementById("pdbeMolstarView");
     const pdb_input = document.getElementById("pdb_input");
-    if (menu_item) {menu_item.remove();}
-    if (aln_text != ''){
+    if (menu_item) { menu_item.remove(); }
+    if (aln_text != '') {
         vueObj.custom_aln_twc_flag = null;
         vueObj.pdbs = [
-            {id: "7k00", name: "7K00 E. coli"},
-            {id: "4v6u", name: "4V6U P. furiosus"},
-            {id: "4v6x", name: "4V6X H. sapiens"},
+            { id: "7k00", name: "7K00 E. coli" },
+            { id: "4v6u", name: "4V6U P. furiosus" },
+            { id: "4v6x", name: "4V6X H. sapiens" },
         ];
         vueObj.colorScheme = 'nucleotide';
         vueObj.fetchUNtruncatedAln = false;
@@ -283,29 +421,29 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
         vueObj.msavWillMount = null;
         vueObj.unmappedTWCdata = null;
         if (pdb_input) {
-            if (pdb_input.getAttribute("value") != ""){vueObj.pdbid = null;}
+            if (pdb_input.getAttribute("value") != "") { vueObj.pdbid = null; }
         }
-        if (vueObj.chains) {vueObj.chains = null;}
-        if (vueObj.aln_meta_data) {vueObj.aln_meta_data = null;}
-        if (vueObj.fasta_data) {vueObj.fasta_data = null;}
-        if (vueObj.fastaSeqNames) {vueObj.fastaSeqNames = null;}
-        if (vueObj.frequency_data) {vueObj.frequency_data = null;}
-        if (aln_item) {aln_item.remove(); create_deleted_element("alnif", "alnDiv", aln_text, true)}
+        if (vueObj.chains) { vueObj.chains = null; }
+        if (vueObj.aln_meta_data) { vueObj.aln_meta_data = null; }
+        if (vueObj.fasta_data) { vueObj.fasta_data = null; }
+        if (vueObj.fastaSeqNames) { vueObj.fastaSeqNames = null; }
+        if (vueObj.frequency_data) { vueObj.frequency_data = null; }
+        if (aln_item) { aln_item.remove(); create_deleted_element("alnif", "alnDiv", aln_text, true) }
     }
 
     window.mapped_aa_properties = null;
     vueObj.checkedRNA = false,
-    vueObj.customPDBid = null,
-    vueObj.customFullSequence = null,
-    vueObj.pdbStart = null,
-    vueObj.pdbEnd = null,
-    vueObj.pdbSeq = null,
-    vueObj.customPDBsuccess = null,
-    vueObj.PDBparsing = false;
+        vueObj.customPDBid = null,
+        vueObj.customFullSequence = null,
+        vueObj.pdbStart = null,
+        vueObj.pdbEnd = null,
+        vueObj.pdbSeq = null,
+        vueObj.customPDBsuccess = null,
+        vueObj.PDBparsing = false;
     vueObj.entityID = null,
-    vueObj.unfilteredChains = null,
-    vueObj.hide_chains = null,
-    vueObj.all_residues = null;
+        vueObj.unfilteredChains = null,
+        vueObj.hide_chains = null,
+        vueObj.all_residues = null;
     vueObj.coil_residues = null;
     vueObj.helix_residues = null;
     vueObj.strand_residues = null;
@@ -330,96 +468,96 @@ var cleanupOnNewAlignment = function (vueObj, aln_text='') {
     window.ajaxRun = false;
     window.custom_prop = null;
 
-    if (vueObj.fasta_data) {vueObj.fasta_data = vueObj.fasta_data.replace(/^>Structure sequence\n(.+\n)+?>/i, ">");}
-    if (vueObj.topology_loaded) {vueObj.topology_loaded = false;}
-    if (vueObj.raiseCustomCSVWarn) {vueObj.raiseCustomCSVWarn = null;}
-    if (window.masked_array.length > 0) {window.masked_array = [];}
-    if (vueObj.masking_range) {vueObj.masking_range = null;}
-    if (vueObj.checked_filter) {vueObj.checked_filter = false;}
-    if (vueObj.checked_selection) {vueObj.checked_selection = false;}
-    if (vueObj.checked_customMap) {vueObj.checked_customMap = false;}
-    if (vueObj.csv_data) {vueObj.csv_data = null;}
-    if (topview_item) {topview_item.remove(); create_deleted_element("topif", "topview", "Select new chain!")}
-    if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Select new structure!")}
+    if (vueObj.fasta_data) { vueObj.fasta_data = vueObj.fasta_data.replace(/^>Structure sequence\n(.+\n)+?>/i, ">"); }
+    if (vueObj.topology_loaded) { vueObj.topology_loaded = false; }
+    if (vueObj.raiseCustomCSVWarn) { vueObj.raiseCustomCSVWarn = null; }
+    if (window.masked_array.length > 0) { window.masked_array = []; }
+    if (vueObj.masking_range) { vueObj.masking_range = null; }
+    if (vueObj.checked_filter) { vueObj.checked_filter = false; }
+    if (vueObj.checked_selection) { vueObj.checked_selection = false; }
+    if (vueObj.checked_customMap) { vueObj.checked_customMap = false; }
+    if (vueObj.csv_data) { vueObj.csv_data = null; }
+    if (topview_item) { topview_item.remove(); create_deleted_element("topif", "topview", "Select new chain!") }
+    if (molstar_item) { molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Select new structure!") }
 };
 
 var loadParaOptions = function (action, callback, vm) {
-  if (action === "LOAD_ROOT_OPTIONS"){
-      ajax('/alignments/showStrucTaxonomy').then(data =>{
-          data.isDisabled = true,
-          vm.options = [data];
-          callback();
-      }).catch(error => {
-          console.log(error)
-      })
-  }
+    if (action === "LOAD_ROOT_OPTIONS") {
+        ajax('/alignments/showStrucTaxonomy').then(data => {
+            data.isDisabled = true,
+                vm.options = [data];
+            callback();
+        }).catch(error => {
+            console.log(error)
+        })
+    }
 };
 
-var pushChainData = function(temp_arr, chain_listI){
-    try{
-      temp_arr.push({
-          text: chain_listI["molecule_name"][0],
-          value: chain_listI["in_chains"][0],
-          sequence: chain_listI["sequence"],
-          entityID: chain_listI["entity_id"],
-          startIndex: chain_listI.source[0].mappings[0].start.residue_number,
-          endIndex: chain_listI.source[0].mappings[0].end.residue_number
-      })
-      }catch(err){console.log(err);}
+var pushChainData = function (temp_arr, chain_listI) {
+    try {
+        temp_arr.push({
+            text: chain_listI["molecule_name"][0],
+            value: chain_listI["in_chains"][0],
+            sequence: chain_listI["sequence"],
+            entityID: chain_listI["entity_id"],
+            startIndex: chain_listI.source[0].mappings[0].start.residue_number,
+            endIndex: chain_listI.source[0].mappings[0].end.residue_number
+        })
+    } catch (err) { console.log(err); }
     return temp_arr;
-  };
+};
 
 var intersection = function () {
     var result = [];
     var lists;
-    if(arguments.length === 1) {
+    if (arguments.length === 1) {
         lists = arguments[0];
     } else {
         lists = arguments;
     }
-    for(var i = 0; i < lists.length; i++) {
+    for (var i = 0; i < lists.length; i++) {
         var currentList = lists[i];
-        for(var y = 0; y < currentList.length; y++) {
+        for (var y = 0; y < currentList.length; y++) {
             var currentValue = currentList[y];
-            if(result.indexOf(currentValue) === -1) {
-                if(lists.filter(function(obj) { return obj.indexOf(currentValue) == -1 }).length == 0) {
+            if (result.indexOf(currentValue) === -1) {
+                if (lists.filter(function (obj) { return obj.indexOf(currentValue) == -1 }).length == 0) {
                     result.push(currentValue);
+                }
             }
-          }
         }
     }
     return result;
 }
 
-var objectify = function (array){
-    return array.reduce(function(p, c) {
-         p[c[0]] = [c[1], c[2]];
-         return p;
+var objectify = function (array) {
+    return array.reduce(function (p, c) {
+        p[c[0]] = [c[1], c[2]];
+        return p;
     }, {});
 }
 
-var loadOrthAlns = function(data, vm){
+var loadOrthAlns = function (data, vm) {
     if (data["results"].length === 1) {
         var fpa = data["results"][0]["alignment_ids"]
     } else if (data["results"].length > 1) {
         var fpa = [];
         var alnid_maps = [];
         var alnid_keys = [];
-        data["results"].forEach(function(tax_result){
+        data["results"].forEach(function (tax_result) {
             var temp_map = objectify(tax_result["alignment_ids"])
             alnid_maps.push(temp_map);
             alnid_keys.push(Object.keys(temp_map));
         });
         var filtered_keys = intersection(alnid_keys);
-        filtered_keys.forEach(function(alnk){
+        filtered_keys.forEach(function (alnk) {
             fpa.push(Array(Number(alnk), alnid_maps[0][alnk][0], alnid_maps[0][alnk][1]))
         })
     } else {
         var fpa = [null, 'No alignments found', "PROMALS3D"]
     }
     var fpa_viz = [];
-    fpa.forEach(function(fkey) {
-        if (fkey[2] == "GSD_LSD_rRNA"){
+    fpa.forEach(function (fkey) {
+        if (fkey[2] == "GSD_LSD_rRNA") {
             fpa_viz.push({
                 text: fkey[1],
                 value: fkey[0]
@@ -430,37 +568,37 @@ var loadOrthAlns = function(data, vm){
 }
 
 var loadParaAlns = function (value, vm) {
-  vm.alignments = null;
-  ajax('/alignments/fold-api/'+value).then(data=>{
-      var fpa = data["Folds to polymers to alignments"]
-      var fpa_viz = [];
-      Object.keys(fpa).forEach(fkey => {
-          Object.keys(fpa[fkey]).forEach(pkey => {
-              fpa[fkey][pkey].forEach(function (akey){
-                  fpa_viz.push({
-                      text:  'Alignment '.concat(akey[1],'; fold ',fkey),
-                      value: fkey.concat(',',akey)
-                  });
-              });
-          });
-      });
-      var temp_arr = fpa_viz
-      fpa_viz = Array.from(new Set(temp_arr.map(JSON.stringify))).map(JSON.parse);
-      vm.alignments = fpa_viz
-  });
+    vm.alignments = null;
+    ajax('/alignments/fold-api/' + value).then(data => {
+        var fpa = data["Folds to polymers to alignments"]
+        var fpa_viz = [];
+        Object.keys(fpa).forEach(fkey => {
+            Object.keys(fpa[fkey]).forEach(pkey => {
+                fpa[fkey][pkey].forEach(function (akey) {
+                    fpa_viz.push({
+                        text: 'Alignment '.concat(akey[1], '; fold ', fkey),
+                        value: fkey.concat(',', akey)
+                    });
+                });
+            });
+        });
+        var temp_arr = fpa_viz
+        fpa_viz = Array.from(new Set(temp_arr.map(JSON.stringify))).map(JSON.parse);
+        vm.alignments = fpa_viz
+    });
 };
 
-var setGlobalProperties = function(){
+var setGlobalProperties = function () {
     let aaPropertiesData = new Map([
-        ["Shannon entropy",[0.000000000000001,2.000]],
-        ["TwinCons",[-2.25,6.75]]
+        ["Shannon entropy", [0.000000000000001, 2.000]],
+        ["TwinCons", [-2.25, 6.75]]
     ]);
     let aaColorData = new Map([
-        ["Shannon entropy",[plasma]],
-        ["Protein contacts",[rainbow]],
+        ["Shannon entropy", [plasma]],
+        ["Protein contacts", [rainbow]],
         //["TwinCons",[Reds, Greens]],
-        ["TwinCons",[Reds, Blues]],
-        ["Helix",[rainbow]],
+        ["TwinCons", [Reds, Blues]],
+        ["Helix", [rainbow]],
         //["TwinCons",[RdPu, YlGn]],
     ]);
     window.aaColorData = aaColorData;
@@ -469,342 +607,276 @@ var setGlobalProperties = function(){
     return aaPropertiesData;
 }
 
-var calculateFrequencyData = function (frequencies){
-  const multiplyvector = function (a,b){
-      return a.map((e,i) => e * b[i]);
-  }
-  aaPropertiesData = setGlobalProperties();
-  let outPropertyPosition = new Map();
-  aaPropertiesData.forEach(function (data, property_name){
-      if (property_name == "TwinCons"){return;}
-      let const_data = data
-      outPropertyPosition.set(property_name, [])
-      frequencies.forEach(function (col_frequency) {
-          if (property_name == "Shannon entropy"){
-              const_data = new Array;
-              col_frequency.forEach( function (single_freq){
-                  if (single_freq == 0){
-                      const_data.push(0)
-                  }else{
-                      const_data.push(Math.log2(single_freq)*-1)
-                  }
-              });
-          }
-          outPropertyPosition.get(property_name).push(multiplyvector(const_data, col_frequency));
-      });
-  });
-  return outPropertyPosition;
-};
-
-var mapAAProps = function (aa_properties, mapping){
-  let outPropertyMappedPosition = new Map();
-  aa_properties.forEach(function (data, property_name){
-      outPropertyMappedPosition.set(property_name, [])
-      data.forEach(function (data, aln_ix) {
-          let mappedI0 = mapping[aln_ix+1];
-          if (mappedI0) {
-              outPropertyMappedPosition.get(property_name).push([mappedI0, Number(math.sum(data).toFixed(2))]);
-          }
-      });
-  });
-  return outPropertyMappedPosition;
-};
-
-var filterCoilResidues = function (coil_data){
-  const range = (start, stop, step) => Array.from({ length: (stop - start) / step + 1}, (_, i) => start + (i * step));
-  let coilResidues = [];
-  coil_data.forEach(function (coilRange){
-      if (coilRange.start < coilRange.stop){
-          coilResidues.push(range(coilRange.start, coilRange.stop, 1))
-      }
-  })
-  return coilResidues.flat()
-};
-
-var generateCSVstring = function (mapped_data){
-  let properties = Array.from(mapped_data.keys());
-  let csv = 'Index,Alignment index,'
-  csv += properties.join(',');
-  csv += '\n';
-  let csv_ix = [];
-  let csv_map = new Map()
-  mapped_data.get(properties[0]).forEach((datapoint) =>{
-      let alnIx = _.invert(vm.structure_mapping)[datapoint[0]];
-      //csv_ix.push([datapoint[0], alnIx]);
-      csv_map.set(datapoint[0], [alnIx])
-  })
-  i = 1
-  properties.forEach((prop) => {
-      //let ix = 0;
-      mapped_data.get(prop).forEach((datapoint) =>{
-          if (csv_map.has(datapoint[0])) {
-            if (prop != "Protein Contacts" && prop != "Modified Residues") {
-                csv_map.get(datapoint[0]).push(datapoint[1])
-            } else if (prop == "Protein Contacts" || prop == "Modified Residues") {
-                if (csv_map.get(datapoint[0]).length == i + 1){
-                    csv_map.get(datapoint[0])[i] = csv_map.get(datapoint[0])[i] + " " + datapoint[1]
-                }                
-                else {
-                    while (csv_map.get(datapoint[0]).length < i) {
-                        csv_map.get(datapoint[0]).push(" ")
+var calculateFrequencyData = function (frequencies) {
+    const multiplyvector = function (a, b) {
+        return a.map((e, i) => e * b[i]);
+    }
+    aaPropertiesData = setGlobalProperties();
+    let outPropertyPosition = new Map();
+    aaPropertiesData.forEach(function (data, property_name) {
+        if (property_name == "TwinCons") { return; }
+        let const_data = data
+        outPropertyPosition.set(property_name, [])
+        frequencies.forEach(function (col_frequency) {
+            if (property_name == "Shannon entropy") {
+                const_data = new Array;
+                col_frequency.forEach(function (single_freq) {
+                    if (single_freq == 0) {
+                        const_data.push(0)
+                    } else {
+                        const_data.push(Math.log2(single_freq) * -1)
                     }
+                });
+            }
+            outPropertyPosition.get(property_name).push(multiplyvector(const_data, col_frequency));
+        });
+    });
+    return outPropertyPosition;
+};
+
+var mapAAProps = function (aa_properties, mapping) {
+    let outPropertyMappedPosition = new Map();
+    aa_properties.forEach(function (data, property_name) {
+        outPropertyMappedPosition.set(property_name, [])
+        data.forEach(function (data, aln_ix) {
+            let mappedI0 = mapping[aln_ix + 1];
+            if (mappedI0) {
+                outPropertyMappedPosition.get(property_name).push([mappedI0, Number(math.sum(data).toFixed(2))]);
+            }
+        });
+    });
+    return outPropertyMappedPosition;
+};
+
+var filterCoilResidues = function (coil_data) {
+    const range = (start, stop, step) => Array.from({ length: (stop - start) / step + 1 }, (_, i) => start + (i * step));
+    let coilResidues = [];
+    coil_data.forEach(function (coilRange) {
+        if (coilRange.start < coilRange.stop) {
+            coilResidues.push(range(coilRange.start, coilRange.stop, 1))
+        }
+    })
+    return coilResidues.flat()
+};
+
+var generateCSVstring = function (mapped_data) {
+    let properties = Array.from(mapped_data.keys());
+    let csv = 'Index,Alignment index,'
+    csv += properties.join(',');
+    csv += '\n';
+    let csv_ix = [];
+    let csv_map = new Map()
+    mapped_data.get(properties[0]).forEach((datapoint) => {
+        let alnIx = _.invert(vm.structure_mapping)[datapoint[0]];
+        //csv_ix.push([datapoint[0], alnIx]);
+        csv_map.set(datapoint[0], [alnIx])
+    })
+    i = 1
+    properties.forEach((prop) => {
+        //let ix = 0;
+        mapped_data.get(prop).forEach((datapoint) => {
+            if (csv_map.has(datapoint[0])) {
+                if (prop != "Protein Contacts" && prop != "Modified Residues") {
                     csv_map.get(datapoint[0]).push(datapoint[1])
+                } else if (prop == "Protein Contacts" || prop == "Modified Residues") {
+                    if (csv_map.get(datapoint[0]).length == i + 1) {
+                        csv_map.get(datapoint[0])[i] = csv_map.get(datapoint[0])[i] + " " + datapoint[1]
+                    }
+                    else {
+                        while (csv_map.get(datapoint[0]).length < i) {
+                            csv_map.get(datapoint[0]).push(" ")
+                        }
+                        csv_map.get(datapoint[0]).push(datapoint[1])
+                    }
                 }
             }
-        }
-          //ix += 1;
+            //ix += 1;
+        })
+        i += 1
     })
-      i += 1
-  })
 
-  /*csv_ix.forEach((row) => {
-      csv += row.join(',');
-      csv += '\n';
-  })*/
-  csv_map.forEach((value, row) => {
-    csv += row + ',' + value.join(',');
-    csv += '\n';
-})
-  return csv;
+    /*csv_ix.forEach((row) => {
+        csv += row.join(',');
+        csv += '\n';
+    })*/
+    csv_map.forEach((value, row) => {
+        csv += row + ',' + value.join(',');
+        csv += '\n';
+    })
+    return csv;
 };
-var unSelectNucleotide = function(event, pdbId, label_seq_id, isUnobserved) {
+var unSelectNucleotide = function (event, pdbId, label_seq_id, isUnobserved) {
     event.stopImmediatePropagation();
     this.clearHighlight(pdbId);
     const ttEle = document.getElementById(`${pdbId}-rnaTopologyTooltip`);
     ttEle.style.display = 'none';
 
-    if(!isUnobserved) {
+    if (!isUnobserved) {
         const evData = { pdbId, label_seq_id }
         const textElement = document.querySelector(`.rnaview_${pdbId}_${label_seq_id}`);
         CustomEvents.dispatchCustomEvent(this.pdbevents['PDB.RNA.viewer.mouseout'], evData, textElement);
     }
 };
-var clearHighlight = function(pdbId) {
+var clearHighlight = function (pdbId) {
     var selected = 5;
-    document.querySelector(`svg.rnaTopoSvg`).getElementsByClassName(`rnaviewEle rnaviewEle_${pdbId} rnaview_${pdbId}_${selected}`)[0].setAttribute("fill","323232");
-//document.querySelector(`.rnaTopoSvgHighlight_${pdbId}`)!.innerHTML = "";
+    document.querySelector(`svg.rnaTopoSvg`).getElementsByClassName(`rnaviewEle rnaviewEle_${pdbId} rnaview_${pdbId}_${selected}`)[0].setAttribute("fill", "323232");
+    //document.querySelector(`.rnaTopoSvgHighlight_${pdbId}`)!.innerHTML = "";
 };
-var getEntropyAnnotations = function (separatedData, lowVal, highVal, chainid) {
-    annotationArraySE.length=0;
-    for (var i = 1; i < 101; i++) {
-        annotationArraySE.push({"annotation":i,"ids":[]})
-    }
-    separatedData.forEach(function (item, index) {
-        let parsedItem = item[0];
-        let itemValue = item[1];
-        let newValue = itemValue - lowVal;
-        let normalizedVal = 0
-        if (highVal != lowVal) {
-            normalizedVal = Math.round(newValue/(highVal - lowVal) * 99);
-        }
-        annotationArraySE[normalizedVal].ids.push(chainid + " " + parsedItem)
-    })
-    return annotationArraySE;
-};
+// Annotation generation functions using the generic utility
+const Annotations = {
+    getEntropyAnnotations(separatedData, lowVal, highVal, chainid) {
+        return Utils.generateAnnotations(separatedData, lowVal, highVal, chainid, 'SE');
+    },
 
-var getCustomAnnotations = function (separatedData, lowVal, highVal, chainid) {
-    annotationArrayCD.length=0;
-    for (var i = 1; i < 101; i++) {
-        annotationArrayCD.push({"annotation":i,"ids":[]})
-    }
-    separatedData.forEach(function (item, index) {
-        let parsedItem = item[0];
-        let itemValue = item[1];
-        let newValue = itemValue - lowVal;
-        let normalizedVal = 0
-        if (highVal != lowVal) {
-            normalizedVal = Math.round(newValue/(highVal - lowVal) * 99);
-        }
-        annotationArrayCD[normalizedVal].ids.push(chainid + " " + parsedItem)
-    })
-    return annotationArrayCD;
-};
+    getCustomAnnotations(separatedData, lowVal, highVal, chainid) {
+        return Utils.generateAnnotations(separatedData, lowVal, highVal, chainid, 'CD');
+    },
 
-var getAssociatedAnnotations = function (separatedData, lowVal, highVal, chainid) {
-    annotationArrayAD.length=0;
-    for (var i = 1; i < 101; i++) {
-        annotationArrayAD.push({"annotation":i,"ids":[]})
-    }
-    separatedData.forEach(function (item, index) {
-        let parsedItem = item[0];
-        let itemValue = item[1];
-        let newValue = itemValue - lowVal;
-        let normalizedVal = 0
-        if (highVal != lowVal) {
-            normalizedVal = Math.round(newValue/(highVal - lowVal) * 99);
-        }
-        annotationArrayAD[normalizedVal].ids.push(chainid + " " + parsedItem)
-    })
-    return annotationArrayAD;
-};
+    getCustomAnnotations2(separatedData, lowVal, highVal, chainid) {
+        return Utils.generateAnnotations(separatedData, lowVal, highVal, chainid, 'CD2');
+    },
 
+    getAssociatedAnnotations(separatedData, lowVal, highVal, chainid) {
+        return Utils.generateAnnotations(separatedData, lowVal, highVal, chainid, 'AD');
+    },
 
-var getHelicalAnnotations = function (separatedData, lowVal, highVal, chainid) {
-    annotationArrayHD.length=0;
-    for (var i = 1; i < 101; i++) {
-        annotationArrayHD.push({"annotation":i,"ids":[]})
-    }
-    separatedData.forEach(function (item, index) {
-        let parsedItem = item[0];
-        let itemValue = item[1];
-        let newValue = itemValue - lowVal;
-        let normalizedVal = 0
-        if (highVal != lowVal) {
-            normalizedVal = Math.round(newValue/(highVal - lowVal) * 99);
-        }
-        annotationArrayHD[normalizedVal].ids.push(chainid + " " + parsedItem)
-    })
-    return annotationArrayHD;
-};
+    getHelicalAnnotations(separatedData, lowVal, highVal, chainid) {
+        return Utils.generateAnnotations(separatedData, lowVal, highVal, chainid, 'HD');
+    },
 
+    getPhaseAnnotations(separatedData, lowVal, highVal, chainid) {
+        return Utils.generateAnnotations(separatedData, lowVal, highVal, chainid, 'PD');
+    },
 
+    getExpansionAnnotations(separatedData, lowVal, highVal, chainid) {
+        return Utils.generateAnnotations(separatedData, lowVal, highVal, chainid, 'AESD');
+    },
 
-var getPhaseAnnotations = function (separatedData, lowVal, highVal, chainid) {
-    annotationArrayPD.length=0;
-    for (var i = 1; i < 101; i++) {
-        annotationArrayPD.push({"annotation":i,"ids":[]})
-    }
-    separatedData.forEach(function (item, index) {
-        let parsedItem = item[0];
-        let itemValue = item[1];
-        let newValue = itemValue - lowVal;
-        let normalizedVal = 0
-        if (highVal != lowVal) {
-            normalizedVal = Math.round(newValue/(highVal - lowVal) * 99);
-        }
-        annotationArrayPD[normalizedVal].ids.push(chainid + " " + parsedItem)
-    })
-    return annotationArrayPD;
-};
+    getTWCAnnotations(separatedData, lowVal, highVal, chainid) {
+        return Utils.generateAnnotations(separatedData, lowVal, highVal, chainid, 'TWC');
+    },
 
-var getExpansionAnnotations = function (separatedData, lowVal, highVal, chainid) {
-    annotationArrayAESD.length=0;
-    for (var i = 1; i < 101; i++) {
-        annotationArrayAESD.push({"annotation":i,"ids":[]})
-    }
-    separatedData.forEach(function (item, index) {
-        let parsedItem = item[0];
-        let itemValue = item[1];
-        let newValue = itemValue - lowVal;
-        let normalizedVal = 0
-        if (highVal != lowVal) {
-            normalizedVal = Math.round(newValue/(highVal - lowVal) * 99);
-        }
-        annotationArrayAESD[normalizedVal].ids.push(chainid + " " + parsedItem)
-    })
-    return annotationArrayAESD;
-};
-
-
-var getTWCAnnotations = function (separatedData, lowVal, highVal, chainid) {
-    annotationArrayTWC.length=0;
-    for (var i = 1; i < 101; i++) {
-        annotationArrayTWC.push({"annotation":i,"ids":[]})
-    }
-    separatedData.forEach(function (item, index) {
-        let parsedItem = item[0];
-        let itemValue = item[1];
-        
-        let newValue = itemValue - lowVal;
-        let normalizedVal = 0
-        if (highVal != lowVal) {
-            normalizedVal = Math.round(newValue/(highVal - lowVal) * 99);
-        }
-
-        /*if (itemValue < 0){
-            console.log('IV_neg', itemValue);
-            let normalizedVal = Math.round(itemValue/(lowVal) * 99);
-        } 
-        else if (itemValue > 0){
-            let normalizedVal = Math.round(itemValue/(highVal) * 99);
-        }*/
-        annotationArrayTWC[normalizedVal].ids.push(chainid + " " + parsedItem)
-    })
-    return annotationArrayTWC;
-}
-var getAnnotationArray = function() {
-    return {'SE':annotationArraySE,'TWC':annotationArrayTWC,'CD':annotationArrayCD, 'AD':annotationArrayAD, 'HD':annotationArrayHD, 'PD':annotationArrayPD, 'AESD':annotationArrayAESD};
-}   
-var parsePVData = function (separatedData, lowVal, highVal, colormapArray, masking=null) {
-    /*console.log(separatedData)
-    var s = ""
-    for(var i = 0; i < 100; i++) {
-        s = s + '['+(interpolateLinearly(i/100, colormapArray[0])[0])+']' + ', ';
-    }
-    console.log(s)*/
-    
-        let TWCData = new Map();
-        let TWCrgbMap = new Map(); 
-        let TWCrgbMapPalette = new Map(); 
-        let TWCrgbPalette=[];
-        let IL=[];
-        let ILN=[];
-        for (var i = 0; i < 75; i++) {
-            //console.log('Map_0', i, interpolateLinearly(i/100, colormapArray[0]));
-            TWCrgbMapPalette.set(i, interpolateLinearly((75-i)/75, colormapArray[1]));
-            IL=interpolateLinearly((75-i)/75, colormapArray[1]);
-            TWCrgbPalette.push(IL[0]);
+    getAnnotationArray() {
+        return {
+            'SE': AppState.getAnnotationArray('SE'),
+            'TWC': AppState.getAnnotationArray('TWC'),
+            'CD': AppState.getAnnotationArray('CD'),
+            'CD2': AppState.getAnnotationArray('CD2'),
+            'AD': AppState.getAnnotationArray('AD'),
+            'HD': AppState.getAnnotationArray('HD'),
+            'PD': AppState.getAnnotationArray('PD'),
+            'AESD': AppState.getAnnotationArray('AESD')
         };
-        for (var i = 0; i < 25; i++) {
-            //console.log('Map_0', i, interpolateLinearly(i/100, colormapArray[0]));
-            TWCrgbMapPalette.set(i, interpolateLinearly(i/25, colormapArray[0]));
-            ILN=interpolateLinearly(i/25, colormapArray[0]);
-            TWCrgbPalette.push(ILN[0]);
-        };
-        //console.log('Palette_01', TWCrgbPalette);
-        separatedData.forEach(function (item, index) {
+    }
+};
+
+// Maintain backward compatibility
+var getEntropyAnnotations = Annotations.getEntropyAnnotations.bind(Annotations);
+var getCustomAnnotations = Annotations.getCustomAnnotations.bind(Annotations);
+var getCustomAnnotations2 = Annotations.getCustomAnnotations2.bind(Annotations);
+var getAssociatedAnnotations = Annotations.getAssociatedAnnotations.bind(Annotations);
+var getHelicalAnnotations = Annotations.getHelicalAnnotations.bind(Annotations);
+var getPhaseAnnotations = Annotations.getPhaseAnnotations.bind(Annotations);
+var getExpansionAnnotations = Annotations.getExpansionAnnotations.bind(Annotations);
+var getTWCAnnotations = Annotations.getTWCAnnotations.bind(Annotations);
+var getAnnotationArray = Annotations.getAnnotationArray.bind(Annotations);
+var parsePVData = function (separatedData, lowVal, highVal, colormapArray, masking = null, separatedData3D = null) {
+
+    let TWCData = new Map();
+    let TWCrgbMap = new Map();
+    let TWCData3D = new Map();
+    let TWCrgbMap3D = new Map();
+    let TWCrgbMapPalette = new Map();
+    let TWCrgbPalette = [];
+    let IL = [];
+    let ILN = [];
+    let returns = [];
+    for (var i = 0; i < 75; i++) {
+        //console.log('Map_0', i, interpolateLinearly(i/100, colormapArray[0]));
+        TWCrgbMapPalette.set(i, interpolateLinearly((75 - i) / 75, colormapArray[1]));
+        IL = interpolateLinearly((75 - i) / 75, colormapArray[1]);
+        TWCrgbPalette.push(IL[0]);
+    };
+    for (var i = 0; i < 25; i++) {
+        //console.log('Map_0', i, interpolateLinearly(i/100, colormapArray[0]));
+        TWCrgbMapPalette.set(i, interpolateLinearly(i / 25, colormapArray[0]));
+        ILN = interpolateLinearly(i / 25, colormapArray[0]);
+        TWCrgbPalette.push(ILN[0]);
+    };
+    //console.log('Palette_01', TWCrgbPalette);
+    separatedData.forEach(function (item, index) {
+        let parsedItem = item[0];
+        //if(!masking || masking[index]) {
+        let itemValue = item[1];
+        TWCData.set(parsedItem, itemValue);
+        if (colormapArray.length === 1) {
+            let newValue = itemValue - lowVal;
+            TWCrgbMap.set(parsedItem, interpolateLinearly(newValue / (highVal - lowVal), colormapArray[0]));
+        }
+        else {
+            if (itemValue === 'NA') {
+                TWCrgbMap.set(parsedItem, [[192, 192, 192], { r: 192, g: 192, b: 192 }]);
+            } else if (itemValue < 0) {
+                TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue / lowVal, colormapArray[0]));
+            } else {
+                TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue / highVal, colormapArray[1]));
+            }
+        }
+
+    });
+
+    returns.push(TWCrgbMap);
+    returns.push(TWCData);
+
+    if (separatedData3D != null) {
+        separatedData3D.forEach(function (item, index) {
             let parsedItem = item[0];
             //if(!masking || masking[index]) {
-                let itemValue = item[1];
-                TWCData.set(parsedItem, itemValue);
-                if (colormapArray.length === 1) {
-                    let newValue = itemValue - lowVal;
-                    TWCrgbMap.set(parsedItem, interpolateLinearly(newValue/(highVal - lowVal), colormapArray[0]));
+            let itemValue = item[1];
+            TWCData3D.set(parsedItem, itemValue);
+            if (colormapArray.length === 1) {
+                let newValue = itemValue - lowVal;
+                TWCrgbMap3D.set(parsedItem, interpolateLinearly(newValue / (highVal - lowVal), colormapArray[0]));
+            }
+            else {
+                if (itemValue === 'NA') {
+                    TWCrgbMap3D.set(parsedItem, [[192, 192, 192], { r: 192, g: 192, b: 192 }]);
+                } else if (itemValue < 0) {
+                    TWCrgbMap3D.set(parsedItem, interpolateLinearly(itemValue / lowVal, colormapArray[0]));
+                } else {
+                    TWCrgbMap3D.set(parsedItem, interpolateLinearly(itemValue / highVal, colormapArray[1]));
                 }
-                else {
-                    if (itemValue === 'NA'){
-                        TWCrgbMap.set(parsedItem, [[192, 192, 192], {r:192, g:192, b:192}]);
-                    } else if (itemValue < 0){
-                        TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue/lowVal, colormapArray[0]));
-                    } else {
-                        TWCrgbMap.set(parsedItem, interpolateLinearly(itemValue/highVal, colormapArray[1]));
-                    }
-                }
-            //}
-            /*else {
-                TWCrgbMap.set(parsedItem, [[255, 255, 255], {r:0, g:0, b:0, a:.4}]);
-                TWCData.set(parsedItem, null);
-            }*/
+            }
+
         });
-        return [TWCrgbMap, TWCData];
+        returns.push(TWCrgbMap3D);
+        returns.push(TWCData3D);
     }
 
-var indexMatchingText = function(ele, text) {
-    for (var i=0; i<ele.length;i++) {
-        if (ele[i].childNodes[0].nodeValue === text){
+    return returns;
+}
+
+var indexMatchingText = function (ele, text) {
+    for (var i = 0; i < ele.length; i++) {
+        if (ele[i].childNodes[0].nodeValue === text) {
             return i;
         }
     }
     return undefined;
 }
 
+// Color conversion functions using utilities
 function componentToHex(c) {
-    var hex = c.toString(16);
-    return hex.length == 1 ? "0" + hex : hex;
-  }
-var rgbToHex = function(r, g, b) {
-    return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+    return Utils.componentToHex(c);
+}
+var rgbToHex = function (r, g, b) {
+    return Utils.rgbToHex(r, g, b);
 }
 var hexToRgb = function (hex) {
-    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-    } : null;
+    return Utils.hexToRgb(hex);
 }
 
-var build_mapped_props = function(mapped_props, twcDataUnmapped, structure_mapping){
+var build_mapped_props = function (mapped_props, twcDataUnmapped, structure_mapping) {
     mapped_props.set("TwinCons", [])
     for (let i = 0; i < twcDataUnmapped.length; i++) {
         let mappedI0 = structure_mapping[twcDataUnmapped[i][0]];
@@ -815,137 +887,124 @@ var build_mapped_props = function(mapped_props, twcDataUnmapped, structure_mappi
     return mapped_props;
 }
 
-var mapTWCdata = function (structMap, structMap3D, twcDataUnmapped, baseProps, baseProps3D){
-    // 1. Build the new TWC-specific properties
-    const mappedTWCProps = build_mapped_props(baseProps, twcDataUnmapped, structMap);
-    const mappedTWCProps3D = structMap3D 
-        ? build_mapped_props(baseProps3D, twcDataUnmapped, structMap3D) 
-        : null;
-    
-    // 2. Assign to window
-    window.mapped_aa_properties = mappedTWCProps;
-    window.mapped_aa_properties3D = mappedTWCProps3D;
+var mapTWCdata = function (structMap, structMap3D, twcDataUnmapped, mapped_aa_properties, mapped_aa_properties3D) {
+    var topviewer = document.getElementById("PdbeTopViewer");
 
-    const topViewer = document.getElementById("PdbeTopViewer");
-    if (topViewer?.viewInstance?.uiTemplateService) {
-        topViewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mappedTWCProps, mappedTWCProps3D);
-    } else {
-        console.warn("PdbeTopViewer not found or not ready. TWC annotations skipped.");
-    }
+    mapped_aa_properties = build_mapped_props(mapped_aa_properties, twcDataUnmapped, structMap);
+    mapped_aa_properties3D = build_mapped_props(mapped_aa_properties3D, twcDataUnmapped, structMap3D);
+
+
+    window.mapped_aa_properties = mapped_aa_properties;
+    window.mapped_aa_properties3D = mapped_aa_properties3D;
 
     topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(mapped_aa_properties, mapped_aa_properties3D);
-    
-    /*if (topviewer != null && topviewer.viewInstance.uiTemplateService.domainTypes != undefined){
-        var empty_props = new Map();
-        var empty_props3D = new Map();
-        
-        let twc_props = build_mapped_props(empty_props, twcDataUnmapped, structMap);
-        let twc_props3D = build_mapped_props(empty_props3D, twcDataUnmapped, structMap3D);
-        
-        //topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(twc_props, twc_props3D);
-        // topviewer.viewInstance.uiTemplateService.getAnnotationFromRibovision(twc_props3D);
-        
-        //var selectBoxEle = topviewer.pluginInstance.targetEle.querySelector('.menuSelectbox');
-        //var twc_option = document.createElement("option");
-        //twc_option.setAttribute("value", selectBoxEle.options.length);
-        //twc_option.appendChild(document.createTextNode("TwinCons"));
-        //selectBoxEle.appendChild(twc_option);
-    }*/
+}
+// showPDBHelper() used to create a brand-new PDBeMolstarPlugin() (its own
+// WebGL context, structure data, GPU buffers) every time a structure was
+// (re)loaded without ever disposing the previous one, and re-registered 3
+// `document`-level listeners each closing over that instance on every call.
+// Neither the old plugin nor the old listeners were ever released, so every
+// reload leaked an entire Mol* instance - this is what balloons a tab to
+// 1GB+ after a handful of structure switches. The listeners are now bound
+// exactly once and read window.viewerInstance dynamically instead of
+// closing over a specific instance, and the previous plugin is disposed
+// before being replaced.
+function bindPDBMolstarEventsOnce() {
+    if (window.rv3PDBMolstarEventsBound) { return; }
+    window.rv3PDBMolstarEventsBound = true;
+    document.addEventListener('PDB.topologyViewer.click', (e) => {
+        var molstar = window.viewerInstance;
+        if (!molstar) { return; }
+        var entityId = e.eventData.entityId;
+        var residueNumber = e.eventData.residueNumber;
+        molstar.visual.select({
+            data: [
+                {
+                    entity_id: entityId,
+                    residue_number: residueNumber,
+                    color: { r: 20, y: 100, b: 200 },
+                    focus: false
+                },
+            ],
+        })
+    })
+    document.addEventListener('PDB.topologyViewer.mouseover', (e) => {
+        var molstar = window.viewerInstance;
+        if (!molstar) { return; }
+        var entityId = e.eventData.entityId;
+        var residueNumber = e.eventData.residueNumber;
+        molstar.visual.highlight({
+            data: [
+                {
+                    entity_id: entityId,
+                    residue_number: residueNumber,
+                },
+            ],
+        })
+    })
+    document.addEventListener('PDB.molstar.mouseover', (e) => {
+        var molstar = window.viewerInstance;
+        if (!molstar) { return; }
+        var eventData = e.eventData;
+        let resi_id = eventData.auth_seq_id;
+        if (masked_array && masked_array[resi_id] == false) {
+            molstar.plugin.behaviors.interaction.hover._value.current.loci.kind = "empty-loci"
+        }
+    });
 };
 
-var showPDBHelper = function(pdbid, chainid, entityid) {
+var showPDBHelper = function (pdbid, chainid, entityid) {
     const molstar_item = document.getElementById("pdbeMolstarView");
-    if (molstar_item) {molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Loading Molstar Component ", true)}
+    if (molstar_item) { molstar_item.remove(); create_deleted_element("molif", "pdbeMolstarView", "Loading Molstar Component ", true) }
+    if (window.viewerInstance && window.viewerInstance.plugin && typeof window.viewerInstance.plugin.dispose === 'function') {
+        try { window.viewerInstance.plugin.dispose(); } catch (err) { console.log(err); }
+    }
     var pdblower = pdbid.toLocaleLowerCase();
-    if (pdbid == "cust"){
+    if (pdbid == "cust") {
         var coordURL = `/custom-struc-data/${pdblower}-${entityid}-${chainid}`;
         var binaryCif = false;
         var structFormat = "cif";
-    }else{
+    } else {
         //var coordURL = `https://www.ebi.ac.uk/pdbe/coordinates/${pdblower}/chains?entityId=${entityid}&encoding=bcif`
         //var coordURL = `https://coords.litemol.org/${pdblower}/chains?entityId=${entityid}&authAsymId=${chainid}&encoding=bcif`;
-        var coordURL = `https://models.rcsb.org/v1/${pdblower}/atoms?label_entity_id=${entityid}&encoding=bcif`
+        var coordURL = `https://www.ebi.ac.uk/pdbe/model-server/v1/${pdblower}/atoms?label_entity_id=${entityid}&encoding=bcif`
         var binaryCif = true;
         var structFormat = "bcif";
     }
     window.pdblower = pdblower;
     var viewerInstance = new PDBeMolstarPlugin();
     vm.viewer_options = {
-        customData: { url: coordURL,
-                        format: structFormat, 
-                        binary: binaryCif },
+        customData: {
+            url: coordURL,
+            format: structFormat,
+            binary: binaryCif
+        },
         hideCanvasControls: ["selection", " animation"],
+        assemblyId: '1',
         hideControls: true,
         subscribeEvents: true,
-        bgColor: {r:255,g:255,b:255},
-    }
-    // For user-uploaded structures (pdbid == "cust") there is no PDBe entry, so
-    // setting an assemblyId makes pdbe-molstar call getPreferredAssembly ->
-    // /pdbe/api/pdb/entry/summary/cust which 404s. Load the deposited
-    // coordinates directly (asymmetric unit, no assembly resolution) instead.
-    if (pdbid != "cust") {
-        vm.viewer_options.assemblyId = '1';
+        bgColor: { r: 255, g: 255, b: 255 },
     }
     var viewerContainer = document.getElementById('pdbeMolstarView');
-    viewerInstance.render(viewerContainer, vm.viewer_options);
     window.viewerInstance = viewerInstance;
-    
-    document.addEventListener('PDB.topologyViewer.click', (e) => {
-        var molstar= viewerInstance;
-        var chainId=e.eventData.chainId;
-        var entityId=e.eventData.entityId;
-        var residueNumber=e.eventData.residueNumber;
-        var types=e.eventData.type;
-        molstar.visual.select({
-            data:[
-                {
-                    entity_id:entityId,
-                    residue_number:residueNumber,
-                    color:{r:20, y:100, b:200},
-                    focus:false
-                },
-            ],
-        })
-    })
-    document.addEventListener('PDB.topologyViewer.mouseover', (e) => {
-        var molstar= viewerInstance;
-        var chainId=e.eventData.chainId;
-        var entityId=e.eventData.entityId;
-        var residueNumber=e.eventData.residueNumber;
-        var types=e.eventData.type;
-        
-        molstar.visual.highlight({
-            data:[
-                {
-                    entity_id:entityId,
-                    residue_number:residueNumber,
-                },
-            ],
-        })
-    })
-    document.addEventListener('PDB.molstar.mouseover', (e) => {
-        var eventData = e.eventData;
-        let resi_id = eventData.auth_seq_id;
-        if(masked_array && masked_array[resi_id] == false) {
-            viewerInstance.plugin.behaviors.interaction.hover._value.current.loci.kind = "empty-loci"
-        }
-    });
+    viewerInstance.render(viewerContainer, vm.viewer_options);
+    bindPDBMolstarEventsOnce();
 }
-var fetchTWCdata = function (fasta){
-    ajax('/twc-api/', {fasta}).then(twcDataUnmapped => {
+var fetchTWCdata = function (fasta) {
+    ajax('/twc-api/', { fasta }).then(twcDataUnmapped => {
         vm.unmappedTWCdata = twcDataUnmapped;
-        var settedProps = new Set(vm.available_properties.map(a=>{return a.Name}))
-        if (!settedProps.has("TwinCons")){
-            vm.available_properties.unshift({Name:"TwinCons", url:"static/alignments/svg/TwinCons.svg"});
+        var settedProps = new Set(vm.available_properties.map(a => { return a.Name }))
+        if (!settedProps.has("TwinCons")) {
+            vm.available_properties.unshift({ Name: "TwinCons", url: "static/alignments/svg/TwinCons.svg" });
         }
     })
 }
-var drawCircle = function (pdbId, i, color){
+var drawCircle = function (pdbId, i, color) {
     const circle = document.querySelector(`svg.rnaTopoSvg`).getElementsByClassName(`circle_${pdbId}_${i}`)[0]
     const nucleotide = document.querySelector(`svg.rnaTopoSvg`).getElementsByClassName(`rnaviewEle rnaviewEle_${pdbId} rnaview_${pdbId}_${i}`)[0]
     const BBox = nucleotide.getBBox()
-    const nx = (BBox.x + BBox.width/2)
-    const ny = (BBox.y + BBox.height/2)
+    const nx = (BBox.x + BBox.width / 2)
+    const ny = (BBox.y + BBox.height / 2)
     circle.setAttribute("cx", nx)
     circle.setAttribute("cy", ny)
     circle.setAttribute("stroke", `${color}`);
@@ -953,7 +1012,7 @@ var drawCircle = function (pdbId, i, color){
     circle.style.display = "block";
 }
 
-var calculateModifiedCustom = function(entityid, filepath) {
+var calculateModifiedCustom = function (entityid, filepath) {
     var url = `custom-modified-residues/${entityid}/${filepath}`
     ajax(url).then(data => {
         //console.log(data)
@@ -961,7 +1020,7 @@ var calculateModifiedCustom = function(entityid, filepath) {
         let modifiedData = new Map()
         let modifications = []
         for (let val in data.Modified) {
-            if(modifications.indexOf(data.Modified[val][0]) < 0) {
+            if (modifications.indexOf(data.Modified[val][0]) < 0) {
                 modifications.push(data.Modified[val][0])
                 modifiedData.set(data.Modified[val][0], [])
             }
@@ -977,37 +1036,37 @@ var calculateModifiedCustom = function(entityid, filepath) {
         for (var val of modifications) {
             vm.selectSections_modified.set(val, [])
             //Need to add modifications color scheme, using PC for now
-            var color = interpolateLinearly(i/modifications.length, aaColorData.get("Protein contacts")[0])
+            var color = interpolateLinearly(i / modifications.length, aaColorData.get("Protein contacts")[0])
             var rgbColor = "rgb(" + color[0][0] + "," + color[0][1] + "," + color[0][2] + ")";
             colorMap.set(val, rgbColor);
             //newContactMap.set(vm.protein_contacts, aaColorData.get("Shannon entropy")[0][1]
-            i = i+1;
+            i = i + 1;
             for (var j of vm.modified_residues.get(val)) {
                 vm.selectSections_modified.get(val).push({
                     entity_id: "" + entityid,
-                    residue_number: j, 
+                    residue_number: j,
                     color: color[1],
                     sideChain: false,
                 });
                 vm.mapped_aa_contacts_mods.get("Modified Residues").push([j, val])
             }
-        }                 
+        }
         vm.modifiedColorMap = colorMap;
-        if(data.Modified.length > 0) {
+        if (data.Modified.length > 0) {
             vm.modified = true
         }
-        //viewerInstanceTop.viewInstance.uiTemplateService.colorMap(); 
+        //viewerInstanceTop.viewInstance.uiTemplateService.colorMap();
     });
 }
 
-var calculateModifiedResidues = function(pdbid, chainid, entityid) {
+var calculateModifiedResidues = function (pdbid, chainid, entityid) {
     var url = `modified-residues/${pdbid}/${chainid}`
     ajax(url).then(data => {
         let offset = 0
         let modifiedData = new Map()
         let modifications = []
         for (let val in data.Modified) {
-            if(modifications.indexOf(data.Modified[val][0]) < 0) {
+            if (modifications.indexOf(data.Modified[val][0]) < 0) {
                 modifications.push(data.Modified[val][0])
                 modifiedData.set(data.Modified[val][0], [])
             }
@@ -1023,32 +1082,32 @@ var calculateModifiedResidues = function(pdbid, chainid, entityid) {
         for (var val of modifications) {
             vm.selectSections_modified.set(val, [])
             //Need to add modifications color scheme, using PC for now
-            var color = interpolateLinearly(i/modifications.length, aaColorData.get("Protein contacts")[0])
+            var color = interpolateLinearly(i / modifications.length, aaColorData.get("Protein contacts")[0])
             var rgbColor = "rgb(" + color[0][0] + "," + color[0][1] + "," + color[0][2] + ")";
             colorMap.set(val, rgbColor);
             //newContactMap.set(vm.protein_contacts, aaColorData.get("Shannon entropy")[0][1]
-            i = i+1;
+            i = i + 1;
             for (var j of vm.modified_residues.get(val)) {
                 vm.selectSections_modified.get(val).push({
                     entity_id: "" + entityid,
-                    residue_number: j, 
+                    residue_number: j,
                     color: color[1],
                     sideChain: false,
                 });
                 vm.mapped_aa_contacts_mods.get("Modified Residues").push([j, val])
             }
-        }                 
+        }
         vm.modifiedColorMap = colorMap;
-        if(data.Modified.length > 0) {
+        if (data.Modified.length > 0) {
             vm.modified = true
         }
-        //viewerInstanceTop.viewInstance.uiTemplateService.colorMap(); 
+        //viewerInstanceTop.viewInstance.uiTemplateService.colorMap();
     });
 }
-var showContactsHelper = function(entityid) {
+var showContactsHelper = function (entityid) {
     var protein_data = new Map();
     protein_data.set("contacts", [])
-    protein_data.get("contacts").push({entity_id: entityid, focus: true})
+    protein_data.get("contacts").push({ entity_id: entityid, focus: true })
     for (let val in vm.pchainid) {
         var chain = vm.pchainid[val];
         for (let entry in vm.selectSections_proteins.get(chain)) {
@@ -1061,73 +1120,67 @@ var showContactsHelper = function(entityid) {
     })*/
     const mapSort1 = protein_data.get("contacts").sort((a, b) => a.residue_number - b.residue_number);
     viewerInstance.visual.select({
-        data: mapSort1, 
-        nonSelectedColor: {r:255,g:255,b:255}
-        }).catch(err => {
-            console.log(err);
-            vm.$nextTick(function(){
-                viewerInstance.visual.select({
-                    data: mapSort1,
-                    nonSelectedColor: {r:255,g:255,b:255}
-                })
+        data: mapSort1,
+        nonSelectedColor: { r: 255, g: 255, b: 255 }
+    }).catch(err => {
+        console.log(err);
+        vm.$nextTick(function () {
+            viewerInstance.visual.select({
+                data: mapSort1,
+                nonSelectedColor: { r: 255, g: 255, b: 255 }
             })
         })
+    })
 }
-const sleep = (delay) => new Promise (( resolve) => setTimeout (resolve, delay))
-var showProteins3D = async function() {
-    
-    /*var viewerContainer = document.getElementById('pdbeMolstarView');
-    viewerInstance.render(viewerContainer, vm.viewer_options);
-    window.viewerInstance = viewerInstance;*/
-    
-    //viewerInstance.visual.update({customData: vm.viewer_options.customData}, true)
-    //await showPDBHelper(vm.pdbid, vm.chainid, vm.entityID)
-    //const showProteins = async () => {
-    const showProteins = async() => {
+// Sleep function using utility
+const sleep = Utils.sleep;
+var showProteins3D = async function () {
+
+    const showProteins = async () => {
         colorData = []
         for (let val in vm.pchainid) {
             auth_id = vm.pchainid[val]
             chain = vm.protein_chains.filter(e => e.value == auth_id)[0]
             eID = chain.entityID
-            data = {url: `https://www.ebi.ac.uk/pdbe/model-server/v1/${vm.pdbid}/atoms?label_entity_id=${eID}&auth_asym_id=${auth_id}&encoding=bcif`, format: 'cif', binary:true, bgColor: {r: 255, g: 255, b: 255}}
-            await viewerInstance.visual.update({customData: data, bgColor: {r: 255, g: 255, b: 255}}, false)
-            await sleep (2000)
+            data = { url: `https://www.ebi.ac.uk/pdbe/model-server/v1/${vm.pdbid}/atoms?label_entity_id=${eID}&auth_asym_id=${auth_id}&encoding=bcif`, format: 'cif', binary: true, bgColor: { r: 255, g: 255, b: 255 } }
+            await viewerInstance.visual.update({ customData: data, bgColor: { r: 255, g: 255, b: 255 } }, false)
+            await sleep(2000)
             color = vm.proteinColorMap.get(auth_id)
             split_color = color.split('(')[1].split(')')[0].split(',')
-            formatted_color = {r: split_color[0], g: split_color[1], b: split_color[2]}
+            formatted_color = { r: split_color[0], g: split_color[1], b: split_color[2] }
             colorData.push(formatted_color)
         }
         //await sleep(10000);
         async function tryColor() {
-        //console.log(colorData)
-        let waitTime = 1000;
-        let attempts = 0
-        try {
-            attempts += 1
-            await sleep(waitTime);
-            await viewerInstance.visual.colorByChain(colorData)
-        } catch (error) {
-            console.log(error)
-            waitTime += 1000;
-            if (colorData.length == vm.pchainid.length) {
-                if (attempts < 3) {
-                    tryColor()
+            //console.log(colorData)
+            let waitTime = 1000;
+            let attempts = 0
+            try {
+                attempts += 1
+                await sleep(waitTime);
+                await viewerInstance.visual.colorByChain(colorData)
+            } catch (error) {
+                console.log(error)
+                waitTime += 1000;
+                if (colorData.length == vm.pchainid.length) {
+                    if (attempts < 3) {
+                        tryColor()
+                    }
                 }
             }
         }
-        }
-        if(vm.pchainid.length == colorData.length) {
+        if (vm.pchainid.length == colorData.length) {
             tryColor()
         }
     }
-        //viewerInstance.visual.colorByChain(colorData)
+    //viewerInstance.visual.colorByChain(colorData)
     await showProteins()
 }
-var showModificationsHelper = function(entityid) {
+var showModificationsHelper = function (entityid) {
     vm.selected_property = "Select data"
     var modified_data = new Map();
     modified_data.set("mods", [])
-    modified_data.get("mods").push({entity_id: entityid, focus: true})
+    modified_data.get("mods").push({ entity_id: entityid, focus: true })
     for (let val of vm.modifications) {
         for (let entry of vm.selectSections_modified.get(val)) {
             modified_data.get("mods").push(entry)
@@ -1138,31 +1191,31 @@ var showModificationsHelper = function(entityid) {
         nonSelectedColor: {r:255,g:255,b:255}
     })*/
     const mapSort1 = modified_data.get("mods").sort((a, b) => a.residue_number - b.residue_number);
-    const selectColors = async() => {
+    const selectColors = async () => {
         viewerInstance.visual.select({
-            data: mapSort1, 
-            nonSelectedColor: {r:255,g:255,b:255}
-            }).catch(err => {
-                console.log(err);
-                vm.$nextTick(function(){
-                    viewerInstance.visual.select({
-                        data: mapSort1,
-                        nonSelectedColor: {r:255,g:255,b:255}
-                    })
+            data: mapSort1,
+            nonSelectedColor: { r: 255, g: 255, b: 255 }
+        }).catch(err => {
+            console.log(err);
+            vm.$nextTick(function () {
+                viewerInstance.visual.select({
+                    data: mapSort1,
+                    nonSelectedColor: { r: 255, g: 255, b: 255 }
                 })
             })
+        })
     }
     selectColors()
 }
-var showModificationsAndContactsHelper = async function(entityid) {
+var showModificationsAndContactsHelper = async function (entityid) {
     //if (vm.pchainid.length > 0){
     //    showProteins3D()
     //} else {
     showPDBHelper(vm.pdbid, vm.chainid, vm.entityID)
-   // }
+    // }
     var modified_data = new Map();
     modified_data.set("mods", [])
-    modified_data.get("mods").push({entity_id: entityid, focus: true})
+    modified_data.get("mods").push({ entity_id: entityid, focus: true })
     for (let val in vm.pchainid) {
         var chain = vm.pchainid[val];
         for (let entry in vm.selectSections_proteins.get(chain)) {
@@ -1184,7 +1237,7 @@ var showModificationsAndContactsHelper = async function(entityid) {
     const selectColors = async() => {
         await sleep(5000)
         viewerInstance.visual.select({
-            data: mapSort1, 
+            data: mapSort1,
             nonSelectedColor: {r:255,g:255,b:255}
             }).catch(err => {
                 console.log(err);
@@ -1200,315 +1253,178 @@ var showModificationsAndContactsHelper = async function(entityid) {
     await selectColors()*/
 
     selectColors = async () => {
-        let success = false;   
+        let success = false;
         while (!success) {
-          try {
-            await sleep(2000)
-            await sleep(3 * vm.aa_properties.get("Shannon entropy").length)
-            await viewerInstance.visual.select({
-              data: mapSort1,
-              nonSelectedColor: { r: 255, g: 255, b: 255 },
-            });
-            await sleep(5000);
-            success = true;
-          } catch (err) {
-            console.log(err);
-          }
+            try {
+                await sleep(2000)
+                await sleep(3 * vm.aa_properties.get("Shannon entropy").length)
+                await viewerInstance.visual.select({
+                    data: mapSort1,
+                    nonSelectedColor: { r: 255, g: 255, b: 255 },
+                });
+                await sleep(5000);
+                success = true;
+            } catch (err) {
+                console.log(err);
+            }
         }
     };
     await selectColors();
-    if (vm.pchainid.length > 0){
+    if (vm.pchainid.length > 0) {
         showProteins3D()
     }
 }
-var recolorTopStar = function (name){
-    var selectBox = viewerInstanceTop.viewInstance.targetEle.querySelector('.mappingSelectbox');
-    var newIndex = indexMatchingText(selectBox.options, name);
-    //var selectedDomain = viewerInstanceTop.viewInstance.uiTemplateService.domainTypes[newIndex];
-    selectBox.selectedIndex = newIndex; 
-    //if(selectSections_RV1.get(name).length < 1600) {
-    /*
-        viewerInstance.visual.select({
-            data: selectSections_RV1.get(name), 
-            nonSelectedColor: {r:255,g:255,b:255}
-        }).catch(err => {
+// Coloring operations mapping
+const ColoringOperations = {
+    'Shannon entropy': 'shannonEntropy',
+    'TwinCons': 'twinCons',
+    'Custom Data': 'customData',
+    'Custom Data 2': 'customData2',
+    'Associated Data1': 'associatedData',
+    'Phase': 'phaseData',
+    'phase': 'phaseData',
+    'Helix': 'helixData',
+    'helix': 'helixData',
+    'AES': 'aesData',
+    'aes': 'aesData',
+    'highlight': 'highlighting'
+};
+
+// Every RiboVision colour theme (highlight-color-wrapper, shannon-entropy-wrapper,
+// helix-data-wrapper, ...) is registered as a `type: "static"` Mol* custom model
+// property, so Mol* runs its getData() once per model and caches the result on
+// model._staticPropertyData; later coloring calls reuse the cached value.
+// Those getData() implementations read window.maskedAnnotationArray, so a newly
+// applied mask would never reach the 3D view - which is why Focus and Hide
+// rendered identically, the first mask applied won. Reloading the structure used
+// to hide this by producing a fresh model; dropping the cached entries does the
+// same thing without a reload.
+var invalidateMolstarColorCache = function () {
+    if (!window.viewerInstance || !viewerInstance.plugin) { return; }
+    const hierarchy = viewerInstance.plugin.managers.structure.hierarchy.current;
+    if (!hierarchy || !hierarchy.structures) { return; }
+    hierarchy.structures.forEach(structureRef => {
+        const structure = structureRef.cell && structureRef.cell.obj ? structureRef.cell.obj.data : null;
+        if (!structure || !structure.models) { return; }
+        structure.models.forEach(model => {
+            const cache = model._staticPropertyData;
+            if (!cache) { return; }
+            Object.keys(cache).forEach(key => {
+                if (key.endsWith('-wrapper') || key.endsWith('-wrapper-2')) { delete cache[key]; }
+            });
+        });
+    });
+};
+
+// Refactored recolorTopStar function
+var recolorTopStar = async function (name) {
+    const selectBox = viewerInstanceTop.viewInstance.targetEle.querySelector('.mappingSelectbox');
+    const newIndex = indexMatchingText(selectBox.options, name);
+    selectBox.selectedIndex = newIndex;
+    if (!window.viewerInstance || !viewerInstance.plugin) {
+        viewerInstanceTop.viewInstance.uiTemplateService.colorMap();
+        return;
+    }
+    // While any range mask is applied, recolour the existing structure in place.
+    // Reloading it (performColoring below) would race with the mask and force a
+    // second plugin instance to be built for every property change.
+    const rangeFilterActive = !!window.appliedMaskMode;
+    if (rangeFilterActive) {
+        if (window.mask3DUpdatePromise) {
+            await window.mask3DUpdatePromise.catch(() => {});
+        }
+        try {
+            if (name === 'Select data' || name === 'Clear data') {
+                await viewerInstance.visual.clearSelection();
+                await viewerInstance.visual.reset({theme: true});
+            } else {
+                const coloringMethod = ColoringOperations[name];
+                if (coloringMethod) {
+                    await viewerInstance.visual.clearSelection();
+                    invalidateMolstarColorCache();
+                    // Recolouring to the same theme is a no-op state update, which
+                    // would skip recomputing the property we just invalidated.
+                    // Going through the default theme forces a real change.
+                    await viewerInstance.visual.reset({theme: true});
+                    await viewerInstance.coloring[coloringMethod]({sequence: true, het: false, keepStyle: true});
+                }
+            }
+        } catch (err) {
+            // Keep the 2D view in sync even if the structure is not ready to be
+            // recoloured; this runs from a Vue watcher, so a rejection here
+            // would otherwise escape as an unhandled promise rejection.
             console.log(err);
-            vm.$nextTick(function(){
-                viewerInstance.visual.select({
-                    data: selectSections_RV1.get(name), 
-                    nonSelectedColor: {r:255,g:255,b:255}
-                })
-            })
-        }) 
-        */
-    //}
-
-    if(name == "Shannon entropy") {
-        //viewerInstance.visual.clearSelection();
-        if(vm.customPDBsuccess) {
-            viewerInstance.visual.clearSelection();
-            viewerInstance.visual.reset({ theme: true })
-            viewerInstance.coloring.shannonEntropy({ sequence: true, het: false, keepStyle: true });
-        } /*else {
-        let wait = async () => {
-            vm.pchainid = []
-            vm.modifications = []
-            showPDBHelper(vm.pdbid, vm.chainid, vm.entityID)
-            await sleep (5000)
-            viewerInstance.coloring.shannonEntropy({ sequence: true, het: false, keepStyle: true });
         }
-        wait()*/
-            else {let wait = async () => {
-                //vm.pchainid = [];
-                //vm.modifications = [];
-                vm.selectAllProteinsChecked = false
-                vm.selectAllModifiedChecked = false
-                vm.selectedProteins = []
-                vm.selectedResidues = []
-                vm.pchainid = []
-                vm.modifications = []
-                async function tryColoring() {
-                    try {
-                        await viewerInstance.coloring.shannonEntropy({ sequence: true, het: false, keepStyle: true });
-                    } catch (error) {
-                        console.error("Structure not yet loaded, waiting to color");
-                        await sleep(6000);
-                        await tryColoring();
-                    }
-                }
-                await showPDBHelper(vm.pdbid, vm.chainid, vm.entityID);
-                await sleep(6000);
-                await tryColoring();
-            };
-            wait();
+        viewerInstanceTop.viewInstance.uiTemplateService.colorMap();
+        if (name === 'Select data') {
+            viewerInstanceTop.viewInstance.uiTemplateService.colorMapContacts();
+            viewerInstanceTop.viewInstance.uiTemplateService.colorMapModifications();
         }
-    }   else if(name == "TwinCons") {
-        if(vm.customPDBsuccess) {
-            viewerInstance.visual.clearSelection();
-            viewerInstance.visual.reset({ theme: true })
-            viewerInstance.coloring.twinCons({ sequence: true, het: false, keepStyle: true });
-        } else {let wait = async () => {
-            vm.selectAllProteinsChecked = false
-            vm.selectAllModifiedChecked = false
-            vm.selectedProteins = []
-            vm.selectedResidues = []
-            vm.pchainid = []
-            vm.modifications = []
-            async function tryColoring() {
-                try {
-                    await viewerInstance.coloring.twinCons({ sequence: true, het: false, keepStyle: true });
-                } catch (error) {
-                    console.error("Structure not yet loaded, waiting to color");
-                    await sleep(6000);
-                    await tryColoring();
-                }
-            }
-            await showPDBHelper(vm.pdbid, vm.chainid, vm.entityID);
-            await sleep(6000);
-            await tryColoring();
-        };
-        wait();
+        return;
     }
-    }    else if(name == "Custom Data") {
-            if(vm.customPDBsuccess) {
-                viewerInstance.visual.clearSelection();
-                viewerInstance.visual.reset({ theme: true })
-                viewerInstance.coloring.customData({ sequence: true, het: false, keepStyle: true });
-            } else {let wait = async () => {
-                vm.selectAllProteinsChecked = false
-                vm.selectAllModifiedChecked = false
-                vm.selectedProteins = []
-                vm.selectedResidues = []
-                vm.pchainid = []
-                vm.modifications = []
-                async function tryColoring() {
-                    try {
-                        await viewerInstance.coloring.customData({ sequence: true, het: false, keepStyle: true });
-                    } catch (error) {
-                        console.error("Structure not yet loaded, waiting to color");
-                        await sleep(6000);
-                        await tryColoring();
-                    }
-                }
-                await showPDBHelper(vm.pdbid, vm.chainid, vm.entityID);
-                await sleep(6000);
-                await tryColoring();
-            };
-            wait();
-        }
-    }  
-    else if(name == "Associated Data1") {
-        if(vm.customPDBsuccess) {
-            viewerInstance.visual.clearSelection();
-            viewerInstance.visual.reset({ theme: true })
-            viewerInstance.coloring.associatedData({ sequence: true, het: false, keepStyle: true });
-        } else {let wait = async () => {
-            vm.selectAllProteinsChecked = false
-            vm.selectAllModifiedChecked = false
-            vm.selectedProteins = []
-            vm.selectedResidues = []
-            vm.pchainid = []
-            vm.modifications = []
-            async function tryColoring() {
-                try {
-                    await viewerInstance.coloring.associatedData({ sequence: true, het: false, keepStyle: true });
-                } catch (error) {
-                    console.error("Structure not yet loaded, waiting to color");
-                    await sleep(6000);
-                    await tryColoring();
-                }
-            }
-            await showPDBHelper(vm.pdbid, vm.chainid, vm.entityID);
-            await sleep(6000);
-            await tryColoring();
-        };
-        wait();
-    }
-    } 
 
+    // Reset VM state for most operations
+    const resetVmState = () => {
+        vm.selectAllProteinsChecked = false;
+        vm.selectAllModifiedChecked = false;
+        vm.selectedProteins = [];
+        vm.selectedResidues = [];
+        vm.pchainid = [];
+        vm.modifications = [];
+    };
 
-    else if(name == "Phase" || name == "phase") {
-       
-        if(vm.customPDBsuccess) {
+    // Generic coloring function with retry logic
+    const performColoring = async (coloringMethod, useCustomPDB = vm.customPDBsuccess) => {
+        if (useCustomPDB) {
             viewerInstance.visual.clearSelection();
-            viewerInstance.visual.reset({ theme: true })
-            viewerInstance.coloring.phaseData({ sequence: true, het: false, keepStyle: true });
-        } else {let wait = async () => {
-            vm.selectAllProteinsChecked = false
-            vm.selectAllModifiedChecked = false
-            vm.selectedProteins = []
-            vm.selectedResidues = []
-            vm.pchainid = []
-            vm.modifications = []
-            async function tryColoring() {
-                try {
-                    await viewerInstance.coloring.phaseData({ sequence: true, het: false, keepStyle: true });
-                } catch (error) {
-                    console.error("Structure not yet loaded, waiting to color");
-                    await sleep(6000);
-                    await tryColoring();
-                }
-            }
-            await showPDBHelper(vm.pdbid, vm.chainid, vm.entityID);
-            await sleep(6000);
-            await tryColoring();
-        };
-        wait();
-    }
-    } 
-    else if(name == "Helix" || name == "helix") {
-        
-        if(vm.customPDBsuccess) {
-            viewerInstance.visual.clearSelection();
-            viewerInstance.visual.reset({ theme: true })
-            viewerInstance.coloring.helixData({ sequence: true, het: false, keepStyle: true });
-        } else {let wait = async () => {
-            vm.selectAllProteinsChecked = false
-            vm.selectAllModifiedChecked = false
-            vm.selectedProteins = []
-            vm.selectedResidues = []
-            vm.pchainid = []
-            vm.modifications = []
-            async function tryColoring() {
-                try {
-                    await viewerInstance.coloring.helixData({ sequence: true, het: false, keepStyle: true });
-                } catch (error) {
-                    console.error("Structure not yet loaded, waiting to color");
-                    await sleep(6000);
-                    await tryColoring();
-                }
-            }
-            await showPDBHelper(vm.pdbid, vm.chainid, vm.entityID);
-            await sleep(6000);
-            await tryColoring();
-        };
-        wait();
-    }
-    } 
-    else if(name == "AES" || name == "aes") {
-        
-        if(vm.customPDBsuccess) {
-            viewerInstance.visual.clearSelection();
-            viewerInstance.visual.reset({ theme: true })
-            viewerInstance.coloring.aesData({ sequence: true, het: false, keepStyle: true });
-        } else {let wait = async () => {
-            vm.selectAllProteinsChecked = false
-            vm.selectAllModifiedChecked = false
-            vm.selectedProteins = []
-            vm.selectedResidues = []
-            vm.pchainid = []
-            vm.modifications = []
-            async function tryColoring() {
-                try {
-                    await viewerInstance.coloring.aesData({ sequence: true, het: false, keepStyle: true });
-                } catch (error) {
-                    console.error("Structure not yet loaded, waiting to color");
-                    await sleep(6000);
-                    await tryColoring();
-                }
-            }
-            await showPDBHelper(vm.pdbid, vm.chainid, vm.entityID);
-            await sleep(6000);
-            await tryColoring();
-        };
-        wait();
-    }
-    } 
-    else if(name == "highlight") {
-        if(vm.customPDBsuccess) {
-            viewerInstance.visual.clearSelection();
-            viewerInstance.visual.reset({ theme: true })
-            viewerInstance.coloring.highlighting({ sequence: true, het: false, keepStyle: true });
-        } else {let wait = async () => {
-            vm.selectAllProteinsChecked = false
-            vm.selectAllModifiedChecked = false
-            vm.selectedProteins = []
-            vm.selectedResidues = []
-            vm.pchainid = []
-            vm.modifications = []
-            async function tryColoring() {
-                try {
-                    await viewerInstance.coloring.highlighting({ sequence: true, het: false, keepStyle: true });
-                } catch (error) {
-                    console.error("Structure not yet loaded, waiting to color");
-                    await sleep(6000);
-                    await tryColoring();
-                }
-            }
-            await showPDBHelper(vm.pdbid, vm.chainid, vm.entityID);
-            await sleep(6000);
-            await tryColoring();
-        };
-        wait();
-    }
-    } 
-    
-    
-    else if(name == "Select data") {
-        viewerInstance.visual.reset({ theme: true })
-    }   
-    else if(name == "Clear data") {
-        if(vm.customPDBsuccess) {
-            viewerInstance.visual.clearSelection();
-            viewerInstance.visual.reset({ theme: true })
+            viewerInstance.visual.reset({ theme: true });
+            await viewerInstance.coloring[coloringMethod]({ sequence: true, het: false, keepStyle: true });
         } else {
-        vm.checked_filter = false
-        vm.selectAllProteinsChecked = false
-        vm.selectAllModifiedChecked = false
-        vm.selectAllModifiedCustomChecked = false
-        vm.selectedProteins = []
-        vm.selectedResidues = []
-        vm.selectedResiduesCustom = []
-        vm.pchainid = []
-        vm.modifications = []
-        showPDBHelper(vm.pdbid, vm.chainid, vm.entityID)
+            resetVmState();
+            await showPDBHelper(vm.pdbid, vm.chainid, vm.entityID);
+            await sleep(CONFIG.STRUCTURE_LOAD_DELAY);
+
+            await Utils.retryAsync(async () => {
+                await viewerInstance.coloring[coloringMethod]({ sequence: true, het: false, keepStyle: true });
+            }, CONFIG.COLOR_RETRY_ATTEMPTS, CONFIG.STRUCTURE_LOAD_DELAY);
         }
-    }   
-    viewerInstanceTop.viewInstance.uiTemplateService.colorMap(); 
-    if(name == "Select data") {
-        viewerInstanceTop.viewInstance.uiTemplateService.colorMapContacts(); 
+    };
+
+    // Handle special cases
+
+    // Handle special cases
+    if (name === "Select data") {
+        viewerInstance.visual.reset({ theme: true });
+    } else if (name === "Clear data") {
+        if (vm.customPDBsuccess) {
+            viewerInstance.visual.clearSelection();
+            viewerInstance.visual.reset({ theme: true });
+        } else {
+            vm.checked_filter = false;
+            vm.selectAllProteinsChecked = false;
+            vm.selectAllModifiedChecked = false;
+            vm.selectAllModifiedCustomChecked = false;
+            vm.selectedProteins = [];
+            vm.selectedResidues = [];
+            vm.selectedResiduesCustom = [];
+            vm.pchainid = [];
+            vm.modifications = [];
+            showPDBHelper(vm.pdbid, vm.chainid, vm.entityID);
+        }
+    } else {
+        // Handle coloring operations using the mapping
+        const coloringMethod = ColoringOperations[name];
+        if (coloringMethod) {
+            await performColoring(coloringMethod);
+        }
+    }
+
+    // Update UI template service
+    viewerInstanceTop.viewInstance.uiTemplateService.colorMap();
+    if (name === "Select data") {
+        viewerInstanceTop.viewInstance.uiTemplateService.colorMapContacts();
         viewerInstanceTop.viewInstance.uiTemplateService.colorMapModifications();
-    }   
+    }
 }
 
 var masked_array = [];

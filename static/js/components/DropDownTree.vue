@@ -150,20 +150,30 @@
             </div>
             <div v-if="topology_loaded && !checkedRNA">
 
-                <div id="maskingSection">
-                    <p>
-                    <div class="checkbox">
-                        <label><input type="checkbox" v-model="checked_filter"
-                                v-on:change="cleanFilter(checked_filter, masking_range)">
-                            Highlight region</label>
+                <div id="maskingSection" style="margin-bottom: 4px;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <label style="margin: 0; white-space: nowrap;" title="Apply inclusive, semicolon-separated residue ranges such as 1-80;91-111;">
+                            <input type="checkbox" v-model="checked_filter"
+                                v-on:change="mask_apply_attempted = false; cleanFilter(checked_filter, masking_range)">
+                            Filter Ranges
+                        </label>
+                        <select id="maskModeSelect" class="btn btn-outline-dark dropdown-toggle" v-if="checked_filter"
+                                style="width: auto;" v-model="mask_mode">
+                            <option value="highlight">Highlight</option>
+                            <option value="focus">Focus</option>
+                            <option value="hide">Hide</option>
+                        </select>
                     </div>
-                    <span v-if="checked_filter"><b>Input multiple</b> residue ranges to <b>show</b>, separated by
-                        semicolon. <br> For example: 1-80;91-111;</span>
-                    <input class="input-group-text" v-if="checked_filter" v-model="masking_range"
-                        v-on:input="handleMaskingRanges(masking_range)">
-                    </p>
+                    <div v-if="checked_filter" style="display: flex; gap: 6px; margin-top: 4px;">
+                        <input class="input-group-text" v-model="masking_range"
+                            style="min-width: 0; flex: 1;" placeholder="1-80;91-111;"
+                            title="Inclusive ranges separated by semicolons" v-on:input="mask_apply_attempted = false"
+                            v-on:keyup.enter="handleMaskingRanges(masking_range)">
+                        <button class="btn btn-outline-dark" type="button"
+                            v-on:click="handleMaskingRanges(masking_range)">Apply</button>
+                    </div>
                 </div>
-                <p v-if="correct_mask != true && masking_range != null">Incorrect range syntax!</p>
+                <p v-if="checked_filter && mask_apply_attempted && correct_mask != true">Incorrect range syntax!</p>
 
 
                 <div id="customDataSection">
@@ -582,19 +592,10 @@ export default {
                 })
             }
             window.barColors = updatedBarColors;
-            var alnDiv = document.querySelector('#alnDiv');
             window.msaOptions.colorScheme = this.colorScheme;
-            this.aaPos = window.PVAlnViewer.state.aaPos;
-            this.seqPos = window.PVAlnViewer.state.seqPos;
-            ReactDOM.unmountComponentAtNode(alnDiv);
-            this.msavWillMount = null;
-            this.$nextTick(function () {
-                //const root = ReactDOM.createRoot(alnDiv)
-                //root.render(<AlnViewer ref={(PVAlnViewer) => {window.PVAlnViewer = PVAlnViewer}}/>)
-                ReactDOM.render(
-                    <AlnViewer ref={(PVAlnViewer) => { window.PVAlnViewer = PVAlnViewer }} />, alnDiv
-                );
-            });
+            if (window.PVAlnViewer && window.PVAlnViewer._isMounted) {
+                window.PVAlnViewer.setState({colorScheme: this.colorScheme});
+            }
             if (this.topology_loaded) {
                 recolorTopStar(name);
             }
@@ -910,8 +911,8 @@ export default {
                 this.chainid = [];
                 this.hide_chains = true;
                 // generateChainsFromLiteMol(`https://coords.litemol.org/${pdbid.toLowerCase()}/assembly?id=1&lowPrecisionCoords=1&encoding=BCIF`, "unfilteredChains");
-                generateChainsFromLiteMol(`https://models.rcsb.org/v1/${pdbid.toLowerCase()}/atoms?encoding=bcif`, "unfilteredChains");
-                ajax(`https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules/${pdbid.toLowerCase()}`).then(struc_data => {
+                generateChainsFromLiteMol(`/extapi/rcsb/model/${pdbid.toLowerCase()}?encoding=bcif`, "unfilteredChains");
+                ajax(`/extapi/pdbe/molecules/${pdbid.toLowerCase()}`).then(struc_data => {
                     if (vm.unfilteredChains) { return; }
                     vm.unfilteredChains = struc_data[pdbid.toLowerCase()];
                     vm.unfilteredChains_orig = struc_data[pdbid.toLowerCase()];
@@ -1054,7 +1055,7 @@ export default {
                 getStructMappingAndTWC(fasta, struc_id, startIndex, stopIndex, ebi_sequence, this);
             }
             loadAlignmentViewer(vm.fasta_data);
-            var rna_url = `https://www.ebi.ac.uk/pdbe/api/pdb/entry/polymer_coverage/${pdbid}/chain/${chainid}`
+            var rna_url = `/extapi/pdbe/polymer-coverage/${pdbid}/${chainid}`
             ajax(rna_url).then(data => {
                 if (vm.topology_loaded) { return; }
                 var entityid = data[pdblower]["molecules"][0].entity_id;
@@ -1195,6 +1196,7 @@ export default {
         }, cleanFilter(checked_filter, masking_range) {
             cleanFilter(checked_filter, masking_range);
         }, handleMaskingRanges(mask_range) {
+            this.mask_apply_attempted = true;
             handleMaskingRanges(mask_range);
         }, cleanSelection(checked_selection, filter_range) {
             cleanSelection(checked_selection, filter_range);
