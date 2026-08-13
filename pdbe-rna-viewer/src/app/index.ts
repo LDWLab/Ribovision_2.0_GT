@@ -81,9 +81,18 @@ class PdbRnaViewerPlugin {
                 if (r2dtjson && r2dtjson.RNA_2D_json && r2dtjson.RNA_BP_json) {
                     this.apiData = r2dtjson.RNA_2D_json as ApiData;
                     this.FR3DData = r2dtjson.RNA_BP_json as any;
-                    this.FR3DNestedData = r2dtjson.RNA_BP_json as any;
 
-                    this.FR3DNestedData.annotations = this.FR3DNestedData.annotations.filter((annotation:any) => Number(annotation.crossing) == 0);
+                    // FR3DNestedData must be a distinct object: assigning
+                    // `.annotations` on a shared reference would also replace it on
+                    // FR3DData, dropping every crossing != 0 pair from the main
+                    // view. That went unnoticed while base pairs came from
+                    // parse_cif4, which hardcodes crossing "0", but FR3D reports
+                    // real crossing numbers.
+                    this.FR3DNestedData = {
+                        ...(r2dtjson.RNA_BP_json as any),
+                        annotations: ((r2dtjson.RNA_BP_json as any).annotations ?? [])
+                            .filter((annotation: any) => Number(annotation.crossing) == 0),
+                    } as any;
                     // console.log(JSON.stringify(this.FR3DNestedData));
                     vm.FR3DData = this.FR3DData;
                     vm.FR3DNestedData = this.FR3DNestedData;

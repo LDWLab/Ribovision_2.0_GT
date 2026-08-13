@@ -31,8 +31,9 @@ function createBar({columnHeights, columnColors, tileWidth, height, fillColor,
         }else{
           var bgColor = columnColors[index]
         }
+        const columnHeight = Number(columnHeights[index]);
         otherProps.style = {
-          height: Math.round(columnHeights[index] * height),
+          height: Math.round((isFinite(columnHeight) ? columnHeight : 0) * height),
           width: tileWidth,
           display: "inline-block",
           textAlign: "center",
@@ -83,7 +84,8 @@ class HTMLOverviewBarComponent extends PureComponent {
     this.columnHeights = createSelector(
       p => p.sequences,
       p => p.method,
-      (sequences, method) => {
+      p => p.columnMap,
+      (sequences, method, columnMap) => {
       const stats = MSAStats(sequences.map(e => e.sequence));
       let result;
       switch (method) {
@@ -95,10 +97,13 @@ class HTMLOverviewBarComponent extends PureComponent {
           break;
         case "proteovision":
           var tempArr = [];
-          let maxEntr = window.aaPropertyConstants.get("Shannon entropy")[1];
-          let pvEntropy = vm.aa_properties.get("Shannon entropy");
-          pvEntropy.forEach(function(column){
-            tempArr.push((maxEntr - column.reduce((a, b) => a + b, 0))/maxEntr)
+          let entropyConstants = window.aaPropertyConstants.get("Shannon entropy") || [0, 1];
+          let maxEntr = Number(entropyConstants[1]) || 1;
+          let pvEntropy = vm.aa_properties.get("Shannon entropy") || [];
+          let positions = columnMap || pvEntropy.map(function(column, index) { return index; });
+          positions.forEach(function(position){
+            let column = pvEntropy[position];
+            tempArr.push(column ? (maxEntr - column.reduce((a, b) => a + b, 0))/maxEntr : 0)
           })
           result = tempArr;
           break;
@@ -112,8 +117,9 @@ class HTMLOverviewBarComponent extends PureComponent {
   //Change here like initializeColumnHeights when you pass the colors internally through the 
   //MSA viewer properties. Has to also be registered in mapStateToProps.
   initializeColumnColors() {
-    this.columnColors = function(){
-      return window.barColors;
+    this.columnColors = function(props){
+      const colors = window.barColors || [];
+      return props.columnMap ? props.columnMap.map(function(position) { return colors[position]; }) : colors;
     }.bind(this);
   }
 
@@ -125,6 +131,7 @@ class HTMLOverviewBarComponent extends PureComponent {
       dispatch,
       barStyle,
       barAttributes,
+      columnMap,
       ...otherProps} = this.props;
     return (
       <XBar
@@ -163,6 +170,8 @@ HTMLOverviewBarComponent.propTypes = {
    * Fill color of the OverviewBar, e.g. `#999999`
    */
   fillColor: PropTypes.string,
+
+  columnMap: PropTypes.arrayOf(PropTypes.number),
 
   /**
    * Inline styles to apply to the OverviewBar component
